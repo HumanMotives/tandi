@@ -1,51 +1,251 @@
-<!-- [Begin hoofddeel van pagina blijft hetzelfde tot aan de slider] -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Transients & Incantations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background: #DCEEDD;
+      font-family: 'Inter', sans-serif;
+      font-weight: 200;
+      color: #474350;
+      text-align: center;
+      padding: 20px;
+    }
 
-<div id="darkness-control">
-  <label for="darknessSlider">light/dark</label><br>
-  <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
-    <span style="font-size: 1.2em;">☀️</span>
-    <input type="range" id="darknessSlider" min="0" max="100" value="50">
-    <span style="font-size: 1.2em;">🌙</span>
+    .header {
+      max-width: 800px;
+      margin: 0 auto 20px;
+    }
+    .header img {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .tagline {
+      font-size: 1em;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .mode-options {
+      margin-bottom: 20px;
+    }
+    .mode-options label {
+      font-size: 1.1em;
+      margin: 0 15px;
+    }
+    input[type="radio"] {
+      accent-color: #474350;
+    }
+
+    #darkness-control {
+      margin: 30px 0 20px;
+    }
+
+    #darknessSlider {
+      width: 300px;
+    }
+
+    /* Custom slider styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 300px;
+      height: 6px;
+      background: #474350;
+      border-radius: 5px;
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #FECDAA;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #FECDAA;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+    input[type=range]::-ms-thumb {
+      width: 16px;
+      height: 16px;
+      background: #FECDAA;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+
+    #generateBtn {
+      background-color: #242524;
+      color: #f7fff4;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      margin: 10px 0;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    #generateBtn:hover {
+      background-color: #3a3b3a;
+    }
+
+    #idea-box {
+      background: #FCFFEB;
+      border-radius: 20px;
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 40px 20px;
+      width: 90%;
+      box-sizing: border-box;
+    }
+
+    #idea {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.3em;
+      line-height: 1.6;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      min-height: 3em;
+      margin-bottom: 20px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .actions button {
+      border: none;
+      border-radius: 5px;
+      padding: 10px 16px;
+      font-size: 1.2em;
+      cursor: pointer;
+    }
+
+    #shareBtn, #copyBtn {
+      background: #FECDAA;
+      color: #474350;
+    }
+
+    #shareBtn:hover, #copyBtn:hover {
+      background: #e0c29a;
+    }
+
+    @keyframes fadeInChars {
+      from { opacity: 0; transform: translateY(0.2em); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .char {
+      display: inline;
+      opacity: 0;
+      animation: fadeInChars .4s forwards;
+      margin-right: .05em;
+      color: #474350;
+    }
+
+    footer {
+      color: #474350;
+      max-width: 700px;
+      margin: 40px auto 0;
+      padding: 20px;
+      font-size: .8em;
+    }
+
+    footer a {
+      color: #474350;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <img src="./ti_logo.png" alt="Transients & Incantations logo">
+    <p class="tagline">Generative imaginations for electronic musicians who are bored</p>
   </div>
-  <div><span id="darknessLabel">50</span>% dark</div>
-</div>
 
-<style>
-  /* Slider styling: make it dark gray */
-  input[type=range] {
-    -webkit-appearance: none;
-    width: 300px;
-    height: 6px;
-    background: #474350;
-    border-radius: 5px;
-    outline: none;
-  }
+  <!-- Mode select -->
+  <div class="mode-options">
+    <label><input type="radio" name="mode" value="mystical" checked> Mystical</label>
+    <label><input type="radio" name="mode" value="normal"> Normal</label>
+  </div>
 
-  input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    background: #FECDAA;
-    border-radius: 50%;
-    cursor: pointer;
-    border: none;
-  }
+  <!-- Light/Dark slider -->
+  <div id="darkness-control">
+    <label for="darknessSlider">light/dark</label><br>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
+      <span style="font-size: 1.2em;">☀️</span>
+      <input type="range" id="darknessSlider" min="0" max="100" value="50">
+      <span style="font-size: 1.2em;">🌙</span>
+    </div>
+    <div><span id="darknessLabel">50</span>% dark</div>
+  </div>
 
-  input[type=range]::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    background: #FECDAA;
-    border-radius: 50%;
-    cursor: pointer;
-    border: none;
-  }
+  <!-- Generate -->
+  <button id="generateBtn">Generate Idea</button>
 
-  input[type=range]::-ms-thumb {
-    width: 16px;
-    height: 16px;
-    background: #FECDAA;
-    border-radius: 50%;
-    cursor: pointer;
-    border: none;
-  }
-</style>
+  <!-- Output -->
+  <div id="idea-box">
+    <div id="idea">Loading vocabulary…</div>
+    <div class="actions">
+      <button id="shareBtn" title="Download as Image">📷</button>
+      <button id="copyBtn" title="Copy to Clipboard">📋</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="donate-widget" style="margin-bottom:15px;">
+      <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
+      <script>
+        kofiwidget2.init('Support me on Ko-fi', '#242524', 'V7V01ICB2V');
+        kofiwidget2.draw();
+      </script>
+    </div>
+    Concept &amp; Design by Chris van der Linden. Licensed under
+    <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
+  </footer>
+
+  <!-- JS -->
+  <script>
+    let pool;
+
+    const templates = [
+      "As {subject} {verb}, {twist}.",
+      "{subject} {verb} {metaphor}, {twist}.",
+      "In the patchwork of {metaphor}, {subject} {verb}.",
+      "{subject} {verb}—{twist}.",
+      "{subject} {verb} {metaphor}.",
+      "Nothing remains but {subject} that {verb} {metaphor}.",
+      "{subject} begins again, {twist}.",
+      "{subject} {verb} not in time, but in resonance.",
+      "Each pulse {verb} {metaphor}, a memory in delay.",
+      "{subject} becomes {twist}."
+    ];
+
+    const pickWeighted = (entry, weight) => {
+      if (Array.isArray(entry)) return entry[Math.floor(Math.random() * entry.length)];
+      const light = entry.light || [];
+      const dark = entry.dark || [];
+      const pDark = weight / 100;
+      const fromDark = Math.random() < pDark;
+      const arr = fromDark ? dark : light;
+      return arr[Math.floor(Math.random() * arr.length)];
+    };
+
+    const generate = () => {
+      const t = templates[Math.floor(Math.random() * templates.length)];
+      const darkness = parseInt(document.getEle
