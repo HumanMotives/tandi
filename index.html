@@ -38,6 +38,7 @@
     .mode-options label {
       font-size: 1.1em;
       margin: 0 15px;
+      cursor: pointer;
     }
     input[type="radio"] {
       accent-color: #474350;
@@ -47,11 +48,6 @@
       margin: 30px 0 20px;
     }
 
-    #darknessSlider {
-      width: 300px;
-    }
-
-    /* Custom slider styling */
     input[type=range] {
       -webkit-appearance: none;
       width: 300px;
@@ -60,23 +56,8 @@
       border-radius: 5px;
       outline: none;
     }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
-      background: #FECDAA;
-      border-radius: 50%;
-      cursor: pointer;
-      border: none;
-    }
-    input[type=range]::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
-      background: #FECDAA;
-      border-radius: 50%;
-      cursor: pointer;
-      border: none;
-    }
+    input[type=range]::-webkit-slider-thumb,
+    input[type=range]::-moz-range-thumb,
     input[type=range]::-ms-thumb {
       width: 16px;
       height: 16px;
@@ -138,14 +119,8 @@
       background: #FECDAA;
       color: #474350;
     }
-
     #shareBtn:hover, #copyBtn:hover {
       background: #e0c29a;
-    }
-
-    @keyframes fadeInChars {
-      from { opacity: 0; transform: translateY(0.2em); }
-      to   { opacity: 1; transform: translateY(0); }
     }
 
     .char {
@@ -156,6 +131,11 @@
       color: #474350;
     }
 
+    @keyframes fadeInChars {
+      from { opacity: 0; transform: translateY(0.2em); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
     footer {
       color: #474350;
       max-width: 700px;
@@ -163,7 +143,6 @@
       padding: 20px;
       font-size: .8em;
     }
-
     footer a {
       color: #474350;
       text-decoration: underline;
@@ -177,13 +156,12 @@
     <p class="tagline">Generative imaginations for electronic musicians who are bored</p>
   </div>
 
-  <!-- Mode select -->
   <div class="mode-options">
     <label><input type="radio" name="mode" value="mystical" checked> Mystical</label>
-    <label><input type="radio" name="mode" value="normal"> Normal</label>
+    <label><input type="radio" name="mode" value="daw"> DAW</label>
+    <label><input type="radio" name="mode" value="modular"> Modular</label>
   </div>
 
-  <!-- Light/Dark slider -->
   <div id="darkness-control">
     <label for="darknessSlider">light/dark</label><br>
     <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
@@ -194,10 +172,8 @@
     <div><span id="darknessLabel">50</span>% dark</div>
   </div>
 
-  <!-- Generate -->
   <button id="generateBtn">Generate Idea</button>
 
-  <!-- Output -->
   <div id="idea-box">
     <div id="idea">Loading vocabulary…</div>
     <div class="actions">
@@ -206,7 +182,6 @@
     </div>
   </div>
 
-  <!-- Footer -->
   <footer>
     <div class="donate-widget" style="margin-bottom:15px;">
       <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
@@ -219,7 +194,6 @@
     <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
   </footer>
 
-  <!-- JS -->
   <script>
     let pool;
 
@@ -269,8 +243,10 @@
     };
 
     const loadPoolAndGenerate = mode => {
-      const file = mode === 'mystical' ? 'pool_mystical.json' : 'pool_normal.json';
-      const url = `${file}?t=${Date.now()}`; // cache-buster
+      const file = mode === 'mystical' ? 'pool_mystical.json'
+                  : mode === 'daw' ? 'pool_daw.json'
+                  : 'pool_modular.json';
+      const url = `${file}?t=${Date.now()}`;
       fetch(url)
         .then(res => res.ok ? res.json() : Promise.reject(`${file} not found`))
         .then(data => {
@@ -355,10 +331,8 @@
     };
 
     document.addEventListener("DOMContentLoaded", () => {
-  loadPoolAndGenerate('mystical');
-});
-
-    
+      loadPoolAndGenerate('mystical');
+    });
   </script>
 </body>
 </html>
