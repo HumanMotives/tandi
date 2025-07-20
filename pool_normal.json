@@ -1,1 +1,18 @@
-
+{
+  "subjects": {
+    "light": ["your synth", "your oscillator", "your audio"],
+    "dark": ["your sequencer", "a broken sequencer", "crushed modulation"]
+  },
+  "verbs": {
+    "light": ["dances with", "elevates", "awakens"],
+    "dark": ["reduces", "distorts", "inverts"]
+  },
+  "metaphors": {
+    "light": ["a lucid patch", "sun-kissed noise", "glasslike filters"],
+    "dark": ["corrupted loops", "grit and shadow", "fractal madness"]
+  },
+  "twists": {
+    "light": ["using slow modulation", "by a random lfo", "using automation"],
+    "dark": ["using filthy fm", "with distortion", "by bit-crushing"]
+  }
+}
