@@ -248,4 +248,117 @@
 
     const generate = () => {
       const t = templates[Math.floor(Math.random() * templates.length)];
-      const darkness = parseInt(document.getEle
+      const darkness = parseInt(document.getElementById('darknessSlider')?.value || '50');
+      return t
+        .replace('{subject}', pickWeighted(pool.subjects, darkness))
+        .replace('{verb}', pickWeighted(pool.verbs, darkness))
+        .replace('{metaphor}', pickWeighted(pool.metaphors, darkness))
+        .replace('{twist}', pickWeighted(pool.twists, darkness));
+    };
+
+    const animateText = txt => {
+      const box = document.getElementById('idea');
+      box.innerHTML = '';
+      [...txt].forEach((c, i) => {
+        const span = document.createElement('span');
+        span.textContent = c;
+        span.className = 'char';
+        span.style.animationDelay = (i * 20) + 'ms';
+        box.appendChild(span);
+      });
+    };
+
+    const loadPoolAndGenerate = mode => {
+      const file = mode === 'mystical' ? 'pool_mystical.json' : 'pool_normal.json';
+      const url = `${file}?t=${Date.now()}`; // cache-buster
+      fetch(url)
+        .then(res => res.ok ? res.json() : Promise.reject(`${file} not found`))
+        .then(data => {
+          pool = data;
+          animateText(generate());
+        })
+        .catch(e => {
+          document.getElementById('idea').innerText = '⚠️ ' + e;
+          console.error(e);
+        });
+    };
+
+    document.getElementById('generateBtn').onclick = () => {
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      loadPoolAndGenerate(mode);
+    };
+
+    document.getElementById('darknessSlider').addEventListener('input', () => {
+      document.getElementById('darknessLabel').textContent = document.getElementById('darknessSlider').value;
+    });
+
+    document.querySelectorAll('input[name="mode"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const selectedMode = document.querySelector('input[name="mode"]:checked').value;
+        loadPoolAndGenerate(selectedMode);
+      });
+    });
+
+    document.getElementById('copyBtn').onclick = () => {
+      const t = document.getElementById('idea').innerText;
+      navigator.clipboard.writeText(t).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '✅';
+        setTimeout(() => btn.textContent = '📋', 1200);
+      });
+    };
+
+    document.getElementById('shareBtn').onclick = () => {
+      const txt = document.getElementById('idea').innerText;
+      const canvas = document.createElement('canvas');
+      const W = 1080, H = 1080;
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#FCFFEB';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#474350';
+      ctx.font = '36px Courier New, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+
+      const words = txt.split(' ');
+      const lines = [];
+      let line = '';
+      words.forEach(w => {
+        const test = line + w + ' ';
+        if (ctx.measureText(test).width > W * 0.8) {
+          lines.push(line.trim());
+          line = w + ' ';
+        } else {
+          line = test;
+        }
+      });
+      if (line) lines.push(line.trim());
+
+      const lineHeight = 48;
+      let y = (H - lines.length * lineHeight) / 2;
+      lines.forEach(l => {
+        ctx.fillText(l, W / 2, y);
+        y += lineHeight;
+      });
+
+      const logo = new Image();
+      logo.src = './ti_logo.png';
+      logo.onload = () => {
+        ctx.drawImage(logo, W - 180, H - 180, 120, 120);
+        const a = document.createElement('a');
+        a.download = 'incantation.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      };
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+  loadPoolAndGenerate('mystical');
+});
+
+    
+  </script>
+</body>
+</html>
