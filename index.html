@@ -323,7 +323,7 @@
       const logo = new Image();
       logo.src = './ti_watermarklogo.png';
       logo.onload = () => {
-        ctx.drawImage(logo, W - 180, H - 180, 120, 120);
+        ctx.drawImage(logo, (W - 120) / 2, H - 160, 120, 120);
         const a = document.createElement('a');
         a.download = 'incantation.png';
         a.href = canvas.toDataURL('image/png');
