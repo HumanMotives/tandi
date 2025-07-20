@@ -10,7 +10,40 @@
     img.logo{max-width:200px;margin-bottom:40px;}
     .mode-options{margin-bottom:20px;}
     .mode-options label{font-size:1.1em;margin:0 10px;}
-    button{font-size:1em;padding:10px 20px;margin:10px;border:none;border-radius:5px;background:#242524;color:#f7fff4;cursor:pointer;}
+    
+  button {
+    /* default button styles (not used by these three) */
+  }
+
+  /* Generate button */
+  #generateBtn {
+    background-color: #242524;
+    color: #f7fff4;
+  }
+  #generateBtn:hover {
+    background-color: #3a3b3a;
+  }
+
+  /* Save Image (📷) button */
+  #shareBtn {
+    background-color: #FECDAA;
+    color: #474350;
+  }
+  #shareBtn:hover {
+    background-color: #e0c29a;
+  }
+
+  /* Copy to Clipboard (📋) button */
+  #copyBtn {
+    background-color: #474350;
+    color: #F8FFF4;
+  }
+  #copyBtn:hover {
+    background-color: #2e2d2f;
+  }
+
+
+    
     #idea-box{max-width:600px;margin:20px auto;position:relative;}
    #idea {
   font-size: 20px;
@@ -19,6 +52,7 @@
   word-wrap: break-word;
   hyphens: auto;
   /* …the rest of your existing styles… */
+     
 }
 
   /* NEW: allow wrapping only at spaces */
