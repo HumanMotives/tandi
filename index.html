@@ -17,16 +17,12 @@
     img.logo {
       max-width: 180px; margin-bottom: 20px;
     }
-    .mode-options {
-      margin-bottom: 20px;
-    }
+    .mode-options { margin-bottom: 20px; }
     .mode-options label {
-      font-size: 1.1em;
-      margin: 0 10px;
+      font-size: 1.1em; margin: 0 10px;
     }
     button {
-      font-size: 1em; padding: 10px 20px;
-      margin: 10px;
+      font-size: 1em; padding: 10px 20px; margin: 10px;
       border: none; border-radius: 5px;
       background: #FECDAA; color: #474350;
       cursor: pointer;
@@ -37,15 +33,11 @@
       position: relative;
     }
     #idea {
-      background: #FAFAC6;
-      border-radius: 8px;
-      padding: 1em; font-size: 1.2em;
-      line-height: 1.6;
+      background: #FAFAC6; border-radius: 8px;
+      padding: 1em; font-size: 1.2em; line-height: 1.6;
       min-height: 3em;
     }
-    #copyBtn, #shareBtn {
-      margin-top: 10px;
-    }
+    #shareBtn, #copyBtn { margin-top: 10px; }
     @keyframes fadeInChars {
       from { opacity: 0; transform: translateY(0.2em); }
       to   { opacity: 1; transform: translateY(0); }
@@ -64,7 +56,7 @@
 <body>
 
   <!-- Logo -->
-  <img src="ti_logo.png" class="logo" alt="Transients & Incantations logo">
+  <img src="./ti_logo.png" class="logo" alt="Transients & Incantations logo">
 
   <!-- Mode selector -->
   <div class="mode-options">
@@ -88,7 +80,7 @@
   <div style="margin-top:20px;">
     <form action="https://www.paypal.com/donate" method="post" target="_blank">
       <input type="hidden" name="hosted_button_id" value="YOUR_BUTTON_ID_HERE">
-      <input type="submit" value="Donate ❤️" style="background:#FECDAA;color:#474350;">
+      <input type="submit" value="Donate ❤️" style="background:#FECDAA;color:#474350;border:none;padding:10px 20px;border-radius:5px;">
     </form>
   </div>
 
@@ -98,114 +90,52 @@
     <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
   </footer>
 
-  <!-- Script -->
-<script>
-  let mysticalVocab;
-  // 1) Load the word-pool JSON
-  fetch('pool.json')
-    .then(r => r.json())
-    .then(data => {
-      mysticalVocab = data;
-      initGenerator();  // now that vocab is loaded, kick off everything
-    });
+  <!-- Script: load pool.json, then init everything -->
+  <script>
+    let mysticalVocab;
 
-  // 2) All your generator logic goes inside initGenerator()
-  function initGenerator() {
-    const templates = [
-      "As {subject} {verb}, {twist}.",
-      "{subject} {verb} {metaphor}, {twist}.",
-      /* … your 10 templates … */
-    ];
-    function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
-    function generateMystical() {
-      const t = pick(templates);
-      return t
-        .replace("{subject}", pick(mysticalVocab.subjects))
-        .replace("{verb}",    pick(mysticalVocab.verbs))
-        .replace("{metaphor}",pick(mysticalVocab.metaphors))
-        .replace("{twist}",   pick(mysticalVocab.twists));
-    }
-    // …the rest of your displayAnimatedText(), downloadImageFromIdea(), wiring up buttons …
-    // Just make sure any call to generateMystical() happens **after** initGenerator() runs.
-  }
-</script>
-
-
-  // pick & generate
-  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-  function generateMystical(){
-    const t = pick(mysticalVocab.templates);
-    return t.replace("{subject}", pick(mysticalVocab.subjects))
-            .replace("{verb}",    pick(mysticalVocab.verbs))
-            .replace("{metaphor}",pick(mysticalVocab.metaphors))
-            .replace("{twist}",   pick(mysticalVocab.twists));
-  }
-  function generateNormal(){
-    return "Normal mode under revision.";
-  }
-
-  // render with fade
-  function displayAnimatedText(txt){
-    const box = document.getElementById("idea");
-    box.innerHTML="";
-    [...txt].forEach((c,i)=>{
-      const s=document.createElement("span");
-      s.textContent=c; s.className="char";
-      s.style.animationDelay=(i*20)+"ms";
-      box.appendChild(s);
-    });
-  }
-
-  // download canvas image
-  function downloadImageFromIdea(){
-    const txt=document.getElementById("idea").innerText;
-    const c=document.createElement("canvas"),W=1080,H=1080;
-    c.width=W; c.height=H;
-    const ctx=c.getContext("2d");
-    ctx.fillStyle="#F8FFF4"; ctx.fillRect(0,0,W,H);
-    ctx.fillStyle="#474350";
-    ctx.font="36px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="top";
-    const words=txt.split(" "),lines=[],lh=48;
-    let ln="";
-    for(let w of words){
-      const t=ln+w+" ",tw=ctx.measureText(t).width;
-      if(tw>W*0.8){ lines.push(ln.trim()); ln=w+" "; }
-      else ln=t;
-    }
-    if(ln) lines.push(ln.trim());
-    let y=(H-lines.length*lh)/2;
-    lines.forEach(l=>{ctx.fillText(l,W/2,y); y+=lh;});
-    const logo=new Image(); logo.src="ti_logo.png";
-    logo.onload=()=>{
-      ctx.drawImage(logo,W-180,H-180,120,120);
-      const a=document.createElement("a");
-      a.download="incantation.png"; a.href=c.toDataURL();
-      a.click();
-    };
-  }
-
-  // init
-  document.addEventListener("DOMContentLoaded",()=>{
-    const gen=document.getElementById("generateBtn"),
-          share=document.getElementById("shareBtn"),
-          copy=document.getElementById("copyBtn");
-    // first load
-    displayAnimatedText(generateMystical());
-    // handlers
-    gen.addEventListener("click", ()=>{
-      const mode=document.querySelector('input[name="mode"]:checked').value;
-      displayAnimatedText(mode==="mystical"? generateMystical(): generateNormal());
-    });
-    share.addEventListener("click", downloadImageFromIdea);
-    copy.addEventListener("click", ()=>{
-      const t=document.getElementById("idea").innerText;
-      navigator.clipboard.writeText(t).then(()=>{
-        copy.textContent="✅";
-        setTimeout(()=>copy.textContent="📋",1200);
+    // 1️⃣ Load your external pool.json
+    fetch('pool.json')
+      .then(res => res.json())
+      .then(data => {
+        mysticalVocab = data;
+        initGenerator();    // now vocab is available
+      })
+      .catch(err => {
+        console.error('Failed to load pool.json', err);
+        document.getElementById('idea').innerText = 'Error loading vocabulary.';
       });
-    });
-  });
-  </script>
 
-</body>
-</html>
+    // 2️⃣ Initialization once vocab is ready
+    function initGenerator() {
+      const templates = [
+        "As {subject} {verb}, {twist}.",
+        "{subject} {verb} {metaphor}, {twist}.",
+        "In the patchwork of {metaphor}, {subject} {verb}.",
+        "{subject} {verb}—{twist}.",
+        "{subject} {verb} {metaphor}.",
+        "Nothing remains but {subject} that {verb} {metaphor}.",
+        "{subject} begins again, {twist}.",
+        "{subject} {verb} not in time, but in resonance.",
+        "Each pulse {verb} {metaphor}, a memory in delay.",
+        "{subject} becomes {twist}."
+      ];
+
+      function pick(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+
+      function generateMystical() {
+        const t = pick(templates);
+        return t
+          .replace('{subject}', pick(mysticalVocab.subjects))
+          .replace('{verb}',    pick(mysticalVocab.verbs))
+          .replace('{metaphor}',pick(mysticalVocab.metaphors))
+          .replace('{twist}',   pick(mysticalVocab.twists));
+      }
+
+      function generateNormal() {
+        return 'Normal mode under revision.';
+      }
+
+      // Animated
