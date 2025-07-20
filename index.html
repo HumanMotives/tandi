@@ -128,13 +128,11 @@
 
     /* Footer card */
     footer {
-      background: #ffffff;
       color: #474350;
       max-width: 700px;
       margin: 40px auto 0;
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       font-size: .8em;
     }
     footer a {
@@ -191,7 +189,19 @@
       .catch(e=>{document.getElementById('idea').innerText='⚠️ '+e; console.error(e)});
 
     function initApp(){
-      const templates=[ /* …your 10 templates… */ ];
+    const templates = [
+  "As {subject} {verb}, {twist}.",
+  "{subject} {verb} {metaphor}, {twist}.",
+  "In the patchwork of {metaphor}, {subject} {verb}.",
+  "{subject} {verb}—{twist}.",
+  "{subject} {verb} {metaphor}.",
+  "Nothing remains but {subject} that {verb} {metaphor}.",
+  "{subject} begins again, {twist}.",
+  "{subject} {verb} not in time, but in resonance.",
+  "Each pulse {verb} {metaphor}, a memory in delay.",
+  "{subject} becomes {twist}."
+];
+
       const pick=a=>a[Math.floor(Math.random()*a.length)];
       const genMyst=()=>{ let t=pick(templates);
         return t.replace('{subject}',pick(pool.subjects))
