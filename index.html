@@ -47,7 +47,7 @@
   let mysticalVocab;
 
   // 1) Fetch pool.json, then initialize
-  fetch('./pool.json')
+  fetch('/pool.json')
     .then(r => r.ok ? r.json() : Promise.reject('pool.json not found'))
     .then(data => {
       mysticalVocab = data;
