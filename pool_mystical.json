@@ -1,1 +1,18 @@
-
+{
+  "subjects": {
+    "light": ["the shimmer", "a sunrise synth", "gentle oscillation"],
+    "dark": ["the void", "a broken sequencer", "crushed modulation"]
+  },
+  "verbs": {
+    "light": ["dances with", "harmonizes", "awakens"],
+    "dark": ["collapses into", "distorts", "echoes through"]
+  },
+  "metaphors": {
+    "light": ["a lucid patch", "sun-kissed noise", "glasslike filters"],
+    "dark": ["corrupted loops", "grit and shadow", "fractal madness"]
+  },
+  "twists": {
+    "light": ["in perfect clarity", "like warm tape hiss", "at dawn"],
+    "dark": ["in perpetual decay", "as silence threatens", "at 3AM"]
+  }
+}
