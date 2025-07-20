@@ -81,6 +81,19 @@
       min-height: 3em;
       margin-bottom: 20px;
     }
+    
+/* Make the idea box and text responsive */
+#idea-box {
+  width: 90%;          /* on mobile, take up most of the screen */
+  max-width: 700px;    /* but never exceed desktop width */
+  box-sizing: border-box;
+}
+
+#idea {
+  white-space: normal !important;    /* allow normal wrapping */
+  word-break: break-word;            /* break long words if needed */
+  overflow-wrap: anywhere;           /* modern alias for break-word */
+}
 
     /* Action buttons inside idea box */
     .actions {
