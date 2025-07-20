@@ -8,8 +8,8 @@
   <style>
     
     body{margin:0;padding:20px;background:#F8FFF4;color:#474350;font-family:'Inter',sans-serif;font-weight:200;text-align:center;}
-    img.logo{max-width:200px;margin-bottom:10px;}
-    .mode-options{margin-bottom:0px;}
+    img.logo{max-width:200px;margin-bottom:40px;}
+    .mode-options{margin-bottom:40px;}
     .mode-options label{font-size:1.1em;margin:0 10px;}
     
   button {
@@ -25,23 +25,43 @@
     background-color: #3a3b3a;
   }
 
-  /* Save Image (📷) button */
-  #shareBtn {
-    background-color: #FECDAA;
-    color: #474350;
-  }
-  #shareBtn:hover {
-    background-color: #e0c29a;
-  }
+  /* SAVE IMAGE (📷) button */
+#shareBtn {
+  background-color: #FECDAA;
+  color: #474350;
 
-  /* Copy to Clipboard (📋) button */
-  #copyBtn {
-    background-color: #474350;
-    color: #F8FFF4;
-  }
-  #copyBtn:hover {
-    background-color: #2e2d2f;
-  }
+  /* re-apply your shared button sizing & corner style: */
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 1em;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 200;
+}
+#shareBtn:hover {
+  background-color: #e0c29a;
+}
+
+/* COPY TO CLIPBOARD (📋) button */
+#copyBtn {
+  background-color: #474350;
+  color: #F8FFF4;
+
+  /* same sizing & rounding */
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 1em;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 200;
+}
+#copyBtn:hover {
+  background-color: #2e2d2f;
+}
 
 
     
