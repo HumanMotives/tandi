@@ -2,14 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Transients &amp; Incantations</title>
+  <title>Transients & Incantations</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200&display=swap" rel="stylesheet">
   <style>
-    /* Page background */
     body {
       margin: 0;
-      background: #DCEEDD;       /* your solid background color */
+      background: #DCEEDD;
       font-family: 'Inter', sans-serif;
       font-weight: 200;
       color: #474350;
@@ -17,7 +16,6 @@
       padding: 20px;
     }
 
-    /* Header & Logo */
     .header {
       max-width: 800px;
       margin: 0 auto 20px;
@@ -34,7 +32,6 @@
       margin-bottom: 30px;
     }
 
-    /* Mode selector */
     .mode-options {
       margin-bottom: 20px;
     }
@@ -46,7 +43,13 @@
       accent-color: #474350;
     }
 
-    /* Generate button */
+    #darkness-control {
+      margin: 30px 0 20px;
+    }
+    #darknessSlider {
+      width: 300px;
+    }
+
     #generateBtn {
       background-color: #242524;
       color: #f7fff4;
@@ -61,41 +64,27 @@
       background-color: #3a3b3a;
     }
 
-    /* Idea box */
     #idea-box {
-      background: #FCFFEB;       /* light panel color */
+      background: #FCFFEB;
       border-radius: 20px;
       max-width: 700px;
       margin: 20px auto;
       padding: 40px 20px;
       position: relative;
+      width: 90%;
+      box-sizing: border-box;
     }
     #idea {
-      font-family: 'Courier New', Courier, monospace;  /* typewriter vibe */
+      font-family: 'Courier New', Courier, monospace;
       font-size: 1.3em;
       line-height: 1.6;
-      white-space: normal;
-      overflow-wrap: break-word;
-      word-wrap: break-word;
-      hyphens: auto;
+      white-space: normal !important;
+      word-break: break-word;
+      overflow-wrap: anywhere;
       min-height: 3em;
       margin-bottom: 20px;
     }
-    
-/* Make the idea box and text responsive */
-#idea-box {
-  width: 90%;          /* on mobile, take up most of the screen */
-  max-width: 700px;    /* but never exceed desktop width */
-  box-sizing: border-box;
-}
 
-#idea {
-  white-space: normal !important;    /* allow normal wrapping */
-  word-break: break-word;            /* break long words if needed */
-  overflow-wrap: anywhere;           /* modern alias for break-word */
-}
-
-    /* Action buttons inside idea box */
     .actions {
       display: flex;
       justify-content: center;
@@ -108,39 +97,28 @@
       font-size: 1.2em;
       cursor: pointer;
     }
-    /* Share button style */
-    #shareBtn {
+
+    #shareBtn, #copyBtn {
       background: #FECDAA;
       color: #474350;
     }
-    #shareBtn:hover {
-      background: #e0c29a;
-    }
-    /* Copy button style */
-    #copyBtn {
-      background: #FECDAA;
-      color: #F8FFF4;
-    }
-    #copyBtn:hover {
+    #shareBtn:hover, #copyBtn:hover {
       background: #e0c29a;
     }
 
-    /* Character fade animation */
     @keyframes fadeInChars {
       from { opacity: 0; transform: translateY(0.2em); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    
- .char {
-  display: inline;            /* allow letters to join words */
-  opacity: 0;
-  animation: fadeInChars .4s forwards;
-  margin-right: .05em;        /* small spacing */
-  color: #474350;
-}
 
+    .char {
+      display: inline;
+      opacity: 0;
+      animation: fadeInChars .4s forwards;
+      margin-right: .05em;
+      color: #474350;
+    }
 
-    /* Footer card */
     footer {
       color: #474350;
       max-width: 700px;
@@ -157,7 +135,7 @@
 </head>
 <body>
 
-  <!-- Header with wide logo -->
+  <!-- Header -->
   <div class="header">
     <img src="./ti_logo.png" alt="Transients & Incantations logo">
     <p class="tagline">Generative imaginations for electronic musicians who are bored</p>
@@ -167,6 +145,13 @@
   <div class="mode-options">
     <label><input type="radio" name="mode" value="mystical" checked> Mystical</label>
     <label><input type="radio" name="mode" value="normal"> Normal</label>
+  </div>
+
+  <!-- Light/Dark slider -->
+  <div id="darkness-control">
+    <label for="darknessSlider">Darkness</label><br>
+    <input type="range" id="darknessSlider" min="0" max="100" value="50">
+    <div><span id="darknessLabel">50</span>% dark</div>
   </div>
 
   <!-- Generate button -->
@@ -181,7 +166,7 @@
     </div>
   </div>
 
-  <!-- Footer with Ko-fi & License -->
+  <!-- Footer -->
   <footer>
     <div class="donate-widget" style="margin-bottom:15px;">
       <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
@@ -194,111 +179,139 @@
     <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
   </footer>
 
-  <!-- Generator script (unchanged) -->
+  <!-- Script -->
   <script>
     let pool;
-    fetch('/pool.json')
-      .then(r=>r.ok? r.json(): Promise.reject('pool.json not found'))
-      .then(data=>{pool=data; initApp()})
-      .catch(e=>{document.getElementById('idea').innerText='⚠️ '+e; console.error(e)});
 
-    function initApp(){
     const templates = [
-  "As {subject} {verb}, {twist}.",
-  "{subject} {verb} {metaphor}, {twist}.",
-  "In the patchwork of {metaphor}, {subject} {verb}.",
-  "{subject} {verb}—{twist}.",
-  "{subject} {verb} {metaphor}.",
-  "Nothing remains but {subject} that {verb} {metaphor}.",
-  "{subject} begins again, {twist}.",
-  "{subject} {verb} not in time, but in resonance.",
-  "Each pulse {verb} {metaphor}, a memory in delay.",
-  "{subject} becomes {twist}."
-];
+      "As {subject} {verb}, {twist}.",
+      "{subject} {verb} {metaphor}, {twist}.",
+      "In the patchwork of {metaphor}, {subject} {verb}.",
+      "{subject} {verb}—{twist}.",
+      "{subject} {verb} {metaphor}.",
+      "Nothing remains but {subject} that {verb} {metaphor}.",
+      "{subject} begins again, {twist}.",
+      "{subject} {verb} not in time, but in resonance.",
+      "Each pulse {verb} {metaphor}, a memory in delay.",
+      "{subject} becomes {twist}."
+    ];
 
-      const pick=a=>a[Math.floor(Math.random()*a.length)];
-      const genMyst=()=>{ let t=pick(templates);
-        return t.replace('{subject}',pick(pool.subjects))
-                .replace('{verb}',pick(pool.verbs))
-                .replace('{metaphor}',pick(pool.metaphors))
-                .replace('{twist}',pick(pool.twists));
-      };
-      const genNorm=()=> 'Normal mode under revision.';
-      const animateText=txt=>{
-        const box=document.getElementById('idea');
-        box.innerHTML='';
-        [...txt].forEach((c,i)=>{
-          let s=document.createElement('span');
-          s.textContent=c; s.className='char';
-          s.style.animationDelay=(i*20)+'ms';
-          box.appendChild(s);
+    const pickWeighted = (entry, weight) => {
+      if (Array.isArray(entry)) {
+        return entry[Math.floor(Math.random() * entry.length)];
+      }
+      const light = entry.light || [];
+      const dark = entry.dark || [];
+      const pDark = weight / 100;
+      const fromDark = Math.random() < pDark;
+      const arr = fromDark ? dark : light;
+      return arr[Math.floor(Math.random() * arr.length)];
+    };
+
+    const generate = () => {
+      const t = templates[Math.floor(Math.random() * templates.length)];
+      const darkness = parseInt(document.getElementById('darknessSlider')?.value || '50');
+      return t
+        .replace('{subject}', pickWeighted(pool.subjects, darkness))
+        .replace('{verb}', pickWeighted(pool.verbs, darkness))
+        .replace('{metaphor}', pickWeighted(pool.metaphors, darkness))
+        .replace('{twist}', pickWeighted(pool.twists, darkness));
+    };
+
+    const animateText = txt => {
+      const box = document.getElementById('idea');
+      box.innerHTML = '';
+      [...txt].forEach((c, i) => {
+        let s = document.createElement('span');
+        s.textContent = c;
+        s.className = 'char';
+        s.style.animationDelay = (i * 20) + 'ms';
+        box.appendChild(s);
+      });
+    };
+
+    const loadPoolAndGenerate = mode => {
+      const file = mode === 'mystical' ? 'pool_mystical.json' : 'pool_normal.json';
+      fetch(file)
+        .then(r => r.ok ? r.json() : Promise.reject(`${file} not found`))
+        .then(data => {
+          pool = data;
+          animateText(generate());
+        })
+        .catch(e => {
+          document.getElementById('idea').innerText = '⚠️ ' + e;
+          console.error(e);
         });
+    };
+
+    // Event bindings
+    document.getElementById('generateBtn').onclick = () => {
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      loadPoolAndGenerate(mode);
+    };
+
+    document.getElementById('darknessSlider').addEventListener('input', () => {
+      document.getElementById('darknessLabel').textContent = document.getElementById('darknessSlider').value;
+    });
+
+    document.getElementById('shareBtn').onclick = () => {
+      const txt = document.getElementById('idea').innerText;
+      const canvas = document.createElement('canvas');
+      const W = 1080, H = 1080;
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#FCFFEB';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#474350';
+      ctx.font = '36px Courier New, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+
+      const words = txt.split(' ');
+      const lines = [];
+      let line = '';
+      words.forEach(w => {
+        const test = line + w + ' ';
+        if (ctx.measureText(test).width > W * 0.8) {
+          lines.push(line.trim());
+          line = w + ' ';
+        } else {
+          line = test;
+        }
+      });
+      if (line) lines.push(line.trim());
+
+      const lineHeight = 48;
+      let y = (H - lines.length * lineHeight) / 2;
+      lines.forEach(l => {
+        ctx.fillText(l, W / 2, y);
+        y += lineHeight;
+      });
+
+      const logo = new Image();
+      logo.src = './ti_logo.png';
+      logo.onload = () => {
+        ctx.drawImage(logo, W - 180, H - 180, 120, 120);
+        const a = document.createElement('a');
+        a.download = 'incantation.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
       };
-     const downloadImage = () => {
-  const txt = document.getElementById('idea').innerText;
-  const canvas = document.createElement('canvas');
-  const W = 1080, H = 1080;
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext('2d');
+    };
 
-  // Background
-  ctx.fillStyle = '#FCFFEB';
-  ctx.fillRect(0, 0, W, H);
+    document.getElementById('copyBtn').onclick = () => {
+      let t = document.getElementById('idea').innerText;
+      navigator.clipboard.writeText(t).then(() => {
+        let b = document.getElementById('copyBtn');
+        b.textContent = '✅';
+        setTimeout(() => b.textContent = '📋', 1200);
+      });
+    };
 
-  // Text
-  ctx.fillStyle = '#474350';
-  ctx.font = '36px Courier New, monospace';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-
-  const words = txt.split(' ');
-  const lines = [];
-  let line = '';
-  words.forEach(w => {
-    const test = line + w + ' ';
-    if (ctx.measureText(test).width > W * 0.8) {
-      lines.push(line.trim());
-      line = w + ' ';
-    } else {
-      line = test;
-    }
-  });
-  if (line) lines.push(line.trim());
-
-  const lineHeight = 48;
-  let y = (H - lines.length * lineHeight) / 2;
-  lines.forEach(l => {
-    ctx.fillText(l, W / 2, y);
-    y += lineHeight;
-  });
-
-  // Logo watermark
-  const logo = new Image();
-  logo.src = './ti_logo.png';
-  logo.onload = () => {
-    ctx.drawImage(logo, W - 180, H - 180, 120, 120);
-    const a = document.createElement('a');
-    a.download = 'incantation.png';
-    a.href = canvas.toDataURL('image/png');
-    a.click();
-  };
-};
-
-      document.getElementById('generateBtn').onclick=_=>{
-        let m=document.querySelector('input[name="mode"]:checked').value;
-        animateText(m==='mystical'? genMyst(): genNorm());
-      };
-      document.getElementById('shareBtn').onclick=downloadImage;
-      document.getElementById('copyBtn').onclick=_=>{
-        let t=document.getElementById('idea').innerText;
-        navigator.clipboard.writeText(t).then(()=>{
-          let b=document.getElementById('copyBtn');
-          b.textContent='✅'; setTimeout(()=>b.textContent='📋',1200);
-        });
-      };
-      animateText(genMyst());
-    }
+    // Initial load
+    window.onload = () => loadPoolAndGenerate('mystical');
   </script>
 </body>
 </html>
