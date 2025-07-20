@@ -99,26 +99,37 @@
   </footer>
 
   <!-- Script -->
-  <script>
-  // —––––– Modular Mystical Engine (placeholder ~100 each) –––––—
-  const mysticalVocab = {
-    subjects: Array.from({length:100},(_,i)=>"subject"+i),
-    verbs:    Array.from({length:100},(_,i)=>"verb"+i),
-    metaphors:Array.from({length:100},(_,i)=>"metaphor"+i),
-    twists:   Array.from({length:100},(_,i)=>"twist"+i),
-    templates:[
+<script>
+  let mysticalVocab;
+  // 1) Load the word-pool JSON
+  fetch('pool.json')
+    .then(r => r.json())
+    .then(data => {
+      mysticalVocab = data;
+      initGenerator();  // now that vocab is loaded, kick off everything
+    });
+
+  // 2) All your generator logic goes inside initGenerator()
+  function initGenerator() {
+    const templates = [
       "As {subject} {verb}, {twist}.",
       "{subject} {verb} {metaphor}, {twist}.",
-      "In the patchwork of {metaphor}, {subject} {verb}.",
-      "{subject} {verb}—{twist}.",
-      "{subject} {verb} {metaphor}.",
-      "Nothing remains but {subject} that {verb} {metaphor}.",
-      "{subject} begins again, {twist}.",
-      "{subject} {verb} not in time, but in resonance.",
-      "Each pulse {verb} {metaphor}, a memory in delay.",
-      "{subject} becomes {twist}."
-    ]
-  };
+      /* … your 10 templates … */
+    ];
+    function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+    function generateMystical() {
+      const t = pick(templates);
+      return t
+        .replace("{subject}", pick(mysticalVocab.subjects))
+        .replace("{verb}",    pick(mysticalVocab.verbs))
+        .replace("{metaphor}",pick(mysticalVocab.metaphors))
+        .replace("{twist}",   pick(mysticalVocab.twists));
+    }
+    // …the rest of your displayAnimatedText(), downloadImageFromIdea(), wiring up buttons …
+    // Just make sure any call to generateMystical() happens **after** initGenerator() runs.
+  }
+</script>
+
 
   // pick & generate
   function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
