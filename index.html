@@ -130,14 +130,15 @@
       from { opacity: 0; transform: translateY(0.2em); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .char {
-      display: inline;
-      opacity: 0;
-      animation: fadeInChars .4s forwards;
-      margin-right: .05em;
-      white-space: pre;
-      color: #474350;
-    }
+    
+ .char {
+  display: inline;            /* allow letters to join words */
+  opacity: 0;
+  animation: fadeInChars .4s forwards;
+  margin-right: .05em;        /* small spacing */
+  color: #474350;
+}
+
 
     /* Footer card */
     footer {
@@ -233,9 +234,57 @@
           box.appendChild(s);
         });
       };
-      const downloadImage=()=>{
-        /* …your existing canvas+logo code… */
-      };
+     const downloadImage = () => {
+  const txt = document.getElementById('idea').innerText;
+  const canvas = document.createElement('canvas');
+  const W = 1080, H = 1080;
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = '#FCFFEB';
+  ctx.fillRect(0, 0, W, H);
+
+  // Text
+  ctx.fillStyle = '#474350';
+  ctx.font = '36px Courier New, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+
+  const words = txt.split(' ');
+  const lines = [];
+  let line = '';
+  words.forEach(w => {
+    const test = line + w + ' ';
+    if (ctx.measureText(test).width > W * 0.8) {
+      lines.push(line.trim());
+      line = w + ' ';
+    } else {
+      line = test;
+    }
+  });
+  if (line) lines.push(line.trim());
+
+  const lineHeight = 48;
+  let y = (H - lines.length * lineHeight) / 2;
+  lines.forEach(l => {
+    ctx.fillText(l, W / 2, y);
+    y += lineHeight;
+  });
+
+  // Logo watermark
+  const logo = new Image();
+  logo.src = './ti_logo.png';
+  logo.onload = () => {
+    ctx.drawImage(logo, W - 180, H - 180, 120, 120);
+    const a = document.createElement('a');
+    a.download = 'incantation.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  };
+};
+
       document.getElementById('generateBtn').onclick=_=>{
         let m=document.querySelector('input[name="mode"]:checked').value;
         animateText(m==='mystical'? genMyst(): genNorm());
