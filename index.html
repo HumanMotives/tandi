@@ -37,7 +37,23 @@
   color: #474350;
 }
 
-    footer{margin-top:30px;font-size:.8em;}
+    footer {
+  margin-top: 30px;
+  font-size: 0.8em;
+  background: #ffffff;               /* white background */
+  color: #474350;                    /* keep your brand text color */
+  padding: 20px;                     /* inner spacing */
+  border-radius: 8px;                /* rounded corners */
+  max-width: 600px;                  /* align with #idea-box width */
+  margin-left: auto;
+  margin-right: auto;                /* center horizontally */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+footer a {
+  color: #474350;                    /* link color */
+  text-decoration: underline;
+}
+
   </style>
 </head>
 <body>
@@ -61,14 +77,24 @@
   <!-- Actions -->
   <button id="shareBtn">📷</button>
   <button id="copyBtn">📋</button>
-
-  <!-- License & Donate -->
-  <div style="margin-top:20px;">
-    <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support me on Ko-fi', '#242524', 'V7V01ICB2V');kofiwidget2.draw();</script> 
-  </div>
+  
   <footer>
-    Concept & Design by Chris van der Linden. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>
-  </footer>
+  <!-- Ko-fi Donate Widget -->
+  <div class="donate-widget" style="margin-bottom:15px;">
+    <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
+    <script>
+      kofiwidget2.init('Support me on Ko-fi', '#242524', 'V7V01ICB2V');
+      kofiwidget2.draw();
+    </script>
+  </div>
+
+  <!-- License & Credit -->
+  <div>
+    Concept &amp; Design by Chris van der Linden. Licensed under
+    <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
+  </div>
+</footer>
+
 
   <!-- SCRIPT: load pool.json & init generator -->
   <script>
