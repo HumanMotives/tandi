@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Transients & Incantations</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200&display=swap" rel="stylesheet">
   <style>
     body {
@@ -39,6 +39,7 @@
       font-size: 1.1em;
       margin: 0 15px;
     }
+
     input[type="radio"] {
       accent-color: #474350;
     }
@@ -46,6 +47,7 @@
     #darkness-control {
       margin: 30px 0 20px;
     }
+
     #darknessSlider {
       width: 300px;
     }
@@ -70,15 +72,14 @@
       max-width: 700px;
       margin: 20px auto;
       padding: 40px 20px;
-      position: relative;
       width: 90%;
       box-sizing: border-box;
     }
+
     #idea {
       font-family: 'Courier New', Courier, monospace;
       font-size: 1.3em;
       line-height: 1.6;
-      white-space: normal !important;
       word-break: break-word;
       overflow-wrap: anywhere;
       min-height: 3em;
@@ -90,6 +91,7 @@
       justify-content: center;
       gap: 15px;
     }
+
     .actions button {
       border: none;
       border-radius: 5px;
@@ -102,6 +104,7 @@
       background: #FECDAA;
       color: #474350;
     }
+
     #shareBtn:hover, #copyBtn:hover {
       background: #e0c29a;
     }
@@ -124,9 +127,9 @@
       max-width: 700px;
       margin: 40px auto 0;
       padding: 20px;
-      border-radius: 8px;
       font-size: .8em;
     }
+
     footer a {
       color: #474350;
       text-decoration: underline;
@@ -135,29 +138,24 @@
 </head>
 <body>
 
-  <!-- Header -->
   <div class="header">
     <img src="./ti_logo.png" alt="Transients & Incantations logo">
     <p class="tagline">Generative imaginations for electronic musicians who are bored</p>
   </div>
 
-  <!-- Mode selector -->
   <div class="mode-options">
     <label><input type="radio" name="mode" value="mystical" checked> Mystical</label>
     <label><input type="radio" name="mode" value="normal"> Normal</label>
   </div>
 
-  <!-- Light/Dark slider -->
   <div id="darkness-control">
     <label for="darknessSlider">Darkness</label><br>
     <input type="range" id="darknessSlider" min="0" max="100" value="50">
     <div><span id="darknessLabel">50</span>% dark</div>
   </div>
 
-  <!-- Generate button -->
   <button id="generateBtn">Generate Idea</button>
 
-  <!-- Idea panel -->
   <div id="idea-box">
     <div id="idea">Loading vocabulary…</div>
     <div class="actions">
@@ -166,7 +164,6 @@
     </div>
   </div>
 
-  <!-- Footer -->
   <footer>
     <div class="donate-widget" style="margin-bottom:15px;">
       <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
@@ -179,7 +176,6 @@
     <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
   </footer>
 
-  <!-- Script -->
   <script>
     let pool;
 
@@ -197,9 +193,7 @@
     ];
 
     const pickWeighted = (entry, weight) => {
-      if (Array.isArray(entry)) {
-        return entry[Math.floor(Math.random() * entry.length)];
-      }
+      if (Array.isArray(entry)) return entry[Math.floor(Math.random() * entry.length)];
       const light = entry.light || [];
       const dark = entry.dark || [];
       const pDark = weight / 100;
@@ -222,18 +216,19 @@
       const box = document.getElementById('idea');
       box.innerHTML = '';
       [...txt].forEach((c, i) => {
-        let s = document.createElement('span');
-        s.textContent = c;
-        s.className = 'char';
-        s.style.animationDelay = (i * 20) + 'ms';
-        box.appendChild(s);
+        const span = document.createElement('span');
+        span.textContent = c;
+        span.className = 'char';
+        span.style.animationDelay = (i * 20) + 'ms';
+        box.appendChild(span);
       });
     };
 
     const loadPoolAndGenerate = mode => {
       const file = mode === 'mystical' ? 'pool_mystical.json' : 'pool_normal.json';
-      fetch(file)
-        .then(r => r.ok ? r.json() : Promise.reject(`${file} not found`))
+      const url = `${file}?t=${Date.now()}`; // cache-buster
+      fetch(url)
+        .then(res => res.ok ? res.json() : Promise.reject(`${file} not found`))
         .then(data => {
           pool = data;
           animateText(generate());
@@ -244,7 +239,6 @@
         });
     };
 
-    // Event bindings
     document.getElementById('generateBtn').onclick = () => {
       const mode = document.querySelector('input[name="mode"]:checked').value;
       loadPoolAndGenerate(mode);
@@ -254,6 +248,22 @@
       document.getElementById('darknessLabel').textContent = document.getElementById('darknessSlider').value;
     });
 
+    document.querySelectorAll('input[name="mode"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const selectedMode = document.querySelector('input[name="mode"]:checked').value;
+        loadPoolAndGenerate(selectedMode);
+      });
+    });
+
+    document.getElementById('copyBtn').onclick = () => {
+      const t = document.getElementById('idea').innerText;
+      navigator.clipboard.writeText(t).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '✅';
+        setTimeout(() => btn.textContent = '📋', 1200);
+      });
+    };
+
     document.getElementById('shareBtn').onclick = () => {
       const txt = document.getElementById('idea').innerText;
       const canvas = document.createElement('canvas');
@@ -261,7 +271,6 @@
       canvas.width = W;
       canvas.height = H;
       const ctx = canvas.getContext('2d');
-
       ctx.fillStyle = '#FCFFEB';
       ctx.fillRect(0, 0, W, H);
       ctx.fillStyle = '#474350';
@@ -299,15 +308,6 @@
         a.href = canvas.toDataURL('image/png');
         a.click();
       };
-    };
-
-    document.getElementById('copyBtn').onclick = () => {
-      let t = document.getElementById('idea').innerText;
-      navigator.clipboard.writeText(t).then(() => {
-        let b = document.getElementById('copyBtn');
-        b.textContent = '✅';
-        setTimeout(() => b.textContent = '📋', 1200);
-      });
     };
 
     // Initial load
