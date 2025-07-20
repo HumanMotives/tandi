@@ -1,1 +1,116 @@
-
+{
+  "subjects": {
+    "light": [
+      "a synced LFO",
+      "the precision clock",
+      "a clean sine VCO",
+      "CV-controlled delay",
+      "an attenuverted envelope",
+      "slew-limited rise",
+      "quantized sequence",
+      "the tuned filter",
+      "a smooth modulation path",
+      "an orderly patchbay",
+      "bipolar CV",
+      "a buffered mult",
+      "a locked BPM source",
+      "a gate pulse train",
+      "a calibrated oscillator"
+    ],
+    "dark": [
+      "unpatched cables",
+      "a wild feedback loop",
+      "the drifting VCO",
+      "chaotic cross-modulation",
+      "signal bleed",
+      "a clipped CV range",
+      "the endless drone",
+      "a broken patch note",
+      "overdriven input stages",
+      "DC offset madness",
+      "desynced clock division",
+      "the cursed attenuverter",
+      "undefined knob positions",
+      "no-input mixing ritual",
+      "uncontrolled slew"
+    ]
+  },
+  "verbs": {
+    "light": [
+      "syncs",
+      "controls",
+      "triggers",
+      "quantizes",
+      "attenuates",
+      "modulates",
+      "routes to",
+      "crossfades with",
+      "splits into",
+      "shapes"
+    ],
+    "dark": [
+      "detunes",
+      "feeds back into",
+      "overloads",
+      "distorts",
+      "collapses",
+      "drifts from",
+      "misfires into",
+      "warps",
+      "clips",
+      "scrambles"
+    ]
+  },
+  "metaphors": {
+    "light": [
+      "a controlled feedback arc",
+      "a perfect clock division",
+      "buffered clarity",
+      "a resonant path",
+      "lowpass calm",
+      "synchronized voltages",
+      "triangular serenity",
+      "a neat sequence chain",
+      "centered CV",
+      "harmony in modulation"
+    ],
+    "dark": [
+      "a modulation storm",
+      "glitched patch state",
+      "chaos routing",
+      "resonant collapse",
+      "CV bleed",
+      "voltage screams",
+      "brittle modulation trees",
+      "endless signal fold",
+      "attenuation death spiral",
+      "the drone void"
+    ]
+  },
+  "twists": {
+    "light": [
+      "at 1V/oct",
+      "with perfect tracking",
+      "under clock sync",
+      "in buffered mode",
+      "within controlled feedback",
+      "as expected CV",
+      "at 96PPQN",
+      "under fine-tuned glide",
+      "with active mixing",
+      "through normalled patching"
+    ],
+    "dark": [
+      "at unstable frequency",
+      "under clipped modulation",
+      "beyond VCA recovery",
+      "after phase failure",
+      "within patch cable chaos",
+      "when sync fails",
+      "during voltage bleed",
+      "through uncalibrated paths",
+      "beneath clock collapse",
+      "in the drone pit"
+    ]
+  }
+}
