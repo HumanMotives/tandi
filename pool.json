@@ -4,7 +4,7 @@
     "the modular",
     "a memory",
     "your breath",
-    "the pulse"
+    "the pulse",
     // … add more, but no comma after the last item …
   ],
   "verbs": [
@@ -12,20 +12,20 @@
     "sings",
     "unfolds",
     "vanishes",
-    "weeps"
+    "weeps",
   ],
   "metaphors": [
     "through spectral dust",
     "into forgotten rooms",
     "beneath the echo",
     "across a field of static",
-    "through dim corridors of thought"
+    "through dim corridors of thought",
   ],
   "twists": [
     "leaving behind only shimmer",
     "remembering nothing",
     "repeating without a source",
     "folding inward like breath",
-    "opening a doorway to stillness"
+    "opening a doorway to stillness",
   ]
 }
