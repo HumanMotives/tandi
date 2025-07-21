@@ -15,14 +15,8 @@
       padding: 0 1.5rem;
     }
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .intro {
-      font-style: italic;
-      color: #666;
+    .logo-container {
+      text-align: center;
       margin-bottom: 2rem;
     }
 
@@ -143,10 +137,10 @@
 </head>
 <body>
 
-  <img src="datagrave_sitelogo.png" alt="The Loop Grave Logo" style="max-width: 100%; margin-bottom: 2rem;">
+  <div class="logo-container">
+    <img src="datagrave_sitelogo.png" alt="The Loop Grave Logo" width="300" height="150">
+  </div>
 
-  <h1>The Loop Grave</h1>
-  <p class="intro">Lay your unfinished track to rest. It served you well.</p>
   <hr>
 
   <div class="upload-box" id="uploadBox" onclick="fileInput.click()">
