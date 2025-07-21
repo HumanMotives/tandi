@@ -179,8 +179,6 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', loadBurials);
-
     async function recordBurial(name, method, epitaph) {
       await supabase.from('burials').insert([
         {
@@ -191,5 +189,25 @@
         }
       ]);
     }
+
+    function showCeremony() {
+      // Example variables (replace these with actual values from your app logic)
+      const displayName = window.displayName || "Unknown Loop";
+      const selectedMethod = window.selectedMethod || "bury";
+      const epitaph = window.epitaph || "Gone but not rendered";
+
+      // ✅ Save to Supabase
+      recordBurial(displayName, selectedMethod, epitaph);
+
+      // existing ceremony logic (e.g., show tombstone)
+      const tombstone = document.querySelector('.tombstone');
+      if (tombstone) tombstone.classList.add('show');
+    }
+
+    document.addEventListener('DOMContentLoaded', loadBurials);
   </script>
 </head>
+<body>
+  <!-- Your body content goes here -->
+</body>
+</html>
