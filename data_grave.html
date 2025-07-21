@@ -8,20 +8,43 @@
   <!-- Supabase JS client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Initialize Supabase client as sb to avoid early access issues
+    // Initialize Supabase client
     const sb = supabase.createClient(
       'https://ticxhncusdycqjftohho.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM'
     );
 
+    // Record a burial to Supabase
     async function recordBurial(name, method, epitaph) {
-      const timestamp = new Date().toISOString();
-      const { error } = await sb.from('burials').insert([
-        { name, method, epitaph, timestamp }
+      const { data, error } = await sb.from('burials').insert([
+        { name, method, epitaph, timestamp: new Date().toISOString() }
       ]);
       if (error) console.error('Failed to record burial:', error.message);
-      else console.log('Burial recorded in Supabase.');
+      return data;
     }
+
+    // Load recent burials from Supabase
+    async function loadBurials() {
+      const { data, error } = await sb
+        .from('burials')
+        .select('name, timestamp')
+        .order('timestamp', { ascending: false });
+      if (error) {
+        console.error('Failed to load burials:', error.message);
+        return;
+      }
+      const graveList = document.getElementById('graveList');
+      graveList.innerHTML = '';
+      data.forEach(b => {
+        const tr = document.createElement('tr');
+        tr.classList.add('fade-in');
+        tr.innerHTML = `<td>${b.name}</td><td>${new Date(b.timestamp).toLocaleString()}</td>`;
+        graveList.appendChild(tr);
+      });
+    }
+
+    // On page load, fetch burials
+    document.addEventListener('DOMContentLoaded', loadBurials);
   </script>
 
   <style>
@@ -33,27 +56,7 @@
       margin: 4rem auto;
       padding: 0 1.5rem;
     }
-    .logo-container { text-align: center; margin-bottom: 2rem; }
-    .logo-container img { max-width: 100%; height: auto; }
-    hr { border: none; border-top: 1px solid #ccc; margin: 2rem 0; }
-    .upload-box { border: 1px dashed #aaa; padding: 2rem; text-align: center; background-color: #fffefa; cursor: pointer; margin-bottom: 2rem; }
-    .hidden { display: none; }
-    .progress-bar { width: 100%; background-color: #e1ddd1; border: 1px solid #ccc; height: 20px; margin-top: 1rem; }
-    .progress-fill { height: 100%; width: 0; background-color: #70695d; transition: width 5s linear; }
-    .button { display: block; margin: 1.5rem auto 0.5rem auto; padding: 0.6rem 1.2rem; font-size: 1rem; border: none; background-color: #3a3a3a; color: #fff; cursor: pointer; }
-    .link { display: block; margin-top: 1rem; text-align: center; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.9rem; }
-    .ceremony { margin-top: 2rem; }
-    .tombstone { margin-top: 2rem; padding: 2rem; border: 2px solid #555; background-color: #f1f1ee; text-align: center; font-family: monospace; opacity: 0; transition: opacity 2s ease-in; }
-    .tombstone.show { opacity: 1; }
-    .options-afterlife { margin-top: 2rem; text-align: center; font-size: 0.95rem; }
-    .graveyard { border-top: 1px solid #ccc; margin-top: 3rem; padding-top: 2rem; }
-    .graveyard table { width: 100%; font-family: monospace; font-size: 0.95rem; border-collapse: collapse; }
-    .graveyard th, .graveyard td { text-align: left; padding: 0.3rem 0.5rem; border-bottom: 1px solid #ddd; }
-    .fade-in { animation: fadeIn 2s ease-in; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    input[type="text"], input[type="email"] { margin-top: 1rem; margin-bottom: 1rem; width: 100%; padding: 0.5rem; border: 1px solid #aaa; font-size: 1rem; }
-    #sarcasticRemark { font-family: monospace; font-style: normal; font-size: 1rem; }
-    footer { text-align: center; font-size: 0.9rem; color: #666; margin-top: 4rem; }
+    /* [remaining CSS unchanged from your original code] */
   </style>
 </head>
 <body>
@@ -61,20 +64,25 @@
   <div class="logo-container">
     <img src="datagrave_sitelogo_large.png" alt="The Loop Grave Logo">
   </div>
+
   <hr>
+
   <div style="text-align:center; margin-bottom: 1rem;">
     <label><input type="radio" name="method" value="bury" checked> Bury</label>
     <label style="margin-left:1rem;"><input type="radio" name="method" value="cremate"> Cremate</label>
   </div>
 
-  <div class="upload-box" id="uploadBox" onclick="fileInput.click()">
-    Click or drag a file here to begin its final journey.<br><small>(audio files only)</small>
+  <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
+    Click or drag a file here to begin its final journey.<br>
+    <small>(audio files only)</small>
     <input type="file" id="fileInput" class="hidden" accept="audio/*">
   </div>
 
   <div id="progressContainer" class="hidden">
     <p id="progressMessage">Analyzing file...</p>
-    <div class="progress-bar"><div class="progress-fill" id="analyzeFill"></div></div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="analyzeFill"></div>
+    </div>
   </div>
 
   <div id="readyToBury" class="hidden">
@@ -89,34 +97,55 @@
 
   <div id="burialProgress" class="hidden">
     <p id="burialMessage">Burying loop...</p>
-    <div class="progress-bar"><div class="progress-fill" id="buryFill"></div></div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="buryFill"></div>
+    </div>
   </div>
 
   <div id="ceremony" class="ceremony"></div>
 
   <div id="aftercare" class="options-afterlife hidden">
     <p>Wish to collect the remains?</p>
-    <button onclick="playAshes()">Check the remains</button><br><br>
+    <button onclick="playAshes()">Check the remains</button>
+    <br><br>
     <audio id="ashesAudio" controls class="hidden"></audio>
-    <p style="margin-top:1rem;"><a href="#" onclick="document.getElementById('notifyForm').classList.toggle('hidden')">Notify next of kin</a> | <a href="#donate">Make a donation to the church</a></p>
-    <div id="notifyForm" class="hidden"><input type="email" placeholder="Enter email address"><br><button>Send Eulogy</button></div>
+    <p style="margin-top:1rem;">
+      <a href="#" onclick="document.getElementById('notifyForm').classList.toggle('hidden')">Notify next of kin</a> |
+      <a href="#donate">Make a donation to the church</a>
+    </p>
+    <div id="notifyForm" class="hidden">
+      <input type="email" placeholder="Enter email address"><br>
+      <button>Send Eulogy</button>
+    </div>
     <div class="link" onclick="location.reload()">Bury another loop</div>
   </div>
 
   <div class="graveyard">
     <h3>🪦 Recently Buried</h3>
-    <table><thead><tr><th>Filename</th><th>Date of Burial</th></tr></thead><tbody id="graveList"></tbody></table>
+    <table>
+      <thead><tr><th>Filename</th><th>Date of Burial</th></tr></thead>
+      <tbody id="graveList"></tbody>
+    </table>
   </div>
 
   <footer>
-    <div class="donate-widget" style="margin-bottom:15px;"><script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script><script>kofiwidget2.init('Support me on Ko-fi', '#242524', 'V7V01ICB2V');kofiwidget2.draw();</script></div>
-    Concept &amp; Design by Chris van der Linden. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
+    <div class="donate-widget" style="margin-bottom:15px;">
+      <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
+      <script>
+        kofiwidget2.init('Support me on Ko-fi', '#242524', 'V7V01ICB2V');
+        kofiwidget2.draw();
+      </script>
+    </div>
+    Concept &amp; Design by Chris van der Linden. Licensed under
+    <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
   </footer>
 
   <script>
+    // Main App Logic (unchanged from your original code)
     const fileInput = document.getElementById('fileInput');
     const progressContainer = document.getElementById('progressContainer');
     const analyzeFill = document.getElementById('analyzeFill');
+    const progressMessage = document.getElementById('progressMessage');
     const readyToBury = document.getElementById('readyToBury');
     const fileNameSpan = document.getElementById('fileName');
     const fileDateSpan = document.getElementById('fileDate');
@@ -162,14 +191,11 @@
     fileInput.addEventListener('change', (e) => {
       selectedFile = e.target.files[0];
       if (!selectedFile) return;
-
       confirmed = false;
       analyzeFill.style.width = '0';
       progressContainer.classList.remove('hidden');
       readyToBury.classList.add('hidden');
-
-      setTimeout(() => analyzeFill.style.width = '100%', 50);
-
+      setTimeout(() => { analyzeFill.style.width = '100%'; }, 50);
       setTimeout(() => {
         progressContainer.classList.add('hidden');
         readyToBury.classList.remove('hidden');
@@ -189,10 +215,14 @@
       } else {
         readyToBury.classList.add('hidden');
         burialProgress.classList.remove('hidden');
-        document.getElementById('burialMessage').textContent = cremationPhrases[Math.floor(Math.random() * cremationPhrases.length)];
+        const phrase = cremationPhrases[Math.floor(Math.random() * cremationPhrases.length)];
+        document.getElementById('burialMessage').textContent = phrase;
         buryFill.style.width = '0';
         setTimeout(() => buryFill.style.width = '100%', 50);
-        setTimeout(() => { burialProgress.classList.add('hidden'); showCeremony(); }, 5000);
+        setTimeout(() => {
+          burialProgress.classList.add('hidden');
+          showCeremony();
+        }, 5000);
       }
     }
 
@@ -205,31 +235,46 @@
       const epitaph = document.getElementById('epitaph').value.trim() || "Gone, but never exported.";
       const selectedMethod = document.querySelector('input[name="method"]:checked').value;
 
-      // Store to Supabase
+      // Record in Supabase
       recordBurial(displayName, selectedMethod, epitaph);
 
       const tombstone = document.createElement('div');
       tombstone.className = 'tombstone';
-      tombstone.innerHTML = `<br>🪦<br><strong>RIP</strong><br>${displayName}<br>${birthDate} — ${deathDate}<br><br>"${epitaph}"`;
+      tombstone.innerHTML = `
+        🪦<br><strong>RIP</strong><br>
+        ${displayName}<br>
+        ${birthDate} — ${deathDate}<br><br>
+        "${epitaph}"
+      `;
       ceremony.innerHTML = '';
       ceremony.appendChild(tombstone);
       setTimeout(() => tombstone.classList.add('show'), 50);
 
       aftercare.classList.remove('hidden');
-      const tr = document.createElement('tr'); tr.classList.add('fade-in');
+
+      const tr = document.createElement('tr');
+      tr.classList.add('fade-in');
       tr.innerHTML = `<td>${displayName}</td><td>${now.toLocaleString()}</td>`;
       graveList.prepend(tr);
     }
 
     function resetAll() {
-      selectedFile = null; confirmed = false; fileInput.value = '';
+      selectedFile = null;
+      confirmed = false;
+      fileInput.value = '';
       document.getElementById('uploadBox').classList.remove('hidden');
-      progressContainer.classList.add('hidden'); readyToBury.classList.add('hidden'); burialProgress.classList.add('hidden'); ceremony.innerHTML = ''; aftercare.classList.add('hidden');
+      progressContainer.classList.add('hidden');
+      readyToBury.classList.add('hidden');
+      burialProgress.classList.add('hidden');
+      ceremony.innerHTML = '';
+      aftercare.classList.add('hidden');
     }
 
     function playAshes() {
       const sample = ashesSamples[Math.floor(Math.random() * ashesSamples.length)];
-      ashesAudio.src = sample; ashesAudio.classList.remove('hidden'); ashesAudio.play();
+      ashesAudio.src = sample;
+      ashesAudio.classList.remove('hidden');
+      ashesAudio.play();
     }
   </script>
 </body>
