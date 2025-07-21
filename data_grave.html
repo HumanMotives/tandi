@@ -2,32 +2,130 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Transients & Incantations</title>
+  <title>The Loop Grave</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
+    /* Basic Styling - replace this later with your own aesthetic */
     body {
-      background-color: #f5f1e6;
-      font-family: 'Georgia', serif;
+      background-color: #f8f5ec;
+      font-family: serif;
       color: #333;
-      max-width: 700px;
-      margin: 4rem auto;
-      padding: 0 1.5rem;
-      text-align: center;
+      max-width: 800px;
+      margin: 3rem auto;
+      padding: 0 1rem;
     }
 
-    header {
-      margin-bottom: 3rem;
-    }
-
-    .logo {
+    h1 {
       font-size: 2.5rem;
-      font-weight: bold;
-      letter-spacing: 1px;
-      line-height: 1.2;
+      margin-bottom: 0.2rem;
     }
 
-    .tagline {
-      font-style: italic;
+    p.intro {
+      font-size: 1.2rem;
       color: #666;
-      font-size: 1
+      margin-bottom: 2rem;
+    }
+
+    .upload-section {
+      border: 1px dashed #aaa;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      cursor: pointer;
+    }
+
+    .upload-section input[type="file"] {
+      display: none;
+    }
+
+    .ceremony {
+      margin-bottom: 2rem;
+    }
+
+    .graveyard {
+      border-top: 1px solid #ccc;
+      padding-top: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .graveyard ul {
+      list-style: none;
+      padding-left: 0;
+      font-family: monospace;
+      font-size: 0.95rem;
+    }
+
+    .graveyard li {
+      margin-bottom: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>The Loop Grave</h1>
+  <p class="intro">
+    A resting place for unfinished music.  
+    Lay your loops to rest and honor their echo.
+  </p>
+
+  <div class="upload-section" onclick="document.getElementById('fileInput').click()">
+    Click or drop a file here to bury your loop.<br>
+    <small>(audio files only – no data is saved)</small>
+    <input type="file" id="fileInput" accept="audio/*">
+  </div>
+
+  <div class="ceremony" id="ceremony"></div>
+
+  <div class="graveyard">
+    <h3>🪦 Recently Buried</h3>
+    <ul id="graveList">
+      <!-- Entries appear here -->
+    </ul>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const ceremony = document.getElementById('ceremony');
+    const graveList = document.getElementById('graveList');
+
+    const eulogies = [
+      "You were nearly something.",
+      "Not every loop is meant to bloom.",
+      "Goodbye, noble rhythm.",
+      "You served your time in the grid.",
+      "Rest well, unnamed arpeggio.",
+      "Your fade-out is eternal.",
+      "No need for a drop, only peace.",
+      "Silence is your final mixdown."
+    ];
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const fileName = file.name;
+      const fileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      const eulogy = eulogies[Math.floor(Math.random() * eulogies.length)];
+
+      // Display a farewell ceremony
+      ceremony.innerHTML = `
+        <div>
+          <strong>⚰️ ${fileName}</strong><br>
+          Size: ${fileSize}<br><br>
+          <em>"${eulogy}"</em>
+        </div>
+      `;
+
+      // Add file name to recent graveyard
+      const li = document.createElement('li');
+      li.textContent = `• ${fileName}`;
+      graveList.prepend(li);
+
+      // Reset input so same file can be "reburied"
+      fileInput.value = '';
+    });
+  </script>
+
+</body>
+</html>
