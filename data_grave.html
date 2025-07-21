@@ -97,6 +97,12 @@
       opacity: 1;
     }
 
+    .options-afterlife {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
     .graveyard {
       border-top: 1px solid #ccc;
       margin-top: 3rem;
@@ -140,12 +146,6 @@
       font-size: 1rem;
     }
 
-    .options-afterlife {
-      margin-top: 2rem;
-      text-align: center;
-      font-size: 0.95rem;
-    }
-
     footer {
       text-align: center;
       font-size: 0.9rem;
@@ -167,15 +167,28 @@
     <label style="margin-left:1rem;"><input type="radio" name="method" value="cremate"> Cremate</label>
   </div>
 
-  <!-- Existing UI elements stay the same -->
-
-  <div class="upload-box" id="uploadBox" onclick="fileInput.click()">
+  <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
     Click or drag a file here to begin its final journey.<br>
     <small>(audio files only)</small>
     <input type="file" id="fileInput" class="hidden" accept="audio/*">
   </div>
 
-  <!-- Rest of the HTML continues unchanged... -->
+  <div id="progressContainer" class="hidden">
+    <p id="progressMessage">Analyzing file...</p>
+    <div class="progress-bar">
+      <div class="progress-fill" id="analyzeFill"></div>
+    </div>
+  </div>
+
+  <div id="ceremony" class="ceremony"></div>
+
+  <div class="graveyard">
+    <h3>🪦 Recently Buried</h3>
+    <table>
+      <thead><tr><th>Filename</th><th>Date of Burial</th></tr></thead>
+      <tbody id="graveList"></tbody>
+    </table>
+  </div>
 
   <footer>
     <div class="donate-widget" style="margin-bottom:15px;">
@@ -189,5 +202,94 @@
     <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
   </footer>
 
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const progressContainer = document.getElementById('progressContainer');
+    const analyzeFill = document.getElementById('analyzeFill');
+    const ceremony = document.getElementById('ceremony');
+    const graveList = document.getElementById('graveList');
+
+    const sarcasticRemarks = [
+      "We see why this one didn't make the cut...",
+      "Not the prettiest indeed.",
+      "Some loops die so others may live.",
+      "This one had... potential.",
+      "The DAW giveth, and the DAW taketh away."
+    ];
+
+    const eulogies = [
+      "You were nearly something.",
+      "Not every loop is meant to bloom.",
+      "Goodbye, noble rhythm.",
+      "You served your time in the grid.",
+      "Rest well, unnamed arpeggio.",
+      "Your fade-out is eternal.",
+      "No need for a drop, only peace."
+    ];
+
+    const ashesSamples = ["ashes1.mp3", "ashes2.mp3", "ashes3.mp3"];
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      progressContainer.classList.remove('hidden');
+      analyzeFill.style.width = '0';
+      setTimeout(() => analyzeFill.style.width = '100%', 50);
+
+      setTimeout(() => {
+        progressContainer.classList.add('hidden');
+        const method = document.querySelector('input[name="method"]:checked').value;
+        const fileName = file.name;
+        const truncatedName = fileName.length > 40 ? fileName.substring(0, 37) + '...' : fileName;
+        const birthDate = new Date(file.lastModified).toLocaleDateString();
+        const deathDate = new Date().toLocaleDateString();
+        const quote = eulogies[Math.floor(Math.random() * eulogies.length)];
+        const snark = sarcasticRemarks[Math.floor(Math.random() * sarcasticRemarks.length)];
+
+        const tombstone = document.createElement('div');
+        tombstone.className = 'tombstone';
+        tombstone.innerHTML = `
+          🪦<br><strong>RIP</strong><br>
+          ${truncatedName}<br>
+          ${birthDate} — ${deathDate}<br><br>
+          "${quote}"<br><br>
+          <em style="font-family:monospace">"${snark}"</em><br>
+          <div class="options-afterlife">
+            <p>Wish to collect the remains?</p>
+            <button onclick="playAshes()">Check the remains</button>
+            <br><br>
+            <audio id="ashesAudio" controls class="hidden"></audio>
+            <p style="margin-top:1rem;">
+              <a href="#" onclick="document.getElementById('notifyForm').classList.toggle('hidden')">Notify next of kin</a> |
+              <a href="#donate">Make a donation to the church</a>
+            </p>
+            <div id="notifyForm" class="hidden">
+              <input type="email" placeholder="Enter email address"><br>
+              <button>Send Eulogy</button>
+            </div>
+          </div>
+          <div class="link" onclick="location.reload()">Bury another loop</div>
+        `;
+
+        ceremony.innerHTML = '';
+        ceremony.appendChild(tombstone);
+        setTimeout(() => tombstone.classList.add('show'), 50);
+
+        const tr = document.createElement('tr');
+        tr.classList.add('fade-in');
+        tr.innerHTML = `<td>${truncatedName}</td><td>${new Date().toLocaleString()}</td>`;
+        graveList.prepend(tr);
+      }, 5000);
+    });
+
+    function playAshes() {
+      const audio = document.getElementById('ashesAudio');
+      const sample = ashesSamples[Math.floor(Math.random() * ashesSamples.length)];
+      audio.src = sample;
+      audio.classList.remove('hidden');
+      audio.play();
+    }
+  </script>
 </body>
 </html>
