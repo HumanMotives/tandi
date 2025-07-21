@@ -39,37 +39,37 @@
 
 <!-- REST OF YOUR SCRIPT AND HTML BODY CONTINUES -->
 
-    function showCeremony() {
-      const now = new Date();
-      const name = selectedFile.name;
-      const displayName = name.length > 40 ? name.substring(0, 37) + '...' : name;
-      const birthDate = new Date(selectedFile.lastModified).toLocaleDateString();
-      const deathDate = now.toLocaleDateString();
-      const epitaph = document.getElementById('epitaph').value.trim() || "Gone, but never exported.";
-      const selectedMethod = document.querySelector('input[name=\"method\"]:checked').value;
+function showCeremony() {
+  const now = new Date();
+  const name = selectedFile.name;
+  const displayName = name.length > 40 ? name.substring(0, 37) + '...' : name;
+  const birthDate = new Date(selectedFile.lastModified).toLocaleDateString();
+  const deathDate = now.toLocaleDateString();
+  const epitaph = document.getElementById('epitaph').value.trim() || "Gone, but never exported.";
+  const selectedMethod = document.querySelector('input[name="method"]:checked').value;
 
-      // ✅ Store in Supabase
-      recordBurial(displayName, selectedMethod, epitaph);
+  // ✅ Store in Supabase
+  recordBurial(displayName, selectedMethod, epitaph);
 
-      const tombstone = document.createElement('div');
-      tombstone.className = 'tombstone';
-      tombstone.innerHTML = `
-        🪦<br><strong>RIP</strong><br>
-        ${displayName}<br>
-        ${birthDate} — ${deathDate}<br><br>
-        "${epitaph}"
-      `;
-      ceremony.innerHTML = '';
-      ceremony.appendChild(tombstone);
-      setTimeout(() => tombstone.classList.add('show'), 50);
+  const tombstone = document.createElement('div');
+  tombstone.className = 'tombstone';
+  tombstone.innerHTML = `
+    🪦<br><strong>RIP</strong><br>
+    ${displayName}<br>
+    ${birthDate} — ${deathDate}<br><br>
+    "${epitaph}"
+  `;
+  ceremony.innerHTML = '';
+  ceremony.appendChild(tombstone);
+  setTimeout(() => tombstone.classList.add('show'), 50);
 
-      aftercare.classList.remove('hidden');
+  aftercare.classList.remove('hidden');
 
-      const tr = document.createElement('tr');
-      tr.classList.add('fade-in');
-      tr.innerHTML = `<td>${displayName}</td><td>${now.toLocaleString()}</td>`;
-      graveList.prepend(tr);
-    }
+  const tr = document.createElement('tr');
+  tr.classList.add('fade-in');
+  tr.innerHTML = `<td>${displayName}</td><td>${now.toLocaleString()}</td>`;
+  graveList.prepend(tr);
+}
 
 <!-- END OF SCRIPT -->
 
