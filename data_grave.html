@@ -132,9 +132,18 @@
       border: 1px solid #aaa;
       font-size: 1rem;
     }
+
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 4rem;
+    }
   </style>
 </head>
 <body>
+
+  <img src="datagrave_sitelogo.png" alt="The Loop Grave Logo" style="max-width: 100%; margin-bottom: 2rem;">
 
   <h1>The Loop Grave</h1>
   <p class="intro">Lay your unfinished track to rest. It served you well.</p>
@@ -180,108 +189,17 @@
     </table>
   </div>
 
-  <script>
-    const fileInput = document.getElementById('fileInput');
-    const uploadBox = document.getElementById('uploadBox');
-    const progressContainer = document.getElementById('progressContainer');
-    const analyzeFill = document.getElementById('analyzeFill');
-    const readyToBury = document.getElementById('readyToBury');
-    const burialProgress = document.getElementById('burialProgress');
-    const buryFill = document.getElementById('buryFill');
-    const fileNameSpan = document.getElementById('fileName');
-    const fileDateSpan = document.getElementById('fileDate');
-    const epitaphInput = document.getElementById('epitaph');
-    const ceremony = document.getElementById('ceremony');
-    const graveList = document.getElementById('graveList');
-    const sarcasticRemark = document.getElementById('sarcasticRemark');
-
-    let selectedFile = null;
-
-    const eulogies = [
-      "You were nearly something.",
-      "Not every loop is meant to bloom.",
-      "Goodbye, noble rhythm.",
-      "You served your time in the grid.",
-      "Rest well, unnamed arpeggio.",
-      "Your fade-out is eternal.",
-      "No need for a drop, only peace."
-    ];
-
-    const sarcasticRemarks = [
-      "We see why this one didn't make the cut...",
-      "Not the prettiest indeed.",
-      "Some loops die so others may live.",
-      "This one had... potential.",
-      "The DAW giveth, and the DAW taketh away."
-    ];
-
-    fileInput.addEventListener('change', (e) => {
-      selectedFile = e.target.files[0];
-      if (!selectedFile) return;
-
-      uploadBox.classList.add('hidden');
-      progressContainer.classList.remove('hidden');
-      analyzeFill.style.width = '0';
-
-      setTimeout(() => analyzeFill.style.width = '100%', 50);
-
-      setTimeout(() => {
-        progressContainer.classList.add('hidden');
-        readyToBury.classList.remove('hidden');
-        fileNameSpan.textContent = selectedFile.name;
-        fileDateSpan.textContent = new Date(selectedFile.lastModified).toLocaleDateString();
-        sarcasticRemark.textContent = sarcasticRemarks[Math.floor(Math.random() * sarcasticRemarks.length)];
-        epitaphInput.value = eulogies[Math.floor(Math.random() * eulogies.length)];
-      }, 5000);
-    });
-
-    function resetAll() {
-      selectedFile = null;
-      fileInput.value = '';
-      uploadBox.classList.remove('hidden');
-      progressContainer.classList.add('hidden');
-      readyToBury.classList.add('hidden');
-      burialProgress.classList.add('hidden');
-      ceremony.innerHTML = '';
-    }
-
-    function buryFile() {
-      readyToBury.classList.add('hidden');
-      burialProgress.classList.remove('hidden');
-      buryFill.style.width = '0';
-      setTimeout(() => buryFill.style.width = '100%', 50);
-      setTimeout(() => {
-        burialProgress.classList.add('hidden');
-        showCeremony();
-      }, 5000);
-    }
-
-    function showCeremony() {
-      const now = new Date();
-      const name = selectedFile.name;
-      const birthDate = new Date(selectedFile.lastModified).toLocaleDateString();
-      const deathDate = now.toLocaleDateString();
-      const epitaph = epitaphInput.value.trim() || "Gone, but never exported.";
-
-      const tombstone = document.createElement('div');
-      tombstone.className = 'tombstone';
-      tombstone.innerHTML = `
-        🪦<br>
-        <strong>RIP</strong><br>
-        ${name}<br>
-        ${birthDate} — ${deathDate}<br><br>
-        "${epitaph}"
-      `;
-      ceremony.innerHTML = '';
-      ceremony.appendChild(tombstone);
-      setTimeout(() => tombstone.classList.add('show'), 50);
-
-      const tr = document.createElement('tr');
-      tr.classList.add('fade-in');
-      tr.innerHTML = `<td>${name}</td><td>${now.toLocaleString()}</td>`;
-      graveList.prepend(tr);
-    }
-  </script>
+  <footer>
+    <div class="donate-widget" style="margin-bottom:15px;">
+      <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
+      <script>
+        kofiwidget2.init('Support me on Ko-fi', '#242524', 'V7V01ICB2V');
+        kofiwidget2.draw();
+      </script>
+    </div>
+    Concept &amp; Design by Chris van der Linden. Licensed under
+    <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
+  </footer>
 
 </body>
 </html>
