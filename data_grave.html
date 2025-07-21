@@ -82,7 +82,7 @@
 <body>
 
   <div class="logo-container">
-    <img src="datagrave_sitelogo_large.png" alt="The Loop Grave Logo">
+    <img src="datagrave_sitelogo_large.png" alt="The Data Grave Logo">
   </div>
 
   <hr>
@@ -93,7 +93,7 @@
   </div>
 
   <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
-    Click or drag a file here to begin its final journey.<br>
+    Upload or drag a file here<br>
     <small>(audio files only)</small>
     <input type="file" id="fileInput" class="hidden" accept="audio/*">
   </div>
@@ -191,22 +191,25 @@
     ];
 
     const eulogies = [
-      "You were nearly something.",
+      "As Above So Below.",
       "Not every loop is meant to bloom.",
-      "Goodbye, noble rhythm.",
-      "You served your time in the grid.",
-      "Rest well, unnamed arpeggio.",
-      "Your fade-out is eternal.",
-      "No need for a drop, only peace."
+      "Never Stuck In A Loop Again.",
+      "Its Better This Way.",
+      "Rest well, dear loop.",
+      "Fade Out Forever",
+      "Sick Drop. Dead."
     ];
 
     const cremationPhrases = [
       "Performing last rites...",
       "Firing up the data-cremation furnace...",
+      "Bringing you peace of mind
+      "Approaching the Gates of Loop Heaven...",
+      "Disintegrating Your Abominable Frequencies...",
       "Gathering audio ashes..."
     ];
 
-    const ashesSamples = ["ashes1.mp3", "ashes2.mp3", "ashes3.mp3"];
+    const ashesSamples = ["ashes1.mp3"];
 
     fileInput.addEventListener('change', (e) => {
       selectedFile = e.target.files[0];
