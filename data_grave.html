@@ -153,61 +153,225 @@
       margin-top: 4rem;
     }
   </style>
+</head>
+<body>
 
-  <!-- ✅ Supabase CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <div class="logo-container">
+    <img src="datagrave_sitelogo_large.png" alt="The Loop Grave Logo">
+  </div>
+
+  <hr>
+
+  <div style="text-align:center; margin-bottom: 1rem;">
+    <label><input type="radio" name="method" value="bury" checked> Bury</label>
+    <label style="margin-left:1rem;"><input type="radio" name="method" value="cremate"> Cremate</label>
+  </div>
+
+  <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
+    Click or drag a file here to begin its final journey.<br>
+    <small>(audio files only)</small>
+    <input type="file" id="fileInput" class="hidden" accept="audio/*">
+  </div>
+
+  <div id="progressContainer" class="hidden">
+    <p id="progressMessage">Analyzing file...</p>
+    <div class="progress-bar">
+      <div class="progress-fill" id="analyzeFill"></div>
+    </div>
+  </div>
+
+  <div id="readyToBury" class="hidden">
+    <p id="sarcasticRemark"></p>
+    <p><strong>⚰️ <span id="fileName"></span></strong></p>
+    <p><small>Date of birth: <span id="fileDate"></span></small></p>
+    <label for="epitaph">Wish to write something on the gravestone?</label>
+    <input type="text" id="epitaph" maxlength="100">
+    <button class="button" id="buryBtn" onclick="confirmOrBuryFile(this)">Bury this File?</button>
+    <div id="cancelLink" class="link hidden" onclick="resetAll()">I've changed my mind</div>
+  </div>
+
+  <div id="burialProgress" class="hidden">
+    <p id="burialMessage">Burying loop...</p>
+    <div class="progress-bar">
+      <div class="progress-fill" id="buryFill"></div>
+    </div>
+  </div>
+
+  <div id="ceremony" class="ceremony"></div>
+
+  <div id="aftercare" class="options-afterlife hidden">
+    <p>Wish to collect the remains?</p>
+    <button onclick="playAshes()">Check the remains</button>
+    <br><br>
+    <audio id="ashesAudio" controls class="hidden"></audio>
+    <p style="margin-top:1rem;">
+      <a href="#" onclick="document.getElementById('notifyForm').classList.toggle('hidden')">Notify next of kin</a> |
+      <a href="#donate">Make a donation to the church</a>
+    </p>
+    <div id="notifyForm" class="hidden">
+      <input type="email" placeholder="Enter email address"><br>
+      <button>Send Eulogy</button>
+    </div>
+    <div class="link" onclick="location.reload()">Bury another loop</div>
+  </div>
+
+  <div class="graveyard">
+    <h3>🪦 Recently Buried</h3>
+    <table>
+      <thead><tr><th>Filename</th><th>Date of Burial</th></tr></thead>
+      <tbody id="graveList"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <div class="donate-widget" style="margin-bottom:15px;">
+      <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
+      <script>
+        kofiwidget2.init('Support me on Ko-fi', '#242524', 'V7V01ICB2V');
+        kofiwidget2.draw();
+      </script>
+    </div>
+    Concept &amp; Design by Chris van der Linden. Licensed under
+    <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
+  </footer>
+
   <script>
-    const supabase = supabase.createClient(
-      'https://ticxhncusdycqjftohho.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM'
-    );
+    const fileInput = document.getElementById('fileInput');
+    const progressContainer = document.getElementById('progressContainer');
+    const analyzeFill = document.getElementById('analyzeFill');
+    const progressMessage = document.getElementById('progressMessage');
+    const readyToBury = document.getElementById('readyToBury');
+    const fileNameSpan = document.getElementById('fileName');
+    const fileDateSpan = document.getElementById('fileDate');
+    const sarcasticRemark = document.getElementById('sarcasticRemark');
+    const buryBtn = document.getElementById('buryBtn');
+    const cancelLink = document.getElementById('cancelLink');
+    const burialProgress = document.getElementById('burialProgress');
+    const buryFill = document.getElementById('buryFill');
+    const ceremony = document.getElementById('ceremony');
+    const aftercare = document.getElementById('aftercare');
+    const ashesAudio = document.getElementById('ashesAudio');
+    const graveList = document.getElementById('graveList');
 
-    async function loadBurials() {
-      const { data, error } = await supabase
-        .from('burials')
-        .select('*')
-        .order('timestamp', { ascending: false });
+    let selectedFile = null;
+    let confirmed = false;
 
-      if (data) {
-        const graveList = document.getElementById('graveList');
-        data.forEach(b => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${b.name}</td><td>${new Date(b.timestamp).toLocaleString()}</td>`;
-          tr.classList.add('fade-in');
-          graveList.appendChild(tr);
-        });
+    const sarcasticRemarks = [
+      "We see why this one didn't make the cut...",
+      "Not the prettiest indeed.",
+      "Some loops die so others may live.",
+      "This one had... potential.",
+      "The DAW giveth, and the DAW taketh away."
+    ];
+
+    const eulogies = [
+      "You were nearly something.",
+      "Not every loop is meant to bloom.",
+      "Goodbye, noble rhythm.",
+      "You served your time in the grid.",
+      "Rest well, unnamed arpeggio.",
+      "Your fade-out is eternal.",
+      "No need for a drop, only peace."
+    ];
+
+    const cremationPhrases = [
+      "Performing last rites...",
+      "Firing up the data-cremation furnace...",
+      "Gathering audio ashes..."
+    ];
+
+    const ashesSamples = ["ashes1.mp3", "ashes2.mp3", "ashes3.mp3"];
+
+    fileInput.addEventListener('change', (e) => {
+      selectedFile = e.target.files[0];
+      if (!selectedFile) return;
+
+      confirmed = false;
+      analyzeFill.style.width = '0';
+      progressContainer.classList.remove('hidden');
+      readyToBury.classList.add('hidden');
+
+      setTimeout(() => {
+        analyzeFill.style.width = '100%';
+      }, 50);
+
+      setTimeout(() => {
+        progressContainer.classList.add('hidden');
+        readyToBury.classList.remove('hidden');
+        fileNameSpan.textContent = selectedFile.name;
+        fileDateSpan.textContent = new Date(selectedFile.lastModified).toLocaleDateString();
+        sarcasticRemark.textContent = '"' + sarcasticRemarks[Math.floor(Math.random() * sarcasticRemarks.length)] + '"';
+        document.getElementById('epitaph').value = eulogies[Math.floor(Math.random() * eulogies.length)];
+      }, 5000);
+    });
+
+    function confirmOrBuryFile(btn) {
+      if (!confirmed) {
+        btn.textContent = 'Are You Sure?';
+        btn.style.backgroundColor = '#a33';
+        cancelLink.classList.remove('hidden');
+        confirmed = true;
+      } else {
+        readyToBury.classList.add('hidden');
+        burialProgress.classList.remove('hidden');
+        const phrase = cremationPhrases[Math.floor(Math.random() * cremationPhrases.length)];
+        document.getElementById('burialMessage').textContent = phrase;
+        buryFill.style.width = '0';
+        setTimeout(() => buryFill.style.width = '100%', 50);
+        setTimeout(() => {
+          burialProgress.classList.add('hidden');
+          showCeremony();
+        }, 5000);
       }
     }
 
-    async function recordBurial(name, method, epitaph) {
-      await supabase.from('burials').insert([
-        {
-          name,
-          method,
-          epitaph,
-          timestamp: new Date().toISOString()
-        }
-      ]);
-    }
-
     function showCeremony() {
-      // Example variables (replace these with actual values from your app logic)
-      const displayName = window.displayName || "Unknown Loop";
-      const selectedMethod = window.selectedMethod || "bury";
-      const epitaph = window.epitaph || "Gone but not rendered";
+      const now = new Date();
+      const name = selectedFile.name;
+      const displayName = name.length > 40 ? name.substring(0, 37) + '...' : name;
+      const birthDate = new Date(selectedFile.lastModified).toLocaleDateString();
+      const deathDate = now.toLocaleDateString();
+      const epitaph = document.getElementById('epitaph').value.trim() || "Gone, but never exported.";
 
-      // ✅ Save to Supabase
-      recordBurial(displayName, selectedMethod, epitaph);
+      const tombstone = document.createElement('div');
+      tombstone.className = 'tombstone';
+      tombstone.innerHTML = `
+        🪦<br><strong>RIP</strong><br>
+        ${displayName}<br>
+        ${birthDate} — ${deathDate}<br><br>
+        "${epitaph}"
+      `;
+      ceremony.innerHTML = '';
+      ceremony.appendChild(tombstone);
+      setTimeout(() => tombstone.classList.add('show'), 50);
 
-      // existing ceremony logic (e.g., show tombstone)
-      const tombstone = document.querySelector('.tombstone');
-      if (tombstone) tombstone.classList.add('show');
+      aftercare.classList.remove('hidden');
+
+      const tr = document.createElement('tr');
+      tr.classList.add('fade-in');
+      tr.innerHTML = `<td>${displayName}</td><td>${now.toLocaleString()}</td>`;
+      graveList.prepend(tr);
     }
 
-    document.addEventListener('DOMContentLoaded', loadBurials);
+    function resetAll() {
+      selectedFile = null;
+      confirmed = false;
+      fileInput.value = '';
+      document.getElementById('uploadBox').classList.remove('hidden');
+      progressContainer.classList.add('hidden');
+      readyToBury.classList.add('hidden');
+      burialProgress.classList.add('hidden');
+      ceremony.innerHTML = '';
+      aftercare.classList.add('hidden');
+    }
+
+    function playAshes() {
+      const sample = ashesSamples[Math.floor(Math.random() * ashesSamples.length)];
+      ashesAudio.src = sample;
+      ashesAudio.classList.remove('hidden');
+      ashesAudio.play();
+    }
   </script>
-</head>
-<body>
-  <!-- Your body content goes here -->
+
 </body>
 </html>
