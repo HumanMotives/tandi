@@ -376,6 +376,28 @@
       ashesAudio.classList.remove('hidden');
       ashesAudio.play();
     }
+
+    <!-- Include Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabase = supabase.createClient(
+    'https://ticxhncusdycqjftohho.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM'
+  );
+
+  async function recordBurial(name, method, epitaph) {
+    const timestamp = new Date().toISOString();
+    const { error } = await supabase.from('burials').insert([
+      { name, method, epitaph, timestamp }
+    ]);
+    if (error) {
+      console.error('Failed to record burial:', error.message);
+    } else {
+      console.log('Burial recorded in Supabase.');
+    }
+  }
+</script>
+
   </script>
 
 </body>
