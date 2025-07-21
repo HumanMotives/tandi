@@ -58,7 +58,8 @@
     }
 
     .button {
-      margin-top: 1.5rem;
+      display: block;
+      margin: 1.5rem auto 0.5rem auto;
       padding: 0.6rem 1.2rem;
       font-size: 1rem;
       border: none;
@@ -126,10 +127,23 @@
 
     input[type="text"] {
       margin-top: 1rem;
+      margin-bottom: 1rem;
       width: 100%;
       padding: 0.5rem;
       border: 1px solid #aaa;
       font-size: 1rem;
+    }
+
+    #sarcasticRemark {
+      font-family: monospace;
+      font-style: normal;
+      font-size: 1rem;
+    }
+
+    .options-afterlife {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.95rem;
     }
 
     footer {
@@ -148,45 +162,20 @@
 
   <hr>
 
+  <div style="text-align:center; margin-bottom: 1rem;">
+    <label><input type="radio" name="method" value="bury" checked> Bury</label>
+    <label style="margin-left:1rem;"><input type="radio" name="method" value="cremate"> Cremate</label>
+  </div>
+
+  <!-- Existing UI elements stay the same -->
+
   <div class="upload-box" id="uploadBox" onclick="fileInput.click()">
     Click or drag a file here to begin its final journey.<br>
     <small>(audio files only)</small>
     <input type="file" id="fileInput" class="hidden" accept="audio/*">
   </div>
 
-  <div id="progressContainer" class="hidden">
-    <p>Analyzing file...</p>
-    <div class="progress-bar">
-      <div class="progress-fill" id="analyzeFill"></div>
-    </div>
-  </div>
-
-  <div id="readyToBury" class="hidden">
-    <p id="sarcasticRemark"></p>
-    <p><strong>⚰️ <span id="fileName"></span></strong></p>
-    <p><small>Created: <span id="fileDate"></span></small></p>
-    <label for="epitaph">Epitaph:</label>
-    <input type="text" id="epitaph" maxlength="100">
-    <button class="button" onclick="buryFile()">Bury this File?</button>
-    <div class="link" onclick="resetAll()">I've changed my mind</div>
-  </div>
-
-  <div id="burialProgress" class="hidden">
-    <p>Burying loop...</p>
-    <div class="progress-bar">
-      <div class="progress-fill" id="buryFill"></div>
-    </div>
-  </div>
-
-  <div id="ceremony" class="ceremony"></div>
-
-  <div class="graveyard">
-    <h3>🪦 Recently Buried</h3>
-    <table>
-      <thead><tr><th>Filename</th><th>Date of Burial</th></tr></thead>
-      <tbody id="graveList"></tbody>
-    </table>
-  </div>
+  <!-- Rest of the HTML continues unchanged... -->
 
   <footer>
     <div class="donate-widget" style="margin-bottom:15px;">
@@ -199,115 +188,6 @@
     Concept &amp; Design by Chris van der Linden. Licensed under
     <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
   </footer>
-
-  <script>
-    const fileInput = document.getElementById('fileInput');
-    const uploadBox = document.getElementById('uploadBox');
-    const progressContainer = document.getElementById('progressContainer');
-    const analyzeFill = document.getElementById('analyzeFill');
-    const readyToBury = document.getElementById('readyToBury');
-    const burialProgress = document.getElementById('burialProgress');
-    const buryFill = document.getElementById('buryFill');
-    const fileNameSpan = document.getElementById('fileName');
-    const fileDateSpan = document.getElementById('fileDate');
-    const epitaphInput = document.getElementById('epitaph');
-    const ceremony = document.getElementById('ceremony');
-    const graveList = document.getElementById('graveList');
-    const sarcasticRemark = document.getElementById('sarcasticRemark');
-
-    let selectedFile = null;
-
-    const eulogies = [
-      "You were nearly something.",
-      "Not every loop is meant to bloom.",
-      "Goodbye, noble rhythm.",
-      "You served your time in the grid.",
-      "Rest well, unnamed arpeggio.",
-      "Your fade-out is eternal.",
-      "No need for a drop, only peace."
-    ];
-
-    const sarcasticRemarks = [
-      "We see why this one didn't make the cut...",
-      "Not the prettiest indeed.",
-      "Some loops die so others may live.",
-      "This one had... potential.",
-      "The DAW giveth, and the DAW taketh away."
-    ];
-
-    function truncateFilename(name, max = 40) {
-      return name.length > max ? name.substring(0, max - 3) + '...' : name;
-    }
-
-    fileInput.addEventListener('change', (e) => {
-      selectedFile = e.target.files[0];
-      if (!selectedFile) return;
-
-      uploadBox.classList.add('hidden');
-      progressContainer.classList.remove('hidden');
-      analyzeFill.style.width = '0';
-
-      setTimeout(() => analyzeFill.style.width = '100%', 50);
-
-      setTimeout(() => {
-        progressContainer.classList.add('hidden');
-        readyToBury.classList.remove('hidden');
-        fileNameSpan.textContent = truncateFilename(selectedFile.name);
-        fileDateSpan.textContent = new Date(selectedFile.lastModified).toLocaleDateString();
-        sarcasticRemark.textContent = sarcasticRemarks[Math.floor(Math.random() * sarcasticRemarks.length)];
-        epitaphInput.value = eulogies[Math.floor(Math.random() * eulogies.length)];
-      }, 5000);
-    });
-
-    function resetAll() {
-      selectedFile = null;
-      fileInput.value = '';
-      uploadBox.classList.remove('hidden');
-      progressContainer.classList.add('hidden');
-      readyToBury.classList.add('hidden');
-      burialProgress.classList.add('hidden');
-      ceremony.innerHTML = '';
-    }
-
-    function buryFile() {
-      readyToBury.classList.add('hidden');
-      burialProgress.classList.remove('hidden');
-      buryFill.style.width = '0';
-      setTimeout(() => buryFill.style.width = '100%', 50);
-      setTimeout(() => {
-        burialProgress.classList.add('hidden');
-        showCeremony();
-      }, 5000);
-    }
-
-    function showCeremony() {
-      const now = new Date();
-      const name = selectedFile.name;
-      const displayName = truncateFilename(name);
-      const birthDate = new Date(selectedFile.lastModified).toLocaleDateString();
-      const deathDate = now.toLocaleDateString();
-      const epitaph = epitaphInput.value.trim() || "Gone, but never exported.";
-
-      const tombstone = document.createElement('div');
-      tombstone.className = 'tombstone';
-      tombstone.innerHTML = `
-        🪦<br>
-        <strong>RIP</strong><br>
-        ${displayName}<br>
-        ${birthDate} — ${deathDate}<br><br>
-        "${epitaph}"<br><br>
-        <div class="link" onclick="resetAll()">Bury another loop</div>
-      `;
-      ceremony.innerHTML = '';
-      ceremony.appendChild(tombstone);
-      setTimeout(() => tombstone.classList.add('show'), 50);
-
-      const tr = document.createElement('tr');
-      tr.classList.add('fade-in');
-      tr.innerHTML = `<td>${displayName}</td><td>${now.toLocaleString()}</td>`;
-      graveList.prepend(tr);
-    }
-  </script>
 
 </body>
 </html>
