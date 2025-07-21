@@ -10,20 +10,26 @@
       background-color: #f5f1e6;
       font-family: 'Georgia', serif;
       color: #333;
-      max-width: 700px;
+      max-width: 800px;
       margin: 4rem auto;
       padding: 0 1.5rem;
     }
 
     h1 {
       font-size: 2.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
     }
 
     .intro {
       font-style: italic;
       color: #666;
       margin-bottom: 2rem;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 2rem 0;
     }
 
     .upload-box {
@@ -35,9 +41,7 @@
       margin-bottom: 2rem;
     }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
 
     .progress-bar {
       width: 100%;
@@ -85,6 +89,12 @@
       background-color: #f1f1ee;
       text-align: center;
       font-family: monospace;
+      opacity: 0;
+      transition: opacity 2s ease-in;
+    }
+
+    .tombstone.show {
+      opacity: 1;
     }
 
     .graveyard {
@@ -93,15 +103,34 @@
       padding-top: 2rem;
     }
 
-    .graveyard ul {
-      list-style: none;
-      padding-left: 0;
+    .graveyard table {
+      width: 100%;
       font-family: monospace;
       font-size: 0.95rem;
+      border-collapse: collapse;
     }
 
-    .graveyard li {
-      margin-bottom: 0.3rem;
+    .graveyard th, .graveyard td {
+      text-align: left;
+      padding: 0.3rem 0.5rem;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .fade-in {
+      animation: fadeIn 2s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    input[type="text"] {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #aaa;
+      font-size: 1rem;
     }
   </style>
 </head>
@@ -109,6 +138,7 @@
 
   <h1>The Loop Grave</h1>
   <p class="intro">Lay your unfinished track to rest. It served you well.</p>
+  <hr>
 
   <div class="upload-box" id="uploadBox" onclick="fileInput.click()">
     Click or drag a file here to begin its final journey.<br>
@@ -124,7 +154,11 @@
   </div>
 
   <div id="readyToBury" class="hidden">
+    <p id="sarcasticRemark"></p>
     <p><strong>⚰️ <span id="fileName"></span></strong></p>
+    <p><small>Created: <span id="fileDate"></span></small></p>
+    <label for="epitaph">Epitaph:</label>
+    <input type="text" id="epitaph" maxlength="100">
     <button class="button" onclick="buryFile()">Bury this File?</button>
     <div class="link" onclick="resetAll()">I've changed my mind</div>
   </div>
@@ -140,7 +174,10 @@
 
   <div class="graveyard">
     <h3>🪦 Recently Buried</h3>
-    <ul id="graveList"></ul>
+    <table>
+      <thead><tr><th>Filename</th><th>Date of Burial</th></tr></thead>
+      <tbody id="graveList"></tbody>
+    </table>
   </div>
 
   <script>
@@ -152,8 +189,11 @@
     const burialProgress = document.getElementById('burialProgress');
     const buryFill = document.getElementById('buryFill');
     const fileNameSpan = document.getElementById('fileName');
+    const fileDateSpan = document.getElementById('fileDate');
+    const epitaphInput = document.getElementById('epitaph');
     const ceremony = document.getElementById('ceremony');
     const graveList = document.getElementById('graveList');
+    const sarcasticRemark = document.getElementById('sarcasticRemark');
 
     let selectedFile = null;
 
@@ -164,8 +204,15 @@
       "You served your time in the grid.",
       "Rest well, unnamed arpeggio.",
       "Your fade-out is eternal.",
-      "No need for a drop, only peace.",
-      "Silence is your final mixdown."
+      "No need for a drop, only peace."
+    ];
+
+    const sarcasticRemarks = [
+      "We see why this one didn't make the cut...",
+      "Not the prettiest indeed.",
+      "Some loops die so others may live.",
+      "This one had... potential.",
+      "The DAW giveth, and the DAW taketh away."
     ];
 
     fileInput.addEventListener('change', (e) => {
@@ -176,14 +223,15 @@
       progressContainer.classList.remove('hidden');
       analyzeFill.style.width = '0';
 
-      setTimeout(() => {
-        analyzeFill.style.width = '100%';
-      }, 50);
+      setTimeout(() => analyzeFill.style.width = '100%', 50);
 
       setTimeout(() => {
         progressContainer.classList.add('hidden');
         readyToBury.classList.remove('hidden');
         fileNameSpan.textContent = selectedFile.name;
+        fileDateSpan.textContent = new Date(selectedFile.lastModified).toLocaleDateString();
+        sarcasticRemark.textContent = sarcasticRemarks[Math.floor(Math.random() * sarcasticRemarks.length)];
+        epitaphInput.value = eulogies[Math.floor(Math.random() * eulogies.length)];
       }, 5000);
     });
 
@@ -201,11 +249,7 @@
       readyToBury.classList.add('hidden');
       burialProgress.classList.remove('hidden');
       buryFill.style.width = '0';
-
-      setTimeout(() => {
-        buryFill.style.width = '100%';
-      }, 50);
-
+      setTimeout(() => buryFill.style.width = '100%', 50);
       setTimeout(() => {
         burialProgress.classList.add('hidden');
         showCeremony();
@@ -213,23 +257,29 @@
     }
 
     function showCeremony() {
-      const eulogy = eulogies[Math.floor(Math.random() * eulogies.length)];
-      const now = new Date().toLocaleDateString();
+      const now = new Date();
       const name = selectedFile.name;
+      const birthDate = new Date(selectedFile.lastModified).toLocaleDateString();
+      const deathDate = now.toLocaleDateString();
+      const epitaph = epitaphInput.value.trim() || "Gone, but never exported.";
 
-      ceremony.innerHTML = `
-        <p><em>"${eulogy}"</em></p>
-        <div class="tombstone">
-          🪦<br>
-          <strong>RIP</strong><br>
-          ${name}<br>
-          ${now}
-        </div>
+      const tombstone = document.createElement('div');
+      tombstone.className = 'tombstone';
+      tombstone.innerHTML = `
+        🪦<br>
+        <strong>RIP</strong><br>
+        ${name}<br>
+        ${birthDate} — ${deathDate}<br><br>
+        "${epitaph}"
       `;
+      ceremony.innerHTML = '';
+      ceremony.appendChild(tombstone);
+      setTimeout(() => tombstone.classList.add('show'), 50);
 
-      const li = document.createElement('li');
-      li.textContent = `• ${name}`;
-      graveList.prepend(li);
+      const tr = document.createElement('tr');
+      tr.classList.add('fade-in');
+      tr.innerHTML = `<td>${name}</td><td>${now.toLocaleString()}</td>`;
+      graveList.prepend(tr);
     }
   </script>
 
