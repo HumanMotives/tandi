@@ -235,5 +235,143 @@
     <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
   </footer>
 
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const progressContainer = document.getElementById('progressContainer');
+    const analyzeFill = document.getElementById('analyzeFill');
+    const progressMessage = document.getElementById('progressMessage');
+    const readyToBury = document.getElementById('readyToBury');
+    const fileNameSpan = document.getElementById('fileName');
+    const fileDateSpan = document.getElementById('fileDate');
+    const sarcasticRemark = document.getElementById('sarcasticRemark');
+    const buryBtn = document.getElementById('buryBtn');
+    const cancelLink = document.getElementById('cancelLink');
+    const burialProgress = document.getElementById('burialProgress');
+    const buryFill = document.getElementById('buryFill');
+    const ceremony = document.getElementById('ceremony');
+    const aftercare = document.getElementById('aftercare');
+    const ashesAudio = document.getElementById('ashesAudio');
+    const graveList = document.getElementById('graveList');
+
+    let selectedFile = null;
+    let confirmed = false;
+
+    const sarcasticRemarks = [
+      "We see why this one didn't make the cut...",
+      "Not the prettiest indeed.",
+      "Some loops die so others may live.",
+      "This one had... potential.",
+      "The DAW giveth, and the DAW taketh away."
+    ];
+
+    const eulogies = [
+      "You were nearly something.",
+      "Not every loop is meant to bloom.",
+      "Goodbye, noble rhythm.",
+      "You served your time in the grid.",
+      "Rest well, unnamed arpeggio.",
+      "Your fade-out is eternal.",
+      "No need for a drop, only peace."
+    ];
+
+    const cremationPhrases = [
+      "Performing last rites...",
+      "Firing up the data-cremation furnace...",
+      "Gathering audio ashes..."
+    ];
+
+    const ashesSamples = ["ashes1.mp3", "ashes2.mp3", "ashes3.mp3"];
+
+    fileInput.addEventListener('change', (e) => {
+      selectedFile = e.target.files[0];
+      if (!selectedFile) return;
+
+      confirmed = false;
+      analyzeFill.style.width = '0';
+      progressContainer.classList.remove('hidden');
+      readyToBury.classList.add('hidden');
+
+      setTimeout(() => {
+        analyzeFill.style.width = '100%';
+      }, 50);
+
+      setTimeout(() => {
+        progressContainer.classList.add('hidden');
+        readyToBury.classList.remove('hidden');
+        fileNameSpan.textContent = selectedFile.name;
+        fileDateSpan.textContent = new Date(selectedFile.lastModified).toLocaleDateString();
+        sarcasticRemark.textContent = '"' + sarcasticRemarks[Math.floor(Math.random() * sarcasticRemarks.length)] + '"';
+        document.getElementById('epitaph').value = eulogies[Math.floor(Math.random() * eulogies.length)];
+      }, 5000);
+    });
+
+    function confirmOrBuryFile(btn) {
+      if (!confirmed) {
+        btn.textContent = 'Are You Sure?';
+        btn.style.backgroundColor = '#a33';
+        cancelLink.classList.remove('hidden');
+        confirmed = true;
+      } else {
+        readyToBury.classList.add('hidden');
+        burialProgress.classList.remove('hidden');
+        const phrase = cremationPhrases[Math.floor(Math.random() * cremationPhrases.length)];
+        document.getElementById('burialMessage').textContent = phrase;
+        buryFill.style.width = '0';
+        setTimeout(() => buryFill.style.width = '100%', 50);
+        setTimeout(() => {
+          burialProgress.classList.add('hidden');
+          showCeremony();
+        }, 5000);
+      }
+    }
+
+    function showCeremony() {
+      const now = new Date();
+      const name = selectedFile.name;
+      const displayName = name.length > 40 ? name.substring(0, 37) + '...' : name;
+      const birthDate = new Date(selectedFile.lastModified).toLocaleDateString();
+      const deathDate = now.toLocaleDateString();
+      const epitaph = document.getElementById('epitaph').value.trim() || "Gone, but never exported.";
+
+      const tombstone = document.createElement('div');
+      tombstone.className = 'tombstone';
+      tombstone.innerHTML = `
+        🪦<br><strong>RIP</strong><br>
+        ${displayName}<br>
+        ${birthDate} — ${deathDate}<br><br>
+        "${epitaph}"
+      `;
+      ceremony.innerHTML = '';
+      ceremony.appendChild(tombstone);
+      setTimeout(() => tombstone.classList.add('show'), 50);
+
+      aftercare.classList.remove('hidden');
+
+      const tr = document.createElement('tr');
+      tr.classList.add('fade-in');
+      tr.innerHTML = `<td>${displayName}</td><td>${now.toLocaleString()}</td>`;
+      graveList.prepend(tr);
+    }
+
+    function resetAll() {
+      selectedFile = null;
+      confirmed = false;
+      fileInput.value = '';
+      document.getElementById('uploadBox').classList.remove('hidden');
+      progressContainer.classList.add('hidden');
+      readyToBury.classList.add('hidden');
+      burialProgress.classList.add('hidden');
+      ceremony.innerHTML = '';
+      aftercare.classList.add('hidden');
+    }
+
+    function playAshes() {
+      const sample = ashesSamples[Math.floor(Math.random() * ashesSamples.length)];
+      ashesAudio.src = sample;
+      ashesAudio.classList.remove('hidden');
+      ashesAudio.play();
+    }
+  </script>
+
 </body>
 </html>
