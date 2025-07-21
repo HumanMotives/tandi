@@ -6,47 +6,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
-    /* Basic Styling - replace this later with your own aesthetic */
     body {
-      background-color: #f8f5ec;
-      font-family: serif;
+      background-color: #f5f1e6;
+      font-family: 'Georgia', serif;
       color: #333;
-      max-width: 800px;
-      margin: 3rem auto;
-      padding: 0 1rem;
+      max-width: 700px;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
     }
 
     h1 {
       font-size: 2.5rem;
-      margin-bottom: 0.2rem;
+      margin-bottom: 1rem;
     }
 
-    p.intro {
-      font-size: 1.2rem;
+    .intro {
+      font-style: italic;
       color: #666;
       margin-bottom: 2rem;
     }
 
-    .upload-section {
+    .upload-box {
       border: 1px dashed #aaa;
       padding: 2rem;
       text-align: center;
-      margin-bottom: 2rem;
+      background-color: #fffefa;
       cursor: pointer;
+      margin-bottom: 2rem;
     }
 
-    .upload-section input[type="file"] {
+    .hidden {
       display: none;
     }
 
+    .progress-bar {
+      width: 100%;
+      background-color: #e1ddd1;
+      border: 1px solid #ccc;
+      height: 20px;
+      margin-top: 1rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background-color: #70695d;
+      transition: width 5s linear;
+    }
+
+    .button {
+      margin-top: 1.5rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      background-color: #3a3a3a;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .link {
+      display: block;
+      margin-top: 1rem;
+      text-align: center;
+      color: #555;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
     .ceremony {
-      margin-bottom: 2rem;
+      margin-top: 2rem;
+    }
+
+    .tombstone {
+      margin-top: 2rem;
+      padding: 2rem;
+      border: 2px solid #555;
+      background-color: #f1f1ee;
+      text-align: center;
+      font-family: monospace;
     }
 
     .graveyard {
       border-top: 1px solid #ccc;
-      padding-top: 1.5rem;
-      margin-top: 2rem;
+      margin-top: 3rem;
+      padding-top: 2rem;
     }
 
     .graveyard ul {
@@ -64,30 +108,54 @@
 <body>
 
   <h1>The Loop Grave</h1>
-  <p class="intro">
-    A resting place for unfinished music.  
-    Lay your loops to rest and honor their echo.
-  </p>
+  <p class="intro">Lay your unfinished track to rest. It served you well.</p>
 
-  <div class="upload-section" onclick="document.getElementById('fileInput').click()">
-    Click or drop a file here to bury your loop.<br>
-    <small>(audio files only – no data is saved)</small>
-    <input type="file" id="fileInput" accept="audio/*">
+  <div class="upload-box" id="uploadBox" onclick="fileInput.click()">
+    Click or drag a file here to begin its final journey.<br>
+    <small>(audio files only)</small>
+    <input type="file" id="fileInput" class="hidden" accept="audio/*">
   </div>
 
-  <div class="ceremony" id="ceremony"></div>
+  <div id="progressContainer" class="hidden">
+    <p>Analyzing file...</p>
+    <div class="progress-bar">
+      <div class="progress-fill" id="analyzeFill"></div>
+    </div>
+  </div>
+
+  <div id="readyToBury" class="hidden">
+    <p><strong>⚰️ <span id="fileName"></span></strong></p>
+    <button class="button" onclick="buryFile()">Bury this File?</button>
+    <div class="link" onclick="resetAll()">I've changed my mind</div>
+  </div>
+
+  <div id="burialProgress" class="hidden">
+    <p>Burying loop...</p>
+    <div class="progress-bar">
+      <div class="progress-fill" id="buryFill"></div>
+    </div>
+  </div>
+
+  <div id="ceremony" class="ceremony"></div>
 
   <div class="graveyard">
     <h3>🪦 Recently Buried</h3>
-    <ul id="graveList">
-      <!-- Entries appear here -->
-    </ul>
+    <ul id="graveList"></ul>
   </div>
 
   <script>
     const fileInput = document.getElementById('fileInput');
+    const uploadBox = document.getElementById('uploadBox');
+    const progressContainer = document.getElementById('progressContainer');
+    const analyzeFill = document.getElementById('analyzeFill');
+    const readyToBury = document.getElementById('readyToBury');
+    const burialProgress = document.getElementById('burialProgress');
+    const buryFill = document.getElementById('buryFill');
+    const fileNameSpan = document.getElementById('fileName');
     const ceremony = document.getElementById('ceremony');
     const graveList = document.getElementById('graveList');
+
+    let selectedFile = null;
 
     const eulogies = [
       "You were nearly something.",
@@ -101,30 +169,68 @@
     ];
 
     fileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+      selectedFile = e.target.files[0];
+      if (!selectedFile) return;
 
-      const fileName = file.name;
-      const fileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      uploadBox.classList.add('hidden');
+      progressContainer.classList.remove('hidden');
+      analyzeFill.style.width = '0';
+
+      setTimeout(() => {
+        analyzeFill.style.width = '100%';
+      }, 50);
+
+      setTimeout(() => {
+        progressContainer.classList.add('hidden');
+        readyToBury.classList.remove('hidden');
+        fileNameSpan.textContent = selectedFile.name;
+      }, 5000);
+    });
+
+    function resetAll() {
+      selectedFile = null;
+      fileInput.value = '';
+      uploadBox.classList.remove('hidden');
+      progressContainer.classList.add('hidden');
+      readyToBury.classList.add('hidden');
+      burialProgress.classList.add('hidden');
+      ceremony.innerHTML = '';
+    }
+
+    function buryFile() {
+      readyToBury.classList.add('hidden');
+      burialProgress.classList.remove('hidden');
+      buryFill.style.width = '0';
+
+      setTimeout(() => {
+        buryFill.style.width = '100%';
+      }, 50);
+
+      setTimeout(() => {
+        burialProgress.classList.add('hidden');
+        showCeremony();
+      }, 5000);
+    }
+
+    function showCeremony() {
       const eulogy = eulogies[Math.floor(Math.random() * eulogies.length)];
+      const now = new Date().toLocaleDateString();
+      const name = selectedFile.name;
 
-      // Display a farewell ceremony
       ceremony.innerHTML = `
-        <div>
-          <strong>⚰️ ${fileName}</strong><br>
-          Size: ${fileSize}<br><br>
-          <em>"${eulogy}"</em>
+        <p><em>"${eulogy}"</em></p>
+        <div class="tombstone">
+          🪦<br>
+          <strong>RIP</strong><br>
+          ${name}<br>
+          ${now}
         </div>
       `;
 
-      // Add file name to recent graveyard
       const li = document.createElement('li');
-      li.textContent = `• ${fileName}`;
+      li.textContent = `• ${name}`;
       graveList.prepend(li);
-
-      // Reset input so same file can be "reburied"
-      fileInput.value = '';
-    });
+    }
   </script>
 
 </body>
