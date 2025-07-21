@@ -47,10 +47,10 @@
     document.addEventListener('DOMContentLoaded', loadBurials);
   </script>
 
-   <style>
+  <style>
     body {
       background-color: #f5f1e6;
-      font-family: 'Georgia', serif;
+      font-family: monospace;
       color: #333;
       max-width: 800px;
       margin: 4rem auto;
@@ -66,7 +66,17 @@
     .button { display: block; margin: 1.5rem auto 0.5rem auto; padding: 0.6rem 1.2rem; font-size: 1rem; border: none; background-color: #3a3a3a; color: #fff; cursor: pointer; }
     .link { display: block; margin-top: 1rem; text-align: center; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.9rem; }
     .ceremony { margin-top: 2rem; }
-    .tombstone { margin-top: 2rem; padding: 2rem; border: 2px solid #555; background-color: #f1f1ee; text-align: center; font-family: monospace; opacity: 0; transition: opacity 2s ease-in; }
+    .tombstone {
+      margin-top: 2rem;
+      padding: 2rem;
+      border: 2px solid #555;
+      background-color: #f1f1ee;
+      text-align: center;
+      font-family: monospace;
+      font-size: 1.3rem;
+      opacity: 0;
+      transition: opacity 2s ease-in;
+    }
     .tombstone.show { opacity: 1; }
     .options-afterlife { margin-top: 2rem; text-align: center; font-size: 0.95rem; }
     .graveyard { border-top: 1px solid #ccc; margin-top: 3rem; padding-top: 2rem; }
@@ -75,7 +85,7 @@
     .fade-in { animation: fadeIn 2s ease-in; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     input[type="text"], input[type="email"] { margin-top: 1rem; margin-bottom: 1rem; width: 100%; padding: 0.5rem; border: 1px solid #aaa; font-size: 1rem; }
-    #sarcasticRemark { font-family: monospace; font-style: normal; font-size: 1rem; }
+    #sarcasticRemark { font-family: monospace; font-style: normal; font-size: 1.2rem; }
     footer { text-align: center; font-size: 0.9rem; color: #666; margin-top: 4rem; }
   </style>
 </head>
@@ -129,14 +139,6 @@
     <button onclick="playAshes()">Check the remains</button>
     <br><br>
     <audio id="ashesAudio" controls class="hidden"></audio>
-    <p style="margin-top:1rem;">
-      <a href="#" onclick="document.getElementById('notifyForm').classList.toggle('hidden')">Notify next of kin</a> |
-      <a href="#donate">Make a donation to the church</a>
-    </p>
-    <div id="notifyForm" class="hidden">
-      <input type="email" placeholder="Enter email address"><br>
-      <button>Send Eulogy</button>
-    </div>
     <div class="link" onclick="location.reload()">Bury another loop</div>
   </div>
 
@@ -161,11 +163,10 @@
   </footer>
 
   <script>
-    // Main App Logic (unchanged from your original code)
+    // Main App Logic
     const fileInput = document.getElementById('fileInput');
     const progressContainer = document.getElementById('progressContainer');
     const analyzeFill = document.getElementById('analyzeFill');
-    const progressMessage = document.getElementById('progressMessage');
     const readyToBury = document.getElementById('readyToBury');
     const fileNameSpan = document.getElementById('fileName');
     const fileDateSpan = document.getElementById('fileDate');
@@ -175,7 +176,6 @@
     const burialProgress = document.getElementById('burialProgress');
     const buryFill = document.getElementById('buryFill');
     const ceremony = document.getElementById('ceremony');
-    const aftercare = document.getElementById('aftercare');
     const ashesAudio = document.getElementById('ashesAudio');
     const graveList = document.getElementById('graveList');
 
@@ -203,7 +203,6 @@
     const cremationPhrases = [
       "Performing last rites...",
       "Firing up the data-cremation furnace...",
-      "Bringing you peace of mind",
       "Approaching the Gates of Loop Heaven...",
       "Disintegrating Your Abominable Frequencies...",
       "Gathering audio ashes..."
@@ -264,10 +263,9 @@
       const tombstone = document.createElement('div');
       tombstone.className = 'tombstone';
       tombstone.innerHTML = `
-        🪦<br><strong>RIP</strong><br>
-        ${displayName}<br>
+        Here lies<br><strong>${displayName}</strong><br>
         ${birthDate} — ${deathDate}<br><br>
-        "${epitaph}"
+        <em>"${epitaph}"</em>
       `;
       ceremony.innerHTML = '';
       ceremony.appendChild(tombstone);
