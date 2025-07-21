@@ -27,7 +27,7 @@
       if (data) {
         data.forEach(b => {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${b.name}</td><td>${new Date(b.timestamp).toLocaleString()}</td>`;
+          tr.innerHTML = `<td>${displayName}</td><td>${now.toLocaleString()}</td>`;
           tr.classList.add('fade-in');
           graveList.appendChild(tr);
         });
