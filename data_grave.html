@@ -138,7 +138,7 @@
   </div>
 
   <div id="progressContainer" class="hidden">
-    <p id="progressMessage">Analyzing file...</p>
+    <p id="progressMessage">Analyzing your creation...</p>
     <div class="progress-bar"><div class="progress-fill" id="analyzeFill"></div></div>
   </div>
 
@@ -147,12 +147,12 @@
       <tr><td id="sarcasticRemark"></td></tr>
       <tr><th style="text-align:left; padding:0.3rem 0;">Filename:</th><td><strong id="fileName"></strong></td></tr>
       <tr><th style="text-align:left; padding:0.3rem 0;">Date of birth:</th><td id="fileDate"></td></tr>
-      <tr><th style="text-align:left; padding:0.3rem 0;">File size:</th><td id="fileSize"></td></tr>
-      <tr><th style="text-align:left; padding:0.3rem 0;">Detected vibe:</th><td id="fileVibe"></td></tr>
+      <tr><th style="text-align:left; padding:0.3rem 0;">Est. size:</th><td id="fileSize"></td></tr>
+      <tr><th style="text-align:left; padding:0.3rem 0;">Detected genre:</th><td id="fileVibe"></td></tr>
     </table>
-    <label for="epitaph">Anything to add to the tombstone?</label><br>
+    <label for="epitaph">Like to add some final farewell words?</label><br>
     <input type="text" id="epitaph" maxlength="100"><br>
-    <button class="button" id="buryBtn" onclick="confirmOrBuryFile(this)">Bury this File?</button>
+    <button class="button" id="buryBtn" onclick="confirmOrBuryFile(this)">Commit this File?</button>
     <div id="cancelLink" class="link hidden" onclick="resetAll()">I've changed my mind</div>
   </div>
 
@@ -167,11 +167,11 @@
     <p>Wish to collect the remains?</p>
     <button onclick="playAshes()">Check the remains</button><br><br>
     <audio id="ashesAudio" controls class="hidden"></audio>
-    <div class="link" onclick="location.reload()">Bury another loop</div>
+    <div class="link" onclick="location.reload()">Lay another track to rest</div>
   </div>
 
   <div class="graveyard">
-    <h2>Recently Buried</h2>
+    <h2>Recent Burials</h2>
     <table>
       <thead><tr><th>Filename</th><th>Date</th><th>Epitaph</th><th>Country</th></tr></thead>
       <tbody id="graveList"></tbody>
@@ -216,24 +216,31 @@
     let selectedFile = null, confirmed = false;
 
     const sarcasticRemarks = [
+      "Right. This one had no potential anyway...",
+      "Ever considered gardening instead of composing",
       "We see why this one didn't make the cut...",
       "Not the prettiest indeed.",
       "Some loops die so others may live.",
+      "Another auditory tragedy.",
       "This one had... potential.",
+      "Good decision. The world has enough crap already.",
+      "Even the metronome gave up on this one.",
+      "Overcooked. Overcompressed. Jeez",
       "The DAW giveth, and the DAW taketh away."
     ];
     const eulogies = [
-      "As Above So Below.", "Not every loop is meant to bloom.",
-      "Never Stuck In A Loop Again.", "Its Better This Way.",
-      "Rest well, dear loop.", "Fade Out Forever", "Sick Drop. Dead."
+      "As Above So Below.", "Not every loop is meant to bloom",“A waveform without purpose”,
+      "Never Stuck In A Loop Again", "Its Better This Way",“Gone before the drop”,
+      "Born to be muted.", "128 layers of bad decisions.",“Rendered... irrelevant”,
+      "Rest well, dear loop.", "Fade Out Forever", “Looped once too often”, "Sick Drop. Dead."
     ];
     const cremationPhrases = [
-      "Performing last rites...", "Firing up the data-cremation furnace...",
+      "Performing last rites...", "Praying to the audio gods... hold on ...",
       "Approaching the Gates of Loop Heaven...", "Disintegrating Your Abominable Frequencies...",
-      "Gathering audio ashes..."
+      "Processing your terrible creation..."
     ];
     const ashesSamples = ["ashes1.mp3"];    
-    const vibes = ["Chillhop","Synthwave","Glitch","Lo-Fi","Ambient"];
+    const vibes = ["Chillflop","CringeHop", "Drum & Blahs", "Technope", "Impostor Synth-drome", "Synthcrave","Shite","Polka Punk", "Teenage Angst in D Minor","Undefinable", "The Sound of Regret", "Grind-NuJazz", "Regretton", "Nope-step", "EDehhhM", "Lo-Fried","Smarmbient"];
 
     fileInput.addEventListener('change', e => {
       selectedFile = e.target.files[0];
