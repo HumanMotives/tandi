@@ -14,33 +14,25 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM'
     );
 
-    // Record a burial with geo-detected country to Supabase
+    // Record a burial to Supabase with geolocation
     async function recordBurial(name, method, epitaph) {
       let country = '??';
       try {
         const res = await fetch('https://ipapi.co/country/');
-        if (res.ok) country = (await res.text()).trim();
-      } catch (e) {
-        console.warn('Country lookup failed', e);
-      }
+        if (res.ok) country = await res.text();
+      } catch (e) {}
       const { data, error } = await sb.from('burials').insert([
-        {
-          name,
-          method,
-          epitaph,
-          timestamp: new Date().toISOString(),
-          country
-        }
+        { name, method, epitaph, country, timestamp: new Date().toISOString() }
       ]);
       if (error) console.error('Failed to record burial:', error.message);
       return data;
     }
 
-    // Load recent burials (including epitaph & country)
+    // Load recent burials from Supabase
     async function loadBurials() {
       const { data, error } = await sb
         .from('burials')
-        .select('name,method,epitaph,timestamp,country')
+        .select('name, method, epitaph, country, timestamp')
         .order('timestamp', { ascending: false });
       if (error) {
         console.error('Failed to load burials:', error.message);
@@ -49,23 +41,22 @@
       const graveList = document.getElementById('graveList');
       graveList.innerHTML = '';
       data.forEach(b => {
+        const date = new Date(b.timestamp).toLocaleDateString();
+        const displayName = b.name.length > 30 ? b.name.substring(0, 27) + '...' : b.name;
         const emoji = b.method === 'cremate' ? '⚱️' : '🪦';
         const tr = document.createElement('tr');
         tr.classList.add('fade-in');
-        tr.innerHTML = `
-          <td>${emoji} ${b.name}</td>
-          <td>${new Date(b.timestamp).toLocaleString()}</td>
-          <td>${b.epitaph || ''}</td>
-          <td>${b.country || ''}</td>
-        `;
+        tr.innerHTML =
+          `<td>${emoji} ${displayName}</td>` +
+          `<td>${date}</td>` +
+          `<td>${b.epitaph}</td>` +
+          `<td>${b.country}</td>`;
         graveList.appendChild(tr);
       });
     }
 
     // On page load, fetch burials
-    document.addEventListener('DOMContentLoaded', () => {
-      loadBurials();
-    });
+    document.addEventListener('DOMContentLoaded', loadBurials);
   </script>
 
   <style>
@@ -78,51 +69,43 @@
       margin: 4rem auto;
       padding: 0 1.5rem;
     }
-    .logo-container { text-align: center; margin-bottom: 2rem; }
+    .logo-container { text-align: center; margin-bottom: 0.5rem; }
     .logo-container img { max-width: 100%; height: auto; }
+    #tagline { text-align: center; color: #666; margin-bottom: 2rem; }
     hr { border: none; border-top: 1px solid #ccc; margin: 2rem 0; }
 
-    #methodSelector { text-align: center; margin-bottom: 1rem; }
-    .upload-box { border: 1px dashed #aaa; padding: 2rem; text-align: center; background-color: #fffefa; cursor: pointer; margin-bottom: 2rem; }
-    .hidden { display: none; }
+    #methodSelector { text-align:center; margin-bottom:1rem; }
+    .upload-box { border:1px dashed #aaa; padding:2rem; text-align:center; background-color:#fffefa; cursor:pointer; margin-bottom:2rem; }
+    .hidden { display:none; }
 
-    .progress-bar { width: 100%; background-color: #e1ddd1; border: 1px solid #ccc; height: 20px; margin-top: 1rem; }
-    .progress-fill { height: 100%; width: 0; background-color: #70695d; transition: width 5s linear; }
+    .progress-bar { width:100%; background-color:#e1ddd1; border:1px solid #ccc; height:20px; margin-top:1rem; }
+    .progress-fill { height:100%; width:0; background-color:#70695d; transition:width 5s linear; }
 
-    .button { display: block; margin: 1.5rem auto 0.5rem auto; padding: 0.6rem 1.2rem; font-size: 1rem; border: none; background-color: #3a3a3a; color: #fff; cursor: pointer; }
-    .link { display: block; margin-top: 1rem; text-align: center; color: #555; text-decoration: underline; cursor: pointer; font-size: 0.9rem; }
+    .button { display:block; margin:1.5rem auto 0.5rem auto; padding:0.6rem 1.2rem; font-size:1rem; border:none; background-color:#3a3a3a; color:#fff; cursor:pointer; }
+    .link { display:block; margin-top:1rem; text-align:center; color:#555; text-decoration:underline; cursor:pointer; font-size:0.9rem; }
 
-    .ceremony { margin-top: 2rem; }
+    .ceremony { margin-top:2rem; }
     .tombstone {
-      margin-top: 2rem;
-      padding: 2rem;
-      border: 2px solid #555;
-      background-color: #f1f1ee;
-      text-align: center;
-      font-family: monospace;
-      font-size: 1.3rem;
-      opacity: 0;
-      transition: opacity 2s ease-in;
+      margin-top:2rem; padding:2rem; border:2px solid #555; background-color:#f1f1ee;
+      text-align:center; font-size:1.3rem; opacity:0; transition:opacity 2s ease-in;
     }
-    .tombstone.show { opacity: 1; }
+    .tombstone.show { opacity:1; }
 
-    .options-afterlife { margin-top: 2rem; text-align: center; font-size: 0.95rem; }
+    .options-afterlife { margin-top:2rem; text-align:center; font-size:0.95rem; }
 
-    .graveyard { border-top: 1px solid #ccc; margin-top: 3rem; padding-top: 2rem; }
-    .graveyard h2 { font-size: 1.5rem; margin-bottom: 1rem; }
-    .graveyard table { width: 100%; font-family: monospace; font-size: 0.95rem; border-collapse: collapse; }
-    .graveyard th, .graveyard td { text-align: left; padding: 0.3rem 0.5rem; border-bottom: 1px solid #ddd; }
+    .graveyard { border-top:1px solid #ccc; margin-top:3rem; padding-top:2rem; }
+    .graveyard h2 { font-size:1.5rem; margin-bottom:1rem; }
+    .graveyard table { width:100%; font-family:monospace; font-size:0.95rem; border-collapse:collapse; }
+    .graveyard th, .graveyard td { text-align:left; padding:0.3rem 0.5rem; border-bottom:1px solid #ddd; }
 
-    .fade-in { animation: fadeIn 2s ease-in; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .fade-in { animation:fadeIn 2s ease-in; }
+    @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
 
-    input[type="text"], input[type="email"] { margin-top: 1rem; margin-bottom: 1rem; width: 100%; padding: 0.5rem; border: 1px solid #aaa; font-size: 1rem; }
-    #sarcasticRemark { text-align: center; font-style: italic; color: #666; font-size: 12pt; padding-bottom: 0.5rem; }
-    #epitaph { font-family: monospace; color: #666; }
-    #epitaph::placeholder { color: #999; }
+    input[type=text] { font-family:monospace; color:#666; margin-top:1rem; margin-bottom:1rem; width:100%; padding:0.5rem; border:1px solid #aaa; font-size:1rem; }
+    input[type=text]::placeholder { color:#999; }
 
-    footer { text-align: center; font-size: 0.9rem; color: #666; margin-top: 4rem; }
-    .donate-widget { display: none !important; }
+    footer { text-align:center; font-size:0.9rem; color:#666; margin-top:4rem; }
+    .donate-widget { display:none !important; }
   </style>
 </head>
 <body>
@@ -130,6 +113,7 @@
   <div class="logo-container">
     <img src="datagrave_sitelogo_large.png" alt="The Data Grave Logo">
   </div>
+  <div id="tagline">Where musicians bury their unfinished tracks</div>
 
   <hr>
 
@@ -155,8 +139,6 @@
       <tr><th style="text-align:left; padding:0.3rem 0;">Date of birth:</th><td id="fileDate"></td></tr>
       <tr><th style="text-align:left; padding:0.3rem 0;">File size:</th><td id="fileSize"></td></tr>
       <tr><th style="text-align:left; padding:0.3rem 0;">Detected vibe:</th><td id="fileVibe"></td></tr>
-      <tr><th style="text-align:left; padding:0.3rem 0;">Epitaph:</th><td id="fileEpitaphDisplay"></td></tr>
-      <tr><th style="text-align:left; padding:0.3rem 0;">Country:</th><td id="fileCountry"></td></tr>
     </table>
     <label for="epitaph">Anything to add to the tombstone?</label><br>
     <input type="text" id="epitaph" maxlength="100"><br>
@@ -181,7 +163,7 @@
   <div class="graveyard">
     <h2>Recently Buried</h2>
     <table>
-      <thead><tr><th>Filename</th><th>Date of Burial</th><th>Epitaph</th><th>Country</th></tr></thead>
+      <thead><tr><th>Filename</th><th>Date</th><th>Epitaph</th><th>Country</th></tr></thead>
       <tbody id="graveList"></tbody>
     </table>
   </div>
@@ -202,9 +184,9 @@
     const readyToBury    = document.getElementById('readyToBury');
     const fileNameSpan   = document.getElementById('fileName');
     const fileDateSpan   = document.getElementById('fileDate');
-    const sarcasticRemark= document.getElementById('sarcasticRemark');
     const fileSizeTd     = document.getElementById('fileSize');
     const fileVibeTd     = document.getElementById('fileVibe');
+    const sarcasticRemark= document.getElementById('sarcasticRemark');
     const buryBtn        = document.getElementById('buryBtn');
     const cancelLink     = document.getElementById('cancelLink');
     const burialProgress = document.getElementById('burialProgress');
@@ -232,7 +214,7 @@
       "Gathering audio ashes..."
     ];
     const ashesSamples = ["ashes1.mp3"];
-    const vibes = ["Chillhop","Synthwave","Glitch","Lo-Fi","Ambient"]; 
+    const vibes = ["Chillhop","Synthwave","Glitch","Lo-Fi","Ambient"];
 
     fileInput.addEventListener('change', e => {
       selectedFile = e.target.files[0];
@@ -250,7 +232,6 @@
       setTimeout(()=>{
         progressContainer.classList.add('hidden');
         readyToBury.classList.remove('hidden');
-        // populate info table
         sarcasticRemark.textContent = '"' + sarcasticRemarks[Math.floor(Math.random()*sarcasticRemarks.length)] + '"';
         fileNameSpan.textContent   = selectedFile.name;
         fileDateSpan.textContent   = new Date(selectedFile.lastModified).toLocaleDateString();
@@ -280,28 +261,28 @@
       }
     }
 
-    async function showCeremony() {
+    function showCeremony() {
       const now = new Date();
       const method = document.querySelector('input[name="method"]:checked').value;
       const emoji  = method==='cremate' ? '⚱️' : '🪦';
-      const displayName = selectedFile.name.length>40
-        ? selectedFile.name.slice(0,37)+'...' : selectedFile.name;
+      const displayName = selectedFile.name.length>30
+        ? selectedFile.name.substring(0,27)+'...' : selectedFile.name;
+      const birth = new Date(selectedFile.lastModified).toLocaleDateString();
       const epitaphText = document.getElementById('epitaph').value.trim() || "Gone, but never exported.";
       // record
-      await recordBurial(displayName, method, epitaphText);
+      recordBurial(displayName, method, epitaphText);
       // tombstone
       ceremony.innerHTML = `<div class="tombstone">
         Here lies<br><strong>${displayName}</strong><br>
-        ${new Date(selectedFile.lastModified).toLocaleDateString()} — ${now.toLocaleDateString()}<br><br>
+        ${birth}<br><br>
         <em>"${epitaphText}"</em>
       </div>`;
       setTimeout(()=> ceremony.querySelector('.tombstone').classList.add('show'), 50);
       document.getElementById('aftercare').classList.remove('hidden');
       // add to list
-      const tr = document.createElement('tr');
-      tr.classList.add('fade-in');
-      tr.innerHTML = `<td>${emoji} ${displayName}</td><td>${now.toLocaleString()}</td><td>${epitaphText}</td><td>${await (async ()=>{ try{const r=await fetch('https://ipapi.co/country/');return r.ok? (await r.text()).trim():'??';}catch{return '??';}})()}</td>`;
-      document.getElementById('graveList').prepend(tr);
+      const tr = document.createElement('tr'); tr.classList.add('fade-in');
+      const row = `<td>${emoji} ${displayName}</td><td>${birth}</td><td>${epitaphText}</td><td>${document.querySelector('input[name="method"]:checked').value==='cremate'? '⚱️':''}</td>`;
+      tr.innerHTML = row; graveList.prepend(tr);
     }
 
     function resetAll() {
@@ -318,8 +299,7 @@
 
     function playAshes() {
       ashesAudio.src = ashesSamples[Math.floor(Math.random()*ashesSamples.length)];
-      ashesAudio.classList.remove('hidden');
-      ashesAudio.play();
+      ashesAudio.classList.remove('hidden'); ashesAudio.play();
     }
   </script>
 </body>
