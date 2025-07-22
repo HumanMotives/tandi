@@ -162,6 +162,7 @@
   <script>
     // Main App Logic
     const fileInput = document.getElementById('fileInput');
+    const uploadBox = document.getElementById('uploadBox');
     const progressContainer = document.getElementById('progressContainer');
     const analyzeFill = document.getElementById('analyzeFill');
     const readyToBury = document.getElementById('readyToBury');
@@ -210,10 +211,13 @@
     fileInput.addEventListener('change', (e) => {
       selectedFile = e.target.files[0];
       if (!selectedFile) return;
+      // Hide dropzone after file selection
+      uploadBox.classList.add('hidden');
       confirmed = false;
       analyzeFill.style.width = '0';
       progressContainer.classList.remove('hidden');
       readyToBury.classList.add('hidden');
+
       setTimeout(() => { analyzeFill.style.width = '100%'; }, 50);
       setTimeout(() => {
         progressContainer.classList.add('hidden');
