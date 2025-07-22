@@ -52,7 +52,7 @@
    body {
       background-color: #f5f1e6;
       font-family: monospace;
-      font-size: 12px;
+      font-size: 12pt;
       color: #333;
       max-width: 800px;
       margin: 4rem auto;
@@ -119,13 +119,20 @@
   </div>
 
   <div id="readyToBury" class="hidden">
-    <p id="sarcasticRemark"></p>
-    <p><strong>⚰️ <span id="fileName"></span></strong></p>
-    <p><small>Date of birth: <span id="fileDate"></span></small></p>
-    <label for="epitaph">Wish to write something on the gravestone?</label>
-    <input type="text" id="epitaph" maxlength="100">
+    <table id="fileInfoTable" style="width:100%; border-collapse: collapse; margin-bottom:1rem;">
+      <tr>
+        <td id="sarcasticRemark" style="font-style: italic; color: #666; padding-bottom:0.5rem;"></td>
+      </tr>
+      <tr><th style="text-align:left; padding:0.3rem 0;">Filename:</th><td><strong id="fileName"></strong></td></tr>
+      <tr><th style="text-align:left; padding:0.3rem 0;">Date of birth:</th><td id="fileDate"></td></tr>
+      <tr><th style="text-align:left; padding:0.3rem 0;">File size:</th><td id="fileSize"></td></tr>
+      <tr><th style="text-align:left; padding:0.3rem 0;">Detected vibe:</th><td id="fileVibe"></td></tr>
+    </table>
+    <label for="epitaph">Anything to add to the tombstone?</label><br>
+    <input type="text" id="epitaph" maxlength="100" style="width:100%; margin-top:0.5rem; margin-bottom:1rem;">
     <button class="button" id="buryBtn" onclick="confirmOrBuryFile(this)">Bury this File?</button>
     <div id="cancelLink" class="link hidden" onclick="resetAll()">I've changed my mind</div>
+  </div>
   </div>
 
   <div id="burialProgress" class="hidden">
