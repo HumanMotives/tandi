@@ -1,46 +1,35 @@
-/* --- GRID: hub layout --- */
+/* GRID */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
+  gap: 2rem;              /* extra breathing room */
 }
 
-/* --- TILE CONTAINER: stacks link + counter --- */
-.tile-container {
+/* TILE CONTAINER */
+.tile {
+  border: 1px solid #000;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* --- TILE: the link card itself --- */
-.tile {
+/* LINK REGION (gets hover shading & underline) */
+.tile-link {
+  display: block;
   width: 100%;
-  background: transparent;
-  border: 1px solid #000;
   padding: 1rem;
-  border-radius: 6px;
-  box-shadow: none;
   text-decoration: none;
   color: inherit;
   transition: background-color 0.2s ease;
-  display: block;
+  border-radius: 6px 6px 0 0;  /* round top corners */
 }
 
-.tile:hover {
+.tile-link:hover {
   background-color: rgba(0, 0, 0, 0.03);
-  border-color: #000;
 }
 
-/* --- THUMBNAIL IMAGE --- */
-.tile-image {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  display: block;
-  margin: 0 auto 0.8rem;
-}
-
-/* --- TITLE: only this underlines on tile hover --- */
+/* TITLE underlines only on link hover */
 .tile-title {
   font-weight: bold;
   margin-bottom: 0.3rem;
@@ -48,28 +37,40 @@
   text-align: center;
   transition: text-decoration 0.2s ease;
 }
-.tile:hover .tile-title {
+
+.tile-link:hover .tile-title {
   text-decoration: underline;
 }
 
-/* --- DESCRIPTION --- */
+/* IMAGE */
+.tile-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin: 0 auto 0.8rem;
+  display: block;
+}
+
+/* DESCRIPTION (inside link) */
 .tile-desc {
   font-size: 0.9rem;
   color: #555;
   text-align: center;
-  text-decoration: none; /* ensure no underline */
 }
 
-/* --- HEART COUNTER --- */
+/* HEART BUTTON */
 .like-counter {
-  text-align: center;
+  background: none;
+  border: none;
+  padding: 0.5rem;
   font-size: 0.9rem;
-  margin-top: 0.5rem;
   color: #444;
   cursor: pointer;
   user-select: none;
+  border-top: 1px solid #eee;  /* separator line */
+  width: 100%;
+  text-align: center;
 }
-.like-counter span.like-count {
+.like-counter .like-count {
   font-weight: bold;
-  text-decoration: none; /* ensure no underline */
 }
