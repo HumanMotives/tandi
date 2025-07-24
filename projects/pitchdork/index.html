@@ -1,53 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Pitchdork – Sarcastic Music Reviews</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+const fetch = require('node-fetch');
+const { Configuration, OpenAIApi } = require('openai');
 
-  <link rel="stylesheet" href="../../styles/main.css">
-  <style>
-    /* Quick override for Pitchdork */
-    body { text-align: center; padding: 2rem; }
-    img { max-width: 180px; border-radius: 8px; }
-    #review { margin-top: 1.5rem; font-style: italic; }
-    #rating { margin-top: .5rem; font-size: 1.2rem; color: #d44; }
-  </style>
-</head>
-<body>
-  <h1>🎧 Pitchdork</h1>
-  <p>Paste a Spotify album or track link below:</p>
-  <input id="spotifyUrl" type="text" placeholder="https://open.spotify.com/album/…" style="width:80%;max-width:400px">
-  <button id="go">Roast It</button>
+// Initialize OpenAI
+const openai = new OpenAIApi(new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+}));
 
-  <div id="result" style="display:none;">
-    <img id="art" src="" alt="Album Art">
-    <h2 id="title"></h2>
-    <p id="review"></p>
-    <div id="rating"></div>
-  </div>
+// Helper to get Spotify album/track data
+async function fetchSpotify(spotifyUrl) {
+  // extract ID from URL
+  const id = spotifyUrl.split('/').pop().split('?')[0];
+  // get token via Client Credentials
+  const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Basic ' + Buffer.from(
+        `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
+      ).toString('base64'),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: 'grant_type=client_credentials'
+  });
+  const { access_token } = await tokenRes.json();
+  // fetch album or track
+  const apiType = spotifyUrl.includes('/album/') ? 'albums' : 'tracks';
+  const infoRes = await fetch(`https://api.spotify.com/v1/${apiType}/${id}`, {
+    headers: { Authorization: 'Bearer ' + access_token }
+  });
+  return infoRes.json();
+}
 
-  <script>
-    async function roast(url) {
-      const res = await fetch('/.netlify/functions/generate-review', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ spotifyUrl: url })
-      });
-      const data = await res.json();
-      if (data.error) return alert(data.error);
-      document.getElementById('art').src    = data.artUrl;
-      document.getElementById('title').textContent  = data.title;
-      document.getElementById('review').textContent = data.review;
-      document.getElementById('rating').textContent = `Rating: ${data.rating} / 10`;
-      document.getElementById('result').style.display = 'block';
-    }
+exports.handler = async (event) => {
+  try {
+    const { spotifyUrl } = JSON.parse(event.body);
+    const info = await fetchSpotify(spotifyUrl);
 
-    document.getElementById('go').onclick = () => {
-      const url = document.getElementById('spotifyUrl').value.trim();
-      if (!url) return alert('Enter a Spotify link.');
-      roast(url);
+    // Build prompt
+    const title = info.name;
+    const artist = (info.artists||[])[0]?.name || '';
+    const artUrl = info.images?.[0]?.url || '';
+    const prompt = `
+Write a snarky, Pitchfork-style music review of the ${info.album_type || info.type} "${title}" by ${artist}. 
+Use pretentious, ironic language, then end with "Rating: X.X/10".`;
+
+    // Call OpenAI
+    const completion = await openai.createChatCompletion({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 300,
+      temperature: 0.8,
+    });
+
+    const text = completion.data.choices[0].message.content.trim();
+    // Extract rating from the end
+    const match = text.match(/Rating: ([0-9]\.?[0-9]?\/10)$/m);
+    const rating = match ? match[1].split('/')[0] : '–';
+    const review = text.replace(/Rating: [0-9]\.?[0-9]?\/10$/, '').trim();
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ artUrl, title: `${title} by ${artist}`, review, rating })
     };
-  </script>
-</body>
-</html>
+  } catch (err) {
+    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+  }
+};
