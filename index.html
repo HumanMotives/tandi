@@ -72,47 +72,50 @@
     </div>
   </div>
 
-  <!-- Supabase Likes Script -->
-  <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+<!-- Supabase Likes Script -->
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    const supabase = createClient(
-      "https://ticxhncusdycqjftohho.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM"
+  const supabase = createClient(
+    "https://ticxhncusdycqjftohho.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM"
+  );
+  const liked = new Set(JSON.parse(localStorage.getItem("liked")||"[]"));
+
+  async function loadLikes() {
+    const { data, error } = await supabase.from("likes").select("*");
+    if (!error) {
+      data.forEach(({ project, count }) => {
+        const el = document.querySelector(
+          `.like-counter[data-project="${project}"] .like-count`
+        );
+        if (el) el.textContent = count;
+      });
+    }
+  }
+
+  async function likeProject(project) {
+    if (liked.has(project)) return;
+    liked.add(project);
+    localStorage.setItem("liked", JSON.stringify([...liked]));
+    const el = document.querySelector(
+      `.like-counter[data-project="${project}"] .like-count`
     );
-    const liked = new Set(JSON.parse(localStorage.getItem("liked")||"[]"));
+    if (el) el.textContent = parseInt(el.textContent||"0") + 1;
+    await supabase.rpc("increment_like", { project_name: project });
+  }
 
-    async function loadLikes() {
-      const { data, error } = await supabase
-  .from("likes")
-  .select("*");console.log("loaded likes →", data, error);
-      if (!error) {
-        data.forEach(({ project, count }) => {
-          const el = document.querySelector(`.like-counter[data-project="${project}"] .like-count`);
-          if (el) el.textContent = count;
-        });
-      }
-    }
-
-    async function likeProject(project) {
-      if (liked.has(project)) return;
-      liked.add(project);
-      localStorage.setItem("liked", JSON.stringify([...liked]));
-      const el = document.querySelector(`.like-counter[data-project="${project}"] .like-count`);
-      if (el) el.textContent = parseInt(el.textContent||"0") + 1;
-      await supabase.rpc("increment_like", { project_name: project });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      loadLikes();
-      document.querySelectorAll(".like-counter").forEach(btn => {
-        btn.addEventListener("click", e => {
-          e.stopPropagation();
-          likeProject(btn.dataset.project);
-        });
+  document.addEventListener("DOMContentLoaded", () => {
+    loadLikes();
+    document.querySelectorAll(".like-counter").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        likeProject(btn.dataset.project);
       });
     });
-  </script>
+  });
+</script>
+
 
 </body>
 </html>
