@@ -1,1 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Transients & Incantations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background: #DCEEDD;
+      font-family: 'Inter', sans-serif;
+      font-weight: 200;
+      color: #474350;
+      text-align: center;
+      padding: 20px;
+    }
 
+    .header {
+      max-width: 800px;
+      margin: 0 auto 20px;
+    }
+    .header img {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .tagline {
+      font-size: 1em;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .mode-options {
+      margin-bottom: 20px;
+    }
+    .mode-options label {
+      font-size: 1.1em;
+      margin: 0 15px;
+      cursor: pointer;
+    }
+    input[type="radio"] {
+      accent-color: #474350;
+    }
+
+    #darkness-control {
+      margin: 30px 0 20px;
+    }
+
+  input[type=range] {
+  -webkit-appearance: none;
+  width: 300px;
+  height: 6px;
+  background: #b9b9b9;
+  border-radius: 5px;
+  outline: none;
+}
+
+    input[type=range]::-webkit-slider-thumb,
+    input[type=range]::-moz-range-thumb,
+    input[type=range]::-ms-thumb {
+      width: 16px;
+      height: 16px;
+      background: #FECDAA;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+
+    #generateBtn {
+      background-color: #242524;
+      color: #f7fff4;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      margin: 10px 0;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    #generateBtn:hover {
+      background-color: #3a3b3a;
+    }
+
+    #idea-box {
+      background: #FCFFEB;
+      border-radius: 20px;
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 40px 20px;
+      width: 90%;
+      box-sizing: border-box;
+    }
+
+    #idea {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.3em;
+      line-height: 1.6;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      min-height: 3em;
+      margin-bottom: 20px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .actions button {
+      border: none;
+      border-radius: 5px;
+      padding: 10px 16px;
+      font-size: 1.2em;
+      cursor: pointer;
+    }
+
+    #shareBtn, #copyBtn {
+      background: #FECDAA;
+      color: #474350;
+    }
+    #shareBtn:hover, #copyBtn:hover {
+      background: #e0c29a;
+    }
+
+    .char {
+      display: inline;
+      opacity: 0;
+      animation: fadeInChars .4s forwards;
+      margin-right: .05em;
+      color: #474350;
+    }
+
+    @keyframes fadeInChars {
+      from { opacity: 0; transform: translateY(0.2em); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    footer {
+      color: #474350;
+      max-width: 700px;
+      margin: 40px auto 0;
+      padding: 20px;
+      font-size: .8em;
+    }
+    footer a {
+      color: #474350;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <img src="./ti_logo.png" alt="Transients & Incantations logo">
+    <p class="tagline">Generative imaginations for electronic musicians who are bored</p>
+  </div>
+
+  <div class="mode-options">
+    <label><input type="radio" name="mode" value="mystical" checked> Mystical</label>
+    <label><input type="radio" name="mode" value="daw"> DAW</label>
+    <label><input type="radio" name="mode" value="modular"> Modular</label>
+  </div>
+
+  <div id="darkness-control">
+    <label for="darknessSlider">light/dark</label><br>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
+      <span style="font-size: 1.2em;">☀️</span>
+      <input type="range" id="darknessSlider" min="0" max="100" value="50">
+      <span style="font-size: 1.2em;">🌙</span>
+    </div>
+    <div><span id="darknessLabel">50</span>% dark</div>
+  </div>
+
+  <button id="generateBtn">Generate Idea</button>
+
+  <div id="idea-box">
+    <div id="idea">Loading vocabulary…</div>
+    <div class="actions">
+      <button id="shareBtn" title="Download as Image">📷</button>
+      <button id="copyBtn" title="Copy to Clipboard">📋</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="donate-widget" style="margin-bottom:15px;">
+      <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
+      <script>
+        kofiwidget2.init('Support me on Ko-fi', '#242524', 'V7V01ICB2V');
+        kofiwidget2.draw();
+      </script>
+    </div>
+    Concept &amp; Design by Chris van der Linden. Licensed under
+    <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
+  </footer>
+
+  <script>
+    let pool;
+
+    const templates = [
+      "As {subject} {verb}, {twist}.",
+      "{subject} {verb} {metaphor}, {twist}.",
+      "In the patchwork of {metaphor}, {subject} {verb}.",
+      "{subject} {verb}—{twist}.",
+      "{subject} {verb} {metaphor}.",
+      "Nothing remains but {subject} that {verb} {metaphor}.",
+      "{subject} begins again, {twist}.",
+      "{subject} {verb} not in time, but in resonance.",
+      "Each pulse {verb} {metaphor}, a memory in delay.",
+      "{subject} becomes {twist}."
+    ];
+
+    const pickWeighted = (entry, weight) => {
+      if (Array.isArray(entry)) return entry[Math.floor(Math.random() * entry.length)];
+      const light = entry.light || [];
+      const dark = entry.dark || [];
+      const pDark = weight / 100;
+      const fromDark = Math.random() < pDark;
+      const arr = fromDark ? dark : light;
+      return arr[Math.floor(Math.random() * arr.length)];
+    };
+
+    const generate = () => {
+      const t = templates[Math.floor(Math.random() * templates.length)];
+      const darkness = parseInt(document.getElementById('darknessSlider')?.value || '50');
+      return t
+        .replace('{subject}', pickWeighted(pool.subjects, darkness))
+        .replace('{verb}', pickWeighted(pool.verbs, darkness))
+        .replace('{metaphor}', pickWeighted(pool.metaphors, darkness))
+        .replace('{twist}', pickWeighted(pool.twists, darkness));
+    };
+
+    const animateText = txt => {
+      const box = document.getElementById('idea');
+      box.innerHTML = '';
+      [...txt].forEach((c, i) => {
+        const span = document.createElement('span');
+        span.textContent = c;
+        span.className = 'char';
+        span.style.animationDelay = (i * 20) + 'ms';
+        box.appendChild(span);
+      });
+    };
+
+    const loadPoolAndGenerate = mode => {
+      const file = mode === 'mystical' ? 'pool_mystical.json'
+                  : mode === 'daw' ? 'pool_daw.json'
+                  : 'pool_modular.json';
+      const url = `${file}?t=${Date.now()}`;
+      fetch(url)
+        .then(res => res.ok ? res.json() : Promise.reject(`${file} not found`))
+        .then(data => {
+          pool = data;
+          animateText(generate());
+        })
+        .catch(e => {
+          document.getElementById('idea').innerText = '⚠️ ' + e;
+          console.error(e);
+        });
+    };
+
+    document.getElementById('generateBtn').onclick = () => {
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      loadPoolAndGenerate(mode);
+    };
+
+    document.getElementById('darknessSlider').addEventListener('input', () => {
+      document.getElementById('darknessLabel').textContent = document.getElementById('darknessSlider').value;
+    });
+
+    document.querySelectorAll('input[name="mode"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const selectedMode = document.querySelector('input[name="mode"]:checked').value;
+        loadPoolAndGenerate(selectedMode);
+      });
+    });
+
+    document.getElementById('copyBtn').onclick = () => {
+      const t = document.getElementById('idea').innerText;
+      navigator.clipboard.writeText(t).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '✅';
+        setTimeout(() => btn.textContent = '📋', 1200);
+      });
+    };
+
+    document.getElementById('shareBtn').onclick = () => {
+      const txt = document.getElementById('idea').innerText;
+      const canvas = document.createElement('canvas');
+      const W = 1080, H = 1080;
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#FCFFEB';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#474350';
+      ctx.font = '36px Courier New, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+
+      const words = txt.split(' ');
+      const lines = [];
+      let line = '';
+      words.forEach(w => {
+        const test = line + w + ' ';
+        if (ctx.measureText(test).width > W * 0.8) {
+          lines.push(line.trim());
+          line = w + ' ';
+        } else {
+          line = test;
+        }
+      });
+      if (line) lines.push(line.trim());
+
+      const lineHeight = 48;
+      let y = (H - lines.length * lineHeight) / 2;
+      lines.forEach(l => {
+        ctx.fillText(l, W / 2, y);
+        y += lineHeight;
+      });
+
+      const logo = new Image();
+      logo.src = './ti_watermarklogo.png';
+      logo.onload = () => {
+        ctx.drawImage(logo, (W - 120) / 2, H - 160, 120, 120);
+        const a = document.createElement('a');
+        a.download = 'incantation.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      };
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadPoolAndGenerate('mystical');
+    });
+  </script>
+</body>
+</html>
