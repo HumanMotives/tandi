@@ -1,0 +1,41 @@
+
+/* Grid and tile layout for Transients & Incantations hub */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.tile {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 6px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease;
+  display: block;
+}
+
+.tile:hover {
+  transform: scale(1.02);
+}
+
+.tile-icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.tile-title {
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+  font-size: 1.1rem;
+}
+
+.tile-desc {
+  font-size: 0.9rem;
+  color: #555;
+}
