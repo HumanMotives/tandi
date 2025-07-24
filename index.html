@@ -1,71 +1,84 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Transients &amp; Incantations</title>
+  <title>Transients & Incantations</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet">
   <style>
     body {
+      background: #fafafa;
+      color: #111;
+      font-family: 'IBM Plex Mono', monospace;
       margin: 0;
-      background: #F8FFF4; /* Mint Cream */
-      color: #474350;      /* Davy's Gray */
-      font-family: 'Inter', sans-serif;
-      font-weight: 200;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    img.logo {
-      max-width: 240px;
-      margin-bottom: 20px;
+      padding: 2rem;
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
     }
     h1 {
-      margin: 0 0 40px;
-      font-size: 2em;
-    }
-    nav {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    nav a {
-      text-decoration: none;
-      background: #FECDAA; /* Peach */
-      color: #474350;
-      padding: 12px 24px;
-      border-radius: 8px;
-      transition: background 0.2s;
-    }
-    nav a:hover {
-      background: #E2B492; /* darker Peach */
-    }
-    footer {
-      position: absolute;
-      bottom: 20px;
-      font-size: 0.8em;
+      font-size: 2rem;
       text-align: center;
+      margin-bottom: 2rem;
+      letter-spacing: 0.5px;
     }
-    footer a {
-      color: #474350;
-      text-decoration: underline;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .tile {
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      border-radius: 6px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s ease;
+    }
+    .tile:hover {
+      transform: scale(1.02);
+    }
+    .tile-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .tile-title {
+      font-weight: bold;
+      margin-bottom: 0.3rem;
+      font-size: 1.1rem;
+    }
+    .tile-desc {
+      font-size: 0.9rem;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <img src="./ti_logo.png" class="logo" alt="Transients & Incantations logo">
-  <h1>Transients &amp; Incantations</h1>
-
-  <nav>
-    <a href="inspirationgenerator.html">Inspiration Generator</a>
-    <a href="data_grave.html">Data Grave</a>
-  </nav>
-
-  <footer>
-    &copy; 2025 Chris van der Linden<br>
-    <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>
-  </footer>
+  <h1>Transients & Incantations</h1>
+  <div class="grid">
+    <a class="tile" href="projects/thedatagrave/">
+      <div class="tile-icon">🪦</div>
+      <div class="tile-title">The Data Grave</div>
+      <div class="tile-desc">Bury your half-finished loops. Leave an epitaph. Say no more.</div>
+    </a>
+    <a class="tile" href="projects/pitchdork/">
+      <div class="tile-icon">🎤</div>
+      <div class="tile-title">Pitchdork</div>
+      <div class="tile-desc">Paste a Spotify link, get a fake Pitchfork review. Sarcasm included.</div>
+    </a>
+    <a class="tile" href="projects/memorylapse/">
+      <div class="tile-icon">🕰️</div>
+      <div class="tile-title">Memory Lapse</div>
+      <div class="tile-desc">A slow-fading sound collage that decays over time like memory.</div>
+    </a>
+    <a class="tile" href="projects/loopgarden/">
+      <div class="tile-icon">🌱</div>
+      <div class="tile-title">Loop Garden</div>
+      <div class="tile-desc">Plant tape loops and grow ambient textures with others.</div>
+    </a>
+  </div>
 </body>
 </html>
