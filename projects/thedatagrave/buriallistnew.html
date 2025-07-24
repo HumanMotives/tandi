@@ -111,13 +111,13 @@
       const slice = allBurials.slice(start, start + recordsPerPage);
       slice.forEach(b => {
         const date = new Date(b.timestamp).toLocaleDateString();
-        const iconSrc = b.method === 'cremate' ? 'icons/urn.png' : 'icons/grave.png';
+        const iconSrc = b.method === 'cremate' ? 'icons/icon_urn.png' : 'icons/grave.png';
         const playIcon = b.method === 'bury'
-          ? `<img src="icons/play.png" class="icon" title="Play"/>` : '';
+          ? `<img src="icons/icon_playaudio.png" class="icon" title="Play"/>` : '';
         const name = b.name.length > 30 ? b.name.slice(0,27) + '...' : b.name;
         const country = b.country || '';
         const epitaph = b.epitaph || '';
-        const flowers = `<img src="icons/flower.png" class="icon" title="Send Flower"/> 0`;
+        const flowers = `<img src="icons/icon_flower.png" class="icon" title="Send Flower"/> 0`;
         const row = document.createElement('tr');
         row.className = 'burial-record';
         row.innerHTML = `
