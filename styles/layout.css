@@ -20,19 +20,20 @@
 
 
 .tile {
-  background: #fff;
-  border: 1px solid #ccc;
+  background: transparent;
+  border: 1px solid #000;
   padding: 1rem;
   border-radius: 6px;
-  box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+  box-shadow: none;
   text-decoration: none;
   color: inherit;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease;
   display: block;
 }
 
 .tile:hover {
   transform: scale(1.02);
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .tile-icon {
