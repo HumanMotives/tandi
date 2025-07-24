@@ -83,7 +83,9 @@
     const liked = new Set(JSON.parse(localStorage.getItem("liked")||"[]"));
 
     async function loadLikes() {
-      const { data, error } = await supabase.from("likes").select("project,count");
+      const { data, error } = await supabase
+  .from("likes")
+  .select("*");console.log("loaded likes →", data, error);
       if (!error) {
         data.forEach(({ project, count }) => {
           const el = document.querySelector(`.like-counter[data-project="${project}"] .like-count`);
