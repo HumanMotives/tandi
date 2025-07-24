@@ -1,67 +1,102 @@
-const fetch = require('node-fetch');
-const { Configuration, OpenAIApi } = require('openai');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pitchdork – Sarcastic Music Reviews</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-// Initialize OpenAI
-const openai = new OpenAIApi(new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-}));
+  <!-- Shared/global styles (adjust the path if needed) -->
+  <link rel="stylesheet" href="../../styles/main.css">
 
-// Helper to get Spotify album/track data
-async function fetchSpotify(spotifyUrl) {
-  // extract ID from URL
-  const id = spotifyUrl.split('/').pop().split('?')[0];
-  // get token via Client Credentials
-  const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      Authorization: 'Basic ' + Buffer.from(
-        `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
-      ).toString('base64'),
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: 'grant_type=client_credentials'
-  });
-  const { access_token } = await tokenRes.json();
-  // fetch album or track
-  const apiType = spotifyUrl.includes('/album/') ? 'albums' : 'tracks';
-  const infoRes = await fetch(`https://api.spotify.com/v1/${apiType}/${id}`, {
-    headers: { Authorization: 'Bearer ' + access_token }
-  });
-  return infoRes.json();
-}
+  <!-- Quick project-specific styling -->
+  <style>
+    body {
+      background: #1e1e1e;
+      color: #eee;
+      font-family: sans-serif;
+      padding: 2rem;
+      text-align: center;
+    }
+    input, button {
+      font-size: 1rem;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      width: 90%;
+      max-width: 400px;
+      border: none;
+      border-radius: 4px;
+    }
+    button {
+      background: #ff6666;
+      color: #fff;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 2rem;
+      display: none;
+    }
+    #result img {
+      max-width: 150px;
+      border-radius: 8px;
+    }
+    #result h2 {
+      margin: 1rem 0 0.5rem;
+      font-size: 1.25rem;
+    }
+    #review {
+      font-style: italic;
+      margin: 1rem auto;
+      max-width: 600px;
+      line-height: 1.4;
+    }
+    #rating {
+      font-size: 1.2rem;
+      color: #ff9999;
+    }
+  </style>
+</head>
+<body>
 
-exports.handler = async (event) => {
-  try {
-    const { spotifyUrl } = JSON.parse(event.body);
-    const info = await fetchSpotify(spotifyUrl);
+  <h1>🎧 Pitchdork</h1>
+  <p>Paste a Spotify album or track link below to receive a snarky review:</p>
 
-    // Build prompt
-    const title = info.name;
-    const artist = (info.artists||[])[0]?.name || '';
-    const artUrl = info.images?.[0]?.url || '';
-    const prompt = `
-Write a snarky, Pitchfork-style music review of the ${info.album_type || info.type} "${title}" by ${artist}. 
-Use pretentious, ironic language, then end with "Rating: X.X/10".`;
+  <input id="spotifyUrl" type="text" placeholder="https://open.spotify.com/album/...">
+  <button id="go">Roast It</button>
 
-    // Call OpenAI
-    const completion = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 300,
-      temperature: 0.8,
+  <div id="result">
+    <img id="art" src="" alt="Album Art">
+    <h2 id="title"></h2>
+    <p id="review"></p>
+    <div id="rating"></div>
+  </div>
+
+  <script>
+    async function roast(url) {
+      try {
+        const res = await fetch('/.netlify/functions/generate-review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ spotifyUrl: url })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        document.getElementById('art').src        = data.artUrl;
+        document.getElementById('title').textContent  = data.title;
+        document.getElementById('review').textContent = data.review;
+        document.getElementById('rating').textContent = `Rating: ${data.rating} / 10`;
+        document.getElementById('result').style.display = 'block';
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    document.getElementById('go').addEventListener('click', () => {
+      const url = document.getElementById('spotifyUrl').value.trim();
+      if (!url) return alert('Please enter a Spotify link.');
+      roast(url);
     });
+  </script>
 
-    const text = completion.data.choices[0].message.content.trim();
-    // Extract rating from the end
-    const match = text.match(/Rating: ([0-9]\.?[0-9]?\/10)$/m);
-    const rating = match ? match[1].split('/')[0] : '–';
-    const review = text.replace(/Rating: [0-9]\.?[0-9]?\/10$/, '').trim();
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ artUrl, title: `${title} by ${artist}`, review, rating })
-    };
-  } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
-  }
-};
+</body>
+</html>
