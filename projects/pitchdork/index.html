@@ -1,1 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pitchdork – Sarcastic Music Reviews</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <link rel="stylesheet" href="../../styles/main.css">
+  <style>
+    /* Quick override for Pitchdork */
+    body { text-align: center; padding: 2rem; }
+    img { max-width: 180px; border-radius: 8px; }
+    #review { margin-top: 1.5rem; font-style: italic; }
+    #rating { margin-top: .5rem; font-size: 1.2rem; color: #d44; }
+  </style>
+</head>
+<body>
+  <h1>🎧 Pitchdork</h1>
+  <p>Paste a Spotify album or track link below:</p>
+  <input id="spotifyUrl" type="text" placeholder="https://open.spotify.com/album/…" style="width:80%;max-width:400px">
+  <button id="go">Roast It</button>
+
+  <div id="result" style="display:none;">
+    <img id="art" src="" alt="Album Art">
+    <h2 id="title"></h2>
+    <p id="review"></p>
+    <div id="rating"></div>
+  </div>
+
+  <script>
+    async function roast(url) {
+      const res = await fetch('/.netlify/functions/generate-review', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ spotifyUrl: url })
+      });
+      const data = await res.json();
+      if (data.error) return alert(data.error);
+      document.getElementById('art').src    = data.artUrl;
+      document.getElementById('title').textContent  = data.title;
+      document.getElementById('review').textContent = data.review;
+      document.getElementById('rating').textContent = `Rating: ${data.rating} / 10`;
+      document.getElementById('result').style.display = 'block';
+    }
+
+    document.getElementById('go').onclick = () => {
+      const url = document.getElementById('spotifyUrl').value.trim();
+      if (!url) return alert('Enter a Spotify link.');
+      roast(url);
+    };
+  </script>
+</body>
+</html>
