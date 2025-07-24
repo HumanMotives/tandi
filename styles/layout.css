@@ -32,9 +32,26 @@
 }
 
 .tile:hover {
-  transform: scale(1.02);
+  transform: none;
   background-color: rgba(0, 0, 0, 0.03);
+  border-color: #000;
 }
+
+.like-counter {
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  color: #444;
+  text-decoration: none;  /* prevent underlining */
+}
+
+.like-counter span {
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;  /* prevent underline */
+  color: #444;            /* prevent inheriting tile:hover */
+}
+
 
 .tile-icon {
   font-size: 1.8rem;
