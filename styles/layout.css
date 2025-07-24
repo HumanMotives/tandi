@@ -1,35 +1,47 @@
-/* GRID */
+/* --- GRID: hub layout --- */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 2rem;              /* extra breathing room */
+  gap: 2rem;              /* space between tiles */
+  margin-top: 2rem;
 }
 
-/* TILE CONTAINER */
+/* --- TILE: full container with outline & hover shading --- */
 .tile {
   border: 1px solid #000;
   border-radius: 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: background-color 0.2s ease;
 }
 
-/* LINK REGION (gets hover shading & underline) */
+.tile:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* --- LINK REGION: contains image, title, desc; underlines title only --- */
 .tile-link {
   display: block;
   width: 100%;
   padding: 1rem;
   text-decoration: none;
   color: inherit;
-  transition: background-color 0.2s ease;
-  border-radius: 6px 6px 0 0;  /* round top corners */
 }
 
-.tile-link:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+.tile-link:hover .tile-title {
+  text-decoration: underline;
 }
 
-/* TITLE underlines only on link hover */
+/* --- IMAGE: 100×100 block centered --- */
+.tile-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin: 0 auto 0.8rem;
+}
+
+/* --- TITLE: only underlined on link hover --- */
 .tile-title {
   font-weight: bold;
   margin-bottom: 0.3rem;
@@ -38,27 +50,16 @@
   transition: text-decoration 0.2s ease;
 }
 
-.tile-link:hover .tile-title {
-  text-decoration: underline;
-}
-
-/* IMAGE */
-.tile-image {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  margin: 0 auto 0.8rem;
-  display: block;
-}
-
-/* DESCRIPTION (inside link) */
+/* --- DESCRIPTION: static text inside the link --- */
 .tile-desc {
   font-size: 0.9rem;
   color: #555;
+  margin-bottom: 1rem;
   text-align: center;
+  text-decoration: none; /* ensure no underline ever */
 }
 
-/* HEART BUTTON */
+/* --- HEART BUTTON: sits inside tile, below link --- */
 .like-counter {
   background: none;
   border: none;
@@ -67,10 +68,11 @@
   color: #444;
   cursor: pointer;
   user-select: none;
-  border-top: 1px solid #eee;  /* separator line */
+  border-top: 1px solid #eee; /* separation line */
   width: 100%;
   text-align: center;
 }
+
 .like-counter .like-count {
   font-weight: bold;
 }
