@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Transients & Incantations</title>
@@ -11,95 +13,104 @@
   <link rel="stylesheet" href="/styles/layout.css">
 </head>
 
-<div class="grid">
+<body>
+  <h1>Transients & Incantations</h1>
 
- <div class="tile">
-  <!-- only this link region gets hover effects -->
-  <a href="projects/pitchdork/" class="tile-link">
-    <img src="styles/icon_musicfolder.png" class="tile-image" alt="">
-    <div class="tile-title">Pitchdork</div>
-    <div class="tile-desc">
-      Paste a Spotify link, get a fake Pitchfork review. Sarcasm included.
+  <div class="grid">
+    <!-- Tile 1: The Data Grave -->
+    <div class="tile">
+      <a href="projects/thedatagrave/" class="tile-link">
+        <img src="styles/icon_tombstone.png" class="tile-image" alt="The Data Grave">
+        <div class="tile-title">The Data Grave</div>
+        <div class="tile-desc">Bury your half-finished loops. Leave an epitaph. Say no more.</div>
+      </a>
+      <button type="button" class="like-counter" data-project="datagrave">
+        ❤️ <span class="like-count">0</span>
+      </button>
     </div>
-  </a>
-  <button type="button"
-          class="like-counter"
-          data-project="pitchdork">
-    ❤️ <span class="like-count">0</span>
-  </button>
-</div>
 
+    <!-- Tile 2: Pitchdork -->
+    <div class="tile">
+      <a href="projects/pitchdork/" class="tile-link">
+        <img src="styles/icon_musicfolder.png" class="tile-image" alt="Pitchdork">
+        <div class="tile-title">Pitchdork</div>
+        <div class="tile-desc">
+          Paste a Spotify link, get a fake Pitchfork review. Sarcasm included.
+        </div>
+      </a>
+      <button type="button" class="like-counter" data-project="pitchdork">
+        ❤️ <span class="like-count">0</span>
+      </button>
+    </div>
 
-  <!-- Tile 1: The Data Grave -->
-  <div class="tile-container">
-    <a class="tile" href="projects/thedatagrave/">
-      <img src="styles/icon_tombstone.png"
-           alt="The Data Grave thumbnail"
-           class="tile-image">
-      <div class="tile-title">The Data Grave</div>
-      <div class="tile-desc">
-        Bury your half-finished loops. Leave an epitaph. Say no more.
-      </div>
-    </a>
-    <button type="button"
-            class="like-counter"
-            data-project="datagrave">
-      ❤️ <span class="like-count">0</span>
-    </button>
+    <!-- Tile 3: Memory Lapse -->
+    <div class="tile">
+      <a href="projects/memorylapse/" class="tile-link">
+        <img src="styles/icon_chip.png" class="tile-image" alt="Memory Lapse">
+        <div class="tile-title">Memory Lapse</div>
+        <div class="tile-desc">
+          A slow-fading sound collage that decays over time like memory.
+        </div>
+      </a>
+      <button type="button" class="like-counter" data-project="memorylapse">
+        ❤️ <span class="like-count">0</span>
+      </button>
+    </div>
+
+    <!-- Tile 4: Loop Garden -->
+    <div class="tile">
+      <a href="projects/loopgarden/" class="tile-link">
+        <img src="styles/icon_tombstone.png" class="tile-image" alt="Loop Garden">
+        <div class="tile-title">Loop Garden</div>
+        <div class="tile-desc">
+          Plant tape loops and grow ambient textures with others.
+        </div>
+      </a>
+      <button type="button" class="like-counter" data-project="loopgarden">
+        ❤️ <span class="like-count">0</span>
+      </button>
+    </div>
   </div>
 
-  <!-- Tile 2: Pitchdork -->
-  <div class="tile-container">
-    <a class="tile" href="projects/pitchdork/">
-      <img src="styles/icon_musicfolder.png"
-           alt="Pitchdork thumbnail"
-           class="tile-image">
-      <div class="tile-title">Pitchdork</div>
-      <div class="tile-desc">
-        Paste a Spotify link, get a fake Pitchfork review. Sarcasm included.
-      </div>
-    </a>
-    <button type="button"
-            class="like-counter"
-            data-project="pitchdork">
-      ❤️ <span class="like-count">0</span>
-    </button>
-  </div>
+  <!-- Supabase Likes Script -->
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-  <!-- Tile 3: Memory Lapse -->
-  <div class="tile-container">
-    <a class="tile" href="projects/memorylapse/">
-      <img src="styles/icon_chip.png"
-           alt="Memory Lapse thumbnail"
-           class="tile-image">
-      <div class="tile-title">Memory Lapse</div>
-      <div class="tile-desc">
-        A slow-fading sound collage that decays over time like memory.
-      </div>
-    </a>
-    <button type="button"
-            class="like-counter"
-            data-project="memorylapse">
-      ❤️ <span class="like-count">0</span>
-    </button>
-  </div>
+    const supabase = createClient(
+      "https://YOUR-PROJECT-REF.supabase.co",
+      "YOUR-ANON-KEY"
+    );
+    const liked = new Set(JSON.parse(localStorage.getItem("liked")||"[]"));
 
-  <!-- Tile 4: Loop Garden -->
-  <div class="tile-container">
-    <a class="tile" href="projects/loopgarden/">
-      <img src="styles/icon_tombstone.png"
-           alt="Loop Garden thumbnail"
-           class="tile-image">
-      <div class="tile-title">Loop Garden</div>
-      <div class="tile-desc">
-        Plant tape loops and grow ambient textures with others.
-      </div>
-    </a>
-    <button type="button"
-            class="like-counter"
-            data-project="loopgarden">
-      ❤️ <span class="like-count">0</span>
-    </button>
-  </div>
+    async function loadLikes() {
+      const { data, error } = await supabase.from("likes").select("project,count");
+      if (!error) {
+        data.forEach(({ project, count }) => {
+          const el = document.querySelector(`.like-counter[data-project="${project}"] .like-count`);
+          if (el) el.textContent = count;
+        });
+      }
+    }
 
-</div>
+    async function likeProject(project) {
+      if (liked.has(project)) return;
+      liked.add(project);
+      localStorage.setItem("liked", JSON.stringify([...liked]));
+      const el = document.querySelector(`.like-counter[data-project="${project}"] .like-count`);
+      if (el) el.textContent = parseInt(el.textContent||"0") + 1;
+      await supabase.rpc("increment_like", { project_name: project });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadLikes();
+      document.querySelectorAll(".like-counter").forEach(btn => {
+        btn.addEventListener("click", e => {
+          e.stopPropagation();
+          likeProject(btn.dataset.project);
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
