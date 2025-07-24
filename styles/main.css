@@ -1,1 +1,60 @@
 
+/* Global Styles for Transients & Incantations */
+body {
+  background-color: #f5f1e6;
+  font-family: monospace;
+  font-size: 12pt;
+  color: #333;
+  max-width: 800px;
+  margin: 4rem auto;
+  padding: 0 1.5rem;
+}
+hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 2rem 0;
+}
+table {
+  width: 100%;
+  font-family: monospace;
+  font-size: 0.95rem;
+  border-collapse: collapse;
+}
+th, td {
+  text-align: left;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
+a {
+  color: #333;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+.button {
+  display: block;
+  margin: 1.5rem auto 0.5rem auto;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border: none;
+  background-color: #3a3a3a;
+  color: #fff;
+  cursor: pointer;
+}
+.link {
+  display: block;
+  margin-top: 1rem;
+  text-align: center;
+  color: #555;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+footer {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 4rem;
+}
+
