@@ -1,30 +1,23 @@
 // netlify/functions/generate-review.js
-
-// No SDK imports—use global fetch
 exports.handler = async (event) => {
   try {
     const { spotifyUrl } = JSON.parse(event.body);
 
-    // 1) Fetch Spotify data
+    // ——— Step 1: Fetch Spotify metadata ———
     const id = spotifyUrl.split('/').pop().split('?')[0];
-    // Get Spotify token
-    const tokenRes = await fetch(
-      'https://accounts.spotify.com/api/token',
-      {
-        method: 'POST',
-        headers: {
-          Authorization:
-            'Basic ' +
-            Buffer.from(
-              `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
-            ).toString('base64'),
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'grant_type=client_credentials',
-      }
-    );
+    const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        Authorization:
+          'Basic ' +
+          Buffer.from(
+            `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
+          ).toString('base64'),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'grant_type=client_credentials',
+    });
     const { access_token } = await tokenRes.json();
-    // Determine album vs track
     const isAlbum = spotifyUrl.includes('/album/');
     const endpoint = isAlbum ? 'albums' : 'tracks';
     const infoRes = await fetch(
@@ -33,14 +26,21 @@ exports.handler = async (event) => {
     );
     const info = await infoRes.json();
 
-    // 2) Build prompt
+    // ——— Step 2: Build the “brutal” prompt ———
     const title = info.name;
     const artist = (info.artists || [])[0]?.name || 'Unknown Artist';
-    const prompt = `
-Write a snarky, Pitchfork-style review of the ${isAlbum ? 'album' : 'track'}
-"${title}" by ${artist}. End with "Rating: X.X/10".`;
+    const artImages = isAlbum
+      ? info.images
+      : info.album?.images || [];
+    const artUrl = artImages[0]?.url || '';
 
-    // 3) Call OpenAI REST endpoint
+    const prompt = `
+You are a savage, irreverent music critic. 
+Write a short, punchy, brutal one-paragraph roast of the ${isAlbum ? 'album' : 'track'}
+"${title}" by ${artist}. Feel free to use casual swears or absurd insults (“This auditory vomit-fest…”, “Why his mom ever said he was good at singing”). 
+At the end, on its own line, include "Score: X" where X is any number—even negative—down to -50. No other commentary.`;
+
+    // ——— Step 3: Call OpenAI’s REST API ———
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -50,22 +50,23 @@ Write a snarky, Pitchfork-style review of the ${isAlbum ? 'album' : 'track'}
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 300,
-        temperature: 0.8,
+        max_tokens: 200,
+        temperature: 0.9,      // high creativity
+        top_p: 0.9,
       }),
     });
-    const aiData = await aiRes.json();
-    if (aiData.error) throw new Error(aiData.error.message);
+    const aiJson = await aiRes.json();
+    if (aiJson.error) throw new Error(aiJson.error.message);
 
-    const text = aiData.choices[0].message.content.trim();
-    // 4) Extract rating & review
-    const ratingMatch = text.match(/Rating:\s*([0-9]\.?[0-9]?)/i);
-    const rating = ratingMatch ? ratingMatch[1] : '–';
-    const review = text.replace(/Rating:\s*[0-9]\.?[0-9]?\/?10?$/i, '').trim();
+    const text = aiJson.choices[0].message.content.trim();
 
-    // 5) Get artwork
-    const images = isAlbum ? info.images : info.album?.images || [];
-    const artUrl = images[0]?.url || '';
+    // ——— Step 4: Extract the score ———
+    // Look for a line like "Score: -35" or "Score: 2"
+    const scoreMatch = text.match(/Score:\s*(-?\d+(\.\d+)?)/i);
+    const score = scoreMatch ? scoreMatch[1] : '–';
+
+    // ——— Step 5: Strip out the "Score:" line from the review ———
+    const review = text.replace(/Score:\s*-?\d+(\.\d+)?/i, '').trim();
 
     return {
       statusCode: 200,
@@ -73,11 +74,11 @@ Write a snarky, Pitchfork-style review of the ${isAlbum ? 'album' : 'track'}
         artUrl,
         title: `${title} by ${artist}`,
         review,
-        rating,
+        rating: score,
       }),
     };
   } catch (err) {
-    console.error('Function error:', err);
+    console.error('Error in generate-review:', err);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: err.message }),
