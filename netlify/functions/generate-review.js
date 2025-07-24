@@ -38,7 +38,7 @@ exports.handler = async (event) => {
 You are a savage, irreverent music critic. 
 Write a short, punchy, brutal one-paragraph roast of the ${isAlbum ? 'album' : 'track'}
 "${title}" by ${artist}. Feel free to use casual swears or absurd insults (“This auditory vomit-fest…”, “Why his mom ever said he was good at singing”). 
-At the end, on its own line, include "Score: X" where X is any number—even negative—down to -50. No other commentary.`;
+At the end, on its own line, include "Score: X" where X is any number—even as low as zero point one. No other commentary. Aim to avoid repeating the same puns and methapors`;
 
     // ——— Step 3: Call OpenAI’s REST API ———
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
