@@ -1,23 +1,20 @@
-/* Grid and tile layout for Transients & Incantations hub */
-
+/* --- GRID: hub layout --- */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.5rem;
-  margin-top: 2rem;
 }
 
-.tile-image {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 0.8rem;
+/* --- TILE CONTAINER: stacks link + counter --- */
+.tile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+/* --- TILE: the link card itself --- */
 .tile {
+  width: 100%;
   background: transparent;
   border: 1px solid #000;
   padding: 1rem;
@@ -34,11 +31,16 @@
   border-color: #000;
 }
 
-.tile-icon {
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
+/* --- THUMBNAIL IMAGE --- */
+.tile-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 0.8rem;
 }
 
+/* --- TITLE: only this underlines on tile hover --- */
 .tile-title {
   font-weight: bold;
   margin-bottom: 0.3rem;
@@ -46,37 +48,28 @@
   text-align: center;
   transition: text-decoration 0.2s ease;
 }
-
-/* Underline title on tile hover only */
 .tile:hover .tile-title {
   text-decoration: underline;
 }
 
-/* Prevent underline and hover effect for non-title text */
-.tile-desc,
-.like-counter,
-.like-counter span {
-  text-decoration: none !important;
-  color: #555;
-}
-
-/* Project description */
+/* --- DESCRIPTION --- */
 .tile-desc {
   font-size: 0.9rem;
   color: #555;
   text-align: center;
+  text-decoration: none; /* ensure no underline */
 }
 
-/* Like/heart counter */
+/* --- HEART COUNTER --- */
 .like-counter {
   text-align: center;
   font-size: 0.9rem;
   margin-top: 0.5rem;
   color: #444;
   cursor: pointer;
-}
-
-.like-counter span {
   user-select: none;
+}
+.like-counter span.like-count {
   font-weight: bold;
+  text-decoration: none; /* ensure no underline */
 }
