@@ -65,8 +65,6 @@
   <button id="go">Roast It</button>
 
   <div id="result">
-    <pre id="debug" style="margin-top:2rem; text-align:left; max-width:600px; color:#f88;"></pre>
-
     <img id="art" src="" alt="Album Art">
     <h2 id="title"></h2>
     <p id="review"></p>
@@ -83,9 +81,6 @@
         body: JSON.stringify({ spotifyUrl: url })
       });
       const data = await res.json();
-
-      // DEBUG: show raw response in the <pre> for inspection
-      document.getElementById('debug').textContent = JSON.stringify(data, null, 2);
 
       // If the function returned an error, stop here
       if (data.error) throw new Error(data.error);
