@@ -2,113 +2,144 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Burial Records – Data Grave</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="/styles/main.css">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Burial Records - Data Grave</title>
+  <link rel="stylesheet" href="/styles/main.css" />
   <style>
     body {
       font-family: monospace;
       font-size: 12pt;
-      background-color: #f5f1e6;
-      color: #333;
+      background: #f9f7f3;
+      padding: 2rem;
       max-width: 800px;
-      margin: 2rem auto;
-      padding: 1rem;
+      margin: auto;
     }
-    h1 {
-      text-align: center;
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
+    .burial-record {
+      padding: 0.5rem 0;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-family: monospace;
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .emoji {
+      margin-right: 0.5rem;
+    }
+    .country {
+      margin-left: 0.5rem;
+      font-size: 0.9em;
+      color: #666;
+    }
+    .epitaph {
+      padding-top: 0.3rem;
+      font-style: italic;
+      color: #444;
     }
     .icon {
-      width: 18px;
-      height: 18px;
+      width: 24px;
+      height: 24px;
       vertical-align: middle;
+      cursor: pointer;
     }
-    .burial-header td {
-      padding: 0.5rem 0.25rem;
-      border-bottom: 1px solid #ccc;
-      vertical-align: middle;
+    hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 1rem 0;
     }
-    .burial-epitaph td {
-      font-style: italic;
-      color: #666;
-      padding: 0.4rem 0.25rem 1rem;
+    .pagination {
+      text-align: center;
+      margin-top: 2rem;
     }
-    @media (max-width: 600px) {
-      .burial-header td:nth-child(2),
-      .burial-header td:nth-child(3),
-      .burial-header td:nth-child(4),
-      .burial-header td:nth-child(5) {
-        display: block;
-        width: 100%;
-      }
+    .pagination button {
+      background: #333;
+      color: #fff;
+      padding: 0.4rem 0.8rem;
+      margin: 0 0.3rem;
+      border: none;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-
   <h1>Burial Records</h1>
-  <table id="burialTable"></table>
+  <table class="burial-table">
+    <tbody id="graveList"></tbody>
+  </table>
 
+  <div class="pagination" id="pagination"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const sb = supabase.createClient(
       'https://ticxhncusdycqjftohho.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM'
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
     );
 
-    async function loadBurials() {
+    const graveList = document.getElementById('graveList');
+    const pagination = document.getElementById('pagination');
+    const recordsPerPage = 25;
+    let allBurials = [], currentPage = 1;
+
+    async function fetchBurials() {
       const { data, error } = await sb
         .from('burials')
         .select('name, method, epitaph, country, timestamp')
         .order('timestamp', { ascending: false });
-
-      if (error) {
-        console.error('Failed to load burials:', error.message);
-        return;
-      }
-
-      const table = document.getElementById('burialTable');
-      data.forEach(b => {
-        if (b.method === 'cremate') return; // skip cremated for this demo
-
-        const date = new Date(b.timestamp).toLocaleDateString();
-        const name = b.name.length > 30 ? b.name.slice(0, 27) + '...' : b.name;
-        const country = b.country || '';
-        const epitaph = b.epitaph || '';
-        const flowerCount = Math.floor(Math.random() * 12); // Fake count for now
-
-        const rowTop = document.createElement('tr');
-        rowTop.classList.add('burial-header');
-        rowTop.innerHTML = `
-          <td><img src="icons/icon_tombstone.png" alt="buried" class="icon"></td>
-    
-          <td>${name}</td>
-          <td>${date}</td>
-          <td><img src="icons/icon_flower.png" class="icon" alt="flower"> ${flowerCount}</td>
-          <td><img src="icons/icon_playaudio.png" class="icon" alt="play"></td>
-        `;
-
-        const rowBottom = document.createElement('tr');
-        rowBottom.classList.add('burial-epitaph');
-        rowBottom.innerHTML = `
-          <td colspan="5">"${epitaph}"</td>
-        `;
-
-        table.appendChild(rowTop);
-        table.appendChild(rowBottom);
-      });
+      if (error) return console.error('Failed:', error.message);
+      allBurials = data;
+      showPage(1);
     }
 
-    document.addEventListener('DOMContentLoaded', loadBurials);
-  </script>
+    function showPage(pageNum) {
+      currentPage = pageNum;
+      graveList.innerHTML = '';
+      const start = (pageNum - 1) * recordsPerPage;
+      const end = start + recordsPerPage;
+      const pageBurials = allBurials.slice(start, end);
 
+      pageBurials.forEach(b => {
+        const date = new Date(b.timestamp).toLocaleDateString();
+        const emoji = b.method === 'cremate' ? '⚱️' : '🪦';
+        const displayName = b.name.length > 30 ? b.name.slice(0,27) + '...' : b.name;
+        const epitaph = b.epitaph || '';
+        const country = b.country || '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td colspan="5">
+            <hr>
+            <div class="burial-record">
+              <div class="top-row">
+                <span><span class="emoji">${emoji}</span><strong>${displayName}</strong><span class="country">${country}</span></span>
+                <span>
+                  ${b.method === 'bury' ? `<img src="/projects/thedatagrave/icons/play.png" class="icon" title="Play" />` : ''}
+                  <img src="/projects/thedatagrave/icons/flower.png" class="icon" title="Send Flower" /> 0
+                </span>
+              </div>
+              <div class="epitaph">"${epitaph}"</div>
+            </div>
+            <hr>
+          </td>
+        `;
+        graveList.appendChild(tr);
+      });
+
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const totalPages = Math.ceil(allBurials.length / recordsPerPage);
+      pagination.innerHTML = '';
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.disabled = (i === currentPage);
+        btn.onclick = () => showPage(i);
+        pagination.appendChild(btn);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchBurials);
+  </script>
 </body>
 </html>
