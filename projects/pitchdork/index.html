@@ -65,39 +65,51 @@
   <button id="go">Roast It</button>
 
   <div id="result">
+    <pre id="debug" style="margin-top:2rem; text-align:left; max-width:600px; color:#f88;"></pre>
+
     <img id="art" src="" alt="Album Art">
     <h2 id="title"></h2>
     <p id="review"></p>
     <div id="rating"></div>
   </div>
 
-  <script>
-    async function roast(url) {
-      try {
-        const res = await fetch('/.netlify/functions/generate-review', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ spotifyUrl: url })
-        });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
+<script>
+  async function roast(url) {
+    try {
+      // Call your Netlify function
+      const res = await fetch('/.netlify/functions/generate-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spotifyUrl: url })
+      });
+      const data = await res.json();
 
-        document.getElementById('art').src        = data.artUrl;
-        document.getElementById('title').textContent  = data.title;
-        document.getElementById('review').textContent = data.review;
-        document.getElementById('rating').textContent = `Rating: ${data.rating} / 10`;
-        document.getElementById('result').style.display = 'block';
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      // DEBUG: show raw response in the <pre> for inspection
+      document.getElementById('debug').textContent = JSON.stringify(data, null, 2);
+
+      // If the function returned an error, stop here
+      if (data.error) throw new Error(data.error);
+
+      // Otherwise populate the UI
+      document.getElementById('art').src         = data.artUrl;
+      document.getElementById('title').textContent  = data.title;
+      document.getElementById('review').textContent = data.review;
+      document.getElementById('rating').textContent = `Rating: ${data.rating} / 10`;
+      document.getElementById('result').style.display = 'block';
+    } catch (err) {
+      alert('Error: ' + err.message);
     }
+  }
 
-    document.getElementById('go').addEventListener('click', () => {
-      const url = document.getElementById('spotifyUrl').value.trim();
-      if (!url) return alert('Please enter a Spotify link.');
-      roast(url);
-    });
-  </script>
+  document.getElementById('go').addEventListener('click', () => {
+    const url = document.getElementById('spotifyUrl').value.trim();
+    if (!url) {
+      alert('Please enter a Spotify link.');
+      return;
+    }
+    roast(url);
+  });
+</script>
 
 </body>
 </html>
