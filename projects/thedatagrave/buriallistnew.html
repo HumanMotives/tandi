@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Burial Records – Data Grave</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="/styles/main.css">
+
+  <style>
+    body {
+      font-family: monospace;
+      font-size: 12pt;
+      background-color: #f5f1e6;
+      color: #333;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: monospace;
+    }
+    .icon {
+      width: 18px;
+      height: 18px;
+      vertical-align: middle;
+    }
+    .burial-header td {
+      padding: 0.5rem 0.25rem;
+      border-bottom: 1px solid #ccc;
+      vertical-align: middle;
+    }
+    .burial-epitaph td {
+      font-style: italic;
+      color: #666;
+      padding: 0.4rem 0.25rem 1rem;
+    }
+    @media (max-width: 600px) {
+      .burial-header td:nth-child(2),
+      .burial-header td:nth-child(3),
+      .burial-header td:nth-child(4),
+      .burial-header td:nth-child(5) {
+        display: block;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Burial Records</h1>
+  <table id="burialTable"></table>
+
+  <script>
+    const sb = supabase.createClient(
+      'https://ticxhncusdycqjftohho.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM'
+    );
+
+    async function loadBurials() {
+      const { data, error } = await sb
+        .from('burials')
+        .select('name, method, epitaph, country, timestamp')
+        .order('timestamp', { ascending: false });
+
+      if (error) {
+        console.error('Failed to load burials:', error.message);
+        return;
+      }
+
+      const table = document.getElementById('burialTable');
+      data.forEach(b => {
+        if (b.method === 'cremate') return; // skip cremated for this demo
+
+        const date = new Date(b.timestamp).toLocaleDateString();
+        const name = b.name.length > 30 ? b.name.slice(0, 27) + '...' : b.name;
+        const country = b.country || '';
+        const epitaph = b.epitaph || '';
+        const flowerCount = Math.floor(Math.random() * 12); // Fake count for now
+
+        const rowTop = document.createElement('tr');
+        rowTop.classList.add('burial-header');
+        rowTop.innerHTML = `
+          <td><img src="icons/icon_tombstone.png" alt="buried" class="icon"></td>
+    
+          <td>${name}</td>
+          <td>${date}</td>
+          <td><img src="icons/icon_flower.png" class="icon" alt="flower"> ${flowerCount}</td>
+          <td><img src="icons/icon_playaudio.png" class="icon" alt="play"></td>
+        `;
+
+        const rowBottom = document.createElement('tr');
+        rowBottom.classList.add('burial-epitaph');
+        rowBottom.innerHTML = `
+          <td colspan="5">"${epitaph}"</td>
+        `;
+
+        table.appendChild(rowTop);
+        table.appendChild(rowBottom);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadBurials);
+  </script>
+
+</body>
+</html>
