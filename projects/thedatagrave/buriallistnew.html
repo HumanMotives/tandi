@@ -18,51 +18,53 @@
       text-align: center;
       margin-bottom: 1.5rem;
     }
-    .burial-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
     .burial-record {
       padding: 1rem 0;
-      border-bottom: 1px solid #ccc;
     }
-    .top-row {
+    .burial-record + .burial-record {
+      border-top: 1px solid #ccc;
+    }
+    .info-row {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
     }
-    .file-info {
+    .left-group {
       display: flex;
       align-items: center;
-      flex-wrap: nowrap;
     }
-    .file-info img.icon {
+    .left-group img.icon {
       margin-right: 0.5rem;
     }
-    .file-info strong {
+    .left-group strong {
       margin-right: 1rem;
     }
-    .date {
+    .dates-group {
+      display: flex;
+      align-items: center;
       font-size: 0.9em;
       color: #666;
     }
-    .actions {
+    .dates-group img.date-icon {
+      margin: 0 0.3rem 0 0.6rem;
+      width: 20px;
+      height: 20px;
+    }
+    .dates-group span {
+      margin-right: 0.6rem;
+    }
+    .actions-group {
       display: flex;
       align-items: center;
     }
-    .actions img.icon {
-      margin-left: 0.5rem;
+    .actions-group img.icon {
+      margin-left: 0.6rem;
     }
     .epitaph {
       margin-top: 0.5rem;
+      padding-left: 32px; /* align under filename */
       font-style: italic;
       color: #444;
-    }
-    .icon {
-      width: 24px;
-      height: 24px;
-      vertical-align: middle;
-      cursor: pointer;
     }
     .pagination {
       text-align: center;
@@ -80,80 +82,87 @@
 </head>
 <body>
   <h1>Burial Records</h1>
-  <table class="burial-table">
-    <tbody id="graveList"></tbody>
-  </table>
+  <div id="graveList">
+    <!-- records injected here -->
+  </div>
   <div class="pagination" id="pagination"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const sb = supabase.createClient(
       'https://ticxhncusdycqjftohho.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM'
     );
-    const graveList = document.getElementById('graveList');
-    const pagination = document.getElementById('pagination');
-    const recordsPerPage = 25;
-    let allBurials = [], currentPage = 1;
+    const graveListEl = document.getElementById('graveList');
+    const paginationEl = document.getElementById('pagination');
+    const perPage = 25;
+    let dataArr = [], current = 1;
+
     async function fetchBurials() {
       const { data, error } = await sb
         .from('burials')
         .select('name, method, epitaph, country, timestamp')
         .order('timestamp', { ascending: false });
-      if (error) return console.error('Failed:', error.message);
-      allBurials = data;
-      renderPage(1);
+      if (error) return console.error(error.message);
+      dataArr = data;
+      render(1);
     }
-    function renderPage(pageNum) {
-      currentPage = pageNum;
-      graveList.innerHTML = '';
-      const start = (pageNum - 1) * recordsPerPage;
-      const slice = allBurials.slice(start, start + recordsPerPage);
-      slice.forEach(b => {
-        const date = new Date(b.timestamp).toLocaleDateString();
-        const iconSrc = b.method === 'cremate'
-          ? 'icons/icon_pile.png'    /* cremation icon */
-          : 'icons/icon_tombstone.png';
-        const playIcon = b.method === 'bury'
-          ? `<img src="icons/icon_playaudio.png" class="icon" title="Play"/>` : '';
-        const countryIcon = b.country
-          ? `<img src="icons/icon_globe.png" class="icon" title="Country"/>` : '';
-        const name = b.name.length > 30 ? b.name.slice(0,27) + '...' : b.name;
-        const epitaph = b.epitaph || '';
-        const flowers = `<img src="icons/icon_flower.png" class="icon" title="Send Flower"/> 0`;
-        const row = document.createElement('tr');
-        row.className = 'burial-record';
-        row.innerHTML = `
-          <td colspan="5">
-            <div class="top-row">
-              <div class="file-info">
-                <img src="${iconSrc}" class="icon" alt="status" />
-                <strong>${name}</strong>
-                <span class="date">${date}</span>
-              </div>
-              <div class="actions">
-                ${playIcon}
-                ${countryIcon}
-                ${flowers}
-              </div>
+
+    function render(page) {
+      current = page;
+      graveListEl.innerHTML = '';
+      const start = (page - 1) * perPage;
+      dataArr.slice(start, start + perPage).forEach(b => {
+        const br = document.createElement('div');
+        br.className = 'burial-record';
+        const date1 = new Date(b.timestamp).toLocaleDateString();
+        const date2 = date1;
+        const statusIcon = b.method === 'cremate' ? 'icons/icon_pile.png' : 'icons/icon_tombstone.png';
+        const play = b.method === 'bury' ? `<img src="icons/icon_playaudio.png" class="icon"/>` : '';
+        const countryCode = b.country || '';
+        br.innerHTML = `
+          <div class="info-row">
+            <div class="left-group">
+              <img src="${statusIcon}" class="icon" alt="status" />
+              <strong>${b.name.length>30 ? b.name.slice(0,27)+'...' : b.name}</strong>
             </div>
-            <div class="epitaph">"${epitaph}"</div>
-          </td>
+            <div class="dates-group">
+              <img src="icons/icon_calendar.png" class="date-icon" alt="birth"/>
+              <span>${date1}</span>
+              <img src="icons/icon_calendar.png" class="date-icon" alt="burial"/>
+              <span>${date2}</span>
+            </div>
+            <div class="actions-group">
+              ${play}
+              <img src="icons/icon_globe.png" class="icon" alt="country"/>
+            </div>
+          </div>
+          <div class="epitaph">"${b.epitaph||''}"</div>
+          <div class="info-row">
+            <div></div>
+            <div class="actions-group" style="padding-left:32px;">
+              <img src="icons/icon_flower.png" class="icon"/> <span>${0}</span>
+              <span style="margin-left:1rem; font-size:0.9em; color:#666;">${countryCode}</span>
+            </div>
+          </div>
         `;
-        graveList.appendChild(row);
+        graveListEl.appendChild(br);
       });
-      renderPagination();
+      paginate();
     }
-    function renderPagination() {
-      const total = Math.ceil(allBurials.length / recordsPerPage);
-      pagination.innerHTML = '';
-      for (let i = 1; i <= total; i++) {
-        const btn = document.createElement('button');
-        btn.textContent = i;
-        if (i === currentPage) btn.disabled = true;
-        btn.onclick = () => renderPage(i);
-        pagination.appendChild(btn);
+
+    function paginate() {
+      paginationEl.innerHTML = '';
+      const total = Math.ceil(dataArr.length / perPage);
+      for (let i=1;i<=total;i++){
+        const b=document.createElement('button');
+        b.textContent=i;
+        if(i===current)b.disabled=true;
+        b.onclick=()=>render(i);
+        paginationEl.appendChild(b);
       }
     }
+
     document.addEventListener('DOMContentLoaded', fetchBurials);
   </script>
 </body>
