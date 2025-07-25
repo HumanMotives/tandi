@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Burial Records - Data Grave</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Burial Records – Data Grave</title>
   <link rel="stylesheet" href="../../styles/main.css"/>
   <style>
     body {
@@ -21,7 +21,7 @@
     .burial-record {
       padding: 1rem 0;
     }
-    /* Subtle alternating background */
+    /* subtle stripes */
     .burial-record:nth-child(odd) {
       background: rgba(0,0,0,0.02);
     }
@@ -30,8 +30,8 @@
     }
     .info-row {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
     }
     .left-group {
       display: flex;
@@ -52,7 +52,7 @@
       font-size: 0.9em;
       color: #666;
     }
-    /* hide second date until ready */
+    /* hide the second date until needed */
     .actions-group .date:nth-child(3) {
       display: none;
     }
@@ -61,7 +61,7 @@
     }
     .epitaph {
       margin-top: 0.5rem;
-      padding-left: 32px; /* align under filename */
+      padding-left: 32px; /* lines up under filename */
       font-style: italic;
       color: #444;
     }
@@ -73,7 +73,7 @@
       font-size: 0.9em;
       color: #666;
     }
-    /* hide flowers until ready */
+    /* hide flower until ready */
     .subinfo img.icon {
       display: none;
     }
@@ -102,21 +102,18 @@
 </head>
 <body>
   <h1>Burial Records</h1>
-  <div id="graveList">
-    <!-- records injected here -->
-  </div>
+  <div id="graveList"></div>
   <div class="pagination" id="pagination"></div>
 
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  // correct way to pull createClient from the UMD bundle
-  const { createClient } = supabase;
-  // then build your client
-  const sb = createClient(
-    'https://ticxhncusdycqjftohho.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcV'
-  );
-</script>
+  <!-- Supabase JS client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Destructure createClient from the UMD bundle
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://ticxhncusdycqjftohho.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcV'
+    );
 
     const graveListEl = document.getElementById('graveList');
     const paginationEl = document.getElementById('pagination');
@@ -128,7 +125,10 @@
         .from('burials')
         .select('name, method, epitaph, country, timestamp')
         .order('timestamp', { ascending: false });
-      if (error) return console.error(error.message);
+      if (error) {
+        console.error('Failed to load:', error.message);
+        return;
+      }
       dataArr = data;
       render(1);
     }
@@ -139,9 +139,15 @@
       const start = (page - 1) * perPage;
       dataArr.slice(start, start + perPage).forEach(b => {
         const date = new Date(b.timestamp).toLocaleDateString();
-        const statusIcon = b.method === 'cremate' ? 'icons/icon_pile.png' : 'icons/icon_tombstone.png';
-        const playIcon = b.method === 'bury' ? `<img src="icons/icon_playaudio.png" class="icon"/>` : '';
-        const name = b.name.length > 30 ? b.name.slice(0,27) + '...' : b.name;
+        const statusIcon = b.method === 'cremate'
+          ? 'icons/icon_pile.png'
+          : 'icons/icon_tombstone.png';
+        const playIcon = (b.method === 'bury')
+          ? `<img src="icons/icon_playaudio.png" class="icon" alt="play"/>`
+          : '';
+        const name = b.name.length > 30
+          ? b.name.slice(0,27) + '...'
+          : b.name;
         const epitaph = b.epitaph || '';
         const countryCode = b.country || '';
 
@@ -150,7 +156,7 @@
         record.innerHTML = `
           <div class="info-row">
             <div class="left-group">
-              <img src="${statusIcon}" class="icon" alt="status" />
+              <img src="${statusIcon}" class="icon" alt="status"/>
               <strong>${name}</strong>
             </div>
             <div class="actions-group">
@@ -162,7 +168,8 @@
           </div>
           <div class="epitaph">"${epitaph}"</div>
           <div class="subinfo">
-            <img src="icons/icon_flower.png" class="icon" alt="flower"/> <span>0</span>
+            <img src="icons/icon_flower.png" class="icon" alt="flower"/>
+            <span>0</span>
             <span class="country-code">${countryCode}</span>
           </div>
         `;
@@ -174,10 +181,10 @@
     function paginate() {
       paginationEl.innerHTML = '';
       const total = Math.ceil(dataArr.length / perPage);
-      for (let i=1; i<=total; i++) {
+      for (let i = 1; i <= total; i++) {
         const btn = document.createElement('button');
         btn.textContent = i;
-        if (i===current) btn.disabled = true;
+        if (i === current) btn.disabled = true;
         btn.onclick = () => render(i);
         paginationEl.appendChild(btn);
       }
