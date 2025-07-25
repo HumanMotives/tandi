@@ -21,6 +21,10 @@
     .burial-record {
       padding: 1rem 0;
     }
+    /* Subtle alternating background */
+    .burial-record:nth-child(odd) {
+      background: rgba(0,0,0,0.02);
+    }
     .burial-record + .burial-record {
       border-top: 1px solid #ccc;
     }
@@ -48,6 +52,10 @@
       font-size: 0.9em;
       color: #666;
     }
+    /* hide second date until ready */
+    .actions-group .date:nth-child(3) {
+      display: none;
+    }
     .actions-group img.icon {
       margin-left: 0.6rem;
     }
@@ -65,8 +73,9 @@
       font-size: 0.9em;
       color: #666;
     }
+    /* hide flowers until ready */
     .subinfo img.icon {
-      margin-right: 0.3rem;
+      display: none;
     }
     .subinfo .country-code {
       margin-left: 1rem;
