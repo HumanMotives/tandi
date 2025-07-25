@@ -39,23 +39,14 @@
     .left-group strong {
       margin-right: 1rem;
     }
-    .dates-group {
-      display: flex;
-      align-items: center;
-      font-size: 0.9em;
-      color: #666;
-    }
-    .dates-group img.date-icon {
-      margin: 0 0.3rem 0 0.6rem;
-      width: 20px;
-      height: 20px;
-    }
-    .dates-group span {
-      margin-right: 0.6rem;
-    }
     .actions-group {
       display: flex;
       align-items: center;
+    }
+    .actions-group .date {
+      margin: 0 0.6rem;
+      font-size: 0.9em;
+      color: #666;
     }
     .actions-group img.icon {
       margin-left: 0.6rem;
@@ -65,6 +56,26 @@
       padding-left: 32px; /* align under filename */
       font-style: italic;
       color: #444;
+    }
+    .subinfo {
+      margin-top: 0.3rem;
+      padding-left: 32px;
+      display: flex;
+      align-items: center;
+      font-size: 0.9em;
+      color: #666;
+    }
+    .subinfo img.icon {
+      margin-right: 0.3rem;
+    }
+    .subinfo .country-code {
+      margin-left: 1rem;
+    }
+    .icon {
+      width: 24px;
+      height: 24px;
+      vertical-align: middle;
+      cursor: pointer;
     }
     .pagination {
       text-align: center;
@@ -91,7 +102,7 @@
   <script>
     const sb = supabase.createClient(
       'https://ticxhncusdycqjftohho.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM'
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcV)
     );
     const graveListEl = document.getElementById('graveList');
     const paginationEl = document.getElementById('pagination');
@@ -113,40 +124,35 @@
       graveListEl.innerHTML = '';
       const start = (page - 1) * perPage;
       dataArr.slice(start, start + perPage).forEach(b => {
-        const br = document.createElement('div');
-        br.className = 'burial-record';
-        const date1 = new Date(b.timestamp).toLocaleDateString();
-        const date2 = date1;
+        const date = new Date(b.timestamp).toLocaleDateString();
         const statusIcon = b.method === 'cremate' ? 'icons/icon_pile.png' : 'icons/icon_tombstone.png';
-        const play = b.method === 'bury' ? `<img src="icons/icon_playaudio.png" class="icon"/>` : '';
+        const playIcon = b.method === 'bury' ? `<img src="icons/icon_playaudio.png" class="icon"/>` : '';
+        const name = b.name.length > 30 ? b.name.slice(0,27) + '...' : b.name;
+        const epitaph = b.epitaph || '';
         const countryCode = b.country || '';
-        br.innerHTML = `
+
+        const record = document.createElement('div');
+        record.className = 'burial-record';
+        record.innerHTML = `
           <div class="info-row">
             <div class="left-group">
               <img src="${statusIcon}" class="icon" alt="status" />
-              <strong>${b.name.length>30 ? b.name.slice(0,27)+'...' : b.name}</strong>
-            </div>
-            <div class="dates-group">
-              <img src="icons/icon_calendar.png" class="date-icon" alt="birth"/>
-              <span>${date1}</span>
-              <img src="icons/icon_calendar.png" class="date-icon" alt="burial"/>
-              <span>${date2}</span>
+              <strong>${name}</strong>
             </div>
             <div class="actions-group">
-              ${play}
+              <span class="date">${date}</span>
+              <span class="date">${date}</span>
+              ${playIcon}
               <img src="icons/icon_globe.png" class="icon" alt="country"/>
             </div>
           </div>
-          <div class="epitaph">"${b.epitaph||''}"</div>
-          <div class="info-row">
-            <div></div>
-            <div class="actions-group" style="padding-left:32px;">
-              <img src="icons/icon_flower.png" class="icon"/> <span>${0}</span>
-              <span style="margin-left:1rem; font-size:0.9em; color:#666;">${countryCode}</span>
-            </div>
+          <div class="epitaph">"${epitaph}"</div>
+          <div class="subinfo">
+            <img src="icons/icon_flower.png" class="icon" alt="flower"/> <span>0</span>
+            <span class="country-code">${countryCode}</span>
           </div>
         `;
-        graveListEl.appendChild(br);
+        graveListEl.appendChild(record);
       });
       paginate();
     }
@@ -154,12 +160,12 @@
     function paginate() {
       paginationEl.innerHTML = '';
       const total = Math.ceil(dataArr.length / perPage);
-      for (let i=1;i<=total;i++){
-        const b=document.createElement('button');
-        b.textContent=i;
-        if(i===current)b.disabled=true;
-        b.onclick=()=>render(i);
-        paginationEl.appendChild(b);
+      for (let i=1; i<=total; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        if (i===current) btn.disabled = true;
+        btn.onclick = () => render(i);
+        paginationEl.appendChild(btn);
       }
     }
 
