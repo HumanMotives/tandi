@@ -21,7 +21,6 @@
     .burial-record {
       padding: 1rem 0;
     }
-    /* subtle stripes */
     .burial-record:nth-child(odd) {
       background: rgba(0,0,0,0.02);
     }
@@ -52,7 +51,6 @@
       font-size: 0.9em;
       color: #666;
     }
-    /* hide the second date until needed */
     .actions-group .date:nth-child(3) {
       display: none;
     }
@@ -61,7 +59,7 @@
     }
     .epitaph {
       margin-top: 0.5rem;
-      padding-left: 32px; /* lines up under filename */
+      padding-left: 32px;
       font-style: italic;
       color: #444;
     }
@@ -73,7 +71,6 @@
       font-size: 0.9em;
       color: #666;
     }
-    /* hide flower until ready */
     .subinfo img.icon {
       display: none;
     }
@@ -105,92 +102,87 @@
   <div id="graveList"></div>
   <div class="pagination" id="pagination"></div>
 
-  <!-- Supabase JS client -->
+  <!-- pull in supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Destructure createClient from the UMD bundle
-    const { createClient } = supabase;
-    const sb = createClient(
-      'https://ticxhncusdycqjftohho.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcV'
-    );
+    document.addEventListener('DOMContentLoaded', async () => {
+      // initialize
+      const sb = supabase.createClient(
+        'https://ticxhncusdycqjftohho.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcV'
+      );
 
-    const graveListEl = document.getElementById('graveList');
-    const paginationEl = document.getElementById('pagination');
-    const perPage = 25;
-    let dataArr = [], current = 1;
+      const graveListEl = document.getElementById('graveList');
+      const paginationEl = document.getElementById('pagination');
+      const perPage = 25;
+      let dataArr = [], current = 1;
 
-    async function fetchBurials() {
+      // fetch & render
       const { data, error } = await sb
         .from('burials')
         .select('name, method, epitaph, country, timestamp')
         .order('timestamp', { ascending: false });
       if (error) {
-        console.error('Failed to load:', error.message);
+        console.error('Load error:', error.message);
+        graveListEl.innerHTML = '<p style="color:red;">Could not load records.</p>';
         return;
       }
       dataArr = data;
-      render(1);
-    }
+      renderPage(1);
 
-    function render(page) {
-      current = page;
-      graveListEl.innerHTML = '';
-      const start = (page - 1) * perPage;
-      dataArr.slice(start, start + perPage).forEach(b => {
-        const date = new Date(b.timestamp).toLocaleDateString();
-        const statusIcon = b.method === 'cremate'
-          ? 'icons/icon_pile.png'
-          : 'icons/icon_tombstone.png';
-        const playIcon = (b.method === 'bury')
-          ? `<img src="icons/icon_playaudio.png" class="icon" alt="play"/>`
-          : '';
-        const name = b.name.length > 30
-          ? b.name.slice(0,27) + '...'
-          : b.name;
-        const epitaph = b.epitaph || '';
-        const countryCode = b.country || '';
-
-        const record = document.createElement('div');
-        record.className = 'burial-record';
-        record.innerHTML = `
-          <div class="info-row">
-            <div class="left-group">
-              <img src="${statusIcon}" class="icon" alt="status"/>
-              <strong>${name}</strong>
+      function renderPage(page) {
+        current = page;
+        graveListEl.innerHTML = '';
+        const slice = dataArr.slice((page-1)*perPage, page*perPage);
+        slice.forEach(b => {
+          const date = new Date(b.timestamp).toLocaleDateString();
+          const icon = b.method==='cremate'
+            ? 'icons/icon_pile.png'
+            : 'icons/icon_tombstone.png';
+          const play = b.method==='bury'
+            ? `<img src="icons/icon_playaudio.png" class="icon" alt="play"/>`
+            : '';
+          const name = b.name.length>30
+            ? b.name.slice(0,27)+'...'
+            : b.name;
+          const epitaph = b.epitaph||'';
+          const country = b.country||'';
+          const rec = document.createElement('div');
+          rec.className='burial-record';
+          rec.innerHTML=`
+            <div class="info-row">
+              <div class="left-group">
+                <img src="${icon}" class="icon"/>
+                <strong>${name}</strong>
+              </div>
+              <div class="actions-group">
+                <span class="date">${date}</span>
+                <span class="date">${date}</span>
+                ${play}
+                <img src="icons/icon_globe.png" class="icon"/>
+              </div>
             </div>
-            <div class="actions-group">
-              <span class="date">${date}</span>
-              <span class="date">${date}</span>
-              ${playIcon}
-              <img src="icons/icon_globe.png" class="icon" alt="country"/>
+            <div class="epitaph">"${epitaph}"</div>
+            <div class="subinfo">
+              <img src="icons/icon_flower.png" class="icon"/>
+              <span>0</span>
+              <span class="country-code">${country}</span>
             </div>
-          </div>
-          <div class="epitaph">"${epitaph}"</div>
-          <div class="subinfo">
-            <img src="icons/icon_flower.png" class="icon" alt="flower"/>
-            <span>0</span>
-            <span class="country-code">${countryCode}</span>
-          </div>
-        `;
-        graveListEl.appendChild(record);
-      });
-      paginate();
-    }
-
-    function paginate() {
-      paginationEl.innerHTML = '';
-      const total = Math.ceil(dataArr.length / perPage);
-      for (let i = 1; i <= total; i++) {
-        const btn = document.createElement('button');
-        btn.textContent = i;
-        if (i === current) btn.disabled = true;
-        btn.onclick = () => render(i);
-        paginationEl.appendChild(btn);
+          `;
+          graveListEl.appendChild(rec);
+        });
+        // pagination
+        paginationEl.innerHTML='';
+        const total= Math.ceil(dataArr.length/perPage);
+        for(let i=1;i<=total;i++){
+          const btn=document.createElement('button');
+          btn.textContent=i;
+          if(i===current)btn.disabled=true;
+          btn.onclick=()=>renderPage(i);
+          paginationEl.appendChild(btn);
+        }
       }
-    }
-
-    document.addEventListener('DOMContentLoaded', fetchBurials);
+    });
   </script>
 </body>
 </html>
