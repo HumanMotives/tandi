@@ -1,36 +1,41 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// supabase/functions/record-burial/index.js
 
-// read your secrets as before
+// 1️⃣ Read your Dashboard‑configured secrets
 const supabaseUrl      = Deno.env.get("SITEURL");
 const serviceRoleKey   = Deno.env.get("SERVICE_ROLE_KEY");
 const recaptchaSecret  = Deno.env.get("RECAPTCHA_SECRET_KEY");
 
+// 2️⃣ Import Supabase & HTTP server helper
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// 3️⃣ Initialize a service‐role Supabase client
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+// 4️⃣ Start the Edge Function server
 serve(async (req) => {
-  // 1️⃣ Build CORS headers based on incoming Origin (or use '*' if you prefer)
-  const origin = req.headers.get('Origin') || '*';
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": origin,
+  // ─── CORS headers (very permissive for testing) ────────────────────────
+  const CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 
-  // 2️⃣ Handle preflight
+  // ─── Handle preflight OPTIONS ─────────────────────────────────────────
   if (req.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
-      headers: corsHeaders,
+      headers: CORS_HEADERS,
     });
   }
 
-  // 3️⃣ Your normal logic
+  // ─── Handle the actual POST ──────────────────────────────────────────
   try {
+    // Parse incoming JSON payload
     const { name, method, epitaph, country, token } = await req.json();
 
-    // Verify reCAPTCHA
-    const verify = await fetch(
+    // 1) Verify reCAPTCHA with Google
+    const verifyRes = await fetch(
       "https://www.google.com/recaptcha/api/siteverify",
       {
         method: "POST",
@@ -41,31 +46,40 @@ serve(async (req) => {
         }),
       }
     );
-    const { success, score } = await verify.json();
+    const { success, score } = await verifyRes.json();
     if (!success || score < 0.5) {
       return new Response(
-        JSON.stringify({ error: "Failed reCAPTCHA" }),
-        { status: 403, headers: corsHeaders }
+        JSON.stringify({ error: "Failed reCAPTCHA verification" }),
+        { status: 403, headers: CORS_HEADERS }
       );
     }
 
-    // Insert into burials
+    // 2) Insert the burial record into Supabase
     const { data, error } = await supabase
       .from("burials")
-      .insert([{ name, method, epitaph, country, timestamp: new Date().toISOString() }]);
+      .insert([
+        {
+          name,
+          method,
+          epitaph,
+          country,
+          timestamp: new Date().toISOString(),
+        },
+      ]);
 
     if (error) throw error;
 
+    // 3) Return success
     return new Response(
       JSON.stringify({ success: true, data }),
-      { status: 200, headers: corsHeaders }
+      { status: 200, headers: CORS_HEADERS }
     );
 
   } catch (err) {
-    console.error(err);
+    console.error("Error in record-burial function:", err);
     return new Response(
-      JSON.stringify({ error: err.message || "Internal error" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: err.message || "Internal server error" }),
+      { status: 500, headers: CORS_HEADERS }
     );
   }
 });
