@@ -55,16 +55,8 @@
     .graveyard h2 { font-size:1.5rem; margin-bottom:1rem; }
 
     /* Responsive table wrapper */
-    .table-responsive {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    .table-responsive table {
-      width: 100%;
-      table-layout: auto;
-      min-width: 600px;
-    }
+    .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table-responsive table { width: 100%; table-layout: auto; min-width: 600px; }
 
     .graveyard table { width:100%; font-family:monospace; font-size:0.95rem; border-collapse:collapse; }
     .graveyard th, .graveyard td { text-align:left; padding:0.3rem 0.5rem; border-bottom:1px solid #ddd; }
@@ -159,11 +151,16 @@
   <footer>
     <div class="donate-widget"></div>
     <p>Feedback? Complaints? <a href="https://discord.gg/7teZhkQutJ">Join our Discord</a></p>
-    <p>Version 1.5</p>
+    <p>Version 1.5.2</p>
     <p>Concept &amp; Design by Chris van der Linden. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.</p>
   </footer>
 
   <script>
+    // Helper: reject any < or > in user text
+    function isClean(str) {
+      return !/[<>]/.test(str);
+    }
+
     // Initialize Supabase client
     const sb = supabase.createClient(
       'https://ticxhncusdycqjftohho.supabase.co',
@@ -172,34 +169,57 @@
 
     // Record a burial to Supabase with geolocation
     async function recordBurial(name, method, epitaph) {
+      // final validation
+      if (!isClean(name) || !isClean(epitaph)) {
+        console.error('Invalid characters in name or epitaph');
+        return;
+      }
       let country = '';
-      try { const res = await fetch('https://ipapi.co/country/'); if(res.ok) country = await res.text(); } catch(e) {}
-      const { data, error } = await sb.from('burials').insert([{ name, method, epitaph, country, timestamp: new Date().toISOString()}]);
-      if(error) console.error('Failed to record burial:', error.message);
+      try {
+        const res = await fetch('https://ipapi.co/country/');
+        if (res.ok) country = await res.text();
+      } catch (e) {}
+      const { data, error } = await sb.from('burials').insert([
+        { name, method, epitaph, country, timestamp: new Date().toISOString() }
+      ]);
+      if (error) console.error('Failed to record burial:', error.message);
       return data;
     }
 
     let currentPage = 1;
     const pageSize = 25;
 
+    // Load recent burials with safe rendering
     async function loadBurials(page = 1) {
       currentPage = page;
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
       const { data, error, count } = await sb.from('burials')
-        .select('name, method, epitaph, country, timestamp', { count: 'exact' })
-        .order('timestamp', { ascending:false })
-        .range(from, to);
-      if(error) { console.error('Failed to load burials:', error.message); return; }
-      const graveList = document.getElementById('graveList'); graveList.innerHTML = '';
+        .select('name,method,epitaph,country,timestamp',{count:'exact'})
+        .order('timestamp',{ascending:false})
+        .range(from,to);
+      if (error) { console.error('Failed to load burials:', error.message); return; }
+      const graveList = document.getElementById('graveList');
+      graveList.innerHTML = '';
       data.forEach(b => {
         const date = new Date(b.timestamp).toLocaleDateString();
-        const displayName = b.name.length>30?b.name.substring(0,27)+'...':b.name;
-        const icon = b.method==='cremate'
-          ? '<img src="icons/icon_urn.png" class="icon-img" alt="urn">'
-          : '<img src="icons/icon_tombstone.png" class="icon-img" alt="tombstone">';
-        const tr = document.createElement('tr'); tr.classList.add('fade-in');
-        tr.innerHTML = `<td>${icon}${displayName}</td><td>${date}</td><td>${b.epitaph||''}</td><td>${b.country||''}</td>`;
+        const displayName = b.name.length>30 ? b.name.substring(0,27)+'...' : b.name;
+        // icon cell
+        const tr = document.createElement('tr');
+        tr.classList.add('fade-in');
+        const tdName = document.createElement('td');
+        const iconEl = document.createElement('img');
+        iconEl.src = b.method==='cremate' ? 'icons/icon_urn.png' : 'icons/icon_tombstone.png';
+        iconEl.className = 'icon-img';
+        iconEl.alt = b.method==='cremate'?'urn':'tombstone';
+        tdName.append(iconEl, document.createTextNode(displayName));
+        const tdDate = document.createElement('td');
+        tdDate.textContent = date;
+        const tdEpitaph = document.createElement('td');
+        tdEpitaph.textContent = b.epitaph || '';
+        const tdCountry = document.createElement('td');
+        tdCountry.textContent = b.country || '';
+        tr.append(tdName, tdDate, tdEpitaph, tdCountry);
         graveList.appendChild(tr);
       });
       renderPaginationControls(count);
@@ -207,10 +227,13 @@
 
     function renderPaginationControls(totalCount) {
       const totalPages = Math.ceil(totalCount/pageSize);
-      const div = document.getElementById('paginationControls'); div.innerHTML = '';
+      const div = document.getElementById('paginationControls');
+      div.innerHTML = '';
       for(let i=1; i<=totalPages; i++){
-        const btn = document.createElement('button'); btn.textContent = i;
-        btn.className = 'page-btn'; if(i===currentPage) btn.classList.add('active');
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = 'page-btn';
+        if(i===currentPage) btn.classList.add('active');
         btn.onclick = () => loadBurials(i);
         div.appendChild(btn);
       }
@@ -219,24 +242,24 @@
     document.addEventListener('DOMContentLoaded', () => loadBurials(1));
 
     // Main App Logic (upload flow, ceremony, etc.)
-    const fileInput = document.getElementById('fileInput');
-    const uploadBox = document.getElementById('uploadBox');
+    const fileInput      = document.getElementById('fileInput');
+    const uploadBox      = document.getElementById('uploadBox');
     const methodSelector = document.getElementById('methodSelector');
     const progressContainer = document.getElementById('progressContainer');
-    const analyzeFill = document.getElementById('analyzeFill');
-    const readyToBury = document.getElementById('readyToBury');
-    const fileNameSpan = document.getElementById('fileName');
-    const fileDateSpan = document.getElementById('fileDate');
-    const fileSizeTd = document.getElementById('fileSize');
-    const fileVibeTd = document.getElementById('fileVibe');
-    const sarcasticRemark = document.getElementById('sarcasticRemark');
-    const buryBtn = document.getElementById('buryBtn');
-    const cancelLink = document.getElementById('cancelLink');
+    const analyzeFill    = document.getElementById('analyzeFill');
+    const readyToBury    = document.getElementById('readyToBury');
+    const fileNameSpan   = document.getElementById('fileName');
+    const fileDateSpan   = document.getElementById('fileDate');
+    const fileSizeTd     = document.getElementById('fileSize');
+    const fileVibeTd     = document.getElementById('fileVibe');
+    const sarcasticRemark= document.getElementById('sarcasticRemark');
+    const buryBtn        = document.getElementById('buryBtn');
+    const cancelLink     = document.getElementById('cancelLink');
     const burialProgress = document.getElementById('burialProgress');
-    const buryFill = document.getElementById('buryFill');
-    const ceremony = document.getElementById('ceremony');
-    const ashesAudio = document.getElementById('ashesAudio');
-    const graveListEl = document.getElementById('graveList');
+    const buryFill       = document.getElementById('buryFill');
+    const ceremony       = document.getElementById('ceremony');
+    const ashesAudio     = document.getElementById('ashesAudio');
+    const graveListEl    = document.getElementById('graveList');
     let selectedFile = null, confirmed = false;
 
     const sarcasticRemarks = [
@@ -298,21 +321,34 @@
     }
 
     function showCeremony() {
-      const method=document.querySelector('input[name="method"]:checked').value;
-      const icon=method==='cremate' ? '<img src="icons/icon_urn.png" class="icon-img" alt="urn">' : '<img src="icons/icon_tombstone.png" class="icon-img" alt="tombstone">';
-      const displayName=selectedFile.name.length>30?selectedFile.name.substring(0,27)+'...':selectedFile.name;
-      const birth=new Date(selectedFile.lastModified).toLocaleDateString();
+      const method=document.querySelector('input[name=\"method\"]:checked').value;
       const epitaphText=document.getElementById('epitaph').value.trim()||"Gone, but never exported.";
+      if (!isClean(epitaphText)) {
+        alert("Please remove '<' or '>' from your epitaph.");
+        resetAll();
+        return;
+      }
+      const displayName=selectedFile.name.length>30?selectedFile.name.substring(0,27)+'...':selectedFile.name;
       recordBurial(displayName,method,epitaphText);
-      ceremony.innerHTML=`<div class="tombstone">
-        Here lies<br><strong>${displayName}</strong><br>
-        ${birth}<br><br>
-        <em>"${epitaphText}"</em>
-      </div>`;
-      setTimeout(()=> ceremony.querySelector('.tombstone').classList.add('show'),50);
+      // build tombstone safely
+      ceremony.innerHTML = '';
+      const tomb = document.createElement('div');
+      tomb.className = 'tombstone';
+      tomb.innerHTML = `Here lies<br><strong>${displayName}</strong><br>${new Date(selectedFile.lastModified).toLocaleDateString()}<br><br><em>"\${epitaphText}"</em>`;
+      ceremony.append(tomb);
+      setTimeout(()=> tomb.classList.add('show'),50);
       document.getElementById('aftercare').classList.remove('hidden');
-      const tr=document.createElement('tr'); tr.classList.add('fade-in');
-      tr.innerHTML=`<td>${icon}${displayName}</td><td>${birth}</td><td>${epitaphText}</td><td></td>`;
+      // prepend to table
+      const tr = document.createElement('tr'); tr.classList.add('fade-in');
+      const tdName = document.createElement('td');
+      const iconEl = document.createElement('img');
+      iconEl.src = method==='cremate' ? 'icons/icon_urn.png' : 'icons/icon_tombstone.png';
+      iconEl.className = 'icon-img'; iconEl.alt = method;
+      tdName.append(iconEl, document.createTextNode(displayName));
+      const tdDate = document.createElement('td'); tdDate.textContent = new Date(selectedFile.lastModified).toLocaleDateString();
+      const tdEpit = document.createElement('td'); tdEpit.textContent = epitaphText;
+      const tdCtr = document.createElement('td'); tdCtr.textContent = '';
+      tr.append(tdName, tdDate, tdEpit, tdCtr);
       graveListEl.prepend(tr);
     }
 
