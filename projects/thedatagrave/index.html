@@ -19,58 +19,6 @@
 
   <!-- Supabase JS client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // Initialize Supabase client
-    const sb = supabase.createClient(
-      'https://ticxhncusdycqjftohho.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM'
-    );
-
-    // Record a burial to Supabase with geolocation
-    async function recordBurial(name, method, epitaph) {
-      let country = '';
-      try {
-        const res = await fetch('https://ipapi.co/country/');
-        if (res.ok) country = await res.text();
-      } catch (e) {}
-      const { data, error } = await sb.from('burials').insert([
-        { name, method, epitaph, country, timestamp: new Date().toISOString() }
-      ]);
-      if (error) console.error('Failed to record burial:', error.message);
-      return data;
-    }
-
-    // Load recent burials from Supabase
-    async function loadBurials() {
-      const { data, error } = await sb
-        .from('burials')
-        .select('name, method, epitaph, country, timestamp')
-        .order('timestamp', { ascending: false });
-      if (error) {
-        console.error('Failed to load burials:', error.message);
-        return;
-      }
-      const graveList = document.getElementById('graveList');
-      graveList.innerHTML = '';
-      data.forEach(b => {
-        const date = new Date(b.timestamp).toLocaleDateString();
-        const displayName = b.name.length > 30 ? b.name.substring(0, 27) + '...' : b.name;
-        const emoji = b.method === 'cremate' ? '⚱️' : '🪦';
-        const epitaph = b.epitaph ?? '';
-        const country = b.country ?? '';
-        const tr = document.createElement('tr');
-        tr.classList.add('fade-in');
-        tr.innerHTML =
-          `<td>${emoji} ${displayName}</td>` +
-          `<td>${date}</td>` +
-          `<td>${epitaph}</td>` +
-          `<td>${country}</td>`;
-        graveList.appendChild(tr);
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', loadBurials);
-  </script>
 
   <style>
     body {
@@ -116,6 +64,35 @@
 
     footer { text-align:center; font-size:0.9rem; color:#666; margin-top:4rem; }
     .donate-widget { display:none !important; }
+
+    /* ------------------ NEW STYLES ------------------ */
+    .graveyard tbody tr:nth-child(even) {
+      background-color: #fdfbf8;
+    }
+    #paginationControls {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .page-btn {
+      margin: 0 0.2rem;
+      padding: 0.4rem 0.7rem;
+      font-size: 0.95rem;
+      border: 1px solid #ccc;
+      background-color: #f1f1ee;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .page-btn.active {
+      background-color: #d9d5cb;
+      font-weight: bold;
+      border-color: #888;
+    }
+    .icon-img {
+      width: 24px;
+      height: 24px;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
   </style>
 </head>
 <body>
@@ -144,11 +121,10 @@
 
   <div id="readyToBury" class="hidden">
     <table style="width:100%; border-collapse:collapse; margin-bottom:1rem;">
-<tr>
-  <td id="sarcasticRemark" style="text-align:center; font-style:italic; color:#777;"></td>
-</tr>
-<tr><td colspan="2" style="height: 1rem;"></td></tr>
-
+      <tr>
+        <td id="sarcasticRemark" style="text-align:center; font-style:italic; color:#777;"></td>
+      </tr>
+      <tr><td colspan="2" style="height: 1rem;"></td></tr>
       <tr><th style="text-align:left; padding:0.3rem 0;">Filename:</th><td><strong id="fileName"></strong></td></tr>
       <tr><th style="text-align:left; padding:0.3rem 0;">Date of birth:</th><td id="fileDate"></td></tr>
       <tr><th style="text-align:left; padding:0.3rem 0;">Est. size:</th><td id="fileSize"></td></tr>
@@ -181,6 +157,7 @@
       <thead><tr><th>Filename</th><th>Date</th><th>Epitaph</th><th>Country</th></tr></thead>
       <tbody id="graveList"></tbody>
     </table>
+    <div id="paginationControls"></div>
   </div>
 
   <br><br>
@@ -188,10 +165,10 @@
   <script src="https://cdn.commoninja.com/sdk/latest/commonninja.js" defer></script>
   <div class="commonninja_component pid-eb2042b9-17f5-46b1-9aef-7990718bdc1c"></div>
 
- <footer>
+  <footer>
     <div class="donate-widget"></div>
     <p>Feedback? Complaints? <a href="https://discord.gg/7teZhkQutJ">Join our Discord</a></p>
-    <p>Version 1.4</p>
+    <p>Version 1.5</p>
     <p>
       Concept &amp; Design by Chris van der Linden. Licensed under
       <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
@@ -199,7 +176,86 @@
   </footer>
 
   <script>
-    // Main App Logic
+    // Initialize Supabase client
+    const sb = supabase.createClient(
+      'https://ticxhncusdycqjftohho.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM'
+    );
+
+    // Record a burial to Supabase with geolocation
+    async function recordBurial(name, method, epitaph) {
+      let country = '';
+      try {
+        const res = await fetch('https://ipapi.co/country/');
+        if (res.ok) country = await res.text();
+      } catch (e) {}
+      const { data, error } = await sb.from('burials').insert([
+        { name, method, epitaph, country, timestamp: new Date().toISOString() }
+      ]);
+      if (error) console.error('Failed to record burial:', error.message);
+      return data;
+    }
+
+    let currentPage = 1;
+    const pageSize = 25;
+
+    // Load recent burials from Supabase with pagination
+    async function loadBurials(page = 1) {
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+      const { data, error, count } = await sb
+        .from('burials')
+        .select('name, method, epitaph, country, timestamp', { count: 'exact' })
+        .order('timestamp', { ascending: false })
+        .range(from, to);
+      if (error) {
+        console.error('Failed to load burials:', error.message);
+        return;
+      }
+      const graveList = document.getElementById('graveList');
+      graveList.innerHTML = '';
+      data.forEach(b => {
+        const date = new Date(b.timestamp).toLocaleDateString();
+        const displayName = b.name.length > 30
+          ? b.name.substring(0, 27) + '...'
+          : b.name;
+        const icon = b.method === 'cremate'
+          ? '<img src="projects/thedatagrave/icons/icon_urn.png" class="icon-img" alt="urn">'
+          : '<img src="projects/thedatagrave/icons/icon_tombstone.png" class="icon-img" alt="tombstone">';
+        const epitaph = b.epitaph ?? '';
+        const country = b.country ?? '';
+        const tr = document.createElement('tr');
+        tr.classList.add('fade-in');
+        tr.innerHTML =
+          `<td>${icon}${displayName}</td>` +
+          `<td>${date}</td>` +
+          `<td>${epitaph}</td>` +
+          `<td>${country}</td>`;
+        graveList.appendChild(tr);
+      });
+      renderPaginationControls(count);
+    }
+
+    function renderPaginationControls(totalCount) {
+      const totalPages = Math.ceil(totalCount / pageSize);
+      const paginationDiv = document.getElementById('paginationControls');
+      paginationDiv.innerHTML = '';
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = 'page-btn';
+        if (i === currentPage) btn.classList.add('active');
+        btn.onclick = () => {
+          currentPage = i;
+          loadBurials(currentPage);
+        };
+        paginationDiv.appendChild(btn);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => loadBurials(currentPage));
+
+    // Main App Logic (upload flow, ceremony, etc.)
     const fileInput      = document.getElementById('fileInput');
     const uploadBox      = document.getElementById('uploadBox');
     const methodSelector = document.getElementById('methodSelector');
@@ -217,21 +273,21 @@
     const buryFill       = document.getElementById('buryFill');
     const ceremony       = document.getElementById('ceremony');
     const ashesAudio     = document.getElementById('ashesAudio');
-    const graveList      = document.getElementById('graveList');
+    const graveListEl    = document.getElementById('graveList');
     let selectedFile = null, confirmed = false;
 
     const sarcasticRemarks = [
-     "Right. This one had no potential anyway...",
-     "Ever considered gardening instead of composing",
+      "Right. This one had no potential anyway...",
+      "Ever considered gardening instead of composing",
       "We see why this one didn't make the cut...",
       "Not the prettiest indeed.",
       "Some loops die so others may live.",
       "Another auditory tragedy.",
-     "This one had... potential.",
+      "This one had... potential.",
       "Good decision. The world has enough crap already.",
       "Even the metronome gave up on this one.",
-     "Overcooked. Overcompressed. Jeez",
-     "The DAW giveth, and the DAW taketh away."
+      "Overcooked. Overcompressed. Jeez",
+      "The DAW giveth, and the DAW taketh away."
     ];
     const eulogies = [
       "As Above So Below.", "Not every loop is meant to bloom","A waveform without purpose",
@@ -244,8 +300,13 @@
       "Approaching the Gates of Loop Heaven...", "Disintegrating Your Abominable Frequencies...",
       "Processing your terrible creation..."
     ];
-    const ashesSamples = ["ashes1.mp3"];    
-    const vibes = ["Chillflop","CringeHop", "Drum & Blahs", "Technope", "Impostor Synth-drome", "Synthcrave","Shite","Polka Punk", "Teenage Angst in D Minor","Undefinable", "The Sound of Regret", "Grind-NuJazz", "Regretaton", "Nope-step", "EDehhhM", "Lo-Fried","Smarmbient"];
+    const ashesSamples = ["ashes1.mp3"];
+    const vibes = [
+      "Chillflop","CringeHop", "Drum & Blahs", "Technope", "Impostor Synth-drome",
+      "Synthcrave","Shite","Polka Punk", "Teenage Angst in D Minor","Undefinable",
+      "The Sound of Regret", "Grind-NuJazz", "Regretaton", "Nope-step", "EDehhhM",
+      "Lo-Fried","Smarmbient"
+    ];
 
     fileInput.addEventListener('change', e => {
       selectedFile = e.target.files[0];
@@ -258,8 +319,8 @@
       progressContainer.classList.remove('hidden');
       readyToBury.classList.add('hidden');
 
-      setTimeout(()=> analyzeFill.style.width = '100%', 50);
-      setTimeout(()=>{
+      setTimeout(() => analyzeFill.style.width = '100%', 50);
+      setTimeout(() => {
         progressContainer.classList.add('hidden');
         readyToBury.classList.remove('hidden');
         sarcasticRemark.textContent = '"' + sarcasticRemarks[Math.floor(Math.random()*sarcasticRemarks.length)] + '"';
@@ -283,8 +344,8 @@
         const phrase = cremationPhrases[Math.floor(Math.random()*cremationPhrases.length)];
         document.getElementById('burialMessage').textContent = phrase;
         buryFill.style.width = '0';
-        setTimeout(()=> buryFill.style.width = '100%', 50);
-        setTimeout(()=>{
+        setTimeout(() => buryFill.style.width = '100%', 50);
+        setTimeout(() => {
           burialProgress.classList.add('hidden');
           showCeremony();
         }, 5000);
@@ -292,11 +353,13 @@
     }
 
     function showCeremony() {
-      const now = new Date();
       const method = document.querySelector('input[name="method"]:checked').value;
-      const emoji  = method==='cremate' ? '⚱️' : '🪦';
-      const displayName = selectedFile.name.length>30
-        ? selectedFile.name.substring(0,27)+'...' : selectedFile.name;
+      const icon = method === 'cremate'
+        ? '<img src="projects/thedatagrave/icons/icon_urn.png" class="icon-img" alt="urn">'
+        : '<img src="projects/thedatagrave/icons/icon_tombstone.png" class="icon-img" alt="tombstone">';
+      const displayName = selectedFile.name.length > 30
+        ? selectedFile.name.substring(0,27) + '...'
+        : selectedFile.name;
       const birth = new Date(selectedFile.lastModified).toLocaleDateString();
       const epitaphText = document.getElementById('epitaph').value.trim() || "Gone, but never exported.";
       recordBurial(displayName, method, epitaphText);
@@ -305,16 +368,17 @@
         ${birth}<br><br>
         <em>"${epitaphText}"</em>
       </div>`;
-      setTimeout(()=> ceremony.querySelector('.tombstone').classList.add('show'), 50);
+      setTimeout(() => ceremony.querySelector('.tombstone').classList.add('show'), 50);
       document.getElementById('aftercare').classList.remove('hidden');
-      const tr = document.createElement('tr'); tr.classList.add('fade-in');
-      const country = ' '; // placeholder
-      tr.innerHTML = `<td>${emoji} ${displayName}</td><td>${birth}</td><td>${epitaphText}</td><td>${country}</td>`;
-      graveList.prepend(tr);
+      const tr = document.createElement('tr');
+      tr.classList.add('fade-in');
+      tr.innerHTML = `<td>${icon}${displayName}</td><td>${birth}</td><td>${epitaphText}</td><td> </td>`;
+      graveListEl.prepend(tr);
     }
 
     function resetAll() {
-      selectedFile = null; confirmed = false;
+      selectedFile = null;
+      confirmed = false;
       fileInput.value = '';
       uploadBox.classList.remove('hidden');
       methodSelector.classList.remove('hidden');
@@ -327,7 +391,8 @@
 
     function playAshes() {
       ashesAudio.src = ashesSamples[Math.floor(Math.random()*ashesSamples.length)];
-      ashesAudio.classList.remove('hidden'); ashesAudio.play();
+      ashesAudio.classList.remove('hidden');
+      ashesAudio.play();
     }
   </script>
 </body>
