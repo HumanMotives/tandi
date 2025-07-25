@@ -1,0 +1,21 @@
+{
+  "latest": {
+    "date": "2025-07-20",
+    "title": "New login system",
+    "url": "https://changelog.example.com/2025-07-20-new-login-system"
+  },
+  "all": [
+    {
+      "date": "2025-07-20",
+      "title": "New login system",
+      "project": "AuthLib",
+      "url": "https://changelog.example.com/2025-07-20-new-login-system"
+    },
+    {
+      "date": "2025-07-14",
+      "title": "Performance tweaks",
+      "project": "RendererX",
+      "url": "https://changelog.example.com/2025-07-14-performance-tweaks"
+    }
+  ]
+}
