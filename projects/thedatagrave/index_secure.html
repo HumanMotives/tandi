@@ -17,9 +17,6 @@
   <meta name="twitter:description" content="A tongue-in-cheek burial ground for your half-finished music loops." />
   <meta name="twitter:image" content="https://yourdomain.com/path/to/preview-image.png" />
 
-  <!-- Supabase JS client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <!-- Invisible reCAPTCHA v3 -->
   <script>
     const RECAPTCHA_SITE_KEY = '6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W';
@@ -167,12 +164,6 @@
       return !/[<>]/.test(str);
     }
 
-    // Initialize Supabase client
-    const sb = supabase.createClient(
-      'https://ticxhncusdycqjftohho.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM'
-    );
-
     // Record a burial by calling your Edge Function (with CAPTCHA token)
     async function recordBurial(name, method, epitaph) {
       if (!isClean(name) || !isClean(epitaph)) {
@@ -207,41 +198,50 @@
     let currentPage = 1;
     const pageSize = 25;
 
-    // Load recent burials with safe rendering
-    async function loadBurials(page = 1) {
-      currentPage = page;
-      const from = (page - 1) * pageSize;
-      const to = from + pageSize - 1;
-      const { data, error, count } = await sb.from('burials')
-        .select('name,method,epitaph,country,timestamp',{count:'exact'})
-        .order('timestamp',{ascending:false})
-        .range(from,to);
-      if (error) { console.error('Failed to load burials:', error.message); return; }
-      const graveList = document.getElementById('graveList');
-      graveList.innerHTML = '';
-      data.forEach(b => {
-        const date = new Date(b.timestamp).toLocaleDateString();
-        const displayName = b.name.length>30 ? b.name.substring(0,27)+'...' : b.name;
-        // icon cell
-        const tr = document.createElement('tr');
-        tr.classList.add('fade-in');
-        const tdName = document.createElement('td');
-        const iconEl = document.createElement('img');
-        iconEl.src = b.method==='cremate' ? 'icons/icon_urn.png' : 'icons/icon_tombstone.png';
-        iconEl.className = 'icon-img';
-        iconEl.alt = b.method==='cremate'?'urn':'tombstone';
-        tdName.append(iconEl, document.createTextNode(displayName));
-        const tdDate = document.createElement('td');
-        tdDate.textContent = date;
-        const tdEpitaph = document.createElement('td');
-        tdEpitaph.textContent = b.epitaph || '';
-        const tdCountry = document.createElement('td');
-        tdCountry.textContent = b.country || '';
-        tr.append(tdName, tdDate, tdEpitaph, tdCountry);
-        graveList.appendChild(tr);
-      });
-      renderPaginationControls(count);
+ // Load recent burials via Edge Function
+async function loadBurials(page = 1) {
+  currentPage = page;
+  const res = await fetch(
+    'https://ticxhncusdycqjftohho.supabase.co/functions/v1/load-burials',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page }),
     }
+  );
+  const { data, totalCount } = await res.json();
+  if (!data) return;
+
+  const graveList = document.getElementById('graveList');
+  graveList.innerHTML = '';
+  data.forEach(b => {
+    const date = new Date(b.timestamp).toLocaleDateString();
+    const displayName =
+      b.name.length > 30 ? b.name.slice(0, 27) + '...' : b.name;
+    const tr = document.createElement('tr');
+    tr.classList.add('fade-in');
+    const tdName = document.createElement('td');
+    const iconEl = document.createElement('img');
+    iconEl.src =
+      b.method === 'cremate'
+        ? 'icons/icon_urn.png'
+        : 'icons/icon_tombstone.png';
+    iconEl.className = 'icon-img';
+    iconEl.alt = b.method === 'cremate' ? 'urn' : 'tombstone';
+    tdName.append(iconEl, document.createTextNode(displayName));
+
+    const tdDate = document.createElement('td');
+    tdDate.textContent = date;
+    const tdEpitaph = document.createElement('td');
+    tdEpitaph.textContent = b.epitaph || '';
+    const tdCountry = document.createElement('td');
+    tdCountry.textContent = b.country || '';
+
+    tr.append(tdName, tdDate, tdEpitaph, tdCountry);
+    graveList.appendChild(tr);
+  });
+  renderPaginationControls(totalCount);
+}
 
     function renderPaginationControls(totalCount) {
       const totalPages = Math.ceil(totalCount/pageSize);
