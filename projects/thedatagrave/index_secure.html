@@ -22,6 +22,7 @@
     const RECAPTCHA_SITE_KEY = '6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W';
     const SUPABASE_ANON_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM';
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" async defer></script>
 
   <style>
@@ -80,8 +81,8 @@
     <label style="margin-left:1rem;"><input type="radio" name="method" value="cremate"> Cremate</label>
   </div>
   <div class="upload-box" id="uploadBox" onclick="fileInput.click()">
-    Upload or drag a file here<br><small>(audio files only)</small>
-    <input type="file" id="fileInput" class="hidden" accept="audio/*">
+    Upload or drag a file here<br><small>(.wav, .mp3, .ogg only)</small>
+    <input type="file" id="fileInput" class="hidden" accept=".wav,.mp3,.ogg">
   </div>
   <div id="progressContainer" class="hidden">
     <p id="progressMessage">Analyzing your creation...</p>
@@ -131,28 +132,36 @@
     <p>Concept &amp; Design by Chris van der Linden. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.</p>
   </footer>
   <script>
-    function isClean(str) { return !/[<>]/.test(str); }
+    function isClean(str) {
+      return !(/[<>]/.test(str) || /https?:\/\//i.test(str));
+    }
+    
     async function recordBurial(name, method, epitaph) {
       if (!isClean(name) || !isClean(epitaph)) return;
       let country = '';
-      try { const res = await fetch('https://ipapi.co/country/'); if (res.ok) country = await res.text(); } catch {}
+      try {
+        const res = await fetch('https://ipapi.co/country/');
+        if (res.ok) country = await res.text();
+      } catch {}
       const token = await grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'record_burial' });
       const response = await fetch('https://ticxhncusdycqjftohho.supabase.co/functions/v1/record-burial', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, method, epitaph, country, token }),
       });
       const json = await response.json();
       if (!response.ok) console.error('Failed to record burial:', json.error);
       return json;
     }
+
     let currentPage = 1;
     const pageSize = 25;
+
     async function loadBurials(page = 1) {
       currentPage = page;
       const res = await fetch('https://ticxhncusdycqjftohho.supabase.co/functions/v1/load-burials', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ page }),
       });
       if (!res.ok) { console.error('Load error', res.status); return; }
@@ -179,6 +188,7 @@
       });
       renderPaginationControls(totalCount);
     }
+
     function renderPaginationControls(totalCount) {
       const totalPages = Math.ceil(totalCount / pageSize);
       const div = document.getElementById('paginationControls');
@@ -192,8 +202,10 @@
         div.appendChild(btn);
       }
     }
+
     document.addEventListener('DOMContentLoaded', () => loadBurials(1));
 
+    // Main App Logic (upload flow, ceremony, etc.)
     const fileInput = document.getElementById('fileInput');
     const uploadBox = document.getElementById('uploadBox');
     const progressContainer = document.getElementById('progressContainer');
@@ -247,86 +259,63 @@
     ];
 
     fileInput.addEventListener('change', e => {
-      selectedFile = e.target.files[0];
-      if (!selectedFile) return;
-      uploadBox.classList.add('hidden');
-      document.getElementById('methodSelector').style.display = 'none';
-      confirmed = false;
-      analyzeFill.style.width = '0';
-      progressContainer.classList.remove('hidden');
-      readyToBury.classList.add('hidden');
-      setTimeout(() => analyzeFill.style.width = '100%', 50);
-      setTimeout(() => {
-        progressContainer.classList.add('hidden');
-        readyToBury.classList.remove('hidden');
-        sarcasticRemark.textContent = '"' + sarcasticRemarks[Math.floor(Math.random() * sarcasticRemarks.length)] + '"';
-        document.getElementById('fileName').textContent = selectedFile.name;
-        document.getElementById('fileDate').textContent = new Date(selectedFile.lastModified).toLocaleDateString();
-        document.getElementById('fileSize').textContent = (selectedFile.size / 1024 / 1024).toFixed(2) + ' MB';
-        fileVibeTd.textContent = vibes[Math.floor(Math.random() * vibes.length)];
-        document.getElementById('epitaph').value = eulogies[Math.floor(Math.random() * eulogies.length)];
-      }, 5000);
+      selectedFile = e.target.files[0]; if (!selectedFile) return;
+      uploadBox.classList.add('hidden'); document.getElementById('methodSelector').style.display = 'none'; confirmed=false;
+      analyzeFill.style.width='0'; progressContainer.classList.remove('hidden'); readyToBury.classList.add('hidden');
+      setTimeout(()=> analyzeFill.style.width='100%',50);
+      setTimeout(()=> {
+        progressContainer.classList.add('hidden'); readyToBury.classList.remove('hidden');
+        sarcasticRemark.textContent = '"'+ sarcasticRemarks[Math.floor(Math.random()*sarcasticRemarks.length)]+'"';
+        fileNameSpan.textContent=selectedFile.name; fileDateSpan.textContent=new Date(selectedFile.lastModified).toLocaleDateString();
+        fileSizeTd.textContent=(selectedFile.size/1024/1024).toFixed(2)+' MB'; fileVibeTd.textContent=vibes[Math.floor(Math.random()*vibes.length)];
+        document.getElementById('epitaph').value=eulogies[Math.floor(Math.random()*eulogies.length)];
+      },5000);
     });
 
     function confirmOrBuryFile(btn) {
       if (!confirmed) {
-        btn.textContent = 'Are You Sure?';
-        btn.style.backgroundColor = '#a33';
-        cancelLink.classList.remove('hidden');
-        confirmed = true;
+        btn.textContent='Are You Sure?'; btn.style.backgroundColor='#a33'; cancelLink.classList.remove('hidden'); confirmed=true;
       } else {
-        readyToBury.classList.add('hidden');
-        burialProgress.classList.remove('hidden');
-        document.getElementById('burialMessage').textContent = cremationPhrases[Math.floor(Math.random() * cremationPhrases.length)];
-        buryFill.style.width = '0';
-        setTimeout(() => buryFill.style.width = '100%', 50);
-        setTimeout(() => { burialProgress.classList.add('hidden'); showCeremony(); }, 5000);
+        readyToBury.classList.add('hidden'); burialProgress.classList.remove('hidden');
+        document.getElementById('burialMessage').textContent=cremationPhrases[Math.floor(Math.random()*cremationPhrases.length)];
+        buryFill.style.width='0'; setTimeout(()=> buryFill.style.width='100%',50);
+        setTimeout(()=> { burialProgress.classList.add('hidden'); showCeremony(); },5000);
       }
     }
 
     function showCeremony() {
-      const method = document.querySelector('input[name="method"]:checked').value;
-      const epitaphText = document.getElementById('epitaph').value.trim() || "Gone, but never exported.";
-      if (!isClean(epitaphText)) { alert("Please remove '<' or '>' from your epitaph."); resetAll(); return; }
-      const displayName = selectedFile.name.length > 30 ? selectedFile.name.substring(0,27) + '...' : selectedFile.name;
-      recordBurial(displayName, method, epitaphText);
+      const method=document.querySelector('input[name="method"]:checked').value;
+      const epitaphText=document.getElementById('epitaph').value.trim()||"Gone, but never exported.";
+      if (!isClean(epitaphText)) { alert("Please remove '<' or '>' or links from your epitaph."); resetAll(); return; }
+      const displayName=selectedFile.name.length>30?selectedFile.name.substring(0,27)+'...':selectedFile.name;
+      recordBurial(displayName,method,epitaphText);
       ceremony.innerHTML = '';
       const tomb = document.createElement('div'); tomb.className = 'tombstone';
       tomb.innerHTML = `Here lies<br><strong>${displayName}</strong><br>${new Date(selectedFile.lastModified).toLocaleDateString()}<br><br><em>"${epitaphText}"</em>`;
       ceremony.appendChild(tomb);
-      setTimeout(() => tomb.classList.add('show'), 50);
+      setTimeout(()=> tomb.classList.add('show'),50);
       document.getElementById('aftercare').classList.remove('hidden');
       const tr = document.createElement('tr'); tr.classList.add('fade-in');
-      const tdName = document.createElement('td');
-      const icon = document.createElement('img');
-      icon.src = method === 'cremate' ? 'icons/icon_urn.png' : 'icons/icon_tombstone.png';
-      icon.className = 'icon-img';
-      icon.alt = method;
+      const tdName = document.createElement('td'); const icon = document.createElement('img');
+      icon.src = method==='cremate' ? 'icons/icon_urn.png' : 'icons/icon_tombstone.png'; icon.className='icon-img'; icon.alt=method;
       tdName.append(icon, document.createTextNode(displayName));
-      const tdDate2 = document.createElement('td'); tdDate2.textContent = new Date(selectedFile.lastModified).toLocaleDateString();
-      const tdEpit2 = document.createElement('td'); tdEpit2.textContent = epitaphText;
-      const tdCountry2 = document.createElement('td'); tdCountry2.textContent = '';
+      const tdDate2 = document.createElement('td'); tdDate2.textContent=new Date(selectedFile.lastModified).toLocaleDateString();
+      const tdEpit2 = document.createElement('td'); tdEpit2.textContent=epitaphText;
+      const tdCountry2 = document.createElement('td'); tdCountry2.textContent='';
       tr.append(tdName, tdDate2, tdEpit2, tdCountry2);
       graveListEl.prepend(tr);
     }
 
     function resetAll() {
-      selectedFile = null;
-      confirmed = false;
-      fileInput.value = '';
-      uploadBox.classList.remove('hidden');
-      document.getElementById('methodSelector').style.display = 'block';
-      progressContainer.classList.add('hidden');
-      readyToBury.classList.add('hidden');
-      burialProgress.classList.add('hidden');
-      ceremony.innerHTML = '';
+      selectedFile=null; confirmed=false; fileInput.value=''; uploadBox.classList.remove('hidden');
+      document.getElementById('methodSelector').style.display='block'; progressContainer.classList.add('hidden');
+      readyToBury.classList.add('hidden'); burialProgress.classList.add('hidden'); ceremony.innerHTML='';
       document.getElementById('aftercare').classList.add('hidden');
     }
 
     function playAshes() {
-      ashesAudio.src = ashesSamples[Math.floor(Math.random() * ashesSamples.length)];
-      ashesAudio.classList.remove('hidden');
-      ashesAudio.play();
+      ashesAudio.src=ashesSamples[Math.floor(Math.random()*ashesSamples.length)];
+      ashesAudio.classList.remove('hidden'); ashesAudio.play();
     }
   </script>
 </body>
