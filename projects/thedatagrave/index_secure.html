@@ -265,9 +265,11 @@
 
     <div id="common-header"></div>
 <script>
-  fetch('header.html')
-    .then(r => r.text())
-    .then(html => document.getElementById('common-header').innerHTML = html);
+
+       // load header
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => document.getElementById('common-header').innerHTML = html);
 
     // disallow <, >, and any http:// or https:// in user text
     function isClean(str) {
