@@ -167,9 +167,41 @@
     .upsell-tile button:hover {
       background-color: #222;
     }
+
+      nav.top-menu {
+    background-color: #fff;
+    padding: 0.5rem 0;
+    margin-bottom: 1.5rem;
+  }
+  nav.top-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+  }
+  nav.top-menu a {
+    font-family: monospace;
+    color: #333;
+    text-decoration: none;
+    font-size: 1rem;
+  }
+  nav.top-menu a:hover {
+    text-decoration: underline;
+  }
+
   </style>
 </head>
 <body>
+    <nav class="top-menu">
+    <ul>
+      <li><a href="about.html">About</a></li>
+      <li><a href="changeblogs.html">Changelog</a></li>
+      <li><a href="https://ko-fi.com/yourKoFiName" target="_blank" rel="noopener">Donate</a></li>
+    </ul>
+  </nav>
+
   <div class="logo-container">
     <img src="datagrave_sitelogo_large.png" alt="The Data Grave Logo">
   </div>
