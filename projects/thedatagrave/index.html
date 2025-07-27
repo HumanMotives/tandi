@@ -72,6 +72,8 @@
   </style>
 </head>
 <body>
+    <!-- header will land here -->
+  <div id="common-header"></div>
   <div class="logo-container"><img src="datagrave_sitelogo_large.png" alt="The Data Grave Logo"></div>
   <div id="tagline">Where musicians bury their unfinished tracks</div>
   <hr>
@@ -141,6 +143,12 @@
   </footer>
 
   <script>
+
+     // load header
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => document.getElementById('common-header').innerHTML = html);
+    
     // disallow <, >, and any http:// or https:// in user text
     function isClean(str) {
       return !/[<>]/.test(str) && !/https?:\/\//i.test(str);
