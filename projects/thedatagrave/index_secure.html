@@ -183,29 +183,32 @@
     <input type="file" id="fileInput" class="hidden" accept=".wav,.mp3,.ogg">
   </div>
 
-    <div class="upsell-section hidden">
-    <div class="upsell-title">Premium Burial Options</div>
-    <div class="upsell-container">
-      <div class="upsell-tile">
-        <img src="icons/icon_dove.png" alt="Flower Icon">
-        <h3>Digital Daisies</h3>
-        <p>Send fake flowers with just one click!</p>
-        <button>GO PREMIUM</button>
-      </div>
-      <div class="upsell-tile">
-        <img src="icons/icon_secureburial.png" alt="Umbrella Icon">
-        <h3>Burial Insurance</h3>
-        <p>Safeguard your loops forever!</p>
-        <button>GO PREMIUM</button>
-      </div>
-      <div class="upsell-tile">
-        <img src="icons/icon_premiumgrave.png" alt="Headstone Icon">
-        <h3>VIP Headstone</h3>
-        <p>Make your loop grave stand out!</p>
-        <button>GO PREMIUM</button>
-      </div>
+
+   <!-- upsells.html (excerpt) -->
+<div class="upsell-section hidden" id="upsellSection">
+  <div class="upsell-title">Premium Burial Options</div>
+  <div class="upsell-container">
+    <div class="upsell-tile" data-premium="digital">
+      <img src="icons/icon_dove.png" alt="Flower Icon">
+      <h3>Digital Daisies</h3>
+      <p>Add flowers with just one click!</p>
+      <button class="premium-btn" data-premium="digital">GO PREMIUM</button>
+    </div>
+    <div class="upsell-tile" data-premium="guaranteed">
+      <img src="icons/icon_secureburial.png" alt="Umbrella Icon">
+      <h3>Guaranteed Death</h3>
+      <p>Guarantee your audio is truly dead!</p>
+      <button class="premium-btn" data-premium="guaranteed">GO PREMIUM</button>
+    </div>
+    <div class="upsell-tile" data-premium="vip">
+      <img src="icons/icon_premiumgrave.png" alt="Headstone Icon">
+      <h3>VIP Headstone</h3>
+      <p>Personalize your audio burial!</p>
+      <button class="premium-btn" data-premium="vip">GO PREMIUM</button>
     </div>
   </div>
+</div>
+
 
   <div id="progressContainer" class="hidden">
     <p id="progressMessage">Analyzing your creation...</p>
@@ -251,14 +254,14 @@
       </table>
     </div>
   </div>
-
+<br><br>
   <script src="https://cdn.commoninja.com/sdk/latest/commonninja.js" defer></script>
   <div class="commonninja_component pid-eb2042b9-17f5-46b1-9aef-7990718bdc1c"></div>
 
   <footer>
     <div class="donate-widget"></div>
     <p>Feedback? Complaints? <a href="https://discord.gg/7teZhkQutJ">Join our Discord</a></p>
-    <p>Version 2.0 | <a href="changeblogs.html">Changelogs</a></p>
+    <p>Version 2.2 | <a href="changeblogs.html">Changelogs</a></p>
     <p>Concept &amp; Design by Chris van der Linden. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.</p>
   </footer>
   <script>
@@ -267,6 +270,36 @@
     fetch('header.html')
       .then(res => res.text())
       .then(html => document.getElementById('common-header').innerHTML = html);
+
+    // track which (if any) premium was selected:
+let selectedPremium = null;
+
+// by default, epitaph entry is disabled:
+const epitaphInput = document.getElementById('epitaph');
+epitaphInput.disabled = true;
+
+// wire up the three buttons:
+document.querySelectorAll('.premium-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // capture which premium we picked
+    selectedPremium = btn.dataset.premium;
+
+    // highlight the selected tile:
+    document.querySelectorAll('.upsell-tile').forEach(tile => {
+      tile.classList.toggle('active', tile.dataset.premium === selectedPremium);
+    });
+
+    // VIP grants you an epitaph field; others remove it
+    epitaphInput.disabled = (selectedPremium !== 'vip');
+    if (selectedPremium !== 'vip') {
+      epitaphInput.value = '';  // clear any manual text
+    }
+
+    // ensure the upsell section stays visible once clicked
+    document.getElementById('upsellSection').classList.remove('hidden');
+  });
+});
+
     
     // disallow <, >, and any http:// or https:// in user text
     function isClean(str) {
@@ -293,7 +326,7 @@
           headers: {
             'Content-Type': 'application/json',
             'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            'Authorization': Bearer ${SUPABASE_ANON_KEY}
           },
           body: JSON.stringify({ name, method, epitaph, country, token }),
         }
@@ -316,7 +349,7 @@
           headers: {
             'Content-Type': 'application/json',
             'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            'Authorization': Bearer ${SUPABASE_ANON_KEY}
           },
           body: JSON.stringify({ page }),
         }
@@ -480,12 +513,12 @@ fileInput.addEventListener('change', e => {
       ceremony.innerHTML = '';
       const tomb = document.createElement('div');
       tomb.className = 'tombstone';
-      tomb.innerHTML = `
+      tomb.innerHTML = 
         Here lies<br>
         <strong>${displayName}</strong><br>
         ${new Date(selectedFile.lastModified).toLocaleDateString()}<br><br>
         <em>"${epitaphText}"</em>
-      `;
+      ;
       ceremony.appendChild(tomb);
       setTimeout(() => tomb.classList.add('show'), 50);
 
