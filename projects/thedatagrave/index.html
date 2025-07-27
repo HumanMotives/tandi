@@ -11,6 +11,7 @@
   <meta property="og:image" content="https://yourdomain.com/path/to/preview-image.png" />
   <meta property="og:url" content="https://yourdomain.com/" />
   <meta property="og:type" content="website" />
+  
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Data Grave – Bury Your Unfinished Loops" />
@@ -25,25 +26,57 @@
   <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" async defer></script>
 
   <style>
-    body { background-color: #f5f1e6; font-family: monospace; font-size:12pt; color:#333; max-width:800px; margin:4rem auto; padding:0 1.5rem; }
-    .logo-container { text-align:center; margin-bottom:0.5rem; }
-    .logo-container img { max-width:100%; height:auto; }
+    /* Remove top margin so nav can sit flush */
+    body {
+      background-color: #f5f1e6;
+      font-family: monospace;
+      font-size: 12pt;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .logo-container {
+      text-align: center;
+      margin: 4rem auto 0; /* restore content spacing */
+    }
+
     #tagline { text-align:center; color:#666; margin-bottom:2rem; }
     hr { border:none; border-top:1px solid #ccc; margin:2rem 0; }
 
-nav.top-menu ul li a {
-  display: inline-flex;
-  align-items: center;
-}
-nav.top-menu .nav-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 0.5rem;
-  vertical-align: middle;
-}
-    
+    .method-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.4rem 1rem;
+      margin-right: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background-color: #fffefa;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .method-btn input { margin: 0 0.5rem 0 0; }
+    .method-btn:hover { background-color: #f5f1dd; }
+    .method-btn:has(input:checked) {
+      background-color: #f5f1dd;
+      border-color: #70695d;
+    }
+
     #methodSelector { text-align:center; margin-bottom:1rem; }
-    .upload-box { border:1px dashed #aaa; padding:2rem; text-align:center; background-color:#fffefa; cursor:pointer; margin-bottom:2rem; }
+
+    .upload-box {
+      border: 2px dashed #aaa;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      background-color: #fffefa;
+      cursor: pointer;
+      margin-bottom: 2rem;
+      font-weight: bold;
+      transition: background-color 0.2s ease;
+    }
+    .upload-box:hover { background-color: #f5f1dd; }
     .hidden { display:none; }
 
     .progress-bar { width:100%; background-color:#e1ddd1; border:1px solid #ccc; height:20px; margin-top:1rem; }
@@ -59,10 +92,9 @@ nav.top-menu .nav-icon {
     .options-afterlife { margin-top:2rem; text-align:center; font-size:0.95rem; }
 
     .graveyard { border-top:1px solid #ccc; margin-top:3rem; padding-top:2rem; }
-    .graveyard h2 { font-size:1.5rem; margin-bottom:1rem; }
+    .graveyard h2 { font-size:1.5rem; margin-bottom:1rem; text-align:center; }
     .table-responsive { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
     .table-responsive table { width:100%; table-layout:auto; min-width:600px; }
-
     .graveyard table { width:100%; font-family:monospace; font-size:0.95rem; border-collapse:collapse; }
     .graveyard th, .graveyard td { text-align:left; padding:0.3rem 0.5rem; border-bottom:1px solid #ddd; }
 
@@ -76,26 +108,103 @@ nav.top-menu .nav-icon {
     .donate-widget { display:none !important; }
 
     .graveyard tbody tr:nth-child(even) { background-color:#fdfbf8; }
+
     #paginationControls { margin-top:1rem; text-align:center; }
     .page-btn { margin:0 0.2rem; padding:0.4rem 0.7rem; font-size:0.95rem; border:1px solid #ccc; background-color:#f1f1ee; cursor:pointer; border-radius:4px; }
     .page-btn.active { background-color:#d9d5cb; font-weight:bold; border-color:#888; }
     .icon-img { width:24px; height:24px; vertical-align:middle; margin-right:4px; }
+
+    .upsell-section { margin-top:3rem; text-align:center; }
+    .upsell-title { font-size:1.2rem; font-weight:bold; margin-bottom:1rem; }
+    .upsell-container { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; }
+    .upsell-tile {
+      background-color:#fffefa; border:1px solid #ccc; border-radius:10px;
+      padding:1.5rem; width:200px; text-align:center;
+      box-shadow:2px 2px 6px rgba(0,0,0,0.05);
+      transition:transform 0.2s ease;
+    }
+    .upsell-tile:hover { transform:translateY(-5px); }
+    .upsell-tile img { width:100px; height:100px; margin-bottom:10px; }
+    .upsell-tile h3 { font-size:1rem; margin:0.5rem 0; }
+    .upsell-tile p { font-size:0.9rem; color:#555; margin-bottom:1rem; }
+    .upsell-tile button {
+      background-color:#3a3a3a; color:#fff; border:none;
+      padding:0.4rem 0.8rem; font-size:0.9rem; border-radius:4px;
+      cursor:pointer;
+    }
+    .upsell-tile button:hover { background-color:#222; }
+
+    /* full-width, centered nav */
+    nav.top-menu {
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      background-color: #fff;
+      padding: 0.5rem 0;
+      margin-bottom: 1.5rem;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+    nav.top-menu ul {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; justify-content: center; gap: 2rem;
+    }
+    nav.top-menu a {
+      font-family: monospace; color: #333;
+      text-decoration: none; font-size: 1rem;
+    }
+    nav.top-menu a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-    <!-- header will land here -->
+ <!-- header will land here -->
   <div id="common-header"></div>
-  <div class="logo-container"><img src="datagrave_sitelogo_large.png" alt="The Data Grave Logo"></div>
+  <div class="logo-container">
+    <img src="datagrave_sitelogo_large.png" alt="The Data Grave Logo">
+  </div>
   <div id="tagline">Where musicians bury their unfinished tracks</div>
   <hr>
+
   <div id="methodSelector">
-    <label><input type="radio" name="method" value="bury" checked> Bury</label>
-    <label style="margin-left:1rem;"><input type="radio" name="method" value="cremate"> Cremate</label>
+    <label class="method-btn">
+      <input type="radio" name="method" value="bury" checked>
+      Bury
+    </label>
+    <label class="method-btn">
+      <input type="radio" name="method" value="cremate">
+      Cremate
+    </label>
   </div>
 
   <div class="upload-box" id="uploadBox" onclick="fileInput.click()">
-    Upload or drag a file here<br><small>(audio files only: .wav, .mp3, .ogg)</small>
+    Upload or drag a file here<br>
+    <small>(audio files only: .wav, .mp3, .ogg)</small>
     <input type="file" id="fileInput" class="hidden" accept=".wav,.mp3,.ogg">
+  </div>
+
+    <div class="upsell-section hidden">
+    <div class="upsell-title">Premium Burial Options</div>
+    <div class="upsell-container">
+      <div class="upsell-tile">
+        <img src="icons/icon_dove.png" alt="Flower Icon">
+        <h3>Digital Daisies</h3>
+        <p>Send fake flowers with just one click!</p>
+        <button>GO PREMIUM</button>
+      </div>
+      <div class="upsell-tile">
+        <img src="icons/icon_secureburial.png" alt="Umbrella Icon">
+        <h3>Burial Insurance</h3>
+        <p>Safeguard your loops forever!</p>
+        <button>GO PREMIUM</button>
+      </div>
+      <div class="upsell-tile">
+        <img src="icons/icon_premiumgrave.png" alt="Headstone Icon">
+        <h3>VIP Headstone</h3>
+        <p>Make your loop grave stand out!</p>
+        <button>GO PREMIUM</button>
+      </div>
+    </div>
   </div>
 
   <div id="progressContainer" class="hidden">
@@ -134,13 +243,13 @@ nav.top-menu .nav-icon {
 
   <div class="graveyard">
     <h2>Recent Burials</h2>
+    <div id="paginationControls"></div><br>
     <div class="table-responsive">
       <table>
         <thead><tr><th>Filename</th><th>Date</th><th>Epitaph</th><th>Country</th></tr></thead>
         <tbody id="graveList"></tbody>
       </table>
     </div>
-    <div id="paginationControls"></div>
   </div>
 
   <script src="https://cdn.commoninja.com/sdk/latest/commonninja.js" defer></script>
@@ -149,10 +258,9 @@ nav.top-menu .nav-icon {
   <footer>
     <div class="donate-widget"></div>
     <p>Feedback? Complaints? <a href="https://discord.gg/7teZhkQutJ">Join our Discord</a></p>
-    <p>Version 2.1 | </p> <a href="changeblogs.html">Changelogs</a>
+    <p>Version 2.2 | <a href="changeblogs.html">Changelogs</a></p>
     <p>Concept &amp; Design by Chris van der Linden. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.</p>
   </footer>
-
   <script>
 
      // load header
