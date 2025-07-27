@@ -4,40 +4,127 @@
 <head>
   <meta charset="UTF-8">
   <title>Ghost Radio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet">
-
-  <!-- Styles -->
+  <link rel="stylesheet" href="/styles/main.css">
   <style>
     body {
-      font-family: 'IBM Plex Mono', monospace;
-      margin: 0;
-      padding: 0;
-      background-color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      color: #111;
+      font-family: var(--font-main, sans-serif);
+      background: var(--background, #f5f4ed);
+      color: var(--text-color, #111);
+      text-align: center;
+      padding: 2em;
     }
 
     h1 {
-      font-size: 32px;
-      margin-bottom: 10px;
+      font-size: 2em;
+      margin-bottom: 1em;
     }
 
-    p {
-      font-size: 16px;
-      opacity: 0.7;
+    .controls {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      max-width: 800px;
+      margin: 2em auto;
+    }
+
+    .control-group {
+      margin: 1em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dial-label {
+      margin-top: 0.5em;
+      font-size: 0.9em;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      writing-mode: bt-lr;
+      width: 100px;
+      height: 8px;
+      background: var(--accent, #222);
+      border-radius: 4px;
+    }
+
+    .tuning-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 3em auto;
+    }
+
+    .tuning-scale {
+      display: flex;
+      justify-content: space-between;
+      width: 300px;
+      height: 30px;
+      border-bottom: 1px solid #333;
+      position: relative;
+    }
+
+    .tuning-scale div {
+      width: 2px;
+      height: 10px;
+      background: #333;
+    }
+
+    .tuning-pointer {
+      width: 4px;
+      height: 20px;
+      background: #000;
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
     }
   </style>
 </head>
-
 <body>
   <h1>Ghost Radio</h1>
-  <p>Coming soon ...</p>
+
+  <div class="controls">
+    <div class="control-group">
+      <input id="drift" type="range" min="0" max="1" step="0.01" value="0.5">
+      <label class="dial-label" for="drift">Temporal Drift</label>
+    </div>
+    <div class="control-group">
+      <input id="decay" type="range" min="0" max="1" step="0.01" value="0.5">
+      <label class="dial-label" for="decay">Memory Decay</label>
+    </div>
+    <div class="control-group">
+      <input id="bloom" type="range" min="0" max="1" step="0.01" value="0.5">
+      <label class="dial-label" for="bloom">Fragment Bloom</label>
+    </div>
+  </div>
+
+  <div class="tuning-bar">
+    <div class="tuning-scale">
+      <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+      <div class="tuning-pointer"></div>
+    </div>
+  </div>
+
+  <script>
+    const driftControl = document.getElementById('drift');
+    const decayControl = document.getElementById('decay');
+    const bloomControl = document.getElementById('bloom');
+
+    driftControl.addEventListener('input', () => {
+      console.log('Drift:', driftControl.value);
+      // Update playback offset logic here
+    });
+
+    decayControl.addEventListener('input', () => {
+      console.log('Decay:', decayControl.value);
+      // Update filter/degradation logic here
+    });
+
+    bloomControl.addEventListener('input', () => {
+      console.log('Bloom:', bloomControl.value);
+      // Update loop slicing logic here
+    });
+  </script>
 </body>
 </html>
