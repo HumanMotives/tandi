@@ -1,5 +1,11 @@
 
 /* Global Styles for Transients & Incantations */
+
+/* Hide any element with .hidden */
+.hidden {
+  display: none !important;
+}
+
 body {
   background-color: #f5f1e6;
   font-family: monospace;
