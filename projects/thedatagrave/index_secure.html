@@ -11,6 +11,7 @@
   <meta property="og:image" content="https://yourdomain.com/path/to/preview-image.png" />
   <meta property="og:url" content="https://yourdomain.com/" />
   <meta property="og:type" content="website" />
+  
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Data Grave – Bury Your Unfinished Loops" />
@@ -30,6 +31,34 @@
     .logo-container img { max-width:100%; height:auto; }
     #tagline { text-align:center; color:#666; margin-bottom:2rem; }
     hr { border:none; border-top:1px solid #ccc; margin:2rem 0; }
+
+    .method-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  margin-right: 0.5rem;
+  border: 2px solid #aaa;
+  border-radius: 8px;
+  background-color: #fffefa;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.method-btn input {
+  /* keep the native circle visible */
+  margin: 0 0.5rem 0 0;
+}
+
+.method-btn:hover {
+  background-color: #f5f1dd;
+}
+
+/* Optional: highlight the entire pill when selected, via :has() */
+.method-btn:has(input:checked) {
+  background-color: #f5f1dd;
+  border-color: #70695d;
+}
+
 
     #methodSelector { text-align:center; margin-bottom:1rem; }
     .upload-box {
@@ -78,6 +107,7 @@
     .donate-widget { display:none !important; }
 
     .graveyard tbody tr:nth-child(even) { background-color:#fdfbf8; }
+    
     #paginationControls { margin-top:1rem; text-align:center; }
     .page-btn { margin:0 0.2rem; padding:0.4rem 0.7rem; font-size:0.95rem; border:1px solid #ccc; background-color:#f1f1ee; cursor:pointer; border-radius:4px; }
     .page-btn.active { background-color:#d9d5cb; font-weight:bold; border-color:#888; }
@@ -145,10 +175,17 @@
   </div>
   <div id="tagline">Where musicians bury their unfinished tracks</div>
   <hr>
-  <div id="methodSelector">
-    <label><input type="radio" name="method" value="bury" checked> Bury</label>
-    <label style="margin-left:1rem;"><input type="radio" name="method" value="cremate"> Cremate</label>
-  </div>
+<div id="methodSelector">
+  <label class="method-btn">
+    <input type="radio" name="method" value="bury" checked>
+    Bury
+  </label>
+  <label class="method-btn">
+    <input type="radio" name="method" value="cremate">
+    Cremate
+  </label>
+</div>
+
 
   <div class="upload-box" id="uploadBox" onclick="fileInput.click()">
     Upload or drag a file here<br>
