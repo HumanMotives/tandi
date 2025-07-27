@@ -32,7 +32,20 @@
     hr { border:none; border-top:1px solid #ccc; margin:2rem 0; }
 
     #methodSelector { text-align:center; margin-bottom:1rem; }
-    .upload-box { border:1px dashed #aaa; padding:2rem; text-align:center; background-color:#fffefa; cursor:pointer; margin-bottom:2rem; }
+.upload-box {
+  border: 2px dashed #aaa;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  background-color: #fffefa;
+  cursor: pointer;
+  margin-bottom: 2rem;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+.upload-box:hover {
+  background-color: #f5f1dd;
+}
     .hidden { display:none; }
 
     .progress-bar { width:100%; background-color:#e1ddd1; border:1px solid #ccc; height:20px; margin-top:1rem; }
@@ -69,6 +82,71 @@
     .page-btn { margin:0 0.2rem; padding:0.4rem 0.7rem; font-size:0.95rem; border:1px solid #ccc; background-color:#f1f1ee; cursor:pointer; border-radius:4px; }
     .page-btn.active { background-color:#d9d5cb; font-weight:bold; border-color:#888; }
     .icon-img { width:24px; height:24px; vertical-align:middle; margin-right:4px; }
+
+    .upsell-section {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.upsell-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.upsell-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.upsell-tile {
+  background-color: #fffefa;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 1.5rem;
+  width: 200px;
+  text-align: center;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.upsell-tile:hover {
+  transform: translateY(-5px);
+}
+
+.upsell-tile img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+}
+
+.upsell-tile h3 {
+  font-size: 1rem;
+  margin: 0.5rem 0;
+}
+
+.upsell-tile p {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.upsell-tile button {
+  background-color: #3a3a3a;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.upsell-tile button:hover {
+  background-color: #222;
+}
+
+    
   </style>
 </head>
 <body>
@@ -84,6 +162,32 @@
     Upload or drag a file here<br><small>(audio files only: .wav, .mp3, .ogg)</small>
     <input type="file" id="fileInput" class="hidden" accept=".wav,.mp3,.ogg">
   </div>
+
+  <div class="upload-box" id="uploadBox" onclick="fileInput.click()">
+<div class="upsell-section">
+  <div class="upsell-title">Premium Burial Options</div>
+  <div class="upsell-container">
+    <div class="upsell-tile">
+      <img src="icons/flower.png" alt="Flower Icon">
+      <h3>Digital Daisies</h3>
+      <p>Send fake flowers with just one click!</p>
+      <button>GO PREMIUM</button>
+    </div>
+    <div class="upsell-tile">
+      <img src="icons/umbrella.png" alt="Umbrella Icon">
+      <h3>Burial Insurance</h3>
+      <p>Safeguard your loops forever!</p>
+      <button>GO PREMIUM</button>
+    </div>
+    <div class="upsell-tile">
+      <img src="icons/headstone.png" alt="Headstone Icon">
+      <h3>VIP Headstone</h3>
+      <p>Make your loop grave stand out!</p>
+      <button>GO PREMIUM</button>
+    </div>
+  </div>
+</div>
+
 
   <div id="progressContainer" class="hidden">
     <p id="progressMessage">Analyzing your creation...</p>
