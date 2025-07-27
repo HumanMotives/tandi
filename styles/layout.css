@@ -1,80 +1,66 @@
-/* --- GRID: hub layout --- */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 2rem;              /* space between tiles */
-  margin-top: 2rem;
+/* layout.css */
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  margin: 0;
+  padding: 0;
 }
 
-/* --- TILE: full container with outline & hover shading --- */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 15px;
+  gap: 15px;
+  box-sizing: border-box;
+}
+
 .tile {
-  border: 1px solid #000;
-  border-radius: 6px;
+  background-color: #f8f8f8; /* optional styling */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: calc(100% - 30px);
+  max-width: 300px;
+  margin: 0; /* managed by gap in .grid */
+  box-sizing: border-box;
+  padding: 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: background-color 0.2s ease;
 }
 
-.tile:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+.tile img {
+  max-width: 100%;
+  height: auto;
 }
 
-/* --- LINK REGION: contains image, title, desc; underlines title only --- */
-.tile-link {
-  display: block;
-  width: 100%;
-  padding: 1rem;
-  text-decoration: none;
-  color: inherit;
-  text-align: center;
-}
-
-.tile-link:hover .tile-title {
-  text-decoration: underline;
-}
-
-/* --- IMAGE: 100×100 block centered --- */
-.tile-image {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  text-align: center;
-  margin: 0 auto 0.8rem;
-}
-
-/* --- TITLE: only underlined on link hover --- */
 .tile-title {
   font-weight: bold;
-  margin-bottom: 0.3rem;
-  font-size: 1.1rem;
-  text-align: center;
-  transition: text-decoration 0.2s ease;
+  margin-top: 10px;
 }
 
-/* --- DESCRIPTION: static text inside the link --- */
 .tile-desc {
-  font-size: 0.9rem;
-  color: #555;
-  margin-bottom: 1rem;
+  margin-top: 5px;
+  font-size: 14px;
   text-align: center;
-  text-decoration: none; /* ensure no underline ever */
 }
 
-/* --- HEART BUTTON: sits inside tile, below link --- */
 .like-counter {
-  background: none;
+  margin-top: 10px;
   border: none;
-  padding: 0.5rem;
-  font-size: 0.9rem;
-  color: #444;
+  background: none;
   cursor: pointer;
-  user-select: none;
-  border-top: 1px solid #eee; /* separation line */
-  width: 100%;
-  text-align: center;
+  font-size: 16px;
 }
 
-.like-counter .like-count {
-  font-weight: bold;
+@media (min-width: 600px) {
+  .tile {
+    width: calc(50% - 30px);
+  }
+}
+
+@media (min-width: 900px) {
+  .tile {
+    width: calc(33.333% - 30px);
+  }
 }
