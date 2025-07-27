@@ -158,14 +158,8 @@
   </style>
 </head>
 <body>
-  <nav class="top-menu">
-    <ul>
-      <li><a href="about.html">About</a></li>
-      <li><a href="changeblogs.html">Changelog</a></li>
-      <li><a href="https://ko-fi.com/yourKoFiName" target="_blank" rel="noopener">Donate</a></li>
-    </ul>
-  </nav>
-
+ <!-- header will land here -->
+  <div id="common-header"></div>
   <div class="logo-container">
     <img src="datagrave_sitelogo_large.png" alt="The Data Grave Logo">
   </div>
@@ -268,6 +262,13 @@
     <p>Concept &amp; Design by Chris van der Linden. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.</p>
   </footer>
   <script>
+
+    <div id="common-header"></div>
+<script>
+  fetch('header.html')
+    .then(r => r.text())
+    .then(html => document.getElementById('common-header').innerHTML = html);
+
     // disallow <, >, and any http:// or https:// in user text
     function isClean(str) {
       return !/[<>]/.test(str) && !/https?:\/\//i.test(str);
