@@ -1,8 +1,51 @@
+<!-- header.html -->
+<style>
+  /* full-width, centered nav */
+  nav.top-menu {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    background-color: #fff;
+    padding: 0.5rem 0;
+    margin-bottom: 1.5rem;
+    box-sizing: border-box;
+    z-index: 10;
+  }
+  nav.top-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+  }
+  nav.top-menu a {
+    font-family: monospace;
+    color: #333;
+    text-decoration: none;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+  }
+  nav.top-menu a:hover {
+    text-decoration: underline;
+  }
+  nav.top-menu .nav-icon {
+    width: 25px;
+    height: 25px;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+</style>
+
 <nav class="top-menu">
   <ul>
     <li>
       <a href="index.html">
-        <img src="icons/icon_tombstone.png" alt="Home" class="nav-icon">The Data Grave</a>
+        <img src="icons/icon_tombstone.png" alt="Home" class="nav-icon">
+        The Data Grave
+      </a>
     </li>
     <li><a href="about.html">About</a></li>
     <li><a href="changeblogs.html">Changelog</a></li>
