@@ -171,12 +171,17 @@
       background-color: #222;
     }
 
-      nav.top-menu {
-    background-color: #fff;
-    padding: 0.5rem 0;
-    width: 100vw;  
-    margin-bottom: 1.5rem;
-  }
+nav.top-menu {
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  background-color: #fff;
+  padding: 0.5rem 0;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+  z-index: 10;
+}
   nav.top-menu ul {
     list-style: none;
     margin: 0;
