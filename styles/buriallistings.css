@@ -1,0 +1,67 @@
+/* Burial Listings Styles */
+.burial-record {
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.record-summary {
+  background: #fff9e8;
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  gap: 0.75rem;
+}
+.record-summary .icon {
+  width: 24px;
+  height: 24px;
+}
+.record-summary .filename {
+  flex: 1;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.record-summary button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+.record-summary button.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.record-details {
+  background: #ffffff;
+  color: #666;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.record-details .epitaph {
+  font-style: italic;
+  flex: 1;
+}
+.record-details .meta {
+  white-space: nowrap;
+  margin-left: 1rem;
+  font-size: 0.85rem;
+  color: #999;
+}
+@media (max-width: 480px) {
+  .record-summary,
+  .record-details {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .record-details .meta {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+}
