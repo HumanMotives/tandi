@@ -2,90 +2,210 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>DEV Playback Test</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DEV: Two-Row Burial Layout – Playback Fix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: monospace; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 0.5rem; border-bottom: 1px solid #ddd; }
-    .play-btn { background:none; border:none; font-size:1.2rem; cursor:pointer; }
-    .play-btn:hover { transform: scale(1.2); }
-    audio { width: 100%; margin-top: 0.5rem; }
-    .meta { margin-top: 0.5rem; font-size: 0.9rem; color: #555; }
+    body {
+      font-family: monospace;
+      background: #f5f1e6;
+      margin: 0;
+      padding: 2rem 1rem;
+      max-width: 700px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+    .sort-by select {
+      font-size: 0.9rem;
+      padding: 0.2rem;
+    }
+    .burial-record {
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .record-summary {
+      background: #fff9e8;
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      gap: 0.75rem;
+    }
+    .record-summary .icon {
+      width: 24px;
+      height: 24px;
+    }
+    .record-summary .filename {
+      flex: 1;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .record-summary button {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0;
+    }
+    .record-details {
+      background: #ffffff;
+      color: #666;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .record-details .epitaph {
+      font-style: italic;
+      flex: 1;
+    }
+    .record-details .meta {
+      white-space: nowrap;
+      margin-left: 1rem;
+      font-size: 0.85rem;
+      color: #999;
+    }
+    @media (max-width: 480px) {
+      .record-summary, .record-details {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .record-details .meta {
+        margin-left: 0;
+        margin-top: 0.5rem;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <h1>DEV: Recent Burials with Audio</h1>
+  <div class="header">
+    <h1>Recent Burials</h1>
+    <div class="sort-by">
+      Sort by:
+      <select>
+        <option>Date</option>
+        <option>Popularity</option>
+        <option>Genre</option>
+      </select>
+    </div>
+  </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Filename</th>
-        <th>Date</th>
-        <th>Country</th>
-        <th>Likes</th>
-      </tr>
-    </thead>
-    <tbody id="graveList"></tbody>
-  </table>
+  <div id="records-container">
+    <!-- These will be rendered by JS -->
+  </div>
 
   <script>
-    // --- FAKE DEV DATA pointing at your Git file ---
+    // FAKE DEV DATA
     const fakeData = [
       {
         name: 'HelluvaTrackBoyz.mp3',
         timestamp: Date.now(),
         country: 'US',
-        likes: 42,
-        epitaph: 'Demo Epitaph 🎶',
-        username: 'demoUser',
-        public_url: 'projects/thedatagrave/uploads/HelluvaTrackBoyz.mp3'
+        public_url: 'uploads/HelluvaTrackBoyz.mp3',
+        epitaph: '“Looped Once Too Often …”',
+        icon: 'icons/icon_tombstone.png',
+        likes: 396,
+        user: 'BobbyBrown'
+      },
+      {
+        name: 'SadSynth.wav',
+        timestamp: Date.now() - 86400000,
+        country: 'CA',
+        public_url: 'uploads/HelluvaTrackBoyz.mp3',
+        epitaph: '“Fading into the ether.”',
+        icon: 'icons/icon_urn.png',
+        likes: 128,
+        user: 'SynthLover'
+      },
+      {
+        name: 'EchoLoop.ogg',
+        timestamp: Date.now() - 2*86400000,
+        country: 'UK',
+        public_url: 'uploads/HelluvaTrackBoyz.mp3',
+        epitaph: '“Echoes of lost beats.”',
+        icon: 'icons/icon_tombstone.png',
+        likes: 89,
+        user: 'EchoMaster'
       }
     ];
 
-    function renderRows(data) {
-      const tbody = document.getElementById('graveList');
-      tbody.innerHTML = '';
+    function renderRecords(data) {
+      const container = document.getElementById('records-container');
+      container.innerHTML = '';
 
-      data.forEach(b => {
-        // First row: Filename, Date, Country, Likes
-        const tr1 = document.createElement('tr');
-        tr1.innerHTML = `
-          <td>${b.name}</td>
-          <td>${new Date(b.timestamp).toLocaleDateString()}</td>
-          <td>${b.country}</td>
-          <td>${b.likes}</td>
+      data.forEach((b, i) => {
+        const rec = document.createElement('div');
+        rec.className = 'burial-record';
+
+        // Summary row
+        const sum = document.createElement('div');
+        sum.className = 'record-summary';
+        sum.innerHTML = `
+          <img src="${b.icon}" class="icon" alt="">
+          <div class="filename">${b.name}</div>
+          <button class="play-btn" data-url="${b.public_url}">▶️</button>
+          <button class="download-btn" data-url="${b.public_url}">⬇️</button>
+          <button class="like-btn">🌸 ${b.likes}</button>
         `;
-        tbody.appendChild(tr1);
+        rec.appendChild(sum);
 
-        // Second row: Audio player, epitaph, username, download
-        const tr2 = document.createElement('tr');
-        const td2 = document.createElement('td');
-        td2.colSpan = 4;
-        td2.innerHTML = `
-          <button class="play-btn">▶️ Play</button>
-          <audio class="hidden" controls src="${b.public_url}"></audio>
-          <div class="meta"><strong>Epitaph:</strong> ${b.epitaph}</div>
-          <div class="meta"><strong>User:</strong> ${b.username}</div>
-          <div class="meta"><a href="${b.public_url}" download>Download</a></div>
+        // Details row (always visible)
+        const det = document.createElement('div');
+        det.className = 'record-details';
+        det.innerHTML = `
+          <div class="epitaph">${b.epitaph}</div>
+          <div class="meta">Buried: ${new Date(b.timestamp).toLocaleDateString()} &nbsp;|&nbsp; User: ${b.user}</div>
         `;
-        tr2.appendChild(td2);
-        tbody.appendChild(tr2);
+        rec.appendChild(det);
 
-        // wire up play button
-        const playBtn = td2.querySelector('.play-btn');
-        const audioEl = td2.querySelector('audio');
+        // Playback logic
+        const playBtn = sum.querySelector('.play-btn');
+        let audio;
         playBtn.addEventListener('click', () => {
-          audioEl.classList.toggle('hidden');
-          audioEl.paused ? audioEl.play() : audioEl.pause();
+          const url = playBtn.dataset.url;
+          if (!audio) audio = new Audio(url);
+          if (audio.paused) {
+            audio.play();
+            playBtn.textContent = '⏹';
+          } else {
+            audio.pause();
+            playBtn.textContent = '▶️';
+          }
         });
+
+        // Download logic
+        const dlBtn = sum.querySelector('.download-btn');
+        dlBtn.addEventListener('click', () => {
+          const url = dlBtn.dataset.url;
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = b.name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        });
+
+        // Alternate background
+        rec.style.background = (i % 2 === 0) ? '#f9f9f9' : '#ffffff';
+
+        container.appendChild(rec);
       });
     }
 
-    // on load, render our fake data
     document.addEventListener('DOMContentLoaded', () => {
-      renderRows(fakeData);
+      renderRecords(fakeData);
     });
   </script>
 
