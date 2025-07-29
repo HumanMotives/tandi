@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Ghost Radio</title>
+  <link rel="icon" href="/favicon-ghostradio.jpg" type="image/jpeg">
   <link rel="stylesheet" href="/styles/main.css">
   <style>
     body {
@@ -119,14 +120,14 @@
   </style>
 </head>
 <body>
-  <h1>Ghost Radio 1.1.8</h1>
+  <h1>Ghost Radio 1.1.9</h1>
   <div class="power">
     <label class="switch">
       <input type="checkbox" id="powerToggle">
       <span class="slider"></span>
     </label>
     <button id="randomizeButton" title="Randomize">
-      <img src="graphics/icon_randomize.png" alt="Randomize">
+      <img src="/graphics/icon_randomize.png" alt="Randomize">
     </button>
   </div>
   <div class="controls">
@@ -145,12 +146,18 @@
     const bufferLength = analyser.fftSize;
     const dataArray = new Uint8Array(bufferLength);
 
+    // master gain for fade in/out
+    const masterGain = context.createGain();
+    masterGain.gain.value = 0;
+    analyser.connect(masterGain);
+    masterGain.connect(context.destination);
+
     const soundFiles = ['sound1.mp3', 'sound2.mp3', 'sound3.mp3', 'sound4.mp3', 'sound5.mp3', 'sound6.mp3'];
     const buffers = {};
     let layers = [];
     let isPlaying = false;
 
-    // Sliders accessed globally for randomization
+    // Sliders accessed globally
     const animatSlider = document.getElementById('animat');
     const contextSlider = document.getElementById('context');
 
@@ -167,7 +174,7 @@
       await Promise.all(promises);
     }
 
-    function playLayer(file, animatAmount) {
+    function playLayer(file) {
       const buffer = buffers[file];
       const source = context.createBufferSource();
       const gain = context.createGain();
@@ -193,7 +200,6 @@
       source.connect(filter);
       filter.connect(gain);
       gain.connect(analyser);
-      analyser.connect(context.destination);
 
       source.start(context.currentTime, start);
 
@@ -245,29 +251,34 @@
     function startGhostRadio() {
       document.querySelector('.controls').style.display = 'block';
       document.body.classList.add('loaded');
+      // fade in master
+      masterGain.gain.cancelScheduledValues(context.currentTime);
+      masterGain.gain.linearRampToValueAtTime(1, context.currentTime + 2);
 
       const selected = [];
       while (selected.length < 3) {
         const file = soundFiles[Math.floor(Math.random() * soundFiles.length)];
         if (!selected.includes(file)) selected.push(file);
       }
-
-      layers = selected.map(file => playLayer(file, parseFloat(animatSlider.value)));
+      layers = selected.map(playLayer);
       drawWaveform();
       applyContextShift(parseFloat(contextSlider.value));
-
       contextSlider.addEventListener('input', () => applyContextShift(parseFloat(contextSlider.value)));
     }
 
     function stopGhostRadio() {
-      layers.forEach(({ source, filter, gain }) => {
-        try { source.stop(); } catch (e) {}
-        source.disconnect();
-        filter.disconnect();
-        gain.disconnect();
-      });
-      layers = [];
-      try { analyser.disconnect(context.destination); } catch (e) {}
+      // fade out master then stop layers
+      masterGain.gain.cancelScheduledValues(context.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0, context.currentTime + 2);
+      setTimeout(() => {
+        layers.forEach(({ source, filter, gain }) => {
+          try { source.stop(); } catch (e) {}
+          source.disconnect(); filter.disconnect(); gain.disconnect();
+        });
+        layers = [];
+      }, 2000);
+      document.querySelector('.controls').style.display = 'none';
+      document.body.classList.remove('loaded');
     }
 
     function randomizeGhostRadio() {
@@ -287,7 +298,6 @@
         gain.gain.cancelScheduledValues(context.currentTime);
         gain.gain.linearRampToValueAtTime(0, context.currentTime + 2);
       });
-      // schedule old stop
       const oldLayers = layers;
       setTimeout(() => {
         oldLayers.forEach(({ source, filter, gain }) => {
@@ -296,8 +306,8 @@
         });
       }, 2000);
 
-      // start new layers with fade in
-      layers = newSelected.map(file => playLayer(file, parseFloat(animatSlider.value)));
+      // start new layers
+      layers = newSelected.map(playLayer);
       applyContextShift(parseFloat(contextSlider.value));
     }
 
@@ -311,8 +321,6 @@
       } else if (!powerToggle.checked && isPlaying) {
         isPlaying = false;
         stopGhostRadio();
-        document.querySelector('.controls').style.display = 'none';
-        document.body.classList.remove('loaded');
       }
     });
 
