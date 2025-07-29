@@ -185,6 +185,52 @@
       .then(res => res.text())
       .then(html => document.getElementById('common-header').innerHTML = html);
 
+    <!-- 1) Add Supabase JS client just above your own scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+  // Initialize Supabase client
+  const SUPABASE_URL = 'https://ticxhncusdycqjftohho.supabase.co';
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Grab the file input
+  const fileInput = document.getElementById('fileInput');
+
+  fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // 15 MB limit
+    const maxSize = 15 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('File is too large. Maximum size is 15 MB.');
+      fileInput.value = '';
+      return;
+    }
+
+    // Show a quick “uploading…” state
+    document.getElementById('progressMessage').textContent = 'Uploading…';
+    document.getElementById('progressContainer').classList.remove('hidden');
+
+    // Perform the upload
+    const { data, error } = await supabase
+      .storage
+      .from('uploads')         // <-- make sure your bucket is named “uploads”
+      .upload(file.name, file, { upsert: true });
+
+    document.getElementById('progressContainer').classList.add('hidden');
+
+    if (error) {
+      console.error('Upload error:', error);
+      alert('Upload failed. Check console for details.');
+    } else {
+      console.log('Uploaded!', data);
+      alert('Upload succeeded!');
+      // Now you can proceed to your analysis / burial flow…
+    }
+  });
+</script>
+
+
     // disallow <, >, and any http:// or https:// in user text
     function isClean(str) {
       return !/[<>]/.test(str) && !/https?:\/\//i.test(str);
