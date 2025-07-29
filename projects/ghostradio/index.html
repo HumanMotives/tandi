@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,114 +15,76 @@
 
     h1 {
       font-size: 2em;
-      margin-bottom: 1em;
+      margin-top: 2em;
+      opacity: 0;
+      transition: opacity 3s ease-in;
     }
 
-    .controls {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      max-width: 800px;
-      margin: 2em auto;
-    }
-
-    .control-group {
-      margin: 1em;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .dial-label {
-      margin-top: 0.5em;
-      font-size: 0.9em;
-    }
-
-    input[type="range"] {
-      -webkit-appearance: none;
-      writing-mode: bt-lr;
-      width: 100px;
-      height: 8px;
-      background: var(--accent, #222);
-      border-radius: 4px;
-    }
-
-    .tuning-bar {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 3em auto;
-    }
-
-    .tuning-scale {
-      display: flex;
-      justify-content: space-between;
-      width: 300px;
-      height: 30px;
-      border-bottom: 1px solid #333;
-      position: relative;
-    }
-
-    .tuning-scale div {
-      width: 2px;
-      height: 10px;
-      background: #333;
-    }
-
-    .tuning-pointer {
-      width: 4px;
-      height: 20px;
-      background: #000;
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
+    body.loaded h1 {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
   <h1>Ghost Radio</h1>
 
-  <div class="controls">
-    <div class="control-group">
-      <input id="drift" type="range" min="0" max="1" step="0.01" value="0.5">
-      <label class="dial-label" for="drift">Temporal Drift</label>
-    </div>
-    <div class="control-group">
-      <input id="decay" type="range" min="0" max="1" step="0.01" value="0.5">
-      <label class="dial-label" for="decay">Memory Decay</label>
-    </div>
-    <div class="control-group">
-      <input id="bloom" type="range" min="0" max="1" step="0.01" value="0.5">
-      <label class="dial-label" for="bloom">Fragment Bloom</label>
-    </div>
-  </div>
-
-  <div class="tuning-bar">
-    <div class="tuning-scale">
-      <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-      <div class="tuning-pointer"></div>
-    </div>
-  </div>
-
   <script>
-    const driftControl = document.getElementById('drift');
-    const decayControl = document.getElementById('decay');
-    const bloomControl = document.getElementById('bloom');
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const soundFiles = ['sound1.wav', 'sound2.wav', 'sound3.wav', 'sound4.wav', 'sound5.wav','sound6.wav','sound7.wav'];
 
-    driftControl.addEventListener('input', () => {
-      console.log('Drift:', driftControl.value);
-      // Update playback offset logic here
-    });
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
 
-    decayControl.addEventListener('input', () => {
-      console.log('Decay:', decayControl.value);
-      // Update filter/degradation logic here
-    });
+    async function playRandomLayer(file) {
+      const response = await fetch(`/projects/ghostradio/sounds/${file}`);
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = await context.decodeAudioData(arrayBuffer);
 
-    bloomControl.addEventListener('input', () => {
-      console.log('Bloom:', bloomControl.value);
-      // Update loop slicing logic here
+      const source = context.createBufferSource();
+      const gainNode = context.createGain();
+      const filter = context.createBiquadFilter();
+
+      source.buffer = buffer;
+      source.loop = true;
+
+      // Random pitch (playbackRate)
+      source.playbackRate.value = randomInRange(0.9, 1.1);
+
+      // Random start position and loop duration
+      const duration = buffer.duration;
+      const start = randomInRange(0, duration * 0.75);
+      const loopLength = randomInRange(2, duration - start);
+      source.loopStart = start;
+      source.loopEnd = start + loopLength;
+
+      // Random filter
+      filter.type = 'lowpass';
+      filter.frequency.value = randomInRange(300, 5000);
+
+      source.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(context.destination);
+
+      // Fade in volume
+      gainNode.gain.setValueAtTime(0, context.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.6, context.currentTime + 3);
+
+      source.start(context.currentTime, start);
+    }
+
+    window.addEventListener('load', () => {
+      document.body.classList.add('loaded');
+
+      const selected = [];
+      while (selected.length < 3) {
+        const choice = soundFiles[Math.floor(Math.random() * soundFiles.length)];
+        if (!selected.includes(choice)) selected.push(choice);
+      }
+
+      selected.forEach(file => {
+        playRandomLayer(file);
+      });
     });
   </script>
 </body>
