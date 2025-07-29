@@ -25,12 +25,6 @@
       opacity: 1;
     }
 
-    #status {
-      margin-top: 1em;
-      font-size: 0.9em;
-      color: #666;
-    }
-
     #loader {
       font-size: 1em;
       margin-top: 4em;
@@ -51,9 +45,14 @@
       background: #444;
     }
 
-    .animat-control {
+    .controls {
       margin-top: 2em;
       display: none;
+    }
+
+    .controls label {
+      display: block;
+      margin-top: 1em;
     }
 
     input[type="range"] {
@@ -72,14 +71,17 @@
   </style>
 </head>
 <body>
-  <h1>Ghost Radio 0.4</h1>
+  <h1>Ghost Radio 0.5</h1>
   <div id="loader">
     <p>Loading audio…</p>
     <button id="startButton">Start Listening</button>
   </div>
-  <div class="animat-control">
-    <label for="animat">Animat</label><br>
+  <div class="controls">
+    <label for="animat">Animat</label>
     <input type="range" id="animat" min="0" max="1" step="0.01" value="0.2">
+
+    <label for="context">Context</label>
+    <input type="range" id="context" min="0" max="1" step="0.01" value="0.5">
   </div>
   <canvas id="waveform"></canvas>
 
@@ -92,7 +94,7 @@
 
     const soundFiles = ['sound1.mp3', 'sound2.mp3', 'sound3.mp3', 'sound4.mp3', 'sound5.mp3', 'sound6.mp3'];
     const buffers = {};
-    const playingSources = [];
+    const layers = [];
 
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
@@ -150,7 +152,22 @@
         }
       }, 8000);
 
-      playingSources.push(source);
+      layers.push({ gain, filter });
+    }
+
+    function applyContextShift(value) {
+      const count = layers.length;
+      layers.forEach((layer, index) => {
+        // Rotate index based on value
+        const position = (index + Math.floor(value * count)) % count;
+        const focus = 1 - Math.abs((position - 1) / (count - 1)); // focused layer is near 1
+
+        const targetGain = 0.3 + 0.4 * focus;
+        const targetFreq = 1000 + 4000 * focus;
+
+        layer.gain.gain.linearRampToValueAtTime(targetGain, context.currentTime + 2);
+        layer.filter.frequency.linearRampToValueAtTime(targetFreq, context.currentTime + 2);
+      });
     }
 
     function drawWaveform() {
@@ -189,7 +206,7 @@
 
     async function startGhostRadio() {
       document.getElementById('loader').style.display = 'none';
-      document.querySelector('.animat-control').style.display = 'block';
+      document.querySelector('.controls').style.display = 'block';
       document.body.classList.add('loaded');
 
       const selected = [];
@@ -199,12 +216,15 @@
       }
 
       const animatSlider = document.getElementById('animat');
-      selected.forEach(file => playLayer(file, parseFloat(animatSlider.value)));
-      animatSlider.addEventListener('input', () => {
-        // Optional: live modulation update
-      });
+      const contextSlider = document.getElementById('context');
 
+      selected.forEach(file => playLayer(file, parseFloat(animatSlider.value)));
       drawWaveform();
+      applyContextShift(parseFloat(contextSlider.value));
+
+      contextSlider.addEventListener('input', () => {
+        applyContextShift(parseFloat(contextSlider.value));
+      });
     }
 
     document.getElementById('startButton').addEventListener('click', async () => {
