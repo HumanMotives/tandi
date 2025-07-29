@@ -1,61 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Ghost Radio</title>
-  <link rel="stylesheet" href="/styles/main.css">
   <style>
     body {
-      font-family: var(--font-main, sans-serif);
-      background: var(--background, #f5f4ed);
-      color: var(--text-color, #111);
+      font-family: sans-serif;
+      background: #f5f4ed;
+      color: #111;
       text-align: center;
       padding: 2em;
     }
 
-    h1 {
-      font-size: 2em;
-      margin-top: 2em;
-      opacity: 0;
-      transition: opacity 3s ease-in;
-    }
-
-    body.loaded h1 {
-      opacity: 1;
-    }
-
-    #status {
-      margin-top: 1em;
-      font-size: 0.9em;
-      color: #666;
-    }
-
     button {
       font-size: 1em;
-      padding: 0.6em 1.2em;
-      background: #111;
-      color: #f5f4ed;
-      border: none;
-      cursor: pointer;
+      padding: 1em 2em;
       margin-top: 2em;
-    }
-
-    button:hover {
-      background: #444;
     }
   </style>
 </head>
 <body>
   <h1>Ghost Radio</h1>
-  <div id="status">Waiting for user interaction...</div>
   <button id="startButton">Start</button>
+  <div id="status">Waiting for user...</div>
 
   <script>
     const context = new (window.AudioContext || window.webkitAudioContext)();
-    const soundFiles = [
-      'sound1.wav', 'sound2.wav', 'sound3.wav',
-      'sound4.wav', 'sound5.wav', 'sound6.wav', 'sound7.wav'
-    ];
+    const soundFiles = ['sound1.wav', 'sound2.wav', 'sound3.wav'];
 
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
@@ -63,48 +34,62 @@
 
     async function playRandomLayer(file) {
       try {
-        const response = await fetch(`/projects/ghostradio/sounds/${file}`);
-        const arrayBuffer = await response.arrayBuffer();
-        const buffer = await context.decodeAudioData(arrayBuffer);
+        const res = await fetch(`/projects/ghostradio/sounds/${file}`);
+        const buf = await res.arrayBuffer();
+        const decoded = await context.decodeAudioData(buf);
 
         const source = context.createBufferSource();
-        const gainNode = context.createGain();
+        const gain = context.createGain();
         const filter = context.createBiquadFilter();
 
-        source.buffer = buffer;
+        source.buffer = decoded;
         source.loop = true;
 
-        // Pitch
         source.playbackRate.value = randomInRange(0.9, 1.1);
 
-        // Start and loop
-        const duration = buffer.duration;
-        const start = randomInRange(0, duration * 0.75);
-        const loopLength = Math.min(20, Math.max(3, randomInRange(3, duration - start)));
+        const dur = decoded.duration;
+        const start = randomInRange(0, dur * 0.75);
+        const length = Math.min(20, Math.max(3, dur - start));
         source.loopStart = start;
-        source.loopEnd = start + loopLength;
+        source.loopEnd = start + length;
 
-        // Filter
         filter.type = 'lowpass';
-        filter.frequency.value = randomInRange(100, 5000); // safe floor
+        filter.frequency.value = randomInRange(100, 5000);
 
-        // Volume
-        const volume = randomInRange(0.4, 0.7);
-        gainNode.gain.setValueAtTime(0, context.currentTime);
-        gainNode.gain.linearRampToValueAtTime(volume, context.currentTime + 3);
+        gain.gain.setValueAtTime(0, context.currentTime);
+        gain.gain.linearRampToValueAtTime(0.6, context.currentTime + 3);
 
         source.connect(filter);
-        filter.connect(gainNode);
-        gainNode.connect(context.destination);
+        filter.connect(gain);
+        gain.connect(context.destination);
 
         source.start(context.currentTime, start);
-        console.log(`Started ${file} at ${start.toFixed(2)}s with loop ${loopLength.toFixed(2)}s, pitch ${source.playbackRate.value.toFixed(2)}, volume ${volume.toFixed(2)}, filter ${filter.frequency.value.toFixed(0)} Hz`);
-      } catch (err) {
-        console.error(`Failed to load ${file}:`, err);
-        document.getElementById('status').textContent = `Error loading: ${file}`;
+        console.log(`Playing ${file}`);
+      } catch (e) {
+        console.error(`Error loading ${file}:`, e);
+        document.getElementById('status').textContent = `Error with ${file}`;
       }
     }
 
-    function startGhostRadio() {
-      document.body.classList.add('loaded');
-      document.getElementById('status').textContent = 'Pla
+    async function startGhostRadio() {
+      await context.resume();
+      document.getElementById('status').textContent = 'Playing...';
+
+      const chosen = [];
+      while (chosen.length < 3) {
+        const file = soundFiles[Math.floor(Math.random() * soundFiles.length)];
+        if (!chosen.includes(file)) chosen.push(file);
+      }
+
+      for (const f of chosen) {
+        playRandomLayer(f);
+      }
+    }
+
+    document.getElementById('startButton').addEventListener('click', async () => {
+      console.log('Button clicked');
+      await startGhostRadio();
+    });
+  </script>
+</body>
+</html>
