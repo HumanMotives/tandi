@@ -31,18 +31,18 @@
       color: #666;
     }
 
-    button {
+    #loader {
       font-size: 1em;
-      padding: 0.6em 1.2em;
-      background: #111;
-      color: #f5f4ed;
-      border: none;
-      cursor: pointer;
+      margin-top: 4em;
+      color: #999;
+    }
+
+    .animat-control {
       margin-top: 2em;
     }
 
-    button:hover {
-      background: #444;
+    input[type="range"] {
+      width: 200px;
     }
 
     canvas {
@@ -57,9 +57,12 @@
   </style>
 </head>
 <body>
-  <h1>Ghost Radio</h1>
-  <div id="status">Waiting for user interaction... v0.3 </div>
-  <button id="startButton">Start</button>
+  <h1>Ghost Radio 0.4</h1>
+  <div id="loader">Loading audio...</div>
+  <div class="animat-control" style="display:none">
+    <label for="animat">Animat</label><br>
+    <input type="range" id="animat" min="0" max="1" step="0.01" value="0.2">
+  </div>
   <canvas id="waveform"></canvas>
 
   <script>
@@ -69,67 +72,67 @@
     const bufferLength = analyser.fftSize;
     const dataArray = new Uint8Array(bufferLength);
 
-    const soundFiles = [
-      'sound1.mp3', 'sound2.mp3', 'sound3.mp3',
-      'sound4.mp3', 'sound5.mp3', 'sound6.mp3'
-    ];
+    const soundFiles = ['sound1.mp3', 'sound2.mp3', 'sound3.mp3', 'sound4.mp3', 'sound5.mp3', 'sound6.mp3'];
+    const buffers = {};
+    const playingSources = [];
 
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
     }
 
-    async function playRandomLayer(file) {
-      try {
+    async function preloadAllSounds() {
+      const promises = soundFiles.map(async file => {
         const res = await fetch(`/projects/ghostradio/sounds/${file}`);
         const buf = await res.arrayBuffer();
-        const decoded = await context.decodeAudioData(buf);
-
-        const source = context.createBufferSource();
-        const gain = context.createGain();
-        const filter = context.createBiquadFilter();
-
-        source.buffer = decoded;
-        source.loop = true;
-
-        source.playbackRate.value = randomInRange(0.9, 1.1);
-
-        const dur = decoded.duration;
-        const start = randomInRange(0, dur * 0.75);
-        const length = Math.min(20, Math.max(3, dur - start));
-        source.loopStart = start;
-        source.loopEnd = start + length;
-
-        filter.type = 'lowpass';
-        filter.frequency.value = randomInRange(100, 5000);
-
-        gain.gain.setValueAtTime(0, context.currentTime);
-        gain.gain.linearRampToValueAtTime(randomInRange(0.4, 0.7), context.currentTime + 3);
-
-        source.connect(filter);
-        filter.connect(gain);
-        gain.connect(analyser);
-        analyser.connect(context.destination);
-
-        source.start(context.currentTime, start);
-      } catch (e) {
-        console.error(`Error loading ${file}:`, e);
-        document.getElementById('status').textContent = `Error with ${file}`;
-      }
+        buffers[file] = await context.decodeAudioData(buf);
+      });
+      await Promise.all(promises);
     }
 
-    function startGhostRadio() {
-      document.body.classList.add('loaded');
-      document.getElementById('status').textContent = 'Playing...';
-      document.getElementById('startButton').style.display = 'none';
+    function playLayer(file, animatAmount) {
+      const buffer = buffers[file];
+      const source = context.createBufferSource();
+      const gain = context.createGain();
+      const filter = context.createBiquadFilter();
 
-      const chosen = [];
-      while (chosen.length < 3) {
-        const file = soundFiles[Math.floor(Math.random() * soundFiles.length)];
-        if (!chosen.includes(file)) chosen.push(file);
-      }
+      source.buffer = buffer;
+      source.loop = true;
+      source.playbackRate.value = randomInRange(0.9, 1.1);
 
-      chosen.forEach(playRandomLayer);
-      drawWaveform();
+      const dur = buffer.duration;
+      let start = randomInRange(0, dur * 0.75);
+      let length = Math.min(20, Math.max(3, dur - start));
+      source.loopStart = start;
+      source.loopEnd = start + length;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = randomInRange(100, 5000);
+
+      const volume = randomInRange(0.4, 0.7);
+      gain.gain.setValueAtTime(0, context.currentTime);
+      gain.gain.linearRampToValueAtTime(volume, context.currentTime + 3);
+
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(analyser);
+      analyser.connect(context.destination);
+
+      source.start(context.currentTime, start);
+
+      // Animat modulation loop
+      setInterval(() => {
+        if (animatAmount > 0.01) {
+          const newStart = start + randomInRange(-0.1, 0.1) * animatAmount;
+          const newLength = length + randomInRange(-1, 1) * animatAmount;
+          const newFreq = filter.frequency.value + randomInRange(-100, 100) * animatAmount;
+
+          source.loopStart = Math.max(0, Math.min(buffer.duration - 1, newStart));
+          source.loopEnd = Math.max(source.loopStart + 1, Math.min(buffer.duration, source.loopStart + newLength));
+          filter.frequency.value = Math.max(100, Math.min(15000, newFreq));
+        }
+      }, 8000);
+
+      playingSources.push(source);
     }
 
     function drawWaveform() {
@@ -145,7 +148,7 @@
         requestAnimationFrame(draw);
 
         analyser.getByteTimeDomainData(dataArray);
-        ctx.fillStyle = 'rgba(245, 244, 237, 0.08)'; // ghosty background fade
+        ctx.fillStyle = 'rgba(245, 244, 237, 0.08)';
         ctx.fillRect(0, 0, width, height);
 
         ctx.beginPath();
@@ -155,11 +158,7 @@
         for (let i = 0; i < bufferLength; i++) {
           const v = dataArray[i] / 128.0;
           const y = v * height / 2;
-          if (i === 0) {
-            ctx.moveTo(x, y);
-          } else {
-            ctx.lineTo(x, y);
-          }
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
           x += sliceWidth;
         }
 
@@ -170,10 +169,28 @@
       draw();
     }
 
-    document.getElementById('startButton').addEventListener('click', async () => {
+    async function startGhostRadio() {
       await context.resume();
-      startGhostRadio();
-    });
+      document.getElementById('loader').style.display = 'none';
+      document.querySelector('.animat-control').style.display = 'block';
+      document.body.classList.add('loaded');
+
+      const selected = [];
+      while (selected.length < 3) {
+        const file = soundFiles[Math.floor(Math.random() * soundFiles.length)];
+        if (!selected.includes(file)) selected.push(file);
+      }
+
+      const animatSlider = document.getElementById('animat');
+      selected.forEach(file => playLayer(file, parseFloat(animatSlider.value)));
+      animatSlider.addEventListener('input', () => {
+        // Live update not needed yet, but could tie into sources
+      });
+
+      drawWaveform();
+    }
+
+    preloadAllSounds().then(startGhostRadio);
   </script>
 </body>
 </html>
