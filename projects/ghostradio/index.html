@@ -37,8 +37,23 @@
       color: #999;
     }
 
+    #startButton {
+      font-size: 1em;
+      padding: 0.8em 1.5em;
+      margin-top: 1em;
+      background: #111;
+      color: #f5f4ed;
+      border: none;
+      cursor: pointer;
+    }
+
+    #startButton:hover {
+      background: #444;
+    }
+
     .animat-control {
       margin-top: 2em;
+      display: none;
     }
 
     input[type="range"] {
@@ -58,8 +73,11 @@
 </head>
 <body>
   <h1>Ghost Radio 0.4</h1>
-  <div id="loader">Loading audio...</div>
-  <div class="animat-control" style="display:none">
+  <div id="loader">
+    <p>Loading audio…</p>
+    <button id="startButton">Start Listening</button>
+  </div>
+  <div class="animat-control">
     <label for="animat">Animat</label><br>
     <input type="range" id="animat" min="0" max="1" step="0.01" value="0.2">
   </div>
@@ -170,7 +188,6 @@
     }
 
     async function startGhostRadio() {
-      await context.resume();
       document.getElementById('loader').style.display = 'none';
       document.querySelector('.animat-control').style.display = 'block';
       document.body.classList.add('loaded');
@@ -184,13 +201,17 @@
       const animatSlider = document.getElementById('animat');
       selected.forEach(file => playLayer(file, parseFloat(animatSlider.value)));
       animatSlider.addEventListener('input', () => {
-        // Live update not needed yet, but could tie into sources
+        // Optional: live modulation update
       });
 
       drawWaveform();
     }
 
-    preloadAllSounds().then(startGhostRadio);
+    document.getElementById('startButton').addEventListener('click', async () => {
+      await context.resume();
+      await preloadAllSounds();
+      startGhostRadio();
+    });
   </script>
 </body>
 </html>
