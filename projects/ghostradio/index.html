@@ -3,36 +3,76 @@
 <head>
   <meta charset="UTF-8" />
   <title>Ghost Radio</title>
+  <link rel="stylesheet" href="/styles/main.css">
   <style>
     body {
-      font-family: sans-serif;
-      background: #f5f4ed;
-      color: #111;
+      font-family: var(--font-main, sans-serif);
+      background: var(--background, #f5f4ed);
+      color: var(--text-color, #111);
       text-align: center;
       padding: 2em;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-top: 2em;
+      opacity: 0;
+      transition: opacity 3s ease-in;
+    }
+
+    body.loaded h1 {
+      opacity: 1;
+    }
+
+    #status {
+      margin-top: 1em;
+      font-size: 0.9em;
+      color: #666;
     }
 
     button {
       font-size: 1em;
-      padding: 1em 2em;
+      padding: 0.6em 1.2em;
+      background: #111;
+      color: #f5f4ed;
+      border: none;
+      cursor: pointer;
       margin-top: 2em;
+    }
+
+    button:hover {
+      background: #444;
+    }
+
+    canvas {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 200px;
+      z-index: -1;
+      background: transparent;
     }
   </style>
 </head>
 <body>
   <h1>Ghost Radio</h1>
+  <div id="status">Waiting for user interaction... v0.3 </div>
   <button id="startButton">Start</button>
-  <div id="status">Waiting for user... v1.2 </div>
+  <canvas id="waveform"></canvas>
 
   <script>
-
-    
     const context = new (window.AudioContext || window.webkitAudioContext)();
-const soundFiles = [
-  'sound1.mp3', 'sound2.mp3', 'sound3.mp3',
-  'sound4.mp3', 'sound5.mp3', 'sound6.mp3'
-];
+    const analyser = context.createAnalyser();
+    analyser.fftSize = 2048;
+    const bufferLength = analyser.fftSize;
+    const dataArray = new Uint8Array(bufferLength);
 
+    const soundFiles = [
+      'sound1.mp3', 'sound2.mp3', 'sound3.mp3',
+      'sound4.mp3', 'sound5.mp3', 'sound6.mp3'
+    ];
 
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
@@ -63,23 +103,24 @@ const soundFiles = [
         filter.frequency.value = randomInRange(100, 5000);
 
         gain.gain.setValueAtTime(0, context.currentTime);
-        gain.gain.linearRampToValueAtTime(0.6, context.currentTime + 3);
+        gain.gain.linearRampToValueAtTime(randomInRange(0.4, 0.7), context.currentTime + 3);
 
         source.connect(filter);
         filter.connect(gain);
-        gain.connect(context.destination);
+        gain.connect(analyser);
+        analyser.connect(context.destination);
 
         source.start(context.currentTime, start);
-        console.log(`Playing ${file}`);
       } catch (e) {
         console.error(`Error loading ${file}:`, e);
         document.getElementById('status').textContent = `Error with ${file}`;
       }
     }
 
-    async function startGhostRadio() {
-      await context.resume();
+    function startGhostRadio() {
+      document.body.classList.add('loaded');
       document.getElementById('status').textContent = 'Playing...';
+      document.getElementById('startButton').style.display = 'none';
 
       const chosen = [];
       while (chosen.length < 3) {
@@ -87,14 +128,51 @@ const soundFiles = [
         if (!chosen.includes(file)) chosen.push(file);
       }
 
-      for (const f of chosen) {
-        playRandomLayer(f);
+      chosen.forEach(playRandomLayer);
+      drawWaveform();
+    }
+
+    function drawWaveform() {
+      const canvas = document.getElementById('waveform');
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width = window.innerWidth;
+      const height = canvas.height = 200;
+
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+
+      function draw() {
+        requestAnimationFrame(draw);
+
+        analyser.getByteTimeDomainData(dataArray);
+        ctx.fillStyle = 'rgba(245, 244, 237, 0.08)'; // ghosty background fade
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.beginPath();
+        let sliceWidth = width / bufferLength;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          const v = dataArray[i] / 128.0;
+          const y = v * height / 2;
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+          x += sliceWidth;
+        }
+
+        ctx.lineTo(width, height / 2);
+        ctx.stroke();
       }
+
+      draw();
     }
 
     document.getElementById('startButton').addEventListener('click', async () => {
-      console.log('Button clicked');
-      await startGhostRadio();
+      await context.resume();
+      startGhostRadio();
     });
   </script>
 </body>
