@@ -128,9 +128,9 @@
       filter.type = 'lowpass';
       filter.frequency.value = randomInRange(100, 5000);
 
-      const volume = randomInRange(0.4, 0.7);
+      const baseGain = randomInRange(0.4, 0.7);
       gain.gain.setValueAtTime(0, context.currentTime);
-      gain.gain.linearRampToValueAtTime(volume, context.currentTime + 3);
+      gain.gain.linearRampToValueAtTime(baseGain, context.currentTime + 3);
 
       source.connect(filter);
       filter.connect(gain);
@@ -139,34 +139,32 @@
 
       source.start(context.currentTime, start);
 
-      // Animat modulation loop
-      setInterval(() => {
-        if (animatAmount > 0.01) {
-          const newStart = start + randomInRange(-0.1, 0.1) * animatAmount;
-          const newLength = length + randomInRange(-1, 1) * animatAmount;
-          const newFreq = filter.frequency.value + randomInRange(-100, 100) * animatAmount;
-
-          source.loopStart = Math.max(0, Math.min(buffer.duration - 1, newStart));
-          source.loopEnd = Math.max(source.loopStart + 1, Math.min(buffer.duration, source.loopStart + newLength));
-          filter.frequency.value = Math.max(100, Math.min(15000, newFreq));
-        }
-      }, 8000);
-
-      layers.push({ gain, filter });
+      // Store baseGain for context cross-fade
+      layers.push({ gain, filter, baseGain });
     }
 
     function applyContextShift(value) {
-      const count = layers.length;
-      layers.forEach((layer, index) => {
-        // Rotate index based on value
-        const position = (index + Math.floor(value * count)) % count;
-        const focus = 1 - Math.abs((position - 1) / (count - 1)); // focused layer is near 1
+      // value ∈ [0,1]
+      layers.forEach(({ gain, baseGain }, index) => {
+        let factor = 1;
 
-        const targetGain = 0.3 + 0.4 * focus;
-        const targetFreq = 1000 + 4000 * focus;
+        if (value < 0.5) {
+          // left half: mute layer 2
+          if (index === 2) {
+            factor = value / 0.5;
+          }
+        } else {
+          // right half: mute layer 0
+          if (index === 0) {
+            factor = (1 - value) / 0.5;
+          }
+        }
 
-        layer.gain.gain.linearRampToValueAtTime(targetGain, context.currentTime + 2);
-        layer.filter.frequency.linearRampToValueAtTime(targetFreq, context.currentTime + 2);
+        gain.gain.cancelScheduledValues(context.currentTime);
+        gain.gain.linearRampToValueAtTime(
+          baseGain * factor,
+          context.currentTime + 0.5
+        );
       });
     }
 
