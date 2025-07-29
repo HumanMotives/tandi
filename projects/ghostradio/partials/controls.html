@@ -1,15 +1,27 @@
 <div class="controls-container">
-  <div class="power">
+  <!-- Radio Power Toggle -->
+  <div class="power-container">
+    <label class="toggle-label" for="powerToggle">Radio Power</label>
     <label class="switch">
       <input type="checkbox" id="powerToggle">
       <span class="slider"></span>
     </label>
-    <button id="randomizeButton" class="icon-button" title="Randomize">
-      <img class="icon" src="graphics/icon_randomize.png" alt="Randomize">
-    </button>
   </div>
-  <label for="animat">Animat</label>
-  <input type="range" id="animat" min="0" max="1" step="0.01" value="0.2">
-  <label for="context">Context</label>
-  <input type="range" id="context" min="0" max="1" step="0.01" value="0.5">
+
+  <!-- Sound Controls Heading -->
+  <h2>Sound Controls</h2>
+
+  <!-- Sliders -->
+  <div class="sliders-container hidden">
+    <label for="animat">Animat</label>
+    <input type="range" id="animat" min="0" max="1" step="0.01" value="0.2">
+
+    <label for="context">Context</label>
+    <input type="range" id="context" min="0" max="1" step="0.01" value="0.5">
+  </div>
+
+  <!-- Randomize Icon -->
+  <button id="randomizeButton" class="icon-button" title="Randomize">
+    <img class="icon" src="/graphics/icon_randomize.png" alt="Randomize">
+  </button>
 </div>
