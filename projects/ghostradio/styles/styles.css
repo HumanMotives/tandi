@@ -9,7 +9,6 @@ html, body {
   text-align: center;
   box-sizing: border-box;
 }
-
 *, *::before, *::after {
   box-sizing: inherit;
 }
@@ -20,7 +19,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 18px;
 }
 
-/* Containers */
+/* Boxed panels (use .container explicitly) */
 .container {
   width: calc(100% - 30px);
   max-width: 300px;
@@ -35,47 +34,32 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #ececec;
 }
 
-/* Buttons */
-button {
-  background-color: #fdfbf8;
-  border: 1px solid #aaaaaa;
-  border-radius: 10px;
-  padding: 10px 15px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-}
-button:hover {
-  background-color: #ececec;
+/* Icon defaults */
+button img,
+.icon {
+  width: 35px;
+  height: 35px;
 }
 
-/* Inputs */
-input[type="range"] {
-  width: 100%;
-  margin: 10px 0;
-}
-
-/* Power & controls section */
+/* Controls layout */
 .controls-container {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  padding: 0 15px;
+  margin: 5px 0;
 }
-
-/* Sliders container */
 .sliders-container {
   margin-top: 15px;
 }
 
-/* Waveform canvas container */
+/* Waveform visualizer */
 .waveform-container {
   position: fixed;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 800px;
   height: 200px;
   background: transparent;
   z-index: -1;
@@ -84,18 +68,20 @@ input[type="range"] {
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .container {
-    width: calc(100% - 20px);
-    max-width: none;
-    margin: 10px auto;
+    width: 100%;
+    margin: 10px 0;
     padding: 10px;
   }
   h1 {
     font-size: 16px;
   }
-
-/* Icons */
-button img, .icon {
-  width: 35px;
-  height: 35px;
+  .waveform-container {
+    height: 150px;
+  }
 }
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 14px;
+  }
 }
