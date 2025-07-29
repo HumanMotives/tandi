@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Ghost Radio 0.5</title>
+  <title>Ghost Radio 1.1.6</title>
   <link rel="stylesheet" href="/styles/main.css">
   <style>
     body {
@@ -25,23 +25,20 @@
       opacity: 1;
     }
 
-    #loader {
-      font-size: 1em;
+    .power {
       margin-top: 4em;
-      color: #999;
     }
 
-    #startButton {
+    #powerButton {
       font-size: 1em;
       padding: 0.8em 1.5em;
-      margin-top: 1em;
       background: #111;
       color: #f5f4ed;
       border: none;
       cursor: pointer;
     }
 
-    #startButton:hover {
+    #powerButton:hover {
       background: #444;
     }
 
@@ -72,9 +69,8 @@
 </head>
 <body>
   <h1>Ghost Radio 0.5</h1>
-  <div id="loader">
-    <p>Loading audio…</p>
-    <button id="startButton">Start Listening</button>
+  <div class="power">
+    <button id="powerButton">Power On</button>
   </div>
   <div class="controls">
     <label for="animat">Animat</label>
@@ -95,6 +91,7 @@
     const soundFiles = ['sound1.mp3', 'sound2.mp3', 'sound3.mp3', 'sound4.mp3', 'sound5.mp3', 'sound6.mp3'];
     const buffers = {};
     const layers = [];
+    let isPlaying = false;
 
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
@@ -139,22 +136,18 @@
 
       source.start(context.currentTime, start);
 
-      // Store baseGain for context cross-fade
-      layers.push({ gain, filter, baseGain });
+      layers.push({ gain, filter, baseGain, source });
     }
 
     function applyContextShift(value) {
-      // value ∈ [0,1]
       layers.forEach(({ gain, baseGain }, index) => {
         let factor = 1;
 
         if (value < 0.5) {
-          // left half: mute layer 2
           if (index === 2) {
             factor = value / 0.5;
           }
         } else {
-          // right half: mute layer 0
           if (index === 0) {
             factor = (1 - value) / 0.5;
           }
@@ -202,8 +195,7 @@
       draw();
     }
 
-    async function startGhostRadio() {
-      document.getElementById('loader').style.display = 'none';
+    function startGhostRadio() {
       document.querySelector('.controls').style.display = 'block';
       document.body.classList.add('loaded');
 
@@ -225,10 +217,32 @@
       });
     }
 
-    document.getElementById('startButton').addEventListener('click', async () => {
-      await context.resume();
-      await preloadAllSounds();
-      startGhostRadio();
+    function stopGhostRadio() {
+      layers.forEach(({ source, gain, filter }) => {
+        try { source.stop(); } catch (e) {}
+        source.disconnect();
+        filter.disconnect();
+        gain.disconnect();
+      });
+      layers.length = 0;
+      try { analyser.disconnect(context.destination); } catch (e) {}
+    }
+
+    const powerButton = document.getElementById('powerButton');
+    powerButton.addEventListener('click', async () => {
+      if (!isPlaying) {
+        isPlaying = true;
+        powerButton.textContent = 'Power Off';
+        await context.resume();
+        await preloadAllSounds();
+        startGhostRadio();
+      } else {
+        isPlaying = false;
+        powerButton.textContent = 'Power On';
+        stopGhostRadio();
+        document.querySelector('.controls').style.display = 'none';
+        document.body.classList.remove('loaded');
+      }
     });
   </script>
 </body>
