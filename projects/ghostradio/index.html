@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Ghost Radio 1.1.6</title>
+  <title>Ghost Radio</title>
   <link rel="stylesheet" href="/styles/main.css">
   <style>
     body {
@@ -29,17 +29,50 @@
       margin-top: 4em;
     }
 
-    #powerButton {
-      font-size: 1em;
-      padding: 0.8em 1.5em;
-      background: #111;
-      color: #f5f4ed;
-      border: none;
-      cursor: pointer;
+    /* Toggle switch styling */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
     }
 
-    #powerButton:hover {
-      background: #444;
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
     }
 
     .controls {
@@ -68,9 +101,12 @@
   </style>
 </head>
 <body>
-  <h1>Ghost Radio 0.5</h1>
+  <h1>Ghost Radio 1.1.7</h1>
   <div class="power">
-    <button id="powerButton">Power On</button>
+    <label class="switch">
+      <input type="checkbox" id="powerToggle">
+      <span class="slider"></span>
+    </label>
   </div>
   <div class="controls">
     <label for="animat">Animat</label>
@@ -218,27 +254,25 @@
     }
 
     function stopGhostRadio() {
-      layers.forEach(({ source, gain, filter }) => {
-        try { source.stop(); } catch (e) {}
+      layers.forEach(({ source, filter, gain }) => {
+        try { source.stop(); } catch(e) {}
         source.disconnect();
         filter.disconnect();
         gain.disconnect();
       });
       layers.length = 0;
-      try { analyser.disconnect(context.destination); } catch (e) {}
+      try { analyser.disconnect(context.destination); } catch(e) {}
     }
 
-    const powerButton = document.getElementById('powerButton');
-    powerButton.addEventListener('click', async () => {
-      if (!isPlaying) {
+    const powerToggle = document.getElementById('powerToggle');
+    powerToggle.addEventListener('change', async () => {
+      if (powerToggle.checked && !isPlaying) {
         isPlaying = true;
-        powerButton.textContent = 'Power Off';
         await context.resume();
         await preloadAllSounds();
         startGhostRadio();
-      } else {
+      } else if (!powerToggle.checked && isPlaying) {
         isPlaying = false;
-        powerButton.textContent = 'Power On';
         stopGhostRadio();
         document.querySelector('.controls').style.display = 'none';
         document.body.classList.remove('loaded');
