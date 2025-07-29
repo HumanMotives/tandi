@@ -23,69 +23,88 @@
     body.loaded h1 {
       opacity: 1;
     }
+
+    #status {
+      margin-top: 1em;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    button {
+      font-size: 1em;
+      padding: 0.6em 1.2em;
+      background: #111;
+      color: #f5f4ed;
+      border: none;
+      cursor: pointer;
+      margin-top: 2em;
+    }
+
+    button:hover {
+      background: #444;
+    }
   </style>
 </head>
 <body>
   <h1>Ghost Radio</h1>
+  <div id="status">Waiting for user interaction...</div>
+  <button id="startButton">Start</button>
 
   <script>
     const context = new (window.AudioContext || window.webkitAudioContext)();
-    const soundFiles = ['sound1.wav', 'sound2.wav', 'sound3.wav', 'sound4.wav', 'sound5.wav','sound6.wav','sound7.wav'];
+    const soundFiles = [
+      'sound1.wav', 'sound2.wav', 'sound3.wav',
+      'sound4.wav', 'sound5.wav', 'sound6.wav', 'sound7.wav'
+    ];
 
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
     }
 
     async function playRandomLayer(file) {
-      const response = await fetch(`/projects/ghostradio/sounds/${file}`);
-      const arrayBuffer = await response.arrayBuffer();
-      const buffer = await context.decodeAudioData(arrayBuffer);
+      try {
+        const response = await fetch(`/projects/ghostradio/sounds/${file}`);
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = await context.decodeAudioData(arrayBuffer);
 
-      const source = context.createBufferSource();
-      const gainNode = context.createGain();
-      const filter = context.createBiquadFilter();
+        const source = context.createBufferSource();
+        const gainNode = context.createGain();
+        const filter = context.createBiquadFilter();
 
-      source.buffer = buffer;
-      source.loop = true;
+        source.buffer = buffer;
+        source.loop = true;
 
-      // Random pitch (playbackRate)
-      source.playbackRate.value = randomInRange(0.9, 1.1);
+        // Pitch
+        source.playbackRate.value = randomInRange(0.9, 1.1);
 
-      // Random start position and loop duration
-      const duration = buffer.duration;
-      const start = randomInRange(0, duration * 0.75);
-      const loopLength = randomInRange(2, duration - start);
-      source.loopStart = start;
-      source.loopEnd = start + loopLength;
+        // Start and loop
+        const duration = buffer.duration;
+        const start = randomInRange(0, duration * 0.75);
+        const loopLength = Math.min(20, Math.max(3, randomInRange(3, duration - start)));
+        source.loopStart = start;
+        source.loopEnd = start + loopLength;
 
-      // Random filter
-      filter.type = 'lowpass';
-      filter.frequency.value = randomInRange(300, 5000);
+        // Filter
+        filter.type = 'lowpass';
+        filter.frequency.value = randomInRange(100, 5000); // safe floor
 
-      source.connect(filter);
-      filter.connect(gainNode);
-      gainNode.connect(context.destination);
+        // Volume
+        const volume = randomInRange(0.4, 0.7);
+        gainNode.gain.setValueAtTime(0, context.currentTime);
+        gainNode.gain.linearRampToValueAtTime(volume, context.currentTime + 3);
 
-      // Fade in volume
-      gainNode.gain.setValueAtTime(0, context.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.6, context.currentTime + 3);
+        source.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(context.destination);
 
-      source.start(context.currentTime, start);
+        source.start(context.currentTime, start);
+        console.log(`Started ${file} at ${start.toFixed(2)}s with loop ${loopLength.toFixed(2)}s, pitch ${source.playbackRate.value.toFixed(2)}, volume ${volume.toFixed(2)}, filter ${filter.frequency.value.toFixed(0)} Hz`);
+      } catch (err) {
+        console.error(`Failed to load ${file}:`, err);
+        document.getElementById('status').textContent = `Error loading: ${file}`;
+      }
     }
 
-    window.addEventListener('load', () => {
+    function startGhostRadio() {
       document.body.classList.add('loaded');
-
-      const selected = [];
-      while (selected.length < 3) {
-        const choice = soundFiles[Math.floor(Math.random() * soundFiles.length)];
-        if (!selected.includes(choice)) selected.push(choice);
-      }
-
-      selected.forEach(file => {
-        playRandomLayer(file);
-      });
-    });
-  </script>
-</body>
-</html>
+      document.getElementById('status').textContent = 'Pla
