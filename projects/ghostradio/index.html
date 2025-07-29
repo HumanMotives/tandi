@@ -22,11 +22,17 @@
 <body>
   <h1>Ghost Radio</h1>
   <button id="startButton">Start</button>
-  <div id="status">Waiting for user... v1.1 </div>
+  <div id="status">Waiting for user... v1.2 </div>
 
   <script>
+
+    
     const context = new (window.AudioContext || window.webkitAudioContext)();
-    const soundFiles = ['sound1.wav', 'sound2.wav', 'sound3.wav'];
+const soundFiles = [
+  'sound1.mp3', 'sound2.mp3', 'sound3.mp3',
+  'sound4.mp3', 'sound5.mp3', 'sound6.mp3'
+];
+
 
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
