@@ -85,3 +85,22 @@ button img,
     font-size: 14px;
   }
 }
+
+/* Page container centered on desktop */
+body {
+  max-width: 800px;
+  margin: 4rem auto;
+  padding: 0 1.5rem;
+}
+
+/* Hide any element with .hidden */
+.hidden {
+  display: none !important;
+}
+
+/* Horizontal rule styling */
+hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 2rem 0;
+}
