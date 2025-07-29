@@ -27,6 +27,9 @@
 
     .power {
       margin-top: 4em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* Toggle switch styling */
@@ -75,6 +78,21 @@
       transform: translateX(26px);
     }
 
+    /* Randomize button styling */
+    #randomizeButton {
+      background: none;
+      border: none;
+      margin-left: 20px;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    #randomizeButton img {
+      width: 50px;
+      height: 50px;
+      display: block;
+    }
+
     .controls {
       margin-top: 2em;
       display: none;
@@ -101,12 +119,15 @@
   </style>
 </head>
 <body>
-  <h1>Ghost Radio 1.1.7</h1>
+  <h1>Ghost Radio 1.1.8</h1>
   <div class="power">
     <label class="switch">
       <input type="checkbox" id="powerToggle">
       <span class="slider"></span>
     </label>
+    <button id="randomizeButton" title="Randomize">
+      <img src="/graphics/icon_randomize.png" alt="Randomize">
+    </button>
   </div>
   <div class="controls">
     <label for="animat">Animat</label>
@@ -126,8 +147,12 @@
 
     const soundFiles = ['sound1.mp3', 'sound2.mp3', 'sound3.mp3', 'sound4.mp3', 'sound5.mp3', 'sound6.mp3'];
     const buffers = {};
-    const layers = [];
+    let layers = [];
     let isPlaying = false;
+
+    // Sliders accessed globally for randomization
+    const animatSlider = document.getElementById('animat');
+    const contextSlider = document.getElementById('context');
 
     function randomInRange(min, max) {
       return Math.random() * (max - min) + min;
@@ -172,28 +197,19 @@
 
       source.start(context.currentTime, start);
 
-      layers.push({ gain, filter, baseGain, source });
+      return { source, gain, filter, baseGain };
     }
 
     function applyContextShift(value) {
       layers.forEach(({ gain, baseGain }, index) => {
         let factor = 1;
-
         if (value < 0.5) {
-          if (index === 2) {
-            factor = value / 0.5;
-          }
+          if (index === 2) factor = value / 0.5;
         } else {
-          if (index === 0) {
-            factor = (1 - value) / 0.5;
-          }
+          if (index === 0) factor = (1 - value) / 0.5;
         }
-
         gain.gain.cancelScheduledValues(context.currentTime);
-        gain.gain.linearRampToValueAtTime(
-          baseGain * factor,
-          context.currentTime + 0.5
-        );
+        gain.gain.linearRampToValueAtTime(baseGain * factor, context.currentTime + 0.5);
       });
     }
 
@@ -208,26 +224,21 @@
 
       function draw() {
         requestAnimationFrame(draw);
-
         analyser.getByteTimeDomainData(dataArray);
         ctx.fillStyle = 'rgba(245, 244, 237, 0.08)';
         ctx.fillRect(0, 0, width, height);
-
         ctx.beginPath();
         let sliceWidth = width / bufferLength;
         let x = 0;
-
         for (let i = 0; i < bufferLength; i++) {
           const v = dataArray[i] / 128.0;
           const y = v * height / 2;
           i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
           x += sliceWidth;
         }
-
         ctx.lineTo(width, height / 2);
         ctx.stroke();
       }
-
       draw();
     }
 
@@ -241,27 +252,53 @@
         if (!selected.includes(file)) selected.push(file);
       }
 
-      const animatSlider = document.getElementById('animat');
-      const contextSlider = document.getElementById('context');
-
-      selected.forEach(file => playLayer(file, parseFloat(animatSlider.value)));
+      layers = selected.map(file => playLayer(file, parseFloat(animatSlider.value)));
       drawWaveform();
       applyContextShift(parseFloat(contextSlider.value));
 
-      contextSlider.addEventListener('input', () => {
-        applyContextShift(parseFloat(contextSlider.value));
-      });
+      contextSlider.addEventListener('input', () => applyContextShift(parseFloat(contextSlider.value)));
     }
 
     function stopGhostRadio() {
       layers.forEach(({ source, filter, gain }) => {
-        try { source.stop(); } catch(e) {}
+        try { source.stop(); } catch (e) {}
         source.disconnect();
         filter.disconnect();
         gain.disconnect();
       });
-      layers.length = 0;
-      try { analyser.disconnect(context.destination); } catch(e) {}
+      layers = [];
+      try { analyser.disconnect(context.destination); } catch (e) {}
+    }
+
+    function randomizeGhostRadio() {
+      if (!isPlaying) return;
+      // pick new files
+      const newSelected = [];
+      while (newSelected.length < 3) {
+        const file = soundFiles[Math.floor(Math.random() * soundFiles.length)];
+        if (!newSelected.includes(file)) newSelected.push(file);
+      }
+      // randomize sliders
+      animatSlider.value = Math.random().toFixed(2);
+      contextSlider.value = Math.random().toFixed(2);
+
+      // fade out old layers
+      layers.forEach(({ gain }) => {
+        gain.gain.cancelScheduledValues(context.currentTime);
+        gain.gain.linearRampToValueAtTime(0, context.currentTime + 2);
+      });
+      // schedule old stop
+      const oldLayers = layers;
+      setTimeout(() => {
+        oldLayers.forEach(({ source, filter, gain }) => {
+          try { source.stop(); } catch (e) {}
+          source.disconnect(); filter.disconnect(); gain.disconnect();
+        });
+      }, 2000);
+
+      // start new layers with fade in
+      layers = newSelected.map(file => playLayer(file, parseFloat(animatSlider.value)));
+      applyContextShift(parseFloat(contextSlider.value));
     }
 
     const powerToggle = document.getElementById('powerToggle');
@@ -278,6 +315,8 @@
         document.body.classList.remove('loaded');
       }
     });
+
+    document.getElementById('randomizeButton').addEventListener('click', randomizeGhostRadio);
   </script>
 </body>
 </html>
