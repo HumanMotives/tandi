@@ -46,7 +46,7 @@ button img,
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 0 15px;
+  padding: 1.5rem 15px 0; /* added top padding */
   margin: 5px 0;
 }
 .sliders-container {
@@ -169,190 +169,30 @@ hr {
   margin: 2rem 0;
 }
 
-/* Global base */
-html, body {
-  margin: 0;
-  padding: 0;
-  font-family: 'IBM Plex Mono', monospace;
-  background-color: #f5f1e6;
-  color: #333;
-  font-size: 12px;
-  text-align: center;
-  box-sizing: border-box;
-}
-*, *::before, *::after {
-  box-sizing: inherit;
-}
-
-/* Headings */
-h1, h2, h3, h4, h5, h6 {
-  margin: 0 0 10px;
-  font-size: 18px;
-}
-
-/* Boxed panels (use .container explicitly) */
-.container {
-  width: calc(100% - 30px);
-  max-width: 300px;
-  margin: 15px auto;
-  padding: 15px;
-  background-color: #fdfbf8;
-  border: 1px solid #aaaaaa;
-  border-radius: 10px;
-  transition: background-color 0.2s ease;
-}
-.container:hover {
-  background-color: #ececec;
-}
-
-/* Icon defaults */
-button img,
-.icon {
-  width: 35px;
-  height: 35px;
-}
-
-/* Controls layout */
-.controls-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 0 15px;
-  margin: 5px 0;
-}
-.sliders-container {
-  margin-top: 15px;
-}
-
-/* Waveform visualizer */
-/* Waveform visualizer */
-.waveform-container {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  height: 200px;
-  background: transparent;
-  z-index: -1;
-}
-
-/* Page header padding */
-.header-container {
-  padding-top: 2rem;
-}
-
-/* Icon defaults */
-button img,
-.icon {
-  width: 35px;
-  height: 35px;
-}
-
-/* Icon-only buttons (no box) */
-.icon-button {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-/* Toggle switch styling */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 120px;
-  height: 60px;
-}
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.switch .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #888;
-  border-radius: 30px;
-  transition: 0.4s;
-}
-.switch .slider:before {
-  position: absolute;
-  content: "";
-  height: 52px;
-  width: 52px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-.switch input:checked + .slider:before {
-  transform: translateX(60px);
-}
-
-@media (max-width: 600px) {
-  .waveform-container {
-    height: 150px;
-  }
-}
-* Responsive adjustments */
-@media (max-width: 600px) {
-  .container {
-    width: 100%;
-    margin: 10px 0;
-    padding: 10px;
-  }
-  h1 {
-    font-size: 16px;
-  }
-  .waveform-container {
-    height: 150px;
-  }
-}
-
-@media (max-width: 480px) {
-  h1 {
-    font-size: 14px;
-  }
-}
-
-/* Page container centered on desktop */
-body {
-  max-width: 800px;
-  margin: 4rem auto;
-  padding: 0 1.5rem;
-}
-
-/* Hide any element with .hidden */
-.hidden {
-  display: none !important;
-}
-
-/* Horizontal rule styling */
-hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 2rem 0;
-}
-
-/* Toggle override: match icon height */
+/* Toggle override: match icon height and on/off colors */
 .switch {
   width: 80px;
   height: 35px;
 }
 .switch .slider {
   border-radius: 17.5px;
+  background-color: #888; /* gray when off */
+}
+.switch input:checked + .slider {
+  background-color: #000; /* black when on */
 }
 .switch .slider:before {
   width: 27px;
   height: 27px;
+  background-color: #fff;
 }
 .switch input:checked + .slider:before {
   transform: translateX(45px);
 }
 
+/* Toggle label */
+.toggle-label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
