@@ -34,136 +34,118 @@
   </script>
   <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" async defer></script>
   <style>
-    /* Remove top margin so nav can sit flush */
-    body {
-      background-color: #f5f1e6;
-      font-family: monospace;
-      font-size: 12pt;
-      color: #333;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }
+<style>
+  body {
+    background-color: #ffffff;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 16px;
+    color: #111;
+    padding: 1rem;
+    line-height: 1.6;
+    max-width: 680px;
+  }
 
-    .logo-container {
-      text-align: center;
-      margin: 4rem auto 0; /* restore content spacing */
-    }
+  h1, h2, h3 {
+    font-weight: 600;
+    margin: 1.5rem 0 0.75rem;
+  }
 
-    #tagline { text-align:center; color:#666; margin-bottom:2rem; }
-    hr { border:none; border-top:1px solid #ccc; margin:2rem 0; }
+  .method-btn,
+  .upload-box,
+  .tombstone,
+  .upsell-tile {
+    background-color: #ffffff !important;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    font-family: 'Helvetica Neue', sans-serif;
+  }
 
-    .method-btn {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.4rem 1rem;
-      margin-right: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      background-color: #fffefa;
-      cursor: pointer;
-      transition: background-color 0.2s, border-color 0.2s;
-    }
-    .method-btn input { margin: 0 0.5rem 0 0; }
-    .method-btn:hover { background-color: #f5f1dd; }
-    .method-btn:has(input:checked) {
-      background-color: #f5f1dd;
-      border-color: #70695d;
-    }
+  .method-btn:hover,
+  .upload-box:hover {
+    background-color: #f5f5f5 !important;
+  }
 
-    #methodSelector { text-align:center; margin-bottom:1rem; }
+  .button,
+  .upsell-tile button {
+    background-color: #111 !important;
+    color: #fff !important;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+  }
 
-    .upload-box {
-      border: 2px dashed #aaa;
-      border-radius: 12px;
-      padding: 2rem;
-      text-align: center;
-      background-color: #fffefa;
-      cursor: pointer;
-      margin-bottom: 2rem;
-      font-weight: bold;
-      transition: background-color 0.2s ease;
-    }
-    .upload-box:hover { background-color: #f5f1dd; }
-    .hidden { display:none; }
+  .button:hover,
+  .upsell-tile button:hover {
+    background-color: #333 !important;
+  }
 
-    .progress-bar { width:100%; background-color:#e1ddd1; border:1px solid #ccc; height:20px; margin-top:1rem; }
-    .progress-fill { height:100%; width:0; background-color:#70695d; transition:width 5s linear; }
+  input[type=text],
+  .subscribe-form input[type=email] {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
 
-    .button { display:block; margin:1.5rem auto 0.5rem auto; padding:0.6rem 1.2rem; font-size:1rem; border:none; background-color:#3a3a3a; color:#fff; cursor:pointer; }
-    .link { display:block; margin-top:1rem; text-align:center; color:#555; text-decoration:underline; cursor:pointer; font-size:0.9rem; }
+  .graveyard table {
+    font-size: 0.95rem;
+    font-family: 'Helvetica Neue', sans-serif;
+  }
 
-    .ceremony { margin-top:2rem; }
-    .tombstone { margin-top:2rem; padding:2rem; border:2px solid #555; background-color:#f1f1ee; text-align:center; font-size:1.3rem; opacity:0; transition:opacity 2s ease-in; }
-    .tombstone.show { opacity:1; }
+  nav.top-menu {
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    font-family: 'Helvetica Neue', sans-serif;
+  }
 
-    .options-afterlife { margin-top:2rem; text-align:center; font-size:0.95rem; }
+  nav.top-menu a {
+    color: #111;
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
 
-    .graveyard { border-top:1px solid #ccc; margin-top:3rem; padding-top:2rem; }
-    .graveyard h2 { font-size:1.5rem; margin-bottom:1rem; text-align:center; }
-    .table-responsive { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
-    .table-responsive table { width:100%; table-layout:auto; min-width:600px; }
-    .graveyard table { width:100%; font-family:monospace; font-size:0.95rem; border-collapse:collapse; }
-    .graveyard th, .graveyard td { text-align:left; padding:0.3rem 0.5rem; border-bottom:1px solid #ddd; }
+  nav.top-menu a:hover {
+    text-decoration: underline;
+  }
 
-    .fade-in { animation:fadeIn 2s ease-in; }
-    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  footer {
+    margin-top: 4rem;
+    font-size: 0.85rem;
+    color: #aaa;
+    font-family: 'Helvetica Neue', sans-serif;
+  }
 
-    input[type=text] { font-family:monospace; color:#666; margin-top:1rem; margin-bottom:1rem; width:100%; padding:0.5rem; border:1px solid #aaa; font-size:1rem; }
-    input[type=text]::placeholder { color:#999; }
+  hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 2rem 0;
+  }
 
-    footer { text-align:center; font-size:0.9rem; color:#666; margin-top:4rem; }
-    .donate-widget { display:none !important; }
+  .link {
+    font-size: 0.9rem;
+    color: #666;
+  }
 
-    .graveyard tbody tr:nth-child(even) { background-color:#fdfbf8; }
+  .page-btn {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    padding: 0.4rem 0.8rem;
+  }
 
-    #paginationControls { margin-top:1rem; text-align:center; }
-    .page-btn { margin:0 0.2rem; padding:0.4rem 0.7rem; font-size:0.95rem; border:1px solid #ccc; background-color:#f1f1ee; cursor:pointer; border-radius:4px; }
-    .page-btn.active { background-color:#d9d5cb; font-weight:bold; border-color:#888; }
-    .icon-img { width:24px; height:24px; vertical-align:middle; margin-right:4px; }
+  .page-btn.active {
+    background-color: #222;
+    color: white;
+    border-color: #222;
+  }
+</style>
 
-    .upsell-section { margin-top:3rem; text-align:center; }
-    .upsell-title { font-size:1.2rem; font-weight:bold; margin-bottom:1rem; }
-    .upsell-container { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; }
-    .upsell-tile {
-      background-color:#fffefa; border:1px solid #ccc; border-radius:10px;
-      padding:1.5rem; width:200px; text-align:center;
-      box-shadow:2px 2px 6px rgba(0,0,0,0.05);
-      transition:transform 0.2s ease;
-    }
-    .upsell-tile:hover { transform:translateY(-5px); }
-    .upsell-tile img { width:100px; height:100px; margin-bottom:10px; }
-    .upsell-tile h3 { font-size:1rem; margin:0.5rem 0; }
-    .upsell-tile p { font-size:0.9rem; color:#555; margin-bottom:1rem; }
-    .upsell-tile button {
-      background-color:#3a3a3a; color:#fff; border:none;
-      padding:0.4rem 0.8rem; font-size:0.9rem; border-radius:4px;
-      cursor:pointer;
-    }
-    .upsell-tile button:hover { background-color:#222; }
-
-    /* full-width, centered nav */
-    nav.top-menu {
-      position: relative;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100vw;
-      background-color: #fff;
-      padding: 0.5rem 0;
-      margin-bottom: 1.5rem;
-      box-sizing: border-box;
-      z-index: 10;
-    }
-    nav.top-menu ul {
-      list-style: none; margin: 0; padding: 0;
-      display: flex; justify-content: center; gap: 2rem;
-    }
-    nav.top-menu a {
-      font-family: monospace; color: #333;
-      text-decoration: none; font-size: 1rem;
-    }
-    nav.top-menu a:hover { text-decoration: underline; }
-  </style>
 </head>
 <body>
   <div id="common-header"></div>
