@@ -13,7 +13,7 @@
 
     body {
       font-family: 'Helvetica Neue', sans-serif;
-      background-color: #f9fafa;
+      background-color: #ffffff;
       color: #111;
       line-height: 1.5;
       padding: 1rem;
@@ -36,11 +36,10 @@
     }
 
     .section {
-      background: #fff;
-      border-radius: 16px;
-      padding: 1.5rem;
+      border-radius: 0;
+      padding: 1.5rem 0;
       margin: 1.5rem 0;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border-bottom: 1px solid #eee;
     }
 
     .section img {
@@ -122,6 +121,45 @@
     .project-list a:hover .arrow {
       transform: translateX(4px);
     }
+
+    .scroll-section {
+      margin: 2rem 0;
+    }
+
+    .scroll-section h2 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      padding-left: 0.25rem;
+    }
+
+    .scroll-cards {
+      display: flex;
+      overflow-x: auto;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .scroll-cards::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scroll-card {
+      min-width: 180px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      flex-shrink: 0;
+      padding: 0.75rem;
+      text-align: center;
+    }
+
+    .scroll-card img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -131,23 +169,41 @@
     <p>Where sound, projects, and story come together.</p>
   </header>
 
-  <div class="section">
-  <img src="IMG_9884.jpeg" alt="Music Image">
-  <div class="tag">Sound</div><div class="tag">Composition</div>
-  <h2>My Music</h2>
-  <p>Original compositions, experimental loops, and personal sonic moments — captured and shared with care.</p>
-
-  <ul class="project-list">
-    <li><a href="https://youtube.com/@humanmotives?si=pDWmPlBnZm3XFPXw" target="_blank"><span class="arrow">➝</span> YouTube</a></li>
-    <li><a href="https://open.spotify.com/artist/5XwCzd52xR5uw1kp3q31JI?si=cRzLf_ZnTpGP9zQM65iTow" target="_blank"><span class="arrow">➝</span> Spotify</a></li>
-    <li><a href="https://humanmotives.bandcamp.com" target="_blank"><span class="arrow">➝</span> Bandcamp</a></li>
-  </ul>
-
-  <div class="author">
-    <img src="IMG_9880.jpeg" alt="Author">
-    <div>Curated by H/M</div>
+  <div class="scroll-section">
+    <h2>Projects</h2>
+    <div class="scroll-cards">
+      <div class="scroll-card">
+        <img src="IMG_9886.jpeg" alt="Data Grave">
+        <p>Data Grave</p>
+      </div>
+      <div class="scroll-card">
+        <img src="IMG_9886.jpeg" alt="Ghost Radio">
+        <p>Ghost Radio</p>
+      </div>
+      <div class="scroll-card">
+        <img src="IMG_9886.jpeg" alt="Gen C">
+        <p>Gen C</p>
+      </div>
+    </div>
   </div>
-</div>
+
+  <div class="section">
+    <img src="IMG_9884.jpeg" alt="Music Image">
+    <div class="tag">Sound</div><div class="tag">Composition</div>
+    <h2>My Music</h2>
+    <p>Original compositions, experimental loops, and personal sonic moments — captured and shared with care.</p>
+
+    <ul class="project-list">
+      <li><a href="https://youtube.com/@humanmotives?si=pDWmPlBnZm3XFPXw" target="_blank"><span class="arrow">➝</span> YouTube</a></li>
+      <li><a href="https://open.spotify.com/artist/5XwCzd52xR5uw1kp3q31JI?si=cRzLf_ZnTpGP9zQM65iTow" target="_blank"><span class="arrow">➝</span> Spotify</a></li>
+      <li><a href="https://humanmotives.bandcamp.com" target="_blank"><span class="arrow">➝</span> Bandcamp</a></li>
+    </ul>
+
+    <div class="author">
+      <img src="IMG_9880.jpeg" alt="Author">
+      <div>Curated by H/M</div>
+    </div>
+  </div>
 
   <div class="section">
     <img src="images/IMG_9875.jpeg" alt="Projects Image">
