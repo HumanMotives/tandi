@@ -132,35 +132,23 @@
       padding-left: 0.25rem;
     }
 
-    .scroll-cards {
-      display: flex;
-      overflow-x: auto;
-      gap: 1rem;
-      padding-bottom: 1rem;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
+.scroll-card {
+  min-width: 72px; /* ~15% of 480px image width */
+  max-width: 80px;
+  background: none; /* Optional: remove card background */
+  border: none;     /* Optional: remove border */
+  box-shadow: none; /* Optional: remove shadow */
+  padding: 0.25rem;
+  flex-shrink: 0;
+  text-align: center;
+}
 
-    .scroll-cards::-webkit-scrollbar {
-      display: none;
-    }
-
-    .scroll-card {
-      min-width: 180px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      flex-shrink: 0;
-      padding: 0.75rem;
-      text-align: center;
-    }
-
-    .scroll-card img {
-      size: 15%;
-      border-radius: 8px;
-      margin-bottom: 0.5rem;
-    }
-
+.scroll-card img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 0.25rem;
+}
+    
 .subscribe-form {
   margin-top: 1rem;
   display: flex;
