@@ -160,6 +160,38 @@
       border-radius: 8px;
       margin-bottom: 0.5rem;
     }
+
+.subscribe-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 400px;
+}
+
+.subscribe-form input[type="email"] {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.subscribe-form button {
+  background: #111;
+  color: #fff;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.subscribe-form button:hover {
+  background: #333;
+}
+    
   </style>
 </head>
 <body>
@@ -235,6 +267,15 @@
     </div>
   </div>
 
+<div class="section">
+  <h2>Stay in the loop</h2>
+  <p>Join the H/M list for new sounds, releases & moments.</p>
+  <form action="#" method="POST" class="subscribe-form">
+    <input type="email" name="email" placeholder="you@example.com" required />
+    <button type="submit">Subscribe</button>
+  </form>
+</div>
+  
   <div class="footer">
     &copy; 2025 H/M — Crafted with clarity.
   </div>
