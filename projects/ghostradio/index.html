@@ -6,11 +6,10 @@
   <title>Ghost Radio – Slider Build</title>
   <style>
     body {
+      margin: 0; padding: 0;
       font-family: 'IBM Plex Mono', monospace;
       background: #f5f1e6;
       color: #333;
-      margin: 0;
-      padding: 0;
       text-align: center;
       overflow: hidden;
     }
@@ -27,14 +26,14 @@
       position: fixed; top: 0; left: 0;
       width: 100vw; height: 100vh;
       background: #f5f1e6;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
       z-index: 1000;
+      cursor: pointer; /* entire overlay is tappable */
     }
     #statusText {
       margin-bottom: 1rem;
+      font-size: 1.2rem;
     }
     #progressContainer {
       width: 80%; max-width: 300px;
@@ -50,19 +49,8 @@
       background: #333;
       transition: width 0.2s;
     }
-    #startButton {
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      background: #333;
-      color: #fdfbf8;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      display: none;
-    }
-    #startButton:hover { background: #000; }
 
-    /* Waveform + slider */
+    /* Waveform + slider hidden until start */
     #wave {
       width: 100%; height: 150px;
       background: rgba(0,0,0,0.05);
@@ -91,7 +79,7 @@
     <h1>GHOST RADIO</h1>
     <p id="statusText">Loading sounds…</p>
     <div id="progressContainer"><div id="progressBar"></div></div>
-    <button id="startButton">Start Listening</button>
+    <p style="font-size:0.9rem;color:#666;">(Tap anywhere to start)</p>
   </div>
 
   <div class="container">
@@ -102,55 +90,69 @@
 
   <script>
   (function(){
-    // 🔑 Grab these two so our start() can hide the overlay correctly:
-    const overlay     = document.getElementById('overlay');
-    const startButton = document.getElementById('startButton');
+    const overlay    = document.getElementById('overlay');
+    const statusText = document.getElementById('statusText');
+    const progressBar= document.getElementById('progressBar');
+    const wave       = document.getElementById('wave');
+    const scanner    = document.getElementById('scanner');
+    const instr      = document.querySelector('.instructions');
 
-    const statusText     = document.getElementById('statusText');
-    const progressBar    = document.getElementById('progressBar');
-    const wave           = document.getElementById('wave');
-    const scanner        = document.getElementById('scanner');
-    const instr          = document.querySelector('.instructions');
+    // Audio context + analyser
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 512;
+    const bufLen = analyser.fftSize;
+    const dataArr = new Uint8Array(bufLen);
 
-    // Audio setup
-    const ctx      = new (window.AudioContext||window.webkitAudioContext)();
-    const analyser = ctx.createAnalyser(); analyser.fftSize = 512;
-    const bufLen   = analyser.fftSize;
-    const dataArr  = new Uint8Array(bufLen);
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 1;
+    analyser.connect(masterGain);
+    masterGain.connect(ctx.destination);
 
-    const masterGain = ctx.createGain(); masterGain.gain.value = 1;
-    analyser.connect(masterGain); masterGain.connect(ctx.destination);
-
-    // File list and buffer store
-    const files   = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
+    // Files & buffers
+    const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
     const buffers = {};
-    let loadedCount = 0;
-    let layers, mid = 1;
+    let loaded = 0, layers, mid = 1;
 
-    // Playback helpers
-    function randomFile(){ return files[Math.floor(Math.random()*files.length)]; }
-    function playLayer(file){
-      const src = ctx.createBufferSource(); src.buffer=buffers[file]; src.loop=true;
-      const g   = ctx.createGain(); g.gain.value=0;
+    function randomFile() {
+      return files[Math.floor(Math.random()*files.length)];
+    }
+    function playLayer(file) {
+      const src = ctx.createBufferSource();
+      src.buffer = buffers[file];
+      src.loop = true;
+      const g = ctx.createGain();
+      g.gain.value = 0;
       src.connect(g).connect(analyser);
       src.start();
       return { src, gain: g };
     }
-    function initLayers(){
-      if(layers) layers.forEach(l=>l.src.stop());
-      layers = [playLayer(randomFile()), playLayer(randomFile()), playLayer(randomFile())];
-      layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0, ctx.currentTime));
+    function initLayers() {
+      if(layers) layers.forEach(l => l.src.stop());
+      layers = [ playLayer(randomFile()), playLayer(randomFile()), playLayer(randomFile()) ];
+      layers.forEach((l,i) => l.gain.setValueAtTime(i===mid?1:0, ctx.currentTime));
     }
 
+    // Preload all buffers
+    (async () => {
+      for (let f of files) {
+        const res = await fetch(`/projects/ghostradio/sounds/${f}`);
+        const ab  = await res.arrayBuffer();
+        buffers[f] = await ctx.decodeAudioData(ab);
+        loaded++;
+        progressBar.style.width = (loaded/files.length*100) + '%';
+        statusText.textContent = `Loaded ${loaded} of ${files.length}`;
+      }
+      statusText.textContent = 'Ready! Tap to start.';
+    })();
+
     // Crossfade & shift logic
-    scanner.addEventListener('input', ()=>{
-      const x   = parseFloat(scanner.value),
-            raw = mid + x,
-            li  = Math.floor(raw),
-            ri  = Math.ceil(raw),
-            f   = raw - li;
-      layers.forEach((l,i)=>{
-        const t = i===li ? 1-f : (i===ri? f : 0);
+    scanner.addEventListener('input', () => {
+      const x   = parseFloat(scanner.value);
+      const raw = mid + x;
+      const li  = Math.floor(raw), ri = Math.ceil(raw), f = raw - li;
+      layers.forEach((l,i) => {
+        const t = (i===li ? 1-f : (i===ri ? f : 0));
         l.gain.linearRampToValueAtTime(t, ctx.currentTime+0.05);
       });
       if(raw <= 0) { shiftLeft(); scanner.value='0'; }
@@ -167,7 +169,7 @@
       layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
     }
 
-    // Waveform draw at ~30fps
+    // Waveform drawer
     const ctx2 = wave.getContext('2d');
     let lastDraw = 0;
     function draw(ts=0){
@@ -176,7 +178,8 @@
       lastDraw = ts;
       wave.width = wave.clientWidth;
       analyser.getByteTimeDomainData(dataArr);
-      ctx2.fillStyle='rgba(245,241,230,0.3)'; ctx2.fillRect(0,0,wave.width,wave.height);
+      ctx2.fillStyle = 'rgba(245,241,230,0.3)';
+      ctx2.fillRect(0,0,wave.width,wave.height);
       ctx2.lineWidth=1; ctx2.strokeStyle='#555'; ctx2.beginPath();
       const slice = wave.width/bufLen;
       let x=0;
@@ -188,34 +191,20 @@
       ctx2.stroke();
     }
 
-    // Preload all sounds immediately
-    (async function preloadAll(){
-      for(let f of files){
-        const res = await fetch(`/projects/ghostradio/sounds/${f}`);
-        const ab  = await res.arrayBuffer();
-        buffers[f] = await ctx.decodeAudioData(ab);
-
-        loadedCount++;
-        progressBar.style.width = ((loadedCount/files.length)*100)+'%';
-        statusText.textContent = `Loaded ${loadedCount} of ${files.length}`;
-      }
-      statusText.textContent = 'Ready!';
-      startButton.style.display = 'block';
-    })();
-
-    // Start handler
-    async function start(){
+    // Start on any tap/click
+    overlay.addEventListener('click', async () => {
       await ctx.resume();
       initLayers();
-      overlay.style.display = 'none';
-      wave.style.display    = 'block';
-      scanner.style.display = 'block';
-      instr.style.display   = 'block';
+      overlay.style.display   = 'none';
+      wave.style.display      = 'block';
+      scanner.style.display   = 'block';
+      instr.style.display     = 'block';
       requestAnimationFrame(draw);
-    }
-    startButton.addEventListener('click', start);
-    startButton.addEventListener('touchstart', start);
-
+    });
+    overlay.addEventListener('touchstart', e => {
+      e.preventDefault(); // prevent double firing click
+      overlay.dispatchEvent(new Event('click'));
+    });
   })();
   </script>
 </body>
