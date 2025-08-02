@@ -1,25 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ghost Radio – Smooth 15° Dial</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghost Radio – Continuous Dial</title>
   <style>
     body { margin:0; padding:1rem; font-family:'IBM Plex Mono',monospace; background:#f5f1e6; color:#333; }
     h1 { text-align:center; font-size:2rem; margin-bottom:1rem; user-select:none; }
 
-    /* Loader panel */
+    /* Loader */
     #loader { text-align:center; margin-bottom:1rem; }
     #statusText { margin-bottom:0.5rem; }
     #startButton {
       padding:0.8rem 1.5rem; font-size:1rem;
       background:#111; color:#f5f1e6; border:none; border-radius:6px;
-      cursor:pointer;
-      user-select:none;
+      cursor:pointer; user-select:none;
     }
     #startButton:hover { background:#444; }
 
-    /* Responsive panels */
+    /* Layout */
     .container { display:flex; flex-wrap:wrap; justify-content:center; gap:1rem; max-width:800px; margin:0 auto; }
     .panel { flex:1 1 280px; }
 
@@ -28,29 +27,18 @@
 
     /* Knob */
     #knob {
-      display:none;
-      width:100px; height:100px;
+      display:none; width:100px; height:100px;
       margin:0 auto 1.5rem;
-      border:4px solid #888;
-      border-radius:50%;
-      background:#fdfbf8;
-      touch-action:none;
-      cursor:grab;
-      position:relative;
-      user-select:none;
+      border:4px solid #888; border-radius:50%; background:#fdfbf8;
+      touch-action:none; cursor:grab; position:relative; user-select:none;
     }
     #knob.active { cursor:grabbing; border-color:#000; }
     #knob::before {
-      content:'';
-      position:absolute;
-      top:8px; left:50%;
-      width:4px; height:30px;
-      background:#333;
+      content:''; position:absolute; top:8px; left:50%;
+      width:4px; height:30px; background:#333;
       transform-origin:bottom center;
-      transform:translateX(-50%) rotate(0deg);
-      transition:transform 0.1s;
     }
-    .instructions { text-align:center; color:#666; margin-top:0.5rem; display:none; user-select:none; }
+    .instructions { text-align:center; color:#666; display:none; user-select:none; }
 
     @media(max-width:600px) {
       #wave { height:100px; }
@@ -63,7 +51,7 @@
   <h1>GHOST RADIO</h1>
 
   <div id="loader" class="panel">
-    <p id="statusText">Loading 6 sounds…</p>
+    <p id="statusText">Loading sounds…</p>
     <button id="startButton">Start Listening</button>
   </div>
 
@@ -73,149 +61,76 @@
     </div>
     <div class="panel">
       <div id="knob"></div>
-      <p class="instructions">Drag or swipe<br>around the knob</p>
+      <p class="instructions">Rotate the dial<br>to shift layers</p>
     </div>
   </div>
 
   <script>
   (async function(){
-    // UI refs
+    // UI elements
     const loader      = document.getElementById('loader');
-    const startButton = document.getElementById('startButton');
     const statusText  = document.getElementById('statusText');
+    const startBtn    = document.getElementById('startButton');
     const wave        = document.getElementById('wave');
     const knob        = document.getElementById('knob');
     const instr       = document.querySelector('.instructions');
 
-    // AudioContext & analyser
-    const Ctx = window.AudioContext||window.webkitAudioContext;
-    const ctx = new Ctx();
+    // Audio context & analyser (low res)
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioCtx();
     const analyser = ctx.createAnalyser(); analyser.fftSize = 256;
     const bufLen = analyser.fftSize;
-    const dataArr = new Uint8Array(bufLen);
+    const dataArray = new Uint8Array(bufLen);
     const masterGain = ctx.createGain(); masterGain.gain.value = 1;
     analyser.connect(masterGain); masterGain.connect(ctx.destination);
 
-    // Preload buffers
-    const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
+    // Files and buffers
+    const soundFiles = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
     const base = location.pathname.replace(/[^\/]+$/, '');
     const buffers = {};
-    for (let f of files) {
+    // Preload
+    for (let i=0; i<soundFiles.length; i++) {
+      const f = soundFiles[i];
+      const url = `${base}sounds/${f}`;
       try {
-        const res = await fetch(base + 'sounds/' + f);
+        const res = await fetch(url);
         if (!res.ok) throw new Error(res.status);
         const ab = await res.arrayBuffer();
         buffers[f] = await ctx.decodeAudioData(ab);
-      } catch (err) {
+        statusText.textContent = `Loaded ${i+1} of ${soundFiles.length}`;
+      } catch(err) {
         statusText.textContent = `Error loading ${f}: ${err.message}`;
-        console.error(err);
         return;
       }
     }
     statusText.textContent = 'Ready to play!';
 
-    // Layers setup
+    // Playback logic
     let layers = [];
     const midIndex = 1;
-    function randFile() { return files[Math.floor(Math.random()*files.length)]; }
+    function randomFile() {
+      return soundFiles[Math.floor(Math.random()*soundFiles.length)];
+    }
     function playLayer(file, gainVal) {
-      const src = ctx.createBufferSource(); src.buffer = buffers[file]; src.loop = true;
+      const src = ctx.createBufferSource();
+      src.buffer = buffers[file];
+      src.loop = true;
       const g = ctx.createGain(); g.gain.value = gainVal;
-      src.connect(g).connect(analyser); src.start();
-      return {src, gain: g};
+      src.connect(g).connect(analyser);
+      src.start(0);
+      return { src, gain: g };
+    }
+    function applyContextShift(value) {
+      const count = layers.length;
+      layers.forEach((layer, index) => {
+        const position = (index + Math.floor(value * count)) % count;
+        const focus = 1 - Math.abs((position - 1) / (count - 1));
+        const targetGain = 0.3 + 0.4 * focus;
+        layer.gain.gain.linearRampToValueAtTime(targetGain, ctx.currentTime + 0.1);
+      });
     }
 
-    // Start on button click
-    startButton.style.display = 'inline-block';
-    startButton.addEventListener('click', async () => {
-      await ctx.resume();
-      loader.style.display = 'none';
-
-      // init layers
-      layers = [
-        playLayer(randFile(), 0),
-        playLayer(randFile(), 1),
-        playLayer(randFile(), 0)
-      ];
-
-      // show UI
-      wave.style.display  = 'block';
-      knob.style.display  = 'block';
-      instr.style.display = 'block';
-
-      initKnob();
-      drawWaveform();
-    });
-
-    // 15° segment knob
-    function initKnob() {
-      const segment = 15; // smaller threshold
-      let angle = 0, lastAng = 0, dragging = false;
-
-      knob.addEventListener('pointerdown', down);
-      function down(e) {
-        dragging = true;
-        knob.setPointerCapture(e.pointerId);
-        knob.classList.add('active');
-        const r = knob.getBoundingClientRect();
-        const cx = r.left + r.width/2, cy = r.top + r.height/2;
-        const x = e.clientX - cx;
-        const y = e.clientY - cy;
-        lastAng = Math.atan2(y,x)*180/Math.PI;
-        e.preventDefault();
-      }
-
-      knob.addEventListener('pointermove', move);
-      function move(e) {
-        if (!dragging) return;
-        const r = knob.getBoundingClientRect();
-        const cx = r.left + r.width/2, cy = r.top + r.height/2;
-        const x = e.clientX - cx;
-        const y = e.clientY - cy;
-        const ang = Math.atan2(y,x)*180/Math.PI;
-        let d = ang - lastAng;
-        if (d > 180) d -= 360;
-        if (d < -180) d += 360;
-        angle += d;
-        lastAng = ang;
-
-        // perform shifts
-        while (angle >= segment) {
-          shiftRight();
-          angle -= segment;
-        }
-        while (angle <= -segment) {
-          shiftLeft();
-          angle += segment;
-        }
-
-        knob.style.transform = `rotate(${angle}deg)`;
-        e.preventDefault();
-      }
-
-      knob.addEventListener('pointerup', up);
-      knob.addEventListener('pointerleave', up);
-      function up(e) {
-        dragging = false;
-        knob.classList.remove('active');
-        knob.releasePointerCapture(e.pointerId);
-      }
-
-      function shiftLeft() {
-        layers[2].src.stop();
-        layers.unshift(playLayer(randFile(), 0));
-        layers.pop();
-        layers.forEach((l,i)=>l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
-      }
-      function shiftRight() {
-        layers[0].src.stop();
-        layers.push(playLayer(randFile(), 0));
-        layers.shift();
-        layers.forEach((l,i)=>l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
-      }
-    }
-
-    // Waveform drawing @30fps
+    // Waveform drawer
     function drawWaveform() {
       const canvas = wave;
       const ctx2 = canvas.getContext('2d');
@@ -225,19 +140,94 @@
         if (ts - last < 1000/30) return;
         last = ts;
         canvas.width = canvas.clientWidth;
-        analyser.getByteTimeDomainData(dataArr);
-        ctx2.fillStyle = 'rgba(245,241,230,0.3)'; ctx2.fillRect(0,0,canvas.width,canvas.height);
-        ctx2.lineWidth = 1; ctx2.strokeStyle = '#555'; ctx2.beginPath();
-        const slice = canvas.width / bufLen; let x = 0;
-        for (let i=0; i<bufLen; i++) {
-          const v = dataArr[i]/128.0;
-          const y = v * canvas.height/2;
-          i===0 ? ctx2.moveTo(x,y) : ctx2.lineTo(x,y);
+        analyser.getByteTimeDomainData(dataArray);
+        ctx2.fillStyle = 'rgba(245,241,230,0.3)';
+        ctx2.fillRect(0,0,canvas.width,canvas.height);
+        ctx2.lineWidth = 1;
+        ctx2.strokeStyle = '#555';
+        ctx2.beginPath();
+        const slice = canvas.width / bufLen;
+        let x = 0;
+        for (let i = 0; i < bufLen; i++) {
+          const v = dataArray[i] / 128.0;
+          const y = v * canvas.height / 2;
+          if (i === 0) ctx2.moveTo(x, y);
+          else ctx2.lineTo(x, y);
           x += slice;
         }
         ctx2.stroke();
       }
       draw();
+    }
+
+    // Start button handler
+    startBtn.addEventListener('click', async () => {
+      await ctx.resume();
+      loader.style.display = 'none';
+
+      // init three layers (center loud)
+      layers = [
+        playLayer(randomFile(), 0),
+        playLayer(randomFile(), 1),
+        playLayer(randomFile(), 0)
+      ];
+
+      // show UI
+      wave.style.display  = 'block';
+      knob.style.display  = 'block';
+      instr.style.display = 'block';
+
+      drawWaveform();
+      initKnob();
+    });
+
+    // Knob interaction: continuous 0→1 mapping
+    function initKnob() {
+      let angle = 0;
+      let lastAngle = 0;
+      let dragging = false;
+
+      knob.addEventListener('pointerdown', e => {
+        dragging = true;
+        knob.setPointerCapture(e.pointerId);
+        knob.classList.add('active');
+        const rect = knob.getBoundingClientRect();
+        const cx = rect.left + rect.width/2;
+        const cy = rect.top + rect.height/2;
+        const x = e.clientX - cx;
+        const y = e.clientY - cy;
+        lastAngle = Math.atan2(y, x) * 180/Math.PI;
+        e.preventDefault();
+      });
+
+      knob.addEventListener('pointermove', e => {
+        if (!dragging) return;
+        const rect = knob.getBoundingClientRect();
+        const cx = rect.left + rect.width/2;
+        const cy = rect.top + rect.height/2;
+        const x = e.clientX - cx;
+        const y = e.clientY - cy;
+        const ang = Math.atan2(y, x) * 180/Math.PI;
+        let delta = ang - lastAngle;
+        if (delta > 180) delta -= 360;
+        if (delta < -180) delta += 360;
+        angle += delta;
+        lastAngle = ang;
+
+        // continuous value [0..1)
+        const norm = ((angle % 360) + 360) % 360;
+        const val = norm / 360;
+        applyContextShift(val);
+
+        knob.style.transform = `rotate(${angle}deg)`;
+        e.preventDefault();
+      });
+
+      knob.addEventListener('pointerup', e => {
+        dragging = false;
+        knob.classList.remove('active');
+        knob.releasePointerCapture(e.pointerId);
+      });
     }
 
   })();
