@@ -2,156 +2,233 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Ghost Radio – Simplified Start</title>
+  <title>Ghost Radio 0.5</title>
   <style>
     body {
-      margin:0; padding:2rem 1rem;
-      font-family:'IBM Plex Mono',monospace;
-      background:#f5f1e6; color:#333;
-      text-align:center;
+      font-family: 'IBM Plex Mono', monospace;
+      background: #f5f1e6;
+      color: #111;
+      text-align: center;
+      padding: 2em;
+      overflow: hidden;
     }
-    h1 { font-size:2.5rem; margin-bottom:1rem; }
-    #progressContainer {
-      width:80%; max-width:300px; height:12px;
-      background:#fdfbf8; border:1px solid #aaa;
-      border-radius:6px; overflow:hidden;
-      margin:1rem auto;
+    h1 {
+      font-size: 2em;
+      margin-top: 2em;
+      opacity: 0;
+      transition: opacity 3s ease-in;
     }
-    #progressBar { width:0; height:100%; background:#333; transition:width .2s; }
-    #startBtn {
-      margin:1rem; padding:.8rem 1.5rem;
-      font-size:1rem; background:#333; color:#fdfbf8;
-      border:none; border-radius:6px; cursor:pointer;
-      display:none;
+    body.loaded h1 {
+      opacity: 1;
     }
-    #startBtn:hover { background:#000; }
-    #wave {
-      display:none; width:100%; height:150px;
-      background:rgba(0,0,0,0.05); margin:1.5rem 0;
+    #loader {
+      font-size: 1em;
+      margin-top: 4em;
+      color: #999;
     }
-    #slider {
-      display:none; width:80%; max-width:400px;
-      margin:1rem auto;
+    #startButton {
+      font-size: 1em;
+      padding: 0.8em 1.5em;
+      margin-top: 1em;
+      background: #111;
+      color: #f5f1e6;
+      border: none;
+      cursor: pointer;
+    }
+    #startButton:hover {
+      background: #444;
+    }
+    .controls {
+      margin-top: 2em;
+      display: none;
+    }
+    .controls label {
+      display: block;
+      margin-top: 1em;
+    }
+    input[type="range"] {
+      width: 200px;
+    }
+    canvas {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 200px;
+      z-index: -1;
+      background: transparent;
     }
   </style>
 </head>
 <body>
-  <h1>GHOST RADIO</h1>
+  <h1>Ghost Radio 0.5</h1>
+  <div id="loader">
+    <p>Loading audio…</p>
+    <button id="startButton">Start Listening</button>
+  </div>
+  <div class="controls">
+    <label for="animat">Animat</label>
+    <input type="range" id="animat" min="0" max="1" step="0.01" value="0.2">
 
-  <!-- progress -->
-  <div id="progressContainer"><div id="progressBar"></div></div>
-  <button id="startBtn">Start Listening</button>
-
-  <!-- once started -->
-  <canvas id="wave"></canvas>
-  <input type="range" id="slider" min="-1" max="1" step="0.01" value="0">
+    <label for="context">Context</label>
+    <input type="range" id="context" min="0" max="1" step="0.01" value="0.5">
+  </div>
+  <canvas id="waveform"></canvas>
 
   <script>
-  (async function(){
-    // UI
-    const progressBar = document.getElementById('progressBar');
-    const startBtn    = document.getElementById('startBtn');
-    const wave        = document.getElementById('wave');
-    const slider      = document.getElementById('slider');
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = context.createAnalyser();
+    analyser.fftSize = 2048;
+    const bufferLength = analyser.fftSize;
+    const dataArray = new Uint8Array(bufferLength);
 
-    // AudioContext & analyser
-    const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 512;
-    const bufLen = analyser.fftSize;
-    const dataArr = new Uint8Array(bufLen);
-    const masterGain = ctx.createGain();
-    masterGain.gain.value = 1;
-    analyser.connect(masterGain);
-    masterGain.connect(ctx.destination);
-
-    // preload buffers
-    const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
-    const base = location.pathname.replace(/[^\/]+$/, '');
+    const soundFiles = [
+      'sounds/sound1.mp3',
+      'sounds/sound2.mp3',
+      'sounds/sound3.mp3',
+      'sounds/sound4.mp3',
+      'sounds/sound5.mp3',
+      'sounds/sound6.mp3'
+    ];
     const buffers = {};
-    for (let i=0; i<files.length; i++) {
-      const f = files[i];
-      const res = await fetch(base + 'sounds/' + f);
-      const ab  = await res.arrayBuffer();
-      buffers[f] = await ctx.decodeAudioData(ab);
-      progressBar.style.width = `${((i+1)/files.length)*100}%`;
+    const layers = [];
+
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
     }
 
-    // show start button
-    startBtn.style.display = 'inline-block';
-
-    // layers
-    let layers, mid = 1;
-    function randFile(){ return files[Math.floor(Math.random()*files.length)]; }
-    function playLayer(file){
-      const src = ctx.createBufferSource();
-      src.buffer = buffers[file]; src.loop = true;
-      const g = ctx.createGain(); g.gain.value = 0;
-      src.connect(g).connect(analyser);
-      src.start();
-      return {src, gain:g};
-    }
-    function initLayers(){
-      if (layers) layers.forEach(l=>l.src.stop());
-      layers = [playLayer(randFile()), playLayer(randFile()), playLayer(randFile())];
-      layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
-    }
-    function shift(dir){
-      if (dir<0) {
-        layers[2].src.stop();
-        layers = [ playLayer(randFile()), layers[0], layers[1] ];
-      } else {
-        layers[0].src.stop();
-        layers = [ layers[1], layers[2], playLayer(randFile()) ];
-      }
-      layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
-    }
-
-    // crossfade via slider
-    slider.addEventListener('input', ()=>{
-      const x = parseFloat(slider.value);
-      const raw = mid + x;
-      if (raw<=0) { shift(-1); slider.value=0; return; }
-      if (raw>=2) { shift(1); slider.value=0; return; }
-      const li = Math.floor(raw), ri = Math.ceil(raw), f=raw-li;
-      layers.forEach((l,i)=>{
-        const t = i===li?1-f:(i===ri?f:0);
-        l.gain.linearRampToValueAtTime(t,ctx.currentTime+0.05);
+    async function preloadAllSounds() {
+      const promises = soundFiles.map(async file => {
+        const res = await fetch(file);
+        const buf = await res.arrayBuffer();
+        buffers[file] = await context.decodeAudioData(buf);
       });
-    });
-
-    // waveform draw
-    const ctx2 = wave.getContext('2d');
-    let last = 0;
-    function draw(ts=0){
-      requestAnimationFrame(draw);
-      if (ts-last < 1000/30) return;
-      last = ts;
-      wave.width  = wave.clientWidth;
-      analyser.getByteTimeDomainData(dataArr);
-      ctx2.fillStyle='rgba(245,241,230,0.3)';
-      ctx2.fillRect(0,0,wave.width,wave.height);
-      ctx2.lineWidth=1; ctx2.strokeStyle='#555'; ctx2.beginPath();
-      const slice = wave.width/bufLen; let x=0;
-      for (let i=0;i<bufLen;i++){
-        const v = dataArr[i]/128, y=v*wave.height/2;
-        i===0?ctx2.moveTo(x,y):ctx2.lineTo(x,y);
-        x+=slice;
-      }
-      ctx2.stroke();
+      await Promise.all(promises);
     }
 
-    // start on button
-    startBtn.addEventListener('click', async ()=>{
-      await ctx.resume();
-      initLayers();
-      startBtn.style.display='none';
-      wave.style.display='block';
-      slider.style.display='block';
+    function playLayer(file, animatAmount) {
+      const buffer = buffers[file];
+      const source = context.createBufferSource();
+      const gain = context.createGain();
+      const filter = context.createBiquadFilter();
+
+      source.buffer = buffer;
+      source.loop = true;
+      source.playbackRate.value = randomInRange(0.9, 1.1);
+
+      const dur = buffer.duration;
+      let start = randomInRange(0, dur * 0.75);
+      let length = Math.min(20, Math.max(3, dur - start));
+      source.loopStart = start;
+      source.loopEnd = start + length;
+
+      filter.type = 'lowpass';
+      filter.frequency.value = randomInRange(100, 5000);
+
+      const volume = randomInRange(0.4, 0.7);
+      gain.gain.setValueAtTime(0, context.currentTime);
+      gain.gain.linearRampToValueAtTime(volume, context.currentTime + 3);
+
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(analyser);
+      analyser.connect(context.destination);
+
+      source.start(context.currentTime, start);
+
+      // Animat modulation loop
+      setInterval(() => {
+        if (animatAmount > 0.01) {
+          const newStart = start + randomInRange(-0.1, 0.1) * animatAmount;
+          const newLength = length + randomInRange(-1, 1) * animatAmount;
+          const newFreq = filter.frequency.value + randomInRange(-100, 100) * animatAmount;
+
+          source.loopStart = Math.max(0, Math.min(buffer.duration - 1, newStart));
+          source.loopEnd = Math.max(source.loopStart + 1, Math.min(buffer.duration, source.loopStart + newLength));
+          filter.frequency.value = Math.max(100, Math.min(15000, newFreq));
+        }
+      }, 8000);
+
+      layers.push({ gain, filter });
+    }
+
+    function applyContextShift(value) {
+      const count = layers.length;
+      layers.forEach((layer, index) => {
+        // Rotate index based on value
+        const position = (index + Math.floor(value * count)) % count;
+        const focus = 1 - Math.abs((position - 1) / (count - 1));
+
+        const targetGain = 0.3 + 0.4 * focus;
+        const targetFreq = 1000 + 4000 * focus;
+
+        layer.gain.gain.linearRampToValueAtTime(targetGain, context.currentTime + 2);
+        layer.filter.frequency.linearRampToValueAtTime(targetFreq, context.currentTime + 2);
+      });
+    }
+
+    function drawWaveform() {
+      const canvas = document.getElementById('waveform');
+      const ctx2 = canvas.getContext('2d');
+      const width = canvas.width = window.innerWidth;
+      const height = canvas.height = 200;
+
+      ctx2.lineWidth = 1;
+      ctx2.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+
+      function draw() {
+        requestAnimationFrame(draw);
+
+        analyser.getByteTimeDomainData(dataArray);
+        ctx2.fillStyle = 'rgba(245, 241, 230, 0.08)';
+        ctx2.fillRect(0, 0, width, height);
+
+        ctx2.beginPath();
+        let sliceWidth = width / bufferLength;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          const v = dataArray[i] / 128.0;
+          const y = v * height / 2;
+          i === 0 ? ctx2.moveTo(x, y) : ctx2.lineTo(x, y);
+          x += sliceWidth;
+        }
+
+        ctx2.lineTo(width, height / 2);
+        ctx2.stroke();
+      }
+
       draw();
+    }
+
+    async function startGhostRadio() {
+      document.getElementById('loader').style.display = 'none';
+      document.querySelector('.controls').style.display = 'block';
+      document.body.classList.add('loaded');
+
+      const selected = [];
+      while (selected.length < 3) {
+        const file = soundFiles[Math.floor(Math.random() * soundFiles.length)];
+        if (!selected.includes(file)) selected.push(file);
+      }
+
+      const animatSlider = document.getElementById('animat');
+      const contextSlider = document.getElementById('context');
+
+      selected.forEach(file => playLayer(file, parseFloat(animatSlider.value)));
+      drawWaveform();
+      applyContextShift(parseFloat(contextSlider.value));
+
+      contextSlider.addEventListener('input', () => {
+        applyContextShift(parseFloat(contextSlider.value));
+      });
+    }
+
+    document.getElementById('startButton').addEventListener('click', async () => {
+      await context.resume();
+      await preloadAllSounds();
+      startGhostRadio();
     });
-  })();
   </script>
 </body>
 </html>
