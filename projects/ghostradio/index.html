@@ -5,72 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ghost Radio – Slider Build</title>
   <style>
-    body {
-      margin: 0; padding: 0;
-      font-family: 'IBM Plex Mono', monospace;
-      background: #f5f1e6;
-      color: #333;
-      text-align: center;
-      overflow: hidden;
-    }
-    .container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-    p { color: #666; margin: 0.5rem 0; }
+    body { font-family:'IBM Plex Mono',monospace; background:#f5f1e6; color:#333; margin:0; padding:0; text-align:center; }
+    .container { max-width:800px; margin:2rem auto; padding:0 1rem; }
+    h1 { font-size:2.5rem; margin-bottom:0.5rem; }
+    p  { color:#666; margin:0.5rem 0; }
 
-    /* Full-screen overlay */
     #overlay {
-      position: fixed; top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: #f5f1e6;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      z-index: 1000;
-      cursor: pointer; /* entire overlay is tappable */
+      position:fixed; top:0; left:0;
+      width:100vw; height:100vh;
+      background:#f5f1e6;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      z-index:1000; cursor:pointer;
     }
-    #statusText {
-      margin-bottom: 1rem;
-      font-size: 1.2rem;
-    }
+    #statusText { margin-bottom:1rem; font-size:1.2rem; }
     #progressContainer {
-      width: 80%; max-width: 300px;
-      background: #fdfbf8;
-      border: 1px solid #aaaaaa;
-      border-radius: 10px;
-      overflow: hidden;
-      height: 20px;
-      margin-bottom: 1rem;
+      width:80%; max-width:300px;
+      background:#fdfbf8; border:1px solid #aaa;
+      border-radius:10px; overflow:hidden;
+      height:20px; margin-bottom:1rem;
     }
-    #progressBar {
-      width: 0%; height: 100%;
-      background: #333;
-      transition: width 0.2s;
-    }
+    #progressBar { width:0%; height:100%; background:#333; transition:width .2s; }
 
-    /* Waveform + slider hidden until start */
-    #wave {
-      width: 100%; height: 150px;
-      background: rgba(0,0,0,0.05);
-      margin: 1.5rem 0;
-      display: none;
-    }
-    #scanner {
-      width: 80%; max-width: 400px;
-      margin: 1rem auto 2rem;
-      display: none;
-    }
-    .instructions {
-      display: none;
-      color: #666;
-      margin-bottom: 2rem;
-    }
+    #wave { width:100%; height:150px; background:rgba(0,0,0,0.05); margin:1.5rem 0; display:none; }
+    #scanner { width:80%; max-width:400px; margin:1rem auto 2rem; display:none; }
+    .instructions { display:none; color:#666; margin-bottom:2rem; }
 
-    @media (max-width: 600px) {
-      h1 { font-size: 1.8rem; }
-      #wave { height: 120px; }
+    @media(max-width:600px){
+      h1 { font-size:1.8rem; }
+      #wave { height:120px; }
     }
   </style>
 </head>
@@ -79,7 +42,7 @@
     <h1>GHOST RADIO</h1>
     <p id="statusText">Loading sounds…</p>
     <div id="progressContainer"><div id="progressBar"></div></div>
-    <p style="font-size:0.9rem;color:#666;">(Tap anywhere to start)</p>
+    <p style="font-size:.9rem;color:#666;">(Tap anywhere to start)</p>
   </div>
 
   <div class="container">
@@ -97,113 +60,96 @@
     const scanner    = document.getElementById('scanner');
     const instr      = document.querySelector('.instructions');
 
-    // Audio context + analyser
     const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 512;
-    const bufLen = analyser.fftSize;
-    const dataArr = new Uint8Array(bufLen);
+    const analyser = ctx.createAnalyser(); analyser.fftSize = 512;
+    const bufLen = analyser.fftSize, dataArr = new Uint8Array(bufLen);
+    const masterGain = ctx.createGain(); masterGain.gain.value=1;
+    analyser.connect(masterGain); masterGain.connect(ctx.destination);
 
-    const masterGain = ctx.createGain();
-    masterGain.gain.value = 1;
-    analyser.connect(masterGain);
-    masterGain.connect(ctx.destination);
-
-    // Files & buffers
+    // **<<<< CHANGE HERE >>>>**
     const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
+    // no leading slash or extra folders—must match your directory structure.
     const buffers = {};
     let loaded = 0, layers, mid = 1;
 
-    function randomFile() {
-      return files[Math.floor(Math.random()*files.length)];
-    }
-    function playLayer(file) {
-      const src = ctx.createBufferSource();
-      src.buffer = buffers[file];
-      src.loop = true;
-      const g = ctx.createGain();
-      g.gain.value = 0;
+    function randomFile(){ return files[Math.floor(Math.random()*files.length)]; }
+    function playLayer(file){
+      const src=ctx.createBufferSource(); src.buffer = buffers[file]; src.loop=true;
+      const g=ctx.createGain(); g.gain.value=0;
       src.connect(g).connect(analyser);
       src.start();
       return { src, gain: g };
     }
-    function initLayers() {
-      if(layers) layers.forEach(l => l.src.stop());
-      layers = [ playLayer(randomFile()), playLayer(randomFile()), playLayer(randomFile()) ];
-      layers.forEach((l,i) => l.gain.setValueAtTime(i===mid?1:0, ctx.currentTime));
+    function initLayers(){
+      if(layers) layers.forEach(l=>l.src.stop());
+      layers=[playLayer(randomFile()),playLayer(randomFile()),playLayer(randomFile())];
+      layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
     }
 
-    // Preload all buffers
-    (async () => {
-      for (let f of files) {
-        const res = await fetch(`/projects/ghostradio/sounds/${f}`);
+    // preload
+    (async ()=>{
+      for(let f of files){
+        const res = await fetch(`sounds/${f}`);         // << relative path
         const ab  = await res.arrayBuffer();
         buffers[f] = await ctx.decodeAudioData(ab);
         loaded++;
-        progressBar.style.width = (loaded/files.length*100) + '%';
+        progressBar.style.width = ((loaded/files.length)*100)+'%';
         statusText.textContent = `Loaded ${loaded} of ${files.length}`;
       }
       statusText.textContent = 'Ready! Tap to start.';
     })();
 
-    // Crossfade & shift logic
-    scanner.addEventListener('input', () => {
-      const x   = parseFloat(scanner.value);
-      const raw = mid + x;
-      const li  = Math.floor(raw), ri = Math.ceil(raw), f = raw - li;
-      layers.forEach((l,i) => {
-        const t = (i===li ? 1-f : (i===ri ? f : 0));
-        l.gain.linearRampToValueAtTime(t, ctx.currentTime+0.05);
+    // crossfade
+    scanner.addEventListener('input',()=>{
+      const x=parseFloat(scanner.value), raw=mid+x;
+      const li=Math.floor(raw), ri=Math.ceil(raw), f=raw-li;
+      layers.forEach((l,i)=>{
+        const t = i===li?1-f:(i===ri?f:0);
+        l.gain.linearRampToValueAtTime(t,ctx.currentTime+0.05);
       });
-      if(raw <= 0) { shiftLeft(); scanner.value='0'; }
-      if(raw >= 2) { shiftRight(); scanner.value='0'; }
+      if(raw<=0){ shiftLeft(); scanner.value='0'; }
+      if(raw>=2){ shiftRight(); scanner.value='0'; }
     });
     function shiftLeft(){
       layers[2].src.stop();
-      layers = [playLayer(randomFile()), layers[0], layers[1]];
+      layers=[playLayer(randomFile()),layers[0],layers[1]];
       layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
     }
     function shiftRight(){
       layers[0].src.stop();
-      layers = [layers[1], layers[2], playLayer(randomFile())];
+      layers=[layers[1],layers[2],playLayer(randomFile())];
       layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
     }
 
-    // Waveform drawer
-    const ctx2 = wave.getContext('2d');
-    let lastDraw = 0;
+    // waveform
+    const ctx2=wave.getContext('2d');
+    let lastDraw=0;
     function draw(ts=0){
       requestAnimationFrame(draw);
-      if(ts - lastDraw < 1000/30) return;
-      lastDraw = ts;
-      wave.width = wave.clientWidth;
+      if(ts-lastDraw<1000/30) return;
+      lastDraw=ts;
+      wave.width=wave.clientWidth;
       analyser.getByteTimeDomainData(dataArr);
-      ctx2.fillStyle = 'rgba(245,241,230,0.3)';
-      ctx2.fillRect(0,0,wave.width,wave.height);
+      ctx2.fillStyle='rgba(245,241,230,0.3)'; ctx2.fillRect(0,0,wave.width,wave.height);
       ctx2.lineWidth=1; ctx2.strokeStyle='#555'; ctx2.beginPath();
-      const slice = wave.width/bufLen;
-      let x=0;
+      const sl=wave.width/bufLen; let xx=0;
       for(let i=0;i<bufLen;i++){
-        const v = dataArr[i]/128, y=v*wave.height/2;
-        i===0?ctx2.moveTo(x,y):ctx2.lineTo(x,y);
-        x+=slice;
+        const v=dataArr[i]/128, y=v*wave.height/2;
+        i===0?ctx2.moveTo(xx,y):ctx2.lineTo(xx,y);
+        xx+=sl;
       }
       ctx2.stroke();
     }
 
-    // Start on any tap/click
-    overlay.addEventListener('click', async () => {
+    // start on overlay tap/click
+    overlay.addEventListener('click', async ()=>{
       await ctx.resume();
       initLayers();
-      overlay.style.display   = 'none';
-      wave.style.display      = 'block';
-      scanner.style.display   = 'block';
-      instr.style.display     = 'block';
+      overlay.style.display='none';
+      wave.style.display='block';
+      scanner.style.display='block';
+      instr.style.display='block';
       requestAnimationFrame(draw);
-    });
-    overlay.addEventListener('touchstart', e => {
-      e.preventDefault(); // prevent double firing click
-      overlay.dispatchEvent(new Event('click'));
     });
   })();
   </script>
