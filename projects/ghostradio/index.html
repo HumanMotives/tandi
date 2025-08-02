@@ -3,52 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ghost Radio – Infinite Rotary Knob</title>
+  <title>Ghost Radio – Infinite Rotary Dial</title>
   <style>
     body {
       font-family: 'IBM Plex Mono', monospace;
       background: #f5f1e6;
       color: #333;
       text-align: center;
-      margin: 2rem auto;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .container {
       max-width: 800px;
+      margin: 2rem auto;
       padding: 0 1rem;
     }
     h1 { font-size: 2.5rem; margin-bottom: 0.2rem; }
     p { margin-top: 0; color: #666; }
 
-    #startButton {
-      margin: 2rem auto;
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      background: #333;
-      color: #fdfbf8;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      display: block;
+    /* Fullscreen overlay for preload/start */
+    #overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(245,241,230,1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
     }
-    #startButton:hover { background: #000; }
+    #startText { font-size: 1.2rem; margin-bottom: 1rem; }
+    #progressContainer {
+      width: 80%; max-width: 300px;
+      background: #fdfbf8;
+      border: 1px solid #aaaaaa;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    #progressBar {
+      width: 0%; height: 20px;
+      background: #333;
+      transition: width 0.2s;
+    }
 
+    /* Waveform */
     #wave {
-      width: 100%;
-      height: 150px;
+      width: 100%; height: 150px;
       background: rgba(0,0,0,0.05);
       display: none;
       margin: 1.5rem 0;
     }
 
+    /* Knob */
     #knob {
       position: relative;
       margin: 0 auto 1.5rem;
-      width: 120px;
-      height: 120px;
+      width: 120px; height: 120px;
       border: 4px solid #888;
       border-radius: 50%;
       background: #fdfbf8;
       touch-action: none;
       cursor: grab;
-      transition: border-color 0.2s;
       display: none;
     }
     #knob.active { cursor: grabbing; border-color: #000; }
@@ -60,174 +77,97 @@
       background: #333;
       transform-origin: bottom center;
       transform: translateX(-50%) rotate(0deg);
+      transition: transform 0.1s;
+    }
+    .instructions {
+      font-size: 0.9rem; color: #666;
+      margin-bottom: 1rem; display: none;
     }
 
-    .instructions {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 1rem;
-      display: none;
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+      #knob { width: 90px; height: 90px; }
+      #knob::before { height: 30px; }
+      #wave { height: 120px; }
     }
   </style>
 </head>
 <body>
-  <h1>GHOST RADIO</h1>
-  <p>Infinite Rotary Dial — drag around the circle</p>
+  <div id="overlay">
+    <div id="startText">Loading sounds...</div>
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+    </div>
+    <div id="startHint" style="margin-top:1rem; font-size:0.9rem; color:#666;">Tap to start</div>
+  </div>
 
-  <button id="startButton">Start Listening</button>
-  <canvas id="wave"></canvas>
-  <div id="knob"></div>
-  <div class="instructions">Drag or swipe around the knob</div>
+  <div class="container">
+    <h1>GHOST RADIO</h1>
+    <p>Infinite Rotary Dial — drag around the circle</p>
+    <canvas id="wave"></canvas>
+    <div id="knob"></div>
+    <div class="instructions">Drag or swipe around the knob</div>
+  </div>
 
   <script>
-  (async function() {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 512;
-    const bufLen = analyser.fftSize;
-    const data = new Uint8Array(bufLen);
-
-    const masterGain = ctx.createGain();
-    masterGain.gain.value = 1;
-    masterGain.connect(analyser);
-    analyser.connect(ctx.destination);
+  (async function(){
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const analyser = ctx.createAnalyser(); analyser.fftSize = 512;
+    const bufLen = analyser.fftSize, data = new Uint8Array(bufLen);
+    const master = ctx.createGain(); master.gain.value=1;
+    master.connect(analyser); analyser.connect(ctx.destination);
 
     const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
     const buffers = {};
-    for (let f of files) {
+    let loaded = 0;
+    for(let f of files){
       const res = await fetch(`/projects/ghostradio/sounds/${f}`);
       const ab = await res.arrayBuffer();
       buffers[f] = await ctx.decodeAudioData(ab);
+      loaded++;
+      document.getElementById('progressBar').style.width = (loaded/files.length*100)+'%';
     }
 
-    function randomFile() {
-      return files[Math.floor(Math.random() * files.length)];
+    function randomFile(){return files[Math.floor(Math.random()*files.length)];}
+    function playLayer(file){
+      const src=ctx.createBufferSource(); src.buffer=buffers[file]; src.loop=true;
+      const g=ctx.createGain(); g.gain.value=0;
+      src.connect(g).connect(master); src.start(); return {src, g};
     }
 
-    function playLayer(file) {
-      const src = ctx.createBufferSource();
-      src.buffer = buffers[file];
-      src.loop = true;
-      const gainNode = ctx.createGain();
-      gainNode.gain.value = 0;
-      src.connect(gainNode).connect(masterGain);
-      src.start();
-      return { src, gain: gainNode };
+    let layers, mid=1;
+    function initLayers(){
+      layers&&layers.forEach(l=>l.src.stop());
+      layers=[playLayer(randomFile()),playLayer(randomFile()),playLayer(randomFile())];
+      layers.forEach((l,i)=>l.g.setValueAtTime(i===mid?1:0,ctx.currentTime));
     }
 
-    let layers;
-    const mid = 1;
-
-    function initLayers() {
-      layers && layers.forEach(l => l.src.stop());
-      layers = [playLayer(randomFile()), playLayer(randomFile()), playLayer(randomFile())];
-      layers.forEach((l, i) => l.gain.setValueAtTime(i === mid ? 1 : 0, ctx.currentTime));
+    // Knob
+    const knob=document.getElementById('knob');
+    let angle=0,lastAng=0,drag=false;
+    function updateScan(){
+      const raw=mid+angle*0.02;
+      if(raw<0.2){shiftLeft();return;} if(raw>1.8){shiftRight();return;}
+      const li=Math.floor(raw), ri=Math.ceil(raw), f=raw-li;
+      layers.forEach((l,i)=>l.g.linearRampToValueAtTime(i===li?1-f:(i===ri?f:0),ctx.currentTime+0.05));
+      knob.style.transform=`rotate(${angle}deg)`;
     }
+    function shiftLeft(){layers[2].src.stop();layers=[playLayer(randomFile()),layers[0],layers[1]];layers.forEach((l,i)=>l.g.setValueAtTime(i===mid?1:0,ctx.currentTime));updateScan();}
+    function shiftRight(){layers[0].src.stop();layers=[layers[1],layers[2],playLayer(randomFile())];layers.forEach((l,i)=>l.g.setValueAtTime(i===mid?1:0,ctx.currentTime));updateScan();}
+    function pd(e){drag=true;knob.classList.add('active');const r=knob.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;const x=(e.clientX||e.touches[0].clientX)-cx,y=(e.clientY||e.touches[0].clientY)-cy;lastAng=Math.atan2(y,x)*180/Math.PI;e.preventDefault();}
+    function pm(e){if(!drag)return;const r=knob.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;const x=(e.clientX||e.touches[0].clientX)-cx,y=(e.clientY||e.touches[0].clientY)-cy;const ang=Math.atan2(y,x)*180/Math.PI;let d=ang-lastAng; if(d>180)d-=360; if(d<-180)d+=360;angle+=d;lastAng=ang;if(!window._p){window._p=true;requestAnimationFrame(()=>{updateScan();window._p=false;});}e.preventDefault();}
+    function pu(){drag=false;knob.classList.remove('active');}
+    knob.addEventListener('mousedown',pd);window.addEventListener('mousemove',pm);window.addEventListener('mouseup',pu);
+    knob.addEventListener('touchstart',pd);window.addEventListener('touchmove',pm);window.addEventListener('touchend',pu);
 
-    // Knob variables
-    const knob = document.getElementById('knob');
-    let angle = 0, lastAngle = 0, dragging = false;
+    // Waveform draw
+    const cvs=document.getElementById('wave'),w2=cvs.getContext('2d');let ld=0;
+    function draw(ts){requestAnimationFrame(draw);if(ts-ld<1000/30)return;ld=ts;cvs.width=cvs.clientWidth;analyser.getByteTimeDomainData(data);w2.fillStyle='rgba(245,241,230,0.3)';w2.fillRect(0,0,cvs.width,cvs.height);w2.lineWidth=1;w2.strokeStyle='#555';w2.beginPath();const sl=cvs.width/bufLen;let xx=0;for(let i=0;i<bufLen;i++){const v=data[i]/128,y=v*cvs.height/2;i===0?w2.moveTo(xx,y):w2.lineTo(xx,y);xx+=sl;}w2.stroke();}
 
-    function updateScan() {
-      const raw = mid + angle * 0.02;
-      if (raw < 0.2) { shiftLeft(); return; }
-      if (raw > 1.8) { shiftRight(); return; }
-      const leftI = Math.floor(raw), rightI = Math.ceil(raw), frac = raw - leftI;
-      layers.forEach((l, i) => {
-        const tgt = i === leftI ? 1 - frac : (i === rightI ? frac : 0);
-        l.gain.linearRampToValueAtTime(tgt, ctx.currentTime + 0.05);
-      });
-      knob.style.transform = `rotate(${angle}deg)`;
-    }
-
-    function shiftLeft() {
-      layers[2].src.stop();
-      layers = [playLayer(randomFile()), layers[0], layers[1]];
-      layers.forEach((l, i) => l.gain.setValueAtTime(i === mid ? 1 : 0, ctx.currentTime));
-      updateScan();
-    }
-
-    function shiftRight() {
-      layers[0].src.stop();
-      layers = [layers[1], layers[2], playLayer(randomFile())];
-      layers.forEach((l, i) => l.gain.setValueAtTime(i === mid ? 1 : 0, ctx.currentTime));
-      updateScan();
-    }
-
-    function pointerDown(e) {
-      dragging = true; knob.classList.add('active');
-      const r = knob.getBoundingClientRect();
-      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-      const x = (e.clientX || e.touches[0].clientX) - cx;
-      const y = (e.clientY || e.touches[0].clientY) - cy;
-      lastAngle = Math.atan2(y, x) * 180 / Math.PI;
-      e.preventDefault();
-    }
-
-    function pointerMove(e) {
-      if (!dragging) return;
-      const r = knob.getBoundingClientRect();
-      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-      const x = (e.clientX || e.touches[0].clientX) - cx;
-      const y = (e.clientY || e.touches[0].clientY) - cy;
-      const ang = Math.atan2(y, x) * 180 / Math.PI;
-      let d = ang - lastAngle;
-      if (d > 180) d -= 360;
-      if (d < -180) d += 360;
-      angle += d;
-      lastAngle = ang;
-      if (!window._scanPending) {
-        window._scanPending = true;
-        requestAnimationFrame(() => { updateScan(); window._scanPending = false; });
-      }
-      e.preventDefault();
-    }
-
-    function pointerUp() { dragging = false; knob.classList.remove('active'); }
-
-    knob.addEventListener('mousedown', pointerDown);
-    window.addEventListener('mousemove', pointerMove);
-    window.addEventListener('mouseup', pointerUp);
-    knob.addEventListener('touchstart', pointerDown);
-    window.addEventListener('touchmove', pointerMove);
-    window.addEventListener('touchend', pointerUp);
-
-    // Draw waveform at 30fps
-    const canvas = document.getElementById('wave');
-    const w2 = canvas.getContext('2d');
-    let lastDraw = 0;
-    function draw(now) {
-      if (now - lastDraw >= 1000 / 30) {
-        lastDraw = now;
-        canvas.width = canvas.clientWidth;
-        analyser.getByteTimeDomainData(data);
-        w2.fillStyle = 'rgba(245,241,230,0.3)';
-        w2.fillRect(0, 0, canvas.width, canvas.height);
-        w2.lineWidth = 1; w2.strokeStyle = '#555'; w2.beginPath();
-        const slice = canvas.width / bufLen; let x = 0;
-        for (let i = 0; i < bufLen; i++) {
-          const v = data[i] / 128.0;
-          const y = v * canvas.height / 2;
-          i === 0 ? w2.moveTo(x, y) : w2.lineTo(x, y);
-          x += slice;
-        }
-        w2.stroke();
-      }
-      requestAnimationFrame(draw);
-    }
-
-    document.getElementById('startButton').addEventListener('click', async () => {
-      await ctx.resume();
-      initLayers();
-      document.getElementById('startButton').style.display = 'none';
-      document.getElementById('wave').style.display = 'block';
-      document.getElementById('knob').style.display = 'block';
-      document.querySelector('.instructions').style.display = 'block';
-      requestAnimationFrame(draw);
-    });
-
-    // also resume on any click
-    window.addEventListener('click', () => ctx.state === 'suspended' && ctx.resume());
+    // Start button
+    const sb=document.getElementById('startButton');
+    function start(){ctx.state==='suspended'&&ctx.resume();initLayers();document.getElementById('overlay').style.display='none';document.getElementById('wave').style.display='block';document.getElementById('knob').style.display='block';document.querySelector('.instructions').style.display='block';requestAnimationFrame(draw);}
+    sb.addEventListener('click',start);sb.addEventListener('touchstart',start);
   })();
   </script>
 </body>
