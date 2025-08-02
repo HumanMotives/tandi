@@ -26,7 +26,11 @@
     #wave { width:100%; height:120px; background:rgba(0,0,0,0.05); display:none; }
 
     /* Knob */
-    #knob { display:none; width:100px; height:100px; margin:0 auto; border:4px solid #888; border-radius:50%; background:#fdfbf8; touch-action:none; cursor:grab; position:relative; }
+    #knob {
+      display:none; width:100px; height:100px; margin:0 auto 1.5rem;
+      border:4px solid #888; border-radius:50%; background:#fdfbf8;
+      touch-action:none; cursor:grab; position:relative;
+    }
     #knob.active { cursor:grabbing; border-color:#000; }
     #knob::before {
       content:''; position:absolute; top:8px; left:50%;
@@ -63,29 +67,27 @@
   <script>
   (async function(){
     // UI
+    const loader      = document.getElementById('loader');
     const startButton = document.getElementById('startButton');
     const statusText  = document.getElementById('statusText');
     const wave        = document.getElementById('wave');
     const knob        = document.getElementById('knob');
     const instr       = document.querySelector('.instructions');
 
-    // AudioContext & analyser (low-quality for perf)
+    // AudioContext & analyser
     const Ctx = window.AudioContext||window.webkitAudioContext;
     const ctx = new Ctx();
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 256;
+    const analyser = ctx.createAnalyser(); analyser.fftSize = 256;
     const bufLen = analyser.fftSize;
     const dataArr = new Uint8Array(bufLen);
-    const master = ctx.createGain();
-    master.gain.value = 1;
-    analyser.connect(master);
-    master.connect(ctx.destination);
+    const masterGain = ctx.createGain(); masterGain.gain.value = 1;
+    analyser.connect(masterGain); masterGain.connect(ctx.destination);
 
     // Preload buffers
     const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
     const base = location.pathname.replace(/[^\/]+$/, '');
     const buffers = {};
-    for (let i = 0; i < files.length; i++) {
+    for (let i=0; i<files.length; i++) {
       const f = files[i];
       const url = base + 'sounds/' + f;
       try {
@@ -100,53 +102,53 @@
     }
     statusText.textContent = 'Ready to play!';
 
-    // Play logic placeholders
-    let layers = [], midIndex = 1;
+    // Play logic
+    let layers = [];
+    const midIndex = 1;
     function randFile() { return files[Math.floor(Math.random()*files.length)]; }
-    function playLayer(f) {
-      const src = ctx.createBufferSource();
-      src.buffer = buffers[f];
-      src.loop = true;
-      const g = ctx.createGain();
-      g.gain.value = 0;
-      src.connect(g).connect(analyser);
-      src.start();
+    function playLayer(f, initialGain) {
+      const src = ctx.createBufferSource(); src.buffer = buffers[f]; src.loop = true;
+      const g = ctx.createGain(); g.gain.value = initialGain;
+      src.connect(g).connect(analyser); src.start();
       return { src, gain: g };
     }
 
-    // Button starts audio & UI
+    // Start on button click
     startButton.style.display = 'inline-block';
     startButton.addEventListener('click', async () => {
       await ctx.resume();
+      // hide loader
+      loader.style.display = 'none';
 
-      // init 3 layers
-      layers = [playLayer(randFile()), playLayer(randFile()), playLayer(randFile())];
-      layers.forEach((l,i) => l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
-
+      // init layers with center gain
+      layers = [
+        playLayer(randFile(), 0),
+        playLayer(randFile(), 1),
+        playLayer(randFile(), 0)
+      ];
+      
       // show UI
-      startButton.style.display = 'none';
-      wave.style.display  = 'block';
-      knob.style.display  = 'block';
+      wave.style.display = 'block';
+      knob.style.display = 'block';
       instr.style.display = 'block';
 
       initKnob();
       drawWaveform();
     });
 
-    // 30° segment logic
+    // Knob with 30° segments
     function initKnob() {
-      const segment = 30; // degrees per shift
+      const segment = 30;
       let angle = 0, lastAng = 0, dragging = false;
 
       knob.addEventListener('mousedown', down);
       knob.addEventListener('touchstart', down);
       function down(e) {
-        dragging = true;
-        knob.classList.add('active');
+        dragging = true; knob.classList.add('active');
         const r = knob.getBoundingClientRect();
         const cx = r.left + r.width/2, cy = r.top + r.height/2;
-        const x = (e.clientX||e.touches[0].clientX)-cx;
-        const y = (e.clientY||e.touches[0].clientY)-cy;
+        const x = (e.clientX||e.touches[0].clientX) - cx;
+        const y = (e.clientY||e.touches[0].clientY) - cy;
         lastAng = Math.atan2(y,x)*180/Math.PI;
         e.preventDefault();
       }
@@ -157,8 +159,8 @@
         if (!dragging) return;
         const r = knob.getBoundingClientRect();
         const cx = r.left + r.width/2, cy = r.top + r.height/2;
-        const x = (e.clientX||e.touches[0].clientX)-cx;
-        const y = (e.clientY||e.touches[0].clientY)-cy;
+        const x = (e.clientX||e.touches[0].clientX) - cx;
+        const y = (e.clientY||e.touches[0].clientY) - cy;
         const ang = Math.atan2(y,x)*180/Math.PI;
         let d = ang - lastAng;
         if (d > 180) d -= 360;
@@ -166,64 +168,54 @@
         angle += d;
         lastAng = ang;
 
-        // perform shifts
         while (angle >= segment) {
-          shiftRight();
-          angle -= segment;
+          shiftRight(); angle -= segment;
         }
         while (angle <= -segment) {
-          shiftLeft();
-          angle += segment;
+          shiftLeft(); angle += segment;
         }
 
         knob.style.transform = `rotate(${angle}deg)`;
         e.preventDefault();
       }
 
-      window.addEventListener('mouseup', () => {
-        dragging = false;
-        knob.classList.remove('active');
-      });
-      window.addEventListener('touchend', () => {
-        dragging = false;
-        knob.classList.remove('active');
-      });
+      window.addEventListener('mouseup', () => { dragging = false; knob.classList.remove('active'); });
+      window.addEventListener('touchend', () => { dragging = false; knob.classList.remove('active'); });
 
       function shiftLeft() {
         layers[2].src.stop();
-        layers = [playLayer(randFile()), layers[0], layers[1]];
-        layers.forEach((l,i)=>l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
+        layers.unshift(playLayer(randFile(), 0));
+        layers.pop();
+        layers.forEach((l,i) => l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
       }
       function shiftRight() {
         layers[0].src.stop();
-        layers = [layers[1], layers[2], playLayer(randFile())];
-        layers.forEach((l,i)=>l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
+        layers.push(playLayer(randFile(), 0));
+        layers.shift();
+        layers.forEach((l,i) => l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
       }
     }
 
-    // Waveform drawer @30fps
+    // Waveform drawing
     function drawWaveform() {
       const canvas = wave;
       const ctx2 = canvas.getContext('2d');
-      let last = 0;
+      let lastDraw = 0;
       function draw(ts=0) {
         requestAnimationFrame(draw);
-        if (ts - last < 1000/30) return;
-        last = ts;
+        if (ts - lastDraw < 1000/30) return;
+        lastDraw = ts;
         canvas.width = canvas.clientWidth;
         analyser.getByteTimeDomainData(dataArr);
         ctx2.fillStyle = 'rgba(245,241,230,0.3)';
         ctx2.fillRect(0,0,canvas.width,canvas.height);
-        ctx2.lineWidth = 1;
-        ctx2.strokeStyle = '#555';
-        ctx2.beginPath();
-        const slice = canvas.width / bufLen;
-        let x = 0;
-        for (let i=0; i<bufLen; i++){
-          const v = dataArr[i]/128.0;
-          const y = v * canvas.height/2;
-          i===0?ctx2.moveTo(x,y):ctx2.lineTo(x,y);
-          x += slice;
+        ctx2.lineWidth = 1; ctx2.strokeStyle = '#555'; ctx2.beginPath();
+        const sl = canvas.width / bufLen; let xx = 0;
+        for (let i = 0; i < bufLen; i++) {
+          const v = dataArr[i] / 128.0;
+          const y = v * canvas.height / 2;
+          i===0 ? ctx2.moveTo(xx,y) : ctx2.lineTo(xx,y);
+          xx += sl;
         }
         ctx2.stroke();
       }
