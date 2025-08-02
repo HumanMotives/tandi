@@ -2,23 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ghost Radio – Three-Sample Dial</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ghost Radio – Scanning with Static</title>
   <style>
     body { margin:0; padding:1rem; font-family:'IBM Plex Mono',monospace; background:#f5f1e6; color:#333; }
     h1 { text-align:center; font-size:2rem; margin-bottom:1rem; user-select:none; }
     #loader { text-align:center; margin-bottom:1rem; }
     #statusText { margin-bottom:0.5rem; }
-    #startButton { padding:0.8rem 1.5rem; font-size:1rem; background:#111; color:#f5f1e6; border:none; border-radius:6px; cursor:pointer; }
+    #startButton {
+      padding:0.8rem 1.5rem; font-size:1rem;
+      background:#111; color:#f5f1e6; border:none; border-radius:6px;
+      cursor:pointer; user-select:none;
+    }
     #startButton:hover { background:#444; }
     .container { display:flex; flex-wrap:wrap; justify-content:center; gap:1rem; max-width:800px; margin:0 auto; }
     .panel { flex:1 1 280px; }
     #wave { width:100%; height:120px; background:rgba(0,0,0,0.05); display:none; }
-    #knob { display:none; width:100px; height:100px; margin:0 auto 1.5rem; border:4px solid #888; border-radius:50%; background:#fdfbf8; touch-action:none; cursor:grab; position:relative; user-select:none; }
+    #knob {
+      display:none; width:100px; height:100px;
+      margin:0 auto 1.5rem;
+      border:4px solid #888; border-radius:50%; background:#fdfbf8;
+      touch-action:none; cursor:grab; position:relative; user-select:none;
+    }
     #knob.active { cursor:grabbing; border-color:#000; }
-    #knob::before { content:''; position:absolute; top:8px; left:50%; width:4px; height:30px; background:#333; transform-origin:bottom center; }
+    #knob::before {
+      content:''; position:absolute; top:8px; left:50%;
+      width:4px; height:30px; background:#333;
+      transform-origin:bottom center;
+    }
     .instructions { text-align:center; color:#666; display:none; user-select:none; }
-    @media(max-width:600px) { #wave{height:100px;} #knob{width:80px;height:80px;} #knob::before{height:24px;} }
+    @media(max-width:600px) {
+      #wave { height:100px; }
+      #knob { width:80px; height:80px; }
+      #knob::before { height:24px; }
+    }
   </style>
 </head>
 <body>
@@ -31,128 +48,218 @@
     <div class="panel"><canvas id="wave"></canvas></div>
     <div class="panel">
       <div id="knob"></div>
-      <p class="instructions">Rotate the dial</p>
+      <p class="instructions">Rotate the dial to scan</p>
     </div>
   </div>
+
   <script>
   (async function(){
-    const loader = document.getElementById('loader');
-    const statusText = document.getElementById('statusText');
+    // UI
+    const loader      = document.getElementById('loader');
+    const statusText  = document.getElementById('statusText');
     const startButton = document.getElementById('startButton');
-    const wave = document.getElementById('wave');
-    const knob = document.getElementById('knob');
-    const instr = document.querySelector('.instructions');
+    const wave        = document.getElementById('wave');
+    const knob        = document.getElementById('knob');
+    const instr       = document.querySelector('.instructions');
 
-    // Audio context
+    // AudioContext & analyser
     const AudioCtx = window.AudioContext||window.webkitAudioContext;
     const ctx = new AudioCtx();
-    const analyser = ctx.createAnalyser(); analyser.fftSize = 256;
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 256;
     const bufLen = analyser.fftSize;
     const dataArr = new Uint8Array(bufLen);
-    const masterGain = ctx.createGain(); masterGain.gain.value = 1;
-    analyser.connect(masterGain); masterGain.connect(ctx.destination);
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 1;
+    analyser.connect(masterGain);
+    masterGain.connect(ctx.destination);
 
-    // Load buffers
+    // Generate looping static noise
+    function makeNoiseBuffer(duration=2){
+      const size = ctx.sampleRate * duration;
+      const buf = ctx.createBuffer(1, size, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for(let i=0;i<size;i++) d[i] = Math.random()*2-1;
+      return buf;
+    }
+    const noiseBuf = makeNoiseBuffer();
+    const noiseSrc = ctx.createBufferSource();
+    noiseSrc.buffer = noiseBuf;
+    noiseSrc.loop = true;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.value = 0.2;  // static level
+    noiseSrc.connect(noiseGain).connect(analyser);
+
+    // Load your six samples
     const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
-    const base = location.pathname.replace(/[^\/]+$/,'');
+    const base = location.pathname.replace(/[^\\/]+$/,'');
     const buffers = {};
     for(let i=0;i<files.length;i++){
-      const url = base+'sounds/'+files[i];
+      const f = files[i];
+      const url = base + 'sounds/' + f;
       try {
         const res = await fetch(url);
         if(!res.ok) throw new Error(res.status);
         const ab = await res.arrayBuffer();
-        buffers[files[i]] = await ctx.decodeAudioData(ab);
-      } catch(err) {
-        statusText.textContent = `Error loading ${files[i]}`;
+        buffers[f] = await ctx.decodeAudioData(ab);
+        statusText.textContent = `Loaded ${i+1} of ${files.length}`;
+      } catch(err){
+        statusText.textContent = `Error loading ${f}`;
+        console.error(err);
         return;
       }
     }
-    statusText.textContent = 'Ready to play!';
+    statusText.textContent = 'Ready!';
 
-    // State: three samples: left, center, right
+    // Three-sample state
     let leftFile, centerFile, rightFile;
     let leftNode, centerNode, rightNode;
 
-    function createNode(file, gainVal){
-      const src = ctx.createBufferSource(); src.buffer = buffers[file]; src.loop = true;
-      const g = ctx.createGain(); g.gain.value = gainVal;
+    function createNode(file, initialGain){
+      const src = ctx.createBufferSource();
+      src.buffer = buffers[file];
+      src.loop = true;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(initialGain, ctx.currentTime);
       src.connect(g).connect(analyser);
-      src.start();
+      src.start(0);
       return { src, gain: g };
     }
 
     function initThree(){
       // pick distinct random
       centerFile = files[Math.floor(Math.random()*files.length)];
-      do { leftFile = files[Math.floor(Math.random()*files.length)]; } while(leftFile===centerFile);
-      do { rightFile = files[Math.floor(Math.random()*files.length)]; } while(rightFile===centerFile||rightFile===leftFile);
+      do { leftFile = files[Math.floor(Math.random()*files.length)]; }
+      while(leftFile===centerFile);
+      do { rightFile = files[Math.floor(Math.random()*files.length)]; }
+      while(rightFile===centerFile||rightFile===leftFile);
       // create nodes
-      leftNode = createNode(leftFile,0);
-      centerNode = createNode(centerFile,1);
-      rightNode = createNode(rightFile,0);
+      leftNode   = createNode(leftFile,   0);
+      centerNode = createNode(centerFile, 1);
+      rightNode  = createNode(rightFile,  0);
     }
 
     function shift(direction){
-      // direction -1 left, +1 right
-      // stop opposite node
-      if(direction<0){ rightNode.src.stop(); // becomes new right
-        rightFile = centerFile; rightNode = createNode(rightFile,0);
-        centerFile = leftFile; centerNode.src.stop(); centerNode = createNode(centerFile,1);
-        do{ leftFile = files[Math.floor(Math.random()*files.length)]; } while(leftFile===centerFile||leftFile===rightFile);
-        leftNode.src.stop(); leftNode = createNode(leftFile,0);
-      } else {
+      // Fade-time
+      const fadeTime = 1.0;
+      if(direction<0){
+        // move left: right drops, center->right, left->center, new left
+        rightNode.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+fadeTime);
+        centerNode.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+fadeTime);
+        leftNode.gain.gain.setValueAtTime(0,ctx.currentTime);
+        const oldCenter = centerNode;
+        centerNode = leftNode;
+        centerNode.gain.gain.setValueAtTime(0,ctx.currentTime);
+        centerNode.gain.gain.linearRampToValueAtTime(1,ctx.currentTime+fadeTime);
+        rightNode = oldCenter;
+        // stop and discard previous right
+        // pick new left
+        let nf;
+        do{ nf = files[Math.floor(Math.random()*files.length)]; }
+        while([leftFile,centerFile,rightFile].includes(nf));
+        leftFile = nf;
         leftNode.src.stop();
-        leftFile = centerFile; leftNode = createNode(leftFile,0);
-        centerFile = rightFile; centerNode.src.stop(); centerNode = createNode(centerFile,1);
-        do{ rightFile = files[Math.floor(Math.random()*files.length)]; } while(rightFile===centerFile||rightFile===leftFile);
-        rightNode.src.stop(); rightNode = createNode(rightFile,0);
+        leftNode = createNode(leftFile,0);
+      } else {
+        // move right
+        leftNode.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+fadeTime);
+        centerNode.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+fadeTime);
+        rightNode.gain.gain.setValueAtTime(0,ctx.currentTime);
+        const oldCenter = centerNode;
+        centerNode = rightNode;
+        centerNode.gain.gain.setValueAtTime(0,ctx.currentTime);
+        centerNode.gain.gain.linearRampToValueAtTime(1,ctx.currentTime+fadeTime);
+        leftNode = oldCenter;
+        let nf;
+        do{ nf = files[Math.floor(Math.random()*files.length)]; }
+        while([leftFile,centerFile,rightFile].includes(nf));
+        rightFile = nf;
+        rightNode.src.stop();
+        rightNode = createNode(rightFile,0);
       }
     }
 
     function crossfade(val){
-      // val in [-1,1]
-      if(val<0){ leftNode.gain.gain.linearRampToValueAtTime(-val,ctx.currentTime+0.1); centerNode.gain.gain.linearRampToValueAtTime(1+val,ctx.currentTime+0.1); }
-      else { rightNode.gain.gain.linearRampToValueAtTime(val,ctx.currentTime+0.1); centerNode.gain.gain.linearRampToValueAtTime(1-val,ctx.currentTime+0.1); }
+      // val in [-1..1]
+      if(val<0){
+        leftNode.gain.gain.linearRampToValueAtTime(-val,ctx.currentTime+0.1);
+        centerNode.gain.gain.linearRampToValueAtTime(1+val,ctx.currentTime+0.1);
+        rightNode.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+0.1);
+      } else {
+        rightNode.gain.gain.linearRampToValueAtTime(val,ctx.currentTime+0.1);
+        centerNode.gain.gain.linearRampToValueAtTime(1-val,ctx.currentTime+0.1);
+        leftNode.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+0.1);
+      }
     }
 
-    // Start
-    startButton.addEventListener('click',async()=>{
-      await ctx.resume(); loader.style.display='none';
-      initThree(); wave.style.display='block'; knob.style.display='block'; instr.style.display='block';
-      drawWave(); attachDial();
-    });
-
-    // Waveform
+    // Draw waveform
     function drawWave(){
-      const canvas=wave, c2=canvas.getContext('2d'); let last=0;
-      function draw(ts=0){ requestAnimationFrame(draw); if(ts-last<1000/30) return; last=ts;
-        canvas.width=canvas.clientWidth; analyser.getByteTimeDomainData(dataArr);
+      const canvas = wave, c2=canvas.getContext('2d'); let last=0;
+      function draw(ts=0){
+        requestAnimationFrame(draw);
+        if(ts-last<1000/30) return;
+        last=ts;
+        canvas.width=canvas.clientWidth;
+        analyser.getByteTimeDomainData(dataArr);
         c2.fillStyle='rgba(245,241,230,0.3)'; c2.fillRect(0,0,canvas.width,canvas.height);
         c2.lineWidth=1; c2.strokeStyle='#555'; c2.beginPath();
-        const sl=canvas.width/bufLen; let x=0;
-        for(let i=0;i<bufLen;i++){ const v=dataArr[i]/128, y=v*canvas.height/2; if(i===0) c2.moveTo(x,y); else c2.lineTo(x,y); x+=sl; }
+        const slice=canvas.width/bufLen; let x=0;
+        for(let i=0;i<bufLen;i++){
+          const v=dataArr[i]/128, y=v*canvas.height/2;
+          i===0?c2.moveTo(x,y):c2.lineTo(x,y);
+          x+=slice;
+        }
         c2.stroke();
       }
       draw();
     }
 
-    // Dial logic mapping to [-1,1]
+    // Dial: two-full-rotation → [-1..1]
     function attachDial(){
-      let angle=0,lastAngle=0,drag=false;
-      knob.addEventListener('pointerdown',e=>{ drag=true; knob.setPointerCapture(e.pointerId); knob.classList.add('active'); const r=knob.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2; lastAngle=Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI; e.preventDefault(); });
-      knob.addEventListener('pointermove',e=>{ if(!drag) return; const r=knob.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2; const ang=Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI; let d=ang-lastAngle; if(d>180)d-=360;if(d<-180)d+=360; angle+=d; lastAngle=ang; // normalize
-        const raw=((angle%720)+720)%720; // two full rotations range
-        const val=(raw<360? raw/360 : (raw-720)/360); // val in [-1,1]
-        crossfade(val);
-        // shift when beyond ±1
-        if(raw>=720-10) { shift(+1); angle=0; }
-        else if(raw<=10) { shift(-1); angle=360; }
-        knob.style.transform=`rotate(${angle}deg)`;
+      let angle=0, lastAng=0, drag=false;
+      const threshold = 10;  // degrees from edges to shift
+      knob.addEventListener('pointerdown',e=>{
+        drag=true; knob.setPointerCapture(e.pointerId); knob.classList.add('active');
+        const r=knob.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+        lastAng = Math.atan2(e.clientY-cy, e.clientX-cx)*180/Math.PI;
       });
-      knob.addEventListener('pointerup',e=>{ drag=false; knob.classList.remove('active'); knob.releasePointerCapture(e.pointerId); });
+      knob.addEventListener('pointermove',e=>{
+        if(!drag) return;
+        const r=knob.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+        const ang = Math.atan2(e.clientY-cy, e.clientX-cx)*180/Math.PI;
+        let d = ang-lastAng; if(d>180)d-=360; if(d<-180)d+=360;
+        angle+=d; lastAng=ang;
+        // noise start on first move
+        if(noiseSrc.playbackState!==noiseSrc.PLAYING_STATE) noiseSrc.start();
+
+        // normalize over 720°
+        const raw = ((angle%720)+720)%720;
+        // map [0..720] to [-1..1]
+        let val = raw<360? (raw/360) : ((raw-720)/360);
+        crossfade(val);
+
+        // shift at extremes
+        if(raw<threshold)       { shift(-1); angle+=360; }
+        else if(raw>720-threshold){ shift(+1); angle-=360; }
+        knob.style.transform = `rotate(${angle}deg)`;
+      });
+      ['pointerup','pointerleave'].forEach(ev=>
+        knob.addEventListener(ev,e=>{ drag=false; knob.classList.remove('active'); knob.releasePointerCapture(e.pointerId); })
+      );
     }
 
+    // Start button
+    startButton.addEventListener('click',async()=>{
+      await ctx.resume();
+      noiseSrc.start();
+      loader.style.display='none';
+      initThree();
+      wave.style.display='block';
+      knob.style.display='block';
+      instr.style.display='block';
+      drawWave();
+      attachDial();
+    });
   })();
   </script>
 </body>
