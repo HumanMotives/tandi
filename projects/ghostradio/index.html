@@ -2,22 +2,187 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ghost Radio</title>
-  <link rel="icon" href="favicon-ghostradio.jpg" type="image/jpeg">
-  <link rel="stylesheet" href="styles/styles.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ghost Radio – Scanning Knob</title>
+  <style>
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: #f5f1e6;
+      color: #333;
+      text-align: center;
+      margin: 2rem auto;
+      max-width: 800px;
+      padding: 0 1rem;
+    }
+    h1 { font-size: 2.5rem; margin-bottom: .5rem; }
+    .knob-container { margin: 2rem 0; }
+    #scanner {
+      width: 80%;
+      max-width: 400px;
+    }
+    .waveform {
+      width: 100%; height: 150px;
+      background: rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+    }
+  </style>
 </head>
 <body>
-  <!-- Header -->
-  <div data-include="partials/header.html"></div>
+  <h1>GHOST RADIO</h1>
+  <p>Scan the dial to wander through layers</p>
 
-  <!-- Waveform Visualiser -->
-  <div data-include="partials/waveform.html"></div>
+  <canvas class="waveform" id="wave"></canvas>
 
-  <!-- Controls (power toggle, randomize, sliders) -->
-  <div data-include="partials/controls.html"></div>
+  <div class="knob-container">
+    <input type="range" id="scanner" min="-1" max="1" step="0.01" value="0">
+  </div>
 
-  <!-- Main Script -->
-  <script src="scripts/main.js"></script>
+  <script>
+  (async function(){
+    // —— Setup AudioContext + analyser + master gain ——
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 2048;
+    const bufferLength = analyser.fftSize;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 1;
+    analyser.connect(masterGain);
+    masterGain.connect(ctx.destination);
+
+    // —— Preload sounds ——
+    const soundFiles = [
+      'sound1.mp3','sound2.mp3','sound3.mp3',
+      'sound4.mp3','sound5.mp3','sound6.mp3'
+    ];
+    const buffers = {};
+    await Promise.all(soundFiles.map(async f=>{
+      const res = await fetch(`/projects/ghostradio/sounds/${f}`);
+      const ab = await res.arrayBuffer();
+      buffers[f] = await ctx.decodeAudioData(ab);
+    }));
+
+    function randomFile() {
+      const idx = Math.floor(Math.random()*soundFiles.length);
+      return soundFiles[idx];
+    }
+
+    // —— playLayer returns {source,gain} for control ——
+    function playLayer(file){
+      const src = ctx.createBufferSource();
+      src.buffer = buffers[file];
+      src.loop = true;
+      src.playbackRate.value = 1 + (Math.random()-0.5)*0.2; // ±10%
+
+      const g = ctx.createGain();
+      g.gain.value = 0;
+
+      src.connect(g).connect(analyser);
+      src.start();
+
+      return { src, gainNode: g };
+    }
+
+    // —— Maintain a sliding window of 3 layers ——
+    let layers = [
+      playLayer(randomFile()),
+      playLayer(randomFile()),
+      playLayer(randomFile())
+    ];
+    // center index = 1
+    const centerIndex = 1;
+
+    // —— Knob crossfade logic ——
+    const slider = document.getElementById('scanner');
+    slider.addEventListener('input', onScan);
+
+    function onScan(){
+      const x = parseFloat(slider.value); // –1…+1
+      const raw = x + centerIndex;        // 0…2
+
+      // If user drags beyond left or right bounds, shift window
+      if(raw <= 0.2){
+        shiftWindowLeft();
+        slider.value = 0; // recenter knob
+        return;
+      }
+      if(raw >= 1.8){
+        shiftWindowRight();
+        slider.value = 0;
+        return;
+      }
+
+      // Crossfade between floor(raw) and ceil(raw)
+      const leftI = Math.floor(raw),
+            rightI = Math.ceil(raw),
+            frac   = raw - leftI;
+
+      layers.forEach((ly,i)=>{
+        let target = 0;
+        if(i===leftI)  target = 1 - frac;
+        if(i===rightI) target = frac;
+        ly.gainNode.gain.linearRampToValueAtTime(target, ctx.currentTime+0.05);
+      });
+    }
+
+    function shiftWindowLeft(){
+      // drop rightmost
+      layers[2].src.stop();
+      // shift array right
+      layers = [
+        playLayer(randomFile()),
+        layers[0],
+        layers[1]
+      ];
+      // initialize mix so center == full
+      layers.forEach((ly,i)=>{
+        ly.gainNode.gain.setValueAtTime(i===1?1:0,ctx.currentTime);
+      });
+    }
+
+    function shiftWindowRight(){
+      // drop leftmost
+      layers[0].src.stop();
+      // shift array left
+      layers = [
+        layers[1],
+        layers[2],
+        playLayer(randomFile())
+      ];
+      layers.forEach((ly,i)=>{
+        ly.gainNode.gain.setValueAtTime(i===1?1:0,ctx.currentTime);
+      });
+    }
+
+    // —— Draw waveform ——
+    const canvas = document.getElementById('wave'),
+          c2 = canvas.getContext('2d');
+    function draw(){
+      canvas.width = canvas.clientWidth;
+      analyser.getByteTimeDomainData(dataArray);
+      c2.fillStyle = 'rgba(245,241,230,0.3)';
+      c2.fillRect(0,0,canvas.width,canvas.height);
+      c2.lineWidth = 1;
+      c2.strokeStyle = '#555';
+      c2.beginPath();
+      const slice = canvas.width/bufferLength;
+      let x=0;
+      for(let i=0;i<bufferLength;i++){
+        const v = dataArray[i]/128.0;
+        const y = v*canvas.height/2;
+        if(i===0) c2.moveTo(x,y);
+        else     c2.lineTo(x,y);
+        x+=slice;
+      }
+      c2.stroke();
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    // Resume AudioContext on first user interaction
+    window.addEventListener('click',()=>ctx.state==='suspended'&&ctx.resume());
+  })();
+  </script>
 </body>
 </html>
