@@ -3,36 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ghost Radio – Responsive Low-Quality Knob</title>
+  <title>Ghost Radio – 30° Segment Dial</title>
   <style>
-    /* Global */
     body { margin:0; padding:1rem; font-family:'IBM Plex Mono',monospace; background:#f5f1e6; color:#333; }
-    .container { display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; max-width:800px; margin:0 auto; }
-    .panel { flex:1 1 300px; box-sizing:border-box; padding:1rem; }
-    h1 { font-size:2rem; text-align:center; margin-bottom:0.5rem; }
+    h1 { text-align:center; font-size:2rem; margin-bottom:1rem; }
 
-    /* Loader & Start */
+    /* Loader panel */
     #loader { text-align:center; margin-bottom:1rem; }
-    #startButton { padding:0.8rem 1.5rem; font-size:1rem; background:#111; color:#f5f1e6; border:none; border-radius:6px; cursor:pointer; }
+    #statusText { margin-bottom:0.5rem; }
+    #startButton {
+      padding:0.8rem 1.5rem; font-size:1rem;
+      background:#111; color:#f5f1e6; border:none; border-radius:6px;
+      cursor:pointer;
+    }
     #startButton:hover { background:#444; }
+
+    /* Responsive panels */
+    .container { display:flex; flex-wrap:wrap; justify-content:center; gap:1rem; max-width:800px; margin:0 auto; }
+    .panel { flex:1 1 280px; }
 
     /* Waveform */
     #wave { width:100%; height:120px; background:rgba(0,0,0,0.05); display:none; }
 
     /* Knob */
-    #knob-container { text-align:center; }
-    #knob { display:none; width:100px; height:100px; margin:1rem auto; border:4px solid #888; border-radius:50%; background:#fdfbf8; touch-action:none; cursor:grab; position:relative; }
+    #knob { display:none; width:100px; height:100px; margin:0 auto; border:4px solid #888; border-radius:50%; background:#fdfbf8; touch-action:none; cursor:grab; position:relative; }
     #knob.active { cursor:grabbing; border-color:#000; }
-    #knob::before { content:''; position:absolute; top:8px; left:50%; width:4px; height:30px; background:#333; transform-origin:bottom center; transform:translateX(-50%) rotate(0deg); }
+    #knob::before {
+      content:''; position:absolute; top:8px; left:50%;
+      width:4px; height:30px; background:#333;
+      transform-origin:bottom center; transform:translateX(-50%) rotate(0deg);
+    }
+    .instructions { text-align:center; color:#666; margin-top:0.5rem; display:none; }
 
-    /* Hide sliders for now */
-    .controls { display:none; }
-
-    /* Responsive */
     @media(max-width:600px) {
+      #wave { height:100px; }
       #knob { width:80px; height:80px; }
       #knob::before { height:24px; }
-      #wave { height:100px; }
     }
   </style>
 </head>
@@ -40,135 +46,190 @@
   <h1>GHOST RADIO</h1>
 
   <div id="loader" class="panel">
-    <p id="statusText">Loading 6 sounds...</p>
+    <p id="statusText">Loading 6 sounds…</p>
     <button id="startButton">Start Listening</button>
   </div>
 
   <div class="container">
-    <div class="panel" id="waveform-panel">
+    <div class="panel">
       <canvas id="wave"></canvas>
     </div>
-    <div class="panel" id="knob-container">
+    <div class="panel">
       <div id="knob"></div>
+      <p class="instructions">Drag or swipe<br>around the knob</p>
     </div>
   </div>
 
   <script>
   (async function(){
+    // UI
     const startButton = document.getElementById('startButton');
-    const statusText = document.getElementById('statusText');
-    const wave = document.getElementById('wave');
-    const knob = document.getElementById('knob');
+    const statusText  = document.getElementById('statusText');
+    const wave        = document.getElementById('wave');
+    const knob        = document.getElementById('knob');
+    const instr       = document.querySelector('.instructions');
 
-    // Audio context & analyser at low quality
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    const ctx = new AudioCtx();
+    // AudioContext & analyser (low-quality for perf)
+    const Ctx = window.AudioContext||window.webkitAudioContext;
+    const ctx = new Ctx();
     const analyser = ctx.createAnalyser();
-    analyser.fftSize = 256;    // lower resolution for performance
+    analyser.fftSize = 256;
     const bufLen = analyser.fftSize;
-    const dataArray = new Uint8Array(bufLen);
-    const masterGain = ctx.createGain(); masterGain.gain.value = 1;
-    analyser.connect(masterGain);
-    masterGain.connect(ctx.destination);
+    const dataArr = new Uint8Array(bufLen);
+    const master = ctx.createGain();
+    master.gain.value = 1;
+    analyser.connect(master);
+    master.connect(ctx.destination);
 
-    // Preload sounds
+    // Preload buffers
     const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
+    const base = location.pathname.replace(/[^\/]+$/, '');
     const buffers = {};
-    for (let i=0; i<files.length; i++) {
+    for (let i = 0; i < files.length; i++) {
       const f = files[i];
-      const res = await fetch('sounds/'+f);
-      const ab = await res.arrayBuffer();
-      buffers[f] = await ctx.decodeAudioData(ab);
+      const url = base + 'sounds/' + f;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(res.status);
+        const ab = await res.arrayBuffer();
+        buffers[f] = await ctx.decodeAudioData(ab);
+      } catch (err) {
+        statusText.textContent = `Error loading ${f}: ${err.message}`;
+        return;
+      }
     }
-    statusText.textContent = 'Ready!';
+    statusText.textContent = 'Ready to play!';
 
-    // Start on button
+    // Play logic placeholders
+    let layers = [], midIndex = 1;
+    function randFile() { return files[Math.floor(Math.random()*files.length)]; }
+    function playLayer(f) {
+      const src = ctx.createBufferSource();
+      src.buffer = buffers[f];
+      src.loop = true;
+      const g = ctx.createGain();
+      g.gain.value = 0;
+      src.connect(g).connect(analyser);
+      src.start();
+      return { src, gain: g };
+    }
+
+    // Button starts audio & UI
     startButton.style.display = 'inline-block';
     startButton.addEventListener('click', async () => {
-      startButton.style.display = 'none';
-      // resume context and play three layers
       await ctx.resume();
-      const layers = [];
-      const midIndex = 1;
-      function randFile() { return files[Math.floor(Math.random()*files.length)]; }
-      function playLayer(file) {
-        const src = ctx.createBufferSource(); src.buffer = buffers[file]; src.loop = true;
-        const g = ctx.createGain(); g.gain.value = (layers.length===midIndex)?1:0;
-        src.connect(g).connect(analyser);
-        src.start();
-        layers.push({src, gain:g});
-      }
-      // initialize layers
-      playLayer(randFile()); playLayer(randFile()); playLayer(randFile());
+
+      // init 3 layers
+      layers = [playLayer(randFile()), playLayer(randFile()), playLayer(randFile())];
+      layers.forEach((l,i) => l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
 
       // show UI
-      wave.style.display = 'block';
-      knob.style.display = 'block';
+      startButton.style.display = 'none';
+      wave.style.display  = 'block';
+      knob.style.display  = 'block';
+      instr.style.display = 'block';
 
-      // knob interaction
-      let angle=0, lastAng=0, dragging=false;
+      initKnob();
+      drawWaveform();
+    });
+
+    // 30° segment logic
+    function initKnob() {
+      const segment = 30; // degrees per shift
+      let angle = 0, lastAng = 0, dragging = false;
+
       knob.addEventListener('mousedown', down);
       knob.addEventListener('touchstart', down);
       function down(e) {
-        dragging = true; knob.classList.add('active');
+        dragging = true;
+        knob.classList.add('active');
         const r = knob.getBoundingClientRect();
-        const cx = r.left+r.width/2, cy = r.top+r.height/2;
+        const cx = r.left + r.width/2, cy = r.top + r.height/2;
         const x = (e.clientX||e.touches[0].clientX)-cx;
         const y = (e.clientY||e.touches[0].clientY)-cy;
         lastAng = Math.atan2(y,x)*180/Math.PI;
         e.preventDefault();
       }
+
       window.addEventListener('mousemove', move);
       window.addEventListener('touchmove', move);
       function move(e) {
         if (!dragging) return;
         const r = knob.getBoundingClientRect();
-        const cx = r.left+r.width/2, cy = r.top+r.height/2;
+        const cx = r.left + r.width/2, cy = r.top + r.height/2;
         const x = (e.clientX||e.touches[0].clientX)-cx;
         const y = (e.clientY||e.touches[0].clientY)-cy;
         const ang = Math.atan2(y,x)*180/Math.PI;
         let d = ang - lastAng;
-        if(d>180) d-=360; if(d<-180) d+=360;
-        angle+=d; lastAng=ang;
-        // crossfade
-        const raw = midIndex + angle*0.01;
-        const li = Math.max(0,Math.min(2,Math.floor(raw)));
-        const ri = Math.max(0,Math.min(2,Math.ceil(raw)));
-        const frac = raw-li;
-        layers.forEach((l,i)=>{
-          let v = 0;
-          if(i===li) v = 1-frac;
-          else if(i===ri) v = frac;
-          l.gain.gain.linearRampToValueAtTime(v, ctx.currentTime+0.1);
-        });
+        if (d > 180) d -= 360;
+        if (d < -180) d += 360;
+        angle += d;
+        lastAng = ang;
+
+        // perform shifts
+        while (angle >= segment) {
+          shiftRight();
+          angle -= segment;
+        }
+        while (angle <= -segment) {
+          shiftLeft();
+          angle += segment;
+        }
+
         knob.style.transform = `rotate(${angle}deg)`;
         e.preventDefault();
       }
-      window.addEventListener('mouseup', ()=>{ dragging=false; knob.classList.remove('active'); });
-      window.addEventListener('touchend', ()=>{ dragging=false; knob.classList.remove('active'); });
 
-      // waveform draw
+      window.addEventListener('mouseup', () => {
+        dragging = false;
+        knob.classList.remove('active');
+      });
+      window.addEventListener('touchend', () => {
+        dragging = false;
+        knob.classList.remove('active');
+      });
+
+      function shiftLeft() {
+        layers[2].src.stop();
+        layers = [playLayer(randFile()), layers[0], layers[1]];
+        layers.forEach((l,i)=>l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
+      }
+      function shiftRight() {
+        layers[0].src.stop();
+        layers = [layers[1], layers[2], playLayer(randFile())];
+        layers.forEach((l,i)=>l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
+      }
+    }
+
+    // Waveform drawer @30fps
+    function drawWaveform() {
       const canvas = wave;
       const ctx2 = canvas.getContext('2d');
-      let lastDraw=0;
-      function draw(ts=0){
+      let last = 0;
+      function draw(ts=0) {
         requestAnimationFrame(draw);
-        if(ts-lastDraw<1000/20) return; // lower fps
-        lastDraw=ts;
+        if (ts - last < 1000/30) return;
+        last = ts;
         canvas.width = canvas.clientWidth;
-        analyser.getByteTimeDomainData(dataArray);
-        ctx2.fillStyle='rgba(245,241,230,0.3)'; ctx2.fillRect(0,0,canvas.width,canvas.height);
-        ctx2.lineWidth=1; ctx2.strokeStyle='#555'; ctx2.beginPath();
-        const sl = canvas.width/bufLen; let x=0;
-        for(let i=0;i<bufLen;i++){
-          const v = dataArray[i]/128, y=v*canvas.height/2;
+        analyser.getByteTimeDomainData(dataArr);
+        ctx2.fillStyle = 'rgba(245,241,230,0.3)';
+        ctx2.fillRect(0,0,canvas.width,canvas.height);
+        ctx2.lineWidth = 1;
+        ctx2.strokeStyle = '#555';
+        ctx2.beginPath();
+        const slice = canvas.width / bufLen;
+        let x = 0;
+        for (let i=0; i<bufLen; i++){
+          const v = dataArr[i]/128.0;
+          const y = v * canvas.height/2;
           i===0?ctx2.moveTo(x,y):ctx2.lineTo(x,y);
-          x+=sl;
+          x += slice;
         }
         ctx2.stroke();
       }
       draw();
-    });
+    }
+
   })();
   </script>
 </body>
