@@ -9,9 +9,10 @@
       font-family: 'IBM Plex Mono', monospace;
       background: #f5f1e6;
       color: #333;
-      text-align: center;
       margin: 0;
       padding: 0;
+      text-align: center;
+      overflow: hidden;
     }
     .container {
       max-width: 800px;
@@ -19,18 +20,15 @@
       padding: 0 1rem;
     }
     h1 { font-size: 2.5rem; margin-bottom: 0.2rem; }
-    p { color: #666; }
+    p     { color: #666; }
 
     /* Overlay */
     #overlay {
-      position: fixed;
-      top: 0; left: 0;
+      position: fixed; top: 0; left: 0;
       width: 100vw; height: 100vh;
       background: #f5f1e6;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
       z-index: 1000;
     }
     #startButton {
@@ -41,15 +39,27 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      margin-bottom: 1rem;
     }
-    #startButton:hover {
-      background: #000;
+    #startButton:hover { background: #000; }
+    #progressContainer {
+      width: 80%; max-width: 300px;
+      background: #fdfbf8;
+      border: 1px solid #aaaaaa;
+      border-radius: 10px;
+      overflow: hidden;
+      display: none;
+      height: 20px;
+    }
+    #progressBar {
+      width: 0%; height: 100%;
+      background: #333;
+      transition: width 0.2s;
     }
 
     /* Waveform */
     #wave {
-      width: 100%;
-      height: 150px;
+      width: 100%; height: 150px;
       background: rgba(0,0,0,0.05);
       margin: 1.5rem 0;
       display: none;
@@ -57,37 +67,45 @@
 
     /* Slider */
     #scanner {
-      width: 80%;
-      max-width: 400px;
+      width: 80%; max-width: 400px;
       margin: 1rem auto 2rem;
       display: none;
+    }
+    .instructions {
+      display: none;
+      color: #666;
     }
   </style>
 </head>
 <body>
   <div id="overlay">
     <h1>GHOST RADIO</h1>
-    <p>Touch “Start Listening” to begin</p>
+    <p>Press Start to load sounds</p>
     <button id="startButton">Start Listening</button>
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+    </div>
   </div>
 
   <div class="container">
     <canvas id="wave"></canvas>
     <input type="range" id="scanner" min="-1" max="1" step="0.01" value="0">
-    <p class="instructions" style="display:none;color:#666;">Drag the slider to scan through layers</p>
+    <p class="instructions">Drag the slider to scan through layers</p>
   </div>
 
   <script>
-  (async function(){
-    // Elements
+  (function(){
+    // UI elements
     const overlay = document.getElementById('overlay');
     const startBtn = document.getElementById('startButton');
-    const wave     = document.getElementById('wave');
-    const scanner  = document.getElementById('scanner');
-    const instr    = document.querySelector('.instructions');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar       = document.getElementById('progressBar');
+    const wave    = document.getElementById('wave');
+    const scanner= document.getElementById('scanner');
+    const instr  = document.querySelector('.instructions');
 
     // Audio setup
-    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 512;
     const bufLen = analyser.fftSize;
@@ -98,16 +116,11 @@
     analyser.connect(masterGain);
     masterGain.connect(ctx.destination);
 
-    // Load buffers
+    // Preload logic (after click)
     const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
     const buffers = {};
-    await Promise.all(files.map(async f => {
-      const res = await fetch(`/projects/ghostradio/sounds/${f}`);
-      const ab  = await res.arrayBuffer();
-      buffers[f] = await ctx.decodeAudioData(ab);
-    }));
+    let layers, mid = 1;
 
-    // Helpers
     function randomFile() {
       return files[Math.floor(Math.random()*files.length)];
     }
@@ -121,79 +134,87 @@
       src.start();
       return { src, gain: g };
     }
-
-    let layers, mid = 1;
     function initLayers() {
-      if (layers) layers.forEach(l => l.src.stop());
+      if (layers) layers.forEach(l=>l.src.stop());
       layers = [
         playLayer(randomFile()),
         playLayer(randomFile()),
         playLayer(randomFile())
       ];
-      layers.forEach((l,i) => l.gain.setValueAtTime(i===mid?1:0, ctx.currentTime));
+      layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0, ctx.currentTime));
     }
 
-    // Crossfade & shifting
-    scanner.addEventListener('input', () => {
+    // Crossfade & shift
+    scanner.addEventListener('input', ()=>{
       const x = parseFloat(scanner.value);
       const raw = mid + x;
-      const leftI = Math.floor(raw), rightI = Math.ceil(raw), frac = raw - leftI;
-      layers.forEach((l,i) => {
-        const t = (i===leftI?1-frac:(i===rightI?frac:0));
+      const li = Math.floor(raw), ri = Math.ceil(raw), f = raw - li;
+      layers.forEach((l,i)=>{
+        const t = (i===li?1-f:(i===ri?f:0));
         l.gain.linearRampToValueAtTime(t, ctx.currentTime+0.05);
       });
-      if (raw <= 0) {
-        shiftLeft(); scanner.value='0';
-      } else if (raw >= 2) {
-        shiftRight(); scanner.value='0';
-      }
+      if(raw<=0){ shiftLeft(); scanner.value='0'; }
+      else if(raw>=2){ shiftRight(); scanner.value='0'; }
     });
-
     function shiftLeft(){
       layers[2].src.stop();
-      layers = [ playLayer(randomFile()), layers[0], layers[1] ];
+      layers=[playLayer(randomFile()),layers[0],layers[1]];
       layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
     }
     function shiftRight(){
       layers[0].src.stop();
-      layers = [ layers[1], layers[2], playLayer(randomFile()) ];
+      layers=[layers[1],layers[2],playLayer(randomFile())];
       layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
     }
 
     // Waveform draw @30fps
     const ctx2 = wave.getContext('2d');
-    let lastDraw = 0;
-    function draw(ts=0) {
+    let lastDraw=0;
+    function draw(ts=0){
       requestAnimationFrame(draw);
-      if (ts - lastDraw < 1000/30) return;
-      lastDraw = ts;
+      if(ts-lastDraw<1000/30) return;
+      lastDraw=ts;
       wave.width = wave.clientWidth;
       analyser.getByteTimeDomainData(dataArr);
-      ctx2.fillStyle = 'rgba(245,241,230,0.3)';
+      ctx2.fillStyle='rgba(245,241,230,0.3)';
       ctx2.fillRect(0,0,wave.width,wave.height);
       ctx2.lineWidth=1; ctx2.strokeStyle='#555'; ctx2.beginPath();
-      const slice = wave.width/bufLen; let x=0;
-      for (let i=0;i<bufLen;i++){
-        const v = dataArr[i]/128, y = v*wave.height/2;
+      const slice=wave.width/bufLen; let x=0;
+      for(let i=0;i<bufLen;i++){
+        const v=dataArr[i]/128, y=v*wave.height/2;
         i===0?ctx2.moveTo(x,y):ctx2.lineTo(x,y);
         x+=slice;
       }
       ctx2.stroke();
     }
 
-    // Start handler (works on desktop & mobile)
+    // Load then show progress
     async function start() {
+      startBtn.disabled = true;
+      startBtn.textContent = 'Loading…';
+      progressContainer.style.display = 'block';
+
+      for(let i=0;i<files.length;i++){
+        const f = files[i];
+        const res = await fetch(`/projects/ghostradio/sounds/${f}`);
+        const ab  = await res.arrayBuffer();
+        buffers[f] = await ctx.decodeAudioData(ab);
+        progressBar.style.width = `${(i+1)/files.length*100}%`;
+      }
+
+      // All loaded
       await ctx.resume();
       initLayers();
-      overlay.style.display = 'none';
-      wave.style.display    = 'block';
-      scanner.style.display = 'block';
-      instr.style.display   = 'block';
+
+      overlay.style.display      = 'none';
+      wave.style.display         = 'block';
+      scanner.style.display      = 'block';
+      instr.style.display        = 'block';
       requestAnimationFrame(draw);
     }
+
     startBtn.addEventListener('click', start);
     startBtn.addEventListener('touchstart', start);
-
   })();
   </script>
 </body>
