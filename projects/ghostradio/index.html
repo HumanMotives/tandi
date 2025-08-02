@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ghost Radio – Scanning with Static</title>
+  <title>Ghost Radio – Smooth Scan with Static</title>
   <style>
     body { margin:0; padding:1rem; font-family:'IBM Plex Mono',monospace; background:#f5f1e6; color:#333; }
     h1 { text-align:center; font-size:2rem; margin-bottom:1rem; user-select:none; }
@@ -65,16 +65,13 @@
     // AudioContext & analyser
     const AudioCtx = window.AudioContext||window.webkitAudioContext;
     const ctx = new AudioCtx();
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 256;
+    const analyser = ctx.createAnalyser(); analyser.fftSize = 256;
     const bufLen = analyser.fftSize;
     const dataArr = new Uint8Array(bufLen);
-    const masterGain = ctx.createGain();
-    masterGain.gain.value = 1;
-    analyser.connect(masterGain);
-    masterGain.connect(ctx.destination);
+    const masterGain = ctx.createGain(); masterGain.gain.value = 1;
+    analyser.connect(masterGain); masterGain.connect(ctx.destination);
 
-    // Generate looping static noise
+    // Static noise bed
     function makeNoiseBuffer(duration=2){
       const size = ctx.sampleRate * duration;
       const buf = ctx.createBuffer(1, size, ctx.sampleRate);
@@ -87,10 +84,10 @@
     noiseSrc.buffer = noiseBuf;
     noiseSrc.loop = true;
     const noiseGain = ctx.createGain();
-    noiseGain.gain.value = 0.2;  // static level
+    noiseGain.gain.value = 0; // start muted
     noiseSrc.connect(noiseGain).connect(analyser);
 
-    // Load your six samples
+    // Load your samples
     const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
     const base = location.pathname.replace(/[^\\/]+$/,'');
     const buffers = {};
@@ -102,7 +99,7 @@
         if(!res.ok) throw new Error(res.status);
         const ab = await res.arrayBuffer();
         buffers[f] = await ctx.decodeAudioData(ab);
-        statusText.textContent = `Loaded ${i+1} of ${files.length}`;
+        statusText.textContent = `Loaded ${i+1}/${files.length}`;
       } catch(err){
         statusText.textContent = `Error loading ${f}`;
         console.error(err);
@@ -111,101 +108,89 @@
     }
     statusText.textContent = 'Ready!';
 
-    // Three-sample state
+    // Three samples state
     let leftFile, centerFile, rightFile;
     let leftNode, centerNode, rightNode;
 
-    function createNode(file, initialGain){
+    function createNode(file, gainVal){
       const src = ctx.createBufferSource();
-      src.buffer = buffers[file];
-      src.loop = true;
+      src.buffer = buffers[file]; src.loop = true;
       const g = ctx.createGain();
-      g.gain.setValueAtTime(initialGain, ctx.currentTime);
+      g.gain.setValueAtTime(gainVal, ctx.currentTime);
       src.connect(g).connect(analyser);
-      src.start(0);
-      return { src, gain: g };
+      src.start();
+      return {src, gain: g};
     }
 
     function initThree(){
-      // pick distinct random
       centerFile = files[Math.floor(Math.random()*files.length)];
       do { leftFile = files[Math.floor(Math.random()*files.length)]; }
       while(leftFile===centerFile);
       do { rightFile = files[Math.floor(Math.random()*files.length)]; }
       while(rightFile===centerFile||rightFile===leftFile);
-      // create nodes
       leftNode   = createNode(leftFile,   0);
       centerNode = createNode(centerFile, 1);
       rightNode  = createNode(rightFile,  0);
     }
 
     function shift(direction){
-      // Fade-time
-      const fadeTime = 1.0;
+      const fade = 1.0;
       if(direction<0){
-        // move left: right drops, center->right, left->center, new left
-        rightNode.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+fadeTime);
-        centerNode.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+fadeTime);
-        leftNode.gain.gain.setValueAtTime(0,ctx.currentTime);
-        const oldCenter = centerNode;
-        centerNode = leftNode;
-        centerNode.gain.gain.setValueAtTime(0,ctx.currentTime);
-        centerNode.gain.gain.linearRampToValueAtTime(1,ctx.currentTime+fadeTime);
-        rightNode = oldCenter;
-        // stop and discard previous right
-        // pick new left
-        let nf;
-        do{ nf = files[Math.floor(Math.random()*files.length)]; }
-        while([leftFile,centerFile,rightFile].includes(nf));
-        leftFile = nf;
-        leftNode.src.stop();
-        leftNode = createNode(leftFile,0);
-      } else {
-        // move right
-        leftNode.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+fadeTime);
-        centerNode.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+fadeTime);
-        rightNode.gain.gain.setValueAtTime(0,ctx.currentTime);
-        const oldCenter = centerNode;
-        centerNode = rightNode;
-        centerNode.gain.gain.setValueAtTime(0,ctx.currentTime);
-        centerNode.gain.gain.linearRampToValueAtTime(1,ctx.currentTime+fadeTime);
-        leftNode = oldCenter;
-        let nf;
-        do{ nf = files[Math.floor(Math.random()*files.length)]; }
-        while([leftFile,centerFile,rightFile].includes(nf));
-        rightFile = nf;
+        // Left becomes center
+        // fade new center up
+        leftNode.gain.gain.linearRampToValueAtTime(1, ctx.currentTime+fade);
+        centerNode.gain.gain.linearRampToValueAtTime(0, ctx.currentTime+fade);
+        rightNode.gain.gain.linearRampToValueAtTime(0, ctx.currentTime+fade);
+        // rotate files/nodes
         rightNode.src.stop();
-        rightNode = createNode(rightFile,0);
+        [rightFile,rightNode] = [centerFile, centerNode];
+        [centerFile,centerNode] = [leftFile, leftNode];
+        do { leftFile = files[Math.floor(Math.random()*files.length)]; }
+        while([leftFile,centerFile,rightFile].includes(leftFile));
+        leftNode = createNode(leftFile, 0);
+      } else {
+        // Right becomes center
+        rightNode.gain.gain.linearRampToValueAtTime(1, ctx.currentTime+fade);
+        centerNode.gain.gain.linearRampToValueAtTime(0, ctx.currentTime+fade);
+        leftNode.gain.gain.linearRampToValueAtTime(0, ctx.currentTime+fade);
+        leftNode.src.stop();
+        [leftFile,leftNode] = [centerFile, centerNode];
+        [centerFile,centerNode] = [rightFile, rightNode];
+        do { rightFile = files[Math.floor(Math.random()*files.length)]; }
+        while([leftFile,centerFile,rightFile].includes(rightFile));
+        rightNode = createNode(rightFile, 0);
       }
     }
 
     function crossfade(val){
-      // val in [-1..1]
-      if(val<0){
-        leftNode.gain.gain.linearRampToValueAtTime(-val,ctx.currentTime+0.1);
-        centerNode.gain.gain.linearRampToValueAtTime(1+val,ctx.currentTime+0.1);
-        rightNode.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+0.1);
-      } else {
-        rightNode.gain.gain.linearRampToValueAtTime(val,ctx.currentTime+0.1);
-        centerNode.gain.gain.linearRampToValueAtTime(1-val,ctx.currentTime+0.1);
-        leftNode.gain.gain.linearRampToValueAtTime(0,ctx.currentTime+0.1);
-      }
+      // val ∈ [-1,1]
+      const fadeTime = 0.1;
+      const cGain = 1 - Math.abs(val);
+      const lGain = Math.max(0, -val);
+      const rGain = Math.max(0, val);
+      centerNode.gain.gain.linearRampToValueAtTime(cGain, ctx.currentTime+fadeTime);
+      leftNode.gain.gain.linearRampToValueAtTime(lGain, ctx.currentTime+fadeTime);
+      rightNode.gain.gain.linearRampToValueAtTime(rGain, ctx.currentTime+fadeTime);
+      // noise fades out as any sample comes up
+      const noiseLevel = 0.05;
+      noiseGain.gain.linearRampToValueAtTime(noiseLevel * (1 - Math.min(1, Math.abs(val))), ctx.currentTime+fadeTime);
     }
 
     // Draw waveform
     function drawWave(){
-      const canvas = wave, c2=canvas.getContext('2d'); let last=0;
+      const canvas = wave, c2 = canvas.getContext('2d');
+      let last = 0;
       function draw(ts=0){
         requestAnimationFrame(draw);
         if(ts-last<1000/30) return;
-        last=ts;
-        canvas.width=canvas.clientWidth;
+        last = ts;
+        canvas.width = canvas.clientWidth;
         analyser.getByteTimeDomainData(dataArr);
         c2.fillStyle='rgba(245,241,230,0.3)'; c2.fillRect(0,0,canvas.width,canvas.height);
         c2.lineWidth=1; c2.strokeStyle='#555'; c2.beginPath();
-        const slice=canvas.width/bufLen; let x=0;
+        const slice = canvas.width/bufLen; let x=0;
         for(let i=0;i<bufLen;i++){
-          const v=dataArr[i]/128, y=v*canvas.height/2;
+          const v = dataArr[i]/128, y=v*canvas.height/2;
           i===0?c2.moveTo(x,y):c2.lineTo(x,y);
           x+=slice;
         }
@@ -214,44 +199,49 @@
       draw();
     }
 
-    // Dial: two-full-rotation → [-1..1]
+    // Attach rotary dial (two revs → [-1,1])
     function attachDial(){
       let angle=0, lastAng=0, drag=false;
-      const threshold = 10;  // degrees from edges to shift
-      knob.addEventListener('pointerdown',e=>{
+      const thresh = 15; // degrees from 0/720
+      knob.addEventListener('pointerdown', e=>{
         drag=true; knob.setPointerCapture(e.pointerId); knob.classList.add('active');
         const r=knob.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
         lastAng = Math.atan2(e.clientY-cy, e.clientX-cx)*180/Math.PI;
       });
-      knob.addEventListener('pointermove',e=>{
+      knob.addEventListener('pointermove', e=>{
         if(!drag) return;
         const r=knob.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
         const ang = Math.atan2(e.clientY-cy, e.clientX-cx)*180/Math.PI;
-        let d = ang-lastAng; if(d>180)d-=360; if(d<-180)d+=360;
+        let d = ang - lastAng; if(d>180) d-=360; if(d<-180) d+=360;
         angle+=d; lastAng=ang;
-        // noise start on first move
+        // start static
         if(noiseSrc.playbackState!==noiseSrc.PLAYING_STATE) noiseSrc.start();
 
-        // normalize over 720°
+        // map two revs to [-1,1]
         const raw = ((angle%720)+720)%720;
-        // map [0..720] to [-1..1]
-        let val = raw<360? (raw/360) : ((raw-720)/360);
+        const val = raw<360 ? raw/360 : (raw-720)/360;
         crossfade(val);
 
-        // shift at extremes
-        if(raw<threshold)       { shift(-1); angle+=360; }
-        else if(raw>720-threshold){ shift(+1); angle-=360; }
+        // shift at thresholds
+        if(raw < thresh){
+          shift(-1);
+          angle += 360;  // jump ahead one rev
+        } else if(raw > 720-thresh){
+          shift(1);
+          angle -= 360;
+        }
         knob.style.transform = `rotate(${angle}deg)`;
       });
       ['pointerup','pointerleave'].forEach(ev=>
-        knob.addEventListener(ev,e=>{ drag=false; knob.classList.remove('active'); knob.releasePointerCapture(e.pointerId); })
+        knob.addEventListener(ev, e=>{
+          drag=false; knob.classList.remove('active'); knob.releasePointerCapture(e.pointerId);
+        })
       );
     }
 
-    // Start button
-    startButton.addEventListener('click',async()=>{
+    // Start Listening
+    startButton.addEventListener('click', async ()=>{
       await ctx.resume();
-      noiseSrc.start();
       loader.style.display='none';
       initThree();
       wave.style.display='block';
