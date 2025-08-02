@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Ghost Radio – Audio Test</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Ghost Radio – Audio Path Test</title>
   <style>
     body {
       display: flex;
@@ -15,6 +15,8 @@
       height: 100vh;
       margin: 0;
       text-align: center;
+      padding: 1rem;
+      box-sizing: border-box;
     }
     button {
       padding: 1rem 2rem;
@@ -24,38 +26,83 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-    }
-    button:hover {
-      background: #000;
-    }
-    p {
       margin-top: 1rem;
-      color: #666;
+    }
+    button:disabled {
+      background: #999;
+      cursor: default;
+    }
+    #status {
+      margin-top: 1rem;
+      color: #333;
+      max-width: 300px;
+      word-wrap: break-word;
     }
   </style>
 </head>
 <body>
-  <h1>Ghost Radio Audio Test</h1>
-  <button id="playBtn">Play Test Sound</button>
-  <p>If you hear a loop, paths & playback are working!</p>
-  
-  <audio id="testAudio" src="sounds/sound1.mp3" loop></audio>
+  <h1>Ghost Radio Audio Path Test</h1>
+  <p>Tap the button to load &amp; play <code>sound1.mp3</code></p>
+  <button id="testBtn">Play Test Sound</button>
+  <p id="status">Determining path…</p>
 
   <script>
-    const btn = document.getElementById('playBtn');
-    const audio = document.getElementById('testAudio');
-    btn.addEventListener('click', async () => {
-      try {
-        await audio.play();
-        btn.textContent = 'Playing… (tap again to pause)';
-      } catch (err) {
-        console.error('Playback failed:', err);
-        btn.textContent = 'Error: ' + err.message;
-      }
-    });
-    btn.addEventListener('click', () => {
-      if (!audio.paused) audio.pause();
-    });
+  (function(){
+    const btn = document.getElementById('testBtn');
+    const status = document.getElementById('status');
+
+    // 1. Compute base folder dynamically
+    const path = window.location.pathname;
+    const base = path.endsWith('/')
+      ? path
+      : path.substring(0, path.lastIndexOf('/') + 1);
+    const url = base + 'sounds/sound1.mp3';
+
+    status.textContent = `Will fetch: ${url}`;
+
+    // 2. Create audio element but don't autoplay
+    const audio = new Audio();
+    audio.src = url;
+    audio.loop = true;
+
+    async function startTest() {
+      btn.disabled = true;
+      status.textContent = 'Loading audio…';
+
+      // Listen for canplaythrough before play
+      audio.addEventListener('canplaythrough', onCanPlay);
+      audio.addEventListener('error', onError);
+      audio.load();
+    }
+
+    function onCanPlay() {
+      audio.removeEventListener('canplaythrough', onCanPlay);
+      status.textContent = 'Playing now!';
+      audio.play().catch(err => {
+        status.textContent = 'Play() failed: ' + err.message;
+      });
+      btn.textContent = 'Pause';
+      btn.disabled = false;
+      btn.onclick = () => {
+        if (audio.paused) {
+          audio.play();
+          btn.textContent = 'Pause';
+        } else {
+          audio.pause();
+          btn.textContent = 'Play';
+        }
+      };
+    }
+
+    function onError(e) {
+      const err = audio.error;
+      status.textContent = `Audio Error (code ${err.code}): ${err.message}`;
+      console.error('Audio error', err);
+      btn.disabled = true;
+    }
+
+    btn.addEventListener('click', startTest);
+  })();
   </script>
 </body>
 </html>
