@@ -1,174 +1,343 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ghost Radio – Infinite Rotary Dial</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>H/M Mobile Site</title>
   <style>
-    body {
-      font-family: 'IBM Plex Mono', monospace;
-      background: #f5f1e6;
-      color: #333;
-      text-align: center;
+    * {
       margin: 0;
       padding: 0;
-      overflow: hidden;
-    }
-    .container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-    h1 { font-size: 2.5rem; margin-bottom: 0.2rem; }
-    p { margin-top: 0; color: #666; }
-
-    /* Fullscreen overlay for preload/start */
-    #overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(245,241,230,1);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    #startText { font-size: 1.2rem; margin-bottom: 1rem; }
-    #progressContainer {
-      width: 80%; max-width: 300px;
-      background: #fdfbf8;
-      border: 1px solid #aaaaaa;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    #progressBar {
-      width: 0%; height: 20px;
-      background: #333;
-      transition: width 0.2s;
+      box-sizing: border-box;
     }
 
-    /* Waveform */
-    #wave {
-      width: 100%; height: 150px;
-      background: rgba(0,0,0,0.05);
-      display: none;
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background-color: #ffffff;
+      color: #111;
+      line-height: 1.5;
+      padding: 1rem;
+    }
+
+    header {
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 1.1rem;
+      color: #555;
+    }
+
+    .section {
+      border-radius: 0;
+      padding: 1.5rem 0;
       margin: 1.5rem 0;
+      border-bottom: 1px solid #eee;
     }
 
-    /* Knob */
-    #knob {
-      position: relative;
-      margin: 0 auto 1.5rem;
-      width: 120px; height: 120px;
-      border: 4px solid #888;
+    .section img {
+      width: 100%;
+        clip-path: polygon(0 0, 100% 8%, 100% 92%, 0% 100%);
+      border-radius: 0px;
+      margin-bottom: 1rem;
+    }
+
+    .section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .section p {
+      color: #444;
+      margin-bottom: 1rem;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #eee;
+      color: #333;
+      font-size: 0.75rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 8px;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .author {
+      display: flex;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .author img {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: #fdfbf8;
-      touch-action: none;
-      cursor: grab;
-      display: none;
-    }
-    #knob.active { cursor: grabbing; border-color: #000; }
-    #knob::before {
-      content: '';
-      position: absolute;
-      top: 10px; left: 50%;
-      width: 4px; height: 40px;
-      background: #333;
-      transform-origin: bottom center;
-      transform: translateX(-50%) rotate(0deg);
-      transition: transform 0.1s;
-    }
-    .instructions {
-      font-size: 0.9rem; color: #666;
-      margin-bottom: 1rem; display: none;
+      margin-right: 0.5rem;
     }
 
-    @media (max-width: 600px) {
-      h1 { font-size: 1.8rem; }
-      #knob { width: 90px; height: 90px; }
-      #knob::before { height: 30px; }
-      #wave { height: 120px; }
+    .footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #aaa;
+      padding: 2rem 0;
     }
+
+    .project-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 1rem;
+    }
+
+    .project-list li {
+      margin-bottom: 0.8rem;
+    }
+
+    .project-list a {
+      text-decoration: none;
+      color: #111;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      transition: color 0.3s ease;
+    }
+
+    .project-list a:hover {
+      color: #555;
+    }
+
+    .project-list .arrow {
+      display: inline-block;
+      margin-right: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .project-list a:hover .arrow {
+      transform: translateX(4px);
+    }
+
+    .scroll-section {
+      margin: 2rem 0;
+    }
+
+    .scroll-section h2 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      padding-left: 0.25rem;
+    }
+
+    .scroll-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 0.25rem 0 1rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+
+.scroll-cards::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.scroll-card {
+  min-width: 200px; /* ~15% of 480px image width */
+  max-width: 200px;
+  background: none; /* Optional: remove card background */
+  border: none;     /* Optional: remove border */
+  box-shadow: none; /* Optional: remove shadow */
+  padding: 0.25rem;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.scroll-card img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 0.25rem;
+}
+
+    .vertical-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.vertical-card {
+  background: #f5f5f5;
+  border-radius: 16px;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.vertical-card img {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.vertical-card h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+}
+
+.vertical-card .tag {
+  display: inline-block;
+  background: #e0e0e0;
+  color: #333;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+    
+.subscribe-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 400px;
+}
+
+.subscribe-form input[type="email"] {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.subscribe-form button {
+  background: #111;
+  color: #fff;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.subscribe-form button:hover {
+  background: #333;
+}
+    
   </style>
 </head>
 <body>
-  <div id="overlay">
-    <div id="startText">Loading sounds...</div>
-    <div id="progressContainer">
-      <div id="progressBar"></div>
+
+  <header>
+    <h1>H / M</h1>
+    <p>Where sound, projects, and story come together.</p>
+  </header>
+
+  <div class="vertical-cards">
+  <div class="vertical-card">
+    <img src="90E546EC-8917-40C6-BE8A-FF7B4CECB772.jpeg" alt="Data Grave">
+    <div class="tag">Archive</div><div class="tag">Experiment</div>
+    <h3>Data Grave</h3>
+  </div>
+
+  <div class="vertical-card">
+    <img src="IMG_9884.jpeg" alt="Ghost Radio">
+    <div class="tag">Sound</div>
+    <h3>Ghost Radio</h3>
+  </div>
+
+  <div class="vertical-card">
+    <img src="IMG_9880.jpeg" alt="Gen C">
+    <div class="tag">Generative</div>
+    <h3>Gen C</h3>
+  </div>
+</div>
+
+  <div class="scroll-section">
+    <h2>Projects</h2>
+    <div class="scroll-cards">
+      <div class="scroll-card">
+        <img src="IMG_9882.jpeg" alt="Data Grave">
+        <p>Data Grave</p>
+      </div>
+      <div class="scroll-card">
+        <img src="IMG_9880.jpeg" alt="Ghost Radio">
+        <p>Ghost Radio</p>
+      </div>
+      <div class="scroll-card">
+        <img src="IMG_9884.jpeg" alt="Gen C">
+        <p>Gen C</p>
+      </div>
     </div>
-    <div id="startHint" style="margin-top:1rem; font-size:0.9rem; color:#666;">Tap to start</div>
   </div>
 
-  <div class="container">
-    <h1>GHOST RADIO</h1>
-    <p>Infinite Rotary Dial — drag around the circle</p>
-    <canvas id="wave"></canvas>
-    <div id="knob"></div>
-    <div class="instructions">Drag or swipe around the knob</div>
+  <div class="section">
+    <img src="IMG_9884.jpeg" alt="Music Image">
+    <div class="tag">Sound</div><div class="tag">Composition</div>
+    <h2>My Music</h2>
+    <p>Original compositions, experimental loops, and personal sonic moments — captured and shared with care.</p>
+
+    <ul class="project-list">
+      <li><a href="https://youtube.com/@humanmotives?si=pDWmPlBnZm3XFPXw" target="_blank"><span class="arrow">➝</span> YouTube</a></li>
+      <li><a href="https://open.spotify.com/artist/5XwCzd52xR5uw1kp3q31JI?si=cRzLf_ZnTpGP9zQM65iTow" target="_blank"><span class="arrow">➝</span> Spotify</a></li>
+      <li><a href="https://humanmotives.bandcamp.com" target="_blank"><span class="arrow">➝</span> Bandcamp</a></li>
+    </ul>
+
+    <div class="author">
+      <img src="IMG_9880.jpeg" alt="Author">
+      <div>Curated by H/M</div>
+    </div>
   </div>
 
-  <script>
-  (async function(){
-    const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    const analyser = ctx.createAnalyser(); analyser.fftSize = 512;
-    const bufLen = analyser.fftSize, data = new Uint8Array(bufLen);
-    const master = ctx.createGain(); master.gain.value=1;
-    master.connect(analyser); analyser.connect(ctx.destination);
+  <div class="section">
+    <img src="images/IMG_9875.jpeg" alt="Projects Image">
+    <div class="tag">Code</div><div class="tag">Design</div>
+    <h2>My Projects</h2>
+    <p>A digital shelf of passion projects, apps, art experiments, and design explorations — constantly evolving.</p>
 
-    const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
-    const buffers = {};
-    let loaded = 0;
-    for(let f of files){
-      const res = await fetch(`/projects/ghostradio/sounds/${f}`);
-      const ab = await res.arrayBuffer();
-      buffers[f] = await ctx.decodeAudioData(ab);
-      loaded++;
-      document.getElementById('progressBar').style.width = (loaded/files.length*100)+'%';
-    }
+    <ul class="project-list">
+      <li><a href="#"><span class="arrow">➝</span> Data Grave</a></li>
+      <li><a href="#"><span class="arrow">➝</span> Ghost Radio</a></li>
+      <li><a href="#"><span class="arrow">➝</span> Gen C</a></li>
+      <li><a href="#"><span class="arrow">➝</span> Memory Lapse</a></li>
+    </ul>
 
-    function randomFile(){return files[Math.floor(Math.random()*files.length)];}
-    function playLayer(file){
-      const src=ctx.createBufferSource(); src.buffer=buffers[file]; src.loop=true;
-      const g=ctx.createGain(); g.gain.value=0;
-      src.connect(g).connect(master); src.start(); return {src, g};
-    }
+    <div class="author">
+      <img src="IMG_9880.jpeg" alt="Author">
+      <div>Created by H/M</div>
+    </div>
+  </div>
 
-    let layers, mid=1;
-    function initLayers(){
-      layers&&layers.forEach(l=>l.src.stop());
-      layers=[playLayer(randomFile()),playLayer(randomFile()),playLayer(randomFile())];
-      layers.forEach((l,i)=>l.g.setValueAtTime(i===mid?1:0,ctx.currentTime));
-    }
+  <div class="section">
+    <img src="images/IMG_9875.jpeg" alt="Story Image">
+    <div class="tag">Personal</div><div class="tag">Intentional</div>
+    <h2>My Story</h2>
+    <p>This space is more than work — it’s a thread of thoughts, pivotal moments, and the journey so far.</p>
+    <div class="author">
+      <img src="IMG_9880.jpeg" alt="Author">
+      <div>Written by H/M</div>
+    </div>
+  </div>
 
-    // Knob
-    const knob=document.getElementById('knob');
-    let angle=0,lastAng=0,drag=false;
-    function updateScan(){
-      const raw=mid+angle*0.02;
-      if(raw<0.2){shiftLeft();return;} if(raw>1.8){shiftRight();return;}
-      const li=Math.floor(raw), ri=Math.ceil(raw), f=raw-li;
-      layers.forEach((l,i)=>l.g.linearRampToValueAtTime(i===li?1-f:(i===ri?f:0),ctx.currentTime+0.05));
-      knob.style.transform=`rotate(${angle}deg)`;
-    }
-    function shiftLeft(){layers[2].src.stop();layers=[playLayer(randomFile()),layers[0],layers[1]];layers.forEach((l,i)=>l.g.setValueAtTime(i===mid?1:0,ctx.currentTime));updateScan();}
-    function shiftRight(){layers[0].src.stop();layers=[layers[1],layers[2],playLayer(randomFile())];layers.forEach((l,i)=>l.g.setValueAtTime(i===mid?1:0,ctx.currentTime));updateScan();}
-    function pd(e){drag=true;knob.classList.add('active');const r=knob.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;const x=(e.clientX||e.touches[0].clientX)-cx,y=(e.clientY||e.touches[0].clientY)-cy;lastAng=Math.atan2(y,x)*180/Math.PI;e.preventDefault();}
-    function pm(e){if(!drag)return;const r=knob.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;const x=(e.clientX||e.touches[0].clientX)-cx,y=(e.clientY||e.touches[0].clientY)-cy;const ang=Math.atan2(y,x)*180/Math.PI;let d=ang-lastAng; if(d>180)d-=360; if(d<-180)d+=360;angle+=d;lastAng=ang;if(!window._p){window._p=true;requestAnimationFrame(()=>{updateScan();window._p=false;});}e.preventDefault();}
-    function pu(){drag=false;knob.classList.remove('active');}
-    knob.addEventListener('mousedown',pd);window.addEventListener('mousemove',pm);window.addEventListener('mouseup',pu);
-    knob.addEventListener('touchstart',pd);window.addEventListener('touchmove',pm);window.addEventListener('touchend',pu);
+<div class="section">
+  <h2>Stay in the loop</h2>
+  <p>Join the H/M list for new sounds, releases & moments.</p>
+  <form action="#" method="POST" class="subscribe-form">
+    <input type="email" name="email" placeholder="you@example.com" required />
+    <button type="submit">Subscribe</button>
+  </form>
+</div>
+  
+  <div class="footer">
+    &copy; 2025 H/M — Crafted with clarity.
+  </div>
 
-    // Waveform draw
-    const cvs=document.getElementById('wave'),w2=cvs.getContext('2d');let ld=0;
-    function draw(ts){requestAnimationFrame(draw);if(ts-ld<1000/30)return;ld=ts;cvs.width=cvs.clientWidth;analyser.getByteTimeDomainData(data);w2.fillStyle='rgba(245,241,230,0.3)';w2.fillRect(0,0,cvs.width,cvs.height);w2.lineWidth=1;w2.strokeStyle='#555';w2.beginPath();const sl=cvs.width/bufLen;let xx=0;for(let i=0;i<bufLen;i++){const v=data[i]/128,y=v*cvs.height/2;i===0?w2.moveTo(xx,y):w2.lineTo(xx,y);xx+=sl;}w2.stroke();}
-
-    // Start button
-    const sb=document.getElementById('startButton');
-    function start(){ctx.state==='suspended'&&ctx.resume();initLayers();document.getElementById('overlay').style.display='none';document.getElementById('wave').style.display='block';document.getElementById('knob').style.display='block';document.querySelector('.instructions').style.display='block';requestAnimationFrame(draw);}
-    sb.addEventListener('click',start);sb.addEventListener('touchstart',start);
-  })();
-  </script>
 </body>
 </html>
