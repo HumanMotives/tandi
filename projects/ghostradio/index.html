@@ -24,8 +24,7 @@
 
     /* Full-screen overlay */
     #overlay {
-      position: fixed;
-      top: 0; left: 0;
+      position: fixed; top: 0; left: 0;
       width: 100vw; height: 100vh;
       background: #f5f1e6;
       display: flex;
@@ -103,82 +102,106 @@
 
   <script>
   (function(){
-    const overlay = document.getElementById('overlay');
-    const statusText  = document.getElementById('statusText');
-    const progressBar = document.getElementById('progressBar');
-    const startBtn    = document.getElementById('startButton');
-    const wave       = document.getElementById('wave');
-    const scanner    = document.getElementById('scanner');
-    const instr      = document.querySelector('.instructions');
+    // 🔑 Grab these two so our start() can hide the overlay correctly:
+    const overlay     = document.getElementById('overlay');
+    const startButton = document.getElementById('startButton');
 
-    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const statusText     = document.getElementById('statusText');
+    const progressBar    = document.getElementById('progressBar');
+    const wave           = document.getElementById('wave');
+    const scanner        = document.getElementById('scanner');
+    const instr          = document.querySelector('.instructions');
+
+    // Audio setup
+    const ctx      = new (window.AudioContext||window.webkitAudioContext)();
     const analyser = ctx.createAnalyser(); analyser.fftSize = 512;
-    const bufLen = analyser.fftSize;
-    const dataArr = new Uint8Array(bufLen);
-    const masterGain = ctx.createGain(); masterGain.gain.value=1;
+    const bufLen   = analyser.fftSize;
+    const dataArr  = new Uint8Array(bufLen);
+
+    const masterGain = ctx.createGain(); masterGain.gain.value = 1;
     analyser.connect(masterGain); masterGain.connect(ctx.destination);
 
-    const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
+    // File list and buffer store
+    const files   = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
     const buffers = {};
     let loadedCount = 0;
     let layers, mid = 1;
 
+    // Playback helpers
     function randomFile(){ return files[Math.floor(Math.random()*files.length)]; }
     function playLayer(file){
       const src = ctx.createBufferSource(); src.buffer=buffers[file]; src.loop=true;
-      const g = ctx.createGain(); g.gain.value=0;
+      const g   = ctx.createGain(); g.gain.value=0;
       src.connect(g).connect(analyser);
-      src.start(); return {src, gain:g};
+      src.start();
+      return { src, gain: g };
     }
     function initLayers(){
-      layers&&layers.forEach(l=>l.src.stop());
-      layers=[playLayer(randomFile()),playLayer(randomFile()),playLayer(randomFile())];
+      if(layers) layers.forEach(l=>l.src.stop());
+      layers = [playLayer(randomFile()), playLayer(randomFile()), playLayer(randomFile())];
+      layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0, ctx.currentTime));
+    }
+
+    // Crossfade & shift logic
+    scanner.addEventListener('input', ()=>{
+      const x   = parseFloat(scanner.value),
+            raw = mid + x,
+            li  = Math.floor(raw),
+            ri  = Math.ceil(raw),
+            f   = raw - li;
+      layers.forEach((l,i)=>{
+        const t = i===li ? 1-f : (i===ri? f : 0);
+        l.gain.linearRampToValueAtTime(t, ctx.currentTime+0.05);
+      });
+      if(raw <= 0) { shiftLeft(); scanner.value='0'; }
+      if(raw >= 2) { shiftRight(); scanner.value='0'; }
+    });
+    function shiftLeft(){
+      layers[2].src.stop();
+      layers = [playLayer(randomFile()), layers[0], layers[1]];
+      layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
+    }
+    function shiftRight(){
+      layers[0].src.stop();
+      layers = [layers[1], layers[2], playLayer(randomFile())];
       layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
     }
 
-    // Preload all sounds
-    async function preloadAll(){
-      for(let i=0;i<files.length;i++){
-        const f=files[i];
-        const res=await fetch(`/projects/ghostradio/sounds/${f}`);
-        const ab=await res.arrayBuffer();
-        buffers[f]=await ctx.decodeAudioData(ab);
-        loadedCount++;
-        progressBar.style.width = (loadedCount/files.length*100)+'%';
-        statusText.textContent = `Loaded ${loadedCount} of ${files.length}`;
-      }
-      statusText.textContent = 'Ready!';
-      startBtn.style.display = 'block';
-    }
-
-    // Draw waveform
-    const ctx2=wave.getContext('2d'); let lastDraw=0;
+    // Waveform draw at ~30fps
+    const ctx2 = wave.getContext('2d');
+    let lastDraw = 0;
     function draw(ts=0){
       requestAnimationFrame(draw);
-      if(ts-lastDraw<1000/30) return;
-      lastDraw=ts;
-      wave.width=wave.clientWidth;
+      if(ts - lastDraw < 1000/30) return;
+      lastDraw = ts;
+      wave.width = wave.clientWidth;
       analyser.getByteTimeDomainData(dataArr);
       ctx2.fillStyle='rgba(245,241,230,0.3)'; ctx2.fillRect(0,0,wave.width,wave.height);
       ctx2.lineWidth=1; ctx2.strokeStyle='#555'; ctx2.beginPath();
-      const slice = wave.width/bufLen; let x=0;
-      for(let i=0;i<bufLen;i++){ const v=dataArr[i]/128, y=v*wave.height/2; i===0?ctx2.moveTo(x,y):ctx2.lineTo(x,y); x+=slice; }
+      const slice = wave.width/bufLen;
+      let x=0;
+      for(let i=0;i<bufLen;i++){
+        const v = dataArr[i]/128, y=v*wave.height/2;
+        i===0?ctx2.moveTo(x,y):ctx2.lineTo(x,y);
+        x+=slice;
+      }
       ctx2.stroke();
     }
 
-    // Slider events
-    scanner.addEventListener('input',()=>{
-      const x=parseFloat(scanner.value), raw=mid+x;
-      const li=Math.floor(raw), ri=Math.ceil(raw), f=raw-li;
-      layers.forEach((l,i)=>{
-        const t=(i===li?1-f:(i===ri?f:0));
-        l.gain.linearRampToValueAtTime(t,ctx.currentTime+0.05);
-      });
-      if(raw<=0){ shiftLeft(); scanner.value='0'; }
-      if(raw>=2){ shiftRight(); scanner.value='0'; }
-    });
-    function shiftLeft(){ layers[2].src.stop(); layers=[playLayer(randomFile()),layers[0],layers[1]]; layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime)); }
-    function shiftRight(){ layers[0].src.stop(); layers=[layers[1],layers[2],playLayer(randomFile())]; layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime)); }
+    // Preload all sounds immediately
+    (async function preloadAll(){
+      for(let f of files){
+        const res = await fetch(`/projects/ghostradio/sounds/${f}`);
+        const ab  = await res.arrayBuffer();
+        buffers[f] = await ctx.decodeAudioData(ab);
+
+        loadedCount++;
+        progressBar.style.width = ((loadedCount/files.length)*100)+'%';
+        statusText.textContent = `Loaded ${loadedCount} of ${files.length}`;
+      }
+      statusText.textContent = 'Ready!';
+      startButton.style.display = 'block';
+    })();
 
     // Start handler
     async function start(){
@@ -190,10 +213,9 @@
       instr.style.display   = 'block';
       requestAnimationFrame(draw);
     }
-    startBtn.addEventListener('click', start);
-    startBtn.addEventListener('touchstart', start);
+    startButton.addEventListener('click', start);
+    startButton.addEventListener('touchstart', start);
 
-    preloadAll();
   })();
   </script>
 </body>
