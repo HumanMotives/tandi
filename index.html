@@ -1,201 +1,315 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Human . Motives</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet">
-
-  <!-- Styles -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>H/M Mobile Site</title>
   <style>
-    body {
-      font-family: 'IBM Plex Mono', monospace;
+    * {
       margin: 0;
       padding: 0;
-      background-color: #fff;
-    }
-
-    h1 {
-      text-align: center;
-      padding: 20px;
-    }
-
-    .grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      padding: 15px;
-      gap: 15px;
       box-sizing: border-box;
     }
 
-    .tile {
-      background-color: #f8f8f8;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      width: calc(100% - 30px);
-      max-width: 300px;
-      box-sizing: border-box;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background-color: #ffffff;
+      color: #111;
+      line-height: 1.5;
+      padding: 1rem;
+    }
+
+    header {
+      padding: 2rem 1rem;
       text-align: center;
-      transition: background-color 0.2s ease;
     }
 
-    .tile:hover {
-      background-color: #ececec;
-    }
-
-    .tile img {
-      max-width: 100%;
-      height: auto;
-    }
-
-    .tile-title {
+    header h1 {
+      font-size: 2.4rem;
       font-weight: bold;
-      margin-top: 10px;
-      font-size: 18px;
+      margin-bottom: 0.5rem;
     }
 
-    .tile-desc {
-      margin-top: 5px;
-      font-size: 14px;
+    header p {
+      font-size: 1.1rem;
+      color: #555;
     }
 
-    .tile-link {
+    .section {
+      border-radius: 0;
+      padding: 1.5rem 0;
+      margin: 1.5rem 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .section img {
+      width: 100%;
+        clip-path: polygon(0 0, 100% 8%, 100% 92%, 0% 100%);
+      border-radius: 0px;
+      margin-bottom: 1rem;
+    }
+
+    .section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .section p {
+      color: #444;
+      margin-bottom: 1rem;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #eee;
+      color: #333;
+      font-size: 0.75rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 8px;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .author {
+      display: flex;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .author img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #aaa;
+      padding: 2rem 0;
+    }
+
+    .project-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 1rem;
+    }
+
+    .project-list li {
+      margin-bottom: 0.8rem;
+    }
+
+    .project-list a {
       text-decoration: none;
-      color: inherit;
-      display: contents;
+      color: #111;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      transition: color 0.3s ease;
     }
 
-    .tile.disabled img {
-      opacity: 0.5;
+    .project-list a:hover {
+      color: #555;
     }
 
-    .tile.disabled:hover {
-      background-color: #f8f8f8; /* No hover effect */
-      cursor: default;
+    .project-list .arrow {
+      display: inline-block;
+      margin-right: 0.5rem;
+      transition: transform 0.3s ease;
     }
 
-    .like-counter {
-      margin-top: 10px;
-      border: none;
-      background: none;
-      cursor: pointer;
-      font-size: 16px;
+    .project-list a:hover .arrow {
+      transform: translateX(4px);
     }
 
-    @media (min-width: 600px) {
-      .tile {
-        width: calc(50% - 30px);
-      }
+    .scroll-section {
+      margin: 2rem 0;
     }
 
-    @media (min-width: 900px) {
-      .tile {
-        width: calc(33.333% - 30px);
-      }
+    .scroll-section h2 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      padding-left: 0.25rem;
     }
+
+    .scroll-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 0.25rem 0 1rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+
+.scroll-cards::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.scroll-card {
+  min-width: 200px; /* ~15% of 480px image width */
+  max-width: 200px;
+  background: none; /* Optional: remove card background */
+  border: none;     /* Optional: remove border */
+  box-shadow: none; /* Optional: remove shadow */
+  padding: 0.25rem;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.scroll-card img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 0.25rem;
+}
+
+    .vertical-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.vertical-card {
+  background: #f5f5f5;
+  border-radius: 16px;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.vertical-card img {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.vertical-card h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+}
+
+.vertical-card .tag {
+  display: inline-block;
+  background: #e0e0e0;
+  color: #333;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+    
+.subscribe-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 400px;
+}
+
+.subscribe-form input[type="email"] {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.subscribe-form button {
+  background: #111;
+  color: #fff;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.subscribe-form button:hover {
+  background: #333;
+}
+    
   </style>
 </head>
-
 <body>
-  <h1>Human . Motives</h1>
 
-  <div class="grid">
-    <!-- Tile 1 -->
-    <div class="tile">
-      <a href="projects/thedatagrave/" class="tile-link">
-        <img src="styles/icon_tombstone.png" class="tile-image" alt="The Data Grave">
-        <div class="tile-title">The Data Grave</div>
-        <div class="tile-desc">Bury your half-finished loops. Leave an epitaph. Say no more.</div>
-      </a>
-      <button type="button" class="like-counter" data-project="datagrave">
-        ❤️ <span class="like-count">0</span>
-      </button>
-    </div>
+  <header>
+    <h1>H / M</h1>
+    <p>Where sound, projects, and story come together.</p>
+  </header>
 
-    <!-- Tile 2 -->
-    <div class="tile">
-      <a href="projects/pitchdork/" class="tile-link">
-        <img src="styles/icon_musicfolder.png" class="tile-image" alt="Pitchdork">
-        <div class="tile-title">Pitchdork</div>
-        <div class="tile-desc">Paste a Spotify link, get a fake Pitchfork review. Sarcasm included.</div>
-      </a>
-      <button type="button" class="like-counter" data-project="pitchdork">
-        ❤️ <span class="like-count">0</span>
-      </button>
-    </div>
+  <div class="section">
+    <img src="/images/HumanMotivesMusic.jpg" alt="Music Image">
+    <div class="tag">Sound</div><div class="tag">Composition</div>
+    <h2>My Music</h2>
+    <p>Original compositions, experimental loops, and personal sonic moments — captured and shared with care.</p>
 
-    <!-- Tile 3 (Disabled / Untitled) -->
-    <div class="tile disabled">
-      <img src="styles/icon_chip.png" class="tile-image" alt="Untitled">
-      <div class="tile-title">Untitled</div>
-      <div class="tile-desc">Coming later than sooner</div>
-      <button type="button" class="like-counter" data-project="memorylapse" disabled style="opacity: 0.5; cursor: default;">
-        ❤️ <span class="like-count">0</span>
-      </button>
-    </div>
-
-    <!-- Tile 4 -->
-    <div class="tile">
-      <a href="projects/ghostradio/" class="tile-link">
-        <img src="styles/icon_ghostradio.png" class="tile-image" alt="Ghost Radio">
-        <div class="tile-title">Ghost Radio</div>
-        <div class="tile-desc">Dial into a mysterious generative radio station</div>
-      </a>
-      <button type="button" class="like-counter" data-project="ghostradio">
-        ❤️ <span class="like-count">0</span>
-      </button>
+    <ul class="project-list">
+      <li><a href="https://youtube.com/@humanmotives?si=pDWmPlBnZm3XFPXw" target="_blank"><span class="arrow">➝</span> YouTube</a></li>
+      <li><a href="https://open.spotify.com/artist/5XwCzd52xR5uw1kp3q31JI?si=cRzLf_ZnTpGP9zQM65iTow" target="_blank"><span class="arrow">➝</span> Spotify</a></li>
+      <li><a href="https://humanmotives.bandcamp.com" target="_blank"><span class="arrow">➝</span> Bandcamp</a></li>
+    </ul>
     </div>
   </div>
 
-  <!-- Supabase Likes Script -->
-  <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+  <div class="section">
+    <img src="images/IMG_9875.jpeg" alt="Projects Image">
+    <div class="tag">Code</div><div class="tag">Design</div>
+    <h2>My Projects</h2>
+    <p>A digital shelf of passion projects, art experiments, and design explorations — constantly evolving.</p>
 
-    const supabase = createClient(
-      "https://ticxhncusdycqjftohho.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM"
-    );
-    const liked = new Set(JSON.parse(localStorage.getItem("liked") || "[]"));
+    <ul class="project-list">
+      <li><a href="https://transcendent-otter-ee8661.netlify.app/projects/thedatagrave/"><span class="arrow">➝</span> Data Grave</a></li>
+      <li><a href="/projects/ghostradio/"><span class="arrow">➝</span> Ghost Radio</a></li>
+      <li><a href="/projects/genc/"><span class="arrow">➝</span> Gen C</a></li>
+    </ul> 
+    </div>
+  </div>
 
-    async function loadLikes() {
-      const { data, error } = await supabase.from("likes").select("*");
-      if (!error) {
-        data.forEach(({ project, count }) => {
-          const el = document.querySelector(
-            `.like-counter[data-project="${project}"] .like-count`
-          );
-          if (el) el.textContent = count;
-        });
-      }
-    }
+<div class="scroll-section">
+  <h2>Projects</h2>
+  <div class="scroll-cards">
+    
+    <a href="https://transcendent-otter-ee8661.netlify.app/projects/thedatagrave/" class="scroll-card">
+      <img src="IMG_9882.jpeg" alt="Data Grave">
+      <p>Data Grave</p>
+    </a>
 
-    async function likeProject(project) {
-      if (liked.has(project)) return;
-      liked.add(project);
-      localStorage.setItem("liked", JSON.stringify([...liked]));
-      const el = document.querySelector(
-        `.like-counter[data-project="${project}"] .like-count`
-      );
-      if (el) el.textContent = parseInt(el.textContent || "0") + 1;
-      await supabase.rpc("increment_like", { project_name: project });
-    }
+    <a href="/projects/ghostradio/" class="scroll-card">
+      <img src="IMG_9880.jpeg" alt="Ghost Radio">
+      <p>Ghost Radio</p>
+    </a>
 
-    document.addEventListener("DOMContentLoaded", () => {
-      loadLikes();
-      document.querySelectorAll(".like-counter").forEach(btn => {
-        btn.addEventListener("click", e => {
-          e.stopPropagation();
-          if (!btn.disabled) likeProject(btn.dataset.project);
-        });
-      });
-    });
-  </script>
+    <a href="#" class="scroll-card">
+      <img src="IMG_9884.jpeg" alt="Gen C">
+      <p>Gen C</p>
+    </a>
+
+  </div>
+</div>
+  
+  <div class="section">
+    <img src="images/HumanMotivesPortrait.jpg" alt="Story Image">
+    <div class="tag">Personal</div><div class="tag">Intentional</div>
+    <h2>My Story</h2>
+    <p>This space is more than work — it’s a thread of thoughts, inspiring moments, and the journey so far. After drumming in rock bands, I gradually moved into experimental electronic music and generative techniques. I embrace chance, imperfection, and rhythm.</p>
+    </div>
+  </div>
+
+<div class="section">
+  <h2>Stay in the loop</h2>
+  <p>Join the H/M list for new sounds, releases & moments.</p>
+  <form action="#" method="POST" class="subscribe-form">
+    <input type="email" name="email" placeholder="you@example.com" required />
+    <button type="submit">Subscribe</button>
+  </form>
+</div>
+  
+  <div class="footer">
+    &copy; 2025 H/M — Crafted with clarity.
+  </div>
+
 </body>
 </html>
