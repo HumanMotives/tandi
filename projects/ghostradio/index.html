@@ -3,167 +3,197 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ghost Radio – Scanning Slider</title>
+  <title>Ghost Radio – Slider Build</title>
   <style>
     body {
       font-family: 'IBM Plex Mono', monospace;
       background: #f5f1e6;
       color: #333;
       text-align: center;
-      margin: 2rem auto;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
       max-width: 800px;
+      margin: 2rem auto;
       padding: 0 1rem;
     }
     h1 { font-size: 2.5rem; margin-bottom: 0.2rem; }
     p { color: #666; }
-    /* Slider styling */
-    #scanner {
-      width: 80%;
-      max-width: 400px;
-      margin: 2rem auto;
-      display: block;
+
+    /* Overlay */
+    #overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: #f5f1e6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
     }
-    /* Waveform canvas */
+    #startButton {
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      background: #333;
+      color: #fdfbf8;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #startButton:hover {
+      background: #000;
+    }
+
+    /* Waveform */
     #wave {
       width: 100%;
       height: 150px;
       background: rgba(0,0,0,0.05);
       margin: 1.5rem 0;
+      display: none;
+    }
+
+    /* Slider */
+    #scanner {
+      width: 80%;
+      max-width: 400px;
+      margin: 1rem auto 2rem;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h1>GHOST RADIO</h1>
-  <p>Scan the dial to wander through layers</p>
+  <div id="overlay">
+    <h1>GHOST RADIO</h1>
+    <p>Touch “Start Listening” to begin</p>
+    <button id="startButton">Start Listening</button>
+  </div>
 
-  <!-- Waveform -->
-  <canvas id="wave"></canvas>
-
-  <!-- Simple slider dial -->
-  <input type="range" id="scanner" min="-1" max="1" step="0.01" value="0">
+  <div class="container">
+    <canvas id="wave"></canvas>
+    <input type="range" id="scanner" min="-1" max="1" step="0.01" value="0">
+    <p class="instructions" style="display:none;color:#666;">Drag the slider to scan through layers</p>
+  </div>
 
   <script>
   (async function(){
-    // --- Audio setup ---
+    // Elements
+    const overlay = document.getElementById('overlay');
+    const startBtn = document.getElementById('startButton');
+    const wave     = document.getElementById('wave');
+    const scanner  = document.getElementById('scanner');
+    const instr    = document.querySelector('.instructions');
+
+    // Audio setup
     const ctx = new (window.AudioContext||window.webkitAudioContext)();
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 512;
-    const bufferLength = analyser.fftSize;
-    const dataArray = new Uint8Array(bufferLength);
+    const bufLen = analyser.fftSize;
+    const dataArr = new Uint8Array(bufLen);
 
-    // Master gain
     const masterGain = ctx.createGain();
     masterGain.gain.value = 1;
     analyser.connect(masterGain);
     masterGain.connect(ctx.destination);
 
-    // Preload sounds
-    const soundFiles = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
+    // Load buffers
+    const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
     const buffers = {};
-    await Promise.all(soundFiles.map(async f => {
+    await Promise.all(files.map(async f => {
       const res = await fetch(`/projects/ghostradio/sounds/${f}`);
       const ab  = await res.arrayBuffer();
       buffers[f] = await ctx.decodeAudioData(ab);
     }));
 
+    // Helpers
     function randomFile() {
-      return soundFiles[Math.floor(Math.random()*soundFiles.length)];
+      return files[Math.floor(Math.random()*files.length)];
     }
-
-    // playLayer
     function playLayer(file) {
       const src = ctx.createBufferSource();
       src.buffer = buffers[file];
       src.loop = true;
-      const gain = ctx.createGain();
-      gain.gain.value = 0;
-      src.connect(gain).connect(analyser);
+      const g = ctx.createGain();
+      g.gain.value = 0;
+      src.connect(g).connect(analyser);
       src.start();
-      return { src, gain };
+      return { src, gain: g };
     }
 
-    // Initialize 3 layers
-    let layers = [
-      playLayer(randomFile()),
-      playLayer(randomFile()),
-      playLayer(randomFile())
-    ];
-    const midIndex = 1;
-    layers.forEach((l,i) => l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
+    let layers, mid = 1;
+    function initLayers() {
+      if (layers) layers.forEach(l => l.src.stop());
+      layers = [
+        playLayer(randomFile()),
+        playLayer(randomFile()),
+        playLayer(randomFile())
+      ];
+      layers.forEach((l,i) => l.gain.setValueAtTime(i===mid?1:0, ctx.currentTime));
+    }
 
-    // Slider control
-    const scanner = document.getElementById('scanner');
+    // Crossfade & shifting
     scanner.addEventListener('input', () => {
-      const x = parseFloat(scanner.value);      // -1 … +1
-      const raw = midIndex + x;                // 0 … 2
-      // crossfade
+      const x = parseFloat(scanner.value);
+      const raw = mid + x;
       const leftI = Math.floor(raw), rightI = Math.ceil(raw), frac = raw - leftI;
       layers.forEach((l,i) => {
-        let target = (i === leftI) ? 1 - frac
-                   : (i === rightI) ? frac
-                   : 0;
-        l.gain.linearRampToValueAtTime(target, ctx.currentTime + 0.05);
+        const t = (i===leftI?1-frac:(i===rightI?frac:0));
+        l.gain.linearRampToValueAtTime(t, ctx.currentTime+0.05);
       });
-      // if scan passes bounds, shift window
       if (raw <= 0) {
-        shiftLeft();
-        scanner.value = '0';
+        shiftLeft(); scanner.value='0';
       } else if (raw >= 2) {
-        shiftRight();
-        scanner.value = '0';
+        shiftRight(); scanner.value='0';
       }
     });
 
-    function shiftLeft() {
+    function shiftLeft(){
       layers[2].src.stop();
-      layers = [
-        playLayer(randomFile()),
-        layers[0],
-        layers[1]
-      ];
-      layers.forEach((l,i) => l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
+      layers = [ playLayer(randomFile()), layers[0], layers[1] ];
+      layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
     }
-
-    function shiftRight() {
+    function shiftRight(){
       layers[0].src.stop();
-      layers = [
-        layers[1],
-        layers[2],
-        playLayer(randomFile())
-      ];
-      layers.forEach((l,i) => l.gain.setValueAtTime(i===midIndex?1:0, ctx.currentTime));
+      layers = [ layers[1], layers[2], playLayer(randomFile()) ];
+      layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
     }
 
-    // Draw waveform at 30fps
-    const canvas = document.getElementById('wave');
-    const ctx2 = canvas.getContext('2d');
+    // Waveform draw @30fps
+    const ctx2 = wave.getContext('2d');
     let lastDraw = 0;
-    function draw(now = 0) {
+    function draw(ts=0) {
       requestAnimationFrame(draw);
-      if (now - lastDraw < 1000/30) return;
-      lastDraw = now;
-      canvas.width = canvas.clientWidth;
-      analyser.getByteTimeDomainData(dataArray);
+      if (ts - lastDraw < 1000/30) return;
+      lastDraw = ts;
+      wave.width = wave.clientWidth;
+      analyser.getByteTimeDomainData(dataArr);
       ctx2.fillStyle = 'rgba(245,241,230,0.3)';
-      ctx2.fillRect(0,0,canvas.width,canvas.height);
-      ctx2.lineWidth = 1;
-      ctx2.strokeStyle = '#555';
-      ctx2.beginPath();
-      const slice = canvas.width / bufferLength;
-      let x = 0;
-      for (let i=0; i<bufferLength; i++) {
-        const v = dataArray[i]/128.0;
-        const y = v * canvas.height/2;
-        if (i===0) ctx2.moveTo(x,y);
-        else       ctx2.lineTo(x,y);
-        x += slice;
+      ctx2.fillRect(0,0,wave.width,wave.height);
+      ctx2.lineWidth=1; ctx2.strokeStyle='#555'; ctx2.beginPath();
+      const slice = wave.width/bufLen; let x=0;
+      for (let i=0;i<bufLen;i++){
+        const v = dataArr[i]/128, y = v*wave.height/2;
+        i===0?ctx2.moveTo(x,y):ctx2.lineTo(x,y);
+        x+=slice;
       }
       ctx2.stroke();
     }
-    requestAnimationFrame(draw);
 
-    // Unlock audio on first interaction
-    window.addEventListener('click', ()=> ctx.state==='suspended' && ctx.resume());
+    // Start handler (works on desktop & mobile)
+    async function start() {
+      await ctx.resume();
+      initLayers();
+      overlay.style.display = 'none';
+      wave.style.display    = 'block';
+      scanner.style.display = 'block';
+      instr.style.display   = 'block';
+      requestAnimationFrame(draw);
+    }
+    startBtn.addEventListener('click', start);
+    startBtn.addEventListener('touchstart', start);
+
   })();
   </script>
 </body>
