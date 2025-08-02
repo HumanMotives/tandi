@@ -58,7 +58,7 @@
     ];
     const buffers = {};
     await Promise.all(soundFiles.map(async f=>{
-      const res = await fetch(`/projects/ghostradio/sounds/${f}`);
+      const res = await fetch(`projects/ghostradio/sounds/${f}`);
       const ab = await res.arrayBuffer();
       buffers[f] = await ctx.decodeAudioData(ab);
     }));
