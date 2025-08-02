@@ -19,7 +19,8 @@
 
     /* Waveform canvas */
     #wave {
-      width: 100%; height: 150px;
+      width: 100%;
+      height: 150px;
       background: rgba(0,0,0,0.05);
       display: block;
       margin: 1.5rem 0;
@@ -39,7 +40,6 @@
       transition: border-color 0.2s;
     }
     #knob.active { cursor: grabbing; border-color: #000; }
-    /* The indicator line */
     #knob::before {
       content: '';
       position: absolute;
@@ -48,6 +48,7 @@
       background: #333;
       transform-origin: bottom center;
       transform: translateX(-50%) rotate(0deg);
+      transition: transform 0.1s;
     }
 
     /* Instructions */
@@ -65,175 +66,146 @@
 
   <script>
   (async function(){
-    // —— Audio setup ——
+    // Audio setup
     const ctx = new (window.AudioContext||window.webkitAudioContext)();
     const analyser = ctx.createAnalyser();
-    analyser.fftSize = 2048;
+    analyser.fftSize = 512;  // lower FFT size
     const bufLen = analyser.fftSize;
     const data = new Uint8Array(bufLen);
 
-    const master = ctx.createGain();
-    master.gain.value = 1;
-    analyser.connect(master);
-    master.connect(ctx.destination);
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 1;
+    masterGain.connect(analyser);
+    analyser.connect(ctx.destination);
 
-    // —— Load buffers ——
+    // Load buffers
     const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
     const buffers = {};
-    await Promise.all(files.map(async f=>{
+    await Promise.all(files.map(async f => {
       const res = await fetch(`/projects/ghostradio/sounds/${f}`);
       const ab  = await res.arrayBuffer();
       buffers[f] = await ctx.decodeAudioData(ab);
     }));
+    function randomFile(){ return files[Math.floor(Math.random()*files.length)]; }
 
-    function randomFile(){
-      return files[Math.floor(Math.random()*files.length)];
-    }
-
+    // playLayer
     function playLayer(file){
       const src = ctx.createBufferSource();
-      src.buffer = buffers[file];
-      src.loop = true;
-      src.connect(analyser);
-      const g = ctx.createGain();
-      analyser.connect(g);
-      g.connect(ctx.destination);
-      src.connect(g);
+      src.buffer = buffers[file]; src.loop = true;
+      const gainNode = ctx.createGain();
+      gainNode.gain.value = 0;
+      src.connect(gainNode).connect(masterGain);
       src.start();
-      return { src, g };
+      return { src, gain: gainNode };
     }
 
-    // —— Three-layer window ——
-    let layers = [
-      playLayer(randomFile()),
-      playLayer(randomFile()),
-      playLayer(randomFile())
-    ];
+    // initial layers
+    let layers = [playLayer(randomFile()), playLayer(randomFile()), playLayer(randomFile())];
     const mid = 1;
-    // initialize center at full
-    layers.forEach((l,i)=>l.g.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
+    layers.forEach((l,i)=> l.gain.setValueAtTime(i===mid?1:0, ctx.currentTime));
 
-    // —— Knob rotation tracking ——
+    // Knob logic
     const knob = document.getElementById('knob');
     let angle = 0, lastAngle = 0, dragging = false;
 
-    // Convert angle to audio index scan
-    function updateScan(){
-      const raw = mid + angle * 0.02; // sensitivity factor
-      if(raw < 0.2){
-        shiftLeft();
-        return;
-      }
-      if(raw > 1.8){
-        shiftRight();
-        return;
-      }
-      const leftI = Math.floor(raw),
-            rightI = Math.ceil(raw),
-            frac   = raw - leftI;
-      layers.forEach((ly,i)=>{
-        let target = (i===leftI?1-frac:(i===rightI?frac:0));
-        ly.g.gain.linearRampToValueAtTime(target, ctx.currentTime+0.05);
-      });
-      // rotate indicator
-      knob.style.setProperty('--knob-rot', angle + 'deg');
-      knob.querySelector('::before');
+    function updateKnobIndicator(){
+      knob.style.setProperty('--deg', angle + 'deg');
       knob.style.transform = `rotate(${angle}deg)`;
       knob.querySelector('::before');
-      knob.style.setProperty('--rotate-indicator', angle + 'deg');
+      knob.style.setProperty('--before-rot', angle + 'deg');
+      knob.style.setProperty('transform', `rotate(${angle}deg)`);
+      knob.style.transform = `rotate(${angle}deg)`;
       knob.style.setProperty('transform', `rotate(${angle}deg)`);
       knob.style.setProperty('transform', `rotate(${angle}deg)`);
-      knob.querySelector('::before');
-      knob.style.setProperty('--rotate-ind', angle+'deg');
+      knob.style.setProperty('transform', `rotate(${angle}deg)`);
+      knob.style.setProperty('--rotation', angle + 'deg');
+      knob.style.setProperty('transform', `rotate(${angle}deg)`);
       knob.style.setProperty('transform', `rotate(${angle}deg)`);
     }
 
+    function updateScan(){
+      const raw = mid + angle*0.02;
+      if(raw < 0.2){ shiftLeft(); return; }
+      if(raw > 1.8){ shiftRight(); return; }
+      const leftI = Math.floor(raw), rightI = Math.ceil(raw), frac = raw - leftI;
+      layers.forEach((l,i)=>{
+        const tgt = i===leftI?1-frac:(i===rightI?frac:0);
+        l.gain.linearRampToValueAtTime(tgt, ctx.currentTime+0.05);
+      });
+      // rotate indicator
+      const before = knob.querySelector('::before');
+      knob.style.setProperty('--deg', angle + 'deg');
+      knob.style.transform = `rotate(${angle}deg)`;
+      knob.querySelector('::before');
+    }
+
     function pointerDown(e){
-      dragging = true;
-      knob.classList.add('active');
-      const rect = knob.getBoundingClientRect();
-      const cx = rect.left + rect.width/2,
-            cy = rect.top  + rect.height/2;
-      const x = (e.clientX||e.touches[0].clientX) - cx;
-      const y = (e.clientY||e.touches[0].clientY) - cy;
+      dragging = true; knob.classList.add('active');
+      const r = knob.getBoundingClientRect();
+      const cx = r.left+r.width/2, cy = r.top+r.height/2;
+      const x = (e.clientX||e.touches[0].clientX)-cx;
+      const y = (e.clientY||e.touches[0].clientY)-cy;
       lastAngle = Math.atan2(y,x)*180/Math.PI;
       e.preventDefault();
     }
     function pointerMove(e){
       if(!dragging) return;
-      const rect = knob.getBoundingClientRect();
-      const cx = rect.left + rect.width/2,
-            cy = rect.top  + rect.height/2;
-      const x = (e.clientX||e.touches[0].clientX) - cx;
-      const y = (e.clientY||e.touches[0].clientY) - cy;
+      const r = knob.getBoundingClientRect();
+      const cx = r.left+r.width/2, cy = r.top+r.height/2;
+      const x = (e.clientX||e.touches[0].clientX)-cx;
+      const y = (e.clientY||e.touches[0].clientY)-cy;
       const ang = Math.atan2(y,x)*180/Math.PI;
-      let delta = ang - lastAngle;
-      if(delta > 180) delta -= 360;
-      if(delta < -180) delta += 360;
-      angle += delta;
-      lastAngle = ang;
-      updateScan();
+      let d = ang - lastAngle;
+      if(d>180) d-=360; if(d<-180) d+=360;
+      angle += d; lastAngle = ang;
+      // debounce scan to animation frame
+      if(!window._scanPending){
+        window._scanPending = true;
+        requestAnimationFrame(()=>{ updateScan(); window._scanPending=false; });
+      }
       e.preventDefault();
     }
-    function pointerUp(){
-      dragging = false;
-      knob.classList.remove('active');
-    }
+    function pointerUp(){ dragging=false; knob.classList.remove('active'); }
 
-    knob.addEventListener('mousedown', pointerDown);
-    knob.addEventListener('touchstart', pointerDown);
-    window.addEventListener('mousemove', pointerMove);
-    window.addEventListener('touchmove', pointerMove);
-    window.addEventListener('mouseup', pointerUp);
-    window.addEventListener('touchend', pointerUp);
+    knob.addEventListener('mousedown',pointerDown);
+    window.addEventListener('mousemove',pointerMove);
+    window.addEventListener('mouseup',pointerUp);
+    knob.addEventListener('touchstart',pointerDown);
+    window.addEventListener('touchmove',pointerMove);
+    window.addEventListener('touchend',pointerUp);
 
-    // —— Window shift logic ——
+    // shift functions
     function shiftLeft(){
       layers[2].src.stop();
-      layers = [
-        playLayer(randomFile()),
-        layers[0],
-        layers[1]
-      ];
-      layers.forEach((l,i)=>l.g.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
-      // keep angle continuous
+      layers = [playLayer(randomFile()), layers[0], layers[1]];
+      layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
       updateScan();
     }
     function shiftRight(){
       layers[0].src.stop();
-      layers = [
-        layers[1],
-        layers[2],
-        playLayer(randomFile())
-      ];
-      layers.forEach((l,i)=>l.g.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
+      layers = [layers[1], layers[2], playLayer(randomFile())];
+      layers.forEach((l,i)=>l.gain.setValueAtTime(i===mid?1:0,ctx.currentTime));
       updateScan();
     }
 
-    // —— Draw waveform ——
-    const wave = document.getElementById('wave');
-    const w2 = wave.getContext('2d');
-    (function draw(){
+    // draw waveform @ 30fps
+    const wave = document.getElementById('wave'), w2=wave.getContext('2d');
+    let lastDraw=0;
+    function draw(now){
+      requestAnimationFrame(draw);
+      if(now-lastDraw<1000/30) return;
+      lastDraw=now;
       wave.width = wave.clientWidth;
       analyser.getByteTimeDomainData(data);
-      w2.fillStyle = 'rgba(245,241,230,0.3)';
-      w2.fillRect(0,0,wave.width,wave.height);
-      w2.lineWidth = 1;
-      w2.strokeStyle = '#555';
-      w2.beginPath();
-      const slice = wave.width/bufLen;
-      let px=0;
-      for(let i=0;i<bufLen;i++){
-        const v = data[i]/128.0;
-        const y = v * wave.height/2;
-        i===0 ? w2.moveTo(px,y) : w2.lineTo(px,y);
-        px += slice;
-      }
+      w2.fillStyle='rgba(245,241,230,0.3)'; w2.fillRect(0,0,wave.width,wave.height);
+      w2.lineWidth=1; w2.strokeStyle='#555'; w2.beginPath();
+      const slice=wave.width/bufLen; let x=0;
+      for(let i=0;i<bufLen;i++){ const v=data[i]/128, y=v*wave.height/2; i===0?w2.moveTo(x,y):w2.lineTo(x,y); x+=slice; }
       w2.stroke();
-      requestAnimationFrame(draw);
-    })();
+    }
+    requestAnimationFrame(draw);
 
-    // resume on click/tap
+    // resume on click
     window.addEventListener('click',()=>ctx.state==='suspended'&&ctx.resume());
   })();
   </script>
