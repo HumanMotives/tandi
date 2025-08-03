@@ -10,7 +10,15 @@
   padding: 0;
   box-sizing: border-box;
 }
-
+/* hide all screens except welcome by default */
+#welcomeContainer {
+  display: block;
+}
+#cameraContainer,
+#recorderContainer,
+#playbackContainer {
+  display: none;
+}
 /* ============
    Color Palette (future accents)
    ============ */
