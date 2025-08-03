@@ -16,7 +16,10 @@ function initApp() {
   recorderContainer.hidden = true;
 
   // ask for camera
-  navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+  navigator.mediaDevices.getUserMedia({
+  video: { facingMode: { ideal: "environment" } },
+  audio: false
+})
     .then(stream => {
       cameraVideo.srcObject = stream;
     })
