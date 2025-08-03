@@ -14,12 +14,22 @@ function initApp() {
   const startBtn = document.getElementById('welcomeCreateBtn');
 
   // --- Camera UI ---
-  const cameraVideo = document.getElementById('cameraVideo');
-  const captureBtn  = document.getElementById('captureBtn');
+  const cameraVideo       = document.getElementById('cameraVideo');
+  const captureBtn        = document.getElementById('captureBtn');
 
   // --- Snapshot UI ---
   const snapshotImage       = document.getElementById('snapshotImage');
   const snapshotContinueBtn = document.getElementById('snapshotContinueBtn');
+
+  // --- Recorder UI ---
+  const stepTitle    = document.getElementById('step-title');
+  const recordBtn    = document.getElementById('recordBtn');
+  const timerEl      = document.getElementById('timer');
+  const progressEl   = document.getElementById('progress');
+  const downloadLink = document.getElementById('downloadLink');
+
+  // --- Playback UI ---
+  const playbackImg  = document.getElementById('playbackImage');
 
   // --- State ---
   let cameraStream     = null;
@@ -32,20 +42,22 @@ function initApp() {
   recorderContainer.style.display  = 'none';
   playbackContainer.style.display  = 'none';
 
-  // Reset camera UI
   resetCameraUI();
 
   // STEP 1: Welcome → Camera
   startBtn.addEventListener('click', () => {
-    welcomeContainer.style.display = 'none';
-    cameraContainer.style.display  = 'flex';
+    welcomeContainer.style.display  = 'none';
+    cameraContainer.style.display   = 'flex';
+    snapshotContainer.style.display = 'none';
+    recorderContainer.style.display = 'none';
+    playbackContainer.style.display = 'none';
     resetCameraUI();
     cameraStream = null;
   });
 
   // STEP 2: Enable Camera vs. Capture Photo
   captureBtn.addEventListener('click', async () => {
-    // Phase 1: request permission & show live preview
+    // PHASE 1: request & preview
     if (!cameraStream) {
       try {
         cameraStream = await navigator.mediaDevices.getUserMedia({
@@ -64,7 +76,7 @@ function initApp() {
       return;
     }
 
-    // Phase 2: take snapshot
+    // PHASE 2: snapshot
     const vw   = cameraVideo.videoWidth;
     const vh   = cameraVideo.videoHeight;
     const size = Math.min(vw, vh);
@@ -74,19 +86,19 @@ function initApp() {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(
       cameraVideo,
-      (vw - size) / 2, (vh - size) / 2,
+      (vw - size)/2, (vh - size)/2,
       size, size,
       0, 0,
       size, size
     );
     snapshotDataURL = canvas.toDataURL('image/png');
 
-    // show snapshot, hide camera
+    // show snapshot scene
     cameraContainer.style.display   = 'none';
     snapshotContainer.style.display = 'flex';
     snapshotImage.src               = snapshotDataURL;
 
-    // stop camera stream
+    // stop camera
     cameraStream.getTracks().forEach(t => t.stop());
   });
 
@@ -99,25 +111,18 @@ function initApp() {
 
   // STEP 4 & 5: Recorder & Playback
   function setupRecorder() {
-    const stepTitle    = document.getElementById('step-title');
-    const recordBtn    = document.getElementById('recordBtn');
-    const timerEl      = document.getElementById('timer');
-    const progressEl   = document.getElementById('progress');
-    const downloadLink = document.getElementById('downloadLink');
-    const playbackImg  = document.getElementById('playbackImage');
+    // initialize recorder UI
+    recordBtn.hidden    = false;
+    timerEl.hidden      = true;
+    progressEl.hidden   = true;
+    downloadLink.hidden = true;
 
     let audioCtx, micStream, recorder;
     let chunks = [], buffers = [];
     let current = 0;
     let timerInt, startTime, recordTO;
 
-    // initialize UI
-    recordBtn.hidden    = false;
-    timerEl.hidden      = true;
-    progressEl.hidden   = true;
-    downloadLink.hidden = true;
-
-    // wire recording events
+    // wire record events
     recordBtn.addEventListener('touchstart', startRecording);
     recordBtn.addEventListener('mousedown',  startRecording);
     recordBtn.addEventListener('touchend',   stopRecording);
@@ -128,7 +133,7 @@ function initApp() {
       recordBtn.classList.add('recording');
       timerEl.hidden = false;
 
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
       if (!micStream) {
         try {
           micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -148,7 +153,6 @@ function initApp() {
       chunks = [];
       recorder.start();
       recordTO = setTimeout(() => stopRecording(e), 15000);
-
       startTime = Date.now();
       timerInt  = setInterval(updateTimer, 200);
     }
@@ -163,39 +167,34 @@ function initApp() {
     }
 
     function updateTimer() {
-      const secs = Math.floor((Date.now() - startTime) / 1000);
-      timerEl.textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+      const secs = Math.floor((Date.now() - startTime)/1000);
+      timerEl.textContent = `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`;
     }
 
     async function onRecordingStop() {
-      const blob     = new Blob(chunks, { type: 'audio/webm' });
+      // hide record button, show progress
+      recordBtn.hidden  = true;
+      progressEl.hidden = false;
+
+      const blob     = new Blob(chunks,{type:'audio/webm'});
       const arrBuf   = await blob.arrayBuffer();
       const audioBuf = await audioCtx.decodeAudioData(arrBuf);
       buffers.push(audioBuf);
-
       current++;
+
       if (current < 3) {
+        // ready for next clip
         stepTitle.textContent = `Record Moment ${current + 1}`;
+        recordBtn.hidden      = false;
+        progressEl.hidden     = true;
       } else {
-        stepTitle.textContent = 'Building your Moment…';
-        showProgress();
-        await delay(2000);
-        playAmbient();
+        // final clip done → compile mix & go to playback
+        stepTitle.textContent = 'Compiling your Moment…';
+        finalizeMix(buffers, audioCtx);
       }
     }
 
-    function showProgress() {
-      recordBtn.hidden  = true;
-      progressEl.hidden = false;
-      let v = 0;
-      const iv = setInterval(() => {
-        v += 10;
-        progressEl.value = v;
-        if (v >= 100) clearInterval(iv);
-      }, 200);
-    }
-
-    function playAmbient() {
+    function finalizeMix(buffers, audioCtx) {
       const masterGain = audioCtx.createGain();
       masterGain.gain.value = 0.5;
       masterGain.connect(audioCtx.destination);
@@ -208,18 +207,18 @@ function initApp() {
         src.start();
       });
 
-      stepTitle.textContent = 'Here’s your Moment / Place ▶️';
-
       const dest    = audioCtx.createMediaStreamDestination();
       masterGain.connect(dest);
-      const longest = Math.max(...buffers.map(b => b.duration));
+
+      const longest = Math.max(...buffers.map(b=>b.duration));
       const mixRec  = new MediaRecorder(dest.stream);
       const mixChunks = [];
 
       mixRec.ondataavailable = e => mixChunks.push(e.data);
       mixRec.onstop = () => {
-        const mixBlob = new Blob(mixChunks, { type: 'audio/webm' });
+        const mixBlob = new Blob(mixChunks,{type:'audio/webm'});
         const url     = URL.createObjectURL(mixBlob);
+
         downloadLink.href     = url;
         downloadLink.download = 'moment-place.webm';
         downloadLink.hidden   = false;
@@ -230,21 +229,16 @@ function initApp() {
       };
 
       mixRec.start();
-      setTimeout(() => mixRec.stop(), longest * 1000 + 200);
-    }
-
-    function delay(ms) {
-      return new Promise(res => setTimeout(res, ms));
+      setTimeout(() => mixRec.stop(), longest*1000 + 200);
     }
   }
 
   // helper to reset camera UI
   function resetCameraUI() {
-    cameraVideo.style.display       = 'block';
-    captureBtn.style.display        = 'inline-block';
     captureBtn.textContent          = '📷 Enable Camera';
+    captureBtn.style.display        = 'inline-block';
+    cameraVideo.style.display       = 'block';
+    snapshotImage && (snapshotImage.style.display     = 'none');
     snapshotContainer.style.display = 'none';
-    cameraSnapshot && (cameraSnapshot.style.display = 'none');
-    // note: cameraSnapshot belongs to old partial and may be undefined
   }
 }
