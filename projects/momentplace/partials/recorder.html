@@ -1,16 +1,6 @@
-<!-- partials/recorder.html -->
-
-<!-- 1) Snapshot Preview (hidden until after you capture) -->
-<img id="snapshotPreview" class="snapshot-preview" alt="Captured photo" hidden/>
-
-<!-- 2) Recorder container -->
 <div id="recorderContainer" class="recorder-container">
-  <!-- Continue button (only this is visible when you arrive) -->
-  <button id="continueBtn" class="welcome-button">Continue</button>
-
-  <!-- 3) Recording UI (hidden until you hit Continue) -->
-  <h2 id="step-title" hidden>Record Moment 1</h2>
-  <button id="recordBtn" class="record-btn" hidden>Hold to Record</button>
+  <h2 id="step-title">Record Moment 1</h2>
+  <button id="recordBtn" class="record-btn">Hold to Record</button>
   <div id="timer" class="timer" hidden>0:00</div>
   <progress id="progress" max="100" value="0" hidden></progress>
   <a id="downloadLink" class="download-link" hidden>⬇ Download Moment</a>
