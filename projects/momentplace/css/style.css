@@ -64,4 +64,36 @@ progress {
   margin-top: 2rem;
 }
 
+.recorder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.record-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #e33;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+.record-btn:active,
+.record-btn.recording {
+  background: #c00;
+  transform: scale(0.96);
+}
+
+.timer {
+  margin-top: 0.75rem;
+  font-size: 1.25rem;
+  color: #111;
+  display: none;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Mobile responsiveness is inherent—single column and fluid widths */
