@@ -152,3 +152,12 @@ progress {
 .capture-btn:active {
   background: var(--khaki);
 }
+
+.snapshot {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
