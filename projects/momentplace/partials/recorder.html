@@ -1,5 +1,7 @@
-<div class="recorder">
-  <div id="timer" class="timer">0:00</div>
-  <button id="recordBtn" class="record-btn"></button>
-  <p id="step-title" class="step-title">Record Moment 1</p>
+<div id="recorderContainer" class="recorder-container" hidden>
+  <h2 id="step-title">Record Moment 1</h2>
+  <button id="recordBtn" class="record-btn">Hold to Record</button>
+  <div id="timer" class="timer" style="display:none;">0:00</div>
+  <progress id="progress" max="100" value="0" hidden></progress>
+  <a id="downloadLink" class="download-link" hidden>⬇ Download Moment</a>
 </div>
