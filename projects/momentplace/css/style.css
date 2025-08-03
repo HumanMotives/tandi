@@ -92,3 +92,30 @@ progress {
   color: var(--cadet-gray);
   margin-top: 2rem;
 }
+
+.controls-panel {
+  margin: 2rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+}
+.control-group label {
+  font-size: 0.9rem;
+  color: var(--battleship-gray);
+  margin-bottom: 0.25rem;
+}
+.control-group select,
+.control-group input[type="range"] {
+  width: 100%;
+}
+.control-group output {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--cadet-gray);
+  text-align: right;
+}
