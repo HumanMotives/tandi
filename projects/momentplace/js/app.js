@@ -1,80 +1,123 @@
 // js/app.js
 
+// Once your partials (camera, recorder, etc.) are in the DOM:
+document.addEventListener('includesLoaded', initApp);
+
 function initApp() {
-  const titleEl   = document.getElementById('step-title');
-  const recordBtn = document.getElementById('recordBtn');
-  const timerEl   = document.getElementById('timer');
-  const progress  = document.getElementById('progress');
+  //
+  // === CAMERA SETUP ===
+  //
+  const cameraSection     = document.getElementById('cameraSection');
+  const cameraVideo       = document.getElementById('cameraVideo');
+  const captureBtn        = document.getElementById('captureBtn');
+  const recorderContainer = document.getElementById('recorderContainer');
 
-  if (!recordBtn) {
-    console.error('Recorder partial not loaded');
-    return;
-  }
+  // start hidden until we capture
+  recorderContainer.hidden = true;
 
-  let audioCtx;
-  let micStream;
-  let recorder;
-  let chunks     = [];
-  let buffers    = [];
-  let current    = 0;
-  let timerInterval;
-  let startTime;
-  let recordTimeout;
-
-  // 1) Pre-request mic access on load
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  navigator.mediaDevices.getUserMedia({ audio: true })
+  // ask for camera
+  navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     .then(stream => {
-      micStream = stream;
-      recorder  = new MediaRecorder(stream);
-      recorder.ondataavailable = e => chunks.push(e.data);
-      recorder.onstop          = onRecordingStop;
-      console.log('🔊 Microphone ready');
+      cameraVideo.srcObject = stream;
     })
     .catch(err => {
-      console.warn('⚠️ Microphone permission not granted:', err);
+      alert('📷 Please enable camera permissions and reload.');
+      console.error(err);
     });
 
-  // 2) Wire up touch + mouse events
+  // when user snaps photo:
+  captureBtn.addEventListener('click', () => {
+    // freeze frame into a canvas
+    const canvas = document.createElement('canvas');
+    canvas.width  = cameraVideo.videoWidth;
+    canvas.height = cameraVideo.videoHeight;
+    canvas.getContext('2d').drawImage(cameraVideo, 0, 0);
+
+    // replace camera UI with the snapshot
+    const img = document.createElement('img');
+    img.src       = canvas.toDataURL('image/png');
+    img.className = 'snapshot';
+    cameraSection.replaceWith(img);
+
+    // stop camera
+    cameraVideo.srcObject.getTracks().forEach(t => t.stop());
+
+    // reveal recorder UI
+    recorderContainer.hidden = false;
+
+    // initialize recorder logic
+    setupRecorder();
+  });
+}
+
+function setupRecorder() {
+  //
+  // === RECORDER & PLAYBACK SETUP ===
+  //
+  const titleEl          = document.getElementById('step-title');
+  const recordBtn        = document.getElementById('recordBtn');
+  const timerEl          = document.getElementById('timer');
+  const progress         = document.getElementById('progress');
+  const controlsPanel    = document.getElementById('controlsContainer');
+  const downloadLink     = document.getElementById('downloadLink');
+
+  let audioCtx, micStream, recorder;
+  let chunks   = [];
+  let buffers  = [];
+  let current  = 0;
+  let timerInt, startTime, recordTO;
+
+  // wire record button
   recordBtn.addEventListener('touchstart', startRecording);
   recordBtn.addEventListener('mousedown',  startRecording);
   recordBtn.addEventListener('touchend',   stopRecording);
   recordBtn.addEventListener('mouseup',    stopRecording);
 
-  // 3) Start recording handler
   async function startRecording(e) {
     e.preventDefault();
-
-    // Resume AudioContext if needed (iOS)
-    if (audioCtx.state === 'suspended') {
-      try { await audioCtx.resume(); }
-      catch (err) { console.warn('AudioContext resume error', err); }
-    }
-
-    if (!recorder) {
-      alert('Please allow microphone access and reload.');
-      return;
-    }
-
     recordBtn.classList.add('recording');
+
+    // ensure AudioContext
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    // ask mic if needed
+    if (!micStream) {
+      try {
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch(err) {
+        alert('🎙️ Please enable mic permissions and try again.');
+        console.error(err);
+        recordBtn.classList.remove('recording');
+        return;
+      }
+    }
+
+    // init MediaRecorder
+    if (!recorder) {
+      recorder = new MediaRecorder(micStream);
+      recorder.ondataavailable = ev => chunks.push(ev.data);
+      recorder.onstop          = onRecordingStop;
+    }
+
     chunks = [];
     recorder.start();
 
-    // Enforce 15 s max
-    recordTimeout = setTimeout(() => stopRecording(e), 15000);
+    // 15s max
+    recordTO = setTimeout(() => stopRecording(e), 15000);
 
-    // Show timer
+    // show timer
     timerEl.textContent = '0:00';
     timerEl.style.display = 'block';
-    startTime      = Date.now();
-    timerInterval  = setInterval(updateTimer, 200);
+    startTime     = Date.now();
+    timerInt      = setInterval(updateTimer, 200);
   }
 
-  // 4) Stop recording handler
   function stopRecording(e) {
     e.preventDefault();
-    clearTimeout(recordTimeout);
-    clearInterval(timerInterval);
+    clearTimeout(recordTO);
+    clearInterval(timerInt);
     timerEl.style.display = 'none';
     recordBtn.classList.remove('recording');
 
@@ -83,20 +126,19 @@ function initApp() {
     }
   }
 
-  // 5) Update MM:SS timer display
   function updateTimer() {
     const elapsed  = Date.now() - startTime;
-    const totalSec = Math.floor(elapsed / 1000);
-    const m        = String(Math.floor(totalSec / 60));
-    const s        = String(totalSec % 60).padStart(2, '0');
-    timerEl.textContent = `${m}:${s}`;
+    const secs     = Math.floor(elapsed / 1000);
+    const m        = Math.floor(secs / 60);
+    const s        = secs % 60;
+    timerEl.textContent = `${m}:${String(s).padStart(2, '0')}`;
   }
 
-  // 6) Handle each recording stop
   async function onRecordingStop() {
+    // decode and store
     const blob     = new Blob(chunks, { type: 'audio/webm' });
-    const arrayBuf = await blob.arrayBuffer();
-    const audioBuf = await audioCtx.decodeAudioData(arrayBuf);
+    const arrBuf   = await blob.arrayBuffer();
+    const audioBuf = await audioCtx.decodeAudioData(arrBuf);
     buffers.push(audioBuf);
 
     current++;
@@ -110,25 +152,23 @@ function initApp() {
     }
   }
 
-  // 7) Progress bar animation
   function showProgressBar() {
     recordBtn.hidden = true;
     progress.hidden  = false;
-    let val = 0;
+    let v = 0;
     const iv = setInterval(() => {
-      val += 10;
-      progress.value = val;
-      if (val >= 100) clearInterval(iv);
+      v += 10;
+      progress.value = v;
+      if (v >= 100) clearInterval(iv);
     }, 200);
   }
 
-  // 8) Mix, play, reveal controls & setup download link
   function playAmbient() {
+    // basic mix
     const masterGain = audioCtx.createGain();
     masterGain.gain.value = 0.5;
     masterGain.connect(audioCtx.destination);
 
-    // loop each recorded buffer
     buffers.forEach(buf => {
       const src = audioCtx.createBufferSource();
       src.buffer = buf;
@@ -139,36 +179,32 @@ function initApp() {
 
     titleEl.textContent = 'Here’s your Moment / Place ▶️';
 
-    // reveal the controls panel
-    const controls = document.getElementById('controlsContainer');
-    if (controls) controls.hidden = false;
+    // reveal controls
+    if (controlsPanel) controlsPanel.hidden = false;
 
-    // set up download link for the mix
-    const dest       = audioCtx.createMediaStreamDestination();
-    masterGain.connect(dest);
-    const maxSec     = Math.max(...buffers.map(b => b.duration));
-    const mixRecorder= new MediaRecorder(dest.stream);
-    const mixChunks  = [];
+    // set up download link
+    if (downloadLink) {
+      const dest       = audioCtx.createMediaStreamDestination();
+      masterGain.connect(dest);
+      const longest    = Math.max(...buffers.map(b => b.duration));
+      const mixRec     = new MediaRecorder(dest.stream);
+      const mixChunks  = [];
 
-    mixRecorder.ondataavailable = e => mixChunks.push(e.data);
-    mixRecorder.onstop = () => {
-      const mixBlob = new Blob(mixChunks, { type: 'audio/webm' });
-      const url     = URL.createObjectURL(mixBlob);
-      const a       = document.getElementById('downloadLink');
-      a.href        = url;
-      a.download    = 'moment-place.webm';
-      a.hidden      = false;
-    };
+      mixRec.ondataavailable = e => mixChunks.push(e.data);
+      mixRec.onstop = () => {
+        const mixBlob = new Blob(mixChunks, { type: 'audio/webm' });
+        const url     = URL.createObjectURL(mixBlob);
+        downloadLink.href     = url;
+        downloadLink.download = 'moment-place.webm';
+        downloadLink.hidden   = false;
+      };
 
-    mixRecorder.start();
-    setTimeout(() => mixRecorder.stop(), maxSec * 1000 + 200);
+      mixRec.start();
+      setTimeout(() => mixRec.stop(), longest * 1000 + 200);
+    }
   }
 
-  // 9) Utility delay
   function delay(ms) {
     return new Promise(res => setTimeout(res, ms));
   }
 }
-
-// Run once partials are loaded
-document.addEventListener('includesLoaded', initApp);
