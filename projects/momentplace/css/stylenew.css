@@ -52,13 +52,22 @@ body {
   padding: 1rem;
 }
 
-/* ============
+/* ===========
    Headings
-   ============ */
-h1, h2, h3, h4, h5, h6 {
+   =========== */
+h1 {
+  font-size: 2rem;
   color: #000000;
   font-weight: 700;
   margin-bottom: 0.5em;
+}
+
+h2 {
+  font-size: 1.5rem;      /* adjust as needed */
+  color: #000000;
+  font-weight: 500;
+  margin-bottom: 0.75em;
+  line-height: 1.3;
 }
 
 /* ============
