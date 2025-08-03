@@ -1,0 +1,67 @@
+/* Reset & base from H/M homepage */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Helvetica Neue', sans-serif;
+  background-color: #ffffff;
+  color: #111;
+  line-height: 1.5;
+  padding: 1rem;
+}
+
+/* === APP LAYOUT === */
+.app-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.app-header h1 {
+  font-size: 2.4rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.app-header p {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 60vh;
+  justify-content: center;
+}
+
+/* Recorder button */
+.record-btn {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+.record-btn:active {
+  background: #333;
+}
+
+/* Progress bar */
+progress {
+  width: 80%;
+  height: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Footer */
+.app-footer {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-top: 2rem;
+}
+
+/* Mobile responsiveness is inherent—single column and fluid widths */
