@@ -1,36 +1,48 @@
 // js/app.js
 
-window.addEventListener('DOMContentLoaded', () => {
+// wrap everything in initApp
+function initApp() {
   const titleEl   = document.getElementById('step-title');
   const recordBtn = document.getElementById('recordBtn');
   const timerEl   = document.getElementById('timer');
   const progress  = document.getElementById('progress');
 
+  if (!recordBtn) {
+    console.error('recordBtn not found!');
+    return;
+  }
+
   let audioCtx, micStream, recorder;
   let chunks = [], buffers = [], current = 0;
   let timerInterval, startTime;
 
-  // Start recording: invoked on touchstart / mousedown
+  recordBtn.addEventListener('touchstart', startRecording);
+  recordBtn.addEventListener('mousedown',  startRecording);
+  recordBtn.addEventListener('touchend',   stopRecording);
+  recordBtn.addEventListener('mouseup',    stopRecording);
+
   async function startRecording(e) {
-    e.preventDefault();                    // prevent text selection
+    e.preventDefault();
+    console.log('⏺️ startRecording');
     recordBtn.classList.add('recording');
 
-    // Lazily init AudioContext & getUserMedia on first gesture
+    // lazy init AudioContext & mic
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
     if (!micStream) {
       try {
         micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('Mic stream acquired');
       } catch(err) {
-        alert('Mic access is required to record.');
+        alert('🛑 Mic access denied or unavailable.');
         console.error(err);
         recordBtn.classList.remove('recording');
         return;
       }
     }
 
-    // Lazily init MediaRecorder
+    // lazy init MediaRecorder
     if (!recorder) {
       recorder = new MediaRecorder(micStream);
       recorder.ondataavailable = e => chunks.push(e.data);
@@ -39,36 +51,41 @@ window.addEventListener('DOMContentLoaded', () => {
 
     chunks = [];
     recorder.start();
-
-    // start timer UI
-    startTime = Date.now();
-    timerEl.textContent = '0:00';
-    timerEl.style.display = 'block';
-    timerInterval = setInterval(updateTimer, 200);
+    startTimer();
   }
 
-  // Stop recording: invoked on touchend / mouseup
   function stopRecording(e) {
     e.preventDefault();
+    console.log('⏹️ stopRecording');
     if (recorder && recorder.state === 'recording') {
       recorder.stop();
     }
     recordBtn.classList.remove('recording');
+    stopTimer();
+  }
+
+  function startTimer() {
+    timerEl.textContent = '0:00';
+    timerEl.style.display = 'block';
+    startTime = Date.now();
+    timerInterval = setInterval(updateTimer, 200);
+  }
+
+  function stopTimer() {
     clearInterval(timerInterval);
     timerEl.style.display = 'none';
   }
 
-  // Update MM:SS display
   function updateTimer() {
     const elapsed = Date.now() - startTime;
     const totalSec = Math.floor(elapsed / 1000);
-    const m = String(Math.floor(totalSec / 60)).padStart(1, '0');
+    const m = String(Math.floor(totalSec / 60));
     const s = String(totalSec % 60).padStart(2, '0');
     timerEl.textContent = `${m}:${s}`;
   }
 
-  // After each sample is recorded
   async function onRecordingStop() {
+    console.log('Recording stopped, decoding…');
     const blob     = new Blob(chunks, { type: 'audio/webm' });
     const arrayBuf = await blob.arrayBuffer();
     const audioBuf = await audioCtx.decodeAudioData(arrayBuf);
@@ -97,6 +114,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   function playAmbient() {
+    console.log('▶️ playAmbient');
     const masterGain = audioCtx.createGain();
     masterGain.gain.value = 0.5;
     masterGain.connect(audioCtx.destination);
@@ -115,10 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
   function delay(ms) {
     return new Promise(res => setTimeout(res, ms));
   }
+}
 
-  // Wire up touch + mouse
-  recordBtn.addEventListener('touchstart', startRecording);
-  recordBtn.addEventListener('mousedown',  startRecording);
-  recordBtn.addEventListener('touchend',   stopRecording);
-  recordBtn.addEventListener('mouseup',    stopRecording);
-});
+// only run once partials are in place
+document.addEventListener('includesLoaded', initApp);
