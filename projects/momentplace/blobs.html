@@ -3,158 +3,169 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Blob Gesture Demo</title>
+  <title>Matrix Drag Demo</title>
   <style>
-    html, body {
+    body, html {
       margin:0; padding:0;
-      height:100%; width:100%;
+      width:100%; height:100%;
       display:flex; flex-direction:column;
-      align-items:center; background:#fafafa;
-      font-family: sans-serif;
+      align-items:center; font-family:sans-serif;
+      background: #fafafa;
     }
+    h1 { margin:1rem 0; }
     #photoInput {
-      margin: 1rem 0;
+      margin-bottom: 1rem;
     }
-    #blobContainer {
+    #matrixArea {
       position: relative;
-      width: 100%;
-      height: 60vh;
-      max-width: 400px;
-      border: 1px dashed #ccc;
+      width: 300px; height: 300px;
+      border: 2px dashed #ccc;
       border-radius: 12px;
-      overflow: hidden;
       touch-action: none;
+      margin-bottom: 1rem;
+      background: #fff;
     }
     .blob {
       position: absolute;
-      top: 50%;
-      width: 100px; height: 100px;
-      margin-top: -50px; /* center vertically */
+      width: 60px; height: 60px;
       border-radius: 50%;
-      touch-action: none;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #fff;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       user-select: none;
-      transform-origin: center center;
+      touch-action: none;
+      cursor: grab;
+    }
+    .blob:active {
+      cursor: grabbing;
     }
     .blob-label {
-      text-align: center;
       pointer-events: none;
+      text-align: center;
     }
+    #matrixArea::before {
+      content: "↑ Vol /   ← Filter";
+      position: absolute;
+      top: 4px; left: 4px;
+      font-size: 0.65rem; color: #888;
+    }
+    /* hidden offscreen canvas */
+    canvas { display:none; }
   </style>
 </head>
 <body>
-
+  <h1>Drag Matrix Demo</h1>
   <input type="file" accept="image/*" id="photoInput"/>
-
-  <div id="blobContainer"></div>
-  <canvas id="imageCanvas" style="display:none;"></canvas>
+  <div id="matrixArea"></div>
+  <canvas id="imageCanvas"></canvas>
 
   <script>
-    const photoInput = document.getElementById('photoInput');
-    const blobContainer = document.getElementById('blobContainer');
-    const canvas = document.getElementById('imageCanvas');
-    const ctx = canvas.getContext('2d');
+  const photoInput = document.getElementById('photoInput');
+  const matrixArea = document.getElementById('matrixArea');
+  const canvas     = document.getElementById('imageCanvas');
+  const ctx        = canvas.getContext('2d');
 
-    photoInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-      await img.decode();
+  photoInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    await img.decode();
 
-      // draw to canvas
-      canvas.width = img.naturalWidth;
-      canvas.height= img.naturalHeight;
-      ctx.drawImage(img, 0, 0);
+    // draw to canvas
+    canvas.width = img.naturalWidth;
+    canvas.height= img.naturalHeight;
+    ctx.drawImage(img, 0, 0);
 
-      // sample 3 colors at 25%, 50%, 75% width at mid-height
-      const ws = [0.25, 0.5, 0.75];
-      const colors = ws.map(w => {
-        const x = Math.floor(canvas.width * w);
-        const y = Math.floor(canvas.height / 2);
-        const [r,g,b] = ctx.getImageData(x,y,1,1).data;
-        return `rgb(${r},${g},${b})`;
-      });
-
-      // clear old blobs
-      blobContainer.innerHTML = '';
-
-      colors.forEach((color,i) => {
-        const blob = document.createElement('div');
-        blob.className = 'blob';
-        // position blobs 20%,50%,80% across container
-        const leftPct = 20 + i*30;
-        blob.style.left = leftPct + '%';
-        blob.style.background = color;
-        blob.dataset.scale = 1;
-        blob.dataset.rotation = 0;
-
-        const label = document.createElement('div');
-        label.className = 'blob-label';
-        label.innerText = 'Vol:50%  LP:2000Hz';
-        blob.appendChild(label);
-
-        blobContainer.appendChild(blob);
-        attachGestureHandlers(blob, label);
-      });
+    // sample 3 colors at 25%,50%,75% across mid-height
+    const ws = [0.25,0.5,0.75];
+    const colors = ws.map(w => {
+      const x = Math.floor(canvas.width * w);
+      const y = Math.floor(canvas.height / 2);
+      const [r,g,b] = ctx.getImageData(x,y,1,1).data;
+      return `rgb(${r},${g},${b})`;
     });
 
-    function attachGestureHandlers(blob, label) {
-      let ongoing = {};  // track two touches
-      let initDist=0, initAngle=0, initScale=1, initRot=0;
+    // clear old blobs
+    matrixArea.innerHTML = '';
 
-      blob.addEventListener('touchstart', e => {
-        e.preventDefault();
-        for(const t of e.changedTouches) {
-          ongoing[t.identifier] = { x:t.clientX, y:t.clientY };
-        }
-        if (Object.keys(ongoing).length===2) {
-          const [a,b] = Object.values(ongoing);
-          initDist = Math.hypot(b.x-a.x, b.y-a.y);
-          initAngle= Math.atan2(b.y-a.y, b.x-a.x) * 180/Math.PI;
-          initScale= parseFloat(blob.dataset.scale);
-          initRot  = parseFloat(blob.dataset.rotation);
-        }
-      }, {passive:false});
+    colors.forEach((color,i) => {
+      const blob = document.createElement('div');
+      blob.className = 'blob';
+      blob.style.background = color;
 
-      blob.addEventListener('touchmove', e => {
-        e.preventDefault();
-        for(const t of e.changedTouches) {
-          if (ongoing[t.identifier]) {
-            ongoing[t.identifier] = { x:t.clientX, y:t.clientY };
-          }
-        }
-        if (Object.keys(ongoing).length===2) {
-          const pts = Object.values(ongoing);
-          const dist = Math.hypot(pts[1].x-pts[0].x, pts[1].y-pts[0].y);
-          const angle= Math.atan2(pts[1].y-pts[0].y, pts[1].x-pts[0].x) * 180/Math.PI;
-          const scale = initScale * (dist / initDist);
-          const rotation = initRot + (angle - initAngle);
-          blob.dataset.scale = scale;
-          blob.dataset.rotation = rotation;
-          blob.style.transform = `translate(-50%,-50%) scale(${scale}) rotate(${rotation}deg)`;
+      // initial positions: spread horizontally at mid-vertical
+      const initX = 20 + i*35;   // percent
+      const initY = 50;          // percent
+      blob.style.left = `calc(${initX}% - 30px)`; // subtract half width
+      blob.style.top  = `calc(${initY}% - 30px)`; // subtract half height
 
-          // map scale to volume 0–1
-          const volume = Math.min(Math.max(scale/1.5, 0), 1);
-          // map rotation 0–360 to LP cutoff 300–5000Hz
-          const rotNorm = ((rotation%360)+360)%360/360;
-          const lp = Math.round(300 + rotNorm*(5000-300));
+      // data
+      blob.dataset.x = initX/100; // 0–1
+      blob.dataset.y = initY/100; // 0–1
 
-          label.innerText = `Vol:${Math.round(volume*100)}%  LP:${lp}Hz`;
-        }
-      }, {passive:false});
+      // label
+      const label = document.createElement('div');
+      label.className = 'blob-label';
+      label.innerText = `Vol:50%  LP:2000Hz`;
+      blob.appendChild(label);
 
-      blob.addEventListener('touchend', e => {
-        e.preventDefault();
-        for(const t of e.changedTouches) {
-          delete ongoing[t.identifier];
-        }
-      }, {passive:false});
-    }
+      matrixArea.appendChild(blob);
+      attachDragHandler(blob, label);
+    });
+  });
+
+  function attachDragHandler(blob, label) {
+    let dragging = false;
+    let startTouch = {}, startPos = {};
+
+    blob.addEventListener('touchstart', e => {
+      e.preventDefault();
+      if (e.touches.length !== 1) return;
+      dragging = true;
+      const t = e.touches[0];
+      startTouch = { x: t.clientX, y: t.clientY };
+      // compute blob's current pixel position
+      const rect = matrixArea.getBoundingClientRect();
+      const left = blob.offsetLeft;
+      const top  = blob.offsetTop;
+      startPos = { left, top, rect };
+    }, { passive:false });
+
+    blob.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      e.preventDefault();
+      const t = e.touches[0];
+      const dx = t.clientX - startTouch.x;
+      const dy = t.clientY - startTouch.y;
+      let newX = startPos.left + dx;
+      let newY = startPos.top  + dy;
+
+      // clamp to container
+      newX = Math.max(0, Math.min(newX, startPos.rect.width - blob.clientWidth));
+      newY = Math.max(0, Math.min(newY, startPos.rect.height - blob.clientHeight));
+
+      // apply
+      blob.style.left = newX + 'px';
+      blob.style.top  = newY + 'px';
+
+      // compute normalized values
+      const xRel = newX / (startPos.rect.width - blob.clientWidth);   // 0–1
+      const yRel = 1 - (newY / (startPos.rect.height - blob.clientHeight)); // 0–1 (top=1)
+
+      // map to parameters
+      const volume = Math.round(yRel * 100);  // %
+      const cutoff = Math.round(300 + xRel * (5000 - 300));
+
+      label.innerText = `Vol:${volume}%  LP:${cutoff}Hz`;
+    }, { passive:false });
+
+    blob.addEventListener('touchend', e => {
+      dragging = false;
+    });
+  }
   </script>
 </body>
 </html>
