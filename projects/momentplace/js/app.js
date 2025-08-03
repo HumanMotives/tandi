@@ -1,67 +1,73 @@
 // js/app.js
 
-// Wait for partials to load
+// Wait for partials injection
 document.addEventListener('includesLoaded', initApp);
 
 function initApp() {
-  // --- Screen containers ---
+  // Screen containers
   const welcomeContainer  = document.getElementById('welcomeContainer');
   const cameraContainer   = document.getElementById('cameraContainer');
   const recorderContainer = document.getElementById('recorderContainer');
   const playbackContainer = document.getElementById('playbackContainer');
 
-  // --- Welcome elements ---
-  const startBtn = document.getElementById('welcomeCreateBtn');
-
-  // --- Camera elements ---
+  // UI Elements
+  const startBtn    = document.getElementById('welcomeCreateBtn');
   const cameraVideo = document.getElementById('cameraVideo');
   const captureBtn  = document.getElementById('captureBtn');
 
-  // --- Snapshot holder ---
-  let snapshotDataURL = null;
+  // State
+  let cameraStream       = null;
+  let snapshotDataURL    = null;
 
-  // --- Initial state ---
+  // Initial visibility
   welcomeContainer.style.display   = 'block';
   cameraContainer.style.display    = 'none';
   recorderContainer.style.display  = 'none';
   playbackContainer.style.display  = 'none';
-  captureBtn.disabled              = true;
 
-  // --- Step 1: Show camera scene on Create ---
+  // Prepare the capture button
+  captureBtn.disabled    = true;
+  captureBtn.textContent = '📷 Enable Camera';
+
+  // STEP 1: Show camera UI
   startBtn.addEventListener('click', () => {
     welcomeContainer.style.display = 'none';
-    cameraContainer.style.display  = 'flex';  // or 'block' per your CSS
-    captureBtn.disabled = false;
+    cameraContainer.style.display  = 'flex';
+    captureBtn.disabled            = false;
   });
 
-  // --- Step 2: Capture Photo & ask permission here ---
+  // STEP 2: Enable / Capture
   captureBtn.addEventListener('click', async () => {
-    captureBtn.disabled = true;
+    // Phase 1: enable camera
+    if (!cameraStream) {
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } },
+          audio: false
+        });
+      } catch (err) {
+        alert('📷 Please allow camera access to continue.');
+        console.error(err);
+        return;
+      }
 
-    // 1️⃣ Request camera
-    let stream;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
-        audio: false
-      });
-    } catch (err) {
-      alert('📷 Please allow camera access to continue.');
-      console.error(err);
-      captureBtn.disabled = false;
+      // show live preview
+      cameraVideo.srcObject   = cameraStream;
+      cameraVideo.muted       = true;
+      cameraVideo.playsInline = true;
+      await cameraVideo.play();
+
+      // switch button into “snapshot” mode
+      captureBtn.textContent = '📸 Capture Photo';
       return;
     }
 
-    // 2️⃣ Show live video briefly (optional)
-    cameraVideo.srcObject   = stream;
-    cameraVideo.muted       = true;
-    cameraVideo.playsInline = true;
-    await cameraVideo.play();
-
-    // 3️⃣ Crop & snapshot
+    // Phase 2: snapshot & proceed
+    // compute square crop
     const vw   = cameraVideo.videoWidth;
     const vh   = cameraVideo.videoHeight;
     const size = Math.min(vw, vh);
+
     const canvas = document.createElement('canvas');
     canvas.width  = size;
     canvas.height = size;
@@ -69,19 +75,20 @@ function initApp() {
     const sx = (vw - size) / 2;
     const sy = (vh - size) / 2;
     ctx.drawImage(cameraVideo, sx, sy, size, size, 0, 0, size, size);
+
     snapshotDataURL = canvas.toDataURL('image/png');
 
-    // 4️⃣ Tear down stream
-    stream.getTracks().forEach(t => t.stop());
+    // stop camera
+    cameraStream.getTracks().forEach(t => t.stop());
 
-    // 5️⃣ Move to recorder
+    // move to recorder
     cameraContainer.style.display   = 'none';
     recorderContainer.style.display = 'block';
     setupRecorder();
   });
 
-  // --- Steps 3 & 4: Recorder & Playback (unchanged) ---
+  // STEP 3 & 4: Recorder + Playback
   function setupRecorder() {
-    // … your existing recorder + playback code …
+    /* your existing recorder/playback code */
   }
 }
