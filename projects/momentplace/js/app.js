@@ -122,12 +122,13 @@ function initApp() {
     }, 200);
   }
 
-  // 8) Mix & loop playback
+  // 8) Mix, play, reveal controls & setup download link
   function playAmbient() {
     const masterGain = audioCtx.createGain();
     masterGain.gain.value = 0.5;
     masterGain.connect(audioCtx.destination);
 
+    // loop each recorded buffer
     buffers.forEach(buf => {
       const src = audioCtx.createBufferSource();
       src.buffer = buf;
@@ -137,6 +138,30 @@ function initApp() {
     });
 
     titleEl.textContent = 'Here’s your Moment / Place ▶️';
+
+    // reveal the controls panel
+    const controls = document.getElementById('controlsContainer');
+    if (controls) controls.hidden = false;
+
+    // set up download link for the mix
+    const dest       = audioCtx.createMediaStreamDestination();
+    masterGain.connect(dest);
+    const maxSec     = Math.max(...buffers.map(b => b.duration));
+    const mixRecorder= new MediaRecorder(dest.stream);
+    const mixChunks  = [];
+
+    mixRecorder.ondataavailable = e => mixChunks.push(e.data);
+    mixRecorder.onstop = () => {
+      const mixBlob = new Blob(mixChunks, { type: 'audio/webm' });
+      const url     = URL.createObjectURL(mixBlob);
+      const a       = document.getElementById('downloadLink');
+      a.href        = url;
+      a.download    = 'moment-place.webm';
+      a.hidden      = false;
+    };
+
+    mixRecorder.start();
+    setTimeout(() => mixRecorder.stop(), maxSec * 1000 + 200);
   }
 
   // 9) Utility delay
