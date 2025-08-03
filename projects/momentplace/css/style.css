@@ -119,3 +119,36 @@ progress {
   color: var(--cadet-gray);
   text-align: right;
 }
+
+.camera-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.camera-prompt {
+  font-size: 1.25rem;
+  color: var(--battleship-gray);
+  text-align: center;
+}
+.camera-video {
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 3/4;
+  background: #000;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.capture-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background: var(--lion);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+.capture-btn:active {
+  background: var(--khaki);
+}
