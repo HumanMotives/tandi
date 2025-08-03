@@ -1,30 +1,36 @@
 // js/app.js
 
-// Wait for includes.js to load your partials
 window.addEventListener('DOMContentLoaded', () => {
-  // Grab our UI elements
   const titleEl   = document.getElementById('step-title');
   const recordBtn = document.getElementById('recordBtn');
+  const timerEl   = document.getElementById('timer');
   const progress  = document.getElementById('progress');
 
-  // Audio state
   let audioCtx, micStream, recorder;
-  let chunks = [];           // raw MediaRecorder blobs for the current take
-  let buffers = [];          // decoded AudioBuffers
-  let current = 0;           // how many moments recorded so far (0–3)
+  let chunks = [], buffers = [], current = 0;
+  let timerInterval, startTime;
 
-  // 1) Initialize AudioContext + mic
-  async function initAudio() {
-    audioCtx   = new (window.AudioContext || window.webkitAudioContext)();
-    micStream  = await navigator.mediaDevices.getUserMedia({ audio: true });
-  }
+  // Start recording: invoked on touchstart / mousedown
+  async function startRecording(e) {
+    e.preventDefault();                    // prevent text selection
+    recordBtn.classList.add('recording');
 
-  // 2) Start & stop recording handlers
-  function startRecording() {
-    // Resume on iOS first gesture
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    // Lazily init AudioContext & getUserMedia on first gesture
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (!micStream) {
+      try {
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch(err) {
+        alert('Mic access is required to record.');
+        console.error(err);
+        recordBtn.classList.remove('recording');
+        return;
+      }
+    }
 
-    // Lazy-init MediaRecorder
+    // Lazily init MediaRecorder
     if (!recorder) {
       recorder = new MediaRecorder(micStream);
       recorder.ondataavailable = e => chunks.push(e.data);
@@ -33,60 +39,71 @@ window.addEventListener('DOMContentLoaded', () => {
 
     chunks = [];
     recorder.start();
+
+    // start timer UI
+    startTime = Date.now();
+    timerEl.textContent = '0:00';
+    timerEl.style.display = 'block';
+    timerInterval = setInterval(updateTimer, 200);
   }
 
-  function stopRecording() {
+  // Stop recording: invoked on touchend / mouseup
+  function stopRecording(e) {
+    e.preventDefault();
     if (recorder && recorder.state === 'recording') {
       recorder.stop();
     }
+    recordBtn.classList.remove('recording');
+    clearInterval(timerInterval);
+    timerEl.style.display = 'none';
   }
 
-  // 3) When each recording stops…
+  // Update MM:SS display
+  function updateTimer() {
+    const elapsed = Date.now() - startTime;
+    const totalSec = Math.floor(elapsed / 1000);
+    const m = String(Math.floor(totalSec / 60)).padStart(1, '0');
+    const s = String(totalSec % 60).padStart(2, '0');
+    timerEl.textContent = `${m}:${s}`;
+  }
+
+  // After each sample is recorded
   async function onRecordingStop() {
-    // Decode and store
-    const blob      = new Blob(chunks, { type: 'audio/webm' });
-    const arrayBuf  = await blob.arrayBuffer();
-    const audioBuf  = await audioCtx.decodeAudioData(arrayBuf);
+    const blob     = new Blob(chunks, { type: 'audio/webm' });
+    const arrayBuf = await blob.arrayBuffer();
+    const audioBuf = await audioCtx.decodeAudioData(arrayBuf);
     buffers.push(audioBuf);
 
     current++;
     if (current < 3) {
-      // Update the prompt for next moment
       titleEl.textContent = `Record Moment ${current + 1}`;
     } else {
-      // All three done: show progress and then play
+      titleEl.textContent = 'Building your Moment…';
       showProgressBar();
       await delay(2000);
       playAmbient();
     }
   }
 
-  // 4) Simple progress bar animation
   function showProgressBar() {
     recordBtn.hidden = true;
     progress.hidden  = false;
     let val = 0;
-    const interval = setInterval(() => {
+    const iv = setInterval(() => {
       val += 10;
       progress.value = val;
-      if (val >= 100) clearInterval(interval);
+      if (val >= 100) clearInterval(iv);
     }, 200);
   }
 
-  // 5) Utility delay
-  function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  // 6) Mix & loop your three moments
   function playAmbient() {
     const masterGain = audioCtx.createGain();
     masterGain.gain.value = 0.5;
     masterGain.connect(audioCtx.destination);
 
-    buffers.forEach(buffer => {
+    buffers.forEach(buf => {
       const src = audioCtx.createBufferSource();
-      src.buffer = buffer;
+      src.buffer = buf;
       src.loop   = true;
       src.connect(masterGain);
       src.start();
@@ -95,15 +112,13 @@ window.addEventListener('DOMContentLoaded', () => {
     titleEl.textContent = 'Here’s your Moment / Place ▶️';
   }
 
-  // 7) Wire up the button for both touch and mouse
+  function delay(ms) {
+    return new Promise(res => setTimeout(res, ms));
+  }
+
+  // Wire up touch + mouse
   recordBtn.addEventListener('touchstart', startRecording);
-  recordBtn.addEventListener('mousedown', startRecording);
+  recordBtn.addEventListener('mousedown',  startRecording);
   recordBtn.addEventListener('touchend',   stopRecording);
   recordBtn.addEventListener('mouseup',    stopRecording);
-
-  // 8) Bootstrap audio (will prompt for mic on iOS/Android)
-  initAudio().catch(err => {
-    alert('Unable to access microphone. Please enable mic permissions and reload.');
-    console.error(err);
-  });
 });
