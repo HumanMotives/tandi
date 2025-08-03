@@ -237,3 +237,19 @@ progress {
 .camera-button {
   margin-top: 1rem;
 }
+
+.snapshot-container {
+  display: none;          /* hidden by default */
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.snapshot-image {
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 12px;
+}
