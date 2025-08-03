@@ -12,8 +12,11 @@ function initApp() {
   const captureBtn        = document.getElementById('captureBtn');
   const recorderContainer = document.getElementById('recorderContainer');
 
-  // start hidden until we capture
+  // recorder UI stays hidden until capture
   recorderContainer.hidden = true;
+
+  // disable capture until video is streaming
+  captureBtn.disabled = true;
 
   // ask for back-facing camera
   navigator.mediaDevices.getUserMedia({
@@ -22,6 +25,12 @@ function initApp() {
   })
   .then(stream => {
     cameraVideo.srcObject = stream;
+    cameraVideo.muted     = true;       // allow autoplay on iOS
+    cameraVideo.playsInline = true;     // prevent fullscreen on some browsers
+    return cameraVideo.play();
+  })
+  .then(() => {
+    captureBtn.disabled = false;
   })
   .catch(err => {
     alert('📷 Please enable camera permissions and reload.');
@@ -119,8 +128,8 @@ function setupRecorder() {
     // show timer
     timerEl.textContent = '0:00';
     timerEl.style.display = 'block';
-    startTime    = Date.now();
-    timerInt     = setInterval(updateTimer, 200);
+    startTime     = Date.now();
+    timerInt      = setInterval(updateTimer, 200);
   }
 
   function stopRecording(e) {
