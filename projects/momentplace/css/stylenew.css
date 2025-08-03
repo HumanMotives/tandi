@@ -10,7 +10,11 @@
   padding: 0;
   box-sizing: border-box;
 }
-/* hide all screens except welcome by default */
+
+/* ============
+   Initial Screen Visibility
+   ============ */
+/* Show only the welcome screen on load */
 #welcomeContainer {
   display: block;
 }
@@ -19,6 +23,7 @@
 #playbackContainer {
   display: none;
 }
+
 /* ============
    Color Palette (future accents)
    ============ */
@@ -37,6 +42,7 @@ html, body {
   width: 100%;
   height: 100%;
 }
+
 body {
   background-color: #ffffff;
   font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -109,19 +115,19 @@ input, select, textarea {
 /* ============
    Utility Classes
    ============ */
-.hidden { display: none !important; }
-.center { text-align: center; }
-.flex   { display: flex; }
-.flex-center { display: flex; justify-content: center; align-items: center; }
-.mt-1 { margin-top: 1rem; }
-.mb-1 { margin-bottom: 1rem; }
-.p-1  { padding: 1rem; }
+.hidden       { display: none !important; }
+.center       { text-align: center; }
+.flex         { display: flex; }
+.flex-center  { display: flex; justify-content: center; align-items: center; }
+.mt-1         { margin-top: 1rem; }
+.mb-1         { margin-bottom: 1rem; }
+.p-1          { padding: 1rem; }
 
 /* ============
    Camera Styles
    ============ */
 .camera-container {
-  display: flex;
+  /* hidden by default via initial screen visibility above */
   flex-direction: column;
   align-items: center;
   gap: 1rem;
@@ -136,11 +142,63 @@ input, select, textarea {
   object-fit: cover;
 }
 
-/* Preview of captured photo in recorder screen */
+/* ============
+   Recorder Styles
+   ============ */
+/* Preview of captured photo */
 .snapshot-preview {
   width: 100%;
   max-width: 400px;
   border-radius: 12px;
   margin-bottom: 1rem;
+  object-fit: cover;
+}
+#recorderContainer {
+  /* hidden by default via initial screen visibility */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+.record-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+.timer {
+  font-size: 1.25rem;
+  color: #333333;
+  font-variant-numeric: tabular-nums;
+}
+progress {
+  width: 80%;
+  height: 1rem;
+  accent-color: #333333;
+}
+
+/* ============
+   Playback Styles
+   ============ */
+#playbackContainer {
+  /* hidden by default via initial screen visibility */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+.playback-image {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 12px;
   object-fit: cover;
 }
