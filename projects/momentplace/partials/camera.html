@@ -1,13 +1,11 @@
 <div id="cameraContainer" class="camera-container">
   <p class="camera-prompt">Take a nice picture of your place</p>
 
-  <!-- wrapper to stack video + snapshot -->
   <div class="camera-wrapper">
     <video id="cameraVideo" class="camera-video" autoplay playsinline></video>
-    <img id="snapshotPreview" class="camera-video snapshot-preview" alt="Your photo" hidden />
+    <img    id="cameraSnapshot" class="camera-video snapshot-preview" alt="Your photo" hidden />
   </div>
 
-  <!-- action buttons -->
   <button id="captureBtn" class="camera-button">📷 Enable Camera</button>
-  <button id="continueBtn" class="camera-button" hidden>Continue</button>
+  <button id="cameraContinueBtn" class="camera-button" hidden>Continue</button>
 </div>
