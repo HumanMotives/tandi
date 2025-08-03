@@ -202,3 +202,29 @@ progress {
   border-radius: 12px;
   object-fit: cover;
 }
+
+/* Stack video & preview */
+.camera-wrapper {
+  position: relative;
+}
+
+.camera-video,
+.snapshot-preview {
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+/* Ensure the snapshot sits exactly over the video */
+.snapshot-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Buttons in the camera scene */
+.camera-button {
+  margin-top: 1rem;
+}
