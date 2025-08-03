@@ -1,66 +1,62 @@
 // js/app.js
 
-// Wait until your HTML partials are injected
+// Wait for partials to load
 document.addEventListener('includesLoaded', initApp);
 
 function initApp() {
-  // === SCREEN CONTAINERS ===
+  // Screen containers
   const welcomeContainer  = document.getElementById('welcomeContainer');
   const cameraContainer   = document.getElementById('cameraContainer');
   const recorderContainer = document.getElementById('recorderContainer');
   const playbackContainer = document.getElementById('playbackContainer');
 
-  // === WELCOME ELEMENTS ===
+  // Welcome elements
   const startBtn = document.getElementById('welcomeCreateBtn');
 
-  // === CAMERA ELEMENTS ===
+  // Camera elements
   const cameraVideo = document.getElementById('cameraVideo');
   const captureBtn  = document.getElementById('captureBtn');
 
-  // Hold the captured photo data URL
+  // Hold the captured photo
   let snapshotDataURL = null;
 
-  // === INITIAL STATE ===
+  // Initial state
   welcomeContainer.hidden   = false;
   cameraContainer.hidden    = true;
   recorderContainer.hidden  = true;
   playbackContainer.hidden  = true;
   captureBtn.disabled       = true;
 
-  // === STEP 1: START FLOW ===
+  // STEP 1: Launch camera on Create
   startBtn.addEventListener('click', async () => {
-    // show camera, hide welcome
     welcomeContainer.hidden = true;
     cameraContainer.hidden  = false;
 
-    // ask for back‐facing camera
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: "environment" } },
         audio: false
       });
-      cameraVideo.srcObject    = stream;
-      cameraVideo.muted        = true;
-      cameraVideo.playsInline  = true;
+      cameraVideo.srcObject   = stream;
+      cameraVideo.muted       = true;
+      cameraVideo.playsInline = true;
       await cameraVideo.play();
       captureBtn.disabled = false;
     } catch (err) {
       alert('📷 Please allow camera access to continue.');
       console.error(err);
-      // revert to welcome if needed
       welcomeContainer.hidden = false;
       cameraContainer.hidden  = true;
     }
   });
 
-  // === STEP 2: CAPTURE PHOTO ===
+  // STEP 2: Capture photo and show it in recorder UI
   captureBtn.addEventListener('click', () => {
-    // compute square crop
+    // Crop a centered square
     const vw   = cameraVideo.videoWidth;
     const vh   = cameraVideo.videoHeight;
     const size = Math.min(vw, vh);
 
-    // draw centered square to canvas
     const canvas = document.createElement('canvas');
     canvas.width  = size;
     canvas.height = size;
@@ -69,19 +65,26 @@ function initApp() {
     const sy = (vh - size) / 2;
     ctx.drawImage(cameraVideo, sx, sy, size, size, 0, 0, size, size);
 
-    // save snapshot
+    // Save the snapshot
     snapshotDataURL = canvas.toDataURL('image/png');
 
-    // stop camera
+    // Inject into recorder screen
+    const previewImg = document.getElementById('snapshotPreview');
+    if (previewImg) {
+      previewImg.src    = snapshotDataURL;
+      previewImg.hidden = false;
+    }
+
+    // Stop camera
     cameraVideo.srcObject.getTracks().forEach(t => t.stop());
 
-    // move to recorder
+    // Switch to recorder
     cameraContainer.hidden   = true;
     recorderContainer.hidden = false;
     setupRecorder();
   });
 
-  // === STEP 3 & 4: RECORDER & PLAYBACK ===
+  // STEP 3 & 4: Recorder + Playback (unchanged)
   function setupRecorder() {
     const stepTitle    = document.getElementById('step-title');
     const recordBtn    = document.getElementById('recordBtn');
@@ -95,12 +98,12 @@ function initApp() {
     let current = 0;
     let timerInt, startTime, recordTO;
 
-    // init UI
-    recordBtn.hidden     = false;
-    progressEl.hidden    = true;
-    downloadLink.hidden  = true;
+    // UI init
+    recordBtn.hidden    = false;
+    progressEl.hidden   = true;
+    downloadLink.hidden = true;
 
-    // wire record button
+    // Recording handlers
     recordBtn.addEventListener('touchstart', startRecording);
     recordBtn.addEventListener('mousedown',  startRecording);
     recordBtn.addEventListener('touchend',   stopRecording);
@@ -110,12 +113,12 @@ function initApp() {
       e.preventDefault();
       recordBtn.classList.add('recording');
 
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
       if (!micStream) {
         try {
           micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         } catch (err) {
-          alert('🎙️ Please allow mic access to record.');
+          alert('🎙️ Please allow mic access.');
           console.error(err);
           recordBtn.classList.remove('recording');
           return;
@@ -125,15 +128,13 @@ function initApp() {
       if (!recorder) {
         recorder = new MediaRecorder(micStream);
         recorder.ondataavailable = ev => chunks.push(ev.data);
-        recorder.onstop          = onRecordingStop;
+        recorder.onstop = onRecordingStop;
       }
 
       chunks = [];
       recorder.start();
-      // cap at 15s
       recordTO = setTimeout(() => stopRecording(e), 15000);
 
-      // show timer
       timerEl.textContent = '0:00';
       timerEl.style.display = 'block';
       startTime = Date.now();
@@ -215,7 +216,6 @@ function initApp() {
         downloadLink.download = 'moment-place.webm';
         downloadLink.hidden   = false;
 
-        // switch to playback
         recorderContainer.hidden = true;
         playbackContainer.hidden = false;
         if (playbackImg && snapshotDataURL) {
@@ -224,7 +224,7 @@ function initApp() {
       };
 
       mixRec.start();
-      setTimeout(() => mixRec.stop(), longest * 1000 + 200);
+      setTimeout(() => mixRec.stop(), longest*1000 + 200);
     }
 
     function delay(ms) {
