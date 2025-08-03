@@ -1,4 +1,13 @@
-/* Reset & base from H/M homepage */
+:root {
+  /* your palette */
+  --platinum: #E0E1DEff;
+  --lion: #A88D6Fff;
+  --cadet-gray: #86A7A9ff;
+  --battleship-gray: #808171ff;
+  --khaki: #B3AD97ff;
+}
+
+/* Reset & base */
 * {
   margin: 0;
   padding: 0;
@@ -6,13 +15,13 @@
 }
 body {
   font-family: 'Helvetica Neue', sans-serif;
-  background-color: #ffffff;
-  color: #111;
+  background-color: var(--platinum);
+  color: var(--battleship-gray);
   line-height: 1.5;
   padding: 1rem;
 }
 
-/* === APP LAYOUT === */
+/* === HEADER === */
 .app-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -20,63 +29,43 @@ body {
 .app-header h1 {
   font-size: 2.4rem;
   font-weight: bold;
-  margin-bottom: 0.5rem;
+  color: var(--lion);
 }
-.app-header p {
-  font-size: 1.1rem;
-  color: #555;
-}
-
-.app-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 60vh;
-  justify-content: center;
+.app-header .tagline {
+  font-size: 1rem;
+  color: var(--cadet-gray);
+  margin-top: 0.5rem;
 }
 
-/* Recorder button */
-.record-btn {
-  padding: 1rem 2rem;
-  font-size: 1.125rem;
-  background: #111;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  transition: background 0.3s ease;
-}
-.record-btn:active {
-  background: #333;
-}
-
-/* Progress bar */
-progress {
-  width: 80%;
-  height: 1rem;
-  margin-top: 1.5rem;
-}
-
-/* Footer */
-.app-footer {
-  text-align: center;
-  font-size: 0.9rem;
-  color: #aaa;
-  margin-top: 2rem;
-}
-
+/* === RECORDER UI === */
 .recorder {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+.timer {
+  display: none;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  color: var(--battleship-gray);
+  font-variant-numeric: tabular-nums;
+}
+
+.step-title {
+  margin-top: 0.75rem;
+  font-size: 1.125rem;
+  color: var(--cadet-gray);
+}
+
+/* Round Record Button */
 .record-btn {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: #e33;
+  background: var(--lion);
   border: none;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
@@ -84,16 +73,22 @@ progress {
 }
 .record-btn:active,
 .record-btn.recording {
-  background: #c00;
+  background: var(--khaki);
   transform: scale(0.96);
 }
 
-.timer {
-  margin-top: 0.75rem;
-  font-size: 1.25rem;
-  color: #111;
-  display: none;
-  font-variant-numeric: tabular-nums;
+/* Progress bar */
+progress {
+  width: 80%;
+  height: 1rem;
+  margin-top: 1.5rem;
+  accent-color: var(--cadet-gray);
 }
 
-/* Mobile responsiveness is inherent—single column and fluid widths */
+/* === FOOTER === */
+.app-footer {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--cadet-gray);
+  margin-top: 2rem;
+}
