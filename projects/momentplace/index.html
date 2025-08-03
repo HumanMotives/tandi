@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Moment / Place</title>
   <link rel="stylesheet" href="css/stylenew.css"/>
 </head>
 <body>
-  <div data-include="partials/header.html"></div>
 
-  
-  <main class="app-container">
+  <!-- Welcome Screen -->
+  <div data-include="partials/welcome.html"></div>
+
+  <!-- Camera Capture Screen -->
   <div data-include="partials/camera.html"></div>
-  <div id="recorderContainer" hidden>
-    <div data-include="partials/recorder.html"></div>
-    <div data-include="partials/progress.html"></div>
-  </div>
-</main>
 
-  <div data-include="partials/footer.html"></div>
+  <!-- Recorder Screen -->
+  <div data-include="partials/recorder.html"></div>
 
+  <!-- Playback/Publish Screen -->
+  <div data-include="partials/playback.html"></div>
+
+  <!-- Partials loader -->
   <script src="js/includes.js" defer></script>
-  <script src="js/app.js"      defer></script>
+  <!-- Main app logic -->
+  <script src="js/app.js" defer></script>
 </body>
 </html>
