@@ -133,12 +133,11 @@ progress {
   text-align: center;
 }
 .camera-video {
-  width: 100%;
-  max-width: 360px;
-  aspect-ratio: 3/4;
+  width: 200px;               /* smaller fixed size */
+  height: 200px;              /* square */
   background: #000;
   border-radius: 12px;
-  object-fit: cover;
+  object-fit: cover;          /* fill the square, cropping as needed */
 }
 .capture-btn {
   padding: 0.75rem 1.5rem;
