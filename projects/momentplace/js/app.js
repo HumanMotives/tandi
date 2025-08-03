@@ -1,6 +1,5 @@
 // js/app.js
 
-// wrap everything in initApp
 function initApp() {
   const titleEl   = document.getElementById('step-title');
   const recordBtn = document.getElementById('recordBtn');
@@ -8,84 +7,93 @@ function initApp() {
   const progress  = document.getElementById('progress');
 
   if (!recordBtn) {
-    console.error('recordBtn not found!');
+    console.error('Recorder partial not loaded');
     return;
   }
 
-  let audioCtx, micStream, recorder;
-  let chunks = [], buffers = [], current = 0;
-  let timerInterval, startTime;
+  let audioCtx;
+  let micStream;
+  let recorder;
+  let chunks     = [];
+  let buffers    = [];
+  let current    = 0;
+  let timerInterval;
+  let startTime;
+  let recordTimeout;
 
+  // 1) Pre-request mic access on load
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      micStream = stream;
+      recorder  = new MediaRecorder(stream);
+      recorder.ondataavailable = e => chunks.push(e.data);
+      recorder.onstop          = onRecordingStop;
+      console.log('🔊 Microphone ready');
+    })
+    .catch(err => {
+      console.warn('⚠️ Microphone permission not granted:', err);
+    });
+
+  // 2) Wire up touch + mouse events
   recordBtn.addEventListener('touchstart', startRecording);
   recordBtn.addEventListener('mousedown',  startRecording);
   recordBtn.addEventListener('touchend',   stopRecording);
   recordBtn.addEventListener('mouseup',    stopRecording);
 
+  // 3) Start recording handler
   async function startRecording(e) {
     e.preventDefault();
-    console.log('⏺️ startRecording');
-    recordBtn.classList.add('recording');
 
-    // lazy init AudioContext & mic
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (!micStream) {
-      try {
-        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        console.log('Mic stream acquired');
-      } catch(err) {
-        alert('🛑 Mic access denied or unavailable.');
-        console.error(err);
-        recordBtn.classList.remove('recording');
-        return;
-      }
+    // Resume AudioContext if needed (iOS)
+    if (audioCtx.state === 'suspended') {
+      try { await audioCtx.resume(); }
+      catch (err) { console.warn('AudioContext resume error', err); }
     }
 
-    // lazy init MediaRecorder
     if (!recorder) {
-      recorder = new MediaRecorder(micStream);
-      recorder.ondataavailable = e => chunks.push(e.data);
-      recorder.onstop = onRecordingStop;
+      alert('Please allow microphone access and reload.');
+      return;
     }
 
+    recordBtn.classList.add('recording');
     chunks = [];
     recorder.start();
-    startTimer();
+
+    // Enforce 15 s max
+    recordTimeout = setTimeout(() => stopRecording(e), 15000);
+
+    // Show timer
+    timerEl.textContent = '0:00';
+    timerEl.style.display = 'block';
+    startTime      = Date.now();
+    timerInterval  = setInterval(updateTimer, 200);
   }
 
+  // 4) Stop recording handler
   function stopRecording(e) {
     e.preventDefault();
-    console.log('⏹️ stopRecording');
+    clearTimeout(recordTimeout);
+    clearInterval(timerInterval);
+    timerEl.style.display = 'none';
+    recordBtn.classList.remove('recording');
+
     if (recorder && recorder.state === 'recording') {
       recorder.stop();
     }
-    recordBtn.classList.remove('recording');
-    stopTimer();
   }
 
-  function startTimer() {
-    timerEl.textContent = '0:00';
-    timerEl.style.display = 'block';
-    startTime = Date.now();
-    timerInterval = setInterval(updateTimer, 200);
-  }
-
-  function stopTimer() {
-    clearInterval(timerInterval);
-    timerEl.style.display = 'none';
-  }
-
+  // 5) Update MM:SS timer display
   function updateTimer() {
-    const elapsed = Date.now() - startTime;
+    const elapsed  = Date.now() - startTime;
     const totalSec = Math.floor(elapsed / 1000);
-    const m = String(Math.floor(totalSec / 60));
-    const s = String(totalSec % 60).padStart(2, '0');
+    const m        = String(Math.floor(totalSec / 60));
+    const s        = String(totalSec % 60).padStart(2, '0');
     timerEl.textContent = `${m}:${s}`;
   }
 
+  // 6) Handle each recording stop
   async function onRecordingStop() {
-    console.log('Recording stopped, decoding…');
     const blob     = new Blob(chunks, { type: 'audio/webm' });
     const arrayBuf = await blob.arrayBuffer();
     const audioBuf = await audioCtx.decodeAudioData(arrayBuf);
@@ -102,6 +110,7 @@ function initApp() {
     }
   }
 
+  // 7) Progress bar animation
   function showProgressBar() {
     recordBtn.hidden = true;
     progress.hidden  = false;
@@ -113,8 +122,8 @@ function initApp() {
     }, 200);
   }
 
+  // 8) Mix & loop playback
   function playAmbient() {
-    console.log('▶️ playAmbient');
     const masterGain = audioCtx.createGain();
     masterGain.gain.value = 0.5;
     masterGain.connect(audioCtx.destination);
@@ -130,10 +139,11 @@ function initApp() {
     titleEl.textContent = 'Here’s your Moment / Place ▶️';
   }
 
+  // 9) Utility delay
   function delay(ms) {
     return new Promise(res => setTimeout(res, ms));
   }
 }
 
-// only run once partials are in place
+// Run once partials are loaded
 document.addEventListener('includesLoaded', initApp);
