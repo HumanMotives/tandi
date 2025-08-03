@@ -2,53 +2,57 @@
 document.addEventListener('includesLoaded', initApp);
 
 function initApp() {
-  // Containers
+  // --- Screen containers ---
   const welcomeContainer  = document.getElementById('welcomeContainer');
   const cameraContainer   = document.getElementById('cameraContainer');
   const recorderContainer = document.getElementById('recorderContainer');
   const playbackContainer = document.getElementById('playbackContainer');
 
-  // Welcome
+  // --- Welcome UI ---
   const startBtn = document.getElementById('welcomeCreateBtn');
 
-  // Camera
-  const cameraVideo      = document.getElementById('cameraVideo');
-  const captureBtn       = document.getElementById('captureBtn');
-  const cameraSnapshot   = document.getElementById('cameraSnapshot');
-  const cameraContinueBtn= document.getElementById('cameraContinueBtn');
+  // --- Camera UI ---
+  const cameraVideo     = document.getElementById('cameraVideo');
+  const captureBtn      = document.getElementById('captureBtn');
+  const snapshotPreview = document.getElementById('snapshotPreview');
+  const continueBtn     = document.getElementById('continueBtn');
 
-  // State
+  // --- State ---
   let cameraStream = null;
+  let snapshotDataURL = null;
 
-  // Initial visibility
+  // --- Initial visibility ---
   welcomeContainer.style.display   = 'block';
   cameraContainer.style.display    = 'none';
   recorderContainer.style.display  = 'none';
   playbackContainer.style.display  = 'none';
 
-  // Configure buttons
-  captureBtn.textContent  = '📷 Enable Camera';
-  cameraSnapshot.hidden   = true;
-  cameraContinueBtn.hidden= true;
+  // configure camera buttons
+  captureBtn.textContent   = '📷 Enable Camera';
+  captureBtn.hidden        = false;
+  continueBtn.hidden       = true;
+  snapshotPreview.hidden   = true;
+  cameraVideo.hidden       = false;
 
-  // === STEP 1: Start → show camera ===
+  // STEP 1: Create → show camera
   startBtn.addEventListener('click', () => {
     welcomeContainer.style.display = 'none';
     cameraContainer.style.display  = 'flex';
-    captureBtn.textContent         = '📷 Enable Camera';
-    cameraSnapshot.hidden          = true;
-    cameraContinueBtn.hidden       = true;
-    cameraVideo.hidden             = false;
-    cameraStream                   = null;
+    // reset
+    captureBtn.textContent = '📷 Enable Camera';
+    continueBtn.hidden     = true;
+    snapshotPreview.hidden = true;
+    cameraVideo.hidden     = false;
+    cameraStream           = null;
   });
 
-  // === STEP 2: Enable vs Capture on same button ===
+  // STEP 2: Enable vs. Capture
   captureBtn.addEventListener('click', async () => {
-    // Phase 1: request permission & live preview
+    // PHASE 1: request and preview
     if (!cameraStream) {
       try {
         cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'environment' } },
+          video: { facingMode: 'environment' },
           audio: false
         });
       } catch {
@@ -63,7 +67,7 @@ function initApp() {
       return;
     }
 
-    // Phase 2: snapshot
+    // PHASE 2: snapshot
     const vw   = cameraVideo.videoWidth;
     const vh   = cameraVideo.videoHeight;
     const size = Math.min(vw, vh);
@@ -73,33 +77,34 @@ function initApp() {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(
       cameraVideo,
-      (vw-size)/2, (vh-size)/2, size, size,
-      0,0, size, size
+      (vw - size)/2, (vh - size)/2, size, size,
+      0, 0, size, size
     );
-    const dataURL = canvas.toDataURL('image/png');
+    snapshotDataURL = canvas.toDataURL('image/png');
 
-    // show snapshot
-    cameraSnapshot.src    = dataURL;
-    cameraSnapshot.hidden = false;
-    cameraVideo.hidden    = true;
+    // show snapshot, hide video
+    snapshotPreview.src     = snapshotDataURL;
+    snapshotPreview.hidden  = false;
+    cameraVideo.hidden      = true;
 
-    // stop camera
+    // stop stream
     cameraStream.getTracks().forEach(t => t.stop());
 
     // swap buttons
-    captureBtn.hidden       = true;
-    cameraContinueBtn.hidden= false;
+    captureBtn.hidden   = true;
+    continueBtn.hidden  = false;
   });
 
-  // === STEP 3: Continue → recorder ===
-  cameraContinueBtn.addEventListener('click', () => {
+  // STEP 3: Continue → show recorder
+  continueBtn.addEventListener('click', () => {
     cameraContainer.style.display   = 'none';
     recorderContainer.style.display = 'block';
     setupRecorder();
   }, { once: true });
 
-  // === STEP 4 & 5: Recorder + Playback ===
+  // STEP 4 & 5: Recorder and Playback
   function setupRecorder() {
+    // elements
     const stepTitle    = document.getElementById('step-title');
     const recordBtn    = document.getElementById('recordBtn');
     const timerEl      = document.getElementById('timer');
@@ -107,9 +112,9 @@ function initApp() {
     const downloadLink = document.getElementById('downloadLink');
     const playbackImg  = document.getElementById('playbackImage');
 
+    // state
     let audioCtx, micStream, recorder;
-    let chunks  = [];
-    let buffers = [];
+    let chunks = [], buffers = [];
     let current = 0;
     let timerInt, startTime, recordTO;
 
@@ -119,7 +124,7 @@ function initApp() {
     progressEl.hidden   = true;
     downloadLink.hidden = true;
 
-    // wire recording
+    // record handlers
     recordBtn.addEventListener('touchstart', startRecording);
     recordBtn.addEventListener('mousedown',  startRecording);
     recordBtn.addEventListener('touchend',   stopRecording);
@@ -130,12 +135,12 @@ function initApp() {
       recordBtn.classList.add('recording');
       timerEl.hidden = false;
 
-      if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (!micStream) {
         try {
           micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         } catch {
-          alert('🎙️ Please allow microphone access.');
+          alert('🎙️ Please allow mic access.');
           recordBtn.classList.remove('recording');
           return;
         }
@@ -165,8 +170,7 @@ function initApp() {
     }
 
     function updateTimer() {
-      const elapsed = Date.now() - startTime;
-      const secs    = Math.floor(elapsed/1000);
+      const secs = Math.floor((Date.now() - startTime)/1000);
       timerEl.textContent = `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`;
     }
 
@@ -178,7 +182,7 @@ function initApp() {
 
       current++;
       if (current < 3) {
-        stepTitle.textContent = `Record Moment ${current+1}`;
+        stepTitle.textContent = `Record Moment ${current + 1}`;
       } else {
         stepTitle.textContent = 'Building your Moment…';
         showProgress();
@@ -190,49 +194,57 @@ function initApp() {
     function showProgress() {
       recordBtn.hidden  = true;
       progressEl.hidden = false;
-      let v=0;
-      const iv=setInterval(()=>{
-        v+=10; progressEl.value=v;
-        if(v>=100) clearInterval(iv);
-      },200);
+      let v = 0;
+      const iv = setInterval(() => {
+        v += 10;
+        progressEl.value = v;
+        if (v >= 100) clearInterval(iv);
+      }, 200);
     }
 
     function playAmbient() {
-      const masterGain=new (window.AudioContext||window.webkitAudioContext)().createGain();
-      masterGain.gain.value=0.5;
+      const masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0.5;
       masterGain.connect(audioCtx.destination);
 
-      buffers.forEach(buf=>{
-        const src=audioCtx.createBufferSource();
-        src.buffer=buf; src.loop=true;
-        src.connect(masterGain); src.start();
+      buffers.forEach(buf => {
+        const src = audioCtx.createBufferSource();
+        src.buffer = buf;
+        src.loop   = true;
+        src.connect(masterGain);
+        src.start();
       });
 
-      stepTitle.textContent='Here’s your Moment / Place ▶️';
+      stepTitle.textContent = 'Here’s your Moment / Place ▶️';
 
-      const dest=audioCtx.createMediaStreamDestination();
+      // capture final mix
+      const dest    = audioCtx.createMediaStreamDestination();
       masterGain.connect(dest);
-      const longest=Math.max(...buffers.map(b=>b.duration));
-      const mixRec=new MediaRecorder(dest.stream);
-      const mixChunks=[];
+      const longest = Math.max(...buffers.map(b=>b.duration));
+      const mixRec  = new MediaRecorder(dest.stream);
+      const mixChunks = [];
 
-      mixRec.ondataavailable=e=>mixChunks.push(e.data);
-      mixRec.onstop=()=>{
-        const mixBlob=new Blob(mixChunks,{type:'audio/webm'});
-        const url=URL.createObjectURL(mixBlob);
-        downloadLink.href=url;
-        downloadLink.download='moment-place.webm';
-        downloadLink.hidden=false;
+      mixRec.ondataavailable = e => mixChunks.push(e.data);
+      mixRec.onstop = () => {
+        const mixBlob = new Blob(mixChunks,{type:'audio/webm'});
+        const url     = URL.createObjectURL(mixBlob);
+        downloadLink.href = url;
+        downloadLink.download = 'moment-place.webm';
+        downloadLink.hidden = false;
 
-        recorderContainer.style.display='none';
-        playbackContainer.style.display='block';
-        if(playbackImg) playbackImg.src=snapshotDataURL;
+        recorderContainer.style.display = 'none';
+        playbackContainer.style.display = 'block';
+        if (playbackImg && snapshotDataURL) {
+          playbackImg.src = snapshotDataURL;
+        }
       };
 
       mixRec.start();
-      setTimeout(()=>mixRec.stop(),longest*1000+200);
+      setTimeout(() => mixRec.stop(), longest * 1000 + 200);
     }
 
-    function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+    function delay(ms) { 
+      return new Promise(res => setTimeout(res, ms)); 
+    }
   }
 }
