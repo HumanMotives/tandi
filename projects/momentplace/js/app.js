@@ -15,54 +15,60 @@ function initApp() {
   // start hidden until we capture
   recorderContainer.hidden = true;
 
-  // ask for camera
+  // ask for back-facing camera
   navigator.mediaDevices.getUserMedia({
-  video: { facingMode: { ideal: "environment" } },
-  audio: false
-})
-    .then(stream => {
-      cameraVideo.srcObject = stream;
-    })
-    .catch(err => {
-      alert('📷 Please enable camera permissions and reload.');
-      console.error(err);
-    });
+    video: { facingMode: { ideal: "environment" } },
+    audio: false
+  })
+  .then(stream => {
+    cameraVideo.srcObject = stream;
+  })
+  .catch(err => {
+    alert('📷 Please enable camera permissions and reload.');
+    console.error(err);
+  });
 
   // when user snaps photo:
   captureBtn.addEventListener('click', () => {
-    // freeze frame into a canvas
-    const canvas = document.createElement('canvas');
-    canvas.width  = cameraVideo.videoWidth;
-    canvas.height = cameraVideo.videoHeight;
-    canvas.getContext('2d').drawImage(cameraVideo, 0, 0);
+    // 1. Compute square dimensions
+    const vw   = cameraVideo.videoWidth;
+    const vh   = cameraVideo.videoHeight;
+    const size = Math.min(vw, vh);
 
-    // replace camera UI with the snapshot
+    // 2. Draw a centered square from the video into a canvas
+    const canvas = document.createElement('canvas');
+    canvas.width  = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const sx = (vw - size) / 2;
+    const sy = (vh - size) / 2;
+    ctx.drawImage(cameraVideo, sx, sy, size, size, 0, 0, size, size);
+
+    // 3. Replace cameraSection with the cropped snapshot
     const img = document.createElement('img');
     img.src       = canvas.toDataURL('image/png');
     img.className = 'snapshot';
     cameraSection.replaceWith(img);
 
-    // stop camera
+    // 4. Stop camera tracks
     cameraVideo.srcObject.getTracks().forEach(t => t.stop());
 
-    // reveal recorder UI
+    // 5. Reveal recorder UI
     recorderContainer.hidden = false;
 
-    // initialize recorder logic
+    // 6. Initialize recorder logic
     setupRecorder();
   });
 }
 
+// Recorder & Playback setup
 function setupRecorder() {
-  //
-  // === RECORDER & PLAYBACK SETUP ===
-  //
-  const titleEl          = document.getElementById('step-title');
-  const recordBtn        = document.getElementById('recordBtn');
-  const timerEl          = document.getElementById('timer');
-  const progress         = document.getElementById('progress');
-  const controlsPanel    = document.getElementById('controlsContainer');
-  const downloadLink     = document.getElementById('downloadLink');
+  const titleEl       = document.getElementById('step-title');
+  const recordBtn     = document.getElementById('recordBtn');
+  const timerEl       = document.getElementById('timer');
+  const progress      = document.getElementById('progress');
+  const controlsPanel = document.getElementById('controlsContainer');
+  const downloadLink  = document.getElementById('downloadLink');
 
   let audioCtx, micStream, recorder;
   let chunks   = [];
@@ -113,8 +119,8 @@ function setupRecorder() {
     // show timer
     timerEl.textContent = '0:00';
     timerEl.style.display = 'block';
-    startTime     = Date.now();
-    timerInt      = setInterval(updateTimer, 200);
+    startTime    = Date.now();
+    timerInt     = setInterval(updateTimer, 200);
   }
 
   function stopRecording(e) {
@@ -130,10 +136,10 @@ function setupRecorder() {
   }
 
   function updateTimer() {
-    const elapsed  = Date.now() - startTime;
-    const secs     = Math.floor(elapsed / 1000);
-    const m        = Math.floor(secs / 60);
-    const s        = secs % 60;
+    const elapsed = Date.now() - startTime;
+    const secs    = Math.floor(elapsed / 1000);
+    const m       = Math.floor(secs / 60);
+    const s       = secs % 60;
     timerEl.textContent = `${m}:${String(s).padStart(2, '0')}`;
   }
 
@@ -187,11 +193,11 @@ function setupRecorder() {
 
     // set up download link
     if (downloadLink) {
-      const dest       = audioCtx.createMediaStreamDestination();
+      const dest      = audioCtx.createMediaStreamDestination();
       masterGain.connect(dest);
-      const longest    = Math.max(...buffers.map(b => b.duration));
-      const mixRec     = new MediaRecorder(dest.stream);
-      const mixChunks  = [];
+      const longest   = Math.max(...buffers.map(b => b.duration));
+      const mixRec    = new MediaRecorder(dest.stream);
+      const mixChunks = [];
 
       mixRec.ondataavailable = e => mixChunks.push(e.data);
       mixRec.onstop = () => {
