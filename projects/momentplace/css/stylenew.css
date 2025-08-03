@@ -1,3 +1,5 @@
+/* css/stylenew.css */
+
 /* ============
    Base Reset
    ============ */
@@ -10,14 +12,14 @@
 }
 
 /* ============
-   Color Palette (for future accents)
+   Color Palette (future accents)
    ============ */
 :root {
-  --platinum:     #E0E1DE;
-  --lion:         #A88D6F;
-  --cadet-gray:   #86A7A9;
+  --platinum:        #E0E1DE;
+  --lion:            #A88D6F;
+  --cadet-gray:      #86A7A9;
   --battleship-gray: #808171;
-  --khaki:        #B3AD97;
+  --khaki:           #B3AD97;
 }
 
 /* ============
@@ -27,11 +29,10 @@ html, body {
   width: 100%;
   height: 100%;
 }
-
 body {
-  background-color: #ffffff;              /* white background */
+  background-color: #ffffff;
   font-family: 'Helvetica Neue', Arial, sans-serif;
-  color: #333333;                         /* dark gray body text */
+  color: #333333;
   line-height: 1.5;
   font-size: 1rem;
   padding: 1rem;
@@ -41,7 +42,7 @@ body {
    Headings
    ============ */
 h1, h2, h3, h4, h5, h6 {
-  color: #000000;                         /* black headings */
+  color: #000000;
   font-weight: 700;
   margin-bottom: 0.5em;
 }
@@ -50,11 +51,13 @@ h1, h2, h3, h4, h5, h6 {
    Text Elements
    ============ */
 p, li, span, label {
-  color: #333333;                         /* dark gray */
+  color: #333333;
   margin-bottom: 1em;
 }
 
-/* Links */
+/* ============
+   Links
+   ============ */
 a {
   color: #000000;
   text-decoration: none;
@@ -67,9 +70,8 @@ a:hover {
    Buttons
    ============ */
 button {
-  display: inline-block;
-  background-color: #000000;              /* black button */
-  color: #ffffff;                         /* white text */
+  background-color: #000000;
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   padding: 0.75rem 1.5rem;
@@ -99,20 +101,29 @@ input, select, textarea {
 /* ============
    Utility Classes
    ============ */
-.hidden {
-  display: none !important;
-}
-.center {
-  text-align: center;
-}
-.flex {
-  display: flex;
-}
-.flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+.hidden { display: none !important; }
+.center { text-align: center; }
+.flex   { display: flex; }
+.flex-center { display: flex; justify-content: center; align-items: center; }
 .mt-1 { margin-top: 1rem; }
 .mb-1 { margin-bottom: 1rem; }
 .p-1  { padding: 1rem; }
+
+/* ============
+   Camera Styles
+   ============ */
+.camera-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+.camera-video {
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1 / 1;
+  background: #000;
+  border-radius: 12px;
+  object-fit: cover;
+}
