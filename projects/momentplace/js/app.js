@@ -1,36 +1,41 @@
 // js/app.js
+
 document.addEventListener('includesLoaded', initApp);
 
 function initApp() {
   // --- Screen containers ---
-  const welcomeContainer  = document.getElementById('welcomeContainer');
-  const cameraContainer   = document.getElementById('cameraContainer');
-  const recorderContainer = document.getElementById('recorderContainer');
-  const playbackContainer = document.getElementById('playbackContainer');
+  const welcomeContainer   = document.getElementById('welcomeContainer');
+  const cameraContainer    = document.getElementById('cameraContainer');
+  const snapshotContainer  = document.getElementById('snapshotContainer');
+  const recorderContainer  = document.getElementById('recorderContainer');
+  const playbackContainer  = document.getElementById('playbackContainer');
 
   // --- Welcome UI ---
   const startBtn = document.getElementById('welcomeCreateBtn');
 
-  // --- Camera UI (use these exact IDs) ---
-  const cameraVideo       = document.getElementById('cameraVideo');
-  const captureBtn        = document.getElementById('captureBtn');
-  const cameraSnapshot    = document.getElementById('cameraSnapshot');
-  const cameraContinueBtn = document.getElementById('cameraContinueBtn');
+  // --- Camera UI ---
+  const cameraVideo = document.getElementById('cameraVideo');
+  const captureBtn  = document.getElementById('captureBtn');
+
+  // --- Snapshot UI ---
+  const snapshotImage       = document.getElementById('snapshotImage');
+  const snapshotContinueBtn = document.getElementById('snapshotContinueBtn');
 
   // --- State ---
-  let cameraStream      = null;
-  let snapshotDataURL   = null;
+  let cameraStream     = null;
+  let snapshotDataURL  = null;
 
   // --- Initial visibility ---
   welcomeContainer.style.display   = 'block';
   cameraContainer.style.display    = 'none';
+  snapshotContainer.style.display  = 'none';
   recorderContainer.style.display  = 'none';
   playbackContainer.style.display  = 'none';
 
-  // reset camera UI
+  // Reset camera UI
   resetCameraUI();
 
-  // STEP 1: “Create” → show camera screen
+  // STEP 1: Welcome → Camera
   startBtn.addEventListener('click', () => {
     welcomeContainer.style.display = 'none';
     cameraContainer.style.display  = 'flex';
@@ -38,9 +43,9 @@ function initApp() {
     cameraStream = null;
   });
 
-  // STEP 2: Enable vs. Capture on same button
+  // STEP 2: Enable Camera vs. Capture Photo
   captureBtn.addEventListener('click', async () => {
-    // Phase 1: request permission & live preview
+    // Phase 1: request permission & show live preview
     if (!cameraStream) {
       try {
         cameraStream = await navigator.mediaDevices.getUserMedia({
@@ -69,32 +74,30 @@ function initApp() {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(
       cameraVideo,
-      (vw - size)/2, (vh - size)/2, size, size,
-      0, 0, size, size
+      (vw - size) / 2, (vh - size) / 2,
+      size, size,
+      0, 0,
+      size, size
     );
     snapshotDataURL = canvas.toDataURL('image/png');
 
-    // show snapshot, hide video
-    cameraSnapshot.src          = snapshotDataURL;
-    cameraSnapshot.style.display = 'block';
-    cameraVideo.style.display    = 'none';
+    // show snapshot, hide camera
+    cameraContainer.style.display   = 'none';
+    snapshotContainer.style.display = 'flex';
+    snapshotImage.src               = snapshotDataURL;
 
     // stop camera stream
     cameraStream.getTracks().forEach(t => t.stop());
-
-    // swap buttons
-    captureBtn.style.display        = 'none';
-    cameraContinueBtn.style.display = 'inline-block';
   });
 
-  // STEP 3: Continue → show recorder
-  cameraContinueBtn.addEventListener('click', () => {
-    cameraContainer.style.display   = 'none';
-    recorderContainer.style.display = 'block';
+  // STEP 3: Snapshot → Recorder
+  snapshotContinueBtn.addEventListener('click', () => {
+    snapshotContainer.style.display  = 'none';
+    recorderContainer.style.display  = 'block';
     setupRecorder();
   }, { once: true });
 
-  // STEP 4 & 5: Recorder + Playback (unchanged)
+  // STEP 4 & 5: Recorder & Playback
   function setupRecorder() {
     const stepTitle    = document.getElementById('step-title');
     const recordBtn    = document.getElementById('recordBtn');
@@ -108,12 +111,13 @@ function initApp() {
     let current = 0;
     let timerInt, startTime, recordTO;
 
-    // init UI
+    // initialize UI
     recordBtn.hidden    = false;
     timerEl.hidden      = true;
     progressEl.hidden   = true;
     downloadLink.hidden = true;
 
+    // wire recording events
     recordBtn.addEventListener('touchstart', startRecording);
     recordBtn.addEventListener('mousedown',  startRecording);
     recordBtn.addEventListener('touchend',   stopRecording);
@@ -144,6 +148,7 @@ function initApp() {
       chunks = [];
       recorder.start();
       recordTO = setTimeout(() => stopRecording(e), 15000);
+
       startTime = Date.now();
       timerInt  = setInterval(updateTimer, 200);
     }
@@ -158,12 +163,12 @@ function initApp() {
     }
 
     function updateTimer() {
-      const secs = Math.floor((Date.now() - startTime)/1000);
-      timerEl.textContent = `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`;
+      const secs = Math.floor((Date.now() - startTime) / 1000);
+      timerEl.textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
     }
 
     async function onRecordingStop() {
-      const blob     = new Blob(chunks, { type:'audio/webm' });
+      const blob     = new Blob(chunks, { type: 'audio/webm' });
       const arrBuf   = await blob.arrayBuffer();
       const audioBuf = await audioCtx.decodeAudioData(arrBuf);
       buffers.push(audioBuf);
@@ -207,13 +212,13 @@ function initApp() {
 
       const dest    = audioCtx.createMediaStreamDestination();
       masterGain.connect(dest);
-      const longest = Math.max(...buffers.map(b=>b.duration));
+      const longest = Math.max(...buffers.map(b => b.duration));
       const mixRec  = new MediaRecorder(dest.stream);
       const mixChunks = [];
 
       mixRec.ondataavailable = e => mixChunks.push(e.data);
       mixRec.onstop = () => {
-        const mixBlob = new Blob(mixChunks, { type:'audio/webm' });
+        const mixBlob = new Blob(mixChunks, { type: 'audio/webm' });
         const url     = URL.createObjectURL(mixBlob);
         downloadLink.href     = url;
         downloadLink.download = 'moment-place.webm';
@@ -235,10 +240,11 @@ function initApp() {
 
   // helper to reset camera UI
   function resetCameraUI() {
-    cameraVideo.style.display        = 'block';
-    cameraSnapshot.style.display     = 'none';
-    captureBtn.style.display         = 'inline-block';
-    captureBtn.textContent           = '📷 Enable Camera';
-    cameraContinueBtn.style.display  = 'none';
+    cameraVideo.style.display       = 'block';
+    captureBtn.style.display        = 'inline-block';
+    captureBtn.textContent          = '📷 Enable Camera';
+    snapshotContainer.style.display = 'none';
+    cameraSnapshot && (cameraSnapshot.style.display = 'none');
+    // note: cameraSnapshot belongs to old partial and may be undefined
   }
 }
