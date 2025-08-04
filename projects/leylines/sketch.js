@@ -1,121 +1,84 @@
 // sketch.js
 
-let shapes = [];
-let currentMode = 'rings';
-let draggingShape = null;
-const toolbarHeight = 60; // px – must match your CSS
+let waves = [];
+let dragging = null;
+const toolbarH = 60;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noFill();
-  // wire up toolbar buttons
-  document.querySelectorAll('#toolbar button').forEach(btn => {
-    btn.onclick = () => currentMode = btn.dataset.mode;
-  });
+
+  // Highlight the active “Waves” button (only one left)
+  document.querySelector('#toolbar button[data-mode="waves"]')
+    .classList.add('active');
 }
 
 function draw() {
   background(245);
-  for (let s of shapes) {
-    const pulse = map(
-      sin((millis() - s.t0) / 500),
-      -1, 1, 0.7, 1.3
-    );
-    push();
-      translate(s.x, s.y);
-      if (s.mode === 'rings')     drawRings(s, pulse);
-      else if (s.mode === 'waves') drawWaves(s, pulse);
-      else if (s.mode === 'branch')drawBranch(s, pulse);
-    pop();
-  }
+  if (waves.length > 0) drawCompositeWave();
 }
 
 async function touchStarted() {
-  // 1) unlock audio + transport on first tap
-  await startAudio();
+  await startAudio();             // unlock on first tap
+  if (mouseY < toolbarH) return false; // ignore toolbar taps
 
-  // 2) ignore toolbar taps
-  if (mouseY < toolbarHeight) return false;
-
-  // 3) seed a new shape
-  const s = {
-    mode: currentMode,
-    x: mouseX, y: mouseY,
-    params: { size: 50, chaos: 0.2 },
-    t0: millis()
+  // create a new wave component
+  let s = {
+    x: mouseX,
+    y: mouseY,
+    t0: millis(),
+    // default large amplitude & 1 cycle across screen
+    params: {
+      amplitude: height * 0.3,
+      freq:      1,
+      interval: '2n',
+      noise:     0
+    }
   };
-  shapes.push(s);
-  draggingShape = s;
+  waves.push(s);
+  dragging = s;
 
-  // 4) immediate note + start its loop
-  playModeNote(s.mode, s.x, s.y);
-  scheduleShapeLoop(s);
+  // immediate & looping drone
+  playWaveNote(s);
+  scheduleWaveLoop(s);
 
-  return false; // prevent default
+  return false;
 }
 
 function touchMoved() {
-  if (draggingShape) {
-    draggingShape.params.size  = dist(
-      mouseX, mouseY,
-      draggingShape.x, draggingShape.y
-    );
-    draggingShape.params.chaos = map(mouseX, 0, width, 0, 1);
-    modSynth('chaos', draggingShape.params.chaos);
+  if (dragging) {
+    // vertical drag → amplitude
+    dragging.params.amplitude =
+      constrain(map(mouseY, height * 0.1, height * 0.9, height*0.05, height*0.4), 0, height*0.5);
+    // horizontal drag → frequency (1 → 5 cycles)
+    dragging.params.freq =
+      constrain(map(mouseX, 0, width, 1, 5), 0.5, 8);
+
+    // modulate filter & reverb
+    modSynth('filter', map(mouseX, 0, width, 0, 1));
+    modSynth('reverb', map(mouseY, 0, height, 0, 1));
   }
   return false;
 }
 
 function touchEnded() {
-  draggingShape = null;
+  dragging = null;
 }
 
-// optional clear
-function keyPressed() {
-  if (key === 'C') {
-    // stop all loops
-    shapes.forEach(s => s.loop && s.loop.stop());
-    shapes = [];
-  }
-}
-
-// ——— your existing drawing helpers ———
-function drawRings(s, p) {
-  strokeWeight(2 * p);
-  for (let i = 0; i < 10; i++) {
-    stroke(i % 2 ? '#F8BBD0' : '#C8E6C9');
-    ellipse(
-      0, 0,
-      s.params.size * i + noise(i, s.params.chaos) * 20
-    );
-  }
-}
-
-function drawWaves(s, p) {
-  strokeWeight(1.5 * p);
+// Draw the **sum** of every wave component as one polyline
+function drawCompositeWave() {
+  stroke(50);
+  strokeWeight(2);
   beginShape();
-  for (let x = -s.params.size; x <= s.params.size; x += 5) {
-    let y = sin(
-      x / 20 + (millis() - s.t0) / 300
-    ) * s.params.chaos * 30;
-    vertex(x, y);
-  }
+    // sample every 5px
+    for (let x = 0; x <= width; x += 5) {
+      let y = 0;
+      const t = (millis() - waves[0].t0) * 0.002;
+      for (let w of waves) {
+        let phase = TWO_PI * (x/width * w.params.freq) + t;
+        y += w.params.amplitude * sin(phase);
+      }
+      vertex(x, height/2 + y);
+    }
   endShape();
-}
-
-function drawBranch(s, p) {
-  strokeWeight(2 * p);
-  branch(s.params.size, 0, s.params.chaos);
-}
-
-function branch(len, depth, chaos) {
-  if (len < 10) return;
-  line(0, 0, 0, -len);
-  translate(0, -len);
-  for (let i = 0; i < 2; i++) {
-    push();
-      rotate(random(-PI/4, PI/4) * chaos);
-      branch(len * 0.7, depth + 1, chaos);
-    pop();
-  }
 }
