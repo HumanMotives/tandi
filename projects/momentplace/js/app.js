@@ -1,8 +1,16 @@
 // js/app.js
 
+// Make sure you’ve included the Supabase UMD script in your HTML:
+// <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+
 document.addEventListener('includesLoaded', initApp);
 
 function initApp() {
+  // --- Supabase client init ---
+  const supabaseUrl = 'https://owaqngnojlbnbiyala.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93YXFuZ25vamxibmJpeGFpbGF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyOTM0MDAsImV4cCI6MjA2OTg2OTQwMH0.0FeffoKhv89b9Z9iUuZBNQYOSqoA8kSCQeN7lka4A_g';
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
   // --- Screen containers ---
   const welcomeContainer   = document.getElementById('welcomeContainer');
   const cameraContainer    = document.getElementById('cameraContainer');
@@ -14,8 +22,8 @@ function initApp() {
   const startBtn = document.getElementById('welcomeCreateBtn');
 
   // --- Camera UI ---
-  const cameraVideo       = document.getElementById('cameraVideo');
-  const captureBtn        = document.getElementById('captureBtn');
+  const cameraVideo = document.getElementById('cameraVideo');
+  const captureBtn  = document.getElementById('captureBtn');
 
   // --- Snapshot UI ---
   const snapshotImage       = document.getElementById('snapshotImage');
@@ -29,11 +37,13 @@ function initApp() {
   const downloadLink = document.getElementById('downloadLink');
 
   // --- Playback UI ---
-  const playbackImg  = document.getElementById('playbackImage');
+  const playbackImg = document.getElementById('playbackImage');
+  const publishBtn  = document.getElementById('publishBtn');
 
   // --- State ---
-  let cameraStream     = null;
-  let snapshotDataURL  = null;
+  let cameraStream    = null;
+  let snapshotDataURL = null;
+  let finalAudioBlob  = null;
 
   // --- Initial visibility ---
   welcomeContainer.style.display   = 'block';
@@ -46,18 +56,18 @@ function initApp() {
 
   // STEP 1: Welcome → Camera
   startBtn.addEventListener('click', () => {
-    welcomeContainer.style.display  = 'none';
-    cameraContainer.style.display   = 'flex';
-    snapshotContainer.style.display = 'none';
-    recorderContainer.style.display = 'none';
-    playbackContainer.style.display = 'none';
+    welcomeContainer.style.display   = 'none';
+    cameraContainer.style.display    = 'flex';
+    snapshotContainer.style.display  = 'none';
+    recorderContainer.style.display  = 'none';
+    playbackContainer.style.display  = 'none';
     resetCameraUI();
     cameraStream = null;
   });
 
   // STEP 2: Enable Camera vs. Capture Photo
   captureBtn.addEventListener('click', async () => {
-    // PHASE 1: request & preview
+    // Phase 1: request & preview
     if (!cameraStream) {
       try {
         cameraStream = await navigator.mediaDevices.getUserMedia({
@@ -65,8 +75,7 @@ function initApp() {
           audio: false
         });
       } catch {
-        alert('📷 Please allow camera access.');
-        return;
+        return alert('📷 Please allow camera access.');
       }
       cameraVideo.srcObject   = cameraStream;
       cameraVideo.muted       = true;
@@ -76,7 +85,7 @@ function initApp() {
       return;
     }
 
-    // PHASE 2: snapshot
+    // Phase 2: snapshot
     const vw   = cameraVideo.videoWidth;
     const vh   = cameraVideo.videoHeight;
     const size = Math.min(vw, vh);
@@ -86,7 +95,7 @@ function initApp() {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(
       cameraVideo,
-      (vw - size) / 2, (vh - size) / 2,
+      (vw - size)/2, (vh - size)/2,
       size, size,
       0, 0,
       size, size
@@ -94,11 +103,10 @@ function initApp() {
     snapshotDataURL = canvas.toDataURL('image/png');
 
     // show snapshot scene
-    cameraContainer.style.display   = 'none';
-    snapshotContainer.style.display = 'flex';
-    snapshotImage.src               = snapshotDataURL;
-    // **this was missing**:
-    snapshotImage.style.display     = 'block';
+    cameraContainer.style.display    = 'none';
+    snapshotContainer.style.display  = 'flex';
+    snapshotImage.src                = snapshotDataURL;
+    snapshotImage.style.display      = 'block';
 
     // stop camera
     cameraStream.getTracks().forEach(t => t.stop());
@@ -106,20 +114,22 @@ function initApp() {
 
   // STEP 3: Snapshot → Recorder
   snapshotContinueBtn.addEventListener('click', () => {
-    snapshotContainer.style.display  = 'none';
-    recorderContainer.style.display  = 'flex';   // now using flex for centering
+    snapshotContainer.style.display   = 'none';
+    recorderContainer.style.display   = 'flex';
     setupRecorder();
   }, { once: true });
 
   // STEP 4 & 5: Recorder & Playback
   function setupRecorder() {
+    // init UI
     recordBtn.hidden    = false;
     timerEl.hidden      = true;
     progressEl.hidden   = true;
     downloadLink.hidden = true;
 
     let audioCtx, micStream, recorder;
-    let chunks = [], buffers = [];
+    let chunks  = [];
+    let buffers = [];
     let current = 0;
     let timerInt, startTime, recordTO;
 
@@ -139,9 +149,8 @@ function initApp() {
         try {
           micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         } catch {
-          alert('🎙️ Please allow mic access.');
           recordBtn.classList.remove('recording');
-          return;
+          return alert('🎙️ Please allow mic access.');
         }
       }
 
@@ -168,7 +177,7 @@ function initApp() {
     }
 
     function updateTimer() {
-      const secs = Math.floor((Date.now() - startTime) / 1000);
+      const secs = Math.floor((Date.now() - startTime)/1000);
       timerEl.textContent = `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`;
     }
 
@@ -185,9 +194,8 @@ function initApp() {
 
       if (current < 3) {
         stepTitle.textContent = `Record Moment ${current + 1}`;
-        // get ready for next
-        recordBtn.hidden  = false;
-        progressEl.hidden = true;
+        recordBtn.hidden      = false;
+        progressEl.hidden     = true;
       } else {
         stepTitle.textContent = 'Compiling your Moment…';
         finalizeMix(buffers, audioCtx);
@@ -215,29 +223,77 @@ function initApp() {
       const mixChunks = [];
 
       mixRec.ondataavailable = e => mixChunks.push(e.data);
-      mixRec.onstop = () => {
-        const mixBlob = new Blob(mixChunks, { type:'audio/webm' });
+      mixRec.onstop = async () => {
+        const mixBlob = new Blob(mixChunks,{type:'audio/webm'});
         const url     = URL.createObjectURL(mixBlob);
 
         downloadLink.href     = url;
         downloadLink.download = 'moment-place.webm';
         downloadLink.hidden   = false;
+        finalAudioBlob        = mixBlob;
 
+        // show playback
         recorderContainer.style.display = 'none';
         playbackContainer.style.display = 'block';
-        if (playbackImg) playbackImg.src = snapshotDataURL;
+        playbackImg.src                  = snapshotDataURL;
       };
 
       mixRec.start();
       setTimeout(() => mixRec.stop(), longest * 1000 + 200);
     }
+
+    // STEP 6: Publish → Supabase
+    publishBtn.addEventListener('click', async () => {
+      if (!snapshotDataURL || !finalAudioBlob) {
+        return alert('Nothing to publish!');
+      }
+      // prepare blobs
+      const imgRes    = await fetch(snapshotDataURL);
+      const imgBlob   = await imgRes.blob();
+      const audioBlob = finalAudioBlob;
+
+      // unique folder per moment
+      const id = Date.now().toString();
+
+      // upload cover
+      const { data: imgData, error: imgError } = await supabaseClient
+        .storage
+        .from('momentplaces')
+        .upload(`${id}/cover.png`, imgBlob);
+
+      // upload audio
+      const { data: audioData, error: audioError } = await supabaseClient
+        .storage
+        .from('momentplaces')
+        .upload(`${id}/audio.webm`, audioBlob);
+
+      if (imgError || audioError) {
+        console.error(imgError || audioError);
+        return alert('❌ Failed to publish.');
+      }
+
+      // build public URLs
+      const coverUrl = supabaseClient
+        .storage
+        .from('momentplaces')
+        .getPublicUrl(`${id}/cover.png`)
+        .publicURL;
+      const audioUrl = supabaseClient
+        .storage
+        .from('momentplaces')
+        .getPublicUrl(`${id}/audio.webm`)
+        .publicURL;
+
+      console.log('Published!', { coverUrl, audioUrl });
+      alert('✅ Your Moment is published!');
+    });
   }
 
-  // helper: reset camera UI
+  // helper to reset camera UI
   function resetCameraUI() {
-    captureBtn.textContent = '📷 Enable Camera';
-    captureBtn.style.display = 'inline-block';
-    cameraVideo.style.display = 'block';
-    snapshotImage && (snapshotImage.style.display = 'none');
+    captureBtn.textContent       = '📷 Enable Camera';
+    captureBtn.style.display     = 'inline-block';
+    cameraVideo.style.display    = 'block';
+    snapshotImage.style.display  = 'none';
   }
 }
