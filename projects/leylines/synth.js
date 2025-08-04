@@ -1,7 +1,7 @@
 // synth.js
 
 // ——————————————————————————————————————————————
-// 1. Unlock & start Transport on first interaction
+// 1) Unlock & start Transport on first interaction
 // ——————————————————————————————————————————————
 let _audioStarted = false;
 async function startAudio() {
@@ -14,32 +14,29 @@ async function startAudio() {
 }
 
 // ——————————————————————————————————————————————
-// 2. Define scales & current selection
+// 2) Define extended scales (major/minor) with extra high notes
 // ——————————————————————————————————————————————
 const scales = {
-  major: ['C2','D2','E2','F2','G2','A2','B2','C3'],
-  minor: ['C2','D2','Eb2','F2','G2','Ab2','Bb2','C3']
+  major: ['C2','D2','E2','F2','G2','A2','B2','C3','D3','E3','F3'],
+  minor: ['C2','D2','Eb2','F2','G2','Ab2','Bb2','C3','D3','Eb3','F3']
 };
 let currentScale = 'major';
 
 // ——————————————————————————————————————————————
-// 3. Create three poly voices
+// 3) Three voices (poly-stacking synths + reverb on waves)
 // ——————————————————————————————————————————————
-// Rings-bass: sine + LPF @200Hz
 const bassSynth = new Tone.PolySynth(Tone.Synth, {
   oscillator: { type: 'sine' },
   envelope:   { attack: 0.01, decay: 0.3, sustain: 0.5, release: 1 },
   filter:     { type: 'lowpass', frequency: 200 }
 }).toDestination();
 
-// Waves-pad: sine + reverb, dropped an octave
 const waveReverb = new Tone.Reverb({ decay: 4, wet: 0.5 }).toDestination();
 const waveSynth  = new Tone.PolySynth(Tone.Synth, {
   oscillator: { type: 'sine' },
   envelope:   { attack: 0.5, decay: 1, sustain: 0.7, release: 2 }
 }).connect(waveReverb);
 
-// Branch-pluck: sine + LPF for gentle rainy plucks
 const pluckFilter = new Tone.Filter(800, 'lowpass').toDestination();
 const pluckSynth  = new Tone.PolySynth({
   voice:   Tone.Synth,
@@ -51,7 +48,7 @@ const pluckSynth  = new Tone.PolySynth({
 }).chain(pluckFilter, Tone.Destination);
 
 // ——————————————————————————————————————————————
-// 4. Hook up scale-toggle buttons
+// 4) Wire up your scale‐buttons
 // ——————————————————————————————————————————————
 document.querySelectorAll('#toolbar button[data-scale]')
   .forEach(btn => btn.onclick = () => {
@@ -60,24 +57,26 @@ document.querySelectorAll('#toolbar button[data-scale]')
   });
 
 // ——————————————————————————————————————————————
-// 5. playModeNote & Loop scheduler
+// 5) Play & loop notes, with octave shifts per mode
 // ——————————————————————————————————————————————
 function playModeNote(mode, x, y) {
-  // pick a note from the current scale based on vertical position
+  // pick a degree from the extended scale
   const notes = scales[currentScale];
-  const idx   = Math.floor((1 - y/window.innerHeight) * notes.length);
+  const idx   = Math.floor((1 - y / window.innerHeight) * notes.length);
   const note  = notes[Math.min(Math.max(idx, 0), notes.length - 1)];
+  const baseF = Tone.Frequency(note).toFrequency();
 
   if (mode === 'rings') {
-    bassSynth.triggerAttackRelease(note, '1m');
+    // rings = sine bass, one octave up
+    bassSynth.triggerAttackRelease(baseF * 2, '1m');
   }
   else if (mode === 'waves') {
-    // drop pad an octave
-    const freq = Tone.Frequency(note).toFrequency() / 2;
-    waveSynth.triggerAttackRelease(freq, '2n');
+    // waves = pad, one octave down
+    waveSynth.triggerAttackRelease(baseF / 2, '2n');
   }
   else if (mode === 'branch') {
-    pluckSynth.triggerAttackRelease(note, '4n');
+    // branch = gentle sine pluck, one octave up
+    pluckSynth.triggerAttackRelease(baseF * 2, '4n');
   }
 }
 
@@ -89,8 +88,8 @@ function scheduleShapeLoop(shape) {
 }
 
 // ——————————————————————————————————————————————
-// 6. No‐op for modulation stub
+// 6) No-op modulation stub
 // ——————————————————————————————————————————————
 function modSynth(param, value) {
-  // placeholder for future detune/filter tweaks
+  // future: detune/filter based on chaos, etc.
 }
