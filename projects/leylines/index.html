@@ -1,8 +1,28 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leylines</title>
+  <!-- Your responsive toolbar CSS -->
+  <link rel="stylesheet" href="style.css">
+  <!-- p5.js for visuals -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <!-- Tone.js for sound -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.min.js"></script>
+</head>
+<body>
+  <!-- Toolbar: mode & scale buttons -->
   <div id="toolbar">
-    <button data-mode="rings">🌳 Rings</button>
+    <button data-mode="rings" class="active">🌳 Rings</button>
     <button data-mode="waves">🌊 Waves</button>
     <button data-mode="branch">🌿 Branch</button>
-    <!-- new scale toggles -->
     <button data-scale="major">Major</button>
     <button data-scale="minor">Minor</button>
   </div>
+
+  <!-- Your JavaScript logic -->
+  <script src="synth.js"></script>
+  <script src="sketch.js"></script>
+</body>
+</html>
