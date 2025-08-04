@@ -1,0 +1,14 @@
+body { margin:0; overflow:hidden; }
+#toolbar {
+  position: absolute;
+  top: 0; left:0; right:0;
+  display: flex;
+  justify-content: center;
+  background: rgba(255,255,255,0.8);
+  padding: 0.5em;
+}
+#toolbar button {
+  margin: 0 0.5em;
+  padding: 0.5em 1em;
+  font-size: 1.2em;
+}
