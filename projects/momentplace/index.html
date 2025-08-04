@@ -5,25 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Moment / Place</title>
   <link rel="stylesheet" href="css/stylenew.css"/>
+
+  <!-- Supabase client (UMD build) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
 </head>
 <body>
-  <!-- … welcome … -->
+  <!-- Welcome scene -->
   <div data-include="partials/welcome.html"></div>
 
-  <!-- camera scene -->
+  <!-- Camera scene -->
   <div data-include="partials/camera.html"></div>
 
-  <!-- NEW snapshot scene -->
+  <!-- Snapshot scene -->
   <div data-include="partials/snapshot.html"></div>
 
-  <!-- recorder scene -->
+  <!-- Recorder scene -->
   <div data-include="partials/recorder.html"></div>
 
-  <!-- playback scene -->
+  <!-- Playback scene -->
   <div data-include="partials/playback.html"></div>
 
-  <!-- includes + app.js -->
+  <!-- loader for partials -->
   <script src="js/includes.js" defer></script>
-  <script src="js/app.js"       defer></script>
+  <!-- your application logic -->
+  <script src="js/app.js" defer></script>
 </body>
 </html>
