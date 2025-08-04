@@ -1,6 +1,3 @@
-/* style.css */
-
-/* ensure body is the positioning context */
 html, body {
   margin: 0;
   padding: 0;
@@ -8,32 +5,25 @@ html, body {
   position: relative;
   overflow: hidden;
 }
-
-/* put the canvas behind everything */
 canvas {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 1;
 }
-
-/* responsive flex toolbar, always on top */
 #toolbar {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
   width: 100%;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
   align-items: center;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255,255,255,0.95);
   padding: 0.5em 0.2em;
   box-sizing: border-box;
-  z-index: 10;     /* higher than canvas */
+  z-index: 10;
 }
-
-/* toolbar buttons */
 #toolbar button {
   flex: 1 1 30%;
   margin: 0.25em;
@@ -45,13 +35,9 @@ canvas {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   touch-action: manipulation;
 }
-
-/* active-state styling */
 #toolbar button.active {
   background: #e0e0e0;
 }
-
-/* on very small screens, reduce button size */
 @media (max-width: 400px) {
   #toolbar button {
     flex: 1 1 45%;
