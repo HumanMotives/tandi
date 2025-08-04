@@ -1,84 +1,88 @@
 // sketch.js
 
-let waves = [];
-let dragging = null;
+let amplitude, freq;
+let dragging = false;
+let initTouches = [];
+let initAmp, initFreq, initAngle;
+let patternAngle = 0;
 const toolbarH = 60;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noFill();
-
-  // Highlight the active “Waves” button (only one left)
-  document.querySelector('#toolbar button[data-mode="waves"]')
-    .classList.add('active');
+  // Initialize wave params
+  amplitude = height * 0.1;
+  freq      = 2;        // cycles across width
+  // auto-start one wave so you see it immediately
+  waves = true;
 }
 
 function draw() {
   background(245);
-  if (waves.length > 0) drawCompositeWave();
+  push();
+    translate(width/2, height/2);
+    rotate(patternAngle);
+    translate(-width/2, -height/2);
+    drawTilingWave();
+  pop();
+}
+
+// Draw stripes of sine waves
+function drawTilingWave() {
+  stroke(50);
+  strokeWeight(2);
+  const stripes = 12;
+  const spacing = height / stripes;
+  const t = millis() * 0.002;
+  for (let i = 0; i < stripes; i++) {
+    let y0 = spacing * (i + 0.5);
+    beginShape();
+    for (let x = 0; x <= width; x += 5) {
+      let phase = TWO_PI * freq * (x/width) + t;
+      let y = amplitude * sin(phase);
+      vertex(x, y0 + y);
+    }
+    endShape();
+  }
 }
 
 async function touchStarted() {
-  await startAudio();             // unlock on first tap
-  if (mouseY < toolbarH) return false; // ignore toolbar taps
-
-  // create a new wave component
-  let s = {
-    x: mouseX,
-    y: mouseY,
-    t0: millis(),
-    // default large amplitude & 1 cycle across screen
-    params: {
-      amplitude: height * 0.3,
-      freq:      1,
-      interval: '2n',
-      noise:     0
-    }
-  };
-  waves.push(s);
-  dragging = s;
-
-  // immediate & looping drone
-  playWaveNote(s);
-  scheduleWaveLoop(s);
-
+  await startAudio();    // unlock audio & start loop
+  if (touches.length === 2) {
+    // pinching/rotating begins
+    initTouches = [ {...touches[0]}, {...touches[1]} ];
+    initAmp     = amplitude;
+    initFreq    = freq;
+    initAngle   = patternAngle;
+    dragging    = true;
+  }
   return false;
 }
 
 function touchMoved() {
-  if (dragging) {
-    // vertical drag → amplitude
-    dragging.params.amplitude =
-      constrain(map(mouseY, height * 0.1, height * 0.9, height*0.05, height*0.4), 0, height*0.5);
-    // horizontal drag → frequency (1 → 5 cycles)
-    dragging.params.freq =
-      constrain(map(mouseX, 0, width, 1, 5), 0.5, 8);
+  if (dragging && touches.length === 2) {
+    // pinch → amplitude & freq
+    const [a1,b1] = initTouches;
+    const [a2,b2] = touches;
+    const d0 = dist(a1.x, a1.y, b1.x, b1.y);
+    const d1 = dist(a2.x, a2.y, b2.x, b2.y);
+    const scaleFactor = d1 / d0;
+    amplitude = constrain(initAmp * scaleFactor, 10, height*0.5);
+    freq      = constrain(initFreq * scaleFactor, 0.5, 8);
+
+    // rotate → patternAngle
+    const angle0 = atan2(b1.y - a1.y, b1.x - a1.x);
+    const angle1 = atan2(b2.y - a2.y, b2.x - a2.x);
+    patternAngle = initAngle + (angle1 - angle0);
 
     // modulate filter & reverb
-    modSynth('filter', map(mouseX, 0, width, 0, 1));
-    modSynth('reverb', map(mouseY, 0, height, 0, 1));
+    modSynth('filter', scaleFactor - 1);
+    modSynth('reverb', map(amplitude, 0, height*0.5, 0, 1));
   }
   return false;
 }
 
 function touchEnded() {
-  dragging = null;
-}
-
-// Draw the **sum** of every wave component as one polyline
-function drawCompositeWave() {
-  stroke(50);
-  strokeWeight(2);
-  beginShape();
-    // sample every 5px
-    for (let x = 0; x <= width; x += 5) {
-      let y = 0;
-      const t = (millis() - waves[0].t0) * 0.002;
-      for (let w of waves) {
-        let phase = TWO_PI * (x/width * w.params.freq) + t;
-        y += w.params.amplitude * sin(phase);
-      }
-      vertex(x, height/2 + y);
-    }
-  endShape();
+  if (touches.length < 2) dragging = false;
+  return false;
 }
