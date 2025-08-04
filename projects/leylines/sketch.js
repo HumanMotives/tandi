@@ -1,13 +1,14 @@
 // sketch.js
+
 let shapes = [];
 let currentMode = 'rings';
 let draggingShape = null;
-const toolbarHeight = 60;  // px; same as your CSS toolbar height
+const toolbarHeight = 60; // px – must match your CSS
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noFill();
-  // mode‐buttons in index.html toolbar
+  // wire up toolbar buttons
   document.querySelectorAll('#toolbar button').forEach(btn => {
     btn.onclick = () => currentMode = btn.dataset.mode;
   });
@@ -18,8 +19,7 @@ function draw() {
   for (let s of shapes) {
     const pulse = map(
       sin((millis() - s.t0) / 500),
-      -1, 1,
-      0.7, 1.3
+      -1, 1, 0.7, 1.3
     );
     push();
       translate(s.x, s.y);
@@ -31,30 +31,27 @@ function draw() {
 }
 
 async function touchStarted() {
-  // 1) unlock audio on first user interaction
-  await Tone.start();
-  console.log('🎵 Audio unlocked');
+  // 1) unlock audio + transport on first tap
+  await startAudio();
 
-  // 2) ignore taps on the toolbar itself
-  if (mouseY < toolbarHeight) {
-    return false;
-  }
+  // 2) ignore toolbar taps
+  if (mouseY < toolbarHeight) return false;
 
-  // 3) otherwise, seed a new shape
+  // 3) seed a new shape
   const s = {
     mode: currentMode,
-    x: mouseX,
-    y: mouseY,
+    x: mouseX, y: mouseY,
     params: { size: 50, chaos: 0.2 },
     t0: millis()
   };
   shapes.push(s);
   draggingShape = s;
 
-  // play the mode-specific note
+  // 4) immediate note + start its loop
   playModeNote(s.mode, s.x, s.y);
+  scheduleShapeLoop(s);
 
-  return false;  // prevent default
+  return false; // prevent default
 }
 
 function touchMoved() {
@@ -66,19 +63,23 @@ function touchMoved() {
     draggingShape.params.chaos = map(mouseX, 0, width, 0, 1);
     modSynth('chaos', draggingShape.params.chaos);
   }
-  return false;  // prevent scroll
+  return false;
 }
 
 function touchEnded() {
   draggingShape = null;
 }
 
-// Optional: clear canvas on 'C'
+// optional clear
 function keyPressed() {
-  if (key === 'C') shapes = [];
+  if (key === 'C') {
+    // stop all loops
+    shapes.forEach(s => s.loop && s.loop.stop());
+    shapes = [];
+  }
 }
 
-// ——— Drawing helpers ———
+// ——— your existing drawing helpers ———
 function drawRings(s, p) {
   strokeWeight(2 * p);
   for (let i = 0; i < 10; i++) {
