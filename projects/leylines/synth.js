@@ -1,74 +1,96 @@
 // synth.js
 
-// —————————————————————————————————————————————————————————————
-// 1) startAudio(): unlocks the AudioContext & starts the Transport
-// —————————————————————————————————————————————————————————————
+// ——————————————————————————————————————————————
+// 1. Unlock & start Transport on first interaction
+// ——————————————————————————————————————————————
 let _audioStarted = false;
 async function startAudio() {
   if (!_audioStarted) {
     await Tone.start();
     Tone.Transport.start();
     _audioStarted = true;
-    console.log('🎵 AudioContext unlocked, Transport started');
+    console.log('🎵 Audio unlocked & Transport started');
   }
 }
 
-// —————————————————————————————————————————————————————————————
-// 2) Three voices: bass pad, sine swell, rainy pluck
-// —————————————————————————————————————————————————————————————
-const pad = new Tone.PolySynth(Tone.Synth, {
-  oscillator: { type: 'triangle' },
-  envelope:   { attack: 1.5, release: 2 }
-}).toDestination();
+// ——————————————————————————————————————————————
+// 2. Define scales & current selection
+// ——————————————————————————————————————————————
+const scales = {
+  major: ['C2','D2','E2','F2','G2','A2','B2','C3'],
+  minor: ['C2','D2','Eb2','F2','G2','Ab2','Bb2','C3']
+};
+let currentScale = 'major';
 
-const swell = new Tone.Synth({
+// ——————————————————————————————————————————————
+// 3. Create three poly voices
+// ——————————————————————————————————————————————
+// Rings-bass: sine + LPF @200Hz
+const bassSynth = new Tone.PolySynth(Tone.Synth, {
   oscillator: { type: 'sine' },
-  envelope:   { attack: 0.1, release: 3 }
+  envelope:   { attack: 0.01, decay: 0.3, sustain: 0.5, release: 1 },
+  filter:     { type: 'lowpass', frequency: 200 }
 }).toDestination();
 
-const pluckSynth = new Tone.PluckSynth({
-  dampening: 4000,
-  resonance: 0.9
-}).toDestination();
+// Waves-pad: sine + reverb, dropped an octave
+const waveReverb = new Tone.Reverb({ decay: 4, wet: 0.5 }).toDestination();
+const waveSynth  = new Tone.PolySynth(Tone.Synth, {
+  oscillator: { type: 'sine' },
+  envelope:   { attack: 0.5, decay: 1, sustain: 0.7, release: 2 }
+}).connect(waveReverb);
 
-// —————————————————————————————————————————————————————————————
-// 3) playModeNote(): triggered immediately + by each Loop
-// —————————————————————————————————————————————————————————————
+// Branch-pluck: sine + LPF for gentle rainy plucks
+const pluckFilter = new Tone.Filter(800, 'lowpass').toDestination();
+const pluckSynth  = new Tone.PolySynth({
+  voice:   Tone.Synth,
+  options: {
+    oscillator: { type: 'sine' },
+    envelope:   { attack: 0.005, decay: 0.5, sustain: 0.1, release: 1 }
+  },
+  maxPolyphony: 8
+}).chain(pluckFilter, Tone.Destination);
+
+// ——————————————————————————————————————————————
+// 4. Hook up scale-toggle buttons
+// ——————————————————————————————————————————————
+document.querySelectorAll('#toolbar button[data-scale]')
+  .forEach(btn => btn.onclick = () => {
+    currentScale = btn.dataset.scale;
+    console.log('Scale →', currentScale);
+  });
+
+// ——————————————————————————————————————————————
+// 5. playModeNote & Loop scheduler
+// ——————————————————————————————————————————————
 function playModeNote(mode, x, y) {
-  // map vertical position → frequency  100Hz–800Hz
-  const freq = 100 + (1 - (y / window.innerHeight)) * 700;
+  // pick a note from the current scale based on vertical position
+  const notes = scales[currentScale];
+  const idx   = Math.floor((1 - y/window.innerHeight) * notes.length);
+  const note  = notes[Math.min(Math.max(idx, 0), notes.length - 1)];
 
   if (mode === 'rings') {
-    pad.triggerAttackRelease(freq, '1m');
+    bassSynth.triggerAttackRelease(note, '1m');
   }
   else if (mode === 'waves') {
-    swell.triggerAttackRelease(freq * 1.5, '2n');
+    // drop pad an octave
+    const freq = Tone.Frequency(note).toFrequency() / 2;
+    waveSynth.triggerAttackRelease(freq, '2n');
   }
   else if (mode === 'branch') {
-    pluckSynth.triggerAttackRelease(freq * 0.5, '8n');
+    pluckSynth.triggerAttackRelease(note, '4n');
   }
 }
 
-// —————————————————————————————————————————————————————————————
-// 4) scheduleShapeLoop(): attach a looping part to each shape
-// —————————————————————————————————————————————————————————————
 function scheduleShapeLoop(shape) {
-  // pick an interval string per mode
-  let interval = {
-    rings:  '1m',  // one measure per bass hit
-    waves:  '2n',  // half‐note pad swells
-    branch: '4n'   // quarter‐note rainy plucks
-  }[shape.mode];
-
-  // create & start the loop at time=0
+  const interval = { rings:'1m', waves:'2n', branch:'4n' }[shape.mode];
   shape.loop = new Tone.Loop(time => {
     playModeNote(shape.mode, shape.x, shape.y);
   }, interval).start(0);
 }
 
-// —————————————————————————————————————————————————————————————
-// 5) stub for your drag‐to‐modulate (no‐op for now)
-// —————————————————————————————————————————————————————————————
+// ——————————————————————————————————————————————
+// 6. No‐op for modulation stub
+// ——————————————————————————————————————————————
 function modSynth(param, value) {
-  // e.g. pad.set({ detune: value * 200 });
+  // placeholder for future detune/filter tweaks
 }
