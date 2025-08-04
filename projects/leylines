@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pulsing Tree Rings</title>
+  <!-- Load p5.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; overflow: hidden; background: #f0f0f0; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script>
+    let t = 0;
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      noFill();
+    }
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+    function draw() {
+      background(240);
+      let pulse = map(sin(t), -1, 1, 0.5, 1.5);
+      let c1 = color(255, 205, 210, 200 * pulse);
+      let c2 = color(200, 230, 201, 200 * pulse);
+
+      translate(width/2, height/2);
+      let maxR = min(width, height) * 0.45;
+      let rings = 20;
+      strokeWeight(pulse * 1.5);
+      for (let i = 0; i < rings; i++) {
+        let r = map(i, 0, rings, 10, maxR);
+        stroke(i % 2 ? c1 : c2);
+        ellipse(0, 0, r * 2 + random(-2,2), r * 2 + random(-2,2));
+      }
+      t += 0.02;
+    }
+  </script>
+</body>
+</html>
