@@ -86,7 +86,7 @@ function initApp() {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(
       cameraVideo,
-      (vw - size)/2, (vh - size)/2,
+      (vw - size) / 2, (vh - size) / 2,
       size, size,
       0, 0,
       size, size
@@ -97,6 +97,8 @@ function initApp() {
     cameraContainer.style.display   = 'none';
     snapshotContainer.style.display = 'flex';
     snapshotImage.src               = snapshotDataURL;
+    // **this was missing**:
+    snapshotImage.style.display     = 'block';
 
     // stop camera
     cameraStream.getTracks().forEach(t => t.stop());
@@ -105,13 +107,12 @@ function initApp() {
   // STEP 3: Snapshot → Recorder
   snapshotContinueBtn.addEventListener('click', () => {
     snapshotContainer.style.display  = 'none';
-    recorderContainer.style.display  = 'block';
+    recorderContainer.style.display  = 'flex';   // now using flex for centering
     setupRecorder();
   }, { once: true });
 
   // STEP 4 & 5: Recorder & Playback
   function setupRecorder() {
-    // initialize recorder UI
     recordBtn.hidden    = false;
     timerEl.hidden      = true;
     progressEl.hidden   = true;
@@ -167,28 +168,27 @@ function initApp() {
     }
 
     function updateTimer() {
-      const secs = Math.floor((Date.now() - startTime)/1000);
+      const secs = Math.floor((Date.now() - startTime) / 1000);
       timerEl.textContent = `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`;
     }
 
     async function onRecordingStop() {
-      // hide record button, show progress
+      // hide record, show progress
       recordBtn.hidden  = true;
       progressEl.hidden = false;
 
-      const blob     = new Blob(chunks,{type:'audio/webm'});
+      const blob     = new Blob(chunks, { type:'audio/webm' });
       const arrBuf   = await blob.arrayBuffer();
       const audioBuf = await audioCtx.decodeAudioData(arrBuf);
       buffers.push(audioBuf);
       current++;
 
       if (current < 3) {
-        // ready for next clip
         stepTitle.textContent = `Record Moment ${current + 1}`;
-        recordBtn.hidden      = false;
-        progressEl.hidden     = true;
+        // get ready for next
+        recordBtn.hidden  = false;
+        progressEl.hidden = true;
       } else {
-        // final clip done → compile mix & go to playback
         stepTitle.textContent = 'Compiling your Moment…';
         finalizeMix(buffers, audioCtx);
       }
@@ -216,7 +216,7 @@ function initApp() {
 
       mixRec.ondataavailable = e => mixChunks.push(e.data);
       mixRec.onstop = () => {
-        const mixBlob = new Blob(mixChunks,{type:'audio/webm'});
+        const mixBlob = new Blob(mixChunks, { type:'audio/webm' });
         const url     = URL.createObjectURL(mixBlob);
 
         downloadLink.href     = url;
@@ -229,16 +229,15 @@ function initApp() {
       };
 
       mixRec.start();
-      setTimeout(() => mixRec.stop(), longest*1000 + 200);
+      setTimeout(() => mixRec.stop(), longest * 1000 + 200);
     }
   }
 
-  // helper to reset camera UI
+  // helper: reset camera UI
   function resetCameraUI() {
-    captureBtn.textContent          = '📷 Enable Camera';
-    captureBtn.style.display        = 'inline-block';
-    cameraVideo.style.display       = 'block';
-    snapshotImage && (snapshotImage.style.display     = 'none');
-    snapshotContainer.style.display = 'none';
+    captureBtn.textContent = '📷 Enable Camera';
+    captureBtn.style.display = 'inline-block';
+    cameraVideo.style.display = 'block';
+    snapshotImage && (snapshotImage.style.display = 'none');
   }
 }
