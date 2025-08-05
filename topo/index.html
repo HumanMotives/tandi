@@ -34,11 +34,14 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
-// ---------------- AUDIO ----------------
+// ---------------- AUDIO SETUP ----------------
 const lines = [];
 const maxLines = 6;
 const baseFreq = 80;
 
+const reverb = new Tone.Reverb({ decay: 3, wet: 0.2 }).toDestination();
+
+// ---------------- ADD DRONE LINE ----------------
 function createLine(x) {
   const points = [];
   for (let y = 0; y <= height; y += 20) {
@@ -48,9 +51,9 @@ function createLine(x) {
 
   const avgX = points.reduce((sum, p) => sum + p.x, 0) / points.length;
   const rel = avgX / width;
-  const freq = baseFreq * Math.pow(2, rel * 4); // spread over ~4 octaves
+  const freq = baseFreq * Math.pow(2, rel * 4); // ~4 octaves
 
-  const gain = new Tone.Gain(0.1).toDestination();
+  const gain = new Tone.Gain(1 / (lines.length + 2)).connect(reverb);
   const vibrato = new Tone.LFO("8n", -5, 5);
   const osc = new Tone.Oscillator(freq, "sine").connect(gain);
   vibrato.connect(osc.frequency);
@@ -76,17 +79,20 @@ function addLine(x) {
   lines.push(createLine(x));
 }
 
-// ---------------- GESTURE CONTROL ----------------
-let tapTimer = 0;
+// ---------------- TOUCH & MOUSE ----------------
 let lastTapTime = 0;
 let dragging = false;
 let lastTouchX = null;
 
+function startAudioContext() {
+  Tone.start();
+}
+
 canvas.addEventListener("touchstart", (e) => {
+  startAudioContext();
   const touch = e.touches[0];
   const now = Date.now();
   if (now - lastTapTime < 300) {
-    // Double tap
     addLine(touch.clientX);
     lastTapTime = 0;
   } else {
@@ -97,8 +103,8 @@ canvas.addEventListener("touchstart", (e) => {
 });
 
 canvas.addEventListener("touchmove", (e) => {
-  if (!dragging) return;
   const touch = e.touches[0];
+  if (!dragging) return;
   const dx = touch.clientX - lastTouchX;
   lastTouchX = touch.clientX;
   bendLines(touch.clientX, dx);
@@ -109,8 +115,8 @@ canvas.addEventListener("touchend", () => {
   lastTouchX = null;
 });
 
-// Desktop for testing
 canvas.addEventListener("mousedown", (e) => {
+  startAudioContext();
   dragging = true;
   lastTouchX = e.clientX;
 });
@@ -126,13 +132,13 @@ canvas.addEventListener("mouseup", () => {
   dragging = false;
 });
 
-// ---------------- BEND LINES ----------------
+// ---------------- BENDING ----------------
 function bendLines(x, dx) {
   lines.forEach(line => {
     line.points.forEach(p => {
       const dist = Math.abs(p.x - x);
       if (dist < 100) {
-        p.x += dx * 0.4 * (1 - dist / 100); // increased displacement
+        p.x += dx * 0.5 * (1 - dist / 100); // stronger curve
       }
     });
     updateAudio(line);
@@ -146,7 +152,7 @@ function updateAudio(line) {
   line.osc.frequency.rampTo(freq, 0.1);
 }
 
-// ---------------- GYRO ----------------
+// ---------------- GYROSCOPE ----------------
 if (window.DeviceOrientationEvent) {
   window.addEventListener("deviceorientation", (event) => {
     const tilt = event.gamma || 0;
@@ -157,7 +163,7 @@ if (window.DeviceOrientationEvent) {
   });
 }
 
-// ---------------- DRAW ----------------
+// ---------------- VISUALS ----------------
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
@@ -165,7 +171,7 @@ function draw() {
     ctx.beginPath();
     ctx.moveTo(line.points[0].x, line.points[0].y);
     line.points.forEach(p => ctx.lineTo(p.x, p.y));
-    // Flickering opacity
+    // Opacity flicker for live feel
     line.opacity += 0.003 * line.flickerDir;
     if (line.opacity > 0.9 || line.opacity < 0.6) line.flickerDir *= -1;
     ctx.strokeStyle = `rgba(102, 92, 75, ${line.opacity})`; // earthy tone
