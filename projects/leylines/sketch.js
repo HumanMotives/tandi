@@ -1,85 +1,131 @@
 // sketch.js
 
-let state = 'start';
-let ampVal, freqVal, angleVal;
-let lastTouch = null;
+let amplitude, freq, patternAngle;
+let noiseVisual = 0, foldVisual = 0;
+let lastScaleFactor = 1;
+let dragging = false;
+let initTouches = [], initAmp, initFreq, initAng;
+const toolbarH = 60;
 
 function setup() {
-  // attach canvas to our container
   const canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent('sketch-container');
-
-  // initial wave parameters
-  ampVal  = height * 0.1;
-  freqVal = 2;
-  angleVal= 0;
-
-  // “Play” button handler
+  noFill();                   // ensure no interior fill
+  amplitude    = height * 0.1;
+  freq         = 2;
+  patternAngle = 0;
   select('#play-btn').mousePressed(() => {
     select('#start-screen').addClass('hidden');
     select('#sketch-container').removeClass('hidden');
-    state = 'play';
   });
 }
 
 function draw() {
-  if (state !== 'play') return;
-
   background('#A1A37A');
 
-  // subtle breathing on line-weight
-  let lw = map(sin(frameCount * 0.005), -1, 1, 1, 4);
+  // constant timebase so it never freezes
+  const t = millis() * 0.002;
 
-  // time base for waves
-  let t = millis() * 0.002;
+  // subtle breathing line‐width LFO, now 1–2px
+  const lw = map(sin(frameCount * 0.005), -1, 1, 1, 2);
 
   push();
     translate(width/2, height/2);
-    rotate(angleVal);
+    rotate(patternAngle);
     translate(-width/2, -height/2);
-
-    stroke('#fff');
-    for (let i = 0; i < 12; i++) {
-      let y0 = map(i, 0, 11, height*0.2, height*0.8);
-      strokeWeight(lw);
-      beginShape();
-        for (let x = 0; x <= width; x += 5) {
-          let phase = TWO_PI * freqVal * (x/width) + t;
-          let y = ampVal * sin(phase);
-          vertex(x, y0 + y);
-        }
-      endShape();
-    }
+    drawCompositeWave(t, lw);
   pop();
 }
 
-function touchesChanged() {
-  // record on any touch change
-  lastTouch = touches.slice();
+function drawCompositeWave(t, lw) {
+  stroke('#fff');
+  let maxAbsY = 0;
+  const stripes = 12;
+
+  for (let i = 0; i < stripes; i++) {
+    let y0 = map(i, 0, stripes - 1, height * 0.2, height * 0.8);
+    strokeWeight(lw);
+
+    beginShape();
+      for (let x = 0; x <= width; x += 5) {
+        let phase = TWO_PI * freq * (x/width) + t;
+        let y = amplitude * sin(phase);
+
+        // Perlin warp
+        y += (noise(
+          x * noiseVisual * 0.1 + t * 0.5,
+          i * 0.2
+        ) - 0.5) * amplitude * 0.5;
+
+        // wave‐fold
+        if (foldVisual > 0) {
+          const foldAmt = foldVisual * 50;
+          y = abs(((y + foldAmt) % (2 * foldAmt)) - foldAmt);
+        }
+
+        vertex(x, y0 + y);
+        maxAbsY = max(maxAbsY, abs(y));
+      }
+    endShape();
+  }
+
+  // spike detection (unchanged)
+  if (maxAbsY > amplitude * 0.8) {
+    if (!this._lastSpike) this._lastSpike = 0;
+    let now = millis();
+    if (now - this._lastSpike > 500) {
+      triggerSpikeNote();
+      this._lastSpike = now;
+    }
+  }
+}
+
+async function touchStarted() {
+  await startAudio();
+  if (touches.length === 2) {
+    initTouches = [ { ...touches[0] }, { ...touches[1] } ];
+    initAmp     = amplitude;
+    initFreq    = freq;
+    initAng     = patternAngle;
+    dragging    = true;
+  }
+  return false;
 }
 
 function touchMoved() {
-  if (state !== 'play' || touches.length === 0) return false;
+  if (!dragging || touches.length !== 2) return false;
 
-  // use single-finger vertical drag to adjust amplitude
-  let y = touches[0].y;
-  ampVal = constrain(map(y, 0, height, height*0.3, height*0.05), 10, height*0.5);
+  const [a1,b1] = initTouches, [a2,b2] = touches;
+  const d0 = dist(a1.x,a1.y, b1.x,b1.y);
+  const d1 = dist(a2.x,a2.y, b2.x,b2.y);
+  lastScaleFactor = constrain(d1 / d0, 0.2, 3);
 
-  // single-finger horizontal drag to adjust frequency
-  let x = touches[0].x;
-  freqVal = constrain(map(x, 0, width, 0.5, 5), 0.5, 8);
+  const ang0 = atan2(b1.y - a1.y, b1.x - a1.x);
+  const ang1 = atan2(b2.y - a2.y, b2.x - a2.x);
+  const deltaAng = ang1 - ang0;
 
-  // two-finger rotate to adjust angleVal
-  if (touches.length === 2 && lastTouch && lastTouch.length === 2) {
-    const [a1,b1] = lastTouch;
-    const [a2,b2] = touches;
-    const ang0 = atan2(b1.y - a1.y, b1.x - a1.x);
-    const ang1 = atan2(b2.y - a2.y, b2.x - a2.x);
-    angleVal += (ang1 - ang0);
+  amplitude    = initAmp;
+  freq         = constrain(initFreq / lastScaleFactor, 0.1, 8);
+  patternAngle = initAng + deltaAng;
+
+  const cx     = (touches[0].x + touches[1].x) / 2;
+  const region = cx < width/3 ? 'A'
+                : cx < 2*width/3 ? 'B'
+                : 'C';
+  const val = constrain(map(lastScaleFactor, 1, 0.2, 0, 1), 0, 1);
+  modSynth(region, val);
+  if (region === 'B') {
+    noiseVisual = val;
+    foldVisual  = val;
   }
 
-  lastTouch = touches.slice();
-  return false; // prevent scroll
+  return false;
+}
+
+function touchEnded() {
+  dragging = false;
+  lastScaleFactor = 1;
+  return false;
 }
 
 function windowResized() {
