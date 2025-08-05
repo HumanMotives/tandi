@@ -13,7 +13,7 @@ function setup() {
   amplitude    = height * 0.1;
   freq         = 2;
   patternAngle = 0;
-  // highlight Waves button
+  // ensure the Waves button is highlighted
   document.querySelector('#toolbar button[data-mode="waves"]')
     .classList.add('active');
 }
@@ -21,41 +21,42 @@ function setup() {
 function draw() {
   background(245);
 
-  // compute a safe time‐warp: invert a clamped scale factor
-  const safeScale = constrain(lastScaleFactor, 0.5, 3);
-  const timeScale = 1 / safeScale;
-  const t = millis() * 0.002 * timeScale;
+  // FIX: Use a constant timebase so it never freezes
+  const t = millis() * 0.002;
 
+  // Only the lines rotate, not the entire canvas element
   push();
-    translate(width / 2, height / 2);
+    translate(width/2, height/2);
     rotate(patternAngle);
-    translate(-width / 2, -height / 2);
+    translate(-width/2, -height/2);
     drawCompositeWave(t);
   pop();
 }
 
 function drawCompositeWave(t) {
   const stripes = 12;
+  // subtle breathing line‐width LFO
   const lw = map(sin(frameCount * 0.005), -1, 1, 1, 6);
   stroke(50);
 
   let maxAbsY = 0;
   for (let i = 0; i < stripes; i++) {
     let y0 = map(i, 0, stripes - 1, height * 0.2, height * 0.8);
-    strokeWeight(lw * map(amplitude, 0, height * 0.5, 0.5, 1.5));
+    strokeWeight(lw * map(amplitude, 0, height*0.5, 0.5, 1.5));
 
     beginShape();
     for (let x = 0; x <= width; x += 5) {
-      let phase = TWO_PI * freq * (x / width) + t;
+      // base sine wave
+      let phase = TWO_PI * freq * (x/width) + t;
       let y = amplitude * sin(phase);
 
-      // Perlin warp
+      // Perlin warp (when pinch‐in region B)
       y += (noise(
         x * noiseVisual * 0.1 + t * 0.5,
         i * 0.2
       ) - 0.5) * amplitude * 0.5;
 
-      // wave‐fold
+      // wave‐fold (when pinch‐in region B)
       if (foldVisual > 0) {
         const foldAmt = foldVisual * 50;
         y = abs(((y + foldAmt) % (2 * foldAmt)) - foldAmt);
@@ -67,7 +68,7 @@ function drawCompositeWave(t) {
     endShape();
   }
 
-  // detect spikes and trigger pluck
+  // Spike detection → trigger pluck
   if (maxAbsY > amplitude * 0.8) {
     if (!this._lastSpike) this._lastSpike = 0;
     const now = millis();
@@ -79,7 +80,7 @@ function drawCompositeWave(t) {
 }
 
 async function touchStarted() {
-  await startAudio();
+  await startAudio();  // unlock audio context
   if (touches.length === 2) {
     initTouches = [ { ...touches[0] }, { ...touches[1] } ];
     initAmp     = amplitude;
@@ -92,14 +93,14 @@ async function touchStarted() {
 
 function touchMoved() {
   if (dragging && touches.length === 2) {
-    const [a1, b1] = initTouches;
-    const [a2, b2] = touches;
-    // raw scale factor
-    const d0 = dist(a1.x, a1.y, b1.x, b1.y);
-    const d1 = dist(a2.x, a2.y, b2.x, b2.y);
+    const [a1,b1] = initTouches, [a2,b2] = touches;
+
+    // raw pinch scale
+    const d0 = dist(a1.x,a1.y, b1.x,b1.y);
+    const d1 = dist(a2.x,a2.y, b2.x,b2.y);
     let scaleFactor = d1 / d0;
 
-    // clamp to avoid freeze
+    // clamp so we never divide by zero or go off-scale
     lastScaleFactor = constrain(scaleFactor, 0.2, 3);
 
     // rotation delta
@@ -107,12 +108,12 @@ function touchMoved() {
     const ang1 = atan2(b2.y - a2.y, b2.x - a2.x);
     const deltaAng = ang1 - ang0;
 
-    // inverted mapping: pinch out → calm; pinch in → agitated
+    // inverted mapping: pinch out = calm; pinch in = agitated
     amplitude    = initAmp;
     freq         = constrain(initFreq / lastScaleFactor, 0.1, 8);
     patternAngle = initAng + deltaAng;
 
-    // region A/B/C for audio mods
+    // which third of the screen?
     const cx     = (touches[0].x + touches[1].x) / 2;
     const region = cx < width/3
       ? 'A'
@@ -120,11 +121,11 @@ function touchMoved() {
       ? 'B'
       : 'C';
 
-    // inward pinch (scale<1) → val≈1; outward (scale>1) → val≈0
+    // inward pinch (scale<1) → val≈1; outward → val≈0
     const val = constrain(map(lastScaleFactor, 1, 0.2, 0, 1), 0, 1);
     modSynth(region, val);
 
-    // visuals modulation only in region B
+    // visuals mod only in B
     if (region === 'B') {
       noiseVisual = val;
       foldVisual  = val;
@@ -134,8 +135,7 @@ function touchMoved() {
 }
 
 function touchEnded() {
-  // reset to default time‐warp
-  lastScaleFactor = 1;
   dragging = false;
+  lastScaleFactor = 1;  // reset
   return false;
 }
