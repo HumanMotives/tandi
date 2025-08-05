@@ -116,3 +116,4 @@ function windowResized() {
   topY    = height * 0.15;
   boxW    = width  - marginX * 2;
   boxH    = height * 0.6;
+}
