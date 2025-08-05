@@ -1,119 +1,104 @@
 // sketch.js
 
 const stripes = 12;
-let ampVal, freqVal, noiseVal = 0, foldVal = 0;
+let rowSpacing, waveAmp;
+let freqVal   = 2;
+let noiseVal  = 0, foldVal = 0;
 let initTouches = [];
-
-// framing parameters
-let marginX, topY, boxW, boxH;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noFill();
   strokeCap(ROUND);
 
-  // initial wave parameters
-  ampVal  = height * 0.1;
-  freqVal = 2;
+  // initial row spacing = 6% of height
+  rowSpacing = height * 0.06;
+  waveAmp    = rowSpacing * 0.5;  // amplitude always half a row
 
-  // compute frame rectangle: 5% left/right, 15–75% vert
-  marginX = width * 0.05;
-  topY    = height * 0.15;
-  boxW    = width  - marginX * 2;
-  boxH    = height * 0.6;
+  stroke('#fff');
 }
 
 function draw() {
-  // white outer background
-  background(255);
-
-  // draw the olive‐pastel framed area
-  noStroke();
-  fill('#A1A37A');
-  rect(marginX, topY, boxW, boxH);
+  // full-screen olive
+  background('#A1A37A');
 
   // time & breathing
   const t  = millis() * 0.002;
   const lw = map(sin(frameCount * 0.005), -1, 1, 1, 2);
-
-  // draw only within the box
-  stroke('#fff');
   strokeWeight(lw);
-  noFill();
 
+  // draw stripes centered vertically
   for (let i = 0; i < stripes; i++) {
-    // y0 runs down the box
-    let y0 = topY + map(i, 0, stripes - 1, 0, boxH);
-
+    // center the block of stripes around mid‐canvas
+    let y0 = height/2 + (i - (stripes-1)/2) * rowSpacing;
     beginShape();
-    for (let x = marginX; x <= marginX + boxW; x += 5) {
-      // base sine
-      let phase = TWO_PI * freqVal * ((x - marginX) / boxW) + t;
-      let y = ampVal * sin(phase);
-
-      // two‐finger twist warping
-      y += (noise(
-        (x - marginX) * noiseVal * 0.1 + t * 0.5,
-        i * 0.2
-      ) - 0.5) * ampVal * 0.5;
-
-      // wave‐fold
-      if (foldVal > 0) {
-        const f = foldVal * 50;
-        y = abs(((y + f) % (2 * f)) - f);
+      for (let x = 0; x <= width; x += 5) {
+        // sine
+        let phase = TWO_PI * freqVal * (x/width) + t;
+        let y = waveAmp * sin(phase);
+        // Perlin warp
+        y += (noise(
+          x * noiseVal * 0.1 + t * 0.5,
+          i * 0.2
+        ) - 0.5) * waveAmp;
+        // fold
+        if (foldVal > 0) {
+          const f = foldVal * rowSpacing;
+          y = abs(((y + f) % (2 * f)) - f);
+        }
+        vertex(x, y0 + y);
       }
-
-      vertex(x, y0 + y);
-    }
     endShape();
   }
 }
 
 function touchStarted() {
   if (touches.length === 2) {
-    initTouches = [{ ...touches[0] }, { ...touches[1] }];
+    initTouches = [ { ...touches[0] }, { ...touches[1] } ];
   }
   return false;
 }
 
 function touchMoved() {
+  // one‐finger: vertical → rowSpacing
   if (touches.length === 1) {
-    // one‐finger: vertical → row spacing (via ampVal)
-    // but now repurpose: tighter rows = smaller ampVal if you want, or adjust boxH
-    // here we’ll adjust boxH (spacing)
-    boxH = constrain(
-      map(touches[0].y, 0, height, height * 0.8, height * 0.3),
-      height * 0.2,
-      height * 0.8
+    rowSpacing = constrain(
+      map(touches[0].y, 0, height, height*0.02, height*0.15),
+      height*0.02,
+      height*0.15
     );
+    waveAmp = rowSpacing * 0.5;
+
     // one‐finger: horizontal → freq
-    freqVal = constrain(map(touches[0].x, 0, width, 0.5, 5), 0.5, 8);
+    freqVal = constrain(
+      map(touches[0].x, 0, width, 0.5, 5),
+      0.5,
+      8
+    );
   }
+  // two‐finger twist: warp & fold
   else if (touches.length === 2 && initTouches.length === 2) {
-    // two‐finger twist → noiseVal & foldVal
-    const [a1, b1] = initTouches;
-    const [a2, b2] = touches;
+    const [a1,b1] = initTouches;
+    const [a2,b2] = touches;
     const ang0 = atan2(b1.y - a1.y, b1.x - a1.x);
     const ang1 = atan2(b2.y - a2.y, b2.x - a2.x);
-    const deltaAng = abs(ang1 - ang0);
-    const v = constrain(map(deltaAng, 0, PI, 0, 1), 0, 1);
+    const delta = abs(ang1 - ang0);
+    const v = constrain(map(delta, 0, PI, 0, 1), 0, 1);
     noiseVal = v;
     foldVal  = v;
   }
-  return false;
+  return false; // prevent scrolling
 }
 
 function touchEnded() {
-  // optionally reset deformation
+  // optionally reset warp/fold:
   // noiseVal = foldVal = 0;
   return false;
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  // recalc frame
-  marginX = width * 0.05;
-  topY    = height * 0.15;
-  boxW    = width  - marginX * 2;
-  boxH    = height * 0.6;
+  // recompute spacing & amp
+  rowSpacing = height * 0.06;
+  waveAmp    = rowSpacing * 0.5;
 }
