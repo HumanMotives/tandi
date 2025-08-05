@@ -8,7 +8,7 @@
     /* Mobile‐responsive grid of pads */
     body {
       margin: 0;
-      background: #000;
+      background: #ccc;
       color: #fff;
       font-family: sans-serif;
       display: flex;
@@ -56,12 +56,16 @@
     pads.forEach(pad => {
       let loopNode = null;
       pad.addEventListener('click', async () => {
+        // 1) Ensure the AudioContext is running
+        if (audioCtx.state === 'suspended') {
+          await audioCtx.resume();
+        }
+
+        // 2) Toggle the loop
         if (pad.classList.contains('active')) {
-          // stop
           loopNode.stop();
           pad.classList.remove('active');
         } else {
-          // start corresponding loop
           pad.classList.add('active');
           const type = pad.dataset.type;
           loopNode = createLoop(type);
@@ -71,46 +75,42 @@
     });
 
     function createLoop(type) {
-      const now = audioCtx.currentTime;
       const gain = audioCtx.createGain();
       gain.gain.value = 0.5;
       gain.connect(audioCtx.destination);
 
-      // Use a ScriptProcessorNode for custom loops
       const bufferSize = 4096;
       const node = audioCtx.createScriptProcessor(bufferSize, 0, 1);
       node.connect(gain);
 
       let phase = 0;
-      let count = 0;
 
       node.onaudioprocess = e => {
         const out = e.outputBuffer.getChannelData(0);
+        const t = audioCtx.currentTime;
         for (let i = 0; i < bufferSize; i++) {
           switch (type) {
             case 'pulse':
-              // simple 200Hz square wave gated at 2Hz
+              // 200Hz square wave gated at 2Hz
               phase += 2 * Math.PI * 200 / audioCtx.sampleRate;
-              out[i] = (Math.sin(phase) > 0 ? 1 : -1) * (Math.floor(audioCtx.currentTime * 2) % 2);
+              out[i] = (Math.sin(phase) > 0 ? 1 : -1) * (Math.floor(t * 2) % 2);
               break;
             case 'noise':
-              // burst of white noise every quarter second
-              if (Math.floor(audioCtx.currentTime * 4) % 4 === 0) {
-                out[i] = (Math.random() * 2 - 1) * 0.3;
-              } else {
-                out[i] = 0;
-              }
+              // white-noise blips every quarter-second
+              out[i] = (Math.floor(t * 4) % 4 === 0)
+                ? (Math.random() * 2 - 1) * 0.3
+                : 0;
               break;
             case 'glitch':
-              // bitcrusher effect
-              const step = 0.1; // low resolution
-              const noiseSample = (Math.random() * 2 - 1);
-              out[i] = Math.round(noiseSample / step) * step;
+              // bitcrush-style random quantized noise
+              const sample = (Math.random() * 2 - 1);
+              const step = 0.1;
+              out[i] = Math.round(sample / step) * step;
               break;
             case 'rave':
-              // sine sweeps at random intervals
-              phase += 2 * Math.PI * (100 + 1000 * Math.abs(Math.sin(audioCtx.currentTime))) / audioCtx.sampleRate;
-              out[i] = Math.sin(phase) * (0.2 + 0.3 * Math.sin(audioCtx.currentTime * 5));
+              // sine sweeps modulated in freq & amp
+              phase += 2 * Math.PI * (100 + 1000 * Math.abs(Math.sin(t))) / audioCtx.sampleRate;
+              out[i] = Math.sin(phase) * (0.2 + 0.3 * Math.sin(t * 5));
               break;
             default:
               out[i] = 0;
