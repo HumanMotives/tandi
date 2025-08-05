@@ -1,32 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Leylines</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- p5.js for visuals -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Leylines Visual</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <style>
+    body { margin:0; overflow:hidden; }
+  </style>
 </head>
 <body>
-  <!-- Start Screen -->
-  <div id="start-screen">
-    <div class="card">
-      <div class="logo">
-        <svg width="80" height="60" viewBox="0 0 100 75" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10,50 Q30,10 50,50 T90,50" fill="none" stroke="#A1A37A" stroke-width="3"/>
-        </svg>
-      </div>
-      <h1>Leylines</h1>
-      <p>Soothing drones that follow the leylines.<br/>Tap “Play” to begin.</p>
-      <button id="play-btn">Play</button>
-    </div>
-  </div>
-
-  <!-- Sketch Container -->
-  <div id="sketch-container" class="hidden"></div>
-
-  <!-- Main code -->
   <script src="sketch.js"></script>
 </body>
 </html>
