@@ -1,8 +1,8 @@
 // sketch.js
 
-// ——————————————————————————————————————————————————————————————————
-// 1) Visual globals
-// ——————————————————————————————————————————————————————————————————
+// ——————————————————————————————————————————————————————————————
+// 1) VISUAL SETUP
+// ——————————————————————————————————————————————————————————————
 const stripes = 12;
 let rowSpacing, waveAmp;
 let freqVal   = 2;
@@ -11,15 +11,13 @@ let bulgeVal  = 0;
 let initTouches = [];
 let stones      = [];
 
-// ——————————————————————————————————————————————————————————————————
-// 2) Audio globals
-// ——————————————————————————————————————————————————————————————————
-let _audioStarted = false;
-let synthPure, synthRich, filterNode, reverbNode, chordLoop, pluckSynth;
+// ——————————————————————————————————————————————————————————————
+// 2) AUDIO SETUP
+// ——————————————————————————————————————————————————————————————
+let audioStarted = false;
+let synth, filterNode, reverbNode, chordLoop, pluckSynth;
+const scaleNotes = ['C4','D4','E4','F4','G4','A4','B4','C5'];
 
-// ——————————————————————————————————————————————————————————————————
-// 3) p5.js setup
-// ——————————————————————————————————————————————————————————————————
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noFill();
@@ -32,31 +30,25 @@ function setup() {
 
   stroke('#fff');
 
-  // Build your synth + FX chain
-  synthPure = new Tone.PolySynth(Tone.Synth, {
-    oscillator: { type: 'sine' },
-    envelope:   { attack: 0.5, decay: 0.1, sustain: 0.7, release: 1 }
-  });
-  synthRich = new Tone.PolySynth(Tone.Synth, {
-    oscillator: { type: 'triangle' },
-    envelope:   { attack: 0.1, decay: 0.2, sustain: 0.5, release: 1 }
-  });
+  // Build FX chain (won't start until Tone.start)
   filterNode = new Tone.Filter(800, 'lowpass').toDestination();
   reverbNode = new Tone.Reverb({ decay: 3, wet: 0 }).connect(filterNode);
-  synthPure.connect(reverbNode);
-  synthRich.connect(reverbNode);
 
+  // Pure-sine chord synth
+  synth = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: 'sine' },
+    envelope:   { attack: 0.5, decay: 0.1, sustain: 0.7, release: 1 }
+  }).connect(reverbNode);
+
+  // Pluck for stones
   pluckSynth = new Tone.PluckSynth({
     dampening: 2000,
     resonance: 0.8
   }).toDestination();
 }
 
-// ——————————————————————————————————————————————————————————————————
-// 4) p5.js draw
-// ——————————————————————————————————————————————————————————————————
 function draw() {
-  // Pastel background HSL
+  // Pastel background via HSL
   colorMode(HSL, 360, 100, 100);
   let hue = 100 + (bulgeVal - 0.5) * 30 + (noiseVal - 0.5) * 20;
   let sat = 10 + noiseVal * 30;
@@ -64,70 +56,64 @@ function draw() {
   background(hue, sat, lit);
   colorMode(RGB);
 
-  const t = millis() * 0.001; // slower wave
+  const t = millis() * 0.001;
 
-  // Draw each stripe as segmented pen-stroke
+  // Draw stripes as before
   for (let i = 0; i < stripes; i++) {
-    const centerY = height / 2;
-    const half    = (stripes - 1) / 2;
+    const centerY = height/2;
+    const half    = (stripes - 1)/2;
     const y0      = centerY + (i - half) * rowSpacing;
     const bendF   = map(abs(i - half), 0, half, 1, 2);
 
-    // Collect points
+    // collect points
     let pts = [];
     for (let x = 0; x <= width; x += 5) {
-      let phase = TWO_PI * freqVal * (x / width) + t;
+      let phase = TWO_PI * freqVal * (x/width) + t;
       let y     = waveAmp * sin(phase);
 
-      // warp/fold from two-finger twist
-      y += (noise(x * noiseVal * 0.1 + t * 0.5, i * 0.2) - 0.5) * waveAmp;
+      y += (noise(x*noiseVal*0.1 + t*0.5, i*0.2) - 0.5) * waveAmp;
       if (foldVal > 0) {
         let f = foldVal * rowSpacing;
-        y = abs(((y + f) % (2 * f)) - f);
+        y = abs(((y + f) % (2*f)) - f);
       }
 
-      // stone repulsion
       let yy = y0 + y;
       for (let st of stones) {
         let dx = x - st.x, dy = yy - st.y, d = sqrt(dx*dx + dy*dy);
         if (d < st.r) {
           let push = (st.r - d) / st.r;
           let sign = dy / (d || 1);
-          y += sign * push * st.strength * bendF;
-          yy = y0 + y;
+          y  += sign * push * st.strength * bendF;
+          yy  = y0 + y;
         }
       }
-
       pts.push({ x, y: yy });
     }
 
-    // Draw segments with variable strokeWeight
+    // draw segments with bulging stroke
     for (let j = 0; j < pts.length - 1; j++) {
       const p0 = pts[j], p1 = pts[j+1];
-      const norm  = j / (pts.length - 1);
-      // breathing base: 0.5–3px
-      const baseLw = map(sin(frameCount * 0.005), -1, 1, 0.5, 3);
-      // bulge adds up to +4px
+      const norm = j / (pts.length - 1);
+      const baseLw = map(sin(frameCount*0.005), -1, 1, 0.5, 3);
       const peakLw = baseLw + bulgeVal * 4;
-      const sw     = lerp(baseLw, peakLw, sin(norm * PI));
+      const sw     = lerp(baseLw, peakLw, sin(norm*PI));
       strokeWeight(sw);
       line(p0.x, p0.y, p1.x, p1.y);
     }
   }
 }
 
-// ——————————————————————————————————————————————————————————————————
-// 5) Touch handlers
-// ——————————————————————————————————————————————————————————————————
+// ——————————————————————————————————————————————————————————————
+// 3) TOUCH HANDLERS
+// ——————————————————————————————————————————————————————————————
 function touchStarted() {
-  // Unlock audio on first touch
-  if (!_audioStarted) {
+  // Unlock audio on first user interaction
+  if (!audioStarted) {
     Tone.start().then(() => {
       Tone.Transport.start();
-      // Loop chord every measure
-      chordLoop = new Tone.Loop(time => playChord(time), '1m').start(0);
-      _audioStarted = true;
-      console.log('🔊 Audio unlocked & loop started');
+      chordLoop = new Tone.Loop(playChord, '1m').start(0);
+      audioStarted = true;
+      console.log('🔊 Audio ready');
     });
   }
   initTouches = touches.map(t => ({ ...t }));
@@ -137,13 +123,13 @@ function touchStarted() {
 function touchMoved() {
   if (touches.length === 1) {
     let { x, y } = touches[0];
-    // Vertical → bulgeVal & rowSpacing
+    // vertical → bulge & spacing
     bulgeVal = constrain(map(y, height, 0, 0, 1), 0, 1);
-    let minSp = (height * 0.15) / (stripes - 1),
-        maxSp = (height * 0.25) / (stripes - 1);
+    let minSp = (height*0.15)/(stripes-1),
+        maxSp = (height*0.25)/(stripes-1);
     rowSpacing = constrain(map(y, 0, height, maxSp, minSp), minSp, maxSp);
     waveAmp    = rowSpacing * 0.5;
-    // Horizontal → freqVal
+    // horizontal → freqVal
     freqVal    = constrain(map(x, 0, width, 0.5, 5), 0.5, 8);
   }
   else if (touches.length === 2 && initTouches.length === 2) {
@@ -154,19 +140,18 @@ function touchMoved() {
     noiseVal = foldVal = v;
   }
 
-  // Update synth parameters
-  modSynth('B', noiseVal);
-  modSynth('C', bulgeVal);
-
-  return false; // prevent page scroll
+  return false;
 }
 
 function touchEnded() {
-  // Tap → drop stone & pluck
+  // tap → stone + pluck
   if (touches.length === 0 && initTouches.length === 1) {
     let t0 = initTouches[0];
-    stones.push({ x: t0.x, y: t0.y, r: width * 0.15, strength: 40 });
-    triggerStoneSound();
+    stones.push({ x: t0.x, y: t0.y, r: width*0.15, strength: 40 });
+    // trigger pluck on top note
+    let top = scaleNotes[scaleNotes.length-1];
+    let note= Tone.Frequency(top).transpose(12).toNote();
+    pluckSynth.triggerAttackRelease(note, '16n');
   }
   initTouches = [];
   return false;
@@ -179,34 +164,25 @@ function windowResized() {
   waveAmp    = rowSpacing * 0.5;
 }
 
-// ——————————————————————————————————————————————————————————————————
-// 6) Audio functions
-// ——————————————————————————————————————————————————————————————————
+// ——————————————————————————————————————————————————————————————
+// 4) AUDIO CALLBACK
+// ——————————————————————————————————————————————————————————————
 function playChord(time) {
-  const scale = ['C4','D4','E4','G4','A4','C5','D5','E5'];
-  let idx = floor(map(freqVal, 0.5, 5, 0, scale.length - 3));
-  idx = constrain(idx, 0, scale.length - 3);
-  const chord = [scale[idx], scale[idx+1], scale[idx+2]];
+  // pick root from freqVal
+  let idx = floor(map(freqVal, 0.5, 5, 0, scaleNotes.length-3));
+  idx = constrain(idx, 0, scaleNotes.length-3);
+  let chord = [
+    scaleNotes[idx],
+    scaleNotes[idx+1],
+    scaleNotes[idx+2]
+  ];
 
-  synthPure.volume.value = -12 + noiseVal * 6;
-  synthRich.volume.value = -18 + noiseVal * 12;
+  synth.volume.value      = -12 + noiseVal * 6;
+  filterNode.frequency.value = constrain(
+    map(rowSpacing, height*0.02, height*0.15, 200, 2000),
+    200, 8000
+  );
+  reverbNode.wet.value    = constrain(bulgeVal * 0.6, 0, 0.9);
 
-  let cutoff = map(rowSpacing, height*0.02, height*0.15, 200, 2000);
-  filterNode.frequency.value = constrain(cutoff, 200, 8000);
-
-  reverbNode.wet.value = constrain(bulgeVal * 0.6, 0, 1);
-
-  synthPure.triggerAttackRelease(chord, '1m', time);
-  synthRich.triggerAttackRelease(chord, '1m', time);
-}
-
-function modSynth(region, val) {
-  if (region === 'B') noiseVal = val;
-  if (region === 'C') bulgeVal = val;
-}
-
-function triggerStoneSound() {
-  const scale = ['C4','D4','E4','G4','A4','C5','D5','E5'];
-  let note = Tone.Frequency(scale[scale.length - 1]).transpose(12).toNote();
-  pluckSynth.triggerAttackRelease(note, '16n');
+  synth.triggerAttackRelease(chord, '1m', time);
 }
