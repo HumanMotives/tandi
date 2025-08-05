@@ -2,65 +2,66 @@
 
 let amplitude, freq, patternAngle;
 let noiseVisual = 0, foldVisual = 0;
+let lastScaleFactor = 1;
 let dragging = false;
 let initTouches = [], initAmp, initFreq, initAng;
 const toolbarH = 60;
 
-// — Setup & activate “Waves” button
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noFill();
   amplitude    = height * 0.1;
-  freq         = 2;
+  freq         = 2;    // cycles across width
   patternAngle = 0;
+
+  // Highlight the “Waves” button
   document.querySelector('#toolbar button[data-mode="waves"]')
     .classList.add('active');
 }
 
 function draw() {
   background(245);
-  const t = millis() * 0.002;
 
-  // Center & rotate whole grid
+  // compute a time‐scale: outward pinch slows, inward speeds
+  const timeScale = 1 / lastScaleFactor;
+  const t = millis() * 0.002 * timeScale;
+
   push();
+    // rotate only the wave-lines, not the entire canvas
     translate(width/2, height/2);
     rotate(patternAngle);
     translate(-width/2, -height/2);
+
     drawCompositeWave(t);
   pop();
 }
 
-// Draw 12 noisy, wave-folded sine bands across full width
+// Draw 12 full-width bands, warped & folded per your gestures
 function drawCompositeWave(t) {
   const stripes = 12;
-  // breathing line‐width LFO
   const lw = map(sin(frameCount * 0.005), -1, 1, 1, 6);
 
   stroke(50);
   for (let i = 0; i < stripes; i++) {
-    // y-position of this band
     let y0 = map(i, 0, stripes - 1, height * 0.2, height * 0.8);
-
     strokeWeight(
-      lw * map(amplitude, 0, height*0.5, 0.5, 1.5)
+      lw * map(amplitude, 0, height * 0.5, 0.5, 1.5)
     );
 
     beginShape();
       for (let x = 0; x <= width; x += 5) {
-        // base sine wave
-        const phase = TWO_PI * freq * (x / width) + t;
+        // base sine
+        let phase = TWO_PI * freq * (x / width) + t;
         let y = amplitude * sin(phase);
 
-        // Perlin warp
-        const noiseOff = (noise(
+        // Perlin warp (only when inward pinch)
+        y += (noise(
           x * noiseVisual * 0.1 + t * 0.5,
           i * 0.2
         ) - 0.5) * amplitude * 0.5;
-        y += noiseOff;
 
-        // simple wave-fold
+        // wave‐fold (only when inward pinch)
         if (foldVisual > 0) {
-          // warp y around zero by foldVisual factor
           const foldAmt = foldVisual * 50;
           y = abs(((y + foldAmt) % (2 * foldAmt)) - foldAmt);
         }
@@ -71,9 +72,8 @@ function drawCompositeWave(t) {
   }
 }
 
-// — Two-finger pinch & twist to unlock audio + morph visuals & sound
 async function touchStarted() {
-  await startAudio();
+  await startAudio();  // unlock audio & start transport
   if (touches.length === 2) {
     initTouches = [ { ...touches[0] }, { ...touches[1] } ];
     initAmp     = amplitude;
@@ -86,40 +86,42 @@ async function touchStarted() {
 
 function touchMoved() {
   if (dragging && touches.length === 2) {
-    // compute pinch scale
-    const [a1, b1] = initTouches;
-    const [a2, b2] = touches;
-    const d0 = dist(a1.x, a1.y, b1.x, b1.y);
-    const d1 = dist(a2.x, a2.y, b2.x, b2.y);
-    const scaleFactor = d1 / d0;
+    const [a1,b1] = initTouches;
+    const [a2,b2] = touches;
 
-    // compute rotation delta
+    // pinch scaleFactor
+    const d0 = dist(a1.x,a1.y, b1.x,b1.y);
+    const d1 = dist(a2.x,a2.y, b2.x,b2.y);
+    let scaleFactor = d1 / d0;
+    lastScaleFactor = scaleFactor;
+
+    // rotation delta
     const ang0 = atan2(b1.y - a1.y, b1.x - a1.x);
     const ang1 = atan2(b2.y - a2.y, b2.x - a2.x);
     const deltaAng = ang1 - ang0;
 
-    // core visuals
-    amplitude    = constrain(initAmp  * scaleFactor, 10, height*0.5);
-    freq         = constrain(initFreq * scaleFactor, 0.5, 8);
+    // INVERTED mapping:
+    // outward pinch (scale>1): slow & smooth → freq down, no noise/fold
+    // inward pinch (scale<1): fast & jagged → freq up, noise/fold up
+    amplitude = initAmp;  // keep vertical size constant
+    freq      = constrain(initFreq / scaleFactor, 0.1, 8);
     patternAngle = initAng + deltaAng;
 
-    // determine which third of the screen your fingers are in
+    // region detection (for audio mods)
     const cx = (touches[0].x + touches[1].x) / 2;
-    const region = cx < width/3
-      ? 'A'
-      : cx < 2*width/3
-      ? 'B'
-      : 'C';
+    const region = cx < width/3 ? 'A'
+                  : cx < 2*width/3 ? 'B' : 'C';
 
-    // normalized control value
-    const val = region === 'C'
-      ? constrain(map(deltaAng, -PI, PI, 0, 1), 0, 1)
-      : constrain(scaleFactor - 1, 0, 1);
+    // normalized val: inward pinch → 1, outward → 0
+    let val = constrain(
+      map(scaleFactor, 1, 3, 1, 0),
+      0, 1
+    );
 
     // audio modulators
     modSynth(region, val);
 
-    // visual modulators
+    // visual modulators only in region B for warp/fold
     if (region === 'B') {
       noiseVisual = val;
       foldVisual  = val;
