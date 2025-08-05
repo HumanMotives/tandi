@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spectral Bloom</title>
+  <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      overflow: hidden;
+      color: white;
+      font-family: sans-serif;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<script>
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  let width, height;
+  function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  // ---------------- AUDIO ----------------
+  const bloom = [];
+  const maxVoices = 8;
+  const baseFreq = 110;
+  let bloomCounter = 0;
+  let gyroDepth = 0.5;
+
+  function addBloom() {
+    if (bloom.length >= maxVoices) {
+      const old = bloom.shift();
+      old.osc.stop();
+      old.lfo.stop();
+    }
+
+    const freq = baseFreq * (1 + bloomCounter * 0.25);
+    const pan = new Tone.Panner(0).toDestination();
+    const lfo = new Tone.LFO("8n", -gyroDepth, gyroDepth);
+    const osc = new Tone.Oscillator(freq, "sine").connect(pan);
+    lfo.connect(pan.pan);
+    lfo.start();
+    osc.start();
+    bloom.push({ osc, lfo, freq });
+    bloomCounter++;
+  }
+
+  let bloomInterval;
+  function startBloom() {
+    if (!bloomInterval) {
+      bloomInterval = setInterval(addBloom, 7000); // every 7 seconds
+    }
+  }
+
+  // ---------------- VISUAL ----------------
+  function drawBloom() {
+    ctx.clearRect(0, 0, width, height);
+    ctx.save();
+    ctx.translate(width / 2, height / 2);
+
+    bloom.forEach((b, i) => {
+      const radius = 30 + i * 40;
+      const angle = Date.now() * 0.0001 * (i + 1);
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+      ctx.beginPath();
+      ctx.arc(x, y, 10, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${180 + i * 30}, 80%, 60%, 0.8)`;
+      ctx.fill();
+    });
+
+    ctx.restore();
+    requestAnimationFrame(drawBloom);
+  }
+  drawBloom();
+
+  // ---------------- INTERACTION ----------------
+  let dragging = false;
+  canvas.addEventListener("mousedown", () => {
+    Tone.start();
+    startBloom();
+    dragging = true;
+  });
+  canvas.addEventListener("mouseup", () => dragging = false);
+  canvas.addEventListener("mousemove", (e) => {
+    if (dragging) {
+      const x = (e.clientX / width) * 2 - 1;
+      bloom.forEach(b => b.lfo.min = -x * gyroDepth);
+    }
+  });
+
+  // Mobile touch support
+  canvas.addEventListener("touchstart", () => {
+    Tone.start();
+    startBloom();
+  });
+  canvas.addEventListener("touchmove", (e) => {
+    const touch = e.touches[0];
+    const x = (touch.clientX / width) * 2 - 1;
+    bloom.forEach(b => b.lfo.min = -x * gyroDepth);
+  });
+
+  // Gyroscope input
+  if (window.DeviceOrientationEvent) {
+    window.addEventListener("deviceorientation", (event) => {
+      const tilt = event.gamma; // left-right
+      gyroDepth = Math.min(1, Math.abs(tilt / 45));
+      bloom.forEach(b => b.lfo.max = gyroDepth);
+    });
+  }
+</script>
+</body>
+</html>
