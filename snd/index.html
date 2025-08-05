@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Micro Euclidean Sound Loop</title>
+  <title>Ikeda-Style Euclidean Generator</title>
   <style>
     body {
       margin: 0;
@@ -35,140 +35,183 @@
   <button id="randomize">Randomize</button>
 
   <script>
-  // —— SETUP ——
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  let isPlaying = false;
-  let schedulerId = null;
-  let nextNoteTime = 0;
-  let currentStep = 0;
+  let isPlaying = false, schedulerId, nextTime, step=0;
 
-  // Default sequence settings (will be randomized)
-  let seq = { steps: 16, hits: 5 };
-  let params = {};
-
-  // Euclidean rhythm generator (Bjorklund)
-  function makeEuclidean(steps, pulses) {
-    const pattern = [];
-    let counts = [], remainders = [], divisor = steps - pulses;
-    remainders.push(pulses);
-    let level = 0;
-    while (true) {
-      counts.push(Math.floor(divisor / remainders[level]));
-      remainders.push(divisor % remainders[level]);
-      divisor = remainders[level];
-      level++;
-      if (remainders[level] <= 1) break;
+  // Euclid generator
+  function euclid(steps, pulses){
+    let counts=[], remainders=[pulses], divisor=steps-pulses, level=0;
+    while(true){
+      counts.push(Math.floor(divisor/remainders[level]));
+      remainders.push(divisor%remainders[level]);
+      divisor=remainders[level++];
+      if(remainders[level]<=1) break;
     }
     counts.push(divisor);
-    function build(level) {
-      if (level === -1) return [0];
-      if (level === -2) return [1];
-      const res = [];
-      const seqA = build(level -1), seqB = build(level -2);
-      for (let i = 0; i < counts[level]; i++) res.push(...seqA);
-      if (remainders[level]) res.push(...seqB);
+    function build(l){
+      if(l===-1) return [0];
+      if(l===-2) return [1];
+      const res=[], a=build(l-1), b=build(l-2);
+      for(let i=0;i<counts[l];i++) res.push(...a);
+      if(remainders[l]) res.push(...b);
       return res;
     }
-    const patternRaw = build(level);
-    return patternRaw.slice(0, steps);
+    return build(level).slice(0,steps);
   }
 
-  // Schedule loop
-  function scheduler() {
-    const secondsPerBeat = 0.15; // ~150ms per step (≈100 BPM / 4)
-    while (nextNoteTime < audioCtx.currentTime + 0.1) {
-      const beat = currentStep % seq.steps;
-      if (euclidPattern[beat]) triggerHit(nextNoteTime, params[beat]);
-      nextNoteTime += secondsPerBeat;
-      currentStep++;
+  // Patterns + params
+  let bassPat=[], tonePat=[], midPat=[], sliverPat=[];
+  let toneParam = {}, midParam = {}, sliverParam = {};
+
+  function randomizeAll(){
+    // bass: sparse 4–8 steps, 1–2 hits
+    const bs = 4 + Math.floor(Math.random()*5),
+          bh = 1 + Math.floor(Math.random()*2);
+    bassPat = euclid(bs, bh);
+
+    // tone: 32 steps, ~1 hit per 2 bars (once every 32)
+    tonePat = euclid(32,1);
+    toneParam = { pitch: 600+Math.random()*800, env:0.2+Math.random()*0.2, rev:0.6+Math.random()*0.4 };
+
+    // mid noise: 16 steps, hits 4–6, then shift by one step to land on after-beats
+    midPat = euclid(16,4+Math.floor(Math.random()*3)).map((v,i)=> (i+1)%4===0 ? v:0);
+
+    // slivers: 32 steps, hits 20–28
+    const sh = 20 + Math.floor(Math.random()*9);
+    sliverPat = euclid(32, sh);
+
+    // per-sliver param
+    sliverParam = { env: 0.005+Math.random()*0.01, bit: 3 + Math.floor(Math.random()*5) };
+  }
+
+  // scheduling
+  function schedule(){
+    const interval = 0.125; // 1/8th note = 125ms @ 120BPM
+    while(nextTime < audioCtx.currentTime + 0.1){
+      const idx32 = step % 32,
+            idx16 = step % 16,
+            idxB  = step % bassPat.length;
+
+      // bass pulse
+      if(bassPat[idxB]) triggerBass(nextTime, idxB);
+
+      // tonal sine (very rare)
+      if(tonePat[idx32]) triggerTone(nextTime);
+
+      // mid noise on after-beat
+      if(midPat[idx16]) triggerMid(nextTime);
+
+      // ultra-fast slivers
+      if(sliverPat[idx32]) triggerSliver(nextTime);
+
+      nextTime += interval;
+      step++;
     }
-    schedulerId = setTimeout(scheduler, 25);
+    schedulerId = setTimeout(schedule,25);
   }
 
-  // Create per-step random params
-  let euclidPattern = [];
-  function randomizeAll() {
-    seq.steps = 8 + Math.floor(Math.random() * 9);    // 8–16 steps
-    seq.hits  = 1 + Math.floor(Math.random() * (seq.steps-1));
-    euclidPattern = makeEuclidean(seq.steps, seq.hits);
-
-    // per-hit parameters
-    params = euclidPattern.map(() => ({
-      pitch: 200 + Math.random()*800,               // Hz
-      envLen: 0.02 + Math.random()*0.2,             // sec
-      filterCut: 300 + Math.random()*3000,          // Hz
-      reverbMix: Math.random()*0.5,                 // 0–0.5
-      bitDepth: 1 + Math.floor(Math.random()*7),    // 1–7 bits
-    }));
+  // generators
+  function triggerBass(t, i){
+    const osc = audioCtx.createOscillator(),
+          g   = audioCtx.createGain(),
+          freq= 80 + Math.random()*40; // low bass
+    osc.frequency.value=freq;
+    g.gain.setValueAtTime(0.3, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t+0.1);
+    osc.connect(g).connect(audioCtx.destination);
+    osc.start(t); osc.stop(t+0.12);
   }
 
-  // One-shot “hit” voice
-  function triggerHit(time, p) {
-    // oscillator + envelope
-    const osc = audioCtx.createOscillator();
-    osc.frequency.value = p.pitch;
-    const env = audioCtx.createGain();
-    env.gain.setValueAtTime(1, time);
-    env.gain.exponentialRampToValueAtTime(0.001, time + p.envLen);
+  function triggerTone(t){
+    const osc = audioCtx.createOscillator(),
+          env = audioCtx.createGain(),
+          filt= audioCtx.createBiquadFilter(),
+          dly = audioCtx.createDelay(1),
+          fb  = audioCtx.createGain(),
+          dry = audioCtx.createGain(),
+          wet = audioCtx.createGain();
 
-    // filter
-    const filter = audioCtx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = p.filterCut;
+    osc.type='sine';
+    osc.frequency.value=toneParam.pitch;
+    env.gain.setValueAtTime(0, t);
+    env.gain.linearRampToValueAtTime(1,t+0.01);
+    env.gain.exponentialRampToValueAtTime(0.001, t+toneParam.env);
 
-    // bitcrusher (via ScriptProcessor)
-    const crusher = audioCtx.createScriptProcessor(256, 1, 1);
-    const step = Math.pow(0.5, p.bitDepth);
-    crusher.onaudioprocess = e => {
-      const input = e.inputBuffer.getChannelData(0);
-      const output = e.outputBuffer.getChannelData(0);
-      for (let i = 0; i < input.length; i++) {
-        output[i] = Math.round(input[i]/step)*step;
-      }
+    filt.type='lowpass'; filt.frequency.value=1000;
+    dly.delayTime.value=0.3;
+    fb.gain.value=0.5;
+    dry.gain.value=1-toneParam.rev;
+    wet.gain.value=toneParam.rev;
+
+    osc.connect(env).connect(filt).connect(dly).connect(wet).connect(audioCtx.destination);
+    filt.connect(dry).connect(audioCtx.destination);
+    dly.connect(fb).connect(dly);
+
+    osc.start(t); osc.stop(t+toneParam.env+0.1);
+  }
+
+  function triggerMid(t){
+    const bufSize=256, crusher=audioCtx.createScriptProcessor(bufSize,1,1),
+          step= Math.pow(0.5,4);
+    crusher.onaudioprocess=e=>{
+      const inp=e.inputBuffer.getChannelData(0), out=e.outputBuffer.getChannelData(0);
+      for(let i=0;i<inp.length;i++) out[i]=Math.round((Math.random()*2-1)/step)*step;
     };
+    const g=audioCtx.createGain();
+    g.gain.setValueAtTime(0.2,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.05);
 
-    // simple reverb (feedback Delay)
-    const delay = audioCtx.createDelay(1);
-    const fb = audioCtx.createGain();
-    fb.gain.value = 0.3;
-    const dry = audioCtx.createGain(), wet = audioCtx.createGain();
-    dry.gain.value = 1 - p.reverbMix; 
-    wet.gain.value = p.reverbMix;
-    delay.delayTime.value = 0.15;
-    delay.connect(fb).connect(delay);
+    const src=audioCtx.createBufferSource();
+    const noise=audioCtx.createBuffer(1,bufSize,audioCtx.sampleRate);
+    const data=noise.getChannelData(0);
+    for(let i=0;i<bufSize;i++) data[i]=Math.random()*2-1;
+    src.buffer=noise;
+    src.loop=true;
 
-    // connect chain: osc → env → filter → crusher → dry & wet → dest
-    osc.connect(env).connect(filter).connect(crusher);
-    crusher.connect(dry).connect(audioCtx.destination);
-    crusher.connect(delay).connect(wet).connect(audioCtx.destination);
-
-    osc.start(time);
-    osc.stop(time + p.envLen + 0.05);
+    src.connect(crusher).connect(g).connect(audioCtx.destination);
+    src.start(t); src.stop(t+0.06);
   }
 
-  // ─── UI Handlers ───
-  document.getElementById('randomize').addEventListener('click', () => {
-    randomizeAll();
-  });
+  function triggerSliver(t){
+    const bufSize=128, crusher=audioCtx.createScriptProcessor(bufSize,1,1),
+          step= Math.pow(0.5, sliverParam.bit);
+    crusher.onaudioprocess=e=>{
+      const inp=e.inputBuffer.getChannelData(0), out=e.outputBuffer.getChannelData(0);
+      for(let i=0;i<inp.length;i++) out[i]=Math.round((Math.random()*2-1)/step)*step;
+    };
+    const g=audioCtx.createGain();
+    g.gain.setValueAtTime(0.3,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+sliverParam.env);
 
-  document.getElementById('playToggle').addEventListener('click', async () => {
-    if (audioCtx.state === 'suspended') await audioCtx.resume();
-    if (!isPlaying) {
-      randomizeAll();
-      currentStep = 0;
-      nextNoteTime = audioCtx.currentTime;
-      scheduler();
-      this.textContent = 'Stop';
+    const src=audioCtx.createBufferSource();
+    const noise=audioCtx.createBuffer(1,bufSize,audioCtx.sampleRate);
+    const data=noise.getChannelData(0);
+    for(let i=0;i<bufSize;i++) data[i]=Math.random()*2-1;
+    src.buffer=noise;
+    src.loop=true;
+
+    src.connect(crusher).connect(g).connect(audioCtx.destination);
+    src.start(t); src.stop(t+sliverParam.env+0.02);
+  }
+
+  // UI
+  document.getElementById('randomize').onclick = randomizeAll;
+  document.getElementById('playToggle').onclick = async function(){
+    if(audioCtx.state==='suspended') await audioCtx.resume();
+    if(!isPlaying){
+      step=0; nextTime=audioCtx.currentTime;
+      randomizeAll(); schedule();
+      this.textContent='Stop';
     } else {
       clearTimeout(schedulerId);
-      this.textContent = 'Play';
+      this.textContent='Play';
     }
-    isPlaying = !isPlaying;
-    this.blur();
-  });
+    isPlaying=!isPlaying;
+  };
 
-  // initialize once so Randomize shows something right away
+  // init
   randomizeAll();
   </script>
+
 </body>
 </html>
