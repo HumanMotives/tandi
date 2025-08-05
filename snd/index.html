@@ -1,126 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Micro Sound Loop Generator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Micro Euclidean Sound Loop</title>
   <style>
-    /* Mobile‐responsive grid of pads */
     body {
       margin: 0;
-      background: #ccc;
+      background: #000;
       color: #fff;
       font-family: sans-serif;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
     }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px,1fr));
-      gap: 10px;
-      width: 90vw;
-      max-width: 500px;
-    }
-    .pad {
+    button {
+      margin: 10px;
+      padding: 15px 25px;
+      font-size: 16px;
       background: #222;
+      color: #fff;
       border: 2px solid #444;
-      border-radius: 8px;
-      padding: 20px;
-      text-align: center;
-      font-size: 14px;
-      touch-action: manipulation;
-      user-select: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
-    .pad.active {
-      border-color: #0f0;
-      background: #111;
-    }
+    button:hover { border-color: #0f0; }
   </style>
 </head>
 <body>
 
-  <div class="grid">
-    <div class="pad" data-type="pulse">Pulse Loop</div>
-    <div class="pad" data-type="noise">Noise Burst</div>
-    <div class="pad" data-type="glitch">Bitcrush Glitch</div>
-    <div class="pad" data-type="rave">Rave Micro</div>
-  </div>
+  <button id="playToggle">Play</button>
+  <button id="randomize">Randomize</button>
 
   <script>
-    // Set up AudioContext
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const pads = document.querySelectorAll('.pad');
+  // —— SETUP ——
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let isPlaying = false;
+  let schedulerId = null;
+  let nextNoteTime = 0;
+  let currentStep = 0;
 
-    pads.forEach(pad => {
-      let loopNode = null;
-      pad.addEventListener('click', async () => {
-        // 1) Ensure the AudioContext is running
-        if (audioCtx.state === 'suspended') {
-          await audioCtx.resume();
-        }
+  // Default sequence settings (will be randomized)
+  let seq = { steps: 16, hits: 5 };
+  let params = {};
 
-        // 2) Toggle the loop
-        if (pad.classList.contains('active')) {
-          loopNode.stop();
-          pad.classList.remove('active');
-        } else {
-          pad.classList.add('active');
-          const type = pad.dataset.type;
-          loopNode = createLoop(type);
-          loopNode.start();
-        }
-      });
-    });
-
-    function createLoop(type) {
-      const gain = audioCtx.createGain();
-      gain.gain.value = 0.5;
-      gain.connect(audioCtx.destination);
-
-      const bufferSize = 4096;
-      const node = audioCtx.createScriptProcessor(bufferSize, 0, 1);
-      node.connect(gain);
-
-      let phase = 0;
-
-      node.onaudioprocess = e => {
-        const out = e.outputBuffer.getChannelData(0);
-        const t = audioCtx.currentTime;
-        for (let i = 0; i < bufferSize; i++) {
-          switch (type) {
-            case 'pulse':
-              // 200Hz square wave gated at 2Hz
-              phase += 2 * Math.PI * 200 / audioCtx.sampleRate;
-              out[i] = (Math.sin(phase) > 0 ? 1 : -1) * (Math.floor(t * 2) % 2);
-              break;
-            case 'noise':
-              // white-noise blips every quarter-second
-              out[i] = (Math.floor(t * 4) % 4 === 0)
-                ? (Math.random() * 2 - 1) * 0.3
-                : 0;
-              break;
-            case 'glitch':
-              // bitcrush-style random quantized noise
-              const sample = (Math.random() * 2 - 1);
-              const step = 0.1;
-              out[i] = Math.round(sample / step) * step;
-              break;
-            case 'rave':
-              // sine sweeps modulated in freq & amp
-              phase += 2 * Math.PI * (100 + 1000 * Math.abs(Math.sin(t))) / audioCtx.sampleRate;
-              out[i] = Math.sin(phase) * (0.2 + 0.3 * Math.sin(t * 5));
-              break;
-            default:
-              out[i] = 0;
-          }
-        }
-      };
-
-      return node;
+  // Euclidean rhythm generator (Bjorklund)
+  function makeEuclidean(steps, pulses) {
+    const pattern = [];
+    let counts = [], remainders = [], divisor = steps - pulses;
+    remainders.push(pulses);
+    let level = 0;
+    while (true) {
+      counts.push(Math.floor(divisor / remainders[level]));
+      remainders.push(divisor % remainders[level]);
+      divisor = remainders[level];
+      level++;
+      if (remainders[level] <= 1) break;
     }
-  </script>
+    counts.push(divisor);
+    function build(level) {
+      if (level === -1) return [0];
+      if (level === -2) return [1];
+      const res = [];
+      const seqA = build(level -1), seqB = build(level -2);
+      for (let i = 0; i < counts[level]; i++) res.push(...seqA);
+      if (remainders[level]) res.push(...seqB);
+      return res;
+    }
+    const patternRaw = build(level);
+    return patternRaw.slice(0, steps);
+  }
 
+  // Schedule loop
+  function scheduler() {
+    const secondsPerBeat = 0.15; // ~150ms per step (≈100 BPM / 4)
+    while (nextNoteTime < audioCtx.currentTime + 0.1) {
+      const beat = currentStep % seq.steps;
+      if (euclidPattern[beat]) triggerHit(nextNoteTime, params[beat]);
+      nextNoteTime += secondsPerBeat;
+      currentStep++;
+    }
+    schedulerId = setTimeout(scheduler, 25);
+  }
+
+  // Create per-step random params
+  let euclidPattern = [];
+  function randomizeAll() {
+    seq.steps = 8 + Math.floor(Math.random() * 9);    // 8–16 steps
+    seq.hits  = 1 + Math.floor(Math.random() * (seq.steps-1));
+    euclidPattern = makeEuclidean(seq.steps, seq.hits);
+
+    // per-hit parameters
+    params = euclidPattern.map(() => ({
+      pitch: 200 + Math.random()*800,               // Hz
+      envLen: 0.02 + Math.random()*0.2,             // sec
+      filterCut: 300 + Math.random()*3000,          // Hz
+      reverbMix: Math.random()*0.5,                 // 0–0.5
+      bitDepth: 1 + Math.floor(Math.random()*7),    // 1–7 bits
+    }));
+  }
+
+  // One-shot “hit” voice
+  function triggerHit(time, p) {
+    // oscillator + envelope
+    const osc = audioCtx.createOscillator();
+    osc.frequency.value = p.pitch;
+    const env = audioCtx.createGain();
+    env.gain.setValueAtTime(1, time);
+    env.gain.exponentialRampToValueAtTime(0.001, time + p.envLen);
+
+    // filter
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = p.filterCut;
+
+    // bitcrusher (via ScriptProcessor)
+    const crusher = audioCtx.createScriptProcessor(256, 1, 1);
+    const step = Math.pow(0.5, p.bitDepth);
+    crusher.onaudioprocess = e => {
+      const input = e.inputBuffer.getChannelData(0);
+      const output = e.outputBuffer.getChannelData(0);
+      for (let i = 0; i < input.length; i++) {
+        output[i] = Math.round(input[i]/step)*step;
+      }
+    };
+
+    // simple reverb (feedback Delay)
+    const delay = audioCtx.createDelay(1);
+    const fb = audioCtx.createGain();
+    fb.gain.value = 0.3;
+    const dry = audioCtx.createGain(), wet = audioCtx.createGain();
+    dry.gain.value = 1 - p.reverbMix; 
+    wet.gain.value = p.reverbMix;
+    delay.delayTime.value = 0.15;
+    delay.connect(fb).connect(delay);
+
+    // connect chain: osc → env → filter → crusher → dry & wet → dest
+    osc.connect(env).connect(filter).connect(crusher);
+    crusher.connect(dry).connect(audioCtx.destination);
+    crusher.connect(delay).connect(wet).connect(audioCtx.destination);
+
+    osc.start(time);
+    osc.stop(time + p.envLen + 0.05);
+  }
+
+  // ─── UI Handlers ───
+  document.getElementById('randomize').addEventListener('click', () => {
+    randomizeAll();
+  });
+
+  document.getElementById('playToggle').addEventListener('click', async () => {
+    if (audioCtx.state === 'suspended') await audioCtx.resume();
+    if (!isPlaying) {
+      randomizeAll();
+      currentStep = 0;
+      nextNoteTime = audioCtx.currentTime;
+      scheduler();
+      this.textContent = 'Stop';
+    } else {
+      clearTimeout(schedulerId);
+      this.textContent = 'Play';
+    }
+    isPlaying = !isPlaying;
+    this.blur();
+  });
+
+  // initialize once so Randomize shows something right away
+  randomizeAll();
+  </script>
 </body>
 </html>
