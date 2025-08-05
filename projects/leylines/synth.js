@@ -1,117 +1,99 @@
 // synth.js
 
-// 1) Unlock & start Transport + schedule the looping chord
-let _audioStarted = false;
+// 1) Audio init & chord loop
+let _audioStarted = false, chordLoop;
 async function startAudio() {
-  if (!_audioStarted) {
-    await Tone.start();
-    Tone.Transport.start();
-    // Loop the chord every half-note
-    new Tone.Loop(time => playWaveChord(), '2n').start(0);
-    _audioStarted = true;
-    console.log('🔊 Audio unlocked & looping');
-  }
+  if (_audioStarted) return;
+  await Tone.start();
+  Tone.Transport.start();
+  // Loop the chord every whole note
+  chordLoop = new Tone.Loop(time => playChord(time), '1m').start(0);
+  _audioStarted = true;
+  console.log('🎵 Audio unlocked & loop started');
 }
 
-// 2) Happy major/minor scales & UI binding
+// 2) Happy scale definition
 const scales = {
-  major: ['C2','D2','E2','F2','G2','A2','B2','C3','D3','E3','F3'],
-  minor: ['C2','D2','Eb2','F2','G2','Ab2','Bb2','C3','D3','Eb3','F3']
+  major: ['C4','D4','E4','G4','A4','C5','D5','E5'],
+  minor: ['C4','D4','Eb4','F4','G4','Ab4','Bb4','C5']
 };
 let currentScale = 'major';
-document.querySelectorAll('#toolbar button[data-scale]')
-  .forEach(btn => btn.onclick = () => {
-    currentScale = btn.dataset.scale;
-    document.querySelectorAll('#toolbar button[data-scale]')
-      .forEach(x => x.classList.toggle('active', x === btn));
-  });
 
-// 3) Sine-pad → Reverb → Low-Pass + a gentle NoiseSynth
-const waveFilter = new Tone.Filter(2000, 'lowpass').toDestination();
-const waveReverb = new Tone.Reverb({ decay: 4, wet: 0.5 })
-  .connect(waveFilter);
-
-const waveSynth = new Tone.PolySynth(Tone.Synth, {
+// 3) Synth & FX chain
+// Pure sine voice
+const pureSynth = new Tone.PolySynth(Tone.Synth, {
   oscillator: { type: 'sine' },
-  envelope:   { attack: 0.5, decay: 1, sustain: 0.6, release: 3 }
+  envelope:   { attack: 0.5, decay: 0.1, sustain: 0.7, release: 1 }
 });
-waveSynth.volume.value = -18;
-waveSynth.connect(waveReverb);
-
-const noiseSynth = new Tone.NoiseSynth({
-  noise:    { type: 'white' },
-  envelope: { attack: 0.1, decay: 0.5, sustain: 0.1, release: 1 }
+// Rich triangle voice
+const richSynth = new Tone.PolySynth(Tone.Synth, {
+  oscillator: { type: 'triangle' },
+  envelope:   { attack: 0.1, decay: 0.2, sustain: 0.5, release: 1 }
 });
-noiseSynth.volume.value = -18;
-noiseSynth.connect(waveFilter);
+// FX: filter → reverb → master
+const filter = new Tone.Filter(800, 'lowpass').toDestination();
+const reverb = new Tone.Reverb({ decay: 3, wet: 0 }).connect(filter);
+pureSynth.connect(reverb);
+richSynth.connect(reverb);
 
-// 4) Region-based modulation parameters
-let modParams = {
-  filter:    2000,
-  reverb:    0.5,
-  wavefold:  0,
-  noise:     0,
-  inversion: 0
-};
-
-// 5) Build & play a 3-note chord (root/3rd/5th), then transpose +2 octaves
-function playWaveChord() {
-  const notes = scales[currentScale];
-  let idx = Math.floor(map(freq, 0.5, 8, 0, notes.length));
-  idx = constrain(idx, 0, notes.length - 1);
-
-  // root, third, fifth with inversion
-  let chord = [0, 2, 4].map(d => {
-    let pos = constrain(idx + d + modParams.inversion, 0, notes.length - 1);
-    return notes[pos];
-  });
-
-  // transpose chord up 24 semitones
-  let transposed = chord.map(n =>
-    Tone.Frequency(n).transpose(24).toNote()
-  );
-
-  // apply modulators
-  waveSynth.set({ detune: modParams.wavefold * 150 });
-  waveFilter.frequency.value = modParams.filter;
-  waveReverb.wet.value        = modParams.reverb;
-
-  // trigger the pad
-  waveSynth.triggerAttackRelease(transposed, '2n', undefined, 0.4);
-
-  // sprinkle in noise if val > 0.05
-  if (modParams.noise > 0.05) {
-    noiseSynth.triggerAttackRelease(modParams.noise, '2n');
-  }
-}
-
-// 6) Region → param binding (called from sketch.js)
-function modSynth(region, value) {
-  switch (region) {
-    case 'A':  // left
-      modParams.filter = lerp(200, 8000, value);
-      modParams.reverb = value;
-      break;
-    case 'B':  // center
-      modParams.wavefold = value;
-      modParams.noise    = value;
-      break;
-    case 'C':  // right
-      modParams.inversion = floor(lerp(-2, 2, value));
-      break;
-  }
-}
-
-// 7) Spike-pluck synth & trigger function
-const spikeSynth = new Tone.PluckSynth({
-  resonance: 0.8,
-  dampening: 2000
+// Pluck accent for stones
+const pluckSynth = new Tone.PluckSynth({
+  dampening: 2000,
+  resonance: 0.8
 }).toDestination();
-spikeSynth.volume.value = -10;
 
-function triggerSpikeNote() {
+// 4) Control knobs (updated from sketch.js)
+let freqVal   = 2;     // horizontal swipe
+let rowSpacing, waveAmp; // affects filter cutoff
+let bulgeVal  = 0;     // vertical swipe
+let noiseVal  = 0;     // twist
+
+// 5) Play base chord
+function playChord(time) {
+  const notes = scales[currentScale];
+  // map freqVal → root index (0…notes.length–3)
+  let idx = Math.floor(map(freqVal, 0.5, 5, 0, notes.length - 3));
+  idx = constrain(idx, 0, notes.length - 3);
+  const chord = [notes[idx], notes[idx+1], notes[idx+2]];
+
+  // crossfade pure ↔ rich by noiseVal (twist gesture)
+  pureSynth.volume.value = -12 + (noiseVal * 6);  // louder when twist
+  richSynth.volume.value = -18 + (noiseVal * 12);
+
+  // filter cutoff ~ rowSpacing, map spacing→[200,2000] Hz
+  const cutoff = map(rowSpacing, height*0.02, height*0.15, 200, 2000);
+  filter.frequency.value = cutoff;
+
+  // reverb wet by bulgeVal
+  reverb.wet.value = bulgeVal * 0.6;
+
+  // trigger both voices
+  pureSynth.triggerAttackRelease(chord, '1m', time);
+  richSynth.triggerAttackRelease(chord, '1m', time);
+}
+
+// 6) Called from sketch.js to tweak synth params
+// region 'A','B','C' as before
+function modSynth(region, val) {
+  switch(region) {
+    case 'A': 
+      // optionally adjust scale or other
+      // e.g. currentScale = val > 0.5 ? 'minor':'major';
+      break;
+    case 'B':
+      noiseVal = val;
+      break;
+    case 'C':
+      bulgeVal = val;
+      break;
+  }
+}
+
+// 7) Stone pluck trigger
+function triggerStoneSound() {
+  // use top scale degree + octave
   const notes = scales[currentScale];
   const top   = notes[notes.length - 1];
   const note  = Tone.Frequency(top).transpose(12).toNote();
-  spikeSynth.triggerAttackRelease(note, '16n');
+  pluckSynth.triggerAttackRelease(note, '16n');
 }
