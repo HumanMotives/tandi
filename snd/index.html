@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Ikeda-Style Euclidean Generator (Fixed)</title>
+  <title>Ikeda-Style Euclidean Generator (Debug)</title>
   <style>
     body {
       margin: 0;
-      background: #000;
-      color: #fff;
-      font-family: sans-serif;
+      background: #ccc;
+      color: #0f0;
+      font-family: monospace;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -21,27 +21,49 @@
       padding: 15px 25px;
       font-size: 16px;
       background: #222;
-      color: #fff;
-      border: 2px solid #444;
+      color: #0f0;
+      border: 2px solid #0f0;
       border-radius: 6px;
       cursor: pointer;
     }
-    button:hover { border-color: #0f0; }
+    button:hover { border-color: #fff; }
+    #log {
+      margin-top: 1em;
+      white-space: pre-wrap;
+      text-align: left;
+      width: 80vw;
+      max-width: 600px;
+      height: 200px;
+      overflow-y: auto;
+      background: #111;
+      padding: 10px;
+      border: 1px solid #0f0;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
 
   <button id="playToggle">Play</button>
   <button id="randomize">Randomize</button>
+  <div id="log"></div>
 
   <script>
   // —— AUDIO SETUP ——
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   let isPlaying = false, schedulerId, nextTime, step = 0;
 
-  // Rhythm & params placeholders
+  // Placeholders
   let bassPat = [], tonePat = [], midPat = [], sliverPat = [];
   let toneParam = {}, sliverParam = {};
+
+  // Logging helper
+  const logEl = document.getElementById('log');
+  function log(msg) {
+    console.log(msg);
+    logEl.textContent += msg + '\n';
+    logEl.scrollTop = logEl.scrollHeight;
+  }
 
   // Bjorklund Euclid
   function euclid(steps, pulses) {
@@ -64,15 +86,15 @@
     return build(level).slice(0, steps);
   }
 
-  // Generate all patterns & params
+  // Generate patterns & params
   function randomizeAll() {
-    console.log('Randomizing patterns');
+    log('Randomizing patterns & params');
     // Bass: 4–8 steps, 1–2 hits
     const bs = 4 + Math.floor(Math.random() * 5),
           bh = 1 + Math.floor(Math.random() * 2);
     bassPat = euclid(bs, bh);
 
-    // Tone: 32 steps, 1 hit
+    // Tone: 32 steps, 1 hit per 2 bars
     tonePat = euclid(32, 1);
     toneParam = {
       pitch: 600 + Math.random() * 800,
@@ -80,9 +102,9 @@
       rev:   0.6 + Math.random() * 0.4
     };
 
-    // Mid: 16 steps, 4–6 hits shifted to after-beats
+    // Mid: 16 steps, 4–6 hits on after-beats
     const mh = 4 + Math.floor(Math.random() * 3);
-    midPat = euclid(16, mh).map((v, i) => (i + 1) % 4 === 0 ? v : 0);
+    midPat = euclid(16, mh).map((v, i) => ((i + 1) % 4 === 0 ? v : 0));
 
     // Slivers: 32 steps, 20–28 hits
     const sh = 20 + Math.floor(Math.random() * 9);
@@ -93,14 +115,14 @@
     };
   }
 
-  // Scheduler
+  // Scheduler w/ logging
   function schedule() {
     const interval = 0.125; // 1/8 note
     while (nextTime < audioCtx.currentTime + 0.1) {
+      log(`scheduling step ${step} @ ${nextTime.toFixed(3)}`);
       const i32 = step % 32,
             i16 = step % 16,
             ib  = step % bassPat.length;
-
       if (bassPat[ib])    triggerBass(nextTime);
       if (tonePat[i32])   triggerTone(nextTime);
       if (midPat[i16])    triggerMid(nextTime);
@@ -112,8 +134,9 @@
     schedulerId = setTimeout(schedule, 25);
   }
 
-  // Voice functions
+  // Voice functions w/ logging
   function triggerBass(t) {
+    log(`  ▶ triggerBass @ ${t.toFixed(3)}`);
     const osc = audioCtx.createOscillator(),
           g   = audioCtx.createGain(),
           freq= 80 + Math.random() * 40;
@@ -125,6 +148,7 @@
   }
 
   function triggerTone(t) {
+    log(`  ▶ triggerTone @ ${t.toFixed(3)}`);
     const osc = audioCtx.createOscillator(),
           env = audioCtx.createGain(),
           filt= audioCtx.createBiquadFilter(),
@@ -147,67 +171,80 @@
   }
 
   function triggerMid(t) {
+    log(`  ▶ triggerMid @ ${t.toFixed(3)}`);
     const bufSize = 256,
           crusher = audioCtx.createScriptProcessor(bufSize,1,1),
-          step    = Math.pow(0.5,4),
+          stepSz  = Math.pow(0.5,4),
           g       = audioCtx.createGain(),
           src     = audioCtx.createBufferSource(),
           noise   = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
-    // fill noise
     noise.getChannelData(0).forEach((_,i,a)=>a[i]=Math.random()*2-1);
     src.buffer = noise; src.loop = true;
     crusher.onaudioprocess = e => {
-      const i = e.inputBuffer.getChannelData(0), o = e.outputBuffer.getChannelData(0);
-      for (let j=0; j<i.length; j++) o[j] = Math.round(i[j]/step)*step;
+      const inp = e.inputBuffer.getChannelData(0),
+            out = e.outputBuffer.getChannelData(0);
+      for (let i=0; i<inp.length; i++) out[i] = Math.round(inp[i]/stepSz)*stepSz;
     };
-    g.gain.setValueAtTime(0.2, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+    g.gain.setValueAtTime(0.2, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
     src.connect(crusher).connect(g).connect(audioCtx.destination);
     src.start(t); src.stop(t + 0.06);
   }
 
   function triggerSliver(t) {
+    log(`  ▶ triggerSliver @ ${t.toFixed(3)}`);
     const bufSize = 128,
           crusher = audioCtx.createScriptProcessor(bufSize,1,1),
-          step    = Math.pow(0.5, sliverParam.bit),
+          stepSz  = Math.pow(0.5, sliverParam.bit),
           g       = audioCtx.createGain(),
           src     = audioCtx.createBufferSource(),
           noise   = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
     noise.getChannelData(0).forEach((_,i,a)=>a[i]=Math.random()*2-1);
     src.buffer = noise; src.loop = true;
     crusher.onaudioprocess = e => {
-      const i = e.inputBuffer.getChannelData(0), o = e.outputBuffer.getChannelData(0);
-      for (let j=0; j<i.length; j++) o[j] = Math.round(i[j]/step)*step;
+      const inp = e.inputBuffer.getChannelData(0),
+            out = e.outputBuffer.getChannelData(0);
+      for (let i=0; i<inp.length; i++) out[i] = Math.round(inp[i]/stepSz)*stepSz;
     };
-    g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.001, t + sliverParam.env);
+    g.gain.setValueAtTime(0.3, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + sliverParam.env);
     src.connect(crusher).connect(g).connect(audioCtx.destination);
     src.start(t); src.stop(t + sliverParam.env + 0.02);
   }
 
   // ─── UI ───
   document.getElementById('randomize').addEventListener('click', async () => {
-    console.log('Randomize clicked; resuming AudioContext if needed.');
-    if (audioCtx.state === 'suspended') await audioCtx.resume();
+    log('Randomize clicked; resuming AudioContext if needed.');
+    if (audioCtx.state === 'suspended') {
+      await audioCtx.resume();
+      log(`  → resumed; state = ${audioCtx.state}`);
+    }
     randomizeAll();
   });
 
   document.getElementById('playToggle').addEventListener('click', async function() {
-    console.log('PlayToggle clicked; state=', audioCtx.state);
-    if (audioCtx.state === 'suspended') await audioCtx.resume();
+    log(`PlayToggle clicked; state = ${audioCtx.state}`);
+    if (audioCtx.state === 'suspended') {
+      await audioCtx.resume();
+      log(`  → resumed; state = ${audioCtx.state}`);
+    }
     if (!isPlaying) {
-      step = 0;
-      nextTime = audioCtx.currentTime;
+      step     = 0;
+      nextTime = audioCtx.currentTime + 0.01;  // ensure scheduler loop runs
       randomizeAll();
+      log(`Starting scheduler at ${nextTime.toFixed(3)}`);
       schedule();
       this.textContent = 'Stop';
     } else {
       clearTimeout(schedulerId);
       this.textContent = 'Play';
+      log('Stopped');
     }
     isPlaying = !isPlaying;
   });
 
-  // initial
-  console.log('Page loaded; AudioContext state=', audioCtx.state);
+  // initial log
+  log(`Page loaded; AudioContext state = ${audioCtx.state}`);
   randomizeAll();
   </script>
 
