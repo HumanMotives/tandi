@@ -5,26 +5,26 @@
 // —————————————————————————————————————————————————————————————
 const stripes = 12;
 let rowSpacing, waveAmp;
-let freqVal = 2;
-let noiseVal = 0, foldVal = 0;
-let bulgeVal = 0;
+let freqVal   = 2;
+let noiseVal  = 0, foldVal = 0;
+let bulgeVal  = 0;
 let initTouches = [];
-let stones = [];
+let stones      = [];
 
 // —————————————————————————————————————————————————————————————
 // AUDIO SETUP
 // —————————————————————————————————————————————————————————————
 let audioStarted = false;
-let synthPure, synthRich, tremoloNode, filterNode, reverbNode, chordLoop, stoneSynth;
+let synthPure, synthRich, tremoloNode, filterNode, reverbNode, chordLoop;
+let stoneSynth, noiseNode, noiseFilter, noiseGain;
 const scaleNotes = ['C4','D4','E4','G4','A4','C5','D5','E5'];
 
 function setup() {
-  // p5 canvas
+  // p5
   createCanvas(windowWidth, windowHeight);
   noFill();
   strokeCap(ROUND);
-
-  // visual band ≈20% height
+  // initial visual band ~20% height
   const regionH = height * 0.2;
   rowSpacing = regionH / (stripes - 1);
   waveAmp    = rowSpacing * 0.5;
@@ -37,9 +37,14 @@ function setup() {
   tremoloNode  = new Tone.Tremolo(0, 0).start();
   filterNode   = new Tone.Filter(800, 'lowpass');
   reverbNode   = new Tone.Reverb({ decay: 3, wet: 0 }).toDestination();
-
   tremoloNode.connect(filterNode);
   filterNode.connect(reverbNode);
+
+  // white noise generator (bypasses tremolo) → lowpass → gain → filter
+  noiseNode   = new Tone.Noise('white').start();
+  noiseFilter = new Tone.Filter(2000, 'lowpass');
+  noiseGain   = new Tone.Gain(0);
+  noiseNode.connect(noiseFilter).connect(noiseGain).connect(filterNode);
 
   // drone voices
   synthPure = new Tone.PolySynth(Tone.Synth, {
@@ -54,8 +59,11 @@ function setup() {
   }).connect(tremoloNode);
   synthRich.volume.value = -30;
 
-  // stone synth (bypasses tremolo) – envelope will be overridden per-pluck
-  stoneSynth = new Tone.Synth().connect(reverbNode);
+  // stone synth (warm sine) → reverb
+  stoneSynth = new Tone.Synth({
+    oscillator: { type: 'sine' },
+    envelope:   { attack: 0.02, decay: 0.5, sustain: 0.1, release: 1 }
+  }).connect(reverbNode);
 }
 
 function draw() {
@@ -67,9 +75,9 @@ function draw() {
   background(hue, sat, lit);
   colorMode(RGB);
 
-  // exponential time-scale so slow freeze at low speed
-  const norm   = constrain((freqVal - 0.5)/(5 - 0.5), 0, 1);
-  const tScale = 0.00005 + Math.pow(norm, 2) * (0.002 - 0.00005);
+  // exponential time-scale for visuals
+  const norm   = constrain((freqVal - 0.5)/(5 - 0.5),0,1);
+  const tScale = 0.00005 + norm*norm*(0.002 - 0.00005);
   const t      = millis() * tScale;
 
   // draw stripes
@@ -77,26 +85,26 @@ function draw() {
     const cY   = height/2;
     const half = (stripes - 1)/2;
     const y0   = cY + (i - half)*rowSpacing;
-    const bend = map(abs(i-half), 0, half, 1, 2);
+    const bend = map(abs(i-half),0,half,1,2);
 
     let pts = [];
     for (let x = 0; x <= width; x += 5) {
       let phase = TWO_PI * freqVal * (x/width) + t;
       let y     = waveAmp * sin(phase);
-      // perlin warp
+      // warp
       y += (noise(x*noiseVal*0.1 + t*0.5, i*0.2) - 0.5) * waveAmp;
       // fold
       if (foldVal > 0) {
         const f = foldVal * rowSpacing;
-        y = abs(((y + f) % (2 * f)) - f);
+        y = abs(((y + f)%(2*f)) - f);
       }
       // stone repulsion
       let yy = y0 + y;
       for (let st of stones) {
-        const dx = x - st.x, dy = yy - st.y, d = sqrt(dx*dx + dy*dy);
+        let dx = x - st.x, dy = yy - st.y, d = sqrt(dx*dx + dy*dy);
         if (d < st.r) {
-          const push = (st.r - d) / st.r;
-          const sign = dy / (d || 1);
+          let push = (st.r - d)/st.r,
+              sign = dy/(d||1);
           y += sign * push * st.strength * bend;
           yy = y0 + y;
         }
@@ -104,12 +112,13 @@ function draw() {
       pts.push({ x, y: yy });
     }
 
+    // render segments
     for (let j = 0; j < pts.length - 1; j++) {
       const p0 = pts[j], p1 = pts[j+1];
-      const norm2 = j/(pts.length-1);
+      const norm2  = j/(pts.length-1);
       const baseLw = map(sin(frameCount*0.005), -1,1, 0.5,3);
       const peakLw = baseLw + bulgeVal*4;
-      strokeWeight(lerp(baseLw, peakLw, sin(norm2*PI)));
+      strokeWeight( lerp(baseLw, peakLw, sin(norm2*PI)) );
       line(p0.x,p0.y,p1.x,p1.y);
     }
   }
@@ -121,6 +130,8 @@ function draw() {
 function touchStarted() {
   if (!audioStarted) {
     Tone.start().then(() => {
+      // tempo mapping: freqVal 0.5→5 → BPM 10→120
+      Tone.Transport.bpm.value = map(freqVal,0.5,5,10,120);
       Tone.Transport.start();
       chordLoop = new Tone.Loop(playChord, '1m').start(0);
       audioStarted = true;
@@ -132,19 +143,21 @@ function touchStarted() {
 
 function touchMoved() {
   if (touches.length === 1) {
-    const { x, y } = touches[0];
-    bulgeVal = constrain(map(y, height, 0, 0, 1), 0, 1);
+    let { x,y } = touches[0];
+    bulgeVal  = constrain(map(y, height,0, 0,1),0,1);
     const minSp = (height*0.15)/(stripes-1),
           maxSp = (height*0.25)/(stripes-1);
-    rowSpacing = constrain(map(y, 0, height, maxSp, minSp), minSp, maxSp);
+    rowSpacing = constrain(map(y,0,height, maxSp,minSp),minSp,maxSp);
     waveAmp    = rowSpacing*0.5;
-    freqVal    = constrain(map(x, 0, width, 0.5, 5), 0.5, 8);
+    freqVal    = constrain(map(x,0,width, 0.5,5),0.5,8);
+    // update tempo in real time
+    Tone.Transport.bpm.rampTo(map(freqVal,0.5,5,10,120), 0.1);
   }
-  else if (touches.length === 2 && initTouches.length === 2) {
+  else if (touches.length===2 && initTouches.length===2) {
     const [a1,b1] = initTouches, [a2,b2] = touches;
-    const ang0 = atan2(b1.y-a1.y, b1.x-a1.x),
-          ang1 = atan2(b2.y-a2.y, b2.x-a2.x),
-          v    = constrain(map(abs(ang1-ang0), 0, PI, 0, 1), 0, 1);
+    const ang0 = atan2(b1.y-a1.y,b1.x-a1.x),
+          ang1 = atan2(b2.y-a2.y,b2.x-a2.x),
+          v    = constrain(map(abs(ang1-ang0),0,PI,0,1),0,1);
     noiseVal = foldVal = v;
   }
   return false;
@@ -152,7 +165,7 @@ function touchMoved() {
 
 function touchEnded() {
   if (touches.length===0 && initTouches.length===1) {
-    // cap at 5 stones
+    // cap stones at 5
     if (stones.length >= 5) {
       let old = stones.shift();
       old.loop.stop(); old.loop.dispose();
@@ -161,28 +174,28 @@ function touchEnded() {
     let st = {
       x: t0.x, y: t0.y,
       r: width*0.15, strength:40,
-      interval: map(freqVal,0.5,5, 2,0.2)
+      interval: map(freqVal,0.5,5, 10,0.2)
     };
     stones.push(st);
 
-    // create loop: pitch by vertical position (±2 octaves)
     st.loop = new Tone.Loop(time => {
-      let deg = floor(map(st.x, 0, width, 0, scaleNotes.length));
-      deg = constrain(deg, 0, scaleNotes.length-1);
-      // vertical → shift in octaves, –2…+2
-      let shift = round(constrain(map(st.y, height, 0, -2, 2), -2, 2));
+      // x→degree
+      let deg = floor(map(st.x,0,width, 0, scaleNotes.length));
+      deg = constrain(deg,0,scaleNotes.length-1);
+      // y→octave shift ±2
+      let shift = round(constrain(map(st.y, height,0, -2,2),-2,2));
       let note  = Tone.Frequency(scaleNotes[deg]).transpose(12*shift).toNote();
-      // **strong envelope modulation by foldVal**
-      stoneSynth.envelope.attack = lerp(0.02, 0.5, foldVal);
-      stoneSynth.envelope.decay  = lerp(0.2,  1.0, foldVal);
-      stoneSynth.envelope.release= lerp(0.3,  1.5, foldVal);
+      // pluck envelope scaled by foldVal
+      stoneSynth.envelope.attack  = lerp(0.02, 0.8, foldVal);
+      stoneSynth.envelope.decay   = lerp(0.2,  1.2, foldVal);
+      stoneSynth.envelope.release = lerp(0.3,  2.0, foldVal);
       stoneSynth.triggerAttackRelease(note, '8n', time, 0.4);
     }, st.interval).start(0);
 
-    // immediate pluck with same envelope
-    stoneSynth.envelope.attack  = lerp(0.02, 0.5, foldVal);
-    stoneSynth.envelope.decay   = lerp(0.2,  1.0, foldVal);
-    stoneSynth.envelope.release = lerp(0.3,  1.5, foldVal);
+    // immediate pluck
+    stoneSynth.envelope.attack  = lerp(0.02, 0.8, foldVal);
+    stoneSynth.envelope.decay   = lerp(0.2,  1.2, foldVal);
+    stoneSynth.envelope.release = lerp(0.3,  2.0, foldVal);
     stoneSynth.triggerAttackRelease(scaleNotes[scaleNotes.length-1], '8n', undefined, 0.4);
   }
   initTouches = [];
@@ -191,9 +204,9 @@ function touchEnded() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  const regionH = height * 0.2;
-  rowSpacing = regionH / (stripes - 1);
-  waveAmp    = rowSpacing * 0.5;
+  const regionH = height*0.2;
+  rowSpacing = regionH/(stripes-1);
+  waveAmp    = rowSpacing*0.5;
 }
 
 // —————————————————————————————————————————————————————————————
@@ -216,10 +229,14 @@ function playChord(time) {
   filterNode.frequency.value = cutoff;
 
   // tremolo from foldVal
-  tremoloNode.depth           = foldVal;                   
-  tremoloNode.frequency.value = map(foldVal,0,1, 2,12);  
+  tremoloNode.depth             = foldVal;                  
+  tremoloNode.frequency.value   = map(foldVal,0,1, 2,12);   
 
-  reverbNode.wet.value = constrain(bulgeVal*0.6, 0, 0.9);
+  // reverb wet includes rotate (foldVal)
+  reverbNode.wet.value = constrain(bulgeVal*0.4 + foldVal*0.6, 0, 1);
+
+  // noise blend from foldVal (up to 10%)
+  noiseGain.gain.value = foldVal * 0.1;
 
   synthPure.triggerAttackRelease(chord, '1m', time);
   synthRich.triggerAttackRelease(chord, '1m', time);
