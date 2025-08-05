@@ -11,41 +11,39 @@ function setup() {
   noFill();
   strokeCap(ROUND);
 
-  // initial row spacing = 6% of height
-  rowSpacing = height * 0.06;
-  waveAmp    = rowSpacing * 0.5;  // amplitude always half a row
+  // initial spacing: ~20% of screen / (stripes-1)
+  const regionHeight = height * 0.2;
+  rowSpacing = regionHeight / (stripes - 1);
+  waveAmp    = rowSpacing * 0.5;
 
   stroke('#fff');
 }
 
 function draw() {
-  // full-screen olive
   background('#A1A37A');
-
-  // time & breathing
   const t  = millis() * 0.002;
   const lw = map(sin(frameCount * 0.005), -1, 1, 1, 2);
   strokeWeight(lw);
 
-  // draw stripes centered vertically
+  // vertical center + block of stripes
   for (let i = 0; i < stripes; i++) {
-    // center the block of stripes around mid‐canvas
-    let y0 = height/2 + (i - (stripes-1)/2) * rowSpacing;
+    const y0 = height/2 + (i - (stripes-1)/2) * rowSpacing;
     beginShape();
       for (let x = 0; x <= width; x += 5) {
-        // sine
+        // base sine
         let phase = TWO_PI * freqVal * (x/width) + t;
         let y = waveAmp * sin(phase);
-        // Perlin warp
+
+        // two‐finger twist warp/fold
         y += (noise(
           x * noiseVal * 0.1 + t * 0.5,
           i * 0.2
         ) - 0.5) * waveAmp;
-        // fold
         if (foldVal > 0) {
-          const f = foldVal * rowSpacing;
-          y = abs(((y + f) % (2 * f)) - f);
+          let f = foldVal * rowSpacing;
+          y = abs(((y + f) % (2*f)) - f);
         }
+
         vertex(x, y0 + y);
       }
     endShape();
@@ -60,23 +58,25 @@ function touchStarted() {
 }
 
 function touchMoved() {
-  // one‐finger: vertical → rowSpacing
+  // --- vertical drag → rowSpacing  ---
   if (touches.length === 1) {
+    // constrain spacing so total height stays ~15–25% of screen
+    const minSp = (height * 0.15) / (stripes - 1);
+    const maxSp = (height * 0.25) / (stripes - 1);
+    // map Y: top of screen → max spacing; bottom → min spacing
     rowSpacing = constrain(
-      map(touches[0].y, 0, height, height*0.02, height*0.15),
-      height*0.02,
-      height*0.15
+      map(touches[0].y, 0, height, maxSp, minSp),
+      minSp, maxSp
     );
     waveAmp = rowSpacing * 0.5;
 
-    // one‐finger: horizontal → freq
+    // --- horizontal drag → freq  ---
     freqVal = constrain(
       map(touches[0].x, 0, width, 0.5, 5),
-      0.5,
-      8
+      0.5, 8
     );
   }
-  // two‐finger twist: warp & fold
+  // --- two‐finger twist → warp & fold  ---
   else if (touches.length === 2 && initTouches.length === 2) {
     const [a1,b1] = initTouches;
     const [a2,b2] = touches;
@@ -87,7 +87,7 @@ function touchMoved() {
     noiseVal = v;
     foldVal  = v;
   }
-  return false; // prevent scrolling
+  return false; // prevent page scroll
 }
 
 function touchEnded() {
@@ -98,7 +98,9 @@ function touchEnded() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  // recompute spacing & amp
-  rowSpacing = height * 0.06;
+  // recalc initial spacing if you want:
+  const regionHeight = height * 0.2;
+  rowSpacing = regionHeight / (stripes - 1);
   waveAmp    = rowSpacing * 0.5;
 }
+
