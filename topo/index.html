@@ -9,7 +9,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #111;
+      background: #fdf9f2; /* light crème */
       overflow: hidden;
       touch-action: none;
     }
@@ -41,18 +41,17 @@
 
   function createLine(y) {
     const points = [];
-    for (let x = 0; x < width; x += 20) {
+    for (let x = 0; x <= width; x += 20) {
       const jitter = Math.random() * 20 - 10;
       points.push({ x, y: y + jitter });
     }
 
-    // Audio: map avg Y to frequency
     const avgY = points.reduce((sum, p) => sum + p.y, 0) / points.length;
     const rel = 1 - avgY / height;
     const freq = baseFreq * Math.pow(2, rel * 4); // up to 4 octaves
 
     const pan = new Tone.Panner(0).toDestination();
-    const vibrato = new Tone.LFO("16n", -0.05, 0.05);
+    const vibrato = new Tone.LFO("16n", -0.1, 0.1);
     const osc = new Tone.Oscillator(freq, "sine").connect(pan);
     vibrato.connect(pan.pan);
     vibrato.start();
@@ -73,63 +72,64 @@
   // ---------------- INTERACTION ----------------
   canvas.addEventListener("mousedown", (e) => {
     Tone.start();
-    addLine(e.clientY);
+    handleTouch(e.clientX, e.clientY);
+  });
+
+  canvas.addEventListener("mousemove", (e) => {
+    if (e.buttons > 0) {
+      bendLines(e.clientX, e.clientY);
+    }
+  });
+
+  canvas.addEventListener("mouseup", () => {
+    dragging = false;
   });
 
   canvas.addEventListener("touchstart", (e) => {
     Tone.start();
     const touch = e.touches[0];
-    addLine(touch.clientY);
-  });
-
-  // Touch/Mouse Drag Displacement
-  function moveLines(dy) {
-    lines.forEach(line => {
-      line.points.forEach(p => {
-        p.y += dy;
-      });
-      // Modulate vibrato depth based on avgY
-      const avgY = line.points.reduce((sum, p) => sum + p.y, 0) / line.points.length;
-      const rel = 1 - avgY / height;
-      const depth = Math.max(0.01, rel * 0.15);
-      line.vibrato.min = -depth;
-      line.vibrato.max = depth;
-    });
-  }
-
-  let lastY = null;
-
-  canvas.addEventListener("mousemove", (e) => {
-    if (e.buttons > 0) {
-      if (lastY !== null) {
-        moveLines(e.clientY - lastY);
-      }
-      lastY = e.clientY;
-    }
-  });
-
-  canvas.addEventListener("mouseup", () => {
-    lastY = null;
+    handleTouch(touch.clientX, touch.clientY);
   });
 
   canvas.addEventListener("touchmove", (e) => {
     const touch = e.touches[0];
-    if (lastY !== null) {
-      moveLines(touch.clientY - lastY);
-    }
-    lastY = touch.clientY;
+    bendLines(touch.clientX, touch.clientY);
   });
 
-  canvas.addEventListener("touchend", () => {
-    lastY = null;
-  });
+  function handleTouch(x, y) {
+    addLine(y);
+  }
 
-  // ---------------- GYRO ----------------
+  function bendLines(x, y) {
+    lines.forEach(line => {
+      line.points.forEach(p => {
+        const dist = Math.hypot(p.x - x, p.y - y);
+        if (dist < 60) {
+          p.y += (Math.random() - 0.5) * 4; // slight bend
+        }
+      });
+      updateAudio(line);
+    });
+  }
+
+  function updateAudio(line) {
+    const avgY = line.points.reduce((sum, p) => sum + p.y, 0) / line.points.length;
+    const rel = 1 - avgY / height;
+    const depth = Math.max(0.01, rel * 0.15);
+    line.vibrato.min = -depth;
+    line.vibrato.max = depth;
+
+    const freq = baseFreq * Math.pow(2, rel * 4);
+    line.osc.frequency.value = freq;
+  }
+
+  // ---------------- GYROSCOPE ----------------
   if (window.DeviceOrientationEvent) {
     window.addEventListener("deviceorientation", (event) => {
-      const tilt = event.gamma; // side to side
+      const tilt = event.gamma || 0;
+      const vibratoRate = Math.max(0.1, 5 + tilt / 5);
       lines.forEach(line => {
-        line.vibrato.frequency.value = Math.max(0.1, 4 + tilt / 10);
+        line.vibrato.frequency.value = vibratoRate;
       });
     });
   }
@@ -138,7 +138,7 @@
   function draw() {
     ctx.clearRect(0, 0, width, height);
     ctx.lineWidth = 2;
-    ctx.strokeStyle = "#00FF99";
+    ctx.strokeStyle = "#665C4B"; // earthy brown
 
     lines.forEach(line => {
       ctx.beginPath();
