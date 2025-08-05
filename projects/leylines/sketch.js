@@ -6,27 +6,31 @@ let lastScaleFactor = 1;
 let dragging = false;
 let initTouches = [], initAmp, initFreq, initAng;
 const toolbarH = 60;
+let playing = false;
 
 function setup() {
+  // create & parent the canvas (but container is hidden until Play)
   const canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent('sketch-container');
-  noFill();                   // ensure no interior fill
+
+  noFill();                  // ensure lines only
   amplitude    = height * 0.1;
   freq         = 2;
   patternAngle = 0;
-  select('#play-btn').mousePressed(() => {
-    select('#start-screen').addClass('hidden');
-    select('#sketch-container').removeClass('hidden');
+
+  // Bind the Play button with plain JS
+  document.getElementById('play-btn').addEventListener('click', () => {
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('sketch-container').classList.remove('hidden');
+    playing = true;
   });
 }
 
 function draw() {
+  if (!playing) return;     // do nothing until Play
+
   background('#A1A37A');
-
-  // constant timebase so it never freezes
-  const t = millis() * 0.002;
-
-  // subtle breathing line‐width LFO, now 1–2px
+  const t  = millis() * 0.002;
   const lw = map(sin(frameCount * 0.005), -1, 1, 1, 2);
 
   push();
@@ -51,13 +55,9 @@ function drawCompositeWave(t, lw) {
         let phase = TWO_PI * freq * (x/width) + t;
         let y = amplitude * sin(phase);
 
-        // Perlin warp
-        y += (noise(
-          x * noiseVisual * 0.1 + t * 0.5,
-          i * 0.2
-        ) - 0.5) * amplitude * 0.5;
-
-        // wave‐fold
+        // optional Perlin warp
+        y += (noise(x * noiseVisual * 0.1 + t * 0.5, i * 0.2) - 0.5) * amplitude * 0.5;
+        // optional fold
         if (foldVisual > 0) {
           const foldAmt = foldVisual * 50;
           y = abs(((y + foldAmt) % (2 * foldAmt)) - foldAmt);
@@ -72,7 +72,7 @@ function drawCompositeWave(t, lw) {
   // spike detection (unchanged)
   if (maxAbsY > amplitude * 0.8) {
     if (!this._lastSpike) this._lastSpike = 0;
-    let now = millis();
+    const now = millis();
     if (now - this._lastSpike > 500) {
       triggerSpikeNote();
       this._lastSpike = now;
@@ -96,8 +96,7 @@ function touchMoved() {
   if (!dragging || touches.length !== 2) return false;
 
   const [a1,b1] = initTouches, [a2,b2] = touches;
-  const d0 = dist(a1.x,a1.y, b1.x,b1.y);
-  const d1 = dist(a2.x,a2.y, b2.x,b2.y);
+  const d0 = dist(a1.x,a1.y, b1.x,b1.y), d1 = dist(a2.x,a2.y, b2.x,b2.y);
   lastScaleFactor = constrain(d1 / d0, 0.2, 3);
 
   const ang0 = atan2(b1.y - a1.y, b1.x - a1.x);
@@ -108,11 +107,10 @@ function touchMoved() {
   freq         = constrain(initFreq / lastScaleFactor, 0.1, 8);
   patternAngle = initAng + deltaAng;
 
-  const cx     = (touches[0].x + touches[1].x) / 2;
-  const region = cx < width/3 ? 'A'
-                : cx < 2*width/3 ? 'B'
-                : 'C';
-  const val = constrain(map(lastScaleFactor, 1, 0.2, 0, 1), 0, 1);
+  // region-based mods
+  const cx     = (touches[0].x + touches[1].x)/2;
+  const region = cx < width/3 ? 'A' : cx < 2*width/3 ? 'B' : 'C';
+  const val    = constrain(map(lastScaleFactor, 1, 0.2, 0, 1), 0, 1);
   modSynth(region, val);
   if (region === 'B') {
     noiseVisual = val;
