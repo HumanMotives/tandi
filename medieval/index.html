@@ -13,7 +13,8 @@
       color: #222;
       font-family: 'MedievalSharp', serif;
       text-align: center;
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
     }
     .container {
       padding: 20px;
@@ -37,6 +38,8 @@
       width: 100%; height: 100%;
       pointer-events: none;
       user-select: none;
+      /* optional border to match page background: */
+      /* border: 4px solid #fef8e8; */
     }
     .title {
       font-size: 1.5em;
@@ -55,14 +58,17 @@
       cursor: pointer;
       box-shadow: 0 0 5px #aaa;
     }
-    button:hover { background: #f8eacc; }
+    button:hover {
+      background: #f8eacc;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="cover-container">
+      <!-- Medieval art -->
       <img id="art" class="content" alt="Medieval Art"/>
-      <!-- Use your uploaded overlay file here -->
+      <!-- Your CD case overlay -->
       <img class="overlay" src="CDcase.png.png" alt="Jewel Case Overlay"/>
     </div>
 
@@ -83,36 +89,66 @@
     const nouns      = ['Monk','Tower','Plague','Knight','Crypt','Chalice'];
     const endings    = ['of the Abyss','from Beyond','of Rot','of Eternal Fire','of the Black Sigil'];
 
-    function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-    function generateTitle(){ return `${rand(adjectives)} ${rand(nouns)} ${rand(endings)}`; }
+    function rand(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function generateTitle() {
+      return `${rand(adjectives)} ${rand(nouns)} ${rand(endings)}`;
+    }
 
     async function fetchRandomMedievalImage() {
+      // 1) pick a random category
       const cat = rand(categories);
-      const listRes = await fetch(
-        `${COMMONS_API}?action=query&list=categorymembers`
-        + `&cmtitle=${encodeURIComponent(cat)}&cmnamespace=6&cmlimit=50&format=json&origin=*`
-      );
-      const members = (await listRes.json()).query.categorymembers;
-      if (!members.length) throw new Error('No images in ' + cat);
 
-      const filePage = rand(members).title;
-      const infoRes = await fetch(
-        `${COMMONS_API}?action=query&prop=imageinfo`
-        + `&titles=${encodeURIComponent(filePage)}&iiprop=url&format=json&origin=*`
+      // 2) list up to 50 image pages in that category
+      const listRes = await fetch(
+        `${COMMONS_API}`
+        + `?action=query`
+        + `&list=categorymembers`
+        + `&cmtitle=${encodeURIComponent(cat)}`
+        + `&cmnamespace=6`
+        + `&cmlimit=50`
+        + `&format=json`
+        + `&origin=*`
       );
-      const pages = (await infoRes.json()).query.pages;
-      return pages[Object.keys(pages)[0]].imageinfo[0].url;
+      const listData = await listRes.json();
+      const members = listData.query.categorymembers;
+      if (!members.length) {
+        throw new Error('No images in ' + cat);
+      }
+
+      // 3) pick one file page at random
+      const filePage = rand(members).title; // e.g. "File:Example.jpg"
+
+      // 4) fetch its direct URL (with CORS allowed)
+      const infoRes = await fetch(
+        `${COMMONS_API}`
+        + `?action=query`
+        + `&prop=imageinfo`
+        + `&titles=${encodeURIComponent(filePage)}`
+        + `&iiprop=url`
+        + `&format=json`
+        + `&origin=*`
+      );
+      const infoData = await infoRes.json();
+      const pages = infoData.query.pages;
+      const page = pages[Object.keys(pages)[0]];
+      return page.imageinfo[0].url;
     }
 
     async function summonDoom() {
       const imgEl   = document.getElementById('art');
       const titleEl = document.getElementById('doomTitle');
 
+      // show placeholder text
       titleEl.textContent = 'Summoning…';
       imgEl.src = '';
 
       try {
         const url = await fetchRandomMedievalImage();
+
+        // only display title once image is fully loaded
         imgEl.onload = () => {
           titleEl.textContent = generateTitle();
           imgEl.onload = null;
@@ -121,6 +157,8 @@
           titleEl.textContent = 'Failed to load image';
           imgEl.onerror = null;
         };
+
+        // trigger the load
         imgEl.src = url;
       } catch (err) {
         console.error(err);
@@ -128,6 +166,7 @@
       }
     }
 
+    // summon immediately on page load
     window.onload = summonDoom;
   </script>
 </body>
