@@ -3,106 +3,32 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Medieval Drones — Audio Slice</title>
+  <title>Medieval Drones — Audio Fetch Debug</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 1rem;
-      display: flex;
-      justify-content: center;
-      background: #fef8e8;
-      color: #222;
-      font-family: sans-serif;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      width: 100%;
-      max-width: 500px;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .controls-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    /* On very narrow screens, stack load button and filename */
-    @media (max-width: 400px) {
-      .controls-row { flex-direction: column; align-items: stretch; }
-    }
-    button {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    #filename {
-      flex: 1 1 auto;
-      font-style: italic;
-      text-align: center;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: center;
-      margin-bottom: 1rem;
-    }
-    .controls label {
-      display: flex;
-      flex-direction: column;
-      flex: 1 1 120px;
-      font-size: 0.9rem;
-    }
-    .controls input {
-      margin-top: 0.25rem;
-      padding: 0.5rem;
-      font-size: 1rem;
-      width: 100%;
-    }
+    body { background: #fef8e8; color: #222; font-family: sans-serif; text-align:center; padding:2rem; }
+    button { margin:0.5rem; padding:1rem 2rem; font-size:1rem; }
+    input { width:80%; }
+    #filename { margin-top:1rem; font-style: italic; }
     #log {
-      margin-top: 1rem;
-      max-height: 200px;
-      overflow-y: auto;
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 0.75rem;
-      white-space: pre-wrap;
-      font-size: 0.85rem;
-      line-height: 1.2;
+      margin-top:2rem; text-align:left; max-height:200px; overflow-y:auto;
+      background:#fff; border:1px solid #ccc; padding:1rem;
+      white-space: pre-wrap; font-size:0.9rem; line-height:1.2;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Medieval Drones — Audio Slice</h1>
-
-    <div class="controls-row">
-      <button id="load">Load Random Audio</button>
-      <div id="filename">No audio loaded yet.</div>
-    </div>
-
-    <div id="controls" class="controls" style="display:none;">
-      <label>
-        Start (s)
-        <input type="number" id="start" min="0" step="0.1" value="0"/>
-      </label>
-      <label>
-        Length (s)
-        <input type="number" id="length" min="0.1" step="0.1" value="1"/>
-      </label>
-      <button id="play">Play Slice</button>
-    </div>
-
-    <div id="log">📝 Log:</div>
+  <h1>Medieval Drones — Audio Fetch Debug</h1>
+  <button id="load">Load Random PD Audio</button>
+  <div id="filename">No audio loaded yet.</div>
+  <div id="controls" style="display:none; margin-top:1rem;">
+    <p>
+      Start (s): <input type="number" id="start" min="0" step="0.1" value="0"/>
+      Length (s): <input type="number" id="length" min="0.1" step="0.1" value="1"/>
+    </p>
+    <button id="play">Play Slice</button>
   </div>
+
+  <div id="log">📝 Log:</div>
 
   <script>
     const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
@@ -114,9 +40,10 @@
       L.scrollTop = L.scrollHeight;
     }
 
+    // 1. Fetch a random Librivox identifier
     async function fetchRandomIdentifier() {
       log('🔍 Searching Librivox audio…');
-      const q = 'collection:librivoxaudio';
+      const q = 'collection:librivoxaudio';  // public-domain spoken audio
       const res = await fetch(
         'https://archive.org/advancedsearch.php' +
         `?q=${encodeURIComponent(q)}` +
@@ -125,53 +52,61 @@
         '&output=json'
       );
       const json = await res.json();
-      log('📥 Search response small preview:\n' +
-          JSON.stringify(json.response.docs.slice(0,3), null, 2) + '…');
-      const docs = json.response?.docs;
-      if (!docs?.length) throw new Error('No identifiers found');
+      log('📥 Search response:\n' + JSON.stringify(json, null, 2));
+      const docs = json.response && json.response.docs;
+      if (!docs || docs.length === 0) {
+        throw new Error('No identifiers found in Librivox collection');
+      }
       const id = docs[Math.floor(Math.random()*docs.length)].identifier;
       log(`🎯 Picked identifier: ${id}`);
       return id;
     }
 
+    // 2. Pick a random audio file (mp3/ogg) from that item
     async function pickAudioFile(id) {
       log(`📥 Fetching metadata for ${id}…`);
-      const meta = await (await fetch(`https://archive.org/metadata/${id}`)).json();
+      const metaRes = await fetch(`https://archive.org/metadata/${id}`);
+      const meta = await metaRes.json();
       const files = meta.files || [];
+      log('📥 Files list (first 10):\n' + JSON.stringify(files.slice(0,10).map(f=>f.name), null, 2));
       const audioFiles = files
         .map(f => f.name)
-        .filter(n => /\.(mp3|ogg)$/i.test(n));
-      if (!audioFiles.length) throw new Error('No audio files in ' + id);
+        .filter(name => /\.(mp3|ogg)$/i.test(name));
+      if (!audioFiles.length) {
+        throw new Error('No audio files in ' + id);
+      }
       const fileName = audioFiles[Math.floor(Math.random()*audioFiles.length)];
       log(`🎶 Selected file: ${fileName}`);
       return fileName;
     }
 
+    // 3. Download & decode into AudioBuffer
     async function loadAudio() {
       document.getElementById('load').disabled = true;
       document.getElementById('load').textContent = 'Loading…';
       try {
         const id = await fetchRandomIdentifier();
         const fileName = await pickAudioFile(id);
-        document.getElementById('filename').textContent = `Loaded: ${id}/${fileName}`;
-
         const url = `https://archive.org/download/${encodeURIComponent(id)}/${encodeURIComponent(fileName)}`;
         log(`⬇️ Downloading ${url}`);
-        const data = await (await fetch(url)).arrayBuffer();
+        const resp = await fetch(url);
+        const data = await resp.arrayBuffer();
         log('🔄 Decoding audio data…');
         buffer = await audioCtx.decodeAudioData(data);
         log(`✅ Decoded! Duration: ${buffer.duration.toFixed(2)}s`);
-        document.getElementById('controls').style.display = 'flex';
+        document.getElementById('filename').textContent = `Loaded: ${id}/${fileName}`;
+        document.getElementById('controls').style.display = 'block';
       } catch (err) {
         console.error(err);
         log(`❌ Error: ${err.message}`);
         document.getElementById('filename').textContent = 'Failed to load audio';
       } finally {
-        document.getElementById('load').textContent = 'Load Random Audio';
+        document.getElementById('load').textContent = 'Load Random PD Audio';
         document.getElementById('load').disabled = false;
       }
     }
 
+    // 4. Slice & play
     function playSlice(startSec, durSec) {
       if (!buffer) return alert('Load audio first!');
       log(`▶️ Playing slice: start=${startSec}s, length=${durSec}s`);
@@ -179,7 +114,7 @@
       const startSample = Math.floor(startSec * sr);
       const lenSamples  = Math.floor(durSec  * sr);
       const slice = audioCtx.createBuffer(buffer.numberOfChannels, lenSamples, sr);
-      for (let ch=0; ch<buffer.numberOfChannels; ch++){
+      for (let ch=0; ch<buffer.numberOfChannels; ch++) {
         buffer.copyFromChannel(slice.getChannelData(ch), ch, startSample);
       }
       const src = audioCtx.createBufferSource();
