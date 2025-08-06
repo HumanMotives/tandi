@@ -7,32 +7,33 @@
 
   <!-- Gothic / medieval-style font -->
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
-
   <style>
     body {
       background: #fef8e8;
       color: #222;
       font-family: 'MedievalSharp', serif;
       text-align: center;
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
     }
     .container {
       padding: 20px;
     }
+    /* Square cover container */
     .cover-container {
       position: relative;
-      width: 90vw;
-      max-width: 400px;
-      aspect-ratio: 1/1;
+      width: 90vw;            /* 90% of viewport width */
+      max-width: 400px;        /* but no larger than 400px */
+      aspect-ratio: 1 / 1;     /* forces square */
       margin: auto 0 20px;
     }
+    /* The fetched image: fill the square and crop as needed */
     .cover-container .content {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
       object-fit: cover;
     }
+    /* Transparent overlay: jewel case or cassette shell */
     .cover-container .overlay {
       position: absolute;
       top: 0; left: 0;
@@ -57,16 +58,16 @@
       cursor: pointer;
       box-shadow: 0 0 5px #aaa;
     }
-    button:hover {
-      background: #f8eacc;
-    }
+    button:hover { background: #f8eacc; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="cover-container">
+      <!-- The medieval art -->
       <img id="art" class="content" alt="Medieval Art"/>
-      <img class="overlay" src="CDcase.png.png" alt="CD Case Overlay"/>
+      <!-- Overlay graphic: put your transparent PNG here -->
+      <img class="overlay" src="images/jewel-overlay.png" alt="Overlay"/>
     </div>
 
     <div class="title" id="doomTitle">Awaiting Doom…</div>
@@ -86,43 +87,37 @@
     const nouns      = ['Monk','Tower','Plague','Knight','Crypt','Chalice'];
     const endings    = ['of the Abyss','from Beyond','of Rot','of Eternal Fire','of the Black Sigil'];
 
-    function rand(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
-
-    function generateTitle() {
-      return `${rand(adjectives)} ${rand(nouns)} ${rand(endings)}`;
-    }
+    function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+    function generateTitle(){ return `${rand(adjectives)} ${rand(nouns)} ${rand(endings)}`; }
 
     async function fetchRandomMedievalImage() {
       const cat = rand(categories);
-
+      // 1) list up to 50 image files in that Commons category
       const listRes = await fetch(
-        `${COMMONS_API}` +
-        `?action=query` +
-        `&list=categorymembers` +
+        COMMONS_API +
+        '?action=query' +
+        '&list=categorymembers' +
         `&cmtitle=${encodeURIComponent(cat)}` +
-        `&cmnamespace=6` +
-        `&cmlimit=50` +
-        `&format=json` +
-        `&origin=*`
+        '&cmnamespace=6&cmlimit=50' +
+        '&format=json&origin=*'
       );
       const members = (await listRes.json()).query.categorymembers;
       if (!members.length) throw new Error('No images in ' + cat);
 
-      const filePage = rand(members).title;
+      // 2) pick one file
+      const filePage = rand(members).title; // e.g. "File:Example.jpg"
 
+      // 3) fetch its direct URL
       const infoRes = await fetch(
-        `${COMMONS_API}` +
-        `?action=query` +
-        `&prop=imageinfo` +
+        COMMONS_API +
+        '?action=query' +
+        '&prop=imageinfo' +
         `&titles=${encodeURIComponent(filePage)}` +
-        `&iiprop=url` +
-        `&format=json` +
-        `&origin=*`
+        '&iiprop=url&format=json&origin=*'
       );
       const pages = (await infoRes.json()).query.pages;
-      return pages[Object.keys(pages)[0]].imageinfo[0].url;
+      const page  = pages[Object.keys(pages)[0]];
+      return page.imageinfo[0].url;
     }
 
     async function summonDoom() {
@@ -130,11 +125,12 @@
       const titleEl = document.getElementById('doomTitle');
 
       titleEl.textContent = 'Summoning…';
-      imgEl.src = '';
+      imgEl.src = '';  // clear old
 
       try {
         const url = await fetchRandomMedievalImage();
 
+        // only show title once the new image has fully loaded
         imgEl.onload = () => {
           titleEl.textContent = generateTitle();
           imgEl.onload = null;
@@ -145,12 +141,13 @@
         };
 
         imgEl.src = url;
-      } catch (err) {
+      } catch(err) {
         console.error(err);
         titleEl.textContent = 'Failed to summon image';
       }
     }
 
+    // fire one off immediately
     window.onload = summonDoom;
   </script>
 </body>
