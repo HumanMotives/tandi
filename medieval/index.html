@@ -4,12 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Medieval Drones</title>
-  <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook&display=swap" rel="stylesheet">
+
+  <!-- Gothic / medieval-style font -->
+  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+
   <style>
     body {
-      background: #0a0a0a;
-      color: #eee;
-      font-family: 'UnifrakturCook', serif;
+      background: #fef8e8;            /* light parchment/skin tone */
+      color: #222;
+      font-family: 'MedievalSharp', serif;
       text-align: center;
       margin: 0;
       padding: 0;
@@ -22,31 +25,32 @@
     img {
       max-width: 100%;
       height: auto;
-      border: 5px solid #333;
-      box-shadow: 0 0 30px #000;
+      border: 5px solid #888;
+      box-shadow: 0 0 20px #999;
       margin-bottom: 20px;
     }
 
     .title {
       font-size: 1.5em;
       margin-bottom: 20px;
-      text-shadow: 0 0 10px #800;
+      text-shadow: 0 0 6px #bbb;
+      font-family: 'MedievalSharp', cursive;
     }
 
     button {
-      background: #111;
-      color: #fff;
+      background: #fff5dd;
+      color: #000;
       border: 2px solid #444;
       padding: 10px 20px;
       font-size: 1em;
-      font-family: 'UnifrakturCook', serif;
+      font-family: 'MedievalSharp', cursive;
       text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 0 10px #222;
+      box-shadow: 0 0 5px #aaa;
     }
 
     button:hover {
-      background: #222;
+      background: #f8eacc;
     }
   </style>
 </head>
@@ -67,8 +71,8 @@
     ];
 
     const adjectives = ['Doomed', 'Black', 'Forgotten', 'Cursed', 'Ancient', 'Banished'];
-    const nouns = ['Monk', 'Tower', 'Plague', 'Knight', 'Crypt', 'Chalice'];
-    const endings = ['of the Abyss', 'from Beyond', 'of Rot', 'of Eternal Fire', 'of the Black Sigil'];
+    const nouns      = ['Monk', 'Tower', 'Plague', 'Knight', 'Crypt', 'Chalice'];
+    const endings    = ['of the Abyss', 'from Beyond', 'of Rot', 'of Eternal Fire', 'of the Black Sigil'];
 
     function rand(arr) {
       return arr[Math.floor(Math.random() * arr.length)];
@@ -79,13 +83,11 @@
     }
 
     function summonDoom() {
-      const img = document.getElementById('art');
-      const title = document.getElementById('doomTitle');
-      img.src = rand(images);
-      title.textContent = generateTitle();
+      document.getElementById('art').src = rand(images);
+      document.getElementById('doomTitle').textContent = generateTitle();
     }
 
-    // Auto-load on first visit
+    // Auto-load one on first visit
     window.onload = summonDoom;
   </script>
 </body>
