@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Medieval Drones + Audio</title>
+  <style>
+    body { background: #fef8e8; color: #222; font-family: sans-serif; text-align:center; padding:2rem; }
+    button { margin:0.5rem; padding:1rem 2rem; font-size:1rem; }
+    input { width:80%; }
+    #filename { margin-top:1rem; font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Medieval Drones — Audio Fetch & Slice</h1>
+  <button id="load">Load Random PD Audio</button>
+  <div id="filename">No audio loaded yet.</div>
+  <div id="controls" style="display:none; margin-top:1rem;">
+    <p>
+      Start (s): <input type="number" id="start" min="0" step="0.1" value="0"/>
+      Length (s): <input type="number" id="length" min="0.1" step="0.1" value="1"/>
+    </p>
+    <button id="play">Play Slice</button>
+  </div>
+
+  <script>
+    const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    let buffer = null;
+    let currentId = '';
+
+    // 1. Fetch a random public-domain audio from Internet Archive
+    async function fetchRandomAudio() {
+      const q = 'rights:publicdomain AND mediatype:audio';
+      const res = await fetch(
+        'https://archive.org/advancedsearch.php' +
+        `?q=${encodeURIComponent(q)}` +
+        '&fl[]=identifier' +
+        '&rows=50' +
+        '&output=json'
+      );
+      const docs = (await res.json()).response.docs;
+      const id  = docs[Math.floor(Math.random()*docs.length)].identifier;
+      const url = `https://archive.org/download/${id}/${id}_64kb.mp3`;
+      return { id, url };
+    }
+
+    // 2. Load & decode into an AudioBuffer
+    async function loadAudio() {
+      document.getElementById('load').disabled = true;
+      document.getElementById('load').textContent = 'Loading…';
+      try {
+        const { id, url } = await fetchRandomAudio();
+        currentId = id;
+        document.getElementById('filename').textContent = `Loaded file: ${id}_64kb.mp3`;
+        const resp = await fetch(url);
+        const data = await resp.arrayBuffer();
+        buffer = await audioCtx.decodeAudioData(data);
+        document.getElementById('controls').style.display = 'block';
+      } catch(err) {
+        console.error(err);
+        document.getElementById('filename').textContent = 'Failed to load audio';
+      } finally {
+        document.getElementById('load').textContent = 'Load Random PD Audio';
+        document.getElementById('load').disabled = false;
+      }
+    }
+
+    // 3. Play a slice: start & duration in seconds
+    function playSlice(startSec, durSec) {
+      if (!buffer) return alert('Load audio first!');
+      const sr = buffer.sampleRate;
+      const startSample = Math.floor(startSec * sr);
+      const lenSamples  = Math.floor(durSec  * sr);
+      const slice = audioCtx.createBuffer(
+        buffer.numberOfChannels,
+        lenSamples,
+        sr
+      );
+      for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+        buffer.copyFromChannel(
+          slice.getChannelData(ch),
+          ch,
+          startSample
+        );
+      }
+      const src = audioCtx.createBufferSource();
+      src.buffer = slice;
+      src.connect(audioCtx.destination);
+      src.start();
+    }
+
+    document.getElementById('load').onclick = loadAudio;
+    document.getElementById('play').onclick = () => {
+      const start  = parseFloat(document.getElementById('start').value)  || 0;
+      const length = parseFloat(document.getElementById('length').value) || 1;
+      playSlice(start, length);
+    };
+  </script>
+</body>
+</html>
