@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Medieval Drones — Audio Debug</title>
+  <title>Medieval Drones — Audio Fetch Debug</title>
   <style>
     body { background: #fef8e8; color: #222; font-family: sans-serif; text-align:center; padding:2rem; }
     button { margin:0.5rem; padding:1rem 2rem; font-size:1rem; }
@@ -18,7 +18,7 @@
 </head>
 <body>
   <h1>Medieval Drones — Audio Fetch Debug</h1>
-  <button id="load">Load Random PD Audio</button>
+  <button id="load">Load Random Audio</button>
   <div id="filename">No audio loaded yet.</div>
   <div id="controls" style="display:none; margin-top:1rem;">
     <p>
@@ -43,8 +43,8 @@
 
     // 1. Fetch a random identifier from IA
     async function fetchRandomIdentifier() {
-      log('🔍 Searching for public-domain audio…');
-      const q = 'rights:publicdomain AND mediatype:audio';
+      log('🔍 Searching for any audio…');
+      const q = 'mediatype:audio';
       const res = await fetch(
         'https://archive.org/advancedsearch.php' +
         `?q=${encodeURIComponent(q)}` +
@@ -57,7 +57,7 @@
 
       const docs = json.response && json.response.docs;
       if (!docs || docs.length === 0) {
-        throw new Error('No docs array in search response');
+        throw new Error('No audio identifiers found!');
       }
       const id = docs[Math.floor(Math.random()*docs.length)].identifier;
       log(`🎯 Picked identifier: ${id}`);
@@ -106,7 +106,7 @@
         log(`❌ Error: ${err.message}`);
         document.getElementById('filename').textContent = 'Failed to load audio';
       } finally {
-        document.getElementById('load').textContent = 'Load Random PD Audio';
+        document.getElementById('load').textContent = 'Load Random Audio';
         document.getElementById('load').disabled = false;
       }
     }
