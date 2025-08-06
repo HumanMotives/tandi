@@ -3,58 +3,131 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Medieval Drones — Tape Loop Demo</title>
+  <title>Random Gene</title>
   <style>
-    body { background: #fef8e8; color: #222; font-family: sans-serif; text-align:center; padding:2rem; }
-    button { margin:0.5rem; padding:1rem 2rem; font-size:1rem; }
-    input { width:80%; }
-    #filename { margin-top:1rem; font-style: italic; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      background: #fef8e8;
+      color: #222;
+      font-family: sans-serif;
+    }
+    #app {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    h1 { text-align: center; margin: 0; }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .row > * { flex: 1 1 120px; }
+    .row button { flex: 0 1 auto; }
+    label { display: flex; flex-direction: column; font-size: 0.9rem; }
+    input[type=number], input[type=range] {
+      margin-top: 0.25rem;
+      padding: 0.25rem;
+      font-size: 1rem;
+      width: 100%;
+    }
     #log {
-      margin-top:2rem; text-align:left; max-height:200px; overflow-y:auto;
-      background:#fff; border:1px solid #ccc; padding:1rem;
-      white-space: pre-wrap; font-size:0.9rem; line-height:1.2;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 0.75rem;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-size: 0.85rem;
+      line-height: 1.2;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>Medieval Drones — Tape Loop Demo</h1>
-  <button id="load">Load Random Audio</button>
-  <div id="filename">No audio loaded yet.</div>
+  <div id="app">
+    <h1>Random Gene</h1>
 
-  <div id="controls" style="display:none; margin-top:1rem;">
-    <p>
-      Start (s): <input type="number" id="start" min="0" step="0.1" value="0"/>
-      Length (s): <input type="number" id="length" min="0.1" step="0.1" value="1"/>
-    </p>
-    <button id="playOnce">Play Slice</button>
-    <label>
-      <input type="checkbox" id="reverse"/> Reverse
-    </label>
-    <label>
-      <input type="checkbox" id="loopToggle"/> Loop Slice
-    </label>
+    <div class="row">
+      <button id="load">Load Random Audio</button>
+      <div id="filename" style="font-style:italic;">No audio loaded yet.</div>
+    </div>
+
+    <div id="sliceControls" class="row" style="display:none;">
+      <label>
+        Start (s)
+        <input type="number" id="start" min="0" step="0.1" value="0"/>
+      </label>
+      <label>
+        Length (s)
+        <input type="number" id="length" min="0.1" step="0.1" value="1"/>
+      </label>
+      <label style="flex:0 1 auto; align-self:flex-end">
+        <input type="checkbox" id="reverse"/> Reverse
+      </label>
+      <label style="flex:0 1 auto; align-self:flex-end">
+        <input type="checkbox" id="loopToggle"/> Loop Slice
+      </label>
+    </div>
+
+    <div id="tapeControls" class="row" style="display:none;">
+      <label>
+        Delay Time (s)
+        <input type="range" id="delayTime" min="0" max="5" step="0.01" value="1.5"/>
+      </label>
+      <label>
+        Feedback
+        <input type="range" id="feedback" min="0" max="0.95" step="0.01" value="0.6"/>
+      </label>
+      <label>
+        Rate
+        <input type="range" id="playbackRate" min="0.1" max="3" step="0.01" value="1"/>
+      </label>
+    </div>
+
+    <div id="playControls" class="row" style="display:none;">
+      <button id="playOnce">Play Slice Once</button>
+      <button id="startLoop">Start Tape Loop</button>
+      <button id="stopLoop">Stop Loop</button>
+    </div>
+
+    <div id="log">📝 Log:</div>
   </div>
-
-  <div id="tape" style="display:none; margin-top:1rem;">
-    <p>
-      Delay Time (s): <input type="range" id="delayTime" min="0" max="5" step="0.01" value="1.5"/>
-      Feedback: <input type="range" id="feedback" min="0" max="0.95" step="0.01" value="0.6"/>
-      Rate: <input type="range" id="playbackRate" min="0.1" max="3" step="0.01" value="1"/>
-    </p>
-    <button id="startLoop">Start Tape Loop</button>
-    <button id="stopLoop">Stop Loop</button>
-  </div>
-
-  <div id="log">📝 Log:</div>
 
   <script>
     const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-    let buffer, sliceBuffer, loopSource, delayNode, feedbackNode;
+    let buffer = null, sliceBuffer = null;
+    let loopSource = null, delayNode = null, feedbackNode = null;
+
+    // element references
+    const loadBtn      = document.getElementById('load');
+    const fnEl         = document.getElementById('filename');
+    const startEl      = document.getElementById('start');
+    const lengthEl     = document.getElementById('length');
+    const reverseEl    = document.getElementById('reverse');
+    const loopToggleEl = document.getElementById('loopToggle');
+    const delayTimeEl  = document.getElementById('delayTime');
+    const feedbackEl   = document.getElementById('feedback');
+    const rateEl       = document.getElementById('playbackRate');
+    const sliceCtrls   = document.getElementById('sliceControls');
+    const tapeCtrls    = document.getElementById('tapeControls');
+    const playCtrls    = document.getElementById('playControls');
+    const logEl        = document.getElementById('log');
 
     function log(msg) {
-      const L = document.getElementById('log');
-      L.textContent += '\n' + msg;
-      L.scrollTop = L.scrollHeight;
+      logEl.textContent += '\n' + msg;
+      logEl.scrollTop = logEl.scrollHeight;
     }
 
     async function resumeIfNeeded() {
@@ -66,12 +139,13 @@
 
     async function fetchRandomIdentifier() {
       log('🔍 Searching Librivox audio…');
+      const q = 'collection:librivoxaudio';
       const res = await fetch(
         'https://archive.org/advancedsearch.php' +
-        `?q=${encodeURIComponent('collection:librivoxaudio')}` +
-        '&fl[]=identifier&rows=50&output=json'
+        `?q=${encodeURIComponent(q)}&fl[]=identifier&rows=50&output=json`
       );
-      const docs = (await res.json()).response.docs;
+      const json = await res.json();
+      const docs = json.response?.docs || [];
       if (!docs.length) throw new Error('No items found');
       const id = docs[Math.floor(Math.random()*docs.length)].identifier;
       log(`🎯 Picked: ${id}`);
@@ -82,8 +156,8 @@
       log(`📥 Fetching metadata for ${id}…`);
       const meta = await (await fetch(`https://archive.org/metadata/${id}`)).json();
       const names = (meta.files||[])
-        .map(f=>f.name)
-        .filter(n=>/\.(mp3|ogg)$/i.test(n));
+        .map(f => f.name)
+        .filter(n => /\.(mp3|ogg)$/i.test(n));
       if (!names.length) throw new Error('No audio files in ' + id);
       const file = names[Math.floor(Math.random()*names.length)];
       log(`🎶 Selected: ${file}`);
@@ -92,35 +166,41 @@
 
     async function loadAudio() {
       await resumeIfNeeded();
-      document.getElementById('load').disabled = true;
-      log('⬇️ Loading…');
+      loadBtn.disabled = true;
+      loadBtn.textContent = 'Loading…';
       try {
         const id = await fetchRandomIdentifier();
         const file = await pickAudioFile(id);
-        document.getElementById('filename').textContent = `Loaded: ${id}/${file}`;
+        fnEl.textContent = `Loaded: ${id}/${file}`;
+
         const url = `https://archive.org/download/${encodeURIComponent(id)}/${encodeURIComponent(file)}`;
         log(`⬇️ Downloading ${url}`);
         const data = await (await fetch(url)).arrayBuffer();
         log('🔄 Decoding…');
         buffer = await audioCtx.decodeAudioData(data);
         log(`✅ Decoded (${buffer.duration.toFixed(2)}s)`);
-        document.getElementById('controls').style.display = 'block';
-        document.getElementById('tape').style.display = 'block';
+
+        sliceCtrls.style.display = 'flex';
+        tapeCtrls.style.display  = 'flex';
+        playCtrls.style.display  = 'flex';
       } catch(err) {
         log(`❌ ${err.message}`);
+        fnEl.textContent = 'Failed to load audio';
       } finally {
-        document.getElementById('load').disabled = false;
+        loadBtn.textContent = 'Load Random Audio';
+        loadBtn.disabled = false;
       }
     }
 
     function makeSliceBuffer() {
-      const s0  = Math.floor(parseFloat(start.value) * buffer.sampleRate);
-      const len = Math.floor(parseFloat(length.value) * buffer.sampleRate);
-      sliceBuffer = audioCtx.createBuffer(buffer.numberOfChannels, len, buffer.sampleRate);
+      const sr = buffer.sampleRate;
+      const s0 = Math.floor(parseFloat(startEl.value) * sr);
+      const len= Math.floor(parseFloat(lengthEl.value) * sr);
+      sliceBuffer = audioCtx.createBuffer(buffer.numberOfChannels, len, sr);
       for (let ch=0; ch<buffer.numberOfChannels; ch++){
         const data = sliceBuffer.getChannelData(ch);
         buffer.copyFromChannel(data, ch, s0);
-        if (reverse.checked) data.reverse();
+        if (reverseEl.checked) data.reverse();
       }
     }
 
@@ -130,7 +210,7 @@
       makeSliceBuffer();
       const src = audioCtx.createBufferSource();
       src.buffer = sliceBuffer;
-      src.playbackRate.value = parseFloat(playbackRate.value);
+      src.playbackRate.value = parseFloat(rateEl.value);
       src.connect(audioCtx.destination);
       src.start();
       log('▶️ Played slice once');
@@ -142,23 +222,25 @@
       if (loopSource) loopSource.stop();
       makeSliceBuffer();
 
+      // build delay+feedback
       delayNode    = audioCtx.createDelay(10);
       feedbackNode = audioCtx.createGain();
-      delayNode.delayTime.value = parseFloat(delayTime.value);
-      feedbackNode.gain.value   = parseFloat(feedback.value);
+      delayNode.delayTime.value = parseFloat(delayTimeEl.value);
+      feedbackNode.gain.value   = parseFloat(feedbackEl.value);
 
       loopSource = audioCtx.createBufferSource();
       loopSource.buffer = sliceBuffer;
-      loopSource.loop   = loopToggle.checked;
+      loopSource.loop   = loopToggleEl.checked;
       if (loopSource.loop) {
-        loopSource.loopStart = parseFloat(start.value);
-        loopSource.loopEnd   = loopSource.loopStart + parseFloat(length.value);
+        const startT = parseFloat(startEl.value);
+        loopSource.loopStart = startT;
+        loopSource.loopEnd   = startT + parseFloat(lengthEl.value);
       }
-      loopSource.playbackRate.value = parseFloat(playbackRate.value);
+      loopSource.playbackRate.value = parseFloat(rateEl.value);
 
-      // direct hit
+      // direct dry
       loopSource.connect(audioCtx.destination);
-      // tape loop feedback → delay → feedback → destination
+      // tape feedback loop
       loopSource.connect(delayNode);
       delayNode.connect(feedbackNode);
       feedbackNode.connect(delayNode);
@@ -176,10 +258,10 @@
       }
     }
 
-    load.onclick      = loadAudio;
-    playOnce.onclick  = playOnce;
-    startLoop.onclick = startLoop;
-    stopLoop.onclick  = stopLoop;
+    loadBtn.onclick     = loadAudio;
+    document.getElementById('playOnce').onclick  = playOnce;
+    document.getElementById('startLoop').onclick = startLoop;
+    document.getElementById('stopLoop').onclick  = stopLoop;
   </script>
 </body>
 </html>
