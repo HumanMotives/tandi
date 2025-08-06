@@ -5,10 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Medieval Drones + Audio</title>
   <style>
-    body { background: #fef8e8; color: #222; font-family: sans-serif; text-align:center; padding:2rem; }
-    button { margin:0.5rem; padding:1rem 2rem; font-size:1rem; }
-    input { width:80%; }
-    #filename { margin-top:1rem; font-style: italic; }
+    body {
+      background: #fef8e8;
+      color: #222;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    button {
+      margin: 0.5rem;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+    }
+    input {
+      width: 80%;
+    }
+    #filename {
+      margin-top: 1rem;
+      font-style: italic;
+    }
+    #log {
+      margin-top: 2rem;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      white-space: pre-wrap;
+      font-size: 0.9rem;
+      line-height: 1.2;
+    }
   </style>
 </head>
 <body>
@@ -23,13 +50,22 @@
     <button id="play">Play Slice</button>
   </div>
 
+  <div id="log">📝 Log:</div>
+
   <script>
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let buffer = null;
     let currentFile = '';
 
+    function log(msg) {
+      const logEl = document.getElementById('log');
+      logEl.textContent += '\n' + msg;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
     // 1. Fetch a random identifier from IA
     async function fetchRandomIdentifier() {
+      log('🔍 Searching for public-domain audio…');
       const q = 'rights:publicdomain AND mediatype:audio';
       const res = await fetch(
         'https://archive.org/advancedsearch.php' +
@@ -39,22 +75,26 @@
         '&output=json'
       );
       const docs = (await res.json()).response.docs;
-      return docs[Math.floor(Math.random() * docs.length)].identifier;
+      const id = docs[Math.floor(Math.random() * docs.length)].identifier;
+      log(`🎯 Picked identifier: ${id}`);
+      return id;
     }
 
     // 2. Given an identifier, grab its metadata and pick an audio file
     async function pickAudioFile(id) {
+      log(`📥 Fetching metadata for ${id}…`);
       const metaRes = await fetch(`https://archive.org/metadata/${id}`);
       const meta = await metaRes.json();
       const files = meta.files || [];
-      // filter files by common audio extensions
       const audioFiles = files
         .map(f => f.name)
         .filter(name => /\.(mp3|ogg|wav|flac)$/i.test(name));
       if (!audioFiles.length) {
         throw new Error('No audio files in ' + id);
       }
-      return audioFiles[Math.floor(Math.random() * audioFiles.length)];
+      const fileName = audioFiles[Math.floor(Math.random() * audioFiles.length)];
+      log(`🎶 Selected file: ${fileName}`);
+      return fileName;
     }
 
     // 3. Fetch and decode into AudioBuffer
@@ -68,13 +108,17 @@
         document.getElementById('filename').textContent = 'Loaded: ' + currentFile;
 
         const url = `https://archive.org/download/${encodeURIComponent(id)}/${encodeURIComponent(fileName)}`;
+        log(`⬇️ Downloading ${url}`);
         const resp = await fetch(url);
         const data = await resp.arrayBuffer();
+        log('🔄 Decoding audio data…');
         buffer = await audioCtx.decodeAudioData(data);
+        log(`✅ Decoded! Duration: ${buffer.duration.toFixed(2)}s`);
 
         document.getElementById('controls').style.display = 'block';
       } catch (err) {
         console.error(err);
+        log(`❌ Error: ${err.message}`);
         document.getElementById('filename').textContent = 'Failed to load audio';
       } finally {
         document.getElementById('load').textContent = 'Load Random PD Audio';
@@ -84,7 +128,11 @@
 
     // 4. Play a slice from the decoded buffer
     function playSlice(startSec, durSec) {
-      if (!buffer) return alert('Load audio first!');
+      if (!buffer) {
+        alert('Load audio first!');
+        return;
+      }
+      log(`▶️ Playing slice: start=${startSec}s, length=${durSec}s`);
       const sr = buffer.sampleRate;
       const startSample = Math.floor(startSec * sr);
       const lenSamples  = Math.floor(durSec  * sr);
@@ -106,7 +154,6 @@
       src.start();
     }
 
-    // wire up buttons
     document.getElementById('load').onclick = loadAudio;
     document.getElementById('play').onclick = () => {
       const start  = parseFloat(document.getElementById('start').value)  || 0;
