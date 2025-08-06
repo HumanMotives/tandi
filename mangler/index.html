@@ -12,7 +12,7 @@
   </style>
 </head>
 <body>
-  <h1>Medieval Drones — Audio Fetch & Slice</h1>
+  <h1>Medieval Drones — Audio Fetch &amp; Slice</h1>
   <button id="load">Load Random PD Audio</button>
   <div id="filename">No audio loaded yet.</div>
   <div id="controls" style="display:none; margin-top:1rem;">
@@ -24,12 +24,12 @@
   </div>
 
   <script>
-    const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let buffer = null;
-    let currentId = '';
+    let currentFile = '';
 
-    // 1. Fetch a random public-domain audio from Internet Archive
-    async function fetchRandomAudio() {
+    // 1. Fetch a random identifier from IA
+    async function fetchRandomIdentifier() {
       const q = 'rights:publicdomain AND mediatype:audio';
       const res = await fetch(
         'https://archive.org/advancedsearch.php' +
@@ -39,24 +39,41 @@
         '&output=json'
       );
       const docs = (await res.json()).response.docs;
-      const id  = docs[Math.floor(Math.random()*docs.length)].identifier;
-      const url = `https://archive.org/download/${id}/${id}_64kb.mp3`;
-      return { id, url };
+      return docs[Math.floor(Math.random() * docs.length)].identifier;
     }
 
-    // 2. Load & decode into an AudioBuffer
+    // 2. Given an identifier, grab its metadata and pick an audio file
+    async function pickAudioFile(id) {
+      const metaRes = await fetch(`https://archive.org/metadata/${id}`);
+      const meta = await metaRes.json();
+      const files = meta.files || [];
+      // filter files by common audio extensions
+      const audioFiles = files
+        .map(f => f.name)
+        .filter(name => /\.(mp3|ogg|wav|flac)$/i.test(name));
+      if (!audioFiles.length) {
+        throw new Error('No audio files in ' + id);
+      }
+      return audioFiles[Math.floor(Math.random() * audioFiles.length)];
+    }
+
+    // 3. Fetch and decode into AudioBuffer
     async function loadAudio() {
       document.getElementById('load').disabled = true;
       document.getElementById('load').textContent = 'Loading…';
       try {
-        const { id, url } = await fetchRandomAudio();
-        currentId = id;
-        document.getElementById('filename').textContent = `Loaded file: ${id}_64kb.mp3`;
+        const id = await fetchRandomIdentifier();
+        const fileName = await pickAudioFile(id);
+        currentFile = `${id}/${fileName}`;
+        document.getElementById('filename').textContent = 'Loaded: ' + currentFile;
+
+        const url = `https://archive.org/download/${encodeURIComponent(id)}/${encodeURIComponent(fileName)}`;
         const resp = await fetch(url);
         const data = await resp.arrayBuffer();
         buffer = await audioCtx.decodeAudioData(data);
+
         document.getElementById('controls').style.display = 'block';
-      } catch(err) {
+      } catch (err) {
         console.error(err);
         document.getElementById('filename').textContent = 'Failed to load audio';
       } finally {
@@ -65,7 +82,7 @@
       }
     }
 
-    // 3. Play a slice: start & duration in seconds
+    // 4. Play a slice from the decoded buffer
     function playSlice(startSec, durSec) {
       if (!buffer) return alert('Load audio first!');
       const sr = buffer.sampleRate;
@@ -89,6 +106,7 @@
       src.start();
     }
 
+    // wire up buttons
     document.getElementById('load').onclick = loadAudio;
     document.getElementById('play').onclick = () => {
       const start  = parseFloat(document.getElementById('start').value)  || 0;
