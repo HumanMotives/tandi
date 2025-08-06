@@ -56,7 +56,7 @@
 </head>
 <body>
   <div class="container">
-    <img id="art" src="" alt="Medieval Art" />
+    <img id="art" alt="Medieval Art" />
     <div class="title" id="doomTitle">Awaiting Doom...</div>
     <button onclick="summonDoom()">Summon New Vision</button>
   </div>
@@ -87,7 +87,9 @@
       document.getElementById('doomTitle').textContent = generateTitle();
     }
 
-    // Auto-load one on first visit
+    // set one immediately…
+    summonDoom();
+    // …and again on full load (just in case)
     window.onload = summonDoom;
   </script>
 </body>
