@@ -5,51 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Leylines</title>
   <style>
+    /* make the canvas truly fill every pixel and let the body background sit behind it */
     html, body {
-      margin: 0; padding: 0;
-      width: 100vw; height: 100vh;
-      background: transparent; overflow: hidden;
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #A1A37A;      /* your olive green */
     }
     canvas {
-      position: fixed !important;
+      position: absolute;        /* cover entire screen */
       top: 0; left: 0;
       width: 100vw !important;
       height: 100vh !important;
-      z-index: 0;
-    }
-    #overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: #ffffffdd;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
-    #overlay button {
-      padding: 1em 2em;
-      font-size: 1.2em;
-      border: none;
-      border-radius: 8px;
-      background: #A1A37A;
-      color: #fff;
+      display: block;
     }
   </style>
+  <!-- p5.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <!-- Tone.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.min.js"></script>
+  <!-- Your unified sketch -->
   <script src="sketch.js"></script>
 </head>
-<body>
-  <div id="overlay">
-    <button id="playBtn">Play</button>
-  </div>
-  <script>
-    document.getElementById('playBtn').addEventListener('click', async () => {
-      document.getElementById('overlay').style.display = 'none';
-      await Tone.start();             // unlock WebAudio
-      startDroneLoop();               // begin your chord drone
-    });
-  </script>
-</body>
+<body></body>
 </html>
