@@ -1,27 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Medieval Drones</title>
 
   <!-- Gothic / medieval-style font -->
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
-
   <style>
     body {
-      background: #fef8e8;            /* light parchment/skin tone */
+      background: #fef8e8;
       color: #222;
       font-family: 'MedievalSharp', serif;
       text-align: center;
       margin: 0;
       padding: 0;
     }
-
-    .container {
-      padding: 20px;
-    }
-
+    .container { padding: 20px; }
     img {
       max-width: 100%;
       height: auto;
@@ -29,14 +24,12 @@
       box-shadow: 0 0 20px #999;
       margin-bottom: 20px;
     }
-
     .title {
       font-size: 1.5em;
       margin-bottom: 20px;
       text-shadow: 0 0 6px #bbb;
       font-family: 'MedievalSharp', cursive;
     }
-
     button {
       background: #fff5dd;
       color: #000;
@@ -48,10 +41,7 @@
       cursor: pointer;
       box-shadow: 0 0 5px #aaa;
     }
-
-    button:hover {
-      background: #f8eacc;
-    }
+    button:hover { background: #f8eacc; }
   </style>
 </head>
 <body>
@@ -62,34 +52,66 @@
   </div>
 
   <script>
-    const images = [
-      "https://upload.wikimedia.org/wikipedia/commons/3/34/Medieval_knight_fighting_dragon.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/0/00/Psautier_de_Saint-Louis_BNF.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/c/c2/King_Arthur_and_Mordred.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/7/7e/Dante_Divine_Comedy_Paradiso_illustration_by_Gustave_Dore_04.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/8/87/Apocalypse_image_from_Beatus_de_Liebana.jpg"
-    ];
-
-    const adjectives = ['Doomed', 'Black', 'Forgotten', 'Cursed', 'Ancient', 'Banished'];
-    const nouns      = ['Monk', 'Tower', 'Plague', 'Knight', 'Crypt', 'Chalice'];
-    const endings    = ['of the Abyss', 'from Beyond', 'of Rot', 'of Eternal Fire', 'of the Black Sigil'];
+    // word lists for your doom titles
+    const adjectives = ['Doomed','Black','Forgotten','Cursed','Ancient','Banished'];
+    const nouns      = ['Monk','Tower','Plague','Knight','Crypt','Chalice'];
+    const endings    = ['of the Abyss','from Beyond','of Rot','of Eternal Fire','of the Black Sigil'];
 
     function rand(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
+      return arr[Math.floor(Math.random()*arr.length)];
     }
-
     function generateTitle() {
       return `${rand(adjectives)} ${rand(nouns)} ${rand(endings)}`;
     }
 
-    function summonDoom() {
-      document.getElementById('art').src = rand(images);
-      document.getElementById('doomTitle').textContent = generateTitle();
+    // 1️⃣ Fetch a random file from “Category:Illuminated manuscripts” (namespace=6 = File)
+    async function fetchRandomImage() {
+      // get up to 50 files in that category
+      const cmRes = await fetch(
+        'https://en.wikipedia.org/w/api.php' +
+        '?action=query' +
+        '&list=categorymembers' +
+        '&cmtitle=Category:Illuminated_manuscripts' +
+        '&cmnamespace=6' +
+        '&cmlimit=50' +
+        '&format=json' +
+        '&origin=*'
+      );
+      const cmData = await cmRes.json();
+      const members = cmData.query.categorymembers;
+      const randomFile = rand(members).title;            // e.g. "File:Example.jpg"
+
+      // now get its direct image URL
+      const infoRes = await fetch(
+        'https://en.wikipedia.org/w/api.php' +
+        '?action=query' +
+        `&titles=${encodeURIComponent(randomFile)}` +
+        '&prop=imageinfo' +
+        '&iiprop=url' +
+        '&format=json' +
+        '&origin=*'
+      );
+      const infoData = await infoRes.json();
+      const page = Object.values(infoData.query.pages)[0];
+      return page.imageinfo[0].url;  // the actual .jpg/.png link
     }
 
-    // set one immediately…
-    summonDoom();
-    // …and again on full load (just in case)
+    // 2️⃣ Pull it all together
+    async function summonDoom() {
+      const imgEl = document.getElementById('art');
+      const titleEl = document.getElementById('doomTitle');
+      titleEl.textContent = 'Summoning…';
+      try {
+        const imageUrl = await fetchRandomImage();
+        imgEl.src = imageUrl;
+        titleEl.textContent = generateTitle();
+      } catch(err) {
+        console.error(err);
+        titleEl.textContent = 'Failed to summon image';
+      }
+    }
+
+    // on page load, summon one immediately
     window.onload = summonDoom;
   </script>
 </body>
