@@ -7,6 +7,7 @@
 
   <!-- Gothic / medieval-style font -->
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+
   <style>
     body {
       background: #fef8e8;
@@ -47,12 +48,11 @@
 <body>
   <div class="container">
     <img id="art" alt="Medieval Art" />
-    <div class="title" id="doomTitle">Awaiting Doom...</div>
+    <div class="title" id="doomTitle">Awaiting Doom…</div>
     <button onclick="summonDoom()">Summon New Vision</button>
   </div>
 
   <script>
-    // word lists for your doom titles
     const adjectives = ['Doomed','Black','Forgotten','Cursed','Ancient','Banished'];
     const nouns      = ['Monk','Tower','Plague','Knight','Crypt','Chalice'];
     const endings    = ['of the Abyss','from Beyond','of Rot','of Eternal Fire','of the Black Sigil'];
@@ -64,55 +64,39 @@
       return `${rand(adjectives)} ${rand(nouns)} ${rand(endings)}`;
     }
 
-    // 1️⃣ Fetch a random file from “Category:Illuminated manuscripts” (namespace=6 = File)
-    async function fetchRandomImage() {
-      // get up to 50 files in that category
-      const cmRes = await fetch(
-        'https://en.wikipedia.org/w/api.php' +
-        '?action=query' +
-        '&list=categorymembers' +
-        '&cmtitle=Category:Illuminated_manuscripts' +
-        '&cmnamespace=6' +
-        '&cmlimit=50' +
-        '&format=json' +
-        '&origin=*'
-      );
-      const cmData = await cmRes.json();
-      const members = cmData.query.categorymembers;
-      const randomFile = rand(members).title;            // e.g. "File:Example.jpg"
-
-      // now get its direct image URL
-      const infoRes = await fetch(
-        'https://en.wikipedia.org/w/api.php' +
-        '?action=query' +
-        `&titles=${encodeURIComponent(randomFile)}` +
-        '&prop=imageinfo' +
-        '&iiprop=url' +
-        '&format=json' +
-        '&origin=*'
-      );
-      const infoData = await infoRes.json();
-      const page = Object.values(infoData.query.pages)[0];
-      return page.imageinfo[0].url;  // the actual .jpg/.png link
-    }
-
-    // 2️⃣ Pull it all together
     async function summonDoom() {
-      const imgEl = document.getElementById('art');
+      const imgEl   = document.getElementById('art');
       const titleEl = document.getElementById('doomTitle');
       titleEl.textContent = 'Summoning…';
+
       try {
-        const imageUrl = await fetchRandomImage();
+        // One API call to get a random image file + its URL
+        const res = await fetch(
+          'https://en.wikipedia.org/w/api.php' +
+          '?action=query' +
+          '&format=json' +
+          '&origin=*' +
+          '&generator=random' +
+          '&grnnamespace=6' +    // namespace 6 = File
+          '&grnlimit=1' +
+          '&prop=imageinfo' +
+          '&iiprop=url'
+        );
+        const data = await res.json();
+        const pages = data.query.pages;
+        const pageId = Object.keys(pages)[0];
+        const imageUrl = pages[pageId].imageinfo[0].url;
+
         imgEl.src = imageUrl;
         titleEl.textContent = generateTitle();
-      } catch(err) {
+      } catch (err) {
         console.error(err);
         titleEl.textContent = 'Failed to summon image';
       }
     }
 
-    // on page load, summon one immediately
-    window.onload = summonDoom;
+    // initial summon once the script runs
+    summonDoom();
   </script>
 </body>
 </html>
