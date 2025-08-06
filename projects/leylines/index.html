@@ -4,17 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Leylines</title>
-
   <style>
-    /* make sure nothing shows behind our canvas */
     html, body {
       margin: 0; padding: 0;
       width: 100vw; height: 100vh;
-      background: transparent;
-      overflow: hidden;
+      background: transparent; overflow: hidden;
     }
-
-    /* full-screen p5 canvas */
     canvas {
       position: fixed !important;
       top: 0; left: 0;
@@ -22,13 +17,11 @@
       height: 100vh !important;
       z-index: 0;
     }
-
-    /* overlay “Play” screen */
     #overlay {
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
-      background: #ffffffcc; /* soft translucent white */
+      background: #ffffffdd;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -39,12 +32,10 @@
       font-size: 1.2em;
       border: none;
       border-radius: 8px;
-      background: #A1A37A; 
-      color: white;
+      background: #A1A37A;
+      color: #fff;
     }
   </style>
-
-  <!-- p5.js + Tone.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.min.js"></script>
   <script src="sketch.js"></script>
@@ -53,13 +44,11 @@
   <div id="overlay">
     <button id="playBtn">Play</button>
   </div>
-
   <script>
-    // Wait for the user to hit “Play” before we start audio.
     document.getElementById('playBtn').addEventListener('click', async () => {
       document.getElementById('overlay').style.display = 'none';
-      await Tone.start();                // unlock audio
-      startDroneLoop();                  // kick off your chord loop
+      await Tone.start();             // unlock WebAudio
+      startDroneLoop();               // begin your chord drone
     });
   </script>
 </body>
