@@ -3,43 +3,21 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Medieval Drones + Audio</title>
+  <title>Medieval Drones — Audio Debug</title>
   <style>
-    body {
-      background: #fef8e8;
-      color: #222;
-      font-family: sans-serif;
-      text-align: center;
-      padding: 2rem;
-    }
-    button {
-      margin: 0.5rem;
-      padding: 1rem 2rem;
-      font-size: 1rem;
-    }
-    input {
-      width: 80%;
-    }
-    #filename {
-      margin-top: 1rem;
-      font-style: italic;
-    }
+    body { background: #fef8e8; color: #222; font-family: sans-serif; text-align:center; padding:2rem; }
+    button { margin:0.5rem; padding:1rem 2rem; font-size:1rem; }
+    input { width:80%; }
+    #filename { margin-top:1rem; font-style: italic; }
     #log {
-      margin-top: 2rem;
-      text-align: left;
-      max-height: 200px;
-      overflow-y: auto;
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      white-space: pre-wrap;
-      font-size: 0.9rem;
-      line-height: 1.2;
+      margin-top:2rem; text-align:left; max-height:200px; overflow-y:auto;
+      background:#fff; border:1px solid #ccc; padding:1rem;
+      white-space: pre-wrap; font-size:0.9rem; line-height:1.2;
     }
   </style>
 </head>
 <body>
-  <h1>Medieval Drones — Audio Fetch &amp; Slice</h1>
+  <h1>Medieval Drones — Audio Fetch Debug</h1>
   <button id="load">Load Random PD Audio</button>
   <div id="filename">No audio loaded yet.</div>
   <div id="controls" style="display:none; margin-top:1rem;">
@@ -53,14 +31,14 @@
   <div id="log">📝 Log:</div>
 
   <script>
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
     let buffer = null;
     let currentFile = '';
 
     function log(msg) {
-      const logEl = document.getElementById('log');
-      logEl.textContent += '\n' + msg;
-      logEl.scrollTop = logEl.scrollHeight;
+      const L = document.getElementById('log');
+      L.textContent += '\n' + msg;
+      L.scrollTop = L.scrollHeight;
     }
 
     // 1. Fetch a random identifier from IA
@@ -74,8 +52,14 @@
         '&rows=50' +
         '&output=json'
       );
-      const docs = (await res.json()).response.docs;
-      const id = docs[Math.floor(Math.random() * docs.length)].identifier;
+      const json = await res.json();
+      log('📥 Search response:\n' + JSON.stringify(json, null, 2));
+
+      const docs = json.response && json.response.docs;
+      if (!docs || docs.length === 0) {
+        throw new Error('No docs array in search response');
+      }
+      const id = docs[Math.floor(Math.random()*docs.length)].identifier;
       log(`🎯 Picked identifier: ${id}`);
       return id;
     }
@@ -85,6 +69,7 @@
       log(`📥 Fetching metadata for ${id}…`);
       const metaRes = await fetch(`https://archive.org/metadata/${id}`);
       const meta = await metaRes.json();
+      log('📥 Metadata response:\n' + JSON.stringify(meta.files?.slice(0,10), null, 2) + '\n…');
       const files = meta.files || [];
       const audioFiles = files
         .map(f => f.name)
@@ -92,7 +77,7 @@
       if (!audioFiles.length) {
         throw new Error('No audio files in ' + id);
       }
-      const fileName = audioFiles[Math.floor(Math.random() * audioFiles.length)];
+      const fileName = audioFiles[Math.floor(Math.random()*audioFiles.length)];
       log(`🎶 Selected file: ${fileName}`);
       return fileName;
     }
@@ -142,11 +127,7 @@
         sr
       );
       for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
-        buffer.copyFromChannel(
-          slice.getChannelData(ch),
-          ch,
-          startSample
-        );
+        buffer.copyFromChannel(slice.getChannelData(ch), ch, startSample);
       }
       const src = audioCtx.createBufferSource();
       src.buffer = slice;
