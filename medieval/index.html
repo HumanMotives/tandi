@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Medieval Drones</title>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #0a0a0a;
+      color: #eee;
+      font-family: 'UnifrakturCook', serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border: 5px solid #333;
+      box-shadow: 0 0 30px #000;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px #800;
+    }
+
+    button {
+      background: #111;
+      color: #fff;
+      border: 2px solid #444;
+      padding: 10px 20px;
+      font-size: 1em;
+      font-family: 'UnifrakturCook', serif;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 0 10px #222;
+    }
+
+    button:hover {
+      background: #222;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img id="art" src="" alt="Medieval Art" />
+    <div class="title" id="doomTitle">Awaiting Doom...</div>
+    <button onclick="summonDoom()">Summon New Vision</button>
+  </div>
+
+  <script>
+    const images = [
+      "https://upload.wikimedia.org/wikipedia/commons/3/34/Medieval_knight_fighting_dragon.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/Psautier_de_Saint-Louis_BNF.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/c/c2/King_Arthur_and_Mordred.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/7/7e/Dante_Divine_Comedy_Paradiso_illustration_by_Gustave_Dore_04.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/8/87/Apocalypse_image_from_Beatus_de_Liebana.jpg"
+    ];
+
+    const adjectives = ['Doomed', 'Black', 'Forgotten', 'Cursed', 'Ancient', 'Banished'];
+    const nouns = ['Monk', 'Tower', 'Plague', 'Knight', 'Crypt', 'Chalice'];
+    const endings = ['of the Abyss', 'from Beyond', 'of Rot', 'of Eternal Fire', 'of the Black Sigil'];
+
+    function rand(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function generateTitle() {
+      return `${rand(adjectives)} ${rand(nouns)} ${rand(endings)}`;
+    }
+
+    function summonDoom() {
+      const img = document.getElementById('art');
+      const title = document.getElementById('doomTitle');
+      img.src = rand(images);
+      title.textContent = generateTitle();
+    }
+
+    // Auto-load on first visit
+    window.onload = summonDoom;
+  </script>
+</body>
+</html>
