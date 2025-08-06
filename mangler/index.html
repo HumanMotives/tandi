@@ -4,6 +4,10 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Random Gene</title>
+
+  <!-- Web Audio Controls for round knobs -->
+  <script src="https://cdn.jsdelivr.net/npm/web-audio-controls@latest"></script>
+
   <style>
     * { box-sizing: border-box; }
     body {
@@ -32,11 +36,16 @@
     .row > * { flex: 1 1 120px; }
     .row button { flex: 0 1 auto; }
     label { display: flex; flex-direction: column; font-size: 0.9rem; }
-    input[type=number], input[type=range] {
+    input[type=number] {
       margin-top: 0.25rem;
       padding: 0.25rem;
       font-size: 1rem;
       width: 100%;
+    }
+    webaudio-knob {
+      margin-top: 0.25rem;
+      --knob-start-angle: -0.75turn;
+      --knob-end-angle: 0.75turn;
     }
     #log {
       background: #fff;
@@ -67,11 +76,11 @@
     <div id="sliceControls" class="row" style="display:none;">
       <label>
         Start (s)
-        <input type="number" id="start" min="0" step="0.1" value="0"/>
+        <input type="number" id="start" min="0" step="0.01" value="0"/>
       </label>
       <label>
         Length (s)
-        <input type="number" id="length" min="0.1" step="0.1" value="1"/>
+        <input type="number" id="length" min="0.01" step="0.005" value="0.1"/>
       </label>
       <label style="flex:0 1 auto; align-self:flex-end">
         <input type="checkbox" id="reverse"/> Reverse
@@ -81,24 +90,55 @@
       </label>
     </div>
 
-    <div id="tapeControls" class="row" style="display:none;">
+    <div id="knobs1" class="row" style="display:none;">
       <label>
-        Delay Time (s)
-        <input type="range" id="delayTime" min="0" max="5" step="0.01" value="1.5"/>
+        Delay Time
+        <webaudio-knob id="delayKnob" min="0" max="5" step="0.01" value="1.5" diameter="60"></webaudio-knob>
       </label>
       <label>
         Feedback
-        <input type="range" id="feedback" min="0" max="0.95" step="0.01" value="0.6"/>
+        <webaudio-knob id="fbKnob" min="0" max="0.95" step="0.01" value="0.6" diameter="60"></webaudio-knob>
       </label>
       <label>
         Rate
-        <input type="range" id="playbackRate" min="0.1" max="3" step="0.01" value="1"/>
+        <webaudio-knob id="rateKnob" min="0.1" max="3" step="0.01" value="1" diameter="60"></webaudio-knob>
       </label>
     </div>
 
+    <div id="knobs2" class="row" style="display:none;">
+      <label>
+        Attack
+        <webaudio-knob id="attackKnob" min="0" max="1" step="0.01" value="0.01" diameter="50"></webaudio-knob>
+      </label>
+      <label>
+        Decay
+        <webaudio-knob id="decayKnob" min="0" max="1" step="0.01" value="0.1" diameter="50"></webaudio-knob>
+      </label>
+      <label>
+        Sustain
+        <webaudio-knob id="sustainKnob" min="0" max="1" step="0.01" value="0.7" diameter="50"></webaudio-knob>
+      </label>
+      <label>
+        Release
+        <webaudio-knob id="releaseKnob" min="0" max="3" step="0.01" value="0.5" diameter="50"></webaudio-knob>
+      </label>
+    </div>
+
+    <div id="knobs3" class="row" style="display:none;">
+      <label>
+        Filter Freq
+        <webaudio-knob id="filterKnob" min="100" max="20000" step="1" value="20000" diameter="60"></webaudio-knob>
+      </label>
+      <label>
+        Reverb Mix
+        <webaudio-knob id="wetKnob" min="0" max="1" step="0.01" value="0.3" diameter="60"></webaudio-knob>
+      </label>
+      <button id="randomizeAll">Randomize All</button>
+    </div>
+
     <div id="playControls" class="row" style="display:none;">
-      <button id="playOnce">Play Slice Once</button>
-      <button id="startLoop">Start Tape Loop</button>
+      <button id="playOnce">Play Slice</button>
+      <button id="startLoop">Start Loop</button>
       <button id="stopLoop">Stop Loop</button>
     </div>
 
@@ -107,21 +147,30 @@
 
   <script>
     const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-    let buffer = null, sliceBuffer = null;
+    let buffer = null, sliceBuffer = null, irBuffer = null;
     let loopSource = null, delayNode = null, feedbackNode = null;
 
-    // element references
+    // element refs
     const loadBtn      = document.getElementById('load');
     const fnEl         = document.getElementById('filename');
     const startEl      = document.getElementById('start');
     const lengthEl     = document.getElementById('length');
     const reverseEl    = document.getElementById('reverse');
     const loopToggleEl = document.getElementById('loopToggle');
-    const delayTimeEl  = document.getElementById('delayTime');
-    const feedbackEl   = document.getElementById('feedback');
-    const rateEl       = document.getElementById('playbackRate');
+    const delayKnob    = document.getElementById('delayKnob');
+    const fbKnob       = document.getElementById('fbKnob');
+    const rateKnob     = document.getElementById('rateKnob');
+    const attackKnob   = document.getElementById('attackKnob');
+    const decayKnob    = document.getElementById('decayKnob');
+    const sustainKnob  = document.getElementById('sustainKnob');
+    const releaseKnob  = document.getElementById('releaseKnob');
+    const filterKnob   = document.getElementById('filterKnob');
+    const wetKnob      = document.getElementById('wetKnob');
+    const randBtn      = document.getElementById('randomizeAll');
     const sliceCtrls   = document.getElementById('sliceControls');
-    const tapeCtrls    = document.getElementById('tapeControls');
+    const knobs1       = document.getElementById('knobs1');
+    const knobs2       = document.getElementById('knobs2');
+    const knobs3       = document.getElementById('knobs3');
     const playCtrls    = document.getElementById('playControls');
     const logEl        = document.getElementById('log');
 
@@ -137,12 +186,23 @@
       }
     }
 
+    async function loadIR() {
+      if (irBuffer) return;
+      try {
+        const resp = await fetch('https://mdn.github.io/voice-change-o-matic/audio/concert-crowd.ogg');
+        const data = await resp.arrayBuffer();
+        irBuffer = await audioCtx.decodeAudioData(data);
+        log('🎧 Impulse response loaded');
+      } catch (e) {
+        log('❌ Failed to load IR');
+      }
+    }
+
     async function fetchRandomIdentifier() {
       log('🔍 Searching Librivox audio…');
-      const q = 'collection:librivoxaudio';
       const res = await fetch(
         'https://archive.org/advancedsearch.php' +
-        `?q=${encodeURIComponent(q)}&fl[]=identifier&rows=50&output=json`
+        `?q=${encodeURIComponent('collection:librivoxaudio')}&fl[]=identifier&rows=50&output=json`
       );
       const json = await res.json();
       const docs = json.response?.docs || [];
@@ -155,9 +215,7 @@
     async function pickAudioFile(id) {
       log(`📥 Fetching metadata for ${id}…`);
       const meta = await (await fetch(`https://archive.org/metadata/${id}`)).json();
-      const names = (meta.files||[])
-        .map(f => f.name)
-        .filter(n => /\.(mp3|ogg)$/i.test(n));
+      const names = (meta.files||[]).map(f=>f.name).filter(n=>/\.(mp3|ogg)$/i.test(n));
       if (!names.length) throw new Error('No audio files in ' + id);
       const file = names[Math.floor(Math.random()*names.length)];
       log(`🎶 Selected: ${file}`);
@@ -169,20 +227,21 @@
       loadBtn.disabled = true;
       loadBtn.textContent = 'Loading…';
       try {
+        await loadIR();
         const id = await fetchRandomIdentifier();
         const file = await pickAudioFile(id);
         fnEl.textContent = `Loaded: ${id}/${file}`;
-
         const url = `https://archive.org/download/${encodeURIComponent(id)}/${encodeURIComponent(file)}`;
         log(`⬇️ Downloading ${url}`);
         const data = await (await fetch(url)).arrayBuffer();
         log('🔄 Decoding…');
         buffer = await audioCtx.decodeAudioData(data);
         log(`✅ Decoded (${buffer.duration.toFixed(2)}s)`);
-
         sliceCtrls.style.display = 'flex';
-        tapeCtrls.style.display  = 'flex';
-        playCtrls.style.display  = 'flex';
+        knobs1.style.display      = 'flex';
+        knobs2.style.display      = 'flex';
+        knobs3.style.display      = 'flex';
+        playCtrls.style.display   = 'flex';
       } catch(err) {
         log(`❌ ${err.message}`);
         fnEl.textContent = 'Failed to load audio';
@@ -204,14 +263,54 @@
       }
     }
 
+    function applyEnvelope(gainNode, now) {
+      const A = parseFloat(attackKnob.value),
+            D = parseFloat(decayKnob.value),
+            S = parseFloat(sustainKnob.value),
+            R = parseFloat(releaseKnob.value),
+            L = parseFloat(lengthEl.value);
+      const g = gainNode.gain;
+      g.cancelScheduledValues(now);
+      g.setValueAtTime(0, now);
+      g.linearRampToValueAtTime(1, now + A);
+      g.linearRampToValueAtTime(S, now + A + D);
+      g.setValueAtTime(S, now + L);
+      g.linearRampToValueAtTime(0, now + L + R);
+    }
+
     async function playOnce() {
       await resumeIfNeeded();
       if (!buffer) return alert('Load audio first!');
       makeSliceBuffer();
+
       const src = audioCtx.createBufferSource();
       src.buffer = sliceBuffer;
-      src.playbackRate.value = parseFloat(rateEl.value);
-      src.connect(audioCtx.destination);
+      src.playbackRate.value = parseFloat(rateKnob.value);
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = parseFloat(filterKnob.value);
+
+      const envGain = audioCtx.createGain();
+      applyEnvelope(envGain, audioCtx.currentTime);
+
+      const convolver = audioCtx.createConvolver();
+      if (irBuffer) convolver.buffer = irBuffer;
+
+      const dryGain = audioCtx.createGain();
+      const wetGain = audioCtx.createGain();
+      wetGain.gain.value = parseFloat(wetKnob.value);
+
+      // graph: src→filter→envGain→dry→dest
+      //                        ↘ convolver→wet→dest
+      src.connect(filter);
+      filter.connect(envGain);
+      envGain.connect(dryGain);
+      dryGain.connect(audioCtx.destination);
+      envGain.connect(convolver);
+      convolver.connect(wetGain);
+      wetGain.connect(audioCtx.destination);
+
       src.start();
       log('▶️ Played slice once');
     }
@@ -222,11 +321,14 @@
       if (loopSource) loopSource.stop();
       makeSliceBuffer();
 
-      // build delay+feedback
+      const delayTime = parseFloat(delayKnob.value),
+            fb        = parseFloat(fbKnob.value),
+            rate      = parseFloat(rateKnob.value);
+
       delayNode    = audioCtx.createDelay(10);
       feedbackNode = audioCtx.createGain();
-      delayNode.delayTime.value = parseFloat(delayTimeEl.value);
-      feedbackNode.gain.value   = parseFloat(feedbackEl.value);
+      delayNode.delayTime.value = delayTime;
+      feedbackNode.gain.value   = fb;
 
       loopSource = audioCtx.createBufferSource();
       loopSource.buffer = sliceBuffer;
@@ -236,7 +338,7 @@
         loopSource.loopStart = startT;
         loopSource.loopEnd   = startT + parseFloat(lengthEl.value);
       }
-      loopSource.playbackRate.value = parseFloat(rateEl.value);
+      loopSource.playbackRate.value = rate;
 
       // direct dry
       loopSource.connect(audioCtx.destination);
@@ -247,16 +349,36 @@
       delayNode.connect(audioCtx.destination);
 
       loopSource.start();
-      log(`🔁 Tape loop started (delay ${delayNode.delayTime.value}s, fb ${feedbackNode.gain.value})`);
+      log(`🔁 Loop started (delay ${delayTime}s, fb ${fb})`);
     }
 
     function stopLoop() {
       if (loopSource) {
         loopSource.stop();
         loopSource = null;
-        log('⏹️ Tape loop stopped');
+        log('⏹️ Loop stopped');
       }
     }
+
+    randBtn.onclick   = () => {
+      if (!buffer) return;
+      // randomize inputs
+      const maxStart = buffer.duration - parseFloat(lengthEl.value);
+      startEl.value  = (Math.random() * Math.max(0, maxStart)).toFixed(2);
+      lengthEl.value = (0.01 + Math.random() * Math.min(buffer.duration,1)).toFixed(3);
+      reverseEl.checked    = Math.random() > 0.5;
+      loopToggleEl.checked = Math.random() > 0.5;
+      delayKnob.value = (Math.random()*5).toFixed(2);
+      fbKnob.value    = (Math.random()*0.95).toFixed(2);
+      rateKnob.value  = (0.1 + Math.random()*2.9).toFixed(2);
+      attackKnob.value  = (Math.random()*1).toFixed(2);
+      decayKnob.value   = (Math.random()*1).toFixed(2);
+      sustainKnob.value = (Math.random()).toFixed(2);
+      releaseKnob.value = (Math.random()*3).toFixed(2);
+      filterKnob.value  = (100 + Math.random()*19900).toFixed(0);
+      wetKnob.value     = Math.random().toFixed(2);
+      log('🔀 Randomized all');
+    };
 
     loadBtn.onclick     = loadAudio;
     document.getElementById('playOnce').onclick  = playOnce;
