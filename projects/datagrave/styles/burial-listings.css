@@ -56,5 +56,7 @@
 .icon-img {
   width: 20px !important;
   height: 20px !important;
+  vertical-align: middle;
+  margin: 5px;
 }
 
