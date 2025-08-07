@@ -4,17 +4,60 @@
   <meta charset="UTF-8">
   <title>Data Grave by Human Motives</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="styles/main.css">
+
+  <!-- global styles -->
+  <link rel="stylesheet" href="/styles/global.css">
+  <link rel="stylesheet" href="/styles/burial-flow.css">
+  <link rel="stylesheet" href="/styles/graveyard.css">
+  <link rel="stylesheet" href="/styles/upsells.css">
+
+  <!-- Supabase reCAPTCHA & anon key (for your JS) -->
+  <script>
+    const RECAPTCHA_SITE_KEY = '6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W';
+    const SUPABASE_ANON_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.…';
+  </script>
+  <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" async defer></script>
 </head>
 <body>
-  <div id="header"></div>
-  <div id="burial-zone"></div>
-  <div id="upsell-section"></div>
-  <div id="burial-listings"></div>
-  <div id="footer"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" async defer></script>
-  <script src="scripts/main.js" defer></script>
+  <!-- header partial -->
+  <div id="common-header"></div>
+
+  <!-- Burial Zone: method selector, upload box, progress, ready-to-bury -->
+  <div id="burial-zone"></div>
+
+  <!-- Upsell section (hidden until user clicks “GO PREMIUM”) -->
+  <div id="upsellSection" class="hidden"></div>
+
+  <!-- Graveyard listings + pagination -->
+  <div id="graveyard"></div>
+
+  <!-- footer partial -->
+  <div id="common-footer"></div>
+
+  <!-- load each partial -->
+  <script src="/scripts/header.js"></script>
+  <script>
+    // load the rest of the partials in the same way
+    ["burialZone","upsells","burialListings","footer"].forEach(name=>{
+      fetch(`/partials/${name}.html`)
+        .then(r=>r.text())
+        .then(html=> {
+          const id = {
+            burialZone:    "burial-zone",
+            upsells:       "upsellSection",
+            burialListings:"graveyard",
+            footer:        "common-footer"
+          }[name];
+          document.getElementById(id).innerHTML = html;
+        })
+        .catch(console.error);
+    });
+  </script>
+
+  <!-- hook up your interactive scripts -->
+  <script src="/scripts/upsells.js"></script>
+  <script src="/scripts/burialFlow.js"></script>
+  <script src="/scripts/burialListings.js"></script>
 </body>
 </html>
