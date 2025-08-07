@@ -2,36 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>The Data Grave</title>
+  <title>Ze Data Grave</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <!-- Open Graph -->
-  <meta property="og:title" content="Data Grave – Bury Your Unfinished Loops" />
-  <meta property="og:description" content="A tongue-in-cheek burial ground for your half-finished music loops." />
-  <meta property="og:image" content="https://yourdomain.com/path/to/preview-image.png" />
-  <meta property="og:url" content="https://yourdomain.com/" />
-  <meta property="og:type" content="website" />
-  
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Data Grave – Bury Your Unfinished Loops" />
-  <meta name="twitter:description" content="A tongue-in-cheek burial ground for your half-finished music loops." />
-  <meta name="twitter:image" content="https://yourdomain.com/path/to/preview-image.png" />
 
-  <!-- Invisible reCAPTCHA v3 and Supabase anon key -->
+  <!-- Styles (kebab-case, under /styles) -->
+  <link rel="stylesheet" href="styles/global.css">
+  <link rel="stylesheet" href="styles/burial-flow.css">
+  <link rel="stylesheet" href="styles/burial-listings.css">
+  <link rel="stylesheet" href="styles/upsell.css">
+
+  <!-- reCAPTCHA & Supabase keys (unchanged) -->
   <script>
     const RECAPTCHA_SITE_KEY = '6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W';
     const SUPABASE_ANON_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM';
   </script>
-  <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" async defer></script>
+  <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" defer></script>
+</head>
+<body>
+  <!-- Header partial -->
+  <div id="common-header"></div>
 
-  <body>
-    <!-- placeholders for partials -->
-    <div id="common-header"></div>
-    <div id="burial-zone-placeholder"></div>
-    <div id="upsell-section-placeholder"></div>
-    <div id="burial-listings-placeholder"></div>
-    <div id="common-footer"></div>
+  <!-- Logo & tagline -->
+  <div class="logo-container">
+    <img src="images/datagrave_sitelogo_large.png" alt="The Data Grave Logo">
+  </div>
+  <div id="tagline">Where musicians bury their unfinished tracks</div>
+  <hr>
 
-  </body>
+  <!-- Burial‐zone partial -->
+  <div id="burial-zone-placeholder"></div>
+
+  <!-- Upsell partial -->
+  <div id="upsell-section-placeholder"></div>
+
+  <!-- Listings partial -->
+  <div id="burial-listings-placeholder"></div>
+
+  <!-- Footer partial -->
+  <div id="common-footer"></div>
+
+  <!-- Scripts (kebab-case, under /scripts) -->
+  <script src="scripts/header.js"></script>
+  <script src="scripts/burial-flow.js"></script>
+  <script src="scripts/upsells.js"></script>
+  <script src="scripts/burial-listings.js"></script>
+
+  <!-- Loader for all partials (also kebab-case) -->
+  <script>
+    async function loadPartial(containerId, urlPath) {
+      const el = document.getElementById(containerId);
+      const res = await fetch(urlPath);
+      if (!res.ok) {
+        console.error(`Failed to load ${urlPath}: ${res.status}`);
+        return;
+      }
+      el.innerHTML = await res.text();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPartial('common-header',             'partials/header.html');
+      loadPartial('burial-zone-placeholder',   'partials/burial-zone.html');
+      loadPartial('upsell-section-placeholder','partials/upsell-section.html');
+      loadPartial('burial-listings-placeholder','partials/burial-listings.html');
+      loadPartial('common-footer',             'partials/footer.html');
+    });
+  </script>
+</body>
 </html>
