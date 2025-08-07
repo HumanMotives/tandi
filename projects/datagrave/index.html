@@ -2,62 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Data Grave by Human Motives</title>
+  <title>The Data Grave</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- global styles -->
+  <!-- Styles (kebab-case, under /styles) -->
   <link rel="stylesheet" href="/styles/global.css">
   <link rel="stylesheet" href="/styles/burial-flow.css">
-  <link rel="stylesheet" href="/styles/graveyard.css">
-  <link rel="stylesheet" href="/styles/upsells.css">
+  <link rel="stylesheet" href="/styles/burial-listings.css">
+  <link rel="stylesheet" href="/styles/upsell.css">
 
-  <!-- Supabase reCAPTCHA & anon key (for your JS) -->
+  <!-- reCAPTCHA & Supabase keys (unchanged) -->
   <script>
     const RECAPTCHA_SITE_KEY = '6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W';
-    const SUPABASE_ANON_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.…';
+    const SUPABASE_ANON_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…';
   </script>
-  <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" async defer></script>
+  <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" defer></script>
 </head>
 <body>
-
-  <!-- header partial -->
+  <!-- Header partial -->
   <div id="common-header"></div>
 
-  <!-- Burial Zone: method selector, upload box, progress, ready-to-bury -->
-  <div id="burial-zone"></div>
+  <!-- Logo & tagline -->
+  <div class="logo-container">
+    <img src="/images/datagrave_sitelogo_large.png" alt="The Data Grave Logo">
+  </div>
+  <div id="tagline">Where musicians bury their unfinished tracks</div>
+  <hr>
 
-  <!-- Upsell section (hidden until user clicks “GO PREMIUM”) -->
-  <div id="upsellSection" class="hidden"></div>
+  <!-- Burial‐zone partial -->
+  <div id="burial-zone-placeholder"></div>
 
-  <!-- Graveyard listings + pagination -->
-  <div id="graveyard"></div>
+  <!-- Upsell partial -->
+  <div id="upsell-section-placeholder"></div>
 
-  <!-- footer partial -->
+  <!-- Listings partial -->
+  <div id="burial-listings-placeholder"></div>
+
+  <!-- Footer partial -->
   <div id="common-footer"></div>
 
-  <!-- load each partial -->
+  <!-- Scripts (kebab-case, under /scripts) -->
   <script src="/scripts/header.js"></script>
+  <script src="/scripts/burial-flow.js"></script>
+  <script src="/scripts/upsells.js"></script>
+  <script src="/scripts/burial-listings.js"></script>
+
+  <!-- Loader for all partials (also kebab-case) -->
   <script>
-    // load the rest of the partials in the same way
-    ["burialZone","upsells","burialListings","footer"].forEach(name=>{
-      fetch(`/partials/${name}.html`)
-        .then(r=>r.text())
-        .then(html=> {
-          const id = {
-            burialZone:    "burial-zone",
-            upsells:       "upsellSection",
-            burialListings:"graveyard",
-            footer:        "common-footer"
-          }[name];
-          document.getElementById(id).innerHTML = html;
-        })
-        .catch(console.error);
+    async function loadPartial(containerId, urlPath) {
+      const el = document.getElementById(containerId);
+      const res = await fetch(urlPath);
+      if (!res.ok) {
+        console.error(`Failed to load ${urlPath}: ${res.status}`);
+        return;
+      }
+      el.innerHTML = await res.text();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPartial('common-header',             '/partials/header.html');
+      loadPartial('burial-zone-placeholder',   '/partials/burial-zone.html');
+      loadPartial('upsell-section-placeholder','/partials/upsell-section.html');
+      loadPartial('burial-listings-placeholder','/partials/burial-listings.html');
+      loadPartial('common-footer',             '/partials/footer.html');
     });
   </script>
-
-  <!-- hook up your interactive scripts -->
-  <script src="/scripts/upsells.js"></script>
-  <script src="/scripts/burialFlow.js"></script>
-  <script src="/scripts/burialListings.js"></script>
 </body>
 </html>
