@@ -1,5 +1,19 @@
 // sketch.js
 
+document.addEventListener('DOMContentLoaded', () => {
+  const startScreen = document.getElementById('start-screen');
+  const startBtn    = document.getElementById('start-btn');
+
+  startBtn.addEventListener('click', async () => {
+    await Tone.start();
+    startScreen.classList.add('fade-out');
+    startScreen.addEventListener('transitionend', () => {
+      startScreen.style.display = 'none';
+      sketchStarted = true;
+    }, { once: true });
+  });
+});
+
 // —————————————————————————————————————————————————————————————
 // HELPER: ease-in-out quad for smooth bursts
 // —————————————————————————————————————————————————————————————
