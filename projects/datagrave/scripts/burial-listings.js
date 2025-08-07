@@ -1,4 +1,4 @@
-// scripts/burialListings.js
+// scripts/burial-listings.js
 
 document.addEventListener('DOMContentLoaded', () => {
   let currentPage = 1;
@@ -13,14 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ page }),
+        body: JSON.stringify({ page })
       }
     );
 
     if (!res.ok) {
-      console.error('load-burials function error', await res.text());
+      console.error('load-burials function error:', await res.text());
       return;
     }
 
@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         createCell(b.epitaph || ''),
         createCell(b.country || '')
       );
+
       listEl.append(tr);
     });
   }
@@ -64,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderPagination(totalCount) {
     const totalPages = Math.ceil(totalCount / pageSize);
     pageEl.innerHTML = '';
+
     for (let i = 1; i <= totalPages; i++) {
       const btn = document.createElement('button');
       btn.textContent = i;
@@ -74,5 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Kick it off
   fetchPage(1);
 });
