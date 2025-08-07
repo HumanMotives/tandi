@@ -90,6 +90,12 @@
       background: #A1A37A;
       color: #111;
     }
+
+    .small-text {
+  font-size: 0.8rem;      /* 80% of the root font-size */
+  line-height: 1.4;       /* a bit more breathing room */
+  opacity: 0.85;          /* subtly de-emphasize */
+}
   </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
@@ -116,10 +122,11 @@
 
     <button id="start-btn">Start</button>
 
-    <p>A little synth concept. Soothing, unpredictable, wonky.</p>
+<div class="small-text">
+  <p>A little synth concept. Soothing, unpredictable, wonky.</p>
 
-    <p><strong>Mobile:</strong> Swipe to change the sound. Double tap to add tones.</p>
-    <p><strong>Desktop:</strong> Click and drag to change the sound. Right click to add tones.</p>
+  <p><strong>Mobile:</strong> Swipe to change the sound. Double tap to add tones.</p>
+  <p><strong>Desktop:</strong> Click and drag to change the sound. Right click to add tones.</p>
   </div>
 </div>
   </div>
