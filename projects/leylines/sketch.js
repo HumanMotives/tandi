@@ -4,15 +4,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const startScreen = document.getElementById('start-screen');
   const startBtn    = document.getElementById('start-btn');
 
-  startBtn.addEventListener('click', async () => {
-    await Tone.start();
+  // single handler for any pointer/tap/click
+  const handleStart = async (e) => {
+    e.preventDefault();           // stop any default mobile behavior
+    await Tone.start();           // unlock audio
     startScreen.classList.add('fade-out');
     startScreen.addEventListener('transitionend', () => {
       startScreen.style.display = 'none';
       sketchStarted = true;
     }, { once: true });
-  });
+  };
+
+  // listen for click, touchend, and pointerdown
+  startBtn.addEventListener('click',      handleStart, { passive: false });
+  startBtn.addEventListener('touchend',   handleStart, { passive: false });
+  startBtn.addEventListener('pointerdown',handleStart, { passive: false });
 });
+
 
 // —————————————————————————————————————————————————————————————
 // HELPER: ease-in-out quad for smooth bursts
