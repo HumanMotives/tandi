@@ -52,3 +52,9 @@
   font-weight: bold;
   border-color: #888;
 }
+
+.icon-img {
+  width: 20px !important;
+  height: 20px !important;
+}
+
