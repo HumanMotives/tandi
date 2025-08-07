@@ -7,9 +7,9 @@
 
   <!-- Styles (kebab-case, under /styles) -->
   <link rel="stylesheet" href="styles/global.css">
-  <link rel="stylesheet" href="/styles/burial-flow.css">
-  <link rel="stylesheet" href="/styles/burial-listings.css">
-  <link rel="stylesheet" href="/styles/upsell.css">
+  <link rel="stylesheet" href="styles/burial-flow.css">
+  <link rel="stylesheet" href="styles/burial-listings.css">
+  <link rel="stylesheet" href="styles/upsell.css">
 
   <!-- reCAPTCHA & Supabase keys (unchanged) -->
   <script>
@@ -24,7 +24,7 @@
 
   <!-- Logo & tagline -->
   <div class="logo-container">
-    <img src="/images/datagrave_sitelogo_large.png" alt="The Data Grave Logo">
+    <img src="images/datagrave_sitelogo_large.png" alt="The Data Grave Logo">
   </div>
   <div id="tagline">Where musicians bury their unfinished tracks</div>
   <hr>
@@ -42,10 +42,10 @@
   <div id="common-footer"></div>
 
   <!-- Scripts (kebab-case, under /scripts) -->
-  <script src="/scripts/header.js"></script>
-  <script src="/scripts/burial-flow.js"></script>
-  <script src="/scripts/upsells.js"></script>
-  <script src="/scripts/burial-listings.js"></script>
+  <script src="scripts/header.js"></script>
+  <script src="scripts/burial-flow.js"></script>
+  <script src="scripts/upsells.js"></script>
+  <script src="scripts/burial-listings.js"></script>
 
   <!-- Loader for all partials (also kebab-case) -->
   <script>
@@ -60,11 +60,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      loadPartial('common-header',             '/partials/header.html');
-      loadPartial('burial-zone-placeholder',   '/partials/burial-zone.html');
-      loadPartial('upsell-section-placeholder','/partials/upsell-section.html');
-      loadPartial('burial-listings-placeholder','/partials/burial-listings.html');
-      loadPartial('common-footer',             '/partials/footer.html');
+      loadPartial('common-header',             'partials/header.html');
+      loadPartial('burial-zone-placeholder',   'partials/burial-zone.html');
+      loadPartial('upsell-section-placeholder','partials/upsell-section.html');
+      loadPartial('burial-listings-placeholder','partials/burial-listings.html');
+      loadPartial('common-footer',             'partials/footer.html');
     });
   </script>
 </body>
