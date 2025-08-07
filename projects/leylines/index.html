@@ -24,6 +24,15 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.min.js"></script>
   <script src="sketch.js"></script>
+  <!-- Lock orientation to portrait when possible -->
+  <script>
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('portrait').catch(function(err){
+        // not supported or permission denied
+        console.warn('Orientation lock failed:', err);
+      });
+    }
+  </script>
 </head>
 <body></body>
 </html>
