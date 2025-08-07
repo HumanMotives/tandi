@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ze Data Grave</title>
+  <title>La Data Grave</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
+  
   <!-- Styles (kebab-case, under /styles) -->
   <link rel="stylesheet" href="styles/global.css">
   <link rel="stylesheet" href="styles/burial-flow.css">
@@ -19,52 +19,67 @@
   <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" defer></script>
 </head>
 <body>
-  <!-- Header partial -->
+  <!-- placeholders for partials -->
   <div id="common-header"></div>
-
-  <!-- Logo & tagline -->
   <div class="logo-container">
     <img src="images/datagrave_sitelogo_large.png" alt="The Data Grave Logo">
   </div>
   <div id="tagline">Where musicians bury their unfinished tracks</div>
   <hr>
 
-  <!-- Burial‐zone partial -->
   <div id="burial-zone-placeholder"></div>
-
-  <!-- Upsell partial -->
   <div id="upsell-section-placeholder"></div>
-
-  <!-- Listings partial -->
   <div id="burial-listings-placeholder"></div>
-
-  <!-- Footer partial -->
   <div id="common-footer"></div>
 
-  <!-- Scripts (kebab-case, under /scripts) -->
-  <script src="scripts/header.js"></script>
-  <script src="scripts/burial-flow.js"></script>
-  <script src="scripts/upsells.js"></script>
-  <script src="scripts/burial-listings.js"></script>
+  <!-- Common Ninja embed if still needed -->
+  <script src="https://cdn.commoninja.com/sdk/latest/commonninja.js" defer></script>
 
-  <!-- Loader for all partials (also kebab-case) -->
+  <!-- dynamic loader for partials + scripts -->
   <script>
-    async function loadPartial(containerId, urlPath) {
+    async function loadPartial(containerId, url) {
       const el = document.getElementById(containerId);
-      const res = await fetch(urlPath);
-      if (!res.ok) {
-        console.error(`Failed to load ${urlPath}: ${res.status}`);
-        return;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(res.status);
+        el.innerHTML = await res.text();
+      } catch (err) {
+        console.error(`Failed to load ${url}:`, err);
       }
-      el.innerHTML = await res.text();
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadPartial('common-header',             'partials/header.html');
-      loadPartial('burial-zone-placeholder',   'partials/burial-zone.html');
-      loadPartial('upsell-section-placeholder','partials/upsell-section.html');
-      loadPartial('burial-listings-placeholder','partials/burial-listings.html');
-      loadPartial('common-footer',             'partials/footer.html');
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1) Header
+      await loadPartial('common-header', 'partials/header.html');
+
+      // 2) Burial zone → then its script
+      if ((await loadPartial('burial-zone-placeholder', 'partials/burial-zone.html')) !== false) {
+        const s = document.createElement('script');
+        s.src = 'scripts/burial-flow.js';
+        document.body.appendChild(s);
+      }
+
+      // 3) Upsell section → then its script
+      if ((await loadPartial('upsell-section-placeholder', 'partials/upsell-section.html')) !== false) {
+        const s = document.createElement('script');
+        s.src = 'scripts/upsells.js';
+        document.body.appendChild(s);
+      }
+
+      // 4) Burial listings → then its script
+      if ((await loadPartial('burial-listings-placeholder', 'partials/burial-listings.html')) !== false) {
+        const s = document.createElement('script');
+        s.src = 'scripts/burial-listings.js';
+        document.body.appendChild(s);
+      }
+
+      // 5) Footer
+      await loadPartial('common-footer', 'partials/footer.html');
+
+      // 6) Header interactivity (e.g. menu highlighting)
+      const sh = document.createElement('script');
+      sh.src = 'scripts/header.js';
+      document.body.appendChild(sh);
     });
   </script>
 </body>
