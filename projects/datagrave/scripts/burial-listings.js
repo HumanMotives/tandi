@@ -1,11 +1,14 @@
-// burial-listings.js
+// burial-listings.js  
+// (no more DOMContentLoaded wrapper — runs immediately upon injection)
 
-document.addEventListener('DOMContentLoaded', () => {
-  let currentPage = 1;
-  const pageSize = 25;
-  const listEl = document.getElementById('graveList');
-  const pageEl = document.getElementById('paginationControls');
+let currentPage = 1;
+const pageSize   = 25;
+const listEl     = document.getElementById('graveList');
+const pageEl     = document.getElementById('paginationControls');
 
+if (!listEl || !pageEl) {
+  console.error('[burial-listings] Missing #graveList or #paginationControls');
+} else {
   async function fetchPage(page) {
     currentPage = page;
     try {
@@ -14,25 +17,19 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type':'application/json',
             'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
           },
-          body: JSON.stringify({ page }),
+          body: JSON.stringify({ page })
         }
       );
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        console.error('load-burials function error:', err);
-        return;
-      }
-
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const { data, totalCount } = await res.json();
       renderList(data);
       renderPagination(totalCount);
-    } catch (e) {
-      console.error('Failed to fetch burials:', e);
+    } catch (err) {
+      console.error('[burial-listings] Failed to fetch burials:', err);
     }
   }
 
@@ -41,30 +38,26 @@ document.addEventListener('DOMContentLoaded', () => {
     data.forEach(b => {
       const tr = document.createElement('tr');
       tr.classList.add('fade-in');
-
       const icon = document.createElement('img');
-      icon.src =
-        b.method === 'cremate'
-          ? 'icons/icon_urn.png'
-          : 'icons/icon_tombstone.png';
+      icon.src = b.method === 'cremate'
+        ? 'icons/icon_urn.png'
+        : 'icons/icon_tombstone.png';
       icon.className = 'icon-img';
-
       const tdName = document.createElement('td');
       tdName.append(icon, document.createTextNode(b.name));
-
       tr.append(
         tdName,
         createCell(new Date(b.timestamp).toLocaleDateString()),
         createCell(b.epitaph || ''),
         createCell(b.country || '')
       );
-      listEl.append(tr);
+      listEl.appendChild(tr);
     });
   }
 
-  function createCell(text) {
+  function createCell(txt) {
     const td = document.createElement('td');
-    td.textContent = text;
+    td.textContent = txt;
     return td;
   }
 
@@ -76,11 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.textContent = i;
       btn.className = 'page-btn';
       if (i === currentPage) btn.classList.add('active');
-      btn.addEventListener('click', () => fetchPage(i));
-      pageEl.append(btn);
+      btn.onclick = () => fetchPage(i);
+      pageEl.appendChild(btn);
     }
   }
 
-  // Kick things off
+  // kick off the first page immediately
   fetchPage(1);
-});
+}
