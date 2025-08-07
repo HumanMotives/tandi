@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>H/M Human Motives</title>
+  <title>H/M Mobile Site</title>
   <style>
     * {
       margin: 0;
@@ -89,6 +89,7 @@
     .project-list a:hover .arrow {
       transform: translateX(4px);
     }
+    /* UPDATED scroll-cards rules */
     .scroll-section {
       margin: 2rem 0;
     }
@@ -98,6 +99,7 @@
     }
     .scroll-cards {
       display: flex;
+      flex-wrap: nowrap;
       gap: 1rem;
       overflow-x: auto;
       padding-bottom: 1rem;
@@ -108,7 +110,8 @@
       display: none;
     }
     .scroll-card {
-      min-width: 200px;
+      flex: 0 0 calc((100% - 2rem) / 3);
+      max-width: calc((100% - 2rem) / 3);
       text-align: center;
       flex-shrink: 0;
     }
