@@ -1,0 +1,103 @@
+/* burial-flow.css — “Bury / Cremate” flow, file upload, progress, ceremony */
+
+#methodSelector {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.method-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  margin-right: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: #fffefa;
+  cursor: pointer;
+  transition: background-color .2s, border-color .2s;
+}
+.method-btn input {
+  margin-right: 0.5rem;
+}
+.method-btn:hover {
+  background: #f5f1dd;
+}
+.method-btn:has(input:checked) {
+  background: #f5f1dd;
+  border-color: #70695d;
+}
+
+.upload-box {
+  border: 2px dashed #aaa;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  background: #fffefa;
+  cursor: pointer;
+  margin-bottom: 2rem;
+  font-weight: bold;
+  transition: background-color .2s ease;
+}
+.upload-box:hover {
+  background: #f5f1dd;
+}
+
+.hidden {
+  display: none;
+}
+
+.progress-bar {
+  width: 100%;
+  background: #e1ddd1;
+  border: 1px solid #ccc;
+  height: 20px;
+  margin-top: 1rem;
+}
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: #70695d;
+  transition: width 5s linear;
+}
+
+.ceremony {
+  margin-top: 2rem;
+}
+.tombstone {
+  margin-top: 2rem;
+  padding: 2rem;
+  border: 2px solid #555;
+  background: #f1f1ee;
+  text-align: center;
+  font-size: 1.3rem;
+  opacity: 0;
+  transition: opacity 2s ease-in;
+}
+.tombstone.show {
+  opacity: 1;
+}
+
+.options-afterlife {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: .95rem;
+}
+
+.button {
+  display: block;
+  margin: 1.5rem auto .5rem auto;
+  padding: .6rem 1.2rem;
+  font-size: 1rem;
+  border: none;
+  background: #3a3a3a;
+  color: #fff;
+  cursor: pointer;
+}
+.link {
+  display: block;
+  margin-top: 1rem;
+  text-align: center;
+  color: #555;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: .9rem;
+}
