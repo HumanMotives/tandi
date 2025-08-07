@@ -1,0 +1,60 @@
+/* upsells.css — premium tiles */
+
+.upsell-section {
+  margin-top: 3rem;
+  text-align: center;
+}
+.upsell-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+.upsell-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+.upsell-tile {
+  background: #fffefa;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 1.5rem;
+  width: 200px;
+  text-align: center;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+  transition: transform .2s ease;
+}
+.upsell-tile:hover {
+  transform: translateY(-5px);
+}
+.upsell-tile.active {
+  border-color: #70695d;
+  box-shadow: 0 0 8px rgba(112,105,93,0.5);
+}
+.upsell-tile img {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 10px;
+}
+.upsell-tile h3 {
+  font-size: 1rem;
+  margin: .5rem 0;
+}
+.upsell-tile p {
+  font-size: .9rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+.upsell-tile button {
+  background: #3a3a3a;
+  color: #fff;
+  border: none;
+  padding: .4rem .8rem;
+  font-size: .9rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.upsell-tile button:hover {
+  background: #222;
+}
