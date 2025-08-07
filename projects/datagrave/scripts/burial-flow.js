@@ -1,4 +1,4 @@
-// burial-flow.js
+// scripts/burial-flow.js
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- Premium setup ---
@@ -54,6 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('[burial-flow] Missing fileInput or uploadBox');
     return;
   }
+
+  // ** NEW: clicking the dashed box opens the file picker **
+  uploadBox.addEventListener('click', () => fileInput.click());
 
   let selectedFile = null, confirmed = false;
 
