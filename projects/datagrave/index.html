@@ -42,33 +42,33 @@
 
       document.addEventListener('DOMContentLoaded', async () => {
         // 1) Header & footer
-        await loadPartial('common-header', '/partials/header.html');
-        await loadPartial('common-footer', '/partials/footer.html');
+        await loadPartial('common-header', 'partials/header.html');
+        await loadPartial('common-footer', 'partials/footer.html');
 
         // 2) Burial zone → then burial-flow.js
-        if (await loadPartial('burial-zone-placeholder', '/partials/burial-zone.html')) {
+        if (await loadPartial('burial-zone-placeholder', 'partials/burial-zone.html')) {
           const bf = document.createElement('script');
-          bf.src = '/scripts/burial-flow.js';
+          bf.src = 'scripts/burial-flow.js';
           document.body.appendChild(bf);
         }
 
         // 3) Upsells → then upsells.js
-        if (await loadPartial('upsell-section-placeholder', '/partials/upsell-section.html')) {
+        if (await loadPartial('upsell-section-placeholder', 'partials/upsell-section.html')) {
           const us = document.createElement('script');
-          us.src = '/scripts/upsells.js';
+          us.src = 'scripts/upsells.js';
           document.body.appendChild(us);
         }
 
         // 4) Listings → then burial-listings.js
-        if (await loadPartial('burial-listings-placeholder', '/partials/burial-listings.html')) {
+        if (await loadPartial('burial-listings-placeholder', 'partials/burial-listings.html')) {
           const bl = document.createElement('script');
-          bl.src = '/scripts/burial-listings.js';
+          bl.src = 'scripts/burial-listings.js';
           document.body.appendChild(bl);
         }
 
         // 5) Header interactivity (menu highlighting, etc):
         const hd = document.createElement('script');
-        hd.src = '/scripts/header.js';
+        hd.src = 'scripts/header.js';
         document.body.appendChild(hd);
       });
     </script>
