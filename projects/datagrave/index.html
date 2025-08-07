@@ -4,20 +4,26 @@
   <meta charset="UTF-8">
   <title>The Data Grave</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Data Grave – Bury Your Unfinished Loops" />
+  <meta property="og:description" content="A tongue-in-cheek burial ground for your half-finished music loops." />
+  <meta property="og:image" content="https://yourdomain.com/path/to/preview-image.png" />
+  <meta property="og:url" content="https://yourdomain.com/" />
+  <meta property="og:type" content="website" />
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Data Grave – Bury Your Unfinished Loops" />
+  <meta name="twitter:description" content="A tongue-in-cheek burial ground for your half-finished music loops." />
+  <meta name="twitter:image" content="https://yourdomain.com/path/to/preview-image.png" />
 
-  <!-- Styles (kebab-case, under /styles) -->
-  <link rel="stylesheet" href="styles/global.css">
-  <link rel="stylesheet" href="styles/burial-flow.css">
-  <link rel="stylesheet" href="styles/burial-listings.css">
-  <link rel="stylesheet" href="styles/upsell.css">
-
-  <!-- reCAPTCHA & Supabase keys (unchanged) -->
+  <!-- Invisible reCAPTCHA v3 and Supabase anon key -->
   <script>
     const RECAPTCHA_SITE_KEY = '6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W';
     const SUPABASE_ANON_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpY3hobmN1c2R5Y3FqZnRvaGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTg1MzksImV4cCI6MjA2ODY5NDUzOX0.z2KXaX0dv0ucLmC2ctL51vumhx3xuLcV-2ZL8UFbcxM';
   </script>
-  <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" defer></script>
-</head>
+  <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" async defer></script>
 
   <body>
     <!-- placeholders for partials -->
@@ -27,18 +33,5 @@
     <div id="burial-listings-placeholder"></div>
     <div id="common-footer"></div>
 
-  <script src="scripts/header.js" defer></script>
-
-  <!-- 2) wire up the upsell section -->
-  <script src="scripts/upsells.js" defer></script>
-
-  <!-- 3) main burial flow (upload, bury/cremate UI) -->
-  <script src="scripts/burial-flow.js" defer></script>
-
-  <!-- 4) load & paginate the burial listing -->
-  <script src="scripts/burial-listings.js" defer></script>
-
-  <!-- 5) Common Ninja embed (if you still need it) -->
-  <script src="https://cdn.commoninja.com/sdk/latest/commonninja.js" defer></script>
   </body>
 </html>
