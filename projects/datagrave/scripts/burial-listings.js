@@ -40,8 +40,8 @@ if (!listEl || !pageEl) {
       tr.classList.add('fade-in');
       const icon = document.createElement('img');
       icon.src = b.method === 'cremate'
-        ? 'icons/icon_urn.png'
-        : 'icons/icon_tombstone.png';
+        ? 'images/icon_urn.png'
+        : 'images/icon_tombstone.png';
       icon.className = 'icon-img';
       const tdName = document.createElement('td');
       tdName.append(icon, document.createTextNode(b.name));
