@@ -1,7 +1,7 @@
 // sketch.js
 
 // —————————————————————————————————————————————————————————————
-// HELPER: ease-in-out quad for natural bursts
+// HELPER: ease-in-out quad for smooth bursts
 // —————————————————————————————————————————————————————————————
 function easeInOutQuad(t) {
   return t < 0.5
@@ -14,11 +14,10 @@ function easeInOutQuad(t) {
 // —————————————————————————————————————————————————————————————
 const stripes = 12;
 let rowSpacing, waveAmp;
-let freqVal   = 2;
-let noiseVal  = 0, foldVal = 0;
-let bulgeVal  = 0;
-let initTouches = [];
-let stones      = [];
+let freqVal      = 2;
+let noiseVal     = 0, foldVal = 0;
+let bulgeVal     = 0;
+let initTouches  = [], stones = [];
 
 // —————————————————————————————————————————————————————————————
 // DOUBLE-TAP / RIGHT-CLICK TRACKER
@@ -30,13 +29,17 @@ let lastTap = 0, tapDelay = 300;
 // —————————————————————————————————————————————————————————————
 let audioStarted = false;
 let synthPure, synthRich,
-    tremoloNode, filterNode, reverbNode, chordLoop, stoneSynth;
-let noiseNode, noiseFilter, noiseGain;
+    tremoloNode, filterNode, distortionNode,
+    reverbNode, chordLoop, stoneSynth,
+    noiseNode, noiseFilter, noiseGain;
+
+// Dynamics processors
+let limiter, compressor;
 
 const scaleNotes = ['C4','D4','E4','G4','A4','C5','D5','E5'];
 
 function setup() {
-  // p5 canvas and disable context menu
+  // p5 canvas & disable context menu
   const c = createCanvas(windowWidth, windowHeight);
   c.elt.oncontextmenu = () => false;
   noFill();
@@ -44,37 +47,46 @@ function setup() {
 
   // stripe spacing ~20% height
   const regionH = height * 0.2;
-  rowSpacing = regionH/(stripes-1);
-  waveAmp    = rowSpacing*0.5;
+  rowSpacing = regionH / (stripes - 1);
+  waveAmp    = rowSpacing * 0.5;
   stroke('#fff');
 
-  // audio headroom
-  Tone.Destination.volume.value = -12;
+  // master headroom (less attenuation for louder output)
+  Tone.Destination.volume.value = -6;
 
-  // FILTER → DISTORTION → REVERB
-  filterNode     = new Tone.Filter(800,'lowpass');
-  distortionNode = new Tone.Distortion(0).set({ oversample:'4x' });
-  reverbNode     = new Tone.Reverb({ decay:3, wet:0 }).toDestination();
+  // — dynamics chain —
+  compressor = new Tone.Compressor({
+    threshold: -24,
+    ratio: 3,
+    attack: 0.02,
+    release: 0.3
+  }).toDestination();
+  limiter = new Tone.Limiter(-6).connect(compressor);
+
+  // FILTER → DISTORTION → REVERB → LIMITER → COMPRESSOR → DEST
+  filterNode     = new Tone.Filter(800, 'lowpass');
+  distortionNode = new Tone.Distortion(0).set({ oversample: '4x' });
+  reverbNode     = new Tone.Reverb({ decay: 3, wet: 0 }).connect(limiter);
   filterNode.connect(distortionNode);
   distortionNode.connect(reverbNode);
 
-  // subtle noise bed
+  // subtle noise bed into limiter
   noiseNode   = new Tone.Noise('white').start();
-  noiseFilter = new Tone.Filter(2000,'lowpass');
-  noiseGain   = new Tone.Gain(0).connect(reverbNode);
+  noiseFilter = new Tone.Filter(2000, 'lowpass');
+  noiseGain   = new Tone.Gain(0).connect(limiter);
   noiseNode.connect(noiseFilter).connect(noiseGain);
 
   // tremolo + drone synths
-  tremoloNode = new Tone.Tremolo(0,0).start();
+  tremoloNode = new Tone.Tremolo(0, 0).start();
   synthPure = new Tone.PolySynth(Tone.Synth, {
-    oscillator:{ type:'sine' },
-    envelope:  { attack:0.5, decay:0.3, sustain:0.7, release:1.5 }
+    oscillator: { type: 'sine' },
+    envelope:   { attack: 0.5, decay: 0.3, sustain: 0.7, release: 1.5 }
   }).connect(tremoloNode);
   synthPure.volume.value = -24;
 
   synthRich = new Tone.PolySynth(Tone.Synth, {
-    oscillator:{ type:'triangle' },
-    envelope:  { attack:0.3, decay:0.5, sustain:0.3, release:1.5 }
+    oscillator: { type: 'triangle' },
+    envelope:   { attack: 0.3, decay: 0.5, sustain: 0.3, release: 1.5 }
   }).connect(tremoloNode);
   synthRich.volume.value = -30;
 
@@ -82,35 +94,35 @@ function setup() {
 
   // stone pluck synth
   stoneSynth = new Tone.Synth({
-    oscillator:{ type:'sine' },
-    envelope:  { attack:0.02, decay:0.5, sustain:0.1, release:1 }
+    oscillator: { type: 'sine' },
+    envelope:   { attack: 0.02, decay: 0.5, sustain: 0.1, release: 1 }
   }).connect(filterNode);
 }
 
 function draw() {
-  // pastel background
-  colorMode(HSL,360,100,100);
-  let hue = 100 + (bulgeVal-0.5)*30 + (noiseVal-0.5)*20;
+  // pastel HSL background
+  colorMode(HSL, 360, 100, 100);
+  let hue = 100 + (bulgeVal - 0.5)*30 + (noiseVal - 0.5)*20;
   let sat = 10 + noiseVal*30, lit = 85 - bulgeVal*10;
-  background(hue,sat,lit);
+  background(hue, sat, lit);
   colorMode(RGB);
 
   const t = millis() * 0.001;
 
   // draw stripes
-  for (let i=0; i<stripes; i++) {
+  for (let i = 0; i < stripes; i++) {
     const centerY = height/2,
           half    = (stripes-1)/2,
           y0      = centerY + (i-half)*rowSpacing,
           bendF   = map(abs(i-half),0,half,1,2);
 
     let pts = [];
-    for (let x=0; x<=width; x+=5) {
-      let phase = TWO_PI*freqVal*(x/width) + t;
+    for (let x = 0; x <= width; x += 5) {
+      let phase = TWO_PI * freqVal * (x/width) + t;
       let y     = waveAmp * sin(phase);
       y += (noise(x*noiseVal*0.1 + t*0.5, i*0.2)-0.5)*waveAmp;
-      if (foldVal>0) {
-        let f = foldVal*rowSpacing;
+      if (foldVal > 0) {
+        let f = foldVal * rowSpacing;
         y = abs(((y+f)%(2*f)) - f);
       }
 
@@ -135,19 +147,18 @@ function draw() {
     }
 
     // render pen-stroke
-    for (let j=0; j<pts.length-1; j++){
+    for (let j = 0; j < pts.length-1; j++) {
       const p0 = pts[j], p1 = pts[j+1];
       const norm  = j/(pts.length-1);
-      const baseLw = map(sin(frameCount*0.005),-1,1,0.5,3);
+      const baseLw = map(sin(frameCount*0.005), -1,1, 0.5,3);
       const peakLw = baseLw + bulgeVal*4;
       strokeWeight( lerp(baseLw, peakLw, sin(norm*PI)) );
-      line(p0.x,p0.y,p1.x,p1.y);
+      line(p0.x, p0.y, p1.x, p1.y);
     }
   }
 }
 
 function touchStarted() {
-  // same as before...
   if (!audioStarted) {
     Tone.start().then(() => {
       Tone.Transport.start();
@@ -155,23 +166,21 @@ function touchStarted() {
       audioStarted = true;
     });
   }
-  initTouches = touches.map(t=>({...t}));
+  initTouches = touches.map(t => ({ ...t }));
   return false;
 }
 
 function touchMoved() {
-  // same as before...
-  if (touches.length===1) {
-    let { x,y } = touches[0];
-    bulgeVal = constrain(map(y,height,0,0,1),0,1);
-    const minSp=(height*0.15)/(stripes-1),
-          maxSp=(height*0.25)/(stripes-1);
-    rowSpacing = constrain(map(y,0,height,maxSp,minSp),minSp,maxSp);
-    waveAmp    = rowSpacing*0.5;
+  if (touches.length === 1) {
+    let { x, y } = touches[0];
+    bulgeVal = constrain(map(y, height, 0, 0, 1), 0, 1);
+    const minSp = (height*0.15)/(stripes-1),
+          maxSp = (height*0.25)/(stripes-1);
+    rowSpacing = constrain(map(y,0,height,maxSp,minSp), minSp, maxSp);
+    waveAmp    = rowSpacing * 0.5;
     freqVal    = constrain(map(x,0,width,0.5,5),0.5,8);
-  }
-  else if (touches.length===2 && initTouches.length===2) {
-    const [a1,b1]=initTouches,[a2,b2]=touches;
+  } else if (touches.length === 2 && initTouches.length === 2) {
+    const [a1,b1] = initTouches, [a2,b2] = touches;
     const ang0 = atan2(b1.y-a1.y,b1.x-a1.x),
           ang1 = atan2(b2.y-a2.y,b2.x-a2.x),
           v    = constrain(map(abs(ang1-ang0),0,PI,0,1),0,1);
@@ -182,7 +191,6 @@ function touchMoved() {
 }
 
 function touchEnded() {
-  // same double-tap logic...
   if (touches.length===0 && initTouches.length===1) {
     let now = millis();
     if (now - lastTap < tapDelay) {
@@ -216,8 +224,7 @@ function touchEnded() {
       stoneSynth.envelope.attack = atk0;
       stoneSynth.envelope.decay  = dec0;
       stoneSynth.triggerAttackRelease(
-        scaleNotes[scaleNotes.length-1],
-        '8n', undefined, 0.4
+        scaleNotes[scaleNotes.length-1],'8n',undefined,0.4
       );
       st.pushStart = millis();
     }
@@ -302,9 +309,6 @@ function windowResized() {
   waveAmp    = rowSpacing*0.5;
 }
 
-// —————————————————————————————————————————————————————————————
-// DRONE CALLBACK
-// —————————————————————————————————————————————————————————————
 function playChord(time) {
   let idx = floor(map(freqVal,0.5,5,0,scaleNotes.length-3));
   idx = constrain(idx,0,scaleNotes.length-3);
