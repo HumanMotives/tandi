@@ -1,0 +1,36 @@
+<div class="logo-container">
+  <img src="images/datagrave_sitelogo_large.png" alt="Data Grave Logo">
+</div>
+<div id="tagline">Where musicians bury their unfinished tracks</div>
+<hr>
+<div id="methodSelector">
+  <label class="method-btn"><input type="radio" name="method" value="bury" checked> Bury</label>
+  <label class="method-btn"><input type="radio" name="method" value="cremate"> Cremate</label>
+</div>
+<div class="upload-box" id="uploadBox">
+  Upload or drag audio (.wav, .mp3, .ogg)
+  <input type="file" id="fileInput" class="hidden" accept=".wav,.mp3,.ogg">
+</div>
+<div id="licenseConsent" class="hidden">
+  <input type="checkbox" id="agreeCheckbox">
+  <label for="agreeCheckbox">I agree to the <a href="license.html" target="_blank">upload & playback license</a>.</label>
+</div>
+<div id="progressContainer" class="hidden">
+  <p id="progressMessage">Analyzing your creation...</p>
+  <div class="progress-bar"><div class="progress-fill" id="analyzeFill"></div></div>
+</div>
+<div id="readyToBury" class="hidden">
+  <table style="width:100%; border-collapse:collapse; margin-bottom:1rem;">
+    <!-- details rows here -->
+  </table>
+  <button class="button" id="buryBtn" disabled>Commit this File?</button>
+  <div id="cancelLink" class="link hidden">I've changed my mind</div>
+</div>
+<div id="burialProgress" class="hidden">
+  <p id="burialMessage">Burying loop...</p>
+  <div class="progress-bar"><div class="progress-fill" id="buryFill"></div></div>
+</div>
+<div id="ceremony" class="ceremony"></div>
+<div id="aftercare" class="options-afterlife hidden">
+  <!-- ashes playback UI -->
+</div>
