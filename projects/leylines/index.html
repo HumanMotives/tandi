@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Leylines</title>
+
   <style>
     html, body {
       margin: 0;
@@ -13,6 +14,7 @@
       overflow: hidden;
       background: #A1A37A;
     }
+    /* Your canvas */
     canvas {
       position: absolute;
       top: 0; left: 0;
@@ -20,19 +22,71 @@
       height: 100vh !important;
       display: block;
     }
+    /* START SCREEN STYLES */
+    #start-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      z-index: 1000;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+    #start-screen.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #start-screen h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    #start-screen img {
+      width: 120px;
+      margin-bottom: 1rem;
+    }
+    #start-screen p {
+      font-size: 1.2rem;
+      margin: 0 1em 2rem;
+      text-align: center;
+      max-width: 300px;
+      line-height: 1.4;
+    }
+    #start-btn {
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 0.3rem;
+      background: #A1A37A;
+      color: #111;
+    }
   </style>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.min.js"></script>
   <script src="sketch.js"></script>
   <!-- Lock orientation to portrait when possible -->
   <script>
     if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('portrait').catch(function(err){
-        // not supported or permission denied
+      screen.orientation.lock('portrait').catch(err=>{
         console.warn('Orientation lock failed:', err);
       });
     }
   </script>
 </head>
-<body></body>
+
+<body>
+  <!-- Start Screen Overlay -->
+  <div id="start-screen">
+    <h1>Leylines</h1>
+    <img src="path/to/your-logo.png" alt="Leylines Logo" />
+    <p>Experience the undulating power of sound and light.</p>
+    <button id="start-btn">Start</button>
+  </div>
+</body>
 </html>
