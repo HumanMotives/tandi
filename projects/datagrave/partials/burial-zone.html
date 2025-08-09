@@ -1,33 +1,70 @@
-
+<!-- /partials/burial-zone.html -->
 <div id="methodSelector">
   <label class="method-btn"><input type="radio" name="method" value="bury" checked> Bury</label>
   <label class="method-btn"><input type="radio" name="method" value="cremate"> Cremate</label>
 </div>
+
+<!-- Clickable upload box -->
 <div class="upload-box" id="uploadBox"
-     onclick="document.getElementById('fileInput').click()">
+     role="button" tabindex="0"
+     onclick="window.__dgOpenPicker()"
+     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.__dgOpenPicker();}">
   Upload or drag audio (.wav, .mp3, .ogg)
-<input type="file" id="fileInput" class="hidden-file" accept=".wav,.mp3,.ogg">
+  <!-- IMPORTANT: not display:none; off‑screen instead -->
+  <input
+    type="file"
+    id="fileInput"
+    class="hidden-file"
+    accept=".wav,.mp3,.ogg"
+    onchange="window.__dgOnFileChange(event)" />
 </div>
+
+<!-- (optional) license gate -->
 <div id="licenseConsent" class="hidden">
   <input type="checkbox" id="agreeCheckbox">
-  <label for="agreeCheckbox">I agree to the <a href="license.html" target="_blank">upload & playback license</a>.</label>
+  <label for="agreeCheckbox">
+    I agree to the <a href="license.html" target="_blank">upload & playback license</a>.
+  </label>
 </div>
+
+<!-- “Analyzing…” progress -->
 <div id="progressContainer" class="hidden">
   <p id="progressMessage">Analyzing your creation...</p>
   <div class="progress-bar"><div class="progress-fill" id="analyzeFill"></div></div>
 </div>
+
+<!-- Details & confirm step -->
 <div id="readyToBury" class="hidden">
   <table style="width:100%; border-collapse:collapse; margin-bottom:1rem;">
-    <!-- details rows here -->
+    <tr>
+      <td id="sarcasticRemark" style="text-align:center; font-style:italic; color:#777;"></td>
+    </tr>
+    <tr><td colspan="2" style="height:1rem;"></td></tr>
+    <tr><th style="text-align:left; padding:0.3rem 0;">Filename:</th><td><strong id="fileName"></strong></td></tr>
+    <tr><th style="text-align:left; padding:0.3rem 0;">Date of birth:</th><td id="fileDate"></td></tr>
+    <tr><th style="text-align:left; padding:0.3rem 0;">Est. size:</th><td id="fileSize"></td></tr>
+    <tr><th style="text-align:left; padding:0.3rem 0;">Detected genre:</th><td id="fileVibe"></td></tr>
   </table>
+
+  <label for="epitaph">Like to add some final farewell words?</label><br>
+  <input type="text" id="epitaph" maxlength="100"><br>
+
+  <!-- start disabled; JS will enable after analysis -->
   <button class="button" id="buryBtn" disabled>Commit this File?</button>
   <div id="cancelLink" class="link hidden">I've changed my mind</div>
 </div>
+
+<!-- Burial progress -->
 <div id="burialProgress" class="hidden">
   <p id="burialMessage">Burying loop...</p>
   <div class="progress-bar"><div class="progress-fill" id="buryFill"></div></div>
 </div>
+
+<!-- Ceremony & aftercare -->
 <div id="ceremony" class="ceremony"></div>
 <div id="aftercare" class="options-afterlife hidden">
-  <!-- ashes playback UI -->
+  <p>Wish to collect the remains?</p>
+  <button onclick="playAshes()">Check the remains</button><br><br>
+  <audio id="ashesAudio" controls class="hidden"></audio>
+  <div class="link" onclick="location.reload()">Lay another track to rest</div>
 </div>
