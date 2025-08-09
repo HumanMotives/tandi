@@ -1,5 +1,5 @@
 // scripts/burial-flow.js
-console.log("[burial-flow] v2025-08-09-2 loaded");
+console.log("[burial-flow] v2025-08-09-3 loaded");
 
 document.addEventListener('DOMContentLoaded', () => {
   // cache these once
@@ -72,13 +72,16 @@ document.addEventListener('DOMContentLoaded', () => {
   function bindUploadBox() {
     const box = $('uploadBox');
     const input = $('fileInput');
+    console.log("[burial-flow] bindUploadBox called. box:", !!box, "input:", !!input);
+
     if (!box || !input) return;
 
     // clicking the box should open the file dialog reliably
     if (!box._hasClickHandler) {
       box.addEventListener('click', () => {
+        console.log("[burial-flow] uploadBox click → opening file dialog");
         const wasHidden = input.classList.contains('hidden');
-        if (wasHidden) input.classList.remove('hidden'); // some browsers block click on display:none
+        if (wasHidden) input.classList.remove('hidden'); // avoid blocked click on display:none
         input.style.position = 'fixed';
         input.style.left = '-9999px';
         input.click();
@@ -89,28 +92,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 0);
       });
       box._hasClickHandler = true;
+      console.log("[burial-flow] added click handler to #uploadBox");
     }
 
     // direct change handler on the input
     if (!input._hasChangeHandler) {
       input.addEventListener('change', handleFilePicked);
       input._hasChangeHandler = true;
+      console.log("[burial-flow] bound DIRECT change to #fileInput");
+    }
+
+    // some browsers fire 'input' as well; bind that too
+    if (!input._hasInputHandler) {
+      input.addEventListener('input', (e) => {
+        if (e.target.files && e.target.files.length) {
+          console.log("[burial-flow] 'input' event detected a file—forwarding to handleFilePicked()");
+          handleFilePicked(e);
+        }
+      });
+      input._hasInputHandler = true;
+      console.log("[burial-flow] bound INPUT event to #fileInput");
     }
   }
 
   // Observe the container so if the burial-zone partial gets swapped in/out,
   // we re-bind the handlers automatically.
   const zoneRoot = document.getElementById('burial-zone-placeholder') || document.body;
-  const mo = new MutationObserver(() => bindUploadBox());
+  const mo = new MutationObserver((mutations) => {
+    const added = mutations.some(m => [...m.addedNodes].some(n =>
+      (n.nodeType === 1) && (n.id === 'uploadBox' || n.querySelector?.('#uploadBox'))
+    ));
+    if (added) {
+      console.log("[burial-flow] MutationObserver: burial zone changed → rebind");
+      bindUploadBox();
+    }
+  });
   mo.observe(zoneRoot, { childList: true, subtree: true });
 
   // Initial bind (in case the elements are already there)
   bindUploadBox();
 
+  // As a fallback, keep delegated change too (helps on some static hosts)
+  document.addEventListener('change', e => {
+    if (e.target && e.target.id === 'fileInput') {
+      console.log("[burial-flow] delegated 'change' caught for #fileInput");
+      handleFilePicked(e);
+    }
+  });
+
   // ---------- event handlers ----------
   function handleFilePicked(e) {
     const file = e.target.files && e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      console.log("[burial-flow] handleFilePicked: no file on event");
+      return;
+    }
 
     console.log('[burial-flow] picked file:', file.name, 'type:', file.type);
 
@@ -127,12 +163,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Kickoff analysis animation
     state.selectedFile = file;
-    if (elems.uploadBox) elems.uploadBox.classList.add('hidden');
-    if (elems.methodSelector) elems.methodSelector.style.display = 'none';
+    elems.uploadBox && elems.uploadBox.classList.add('hidden');
+    elems.methodSelector && (elems.methodSelector.style.display = 'none');
     state.confirmed = false;
-    if (elems.analyzeFill) elems.analyzeFill.style.width = '0';
-    if (elems.progressContainer) elems.progressContainer.classList.remove('hidden');
-    if (elems.readyToBury) elems.readyToBury.classList.add('hidden');
+    elems.analyzeFill && (elems.analyzeFill.style.width = '0');
+    elems.progressContainer && elems.progressContainer.classList.remove('hidden');
+    elems.readyToBury && elems.readyToBury.classList.add('hidden');
 
     // Animate, then show details
     setTimeout(() => elems.analyzeFill && (elems.analyzeFill.style.width = '100%'), 50);
@@ -169,7 +205,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showReadyToBury() {
     const f = state.selectedFile;
-    if (!f) return;
+    if (!f) {
+      console.warn("[burial-flow] showReadyToBury called but no selectedFile");
+      return;
+    }
 
     elems.progressContainer && elems.progressContainer.classList.add('hidden');
     elems.readyToBury && elems.readyToBury.classList.remove('hidden');
@@ -184,8 +223,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elems.fileVibe) elems.fileVibe.textContent = vibes[Math.floor(Math.random() * vibes.length)];
     if (elems.epitaphInput) elems.epitaphInput.value = eulogies[Math.floor(Math.random() * eulogies.length)];
 
-    // IMPORTANT: enable the disabled button so it can be clicked
-    if (elems.buryBtn) elems.buryBtn.disabled = false;
+    // Enable the button so it can be clicked
+    if (elems.buryBtn) {
+      elems.buryBtn.disabled = false;
+      console.log("[burial-flow] enabled #buryBtn");
+    }
   }
 
   function handleBuryClick() {
