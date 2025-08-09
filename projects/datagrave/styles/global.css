@@ -88,5 +88,6 @@ nav.top-menu .nav-icon {
 footer {
   margin-top: 2rem;      /* space above footer */
   padding-top: 1rem;     /* padding inside footer at the top */
+  padding-bottom: 1rem;  /* padding inside footer at the bottom */
   border-top: 1px solid rgba(255,255,255,0.1); /* optional subtle divider */
 }
