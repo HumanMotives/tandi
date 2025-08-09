@@ -1,16 +1,12 @@
 // scripts/burial-flow.js
-console.log("[burial-flow] v2025-08-09-5 loaded");
-
-(() => {
-  // --- state ---
+(function () {
+  // simple state container
   const state = {
     selectedFile: null,
     confirmed: false,
-    premium: null,
-    waitingForPicker: false
   };
 
-  // --- text sets (unchanged from your file) ---
+  // text pools (unchanged content)
   const sarcasticRemarks = [
     "Right. This one had no potential anyway...",
     "Ever considered gardening instead of composing",
@@ -43,146 +39,136 @@ console.log("[burial-flow] v2025-08-09-5 loaded");
   ];
   const ashesSamples = ["ashes1.mp3"];
 
-  // --- helpers ---
-  const $ = id => document.getElementById(id);
-  const elems = {
-    uploadBox: $('uploadBox'),
-    progressContainer: $('progressContainer'),
-    analyzeFill: $('analyzeFill'),
-    readyToBury: $('readyToBury'),
-    sarcasticRemark: $('sarcasticRemark'),
-    fileName: $('fileName'),
-    fileDate: $('fileDate'),
-    fileSize: $('fileSize'),
-    fileVibe: $('fileVibe'),
-    buryBtn: $('buryBtn'),
-    cancelLink: $('cancelLink'),
-    burialProgress: $('burialProgress'),
-    buryFill: $('buryFill'),
-    ceremony: $('ceremony'),
-    ashesAudio: $('ashesAudio'),
-    epitaphInput: $('epitaph'),
-    methodSelector: $('methodSelector'),
-  };
+  // helpers
+  const $ = (id) => document.getElementById(id);
+  const isClean = (str) => !/[<>]/.test(str) && !/https?:\/\//i.test(str);
+  const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-  function isClean(str) {
-    return !/[<>]/.test(str) && !/https?:\/\//i.test(str);
-  }
-
-  // ===== Global functions the partial calls via inline attributes =====
+  // ---- PUBLIC: called by partial ----
   window.__dgOpenPicker = function __dgOpenPicker() {
     const input = $('fileInput');
-    if (!input) return;
-    // reset so choosing the same file fires `change`
-    input.value = "";
-    // keep present but off-screen (don’t toggle display:none here)
-    input.style.position = 'fixed';
-    input.style.left = '-9999px';
-    input.style.top = '0';
-    input.style.opacity = '0';
-    input.style.pointerEvents = 'none';
-    state.waitingForPicker = true;
-    console.log("[burial-flow] openPicker → click()");
+    if (!input) {
+      console.warn('[burial-flow] #fileInput not found');
+      return;
+    }
+    // ensure same-file reselect triggers change
+    input.value = '';
+    console.log('[burial-flow] openPicker → click()');
     input.click();
   };
 
+  // ---- PUBLIC: onchange handler on the <input type="file"> ----
   window.__dgOnFileChange = function __dgOnFileChange(e) {
-    state.waitingForPicker = false;
-
-    const input = $('fileInput');
-    // restore any styles
-    if (input) {
-      input.style.position = '';
-      input.style.left = '';
-      input.style.top = '';
-      input.style.opacity = '';
-      input.style.pointerEvents = '';
-    }
-
     const file = e?.target?.files?.[0];
     if (!file) {
-      console.log("[burial-flow] __dgOnFileChange: no file");
+      console.log('[burial-flow] onFileChange: no file selected');
       return;
     }
     console.log('[burial-flow] file picked:', file.name, 'type:', file.type);
 
+    // Validate by MIME OR extension
     const mime = (file.type || '').toLowerCase();
     const name = (file.name || '').toLowerCase();
-    const extOk = /\.(wav|mp3|ogg)$/i.test(name);
+    const extOk  = /\.(wav|mp3|ogg)$/i.test(name);
     const mimeOk = ['audio/wav','audio/x-wav','audio/wave','audio/mpeg','audio/ogg'].includes(mime);
     if (!(extOk || mimeOk)) {
       alert('Invalid file type. Only .wav, .mp3, and .ogg are allowed.');
-      if (input) input.value = '';
+      e.target.value = '';
       return;
     }
 
-    // proceed
     state.selectedFile = file;
-    if (elems.uploadBox) elems.uploadBox.classList.add('hidden');
-    if (elems.methodSelector) elems.methodSelector.style.display = 'none';
-    state.confirmed = false;
-    if (elems.analyzeFill) elems.analyzeFill.style.width = '0';
-    if (elems.progressContainer) elems.progressContainer.classList.remove('hidden');
-    if (elems.readyToBury) elems.readyToBury.classList.add('hidden');
 
-    setTimeout(() => elems.analyzeFill && (elems.analyzeFill.style.width = '100%'), 50);
-    setTimeout(showReadyToBury, 1500); // feel free to bump to 5000
+    // Start "analysis" phase
+    const uploadBox = $('uploadBox');
+    const methodSelector = $('methodSelector');
+    const progressContainer = $('progressContainer');
+    const analyzeFill = $('analyzeFill');
+    const readyToBury = $('readyToBury');
+
+    uploadBox && uploadBox.classList.add('hidden');
+    if (methodSelector) methodSelector.style.display = 'none';
+    state.confirmed = false;
+    if (analyzeFill) analyzeFill.style.width = '0';
+    progressContainer && progressContainer.classList.remove('hidden');
+    readyToBury && readyToBury.classList.add('hidden');
+
+    setTimeout(() => { if (analyzeFill) analyzeFill.style.width = '100%'; }, 50);
+    setTimeout(showReadyToBury, 1500); // bump to 5000ms if you want the longer effect
   };
 
-  // Fallback in case change didn’t fire
-  window.addEventListener('focus', () => {
-    if (!state.waitingForPicker) return;
-    state.waitingForPicker = false;
-    const input = $('fileInput');
-    if (input?.files?.length) {
-      console.log("[burial-flow] focus fallback → using selected file");
-      window.__dgOnFileChange({ target: input });
-    }
-  });
-
-  // ===== UI flows =====
   function showReadyToBury() {
     const f = state.selectedFile;
     if (!f) return;
 
-    if (elems.progressContainer) elems.progressContainer.classList.add('hidden');
-    if (elems.readyToBury) elems.readyToBury.classList.remove('hidden');
+    const progressContainer = $('progressContainer');
+    const readyToBury = $('readyToBury');
+    const buryBtn = $('buryBtn');
 
-    if (elems.sarcasticRemark) {
-      elems.sarcasticRemark.textContent =
-        `"${sarcasticRemarks[Math.floor(Math.random() * sarcasticRemarks.length)]}"`;
-    }
-    if (elems.fileName) elems.fileName.textContent = f.name;
-    if (elems.fileDate) elems.fileDate.textContent = new Date(f.lastModified).toLocaleDateString();
-    if (elems.fileSize) elems.fileSize.textContent = (f.size/1024/1024).toFixed(2) + ' MB';
-    if (elems.fileVibe) elems.fileVibe.textContent = vibes[Math.floor(Math.random() * vibes.length)];
-    if (elems.epitaphInput) elems.epitaphInput.value = eulogies[Math.floor(Math.random() * eulogies.length)];
+    progressContainer && progressContainer.classList.add('hidden');
+    readyToBury && readyToBury.classList.remove('hidden');
 
-    if (elems.buryBtn) {
-      elems.buryBtn.disabled = false;
-      elems.buryBtn.textContent = 'Commit this File?';
-    }
+    const sarcasticRemark = $('sarcasticRemark');
+    const fileName = $('fileName');
+    const fileDate = $('fileDate');
+    const fileSize = $('fileSize');
+    const fileVibe = $('fileVibe');
+    const epitaphInput = $('epitaph');
+
+    if (sarcasticRemark) sarcasticRemark.textContent = `"${rand(sarcasticRemarks)}"`;
+    if (fileName) fileName.textContent = f.name;
+    if (fileDate) fileDate.textContent = new Date(f.lastModified).toLocaleDateString();
+    if (fileSize) fileSize.textContent = (f.size / 1024 / 1024).toFixed(2) + ' MB';
+    if (fileVibe) fileVibe.textContent = rand(vibes);
+    if (epitaphInput) epitaphInput.value = rand(eulogies);
+
+    // enable the button if it was disabled in the partial
+    if (buryBtn) buryBtn.disabled = false;
   }
 
+  // Delegated click for the bury button and cancel link
+  document.addEventListener('click', (e) => {
+    const tgt = e.target;
+
+    if (tgt && tgt.id === 'buryBtn') {
+      e.preventDefault();
+      handleBuryClick();
+    }
+
+    if (tgt && tgt.id === 'cancelLink') {
+      e.preventDefault();
+      resetAll();
+    }
+  });
+
   function handleBuryClick() {
+    const buryBtn = $('buryBtn');
+    const cancelLink = $('cancelLink');
+    const readyToBury = $('readyToBury');
+    const burialProgress = $('burialProgress');
+    const burialMessage = $('burialMessage');
+    const buryFill = $('buryFill');
+
     if (!state.confirmed) {
-      if (elems.buryBtn) {
-        elems.buryBtn.textContent = 'Are You Sure?';
-        elems.buryBtn.style.backgroundColor = '#a33';
+      if (buryBtn) {
+        buryBtn.textContent = 'Are You Sure?';
+        buryBtn.style.backgroundColor = '#a33';
       }
-      elems.cancelLink && elems.cancelLink.classList.remove('hidden');
+      cancelLink && cancelLink.classList.remove('hidden');
       state.confirmed = true;
       return;
     }
-    // proceed with bury animation
-    elems.readyToBury && elems.readyToBury.classList.add('hidden');
-    elems.burialProgress && elems.burialProgress.classList.remove('hidden');
-    const bm = $('burialMessage');
-    if (bm) bm.textContent = cremationPhrases[Math.floor(Math.random() * cremationPhrases.length)];
-    elems.buryFill && (elems.buryFill.style.width = '0');
-    setTimeout(() => elems.buryFill && (elems.buryFill.style.width = '100%'), 50);
+
+    // proceed
+    readyToBury && readyToBury.classList.add('hidden');
+    burialProgress && burialProgress.classList.remove('hidden');
+    if (burialMessage) burialMessage.textContent = rand(cremationPhrases);
+    if (buryFill) {
+      buryFill.style.width = '0';
+      setTimeout(() => (buryFill.style.width = '100%'), 50);
+    }
     setTimeout(() => {
-      elems.burialProgress && elems.burialProgress.classList.add('hidden');
+      burialProgress && burialProgress.classList.add('hidden');
       showCeremony();
     }, 5000);
   }
@@ -191,35 +177,41 @@ console.log("[burial-flow] v2025-08-09-5 loaded");
     const f = state.selectedFile;
     if (!f) return;
 
-    const method = document.querySelector('input[name="method"]:checked')?.value || 'bury';
-    const epit = (elems.epitaphInput?.value || "").trim() || "Gone, but never exported.";
+    const method = (document.querySelector('input[name="method"]:checked') || {}).value || 'bury';
+    const epitaphInput = $('epitaph');
+    const epit = (epitaphInput ? epitaphInput.value : '').trim() || "Gone, but never exported.";
     if (!isClean(epit)) {
       alert("Remove '<', '>' or URLs from epitaph.");
       return resetAll();
     }
 
-    if (typeof grecaptcha !== 'undefined') {
+    // record via Supabase Edge Function (+ reCAPTCHA)
+    if (typeof grecaptcha !== 'undefined' && typeof RECAPTCHA_SITE_KEY !== 'undefined') {
       grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'record_burial' })
         .then(token => fetch(
           'https://ticxhncusdycqjftohho.supabase.co/functions/v1/record-burial',
           {
             method: 'POST',
             headers: {
-              'Content-Type':'application/json',
+              'Content-Type': 'application/json',
               'apikey': SUPABASE_ANON_KEY,
               'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
             },
             body: JSON.stringify({
               name: f.name,
-              method, epitaph: epit,
-              country: '', token
+              method,
+              epitaph: epit,
+              country: '',
+              token
             })
           }
-        )).catch(err => console.error('[burial-flow] recordBurial error', err));
+        )).catch(err => console.warn('[burial-flow] record-burial error:', err));
     }
 
-    if (elems.ceremony) {
-      elems.ceremony.innerHTML = '';
+    // ceremony UI
+    const ceremony = $('ceremony');
+    if (ceremony) {
+      ceremony.innerHTML = '';
       const tomb = document.createElement('div');
       tomb.className = 'tombstone';
       tomb.innerHTML = `
@@ -228,17 +220,21 @@ console.log("[burial-flow] v2025-08-09-5 loaded");
         ${new Date(f.lastModified).toLocaleDateString()}<br><br>
         <em>"${epit}"</em>
       `;
-      elems.ceremony.appendChild(tomb);
+      ceremony.appendChild(tomb);
       setTimeout(() => tomb.classList.add('show'), 50);
     }
-    $('aftercare')?.classList.remove('hidden');
+
+    const aftercare = $('aftercare');
+    aftercare && aftercare.classList.remove('hidden');
 
     // prepend to table
-    const tr = document.createElement('tr');
-    tr.classList.add('fade-in');
+    const row = document.createElement('tr');
+    row.classList.add('fade-in');
+
     const icon = document.createElement('img');
     icon.src = method === 'cremate' ? 'icons/icon_urn.png' : 'icons/icon_tombstone.png';
     icon.className = 'icon-img';
+
     const tdName = document.createElement('td');
     tdName.append(icon, document.createTextNode(f.name));
     const tdDate = document.createElement('td');
@@ -247,33 +243,48 @@ console.log("[burial-flow] v2025-08-09-5 loaded");
     tdEpit.textContent = epit;
     const tdCountry = document.createElement('td');
     tdCountry.textContent = '';
-    tr.append(tdName, tdDate, tdEpit, tdCountry);
-    $('graveList')?.prepend(tr);
+
+    row.append(tdName, tdDate, tdEpit, tdCountry);
+    const graveList = $('graveList');
+    graveList && graveList.prepend(row);
   }
 
   function resetAll() {
     state.selectedFile = null;
     state.confirmed = false;
-    const fi = $('fileInput');
-    if (fi) fi.value = '';
-    elems.uploadBox && elems.uploadBox.classList.remove('hidden');
-    elems.methodSelector && (elems.methodSelector.style.display = 'block');
-    elems.progressContainer && elems.progressContainer.classList.add('hidden');
-    elems.readyToBury && elems.readyToBury.classList.add('hidden');
-    elems.burialProgress && elems.burialProgress.classList.add('hidden');
-    if (elems.ceremony) elems.ceremony.innerHTML = '';
-    $('aftercare')?.classList.add('hidden');
-    if (elems.buryBtn) {
-      elems.buryBtn.disabled = true;
-      elems.buryBtn.textContent = 'Commit this File?';
-      elems.buryBtn.style.backgroundColor = '';
+
+    const input = $('fileInput');
+    if (input) input.value = '';
+
+    const uploadBox = $('uploadBox');
+    const methodSelector = $('methodSelector');
+    const progressContainer = $('progressContainer');
+    const readyToBury = $('readyToBury');
+    const burialProgress = $('burialProgress');
+    const ceremony = $('ceremony');
+    const aftercare = $('aftercare');
+    const buryBtn = $('buryBtn');
+
+    uploadBox && uploadBox.classList.remove('hidden');
+    if (methodSelector) methodSelector.style.display = 'block';
+    progressContainer && progressContainer.classList.add('hidden');
+    readyToBury && readyToBury.classList.add('hidden');
+    burialProgress && burialProgress.classList.add('hidden');
+    ceremony && (ceremony.innerHTML = '');
+    aftercare && aftercare.classList.add('hidden');
+    if (buryBtn) {
+      buryBtn.disabled = true;               // back to disabled until next file
+      buryBtn.textContent = 'Commit this File?';
+      buryBtn.style.backgroundColor = '#3a3a3a';
     }
-    elems.cancelLink && elems.cancelLink.classList.add('hidden');
   }
 
-  // bind clicks for bury/cancel (static IDs, no inline needed)
-  document.addEventListener('click', (e) => {
-    if (e.target?.id === 'buryBtn') handleBuryClick();
-    if (e.target?.id === 'cancelLink') resetAll();
-  });
+  // optional: make “Check the remains” work if you wire a button to play ashes
+  window.playAshes = function playAshes() {
+    const audio = $('ashesAudio');
+    if (!audio) return;
+    audio.src = ashesSamples[Math.floor(Math.random() * ashesSamples.length)];
+    audio.classList.remove('hidden');
+    audio.play().catch(()=>{});
+  };
 })();
