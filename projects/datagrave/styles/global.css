@@ -75,3 +75,12 @@ nav.top-menu .nav-icon {
   margin-right: 0.5rem;
   object-fit: contain;
 }
+/* Make file inputs programmatically clickable while staying invisible */
+.hidden-file {
+  position: fixed;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
