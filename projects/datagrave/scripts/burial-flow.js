@@ -116,33 +116,41 @@ document.addEventListener('click', e => {
 });
 
 
- // — DELEGATED CHANGE HANDLER —
+// — DELEGATED CHANGE HANDLER —
 document.addEventListener('change', e => {
-  if (e.target && e.target.id === 'fileInput') {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
+  if (e.target.id !== 'fileInput') return;
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
 
-    // validate
-    const allowed = ['audio/wav','audio/mpeg','audio/ogg'];
-    if (!allowed.includes(file.type)) {
-      alert('Invalid file type. Only .wav, .mp3, .ogg allowed.');
-      e.target.value = '';
-      return;
-    }
+  // Debug: see what the browser reports
+  console.log('[burial-flow] picked file:', file.name, 'type:', file.type);
 
-    // kickoff analysis animation
-    state.selectedFile = file;
-    elems.uploadBox.classList.add('hidden');
-    elems.methodSelector.style.display = 'none';
-    state.confirmed = false;
-    elems.analyzeFill.style.width = '0';
-    elems.progressContainer.classList.remove('hidden');
-    elems.readyToBury.classList.add('hidden');
+  // Accept by MIME OR file extension (some browsers give blank or odd MIME for .wav)
+  const mime = (file.type || '').toLowerCase();
+  const name = (file.name || '').toLowerCase();
+  const extOk = /\.(wav|mp3|ogg)$/i.test(name);
+  const mimeOk = ['audio/wav', 'audio/x-wav', 'audio/wave', 'audio/mpeg', 'audio/ogg'].includes(mime);
 
-    setTimeout(() => elems.analyzeFill.style.width = '100%', 50);
-    setTimeout(showReadyToBury, 5000);
+  if (!(extOk || mimeOk)) {
+    alert('Invalid file type. Only .wav, .mp3, and .ogg are allowed.');
+    e.target.value = ''; // reset the input
+    return;
   }
+
+  // Kickoff analysis animation
+  state.selectedFile = file;
+  elems.uploadBox.classList.add('hidden');
+  elems.methodSelector.style.display = 'none';
+  state.confirmed = false;
+  elems.analyzeFill.style.width = '0';
+  elems.progressContainer.classList.remove('hidden');
+  elems.readyToBury.classList.add('hidden');
+
+  // Animate, then show details
+  setTimeout(() => (elems.analyzeFill.style.width = '100%'), 50);
+  setTimeout(showReadyToBury, 1500); // shorter for dev; bump back to 5000 if you want
 });
+
 
   function showReadyToBury() {
     const f = state.selectedFile;
