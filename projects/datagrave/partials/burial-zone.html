@@ -3,7 +3,8 @@
   <label class="method-btn"><input type="radio" name="method" value="bury" checked> Bury</label>
   <label class="method-btn"><input type="radio" name="method" value="cremate"> Cremate</label>
 </div>
-<div class="upload-box" id="uploadBox">
+<div class="upload-box" id="uploadBox"
+     onclick="document.getElementById('fileInput').click()">
   Upload or drag audio (.wav, .mp3, .ogg)
   <input type="file" id="fileInput" class="hidden" accept=".wav,.mp3,.ogg">
 </div>
