@@ -1,5 +1,5 @@
 // scripts/burial-flow.js
-console.log("[burial-flow] v2025-08-09-3 loaded");
+console.log("[burial-flow] v2025-08-09-4 loaded");
 
 document.addEventListener('DOMContentLoaded', () => {
   // cache these once
@@ -69,6 +69,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ---------- binding helpers (works even if partial is re-rendered) ----------
+  let waitingForPicker = false;
+
+  function openPicker() {
+    const input = $('fileInput');
+    if (!input) return;
+
+    // 1) reset value so reselecting the same file still fires `change`
+    input.value = "";
+
+    // 2) keep it off-screen but present (no display:none during selection)
+    //    we won't toggle your .hidden class here — just style it offscreen
+    input.style.position = 'fixed';
+    input.style.left = '-9999px';
+    input.style.top = '0';
+    input.style.opacity = '0';
+    input.style.pointerEvents = 'none';
+
+    waitingForPicker = true;
+    console.log("[burial-flow] opening file dialog (waitingForPicker = true)");
+    input.click();
+  }
+
   function bindUploadBox() {
     const box = $('uploadBox');
     const input = $('fileInput');
@@ -79,17 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // clicking the box should open the file dialog reliably
     if (!box._hasClickHandler) {
       box.addEventListener('click', () => {
-        console.log("[burial-flow] uploadBox click → opening file dialog");
-        const wasHidden = input.classList.contains('hidden');
-        if (wasHidden) input.classList.remove('hidden'); // avoid blocked click on display:none
-        input.style.position = 'fixed';
-        input.style.left = '-9999px';
-        input.click();
-        setTimeout(() => {
-          if (wasHidden) input.classList.add('hidden');
-          input.style.position = '';
-          input.style.left = '';
-        }, 0);
+        console.log("[burial-flow] uploadBox click");
+        openPicker();
       });
       box._hasClickHandler = true;
       console.log("[burial-flow] added click handler to #uploadBox");
@@ -114,6 +127,21 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log("[burial-flow] bound INPUT event to #fileInput");
     }
   }
+
+  // Fallback: after the picker closes, window regains focus.
+  // If we didn't get `change`, check files anyway.
+  window.addEventListener('focus', () => {
+    if (!waitingForPicker) return;
+    waitingForPicker = false;
+    const input = $('fileInput');
+    if (!input) return;
+    if (input.files && input.files.length) {
+      console.log("[burial-flow] window focus fallback found a file after picker");
+      handleFilePicked({ target: input });
+    } else {
+      console.log("[burial-flow] window focus fallback: no file selected");
+    }
+  });
 
   // Observe the container so if the burial-zone partial gets swapped in/out,
   // we re-bind the handlers automatically.
@@ -142,6 +170,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- event handlers ----------
   function handleFilePicked(e) {
+    const input = $('fileInput');
+    // restore styles we set for offscreen hiding
+    if (input) {
+      input.style.position = '';
+      input.style.left = '';
+      input.style.top = '';
+      input.style.opacity = '';
+      input.style.pointerEvents = '';
+    }
+
     const file = e.target.files && e.target.files[0];
     if (!file) {
       console.log("[burial-flow] handleFilePicked: no file on event");
@@ -223,9 +261,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elems.fileVibe) elems.fileVibe.textContent = vibes[Math.floor(Math.random() * vibes.length)];
     if (elems.epitaphInput) elems.epitaphInput.value = eulogies[Math.floor(Math.random() * eulogies.length)];
 
-    // Enable the button so it can be clicked
     if (elems.buryBtn) {
-      elems.buryBtn.disabled = false;
+      elems.buryBtn.disabled = false;     // enable click
+      elems.buryBtn.textContent = 'Commit this File?';
       console.log("[burial-flow] enabled #buryBtn");
     }
   }
