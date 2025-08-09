@@ -66,103 +66,105 @@ document.addEventListener('DOMContentLoaded', () => {
     return !/[<>]/.test(str) && !/https?:\/\//i.test(str);
   }
 
- // — DELEGATED CLICK HANDLERS —
-document.addEventListener('click', e => {
-  // 1) Click on upload box → open file picker (robust even if input is hidden)
-  const box = e.target.closest('#uploadBox');
-  if (box) {
+  // — CLICK HANDLERS (delegated for buttons/tiles) —
+  document.addEventListener('click', e => {
+    // 1) Click on upload box → open file picker (works even if input is visually hidden)
+    const box = e.target.closest('#uploadBox');
+    if (box) {
+      const input = document.getElementById('fileInput');
+      if (input) {
+        // make sure it's not display:none (some browsers ignore clicks then)
+        const wasHidden = input.classList.contains('hidden');
+        if (wasHidden) input.classList.remove('hidden');
+        input.style.position = 'fixed';
+        input.style.left = '-9999px';
+        input.click();
+        setTimeout(() => {
+          input.classList.add('hidden');
+          input.style.position = '';
+          input.style.left = '';
+        }, 0);
+      }
+    }
+
+    // 2) Click on bury button
+    if (e.target.id === 'buryBtn') {
+      handleBuryClick();
+    }
+
+    // 3) Click on cancel link
+    if (e.target.id === 'cancelLink') {
+      resetAll();
+    }
+
+    // 4) Premium tiles
+    if (e.target.matches('.premium-btn')) {
+      const p = e.target.dataset.premium;
+      state.premium = p;
+      document.querySelectorAll('.upsell-tile').forEach(tile => {
+        tile.classList.toggle('active', tile.dataset.premium === p);
+      });
+      if (p === 'vip') {
+        elems.epitaphInput.disabled = false;
+      } else {
+        elems.epitaphInput.disabled = true;
+        elems.epitaphInput.value = '';
+      }
+      document.getElementById('upsellSection')?.classList.remove('hidden');
+    }
+  });
+
+  // — DIRECT CHANGE LISTENER on the file input —
+  (() => {
     const input = document.getElementById('fileInput');
-    if (input) {
-      // temporarily unhide to avoid browser restrictions, then re-hide
-      const wasHidden = input.classList.contains('hidden');
-      if (wasHidden) input.classList.remove('hidden');
-      input.style.position = 'fixed';
-      input.style.left = '-9999px';
-      input.click();
-      // re-hide next tick so the dialog can open
-      setTimeout(() => {
-        input.classList.add('hidden');
-        input.style.position = '';
-        input.style.left = '';
-      }, 0);
-    }
-  }
+    if (!input) return;
 
-  // 2) Click on bury button
-  if (e.target.id === 'buryBtn') {
-    handleBuryClick();
-  }
+    input.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
 
-  // 3) Click on cancel link
-  if (e.target.id === 'cancelLink') {
-    resetAll();
-  }
+      // Debug
+      console.log('[burial-flow] picked file:', file.name, 'type:', file.type || '(none)');
 
-  // 4) Premium tiles
-  if (e.target.matches('.premium-btn')) {
-    const p = e.target.dataset.premium;
-    state.premium = p;
-    document.querySelectorAll('.upsell-tile').forEach(tile => {
-      tile.classList.toggle('active', tile.dataset.premium === p);
+      // accept by ext OR mime
+      const mime = (file.type || '').toLowerCase();
+      const name = (file.name || '').toLowerCase();
+      const extOk  = /\.(wav|mp3|ogg)$/i.test(name);
+      const mimeOk = ['audio/wav','audio/x-wav','audio/wave','audio/mpeg','audio/ogg'].includes(mime);
+
+      if (!(extOk || mimeOk)) {
+        alert('Invalid file type. Only .wav, .mp3, and .ogg are allowed.');
+        e.target.value = '';
+        return;
+      }
+
+      // Kickoff analysis animation
+      state.selectedFile = file;
+      elems.uploadBox.classList.add('hidden');
+      elems.methodSelector.style.display = 'none';
+      state.confirmed = false;
+      elems.analyzeFill.style.width = '0';
+      elems.progressContainer.classList.remove('hidden');
+      elems.readyToBury.classList.add('hidden');
+
+      // Animate, then show details
+      setTimeout(() => (elems.analyzeFill.style.width = '100%'), 50);
+      setTimeout(showReadyToBury, 1500); // bump back to 5000 for production
     });
-    if (p === 'vip') {
-      elems.epitaphInput.disabled = false;
-    } else {
-      elems.epitaphInput.disabled = true;
-      elems.epitaphInput.value = '';
-    }
-    document.getElementById('upsellSection')?.classList.remove('hidden');
-  }
-});
-
-
-// — DELEGATED CHANGE HANDLER —
-document.addEventListener('change', e => {
-  if (e.target.id !== 'fileInput') return;
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-
-  // Debug: see what the browser reports
-  console.log('[burial-flow] picked file:', file.name, 'type:', file.type);
-
-  // Accept by MIME OR file extension (some browsers give blank or odd MIME for .wav)
-  const mime = (file.type || '').toLowerCase();
-  const name = (file.name || '').toLowerCase();
-  const extOk = /\.(wav|mp3|ogg)$/i.test(name);
-  const mimeOk = ['audio/wav', 'audio/x-wav', 'audio/wave', 'audio/mpeg', 'audio/ogg'].includes(mime);
-
-  if (!(extOk || mimeOk)) {
-    alert('Invalid file type. Only .wav, .mp3, and .ogg are allowed.');
-    e.target.value = ''; // reset the input
-    return;
-  }
-
-  // Kickoff analysis animation
-  state.selectedFile = file;
-  elems.uploadBox.classList.add('hidden');
-  elems.methodSelector.style.display = 'none';
-  state.confirmed = false;
-  elems.analyzeFill.style.width = '0';
-  elems.progressContainer.classList.remove('hidden');
-  elems.readyToBury.classList.add('hidden');
-
-  // Animate, then show details
-  setTimeout(() => (elems.analyzeFill.style.width = '100%'), 50);
-  setTimeout(showReadyToBury, 1500); // shorter for dev; bump back to 5000 if you want
-});
-
+  })();
 
   function showReadyToBury() {
     const f = state.selectedFile;
     elems.progressContainer.classList.add('hidden');
     elems.readyToBury.classList.remove('hidden');
-    elems.sarcasticRemark.textContent = 
+    elems.buryBtn.disabled = false; // enable the button once file analyzed
+    elems.sarcasticRemark.textContent =
       `"${sarcasticRemarks[Math.floor(Math.random() * sarcasticRemarks.length)]}"`;
     elems.fileName.textContent = f.name;
     elems.fileDate.textContent = new Date(f.lastModified).toLocaleDateString();
     elems.fileSize.textContent = (f.size/1024/1024).toFixed(2) + ' MB';
     elems.fileVibe.textContent = vibes[Math.floor(Math.random() * vibes.length)];
-    elems.epitaphInput.value = 
+    elems.epitaphInput.value =
       eulogies[Math.floor(Math.random() * eulogies.length)];
   }
 
@@ -177,7 +179,7 @@ document.addEventListener('change', e => {
     // actual bury
     elems.readyToBury.classList.add('hidden');
     elems.burialProgress.classList.remove('hidden');
-    $('burialMessage').textContent = 
+    $('burialMessage').textContent =
       cremationPhrases[Math.floor(Math.random() * cremationPhrases.length)];
     elems.buryFill.style.width = '0';
     setTimeout(() => elems.buryFill.style.width = '100%', 50);
