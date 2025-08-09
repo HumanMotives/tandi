@@ -66,53 +66,67 @@ document.addEventListener('DOMContentLoaded', () => {
     return !/[<>]/.test(str) && !/https?:\/\//i.test(str);
   }
 
-  // — DELEGATED CLICK HANDLERS —
-
-  document.addEventListener('click', e => {
-    // 1) Click on upload box → open file picker
-    if (e.target.closest('#uploadBox')) {
-      $('fileInput').click();
+ // — DELEGATED CLICK HANDLERS —
+document.addEventListener('click', e => {
+  // 1) Click on upload box → open file picker (robust even if input is hidden)
+  const box = e.target.closest('#uploadBox');
+  if (box) {
+    const input = document.getElementById('fileInput');
+    if (input) {
+      // temporarily unhide to avoid browser restrictions, then re-hide
+      const wasHidden = input.classList.contains('hidden');
+      if (wasHidden) input.classList.remove('hidden');
+      input.style.position = 'fixed';
+      input.style.left = '-9999px';
+      input.click();
+      // re-hide next tick so the dialog can open
+      setTimeout(() => {
+        input.classList.add('hidden');
+        input.style.position = '';
+        input.style.left = '';
+      }, 0);
     }
+  }
 
-    // 2) Click on bury button
-    if (e.target.id === 'buryBtn') {
-      handleBuryClick();
+  // 2) Click on bury button
+  if (e.target.id === 'buryBtn') {
+    handleBuryClick();
+  }
+
+  // 3) Click on cancel link
+  if (e.target.id === 'cancelLink') {
+    resetAll();
+  }
+
+  // 4) Premium tiles
+  if (e.target.matches('.premium-btn')) {
+    const p = e.target.dataset.premium;
+    state.premium = p;
+    document.querySelectorAll('.upsell-tile').forEach(tile => {
+      tile.classList.toggle('active', tile.dataset.premium === p);
+    });
+    if (p === 'vip') {
+      elems.epitaphInput.disabled = false;
+    } else {
+      elems.epitaphInput.disabled = true;
+      elems.epitaphInput.value = '';
     }
+    document.getElementById('upsellSection')?.classList.remove('hidden');
+  }
+});
 
-    // 3) Click on cancel link
-    if (e.target.id === 'cancelLink') {
-      resetAll();
-    }
 
-    // 4) Premium tiles
-    if (e.target.matches('.premium-btn')) {
-      const p = e.target.dataset.premium;
-      state.premium = p;
-      document.querySelectorAll('.upsell-tile').forEach(tile => {
-        tile.classList.toggle('active', tile.dataset.premium === p);
-      });
-      if (p === 'vip') {
-        elems.epitaphInput.disabled = false;
-      } else {
-        elems.epitaphInput.disabled = true;
-        elems.epitaphInput.value = '';
-      }
-      $('upsellSection')?.classList.remove('hidden');
-    }
-  });
-
-  // — DELEGATED CHANGE HANDLER —
-
-  document.addEventListener('change', e => {
-    if (e.target.id !== 'fileInput') return;
-    const file = e.target.files[0];
+ // — DELEGATED CHANGE HANDLER —
+document.addEventListener('change', e => {
+  if (e.target && e.target.id === 'fileInput') {
+    const file = e.target.files && e.target.files[0];
     if (!file) return;
 
     // validate
     const allowed = ['audio/wav','audio/mpeg','audio/ogg'];
     if (!allowed.includes(file.type)) {
       alert('Invalid file type. Only .wav, .mp3, .ogg allowed.');
-      $('fileInput').value = '';
+      e.target.value = '';
       return;
     }
 
@@ -127,7 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setTimeout(() => elems.analyzeFill.style.width = '100%', 50);
     setTimeout(showReadyToBury, 5000);
-  });
+  }
+});
 
   function showReadyToBury() {
     const f = state.selectedFile;
