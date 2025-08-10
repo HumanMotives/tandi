@@ -93,3 +93,28 @@ table{ width:100%; border-collapse:collapse; }
   .grave-card .card-top{ gap: 10px; padding: 12px 14px; }
   .grave-card .card-bottom{ padding: 12px 14px; }
 }
+
+/* Prevent horizontal overflow */
+html, body { overflow-x: hidden; }
+
+/* Keep the table within the viewport and respect padding */
+#burial-listings-placeholder table {
+  width: 100%;
+  table-layout: fixed;   /* cells don’t expand the table */
+}
+
+/* Cards must never exceed the container */
+.grave-card,
+.grave-card * {
+  max-width: 100%;
+}
+
+/* Long names/quotes won’t push the layout */
+.grave-card .file-name { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.grave-card .quote { word-break: break-word; }
+
+/* Optional: tighten padding on small screens to keep symmetry */
+@media (max-width: 420px){
+  .grave-card .card-top,
+  .grave-card .card-bottom { padding-left: 14px; padding-right: 14px; }
+}
