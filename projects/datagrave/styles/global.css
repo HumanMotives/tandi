@@ -1,12 +1,12 @@
 /* ================================
-   global.css v2.002
+   global.css v2.003
    ================================ */
 
 /* Design tokens */
 :root{
   /* colors */
   --bg:        #f9f7f3;
-  --ink:       #1f1f1f;
+  --ink:       #000000;
   --muted:     #6b6b6b;
   --line:      rgba(0,0,0,.12);
   --soft:      #F6EED3;   /* tinted surfaces (cards) */
