@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>License – The Data Grave</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles/global.css">
+</head>
+<body>
+  <div id="common-header"></div>
+
+  <main style="max-width: 750px; margin: 2rem auto; padding: 1rem;">
+    <h1>License</h1>
+    <p>Coming</p>
+  </main>
+
+  <div id="common-footer"></div>
+
+  <script>
+    // Load header and footer like other pages
+    async function loadPartial(containerId, url) {
+      const el = document.getElementById(containerId);
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(res.status);
+        el.innerHTML = await res.text();
+      } catch (err) {
+        console.error(`Failed to load ${url}:`, err);
+      }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPartial('common-header', 'partials/header.html');
+      loadPartial('common-footer', 'partials/footer.html');
+    });
+  </script>
+</body>
+</html>
