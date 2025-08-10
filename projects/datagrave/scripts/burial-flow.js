@@ -1,6 +1,6 @@
 // --- burial-flow script ---
 
-console.log('[burial-flow] v2025-aug-007-burial-flow loaded');
+console.log('[burial-flow] v2025-aug-008-burial-flow loaded');
 
 // === global state (single source of truth) ===
 window.__dgState = window.__dgState || { selectedFile: null, confirmed: false };
@@ -8,6 +8,11 @@ const state = window.__dgState;
 
 // tiny DOM helper
 const $ = (id) => document.getElementById(id);
+
+// Basic epitaph sanity check: no < > or URLs
+function isClean(text) {
+  return !(/[<>]/.test(text) || /\bhttps?:\/\//i.test(text));
+}
 
 // === File picker + change handler (full, self-contained) ===
 console.log('[burial-flow] v2025-aug-003 picker');
@@ -42,10 +47,8 @@ window.__dgOnFileChange = function __dgOnFileChange(e) {
   }
 
   // Store in state for showCeremony()
-  if (typeof state === 'object') {
-    state.selectedFile = file;
-    state.confirmed = false;
-  }
+  state.selectedFile = file;
+  state.confirmed = false;
 
   // Cache DOM
   const $id = (x) => document.getElementById(x);
@@ -148,12 +151,7 @@ function handleBuryClick() {
     buryFill.style.width = '0';
     setTimeout(() => { buryFill.style.width = '100%'; }, 50);
   }
-  
-// Basic epitaph sanity check: no < > or URLs
-function isClean(text) {
-  return !(/[<>]/.test(text) || /\bhttps?:\/\//i.test(text));
-}
-  
+
   // After brief progress, run the ceremony
   setTimeout(() => {
     if (burialProgress) burialProgress.classList.add('hidden');
@@ -192,9 +190,40 @@ function resetAll() {
   }
 }
 
+// === Upload helper (used only for BURY) ===
+async function uploadBurialFile(file) {
+  // These must already be defined globally in your page:
+  // UPLOAD_FN_URL, SUPABASE_ANON_KEY
+  const fd = new FormData();
+  fd.append('file', file);
+
+  const res = await fetch(UPLOAD_FN_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+    },
+    body: fd
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(()=>'');
+    throw new Error(`[upload-burial] ${res.status} ${text}`);
+  }
+  const out = await res.json().catch(()=> ({}));
+  if (!out || !out.ok || !out.publicUrl) {
+    throw new Error('[upload-burial] invalid response ' + JSON.stringify(out));
+  }
+  console.log('[upload-burial] OK', out);
+  return {
+    audio_url: out.publicUrl,
+    audio_mime: out.contentType || null,
+    audio_bytes: out.bytes || null
+  };
+}
 
 async function showCeremony() {
-    console.log('[burial-flow] v2025-aug-001-burial-flow');
+  console.log('[burial-flow] v2025-aug-001-burial-flow');
+
   const f = state.selectedFile;
   if (!f) return;
 
@@ -295,7 +324,6 @@ async function showCeremony() {
   // If cremated, play the ashes sample (your existing audio element/helper)
   if (method === 'cremate') {
     try {
-      // Use your helper if wired, else inline playback
       if (typeof window.playAshes === 'function') {
         window.playAshes();
       } else {
