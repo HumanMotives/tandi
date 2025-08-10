@@ -14,7 +14,7 @@
 .grave-card .card-top{
   display:flex; align-items:center; gap: var(--s3);
   padding: var(--s3) var(--s4);
-  background: #fffefa;
+  background-color: #fffefa;
 }
 
 /* File name (ellipsis on small screens) */
