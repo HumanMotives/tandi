@@ -47,17 +47,38 @@ h1, h2, h3 {
 /* Reset-ish */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Site logo styling */
-.site-logo {
-  display: block;            /* avoids inline spacing quirks */
-  max-width: 350px;           /* adjust max size */
-  height: auto;               /* keep aspect ratio */
+
+/* Wrapper to center logo + title */
+.site-logo-wrap {
+  text-align: center; /* center everything inside */
+  margin: 1.5rem auto;
 }
 
-/* Optional: shrink logo on small screens */
+/* Logo image */
+.site-logo {
+  display: block;
+  max-width: 250px; /* adjust size as needed */
+  height: auto;
+  margin: 0 auto; /* center the image itself */
+}
+
+/* Big title under logo */
+.site-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: 2rem;      /* large title */
+  font-weight: 700;     /* bold */
+  margin-top: 0.5rem;   /* space between logo and text */
+  color: #000;          /* change to match your theme */
+  letter-spacing: 0.05em;
+}
+
+/* Responsive scaling for smaller screens */
 @media (max-width: 600px) {
   .site-logo {
-    max-width: 150px;
+    max-width: 140px;
+  }
+  .site-title {
+    font-size: 1.5rem;
   }
 }
 
