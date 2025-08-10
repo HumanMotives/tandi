@@ -25,31 +25,42 @@
   <div class="progress-bar"><div class="progress-fill" id="analyzeFill"></div></div>
 </div>
 
-<!-- Details & confirm step -->
-<div id="readyToBury" class="hidden">
-  <table style="width:100%; border-collapse:collapse; margin-bottom:1rem;">
-    <tr>
-      <td id="sarcasticRemark" style="text-align:center; font-style:italic; color:#777;"></td>
-    </tr>
-    <tr><td colspan="2" style="height:1rem;"></td></tr>
-    <tr><th style="text-align:left; padding:0.3rem 0;">Filename:</th><td><strong id="fileName"></strong></td></tr>
-    <tr><th style="text-align:left; padding:0.3rem 0;">Date of birth:</th><td id="fileDate"></td></tr>
-    <tr><th style="text-align:left; padding:0.3rem 0;">Est. size:</th><td id="fileSize"></td></tr>
-    <tr><th style="text-align:left; padding:0.3rem 0;">Detected genre:</th><td id="fileVibe"></td></tr>
-  </table>
+<!-- Ready To Bury Confirm Step -->
+<div id="readyToBury" class="hidden stack">
 
-  <label for="epitaph">Like to add some final farewell words?</label><br>
-  <input type="text" id="epitaph" maxlength="100"><br>
+  <!-- Card 1: Autopsy Report -->
+  <section class="card soft autopsy stack">
+    <h3 class="card-title">Autopsy Report</h3>
 
-  <!-- start disabled; JS will enable after analysis -->
-  <button class="button" id="buryBtn" disabled>Commit this File?</button>
-  <p class="license-note">
-  By burying your audio, you agree to our
-  <a href="license.html" target="_blank" rel="noopener noreferrer">usage license</a>.
-</p>
+    <p id="sarcasticRemark" class="muted center mono" style="font-style:italic;">&nbsp;</p>
 
-  <div id="cancelLink" class="link hidden">I've changed my mind</div>
+    <div class="report-grid">
+      <div class="row"><strong>Filename:</strong> <span id="fileName" class="mono"></span></div>
+      <div class="row"><strong>Date of birth:</strong> <span id="fileDate"></span></div>
+      <div class="row"><strong>Est. size:</strong> <span id="fileSize"></span></div>
+      <div class="row"><strong>Detected genre:</strong> <span id="fileVibe"></span></div>
+    </div>
+  </section>
+
+  <!-- Card 2: Extra Services -->
+  <section class="card soft extras stack">
+    <h3 class="card-title">Extra Services</h3>
+    <label for="epitaph"><strong>Like to add some final farewell words?</strong></label>
+    <input type="text" id="epitaph" maxlength="100" class="input">
+  </section>
+
+  <!-- Actions (not in a card) -->
+  <div class="stack center">
+    <button class="btn primary" id="buryBtn" disabled>Commit this File?</button>
+    <div id="cancelLink" class="link hidden">I've changed my mind</div>
+
+    <p id="license-note" class="license-note" style="display:none;">
+      By burying your audio, you agree to our
+      <a href="/license.html" target="_blank" rel="noopener noreferrer">usage license</a>.
+    </p>
+  </div>
 </div>
+
 
 <!-- Burial progress -->
 <div id="burialProgress" class="hidden">
