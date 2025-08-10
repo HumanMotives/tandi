@@ -1,11 +1,11 @@
 /* ================================
-   global.css v2.001
+   global.css v2.002
    ================================ */
 
 /* Design tokens */
 :root{
   /* colors */
-  --bg:        #f5f1e6;
+  --bg:        #f9f7f3;
   --ink:       #1f1f1f;
   --muted:     #6b6b6b;
   --line:      rgba(0,0,0,.12);
@@ -17,7 +17,7 @@
   --s4: 24px;  --s5: 32px; --s6: 40px; --s7: 56px;
 
   /* radii / shadow */
-  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px;
+  --r-sm: 3px; --r-md: 5x; --r-lg: 8px; --r-xl: 12px;
   --shadow-1: 0 1px 0 rgba(0,0,0,.06);
 
   /* fonts */
