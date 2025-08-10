@@ -27,6 +27,7 @@ if (!listEl || !pageEl) {
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const { data, totalCount } = await res.json();
+      console.log('[burial-listings] sample row:', data?.[0]); 
       renderList(data);
       renderPagination(totalCount);
     } catch (err) {
