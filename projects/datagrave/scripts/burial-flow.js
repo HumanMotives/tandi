@@ -1,6 +1,6 @@
 // --- REPLACE your existing showCeremony() with this version ---
 
-console.log('[burial-flow] v2025-aug-006-burial-flow loaded');
+console.log('[burial-flow] v2025-aug-007-burial-flow loaded');
 
 // === global state (single source of truth) ===
 window.__dgState = window.__dgState || { selectedFile: null, confirmed: false };
@@ -148,7 +148,12 @@ function handleBuryClick() {
     buryFill.style.width = '0';
     setTimeout(() => { buryFill.style.width = '100%'; }, 50);
   }
-
+  
+// Basic epitaph sanity check: no < > or URLs
+function isClean(text) {
+  return !(/[<>]/.test(text) || /\bhttps?:\/\//i.test(text));
+}
+  
   // After brief progress, run the ceremony
   setTimeout(() => {
     if (burialProgress) burialProgress.classList.add('hidden');
