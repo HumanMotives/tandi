@@ -6,39 +6,36 @@
     confirmed: false,
   };
 
-  
-
   // --- NEW: Supabase Edge Function endpoints ---
   const FUNCTIONS_BASE = 'https://ticxhncusdycqjftohho.supabase.co/functions/v1';
   const UPLOAD_FN_URL  = `${FUNCTIONS_BASE}/upload-burial`;
   const RECORD_FN_URL  = `${FUNCTIONS_BASE}/record-burial`;
 
   // shared audio element
-const player = new Audio();
-player.preload = 'none';
-player.addEventListener('ended', () => {
-  document.querySelectorAll('.dg-play.playing').forEach(b => b.classList.remove('playing'));
-});
-
-// delegated click for play/pause
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.dg-play');
-  if (!btn) return;
-  const url = btn.dataset.url;
-  if (!url) return;
-
-  if (player.src !== url) player.src = url;
-
-  if (player.paused || player.src !== url) {
+  const player = new Audio();
+  player.preload = 'none';
+  player.addEventListener('ended', () => {
     document.querySelectorAll('.dg-play.playing').forEach(b => b.classList.remove('playing'));
-    player.play().catch(()=>{});
-    btn.classList.add('playing');
-  } else {
-    player.pause();
-    btn.classList.remove('playing');
-  }
-});
+  });
 
+  // delegated click for play/pause
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.dg-play');
+    if (!btn) return;
+    const url = btn.dataset.url;
+    if (!url) return;
+
+    if (player.src !== url) player.src = url;
+
+    if (player.paused || player.src !== url) {
+      document.querySelectorAll('.dg-play.playing').forEach(b => b.classList.remove('playing'));
+      player.play().catch(()=>{});
+      btn.classList.add('playing');
+    } else {
+      player.pause();
+      btn.classList.remove('playing');
+    }
+  });
 
   // text pools (unchanged content)
   const sarcasticRemarks = [
@@ -241,6 +238,9 @@ document.addEventListener('click', (e) => {
       return resetAll();
     }
 
+    // We'll keep audio_url available for building the row UI
+    let audio_url = null, audio_mime = null, audio_bytes = null;
+
     try {
       // 1) reCAPTCHA
       const token = (typeof grecaptcha !== 'undefined' && typeof RECAPTCHA_SITE_KEY !== 'undefined')
@@ -248,7 +248,10 @@ document.addEventListener('click', (e) => {
         : '';
 
       // 2) upload file -> get public URL + meta
-      const { audio_url, audio_mime, audio_bytes } = await uploadBurialFile(f);
+      const up = await uploadBurialFile(f);
+      audio_url  = up.audio_url;
+      audio_mime = up.audio_mime;
+      audio_bytes= up.audio_bytes;
 
       // 3) record via Supabase Edge Function (now with audio fields)
       const recRes = await fetch(RECORD_FN_URL, {
@@ -304,7 +307,7 @@ document.addEventListener('click', (e) => {
     const aftercare = $('aftercare');
     aftercare && aftercare.classList.remove('hidden');
 
-    // prepend to table (unchanged)
+    // prepend to table (same structure as before, just adds a play button)
     const row = document.createElement('tr');
     row.classList.add('fade-in');
 
@@ -312,12 +315,24 @@ document.addEventListener('click', (e) => {
     icon.src = method === 'cremate' ? 'icons/icon_urn.png' : 'icons/icon_tombstone.png';
     icon.className = 'icon-img';
 
+    // NEW: play button using the uploaded public URL
+    const playBtn = document.createElement('button');
+    playBtn.type = 'button';
+    playBtn.className = 'dg-play';
+    playBtn.title = 'Play / Pause';
+    playBtn.textContent = '▶';
+    if (audio_url) playBtn.dataset.url = audio_url;
+
     const tdName = document.createElement('td');
-    tdName.append(icon, document.createTextNode(f.name));
+    // order: play button, icon, filename
+    tdName.append(playBtn, ' ', icon, ' ', document.createTextNode(f.name));
+
     const tdDate = document.createElement('td');
     tdDate.textContent = new Date().toLocaleDateString();
+
     const tdEpit = document.createElement('td');
     tdEpit.textContent = epit;
+
     const tdCountry = document.createElement('td');
     tdCountry.textContent = '';
 
