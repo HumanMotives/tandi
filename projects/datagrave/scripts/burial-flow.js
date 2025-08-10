@@ -1,6 +1,34 @@
 // --- REPLACE your existing showCeremony() with this version ---
 
-console.log('[burial-flow] v2025-aug-001-burial-flow loaded');
+console.log('[burial-flow] v2025-aug-002-burial-flow loaded');
+
+// expose picker + change handler globally
+window.__dgOpenPicker = function __dgOpenPicker() {
+  const input = document.getElementById('fileInput');
+  if (!input) {
+    console.warn('[burial-flow] #fileInput not found');
+    return;
+  }
+  input.value = '';       // allow re-selecting the same file
+  input.click();
+};
+
+window.__dgOnFileChange = function __dgOnFileChange(e) {
+  // minimal, safe default: just stash the file so showCeremony() can use it
+  const file = e?.target?.files?.[0];
+  if (!file) {
+    console.log('[burial-flow] onFileChange: no file selected');
+    return;
+  }
+  // if you already have `state` defined elsewhere, this will use it
+  if (typeof state === 'object') {
+    state.selectedFile = file;
+  }
+  console.log('[burial-flow] picked:', file.name, 'type:', file.type);
+  // enable your “Commit this File?” button if you gate on it
+  const buryBtn = document.getElementById('buryBtn');
+  if (buryBtn) buryBtn.disabled = false;
+};
 
 
 async function showCeremony() {
