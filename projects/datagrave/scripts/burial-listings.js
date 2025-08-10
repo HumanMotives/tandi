@@ -1,10 +1,22 @@
-// burial-listings.js 
-console.log('[burial-listings] v2025-08-12-5');
+// burial-listings.js  — icon-only play button
+console.log('[burial-listings] v2025-08-12-icon');
 
 let currentPage = 1;
 const pageSize   = 25;
 const listEl     = document.getElementById('graveList');            // tbody
 const pageEl     = document.getElementById('paginationControls');
+
+const ICON_OFF = 'images/icon_playaudio.png';
+const ICON_ON  = 'images/icon_playaudio_on.png'; // optional
+let HAS_ON_ICON = false;
+
+// Try to detect if the ON icon exists; if not, we’ll just use CSS state
+(() => {
+  const probe = new Image();
+  probe.onload = () => { HAS_ON_ICON = true; };
+  probe.onerror = () => { HAS_ON_ICON = false; };
+  probe.src = ICON_ON;
+})();
 
 if (!listEl || !pageEl) {
   console.error('[burial-listings] Missing #graveList or #paginationControls');
@@ -50,7 +62,7 @@ if (!listEl || !pageEl) {
       // Top row
       const top  = el('div', 'card-top');
 
-      // icon
+      // left icon (urn/tombstone)
       const icon = document.createElement('img');
       icon.src   = (b.method === 'cremate') ? 'images/icon_urn.png' : 'images/icon_tombstone.png';
       icon.className = 'icon-img';
@@ -60,48 +72,49 @@ if (!listEl || !pageEl) {
 
       const actions = el('div', 'actions');
 
-      
-// Play & download if we have audio
-const url = b.audio_url || b.audioUrl || b.publicUrl || '';
-const hasAudio = !!url;
+      // Play & download if we have audio
+      const url = b.audio_url || b.audioUrl || b.publicUrl || '';
+      const hasAudio = !!url;
 
-if (b.method === 'cremate') {
-  // Cremated: no public audio by design
-  const note = document.createElement('span');
-  note.className = 'note';
-  note.textContent = 'No info — cremated';
-  actions.appendChild(note);
-} else if (hasAudio) {
-  // Play
-  const playBtn = document.createElement('button');
-  playBtn.type = 'button';
-  playBtn.className = 'dg-play';
-  playBtn.title = 'Play / Pause';
-  playBtn.setAttribute('aria-label', 'Play or pause audio');
-  playBtn.dataset.url = url;
-  playBtn.textContent = '▶';
-  actions.appendChild(playBtn);
+      if (b.method === 'cremate') {
+        // Cremated: no public audio by design
+        const note = document.createElement('span');
+        note.className = 'note';
+        note.textContent = 'No info — cremated';
+        actions.appendChild(note);
+      } else if (hasAudio) {
+        // Play icon (image only)
+        const playImg = document.createElement('img');
+        playImg.src = ICON_OFF;
+        playImg.alt = 'Play audio';
+        playImg.className = 'icon-img play-icon paused';
+        playImg.width = 28; playImg.height = 28;
+        playImg.dataset.url = url;
+        playImg.setAttribute('role', 'button');
+        playImg.setAttribute('tabindex', '0');
+        playImg.setAttribute('aria-label', 'Play or pause audio');
+        actions.appendChild(playImg);
 
-  // Download
-  const dl = document.createElement('a');
-  dl.href = url;
-  dl.download = '';
-  dl.target = '_blank';
-  dl.rel = 'noopener noreferrer';
-  dl.title = 'Download';
-  const dlImg = document.createElement('img');
-  dlImg.src = 'images/icon_download.png';
-  dlImg.alt = 'Download';
-  dlImg.className = 'icon-img';
-  dl.appendChild(dlImg);
-  actions.appendChild(dl);
-} else {
-  // Older burial with no stored audio
-  const legacyNote = document.createElement('span');
-  legacyNote.className = 'note';
-  legacyNote.textContent = 'Legacy burial — no extra info';
-  actions.appendChild(legacyNote);
-}
+        // Download
+        const dl = document.createElement('a');
+        dl.href = url;
+        dl.download = '';
+        dl.target = '_blank';
+        dl.rel = 'noopener noreferrer';
+        dl.title = 'Download';
+        const dlImg = document.createElement('img');
+        dlImg.src = 'images/icon_download.png';
+        dlImg.alt = 'Download';
+        dlImg.className = 'icon-img';
+        dl.appendChild(dlImg);
+        actions.appendChild(dl);
+      } else {
+        // Older burial with no stored audio
+        const legacyNote = document.createElement('span');
+        legacyNote.className = 'note';
+        legacyNote.textContent = 'Legacy burial — no extra info';
+        actions.appendChild(legacyNote);
+      }
 
       top.append(icon, nameBox, actions);
 
@@ -166,10 +179,14 @@ if (b.method === 'cremate') {
     const css = `
       .grave-card { margin: 12px 0; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 0 rgba(0,0,0,0.06); }
       .grave-card .card-top { background: #F6EED3; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px 14px 0 0; }
-      .grave-card .file-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; font-size: 1.05rem; letter-spacing: 0.02em; flex: 1; display: flex; align-items: center; gap: 10px; }
+      .grave-card .file-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; font-size: 1.05rem; letter-spacing: 0.02em; flex: 1; display: flex; align-items: center; gap: 10px; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
       .grave-card .actions { display: flex; align-items: center; gap: 14px; }
-      .dg-play { width: 28px; height: 28px; border-radius: 50%; border: 3px solid #000; background: transparent; display: inline-grid; place-items: center; cursor: pointer; font: inherit; }
-      .dg-play.playing { border-color: #0aa; }
+
+      /* Icon-only play button */
+      .play-icon { cursor: pointer; user-select: none; }
+      .play-icon.playing { filter: drop-shadow(0 0 0.5px rgba(0,0,0,0.25)) brightness(1.05); transform: translateZ(0); }
+      .play-icon:focus { outline: 2px solid #0aa; outline-offset: 2px; }
+
       .grave-card .card-bottom { background: #B6B6B6; color: #fff; padding: 12px 16px; display: flex; gap: 12px; justify-content: space-between; border: 1px solid rgba(0,0,0,0.15); border-top: none; box-shadow: inset 0 1px 0 rgba(255,255,255,0.18); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.95rem; border-radius: 0 0 14px 14px; }
       .grave-card .quote { opacity: 0.9; color: #F6EED3; font-style: italic; }
       .icon-img { width: 28px; height: 28px; object-fit: contain; }
@@ -183,32 +200,64 @@ if (b.method === 'cremate') {
   // Expose a reload helper so burial-flow can refresh after a new entry
   window.dgReloadBurials = () => fetchPage(1);
 
-  // Shared audio player (singleton) for all .dg-play buttons
+  // Shared audio player (singleton) for all play icons
   if (!window.__dgPlayer) {
     const player = new Audio();
     player.preload = 'none';
 
-    document.addEventListener('click', (e) => {
-      const btn = e.target.closest('.dg-play');
-      if (!btn) return;
+    const toggleIconState = (img, playing) => {
+      img.classList.toggle('playing', playing);
+      img.classList.toggle('paused', !playing);
+      img.setAttribute('aria-label', playing ? 'Pause audio' : 'Play audio');
+      if (HAS_ON_ICON) {
+        img.src = playing ? ICON_ON : ICON_OFF;
+      }
+    };
 
-      const url = btn.dataset.url;
+    document.addEventListener('click', (e) => {
+      const img = e.target.closest('.play-icon');
+      if (!img) return;
+
+      const url = img.dataset.url;
       if (!url) return;
 
-      if (player.src !== url) player.src = url;
+      // If switching to a different track, set the new src
+      const changingTrack = player.src !== url;
 
-      if (player.paused || player.src !== url) {
-        document.querySelectorAll('.dg-play.playing').forEach(b => b.classList.remove('playing'));
-        player.play().catch(()=>{});
-        btn.classList.add('playing');
+      if (changingTrack) {
+        player.pause();
+        document.querySelectorAll('.play-icon.playing').forEach(i => toggleIconState(i, false));
+        player.src = url;
+      }
+
+      if (player.paused) {
+        player.play().then(() => {
+          // mark only this one as playing
+          document.querySelectorAll('.play-icon.playing').forEach(i => toggleIconState(i, false));
+          toggleIconState(img, true);
+        }).catch(()=>{});
       } else {
         player.pause();
-        btn.classList.remove('playing');
+        toggleIconState(img, false);
       }
     });
 
+    // keyboard support
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const img = document.activeElement?.closest?.('.play-icon');
+      if (!img) return;
+      e.preventDefault();
+      img.click();
+    });
+
     player.addEventListener('ended', () => {
-      document.querySelectorAll('.dg-play.playing').forEach(b => b.classList.remove('playing'));
+      document.querySelectorAll('.play-icon.playing').forEach(i => {
+        i.classList.remove('playing');
+        i.classList.add('paused');
+        if (HAS_ON_ICON) i.src = ICON_OFF;
+        i.setAttribute('aria-label', 'Play audio');
+      });
     });
 
     window.__dgPlayer = player;
