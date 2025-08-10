@@ -1,5 +1,5 @@
 // burial-listings.js  — icon-only play button
-console.log('[burial-listings] v2025-08-12-icon');
+console.log('[burial-listings] v2025-08-13-icon');
 
 let currentPage = 1;
 const pageSize   = 25;
@@ -7,7 +7,7 @@ const listEl     = document.getElementById('graveList');            // tbody
 const pageEl     = document.getElementById('paginationControls');
 
 const ICON_OFF = 'images/icon_playaudio.png';
-const ICON_ON  = 'images/icon_playaudio_on.png'; // optional
+const ICON_ON  = 'images/icon_pauseaudio.png'; // optional
 let HAS_ON_ICON = false;
 
 // Try to detect if the ON icon exists; if not, we’ll just use CSS state
@@ -85,7 +85,7 @@ if (!listEl || !pageEl) {
       } else if (hasAudio) {
         // Play icon (image only)
         const playImg = document.createElement('img');
-        playImg.src = ICON_OFF;
+        playImg.src = ICON_PLAY;
         playImg.alt = 'Play audio';
         playImg.className = 'icon-img play-icon paused';
         playImg.width = 28; playImg.height = 28;
@@ -205,13 +205,13 @@ if (!listEl || !pageEl) {
     const player = new Audio();
     player.preload = 'none';
 
-    const toggleIconState = (img, playing) => {
-      img.classList.toggle('playing', playing);
-      img.classList.toggle('paused', !playing);
-      img.setAttribute('aria-label', playing ? 'Pause audio' : 'Play audio');
-      if (HAS_ON_ICON) {
-        img.src = playing ? ICON_ON : ICON_OFF;
-      }
+   const toggleIconState = (img, playing) => {
+  img.classList.toggle('playing', playing);
+  img.classList.toggle('paused', !playing);
+  img.setAttribute('aria-label', playing ? 'Pause audio' : 'Play audio');
+  img.src = playing ? ICON_PAUSE : ICON_PLAY;
+};
+
     };
 
     document.addEventListener('click', (e) => {
