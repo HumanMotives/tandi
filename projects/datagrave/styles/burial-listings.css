@@ -33,14 +33,12 @@
 
 .icon-img{ width:25px; height:25px; object-fit:contain; }
 
-/* Play button ring */
-.dg-play{
-  width:40px; height:40px; border-radius:50%;
-  border:3px solid var(--ink);
-  background:transparent; display:grid; place-items:center;
-  cursor:pointer; font-weight:700; line-height:1;
+.icon-img.playing {
+  content: url('/images/icon_playaudio_on.png'); /* your on-state icon */
 }
-.dg-play.playing{ border-color:#0aa; }
+.icon-img.paused {
+  content: url('/images/icon_playaudio.png');    /* your off-state icon */
+}
 
 /* Bottom row */
 .grave-card .card-bottom{
