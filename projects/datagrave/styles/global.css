@@ -190,3 +190,5 @@ footer p { font-size: var(--fs-small); text-align:center; }
   font-family: sans-serif;
 }
 
+img { max-width: 100%; height: auto; }
+
