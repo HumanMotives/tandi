@@ -1,5 +1,20 @@
 /* burial-flow.css — “Bury / Cremate” flow, file upload, progress, ceremony */
 
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400&family=Work+Sans:wght@400;500&display=swap');
+
+/* Global font defaults */
+html, body {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+}
+
+h1, h2, h3 {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 300; /* Light weight */
+}
+
+
 #methodSelector {
   text-align: center;
   margin-bottom: 1rem;
