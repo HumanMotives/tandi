@@ -47,6 +47,21 @@ h1, h2, h3 {
 /* Reset-ish */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Site logo styling */
+.site-logo {
+  display: block;            /* avoids inline spacing quirks */
+  max-width: 350px;           /* adjust max size */
+  height: auto;               /* keep aspect ratio */
+}
+
+/* Optional: shrink logo on small screens */
+@media (max-width: 600px) {
+  .site-logo {
+    max-width: 150px;
+  }
+}
+
+
 html, body { height: 100%; }
 
 /* Body should span the full viewport; no centering here */
