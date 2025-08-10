@@ -51,6 +51,7 @@ html, body { height: 100%; }
 
 /* Body should span the full viewport; no centering here */
 body {
+   background-color: #f9f7f3;
   font-family: 'Work Sans', sans-serif;
   font-size: 12pt;
   color: #333;
