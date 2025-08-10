@@ -4,8 +4,7 @@
 .grave-card{
   width:100%;
   border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-1);
+  border-radius: 4px;
   overflow:hidden;
   background: var(--card);
   margin: var(--s2) 0;
@@ -57,7 +56,7 @@
 
 /* Pagination */
 .page-btn{
-  min-width:42px; height:42px; border-radius:10px;
+  min-width:42px; height:42px; border-radius:4px;
   border:1px solid var(--line); background:#fff;
   display:inline-grid; place-items:center; font-weight:600;
   margin: 0 4px; cursor:pointer;
