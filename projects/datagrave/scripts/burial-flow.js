@@ -1,11 +1,13 @@
 // --- REPLACE your existing showCeremony() with this version ---
 
-console.log('[burial-flow] v2025-aug-005-burial-flow loaded');
+console.log('[burial-flow] v2025-aug-006-burial-flow loaded');
 
 // === global state (single source of truth) ===
 window.__dgState = window.__dgState || { selectedFile: null, confirmed: false };
 const state = window.__dgState;
 
+// tiny DOM helper
+const $ = (id) => document.getElementById(id);
 
 // === File picker + change handler (full, self-contained) ===
 console.log('[burial-flow] v2025-aug-003 picker');
