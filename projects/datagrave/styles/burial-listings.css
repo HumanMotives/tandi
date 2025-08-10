@@ -14,7 +14,7 @@
 .grave-card .card-top{
   display:flex; align-items:center; gap: var(--s3);
   padding: var(--s3) var(--s4);
-  background: var(--soft);
+  background: #fffefa;
 }
 
 /* File name (ellipsis on small screens) */
@@ -27,7 +27,7 @@
 
 /* Action icons */
 .grave-card .actions{
-  display:flex; align-items:center; gap: var(--s3);
+  dis:flex; align-items:center; gap: var(--s3);
   flex: 0 0 auto;
 }
 
