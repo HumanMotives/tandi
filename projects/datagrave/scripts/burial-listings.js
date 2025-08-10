@@ -1,5 +1,5 @@
 // burial-listings.js 
-console.log('[burial-listings] v2025-08-11-5');
+console.log('[burial-listings] v2025-08-12-5');
 
 let currentPage = 1;
 const pageSize   = 25;
@@ -60,40 +60,48 @@ if (!listEl || !pageEl) {
 
       const actions = el('div', 'actions');
 
-      // Play & download if we have audio
-      const url = b.audio_url || b.audioUrl || b.publicUrl || '';
-      if (url) {
-        // Play
-        const playBtn = document.createElement('button');
-        playBtn.type = 'button';
-        playBtn.className = 'dg-play';
-        playBtn.title = 'Play / Pause';
-        playBtn.setAttribute('aria-label', 'Play or pause audio');
-        playBtn.dataset.url = url;
-        playBtn.textContent = '▶';
-        actions.appendChild(playBtn);
+      
+// Play & download if we have audio
+const url = b.audio_url || b.audioUrl || b.publicUrl || '';
+const hasAudio = !!url;
 
-        // Download
-        const dl = document.createElement('a');
-        dl.href = url;
-        dl.download = '';             // force save if allowed
-        dl.target = '_blank';         // otherwise open in new tab
-        dl.rel = 'noopener noreferrer';
-        dl.title = 'Download';
-        const dlImg = document.createElement('img');
-        dlImg.src = 'images/icon_download.png';
-        dlImg.alt = 'Download';
-        dlImg.className = 'icon-img';
-        dl.appendChild(dlImg);
-        actions.appendChild(dl);
-      } else {
-        // Legacy case — show text instead of icons
-        const legacyNote = document.createElement('span');
-        legacyNote.textContent = 'Legacy burial, no extra info available';
-        legacyNote.style.fontSize = '0.75rem';
-        legacyNote.style.opacity = '0.7';
-        actions.appendChild(legacyNote);
-      }
+if (b.method === 'cremate') {
+  // Cremated: no public audio by design
+  const note = document.createElement('span');
+  note.className = 'note';
+  note.textContent = 'No info — cremated';
+  actions.appendChild(note);
+} else if (hasAudio) {
+  // Play
+  const playBtn = document.createElement('button');
+  playBtn.type = 'button';
+  playBtn.className = 'dg-play';
+  playBtn.title = 'Play / Pause';
+  playBtn.setAttribute('aria-label', 'Play or pause audio');
+  playBtn.dataset.url = url;
+  playBtn.textContent = '▶';
+  actions.appendChild(playBtn);
+
+  // Download
+  const dl = document.createElement('a');
+  dl.href = url;
+  dl.download = '';
+  dl.target = '_blank';
+  dl.rel = 'noopener noreferrer';
+  dl.title = 'Download';
+  const dlImg = document.createElement('img');
+  dlImg.src = 'images/icon_download.png';
+  dlImg.alt = 'Download';
+  dlImg.className = 'icon-img';
+  dl.appendChild(dlImg);
+  actions.appendChild(dl);
+} else {
+  // Older burial with no stored audio
+  const legacyNote = document.createElement('span');
+  legacyNote.className = 'note';
+  legacyNote.textContent = 'Legacy burial — no extra info';
+  actions.appendChild(legacyNote);
+}
 
       top.append(icon, nameBox, actions);
 
