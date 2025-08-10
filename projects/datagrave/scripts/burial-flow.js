@@ -7,11 +7,9 @@ const FUNCTIONS_BASE = 'https://ticxhncusdycqjftohho.supabase.co/functions/v1';
 const RECORD_FN_URL  = `${FUNCTIONS_BASE}/record-burial`;
 const UPLOAD_FN_URL  = `${FUNCTIONS_BASE}/upload-burial`;
 
-// Use the already-declared SUPABASE_ANON_KEY if it exists
 if (!window.SUPABASE_ANON_KEY) {
   console.warn('[burial-flow] SUPABASE_ANON_KEY missing on window');
 }
-
 
 // === global state (single source of truth) ===
 window.__dgState = window.__dgState || { selectedFile: null, confirmed: false };
@@ -25,15 +23,14 @@ function isClean(text) {
   return !(/[<>]/.test(text) || /\bhttps?:\/\//i.test(text));
 }
 
-
+// === File picker + change handler (full, self-contained) ===
 window.__dgOpenPicker = function __dgOpenPicker() {
   const input = document.getElementById('fileInput');
   if (!input) {
     console.warn('[burial-flow] #fileInput not found');
     return;
   }
-  // allow re-selecting the same file to retrigger onchange
-  input.value = '';
+  input.value = ''; // allow same-file reselection
   input.click();
 };
 
@@ -99,7 +96,6 @@ window.__dgOnFileChange = function __dgOnFileChange(e) {
     if (fileNameEl) fileNameEl.textContent = file.name || '';
     if (fileDateEl) fileDateEl.textContent = new Date(file.lastModified).toLocaleDateString();
     if (fileSizeEl) fileSizeEl.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
-
     if (fileVibeEl) {
       const vibesPool = (typeof vibes !== 'undefined' ? vibes : ['Unclassifiable']);
       fileVibeEl.textContent = vibesPool[Math.floor(Math.random()*vibesPool.length)];
@@ -109,35 +105,55 @@ window.__dgOnFileChange = function __dgOnFileChange(e) {
       epitaphInput.value = eul[Math.floor(Math.random()*eul.length)];
     }
 
-   // Enable commit button
-if (buryBtn) {
-  buryBtn.disabled = false;
-  buryBtn.textContent = 'Commit this File?';
-  buryBtn.style.backgroundColor = '#3a3a3a';
-}
+    // Enable commit button
+    if (buryBtn) {
+      buryBtn.disabled = false;
+      buryBtn.textContent = 'Commit this File?';
+      buryBtn.style.backgroundColor = '#3a3a3a';
+    }
 
-// 👉 Only show license note if "bury" is the selected method
-const method = (document.querySelector('input[name="method"]:checked') || {}).value;
-if (method === 'bury') {
-  const licenseNote = document.getElementById('license-note');
-  if (licenseNote) {
-    licenseNote.style.display = 'block';
-  } else if (buryBtn) {
-    const p = document.createElement('p');
-    p.id = 'license-note';
-    p.className = 'license-note';
-    p.style.marginTop = '0.5rem';
-    p.style.textAlign = 'center';
-    p.style.opacity = '0.85';
-    p.innerHTML = `by burying your audio, you agree to our 
-      <a href="/license.html" target="_blank" rel="noopener noreferrer">usage license</a>.`;
-    buryBtn.insertAdjacentElement('afterend', p);
+    // Show/hide the license note ONLY for "bury"
+    const selectedMethod = (document.querySelector('input[name="method"]:checked') || {}).value;
+    toggleLicenseNote(selectedMethod === 'bury');
+  }, 1500); // adjust to 5000ms if you want the longer effect
+};
+
+// === Toggle license note helper ===
+function toggleLicenseNote(show) {
+  const btn = document.getElementById('buryBtn');
+  let note = document.getElementById('license-note');
+
+  if (show) {
+    if (note) {
+      note.style.display = 'block';
+    } else if (btn) {
+      note = document.createElement('p');
+      note.id = 'license-note';
+      note.className = 'license-note';
+      note.style.marginTop = '0.5rem';
+      note.style.textAlign = 'center';
+      note.style.opacity = '0.85';
+      note.innerHTML = `by burying your audio, you agree to our 
+        <a href="/license.html" target="_blank" rel="noopener noreferrer">usage license</a>.`;
+      btn.insertAdjacentElement('afterend', note);
+    }
+  } else if (note) {
+    note.style.display = 'none';
   }
 }
 
+// If user flips between Bury/Cremate after analysis, keep the note correct
+document.addEventListener('change', (e) => {
+  if (e.target && e.target.name === 'method') {
+    const ready = document.getElementById('readyToBury');
+    if (ready && !ready.classList.contains('hidden')) {
+      toggleLicenseNote(e.target.value === 'bury');
+    }
+  }
+});
 
+// === Buttons: Commit / Cancel (restored) ===
 
-// One delegated listener handles both buttons
 document.addEventListener('click', (e) => {
   const t = e.target;
   if (t && t.id === 'buryBtn') { e.preventDefault(); handleBuryClick(); }
@@ -177,7 +193,6 @@ function handleBuryClick() {
     setTimeout(() => { buryFill.style.width = '100%'; }, 50);
   }
 
-  // After brief progress, run the ceremony
   setTimeout(() => {
     if (burialProgress) burialProgress.classList.add('hidden');
     showCeremony();
@@ -198,6 +213,7 @@ function resetAll() {
   const aftercare        = document.getElementById('aftercare');
   const buryBtn          = document.getElementById('buryBtn');
   const cancelLink       = document.getElementById('cancelLink');
+  const licenseNote      = document.getElementById('license-note');
 
   if (input) input.value = '';
   if (uploadBox) uploadBox.classList.remove('hidden');
@@ -208,6 +224,7 @@ function resetAll() {
   if (ceremony) ceremony.innerHTML = '';
   if (aftercare) aftercare.classList.add('hidden');
   if (cancelLink) cancelLink.classList.add('hidden');
+  if (licenseNote) licenseNote.style.display = 'none';
   if (buryBtn) {
     buryBtn.disabled = true;
     buryBtn.textContent = 'Commit this File?';
@@ -217,16 +234,12 @@ function resetAll() {
 
 // === Upload helper (used only for BURY) ===
 async function uploadBurialFile(file) {
-  // These must already be defined globally in your page:
-  // UPLOAD_FN_URL, SUPABASE_ANON_KEY
   const fd = new FormData();
   fd.append('file', file);
 
   const res = await fetch(UPLOAD_FN_URL, {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-    },
+    headers: { 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
     body: fd
   });
 
@@ -283,7 +296,6 @@ async function showCeremony() {
           epitaph: epit,
           country: (document.getElementById('country')?.value || window.DG_COUNTRY || '').trim(),
           token,
-          // audio fields intentionally omitted / null
           audio_url: null,
           audio_mime: null,
           audio_bytes: null
@@ -325,8 +337,6 @@ async function showCeremony() {
     }
   } catch (err) {
     console.warn('[burial-flow] record/upload failed:', err);
-    // You can return here to stop the ceremony on failure if you prefer:
-    // return resetAll();
   }
 
   // Ceremony UI
@@ -345,7 +355,7 @@ async function showCeremony() {
     setTimeout(() => tomb.classList.add('show'), 50);
   }
 
-  // If cremated, play the ashes sample (your existing audio element/helper)
+  // If cremated, play the ashes sample
   if (method === 'cremate') {
     try {
       if (typeof window.playAshes === 'function') {
@@ -360,40 +370,10 @@ async function showCeremony() {
   const aftercare = $('aftercare');
   aftercare && aftercare.classList.remove('hidden');
 
-// Refresh the listings so the new entry appears in the NEW card layout
-if (typeof window.dgReloadBurials === 'function') {
-  window.dgReloadBurials();      // reload page 1 via burial-listings.js
-} else {
-  location.reload();             // fallback
-}
-
-  const icon = document.createElement('img');
-  icon.src = method === 'cremate' ? 'icons/icon_urn.png' : 'icons/icon_tombstone.png';
-  icon.className = 'icon-img';
-
-  const tdName = document.createElement('td');
-  // For BURY (has audio_url), show a ▶ button; for CREMATE, just the icon + name
-  if (audio_url) {
-    const playBtn = document.createElement('button');
-    playBtn.type = 'button';
-    playBtn.className = 'dg-play';
-    playBtn.title = 'Play / Pause';
-    playBtn.textContent = '▶';
-    playBtn.dataset.url = audio_url;
-    tdName.append(playBtn, ' ');
+  // Refresh the listings so the new entry appears in the NEW card layout
+  if (typeof window.dgReloadBurials === 'function') {
+    window.dgReloadBurials();
+  } else {
+    location.reload();
   }
-  tdName.append(icon, ' ', document.createTextNode(f.name));
-
-  const tdDate = document.createElement('td');
-  tdDate.textContent = new Date().toLocaleDateString();
-
-  const tdEpit = document.createElement('td');
-  tdEpit.textContent = epit;
-
-  const tdCountry = document.createElement('td');
-  tdCountry.textContent = (document.getElementById('country')?.value || window.DG_COUNTRY || '').trim();
-
-  row.append(tdName, tdDate, tdEpit, tdCountry);
-  const graveList = $('graveList');
-  graveList && graveList.prepend(row);
-}
+} // <-- end showCeremony (previous version missed this and extra old code)
