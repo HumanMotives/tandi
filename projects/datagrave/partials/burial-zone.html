@@ -10,6 +10,7 @@
      onclick="window.__dgOpenPicker()"
      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.__dgOpenPicker();}">
   Upload or drag audio (.wav, .mp3, .ogg)
+  
   <!-- IMPORTANT: not display:none; off‑screen instead -->
   <input
     type="file"
@@ -26,28 +27,34 @@
 </div>
 
 <!-- Ready To Bury Confirm Step -->
+
 <div id="readyToBury" class="hidden stack">
 
   <!-- Card 1: Autopsy Report -->
-  <section class="card soft autopsy stack">
-    <h3 class="card-title">Autopsy Report</h3>
 
-    <p id="sarcasticRemark" class="muted center mono" style="font-style:italic;">&nbsp;</p>
+<div class="labeled-container">
+  <div class="label">Autopsy Report</div>
+  
+  <p id="sarcasticRemark" style="font-style:italic; text-align:center;">
+    "Not your magnum opus."
+  </p>
 
-    <div class="report-grid">
-      <div class="row"><strong>Filename:</strong> <span id="fileName" class="mono"></span></div>
-      <div class="row"><strong>Date of birth:</strong> <span id="fileDate"></span></div>
-      <div class="row"><strong>Est. size:</strong> <span id="fileSize"></span></div>
-      <div class="row"><strong>Detected genre:</strong> <span id="fileVibe"></span></div>
-    </div>
-  </section>
+  <div>
+    <strong>Filename:</strong> <span id="fileName">07-Blacktrip_v2.mp3</span><br>
+    <strong>Date of birth:</strong> <span id="fileDate">7-2-2024</span><br>
+    <strong>Est. size:</strong> <span id="fileSize">8.44 MB</span><br>
+    <strong>Detected genre:</strong> <span id="fileVibe">Unclassifiable</span>
+  </div>
+</div>
+
 
   <!-- Card 2: Extra Services -->
-  <section class="card soft extras stack">
-    <h3 class="card-title">Extra Services</h3>
-    <label for="epitaph"><strong>Like to add some final farewell words?</strong></label>
-    <input type="text" id="epitaph" maxlength="100" class="input">
-  </section>
+ <div class="labeled-container">
+  <div class="label">Extra Services</div>
+
+  <label for="epitaph"><strong>Like to add some final farewell words?</strong></label>
+  <input type="text" id="epitaph" maxlength="100" class="input">
+</div>
 
   <!-- Actions (not in a card) -->
   <div class="stack center">
