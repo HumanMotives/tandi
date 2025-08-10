@@ -1,4 +1,4 @@
-// --- REPLACE your existing showCeremony() with this version ---
+// --- burial-flow script ---
 
 console.log('[burial-flow] v2025-aug-007-burial-flow loaded');
 
