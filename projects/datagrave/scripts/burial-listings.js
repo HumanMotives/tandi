@@ -1,6 +1,4 @@
 // burial-listings.js  
-// (no more DOMContentLoaded wrapper — runs immediately upon injection)
-
 let currentPage = 1;
 const pageSize   = 25;
 const listEl     = document.getElementById('graveList');
@@ -38,13 +36,29 @@ if (!listEl || !pageEl) {
     data.forEach(b => {
       const tr = document.createElement('tr');
       tr.classList.add('fade-in');
+
       const icon = document.createElement('img');
       icon.src = b.method === 'cremate'
         ? 'images/icon_urn.png'
         : 'images/icon_tombstone.png';
       icon.className = 'icon-img';
+
+      // --- NEW: name cell with optional play button ---
       const tdName = document.createElement('td');
-      tdName.append(icon, document.createTextNode(b.name));
+      tdName.appendChild(icon);
+
+      // add play button if audio_url exists
+      if (b.audio_url) {
+        const playBtn = document.createElement('button');
+        playBtn.className = 'dg-play';
+        playBtn.dataset.url = b.audio_url;
+        playBtn.textContent = '▶';
+        tdName.appendChild(playBtn);
+        tdName.appendChild(document.createTextNode(' ')); // space
+      }
+
+      tdName.appendChild(document.createTextNode(b.name));
+
       tr.append(
         tdName,
         createCell(new Date(b.timestamp).toLocaleDateString()),
