@@ -30,9 +30,6 @@
   padding: .3rem .5rem;
   border-bottom: 1px solid #ddd;
 }
-.graveyard tbody tr:nth-child(even) {
-  background: #fdfbf8;
-}
 
 #paginationControls {
   margin-top: 1rem;
