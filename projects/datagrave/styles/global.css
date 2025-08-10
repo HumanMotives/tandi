@@ -23,7 +23,7 @@ h1, h2, h3 {
   --ink:       #000000;
   --muted:     #6b6b6b;
   --line:      rgba(0,0,0,.12);
-  --soft:      #F6EED3;   /* tinted surfaces (cards) */
+  --soft:      #f5f1df;   /* tinted surfaces (cards) */
   --card:      #ffffff;
 
   /* spacing (8pt-ish) */
