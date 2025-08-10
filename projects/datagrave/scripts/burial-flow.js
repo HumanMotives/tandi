@@ -6,6 +6,11 @@
     confirmed: false,
   };
 
+  // --- NEW: Supabase Edge Function endpoints ---
+  const FUNCTIONS_BASE = 'https://ticxhncusdycqjftohho.supabase.co/functions/v1';
+  const UPLOAD_FN_URL  = `${FUNCTIONS_BASE}/upload-burial`;
+  const RECORD_FN_URL  = `${FUNCTIONS_BASE}/record-burial`;
+
   // text pools (unchanged content)
   const sarcasticRemarks = [
     "Right. This one had no potential anyway...",
@@ -169,11 +174,33 @@
     }
     setTimeout(() => {
       burialProgress && burialProgress.classList.add('hidden');
-      showCeremony();
+      showCeremony(); // now async (see below)
     }, 5000);
   }
 
-  function showCeremony() {
+  // --- NEW: upload helper ---
+  async function uploadBurialFile(file) {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch(UPLOAD_FN_URL, { method: 'POST', body: fd });
+    if (!res.ok) {
+      const text = await res.text().catch(()=>'');
+      throw new Error(`[upload-burial] ${res.status} ${text}`);
+    }
+    const out = await res.json();
+    if (!out || !out.ok || !out.publicUrl) {
+      throw new Error('[upload-burial] invalid response ' + JSON.stringify(out));
+    }
+    console.log('[upload-burial] OK', out);
+    return {
+      audio_url: out.publicUrl,
+      audio_mime: out.contentType || null,
+      audio_bytes: out.bytes || null
+    };
+  }
+
+  // --- CHANGED: made async so we can await upload + record ---
+  async function showCeremony() {
     const f = state.selectedFile;
     if (!f) return;
 
@@ -185,30 +212,51 @@
       return resetAll();
     }
 
-    // record via Supabase Edge Function (+ reCAPTCHA)
-    if (typeof grecaptcha !== 'undefined' && typeof RECAPTCHA_SITE_KEY !== 'undefined') {
-      grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'record_burial' })
-        .then(token => fetch(
-          'https://ticxhncusdycqjftohho.supabase.co/functions/v1/record-burial',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-            },
-            body: JSON.stringify({
-              name: f.name,
-              method,
-              epitaph: epit,
-              country: '',
-              token
-            })
-          }
-        )).catch(err => console.warn('[burial-flow] record-burial error:', err));
+    try {
+      // 1) reCAPTCHA
+      const token = (typeof grecaptcha !== 'undefined' && typeof RECAPTCHA_SITE_KEY !== 'undefined')
+        ? await grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'record_burial' })
+        : '';
+
+      // 2) upload file -> get public URL + meta
+      const { audio_url, audio_mime, audio_bytes } = await uploadBurialFile(f);
+
+      // 3) record via Supabase Edge Function (now with audio fields)
+      const recRes = await fetch(RECORD_FN_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+          name: f.name,
+          method,
+          epitaph: epit,
+          country: '',
+          token,
+          audio_url,
+          audio_mime,
+          audio_bytes
+        })
+      });
+
+      if (!recRes.ok) {
+        const text = await recRes.text().catch(()=> '');
+        throw new Error(`[record-burial] ${recRes.status} ${text}`);
+      }
+
+      const recJson = await recRes.json().catch(()=> ({}));
+      if (!recJson || !recJson.data) {
+        console.warn('[burial-flow] record-burial returned no data', recJson);
+      }
+    } catch (err) {
+      console.warn('[burial-flow] record/ upload failed:', err);
+      // We still proceed with the ceremony UI so the user experience continues,
+      // but you can early-return here if you prefer to stop on failure.
     }
 
-    // ceremony UI
+    // ceremony UI (unchanged)
     const ceremony = $('ceremony');
     if (ceremony) {
       ceremony.innerHTML = '';
@@ -227,7 +275,7 @@
     const aftercare = $('aftercare');
     aftercare && aftercare.classList.remove('hidden');
 
-    // prepend to table
+    // prepend to table (unchanged)
     const row = document.createElement('tr');
     row.classList.add('fade-in');
 
