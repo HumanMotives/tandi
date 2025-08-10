@@ -34,10 +34,6 @@ h1, h2, h3 {
   --r-sm: 3px; --r-md: 5x; --r-lg: 8px; --r-xl: 12px;
   --shadow-1: 0 1px 0 rgba(0,0,0,.06);
 
-  /* fonts */
-  --font-sans: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-
   /* type sizes */
   --fs-title: clamp(28px, 3vw, 42px);
   --fs-body:  16px;
@@ -55,7 +51,7 @@ html, body { height: 100%; }
 body{
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-sans);   /* switched from monospace */
+  font-family: var(--font-sans);   
   font-size: var(--fs-body);
   line-height: 1.5;
   max-width: var(--maxw);
@@ -153,7 +149,7 @@ nav.top-menu .nav-icon { width: 25px; height: 25px; display:block; margin-right:
   display:inline-flex; align-items:center; justify-content:center;
   height: 42px; padding: 0 var(--s3);
   border-radius: 4px;
-  border: 2px solid var(--ink);
+  border: 0px solid var(--ink);
   background: transparent;
   color: var(--ink);
   font-weight: 500; cursor:pointer;
@@ -174,7 +170,7 @@ footer p { font-size: var(--fs-small); text-align:center; }
 /* Floating-label container style */
 .labeled-container {
   position: relative;
-  border: 0.5px solid #999;
+  border: 1px solid #999;
   border-radius: 10px;
   padding: 1.5rem;
   margin: 2rem 0;
@@ -189,7 +185,7 @@ footer p { font-size: var(--fs-small); text-align:center; }
   padding: 0 0.5rem;
   font-size: 0.85rem;
   font-weight: 400;
-  color: #555;
+  color: #999;
   font-family: sans-serif;
 }
 
