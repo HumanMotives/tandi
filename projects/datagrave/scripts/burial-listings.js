@@ -72,17 +72,19 @@ if (!listEl || !pageEl) {
         playBtn.textContent = '▶';
         actions.appendChild(playBtn);
 
-        // Download icon (use your icon_download.png)
-        const dl = document.createElement('a');
-        dl.href = url;
-        dl.download = '';            // let the browser pick the filename
-        dl.title = 'Download';
-        const dlImg = document.createElement('img');
-        dlImg.src = 'images/icon_download.png';   // adjust if your file lives elsewhere
-        dlImg.alt = 'Download';
-        dlImg.className = 'icon-img';
-        dl.appendChild(dlImg);
-        actions.appendChild(dl);
+  // Download icon (use your icon_download.png)
+const dl = document.createElement('a');
+dl.href = url;
+dl.download = ''; // try to force save if allowed
+dl.target = '_blank'; // fallback: open in new tab
+dl.rel = 'noopener noreferrer';
+dl.title = 'Download';
+const dlImg = document.createElement('img');
+dlImg.src = 'images/icon_download.png';
+dlImg.alt = 'Download';
+dlImg.className = 'icon-img';
+dl.appendChild(dlImg);
+actions.appendChild(dl);
       }
 
       top.append(icon, nameBox, actions);
