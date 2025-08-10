@@ -49,16 +49,21 @@ h1, h2, h3 {
 
 html, body { height: 100%; }
 
-body{
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-sans);   
-  font-size: var(--fs-body);
-  line-height: 1.5;
-  max-width: var(--maxw);
-  margin: 0 auto;
-  padding: 0 var(--s4);
+/* Body should span the full viewport; no centering here */
+body {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 12pt;
+  color: #333;
+  /* removed: max-width / margin / padding */
 }
+
+/* New centered page wrapper */
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
 
 /* Headings & text */
 h1{ font-size: var(--fs-title); font-weight: 600; letter-spacing: .01em; margin: var(--s6) 0 var(--s4); }
