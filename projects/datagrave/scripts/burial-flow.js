@@ -134,7 +134,7 @@ function toggleLicenseNote(show) {
       note.style.textAlign = 'center';
       note.style.opacity = '0.85';
       note.innerHTML = `by burying your audio, you agree to our 
-        <a href="license.html" target="_blank" rel="noopener noreferrer">usage license</a>.`;
+        <a href="/license.html" target="_blank" rel="noopener noreferrer">usage license</a>.`;
       btn.insertAdjacentElement('afterend', note);
     }
   } else if (note) {
