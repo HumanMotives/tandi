@@ -1,4 +1,7 @@
 // burial-listings.js  
+
+console.log('[burial-listings] v2025-08-10-1');
+
 let currentPage = 1;
 const pageSize   = 25;
 const listEl     = document.getElementById('graveList');
