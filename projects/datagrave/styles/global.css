@@ -234,3 +234,11 @@ footer p { font-size: var(--fs-small); text-align:center; }
 
 img { max-width: 100%; height: auto; }
 
+/* Remove gray background on click/focus for play and icon buttons */
+.play-icon,
+.icon-img {
+  outline: none;               /* remove outline */
+  -webkit-tap-highlight-color: transparent; /* remove mobile tap highlight */
+}
+
+
