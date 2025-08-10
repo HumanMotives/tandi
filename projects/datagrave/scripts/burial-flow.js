@@ -1,6 +1,6 @@
 // --- REPLACE your existing showCeremony() with this version ---
 
-console.log('[burial-flow] v2025-aug-003-burial-flow loaded');
+console.log('[burial-flow] v2025-aug-004-burial-flow loaded');
 
 // === File picker + change handler (full, self-contained) ===
 console.log('[burial-flow] v2025-aug-003 picker');
@@ -99,6 +99,86 @@ window.__dgOnFileChange = function __dgOnFileChange(e) {
   }, 1500); // adjust to 5000ms if you want the longer effect
 };
 
+// === Buttons: Commit / Cancel (restored) ===
+console.log('[burial-flow] v2025-aug-004-controls');
+
+// One delegated listener handles both buttons
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if (t && t.id === 'buryBtn') { e.preventDefault(); handleBuryClick(); }
+  if (t && t.id === 'cancelLink') { e.preventDefault(); resetAll(); }
+});
+
+function handleBuryClick() {
+  const buryBtn        = document.getElementById('buryBtn');
+  const cancelLink     = document.getElementById('cancelLink');
+  const readyToBury    = document.getElementById('readyToBury');
+  const burialProgress = document.getElementById('burialProgress');
+  const burialMessage  = document.getElementById('burialMessage');
+  const buryFill       = document.getElementById('buryFill');
+
+  // First click = confirm step
+  if (!state.confirmed) {
+    if (buryBtn) {
+      buryBtn.textContent = 'Are You Sure?';
+      buryBtn.style.backgroundColor = '#a33';
+    }
+    if (cancelLink) cancelLink.classList.remove('hidden');
+    state.confirmed = true;
+    return;
+  }
+
+  // Second click = proceed with ceremony
+  if (readyToBury)    readyToBury.classList.add('hidden');
+  if (burialProgress) burialProgress.classList.remove('hidden');
+
+  const phrases = (Array.isArray(window.cremationPhrases) && window.cremationPhrases.length)
+    ? window.cremationPhrases
+    : ['Performing last rites...', 'Processing...'];
+
+  if (burialMessage) burialMessage.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+  if (buryFill) {
+    buryFill.style.width = '0';
+    setTimeout(() => { buryFill.style.width = '100%'; }, 50);
+  }
+
+  // After brief progress, run the ceremony
+  setTimeout(() => {
+    if (burialProgress) burialProgress.classList.add('hidden');
+    showCeremony();
+  }, 5000);
+}
+
+function resetAll() {
+  state.selectedFile = null;
+  state.confirmed = false;
+
+  const input            = document.getElementById('fileInput');
+  const uploadBox        = document.getElementById('uploadBox');
+  const methodSelector   = document.getElementById('methodSelector');
+  const progressContainer= document.getElementById('progressContainer');
+  const readyToBury      = document.getElementById('readyToBury');
+  const burialProgress   = document.getElementById('burialProgress');
+  const ceremony         = document.getElementById('ceremony');
+  const aftercare        = document.getElementById('aftercare');
+  const buryBtn          = document.getElementById('buryBtn');
+  const cancelLink       = document.getElementById('cancelLink');
+
+  if (input) input.value = '';
+  if (uploadBox) uploadBox.classList.remove('hidden');
+  if (methodSelector) methodSelector.style.display = 'block';
+  if (progressContainer) progressContainer.classList.add('hidden');
+  if (readyToBury) readyToBury.classList.add('hidden');
+  if (burialProgress) burialProgress.classList.add('hidden');
+  if (ceremony) ceremony.innerHTML = '';
+  if (aftercare) aftercare.classList.add('hidden');
+  if (cancelLink) cancelLink.classList.add('hidden');
+  if (buryBtn) {
+    buryBtn.disabled = true;
+    buryBtn.textContent = 'Commit this File?';
+    buryBtn.style.backgroundColor = '#3a3a3a';
+  }
+}
 
 
 async function showCeremony() {
