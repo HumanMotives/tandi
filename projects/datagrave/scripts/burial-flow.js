@@ -25,8 +25,6 @@ function isClean(text) {
   return !(/[<>]/.test(text) || /\bhttps?:\/\//i.test(text));
 }
 
-// === File picker + change handler (full, self-contained) ===
-console.log('[burial-flow] v2025-aug-003 picker');
 
 window.__dgOpenPicker = function __dgOpenPicker() {
   const input = document.getElementById('fileInput');
@@ -249,7 +247,6 @@ async function uploadBurialFile(file) {
 }
 
 async function showCeremony() {
-  console.log('[burial-flow] v2025-aug-001-burial-flow');
 
   const f = state.selectedFile;
   if (!f) return;
