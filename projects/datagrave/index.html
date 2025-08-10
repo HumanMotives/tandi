@@ -22,29 +22,29 @@
   </script>
   <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" defer></script>
 
-  <script>
+<script>
 (function graveStats(){
   const buriedEl   = document.getElementById('dg-buried-count');
   const crematedEl = document.getElementById('dg-cremated-count');
   if (!buriedEl || !crematedEl) return;
 
-  const TABLE = 'burials';      // change if your table name differs
-  const COL   = 'method';       // change if your column name differs
+  const URL   = window.SUPABASE_URL || 'https://ticxhncusdycqjftohho.supabase.co';
+  const KEY   = window.SUPABASE_ANON_KEY;
+  const TABLE = 'burials';   // change if your table name differs
+  const COL   = 'method';    // change if your column name differs
 
   async function getCount(methodValue) {
-    const url = `${window.SUPABASE_URL}/rest/v1/${TABLE}?select=id&${COL}=eq.${encodeURIComponent(methodValue)}`;
-    const res = await fetch(url, {
-      method: 'GET',
+    // Returns: [{ "count": 123 }]
+    const u = `${URL}/rest/v1/${TABLE}?select=count:id&${COL}=eq.${encodeURIComponent(methodValue)}`;
+    const res = await fetch(u, {
       headers: {
-        apikey: window.SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${window.SUPABASE_ANON_KEY}`,
-        Prefer: 'count=exact',
-        Range: '0-0' // we only need the count, not the rows
+        apikey: KEY,
+        Authorization: `Bearer ${KEY}`
       }
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const cr = res.headers.get('content-range'); // e.g. "0-0/123"
-    return Number(cr?.split('/')?.[1] ?? 0);
+    const json = await res.json();
+    return Number(json?.[0]?.count ?? 0);
   }
 
   async function refresh() {
@@ -63,7 +63,7 @@
   }
 
   refresh();
-  setInterval(refresh, 30000); // refresh every 30s
+  setInterval(refresh, 30000);
 })();
 </script>
 
