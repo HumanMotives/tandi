@@ -60,33 +60,40 @@ if (!listEl || !pageEl) {
 
       const actions = el('div', 'actions');
 
-      // Play button if we have an audio URL
-      const url = b.audio_url || b.audioUrl || b.publicUrl || '';
-      if (url) {
-        const playBtn = document.createElement('button');
-        playBtn.type = 'button';
-        playBtn.className = 'dg-play';
-        playBtn.title = 'Play / Pause';
-        playBtn.setAttribute('aria-label', 'Play or pause audio');
-        playBtn.dataset.url = url;
-        playBtn.textContent = '▶';
-        actions.appendChild(playBtn);
+  // Play & download if we have audio
+const url = b.audio_url || b.audioUrl || b.publicUrl || '';
+if (url) {
+  // Play button
+  const playBtn = document.createElement('button');
+  playBtn.type = 'button';
+  playBtn.className = 'dg-play';
+  playBtn.title = 'Play / Pause';
+  playBtn.setAttribute('aria-label', 'Play or pause audio');
+  playBtn.dataset.url = url;
+  playBtn.textContent = '▶';
+  actions.appendChild(playBtn);
 
-  // Download icon (use your icon_download.png)
-const dl = document.createElement('a');
-dl.href = url;
-dl.download = ''; // try to force save if allowed
-dl.target = '_blank'; // fallback: open in new tab
-dl.rel = 'noopener noreferrer';
-dl.title = 'Download';
-const dlImg = document.createElement('img');
-dlImg.src = 'images/icon_download.png';
-dlImg.alt = 'Download';
-dlImg.className = 'icon-img';
-dl.appendChild(dlImg);
-actions.appendChild(dl);
-      }
-
+  // Download icon
+  const dl = document.createElement('a');
+  dl.href = url;
+  dl.download = ''; // force save if possible
+  dl.target = '_blank';
+  dl.rel = 'noopener noreferrer';
+  dl.title = 'Download';
+  const dlImg = document.createElement('img');
+  dlImg.src = 'images/icon_download.png';
+  dlImg.alt = 'Download';
+  dlImg.className = 'icon-img';
+  dl.appendChild(dlImg);
+  actions.appendChild(dl);
+} else {
+  // Legacy case — show text instead of icons
+  const legacyNote = document.createElement('span');
+  legacyNote.textContent = 'Legacy burial, no extra info available';
+  legacyNote.style.fontSize = '0.75rem';
+  legacyNote.style.opacity = '0.7';
+  actions.appendChild(legacyNote);
+}
       top.append(icon, nameBox, actions);
 
       // Bottom row
