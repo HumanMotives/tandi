@@ -1,80 +1,119 @@
-/* global.css — resets, typography, nav & layout */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* ================================
+   global.css v2.001
+   ================================ */
+
+/* Design tokens */
+:root{
+  /* colors */
+  --bg:        #f5f1e6;
+  --ink:       #1f1f1f;
+  --muted:     #6b6b6b;
+  --line:      rgba(0,0,0,.12);
+  --soft:      #F6EED3;   /* tinted surfaces (cards) */
+  --card:      #ffffff;
+
+  /* spacing (8pt-ish) */
+  --s-1: 4px;  --s0: 8px;  --s1: 12px; --s2: 16px; --s3: 20px;
+  --s4: 24px;  --s5: 32px; --s6: 40px; --s7: 56px;
+
+  /* radii / shadow */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px;
+  --shadow-1: 0 1px 0 rgba(0,0,0,.06);
+
+  /* fonts */
+  --font-sans: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* type sizes */
+  --fs-title: clamp(28px, 3vw, 42px);
+  --fs-body:  16px;
+  --fs-small: 14px;
+
+  /* layout */
+  --maxw: 800px;
 }
 
-body {
-  background-color: #f5f1e6;
-  font-family: monospace;
-  font-size: 12pt;
-  color: #333;
-  max-width: 800px;
+/* Reset-ish */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body{
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);   /* switched from monospace */
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  max-width: var(--maxw);
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 var(--s4);
 }
 
-.logo-container {
-  text-align: center;
-  margin: 4rem auto 0;
-}
+/* Headings & text */
+h1{ font-size: var(--fs-title); font-weight: 600; letter-spacing: .01em; margin: var(--s6) 0 var(--s4); }
+h2{ font-size: 22px; font-weight: 600; margin: var(--s5) 0 var(--s2); }
+p.muted{ color: var(--muted); }
 
-#tagline {
-  text-align: center;
-  color: #666;
-  margin-bottom: 2rem;
-}
+/* Links */
+a{ color: inherit; text-underline-offset: 3px; }
+a:hover{ text-decoration: none; }
 
+/* Utilities */
+.icon-img{ width: 25px; height: 25px; object-fit: contain; display:inline-block; }
+.mono{ font-family: var(--font-mono); }
+.stack > * + *{ margin-top: var(--s2); }
+.center{ text-align: center; }
+
+/* Logo & tagline */
+.logo-container { text-align: center; margin: var(--s6) auto 0; }
+#tagline { text-align: center; color: var(--muted); margin-bottom: var(--s4); }
+
+/* Divider */
 hr {
   border: none;
-  border-top: 1px solid #ccc;
-  margin: 2rem 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+  margin: var(--s4) 0;
 }
 
-/* header/nav */
+/* Header / nav */
 nav.top-menu {
   position: relative;
   left: 50%;
   transform: translateX(-50%);
   width: 100vw;
   background: #fff;
-  padding: 0.5rem 0;
-  margin-bottom: 1.5rem;
+  padding: var(--s0) 0;
+  margin-bottom: var(--s4);
   box-sizing: border-box;
   z-index: 10;
+  box-shadow: var(--shadow-1);
+  border-bottom: 1px solid var(--line);
 }
 nav.top-menu ul {
   list-style: none;
   display: flex;
   justify-content: center;
-  align-items: center;      
-  gap: 2rem;
+  align-items: center;
+  gap: var(--s3);
 }
 nav.top-menu li {
-  display: flex;            
-  align-items: center;      
+  display: flex;
+  align-items: center;
 }
 nav.top-menu a {
-  font-family: monospace;
-  color: #333;
+  color: var(--ink);
   text-decoration: none;
-  font-size: 1rem;
-  display: flex;            
-  align-items: center;      
-  line-height: 1;           
-  padding: 0.125rem 0;      
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  padding: 2px 0;
+  font-weight: 600;
 }
-nav.top-menu a:hover {
-  text-decoration: underline;
-}
-nav.top-menu .nav-icon {
-  width: 25px;             
-  height: 25px;
-  display: block;           
-  margin-right: 0.5rem;
-  object-fit: contain;
-}
+nav.top-menu a:hover { text-decoration: underline; }
+nav.top-menu .nav-icon { width: 25px; height: 25px; display:block; margin-right: 8px; object-fit: contain; }
+
 /* Make file inputs programmatically clickable while staying invisible */
 .hidden-file {
   position: fixed;
@@ -85,9 +124,35 @@ nav.top-menu .nav-icon {
   pointer-events: none;
 }
 
-footer {
-  margin-top: 2rem;      /* space above footer */
-  padding-top: 1rem;     /* padding inside footer at the top */
-  padding-bottom: 1rem;  /* padding inside footer at the bottom */
-  border-top: 1px solid rgba(255,255,255,0.1); /* optional subtle divider */
+/* Generic card + soft card (use everywhere) */
+.card{
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: var(--s4);
+  box-shadow: var(--shadow-1);
 }
+.card.soft{ background: var(--soft); }
+
+/* Buttons */
+.button, .btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  height: 42px; padding: 0 var(--s3);
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font-weight: 700; cursor:pointer;
+}
+.button:hover, .btn:hover{ background: rgba(0,0,0,.04); }
+.btn.primary{ background: var(--ink); color:#fff; }
+.btn.primary:hover{ filter: brightness(.96); }
+
+/* Footer */
+footer {
+  margin-top: var(--s5);
+  padding: var(--s3) 0 var(--s4);
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+footer p { font-size: var(--fs-small); text-align:center; }
