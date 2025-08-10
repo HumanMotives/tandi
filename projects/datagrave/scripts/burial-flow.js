@@ -347,9 +347,12 @@ async function showCeremony() {
   const aftercare = $('aftercare');
   aftercare && aftercare.classList.remove('hidden');
 
-  // Prepend to table (no play button for cremations)
-  const row = document.createElement('tr');
-  row.classList.add('fade-in');
+// Refresh the listings so the new entry appears in the NEW card layout
+if (typeof window.dgReloadBurials === 'function') {
+  window.dgReloadBurials();      // reload page 1 via burial-listings.js
+} else {
+  location.reload();             // fallback
+}
 
   const icon = document.createElement('img');
   icon.src = method === 'cremate' ? 'icons/icon_urn.png' : 'icons/icon_tombstone.png';
