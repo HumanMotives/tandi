@@ -1,15 +1,14 @@
 // --- burial-flow script ---
 
-console.log('[burial-flow] v2025-aug-009-burial-flow loaded');
+console.log('[burial-flow] v2025-aug-010-burial-flow loaded');
 
 // --- Supabase Edge endpoints + anon key (required) ---
 const FUNCTIONS_BASE = 'https://ticxhncusdycqjftohho.supabase.co/functions/v1';
 const RECORD_FN_URL  = `${FUNCTIONS_BASE}/record-burial`;
 const UPLOAD_FN_URL  = `${FUNCTIONS_BASE}/upload-burial`;
 
-// Expect the anon key to be provided globally (same as burial-listings.js)
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || '';
-if (!SUPABASE_ANON_KEY) {
+// Use the already-declared SUPABASE_ANON_KEY if it exists
+if (!window.SUPABASE_ANON_KEY) {
   console.warn('[burial-flow] SUPABASE_ANON_KEY missing on window');
 }
 
