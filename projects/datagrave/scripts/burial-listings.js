@@ -6,8 +6,8 @@ const pageSize   = 25;
 const listEl     = document.getElementById('graveList');            // tbody
 const pageEl     = document.getElementById('paginationControls');
 
-const ICON_PLAY  = 'images/icon_playaudio.png';
-const ICON_PAUSE = 'images/icon_pauseaudio.png';
+const ICON_PLAY  = './images/icon_playaudio.png';
+const ICON_PAUSE = './images/icon_pauseaudio.png';
 
 if (!listEl || !pageEl) {
   console.error('[burial-listings] Missing #graveList or #paginationControls');
