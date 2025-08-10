@@ -1,34 +1,104 @@
 // --- REPLACE your existing showCeremony() with this version ---
 
-console.log('[burial-flow] v2025-aug-002-burial-flow loaded');
+console.log('[burial-flow] v2025-aug-003-burial-flow loaded');
 
-// expose picker + change handler globally
+// === File picker + change handler (full, self-contained) ===
+console.log('[burial-flow] v2025-aug-003 picker');
+
 window.__dgOpenPicker = function __dgOpenPicker() {
   const input = document.getElementById('fileInput');
   if (!input) {
     console.warn('[burial-flow] #fileInput not found');
     return;
   }
-  input.value = '';       // allow re-selecting the same file
+  // allow re-selecting the same file to retrigger onchange
+  input.value = '';
   input.click();
 };
 
 window.__dgOnFileChange = function __dgOnFileChange(e) {
-  // minimal, safe default: just stash the file so showCeremony() can use it
   const file = e?.target?.files?.[0];
   if (!file) {
     console.log('[burial-flow] onFileChange: no file selected');
     return;
   }
-  // if you already have `state` defined elsewhere, this will use it
+
+  // Validate by MIME OR extension
+  const mime = (file.type || '').toLowerCase();
+  const name = (file.name || '').toLowerCase();
+  const extOk  = /\.(wav|mp3|ogg)$/i.test(name);
+  const mimeOk = ['audio/wav','audio/x-wav','audio/wave','audio/mpeg','audio/ogg'].includes(mime);
+  if (!(extOk || mimeOk)) {
+    alert('Invalid file type. Only .wav, .mp3, and .ogg are allowed.');
+    e.target.value = '';
+    return;
+  }
+
+  // Store in state for showCeremony()
   if (typeof state === 'object') {
     state.selectedFile = file;
+    state.confirmed = false;
   }
-  console.log('[burial-flow] picked:', file.name, 'type:', file.type);
-  // enable your “Commit this File?” button if you gate on it
-  const buryBtn = document.getElementById('buryBtn');
-  if (buryBtn) buryBtn.disabled = false;
+
+  // Cache DOM
+  const $id = (x) => document.getElementById(x);
+  const uploadBox        = $id('uploadBox');
+  const methodSelector   = $id('methodSelector');
+  const progressContainer= $id('progressContainer');
+  const analyzeFill      = $id('analyzeFill');
+  const readyToBury      = $id('readyToBury');
+  const buryBtn          = $id('buryBtn');
+
+  // Hide picker, show analyzing
+  uploadBox && uploadBox.classList.add('hidden');
+  if (methodSelector) methodSelector.style.display = 'none';
+  readyToBury && readyToBury.classList.add('hidden');
+
+  if (analyzeFill) analyzeFill.style.width = '0';
+  progressContainer && progressContainer.classList.remove('hidden');
+
+  // Kick the progress fill
+  setTimeout(() => { if (analyzeFill) analyzeFill.style.width = '100%'; }, 50);
+
+  // After a short delay, show details + enable commit
+  setTimeout(() => {
+    progressContainer && progressContainer.classList.add('hidden');
+    readyToBury && readyToBury.classList.remove('hidden');
+
+    // Populate details safely (only if elements exist)
+    const sarcasticRemark = $id('sarcasticRemark');
+    const fileNameEl      = $id('fileName');
+    const fileDateEl      = $id('fileDate');
+    const fileSizeEl      = $id('fileSize');
+    const fileVibeEl      = $id('fileVibe');
+    const epitaphInput    = $id('epitaph');
+
+    if (sarcasticRemark) {
+      const pool = (typeof sarcasticRemarks !== 'undefined' ? sarcasticRemarks : ['Not your magnum opus.']);
+      sarcasticRemark.textContent = `"${pool[Math.floor(Math.random()*pool.length)]}"`;
+    }
+    if (fileNameEl) fileNameEl.textContent = file.name || '';
+    if (fileDateEl) fileDateEl.textContent = new Date(file.lastModified).toLocaleDateString();
+    if (fileSizeEl) fileSizeEl.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+
+    if (fileVibeEl) {
+      const vibesPool = (typeof vibes !== 'undefined' ? vibes : ['Unclassifiable']);
+      fileVibeEl.textContent = vibesPool[Math.floor(Math.random()*vibesPool.length)];
+    }
+    if (epitaphInput) {
+      const eul = (typeof eulogies !== 'undefined' ? eulogies : ['Fade out forever.']);
+      epitaphInput.value = eul[Math.floor(Math.random()*eul.length)];
+    }
+
+    // Enable commit button
+    if (buryBtn) {
+      buryBtn.disabled = false;
+      buryBtn.textContent = 'Commit this File?';
+      buryBtn.style.backgroundColor = '#3a3a3a';
+    }
+  }, 1500); // adjust to 5000ms if you want the longer effect
 };
+
 
 
 async function showCeremony() {
