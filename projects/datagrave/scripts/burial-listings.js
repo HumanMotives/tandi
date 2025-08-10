@@ -1,22 +1,13 @@
-// burial-listings.js  — icon-only play button
-console.log('[burial-listings] v2025-08-13-icon');
+// burial-listings.js — icon-only play/pause image
+console.log('[burial-listings] v2025-08-14-icon-fix');
 
 let currentPage = 1;
 const pageSize   = 25;
 const listEl     = document.getElementById('graveList');            // tbody
 const pageEl     = document.getElementById('paginationControls');
 
-const ICON_OFF = 'images/icon_playaudio.png';
-const ICON_ON  = 'images/icon_pauseaudio.png'; // optional
-let HAS_ON_ICON = false;
-
-// Try to detect if the ON icon exists; if not, we’ll just use CSS state
-(() => {
-  const probe = new Image();
-  probe.onload = () => { HAS_ON_ICON = true; };
-  probe.onerror = () => { HAS_ON_ICON = false; };
-  probe.src = ICON_ON;
-})();
+const ICON_PLAY  = 'images/icon_playaudio.png';
+const ICON_PAUSE = 'images/icon_pauseaudio.png';
 
 if (!listEl || !pageEl) {
   console.error('[burial-listings] Missing #graveList or #paginationControls');
@@ -77,7 +68,6 @@ if (!listEl || !pageEl) {
       const hasAudio = !!url;
 
       if (b.method === 'cremate') {
-        // Cremated: no public audio by design
         const note = document.createElement('span');
         note.className = 'note';
         note.textContent = 'No info — cremated';
@@ -109,7 +99,6 @@ if (!listEl || !pageEl) {
         dl.appendChild(dlImg);
         actions.appendChild(dl);
       } else {
-        // Older burial with no stored audio
         const legacyNote = document.createElement('span');
         legacyNote.className = 'note';
         legacyNote.textContent = 'Legacy burial — no extra info';
@@ -167,7 +156,6 @@ if (!listEl || !pageEl) {
   }
 
   function hideTableHeadings() {
-    // #graveList is a TBODY — find its table and hide the THEAD beneath the pagination
     const table = listEl.closest('table');
     if (!table) return;
     const thead = table.querySelector('thead');
@@ -205,13 +193,11 @@ if (!listEl || !pageEl) {
     const player = new Audio();
     player.preload = 'none';
 
-   const toggleIconState = (img, playing) => {
-  img.classList.toggle('playing', playing);
-  img.classList.toggle('paused', !playing);
-  img.setAttribute('aria-label', playing ? 'Pause audio' : 'Play audio');
-  img.src = playing ? ICON_PAUSE : ICON_PLAY;
-};
-
+    const toggleIconState = (img, playing) => {
+      img.classList.toggle('playing', playing);
+      img.classList.toggle('paused', !playing);
+      img.setAttribute('aria-label', playing ? 'Pause audio' : 'Play audio');
+      img.src = playing ? ICON_PAUSE : ICON_PLAY;
     };
 
     document.addEventListener('click', (e) => {
@@ -221,7 +207,7 @@ if (!listEl || !pageEl) {
       const url = img.dataset.url;
       if (!url) return;
 
-      // If switching to a different track, set the new src
+      // Switching track?
       const changingTrack = player.src !== url;
 
       if (changingTrack) {
@@ -232,7 +218,6 @@ if (!listEl || !pageEl) {
 
       if (player.paused) {
         player.play().then(() => {
-          // mark only this one as playing
           document.querySelectorAll('.play-icon.playing').forEach(i => toggleIconState(i, false));
           toggleIconState(img, true);
         }).catch(()=>{});
@@ -255,7 +240,7 @@ if (!listEl || !pageEl) {
       document.querySelectorAll('.play-icon.playing').forEach(i => {
         i.classList.remove('playing');
         i.classList.add('paused');
-        if (HAS_ON_ICON) i.src = ICON_OFF;
+        i.src = ICON_PLAY;
         i.setAttribute('aria-label', 'Play audio');
       });
     });
