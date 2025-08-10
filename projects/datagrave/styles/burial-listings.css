@@ -34,7 +34,7 @@
 .icon-img{ width:25px; height:25px; object-fit:contain; }
 
 .icon-img.playing {
-  content: url('/images/icon_playaudio_on.png'); /* your on-state icon */
+  content: url('/images/icon_pauseaudio.png'); /* your on-state icon */
 }
 .icon-img.paused {
   content: url('/images/icon_playaudio.png');    /* your off-state icon */
