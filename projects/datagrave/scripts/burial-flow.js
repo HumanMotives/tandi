@@ -1,6 +1,6 @@
 // --- burial-flow script ---
 
-console.log('[burial-flow] v2025-aug-010-burial-flow loaded');
+console.log('[burial-flow] v2025-aug-015-burial-flow loaded');
 
 // --- Supabase Edge endpoints + anon key (required) ---
 const FUNCTIONS_BASE = 'https://ticxhncusdycqjftohho.supabase.co/functions/v1';
@@ -111,17 +111,33 @@ window.__dgOnFileChange = function __dgOnFileChange(e) {
       epitaphInput.value = eul[Math.floor(Math.random()*eul.length)];
     }
 
-    // Enable commit button
-    if (buryBtn) {
-      buryBtn.disabled = false;
-      buryBtn.textContent = 'Commit this File?';
-      buryBtn.style.backgroundColor = '#3a3a3a';
-    }
-  }, 1500); // adjust to 5000ms if you want the longer effect
-};
+   // Enable commit button
+if (buryBtn) {
+  buryBtn.disabled = false;
+  buryBtn.textContent = 'Commit this File?';
+  buryBtn.style.backgroundColor = '#3a3a3a';
+}
 
-// === Buttons: Commit / Cancel (restored) ===
-console.log('[burial-flow] v2025-aug-004-controls');
+// 👉 Only show license note if "bury" is the selected method
+const method = (document.querySelector('input[name="method"]:checked') || {}).value;
+if (method === 'bury') {
+  const licenseNote = document.getElementById('license-note');
+  if (licenseNote) {
+    licenseNote.style.display = 'block';
+  } else if (buryBtn) {
+    const p = document.createElement('p');
+    p.id = 'license-note';
+    p.className = 'license-note';
+    p.style.marginTop = '0.5rem';
+    p.style.textAlign = 'center';
+    p.style.opacity = '0.85';
+    p.innerHTML = `by burying your audio, you agree to our 
+      <a href="/license.html" target="_blank" rel="noopener noreferrer">usage license</a>.`;
+    buryBtn.insertAdjacentElement('afterend', p);
+  }
+}
+
+
 
 // One delegated listener handles both buttons
 document.addEventListener('click', (e) => {
