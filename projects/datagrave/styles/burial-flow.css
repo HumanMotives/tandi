@@ -126,3 +126,38 @@
 .license-note a:hover {
   text-decoration: none;
 }
+
+/* section titles inside cards */
+.card-title{
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* tidy rows in the report */
+.report-grid .row{
+  display:flex; gap: 10px; align-items: baseline;
+  padding: 4px 0;
+}
+.report-grid strong{ min-width: 150px; }
+
+/* input styling to match the new system */
+.input{
+  height: 42px; width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: #fff;
+  font: inherit;
+}
+
+/* license line */
+.license-note{
+  font-size: 0.85rem;
+  opacity: .85;
+}
+.license-note a{ text-decoration: underline; }
+.license-note a:hover{ text-decoration: none; }
+
