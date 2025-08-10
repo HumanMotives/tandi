@@ -241,4 +241,17 @@ img { max-width: 100%; height: auto; }
   -webkit-tap-highlight-color: transparent; /* remove mobile tap highlight */
 }
 
+.dg-hero-stat {
+  display: flex;
+  gap: .75rem;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 1rem auto 1.5rem;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+}
+.dg-hero-stat .tagline { opacity: .85; }
+.dg-hero-stat .counts { font-weight: 700; letter-spacing: .01em; }
+.dg-hero-stat .sep { opacity: .4; margin: 0 .5rem; }
+#dg-buried-count, #dg-cremated-count { font-variant-numeric: tabular-nums; }
 
