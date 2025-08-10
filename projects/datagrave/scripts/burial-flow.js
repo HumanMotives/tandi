@@ -6,10 +6,39 @@
     confirmed: false,
   };
 
+  
+
   // --- NEW: Supabase Edge Function endpoints ---
   const FUNCTIONS_BASE = 'https://ticxhncusdycqjftohho.supabase.co/functions/v1';
   const UPLOAD_FN_URL  = `${FUNCTIONS_BASE}/upload-burial`;
   const RECORD_FN_URL  = `${FUNCTIONS_BASE}/record-burial`;
+
+  // shared audio element
+const player = new Audio();
+player.preload = 'none';
+player.addEventListener('ended', () => {
+  document.querySelectorAll('.dg-play.playing').forEach(b => b.classList.remove('playing'));
+});
+
+// delegated click for play/pause
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.dg-play');
+  if (!btn) return;
+  const url = btn.dataset.url;
+  if (!url) return;
+
+  if (player.src !== url) player.src = url;
+
+  if (player.paused || player.src !== url) {
+    document.querySelectorAll('.dg-play.playing').forEach(b => b.classList.remove('playing'));
+    player.play().catch(()=>{});
+    btn.classList.add('playing');
+  } else {
+    player.pause();
+    btn.classList.remove('playing');
+  }
+});
+
 
   // text pools (unchanged content)
   const sarcasticRemarks = [
