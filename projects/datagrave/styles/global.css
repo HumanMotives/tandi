@@ -138,11 +138,11 @@ nav.top-menu .nav-icon { width: 25px; height: 25px; display:block; margin-right:
 .button, .btn{
   display:inline-flex; align-items:center; justify-content:center;
   height: 42px; padding: 0 var(--s3);
-  border-radius: 999px;
+  border-radius: 4px;
   border: 2px solid var(--ink);
   background: transparent;
   color: var(--ink);
-  font-weight: 700; cursor:pointer;
+  font-weight: 500; cursor:pointer;
 }
 .button:hover, .btn:hover{ background: rgba(0,0,0,.04); }
 .btn.primary{ background: var(--ink); color:#fff; }
