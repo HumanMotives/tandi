@@ -1,5 +1,7 @@
 // --- REPLACE your existing showCeremony() with this version ---
 
+console.log('[burial-flow] v2025-aug-001-burial-flow loaded');
+
 
 async function showCeremony() {
     console.log('[burial-flow] v2025-aug-001-burial-flow');
