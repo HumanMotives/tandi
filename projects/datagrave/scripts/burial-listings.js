@@ -1,5 +1,5 @@
-// burial-listings.js  (full replacement)
-console.log('[burial-listings] v2025-08-10-4');
+// burial-listings.js 
+console.log('[burial-listings] v2025-08-11-5');
 
 let currentPage = 1;
 const pageSize   = 25;
@@ -50,7 +50,7 @@ if (!listEl || !pageEl) {
       // Top row
       const top  = el('div', 'card-top');
 
-      // use your /images/ path (was broken before)
+      // icon
       const icon = document.createElement('img');
       icon.src   = (b.method === 'cremate') ? 'images/icon_urn.png' : 'images/icon_tombstone.png';
       icon.className = 'icon-img';
@@ -60,40 +60,41 @@ if (!listEl || !pageEl) {
 
       const actions = el('div', 'actions');
 
-  // Play & download if we have audio
-const url = b.audio_url || b.audioUrl || b.publicUrl || '';
-if (url) {
-  // Play button
-  const playBtn = document.createElement('button');
-  playBtn.type = 'button';
-  playBtn.className = 'dg-play';
-  playBtn.title = 'Play / Pause';
-  playBtn.setAttribute('aria-label', 'Play or pause audio');
-  playBtn.dataset.url = url;
-  playBtn.textContent = '▶';
-  actions.appendChild(playBtn);
+      // Play & download if we have audio
+      const url = b.audio_url || b.audioUrl || b.publicUrl || '';
+      if (url) {
+        // Play
+        const playBtn = document.createElement('button');
+        playBtn.type = 'button';
+        playBtn.className = 'dg-play';
+        playBtn.title = 'Play / Pause';
+        playBtn.setAttribute('aria-label', 'Play or pause audio');
+        playBtn.dataset.url = url;
+        playBtn.textContent = '▶';
+        actions.appendChild(playBtn);
 
-  // Download icon
-  const dl = document.createElement('a');
-  dl.href = url;
-  dl.download = ''; // force save if possible
-  dl.target = '_blank';
-  dl.rel = 'noopener noreferrer';
-  dl.title = 'Download';
-  const dlImg = document.createElement('img');
-  dlImg.src = 'images/icon_download.png';
-  dlImg.alt = 'Download';
-  dlImg.className = 'icon-img';
-  dl.appendChild(dlImg);
-  actions.appendChild(dl);
-} else {
-  // Legacy case — show text instead of icons
-  const legacyNote = document.createElement('span');
-  legacyNote.textContent = 'Legacy burial, no extra info available';
-  legacyNote.style.fontSize = '0.75rem';
-  legacyNote.style.opacity = '0.7';
-  actions.appendChild(legacyNote);
-}
+        // Download
+        const dl = document.createElement('a');
+        dl.href = url;
+        dl.download = '';             // force save if allowed
+        dl.target = '_blank';         // otherwise open in new tab
+        dl.rel = 'noopener noreferrer';
+        dl.title = 'Download';
+        const dlImg = document.createElement('img');
+        dlImg.src = 'images/icon_download.png';
+        dlImg.alt = 'Download';
+        dlImg.className = 'icon-img';
+        dl.appendChild(dlImg);
+        actions.appendChild(dl);
+      } else {
+        // Legacy case — show text instead of icons
+        const legacyNote = document.createElement('span');
+        legacyNote.textContent = 'Legacy burial, no extra info available';
+        legacyNote.style.fontSize = '0.75rem';
+        legacyNote.style.opacity = '0.7';
+        actions.appendChild(legacyNote);
+      }
+
       top.append(icon, nameBox, actions);
 
       // Bottom row
@@ -169,6 +170,40 @@ if (url) {
     style.id = 'grave-card-styles';
     style.textContent = css;
     document.head.appendChild(style);
+  }
+
+  // Expose a reload helper so burial-flow can refresh after a new entry
+  window.dgReloadBurials = () => fetchPage(1);
+
+  // Shared audio player (singleton) for all .dg-play buttons
+  if (!window.__dgPlayer) {
+    const player = new Audio();
+    player.preload = 'none';
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.dg-play');
+      if (!btn) return;
+
+      const url = btn.dataset.url;
+      if (!url) return;
+
+      if (player.src !== url) player.src = url;
+
+      if (player.paused || player.src !== url) {
+        document.querySelectorAll('.dg-play.playing').forEach(b => b.classList.remove('playing'));
+        player.play().catch(()=>{});
+        btn.classList.add('playing');
+      } else {
+        player.pause();
+        btn.classList.remove('playing');
+      }
+    });
+
+    player.addEventListener('ended', () => {
+      document.querySelectorAll('.dg-play.playing').forEach(b => b.classList.remove('playing'));
+    });
+
+    window.__dgPlayer = player;
   }
 
   // Kick off the first page
