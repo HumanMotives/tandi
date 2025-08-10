@@ -150,7 +150,7 @@ if (!listEl || !pageEl) {
       .grave-card .card-top { background: #F6EED3; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px 14px 0 0; }
       .grave-card .file-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; font-size: 1.05rem; letter-spacing: 0.02em; flex: 1; display: flex; align-items: center; gap: 10px; }
       .grave-card .actions { display: flex; align-items: center; gap: 14px; }
-      .dg-play { width: 40px; height: 40px; border-radius: 50%; border: 3px solid #000; background: transparent; display: inline-grid; place-items: center; cursor: pointer; font: inherit; }
+      .dg-play { width: 28px; height: 28px; border-radius: 50%; border: 3px solid #000; background: transparent; display: inline-grid; place-items: center; cursor: pointer; font: inherit; }
       .dg-play.playing { border-color: #0aa; }
       .grave-card .card-bottom { background: #B6B6B6; color: #fff; padding: 12px 16px; display: flex; gap: 12px; justify-content: space-between; border: 1px solid rgba(0,0,0,0.15); border-top: none; box-shadow: inset 0 1px 0 rgba(255,255,255,0.18); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.95rem; border-radius: 0 0 14px 14px; }
       .grave-card .quote { opacity: 0.9; color: #F6EED3; font-style: italic; }
