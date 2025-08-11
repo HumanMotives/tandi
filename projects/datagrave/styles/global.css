@@ -356,3 +356,69 @@ footer .legal {
   text-align: center;
 }
 
+/* Card now uses a fieldset so the legend cleanly breaks the border */
+.dg-list { display: grid; gap: 14px; }
+
+.dg-record {
+  /* fieldset */
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--card, #fff);           /* card fill is back */
+  padding: 18px;                            /* content padding */
+  margin: 10px 0 18px;                      /* space between cards */
+  min-width: 0;
+}
+
+/* Legend that sits on the border line */
+.dg-record > legend.dg-record__legend {
+  position: static;                         /* override any previous absolute */
+  padding: 0 8px;
+  margin-left: 12px;                        /* tiny inset from left corner */
+  background: var(--bg, #fffef6);           /* page bg to get the “push-out” look */
+  color: var(--muted, #6c6f63);
+  font-style: italic;
+  font-size: 0.95rem;
+  border-radius: 4px;                       /* optional rounded label */
+}
+
+/* Keep the rest as-is */
+.dg-record__layout{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto auto;
+  gap: 12px 22px;
+  grid-template-areas:
+    "name actions"
+    "eulogy actions"
+    "premium meta";
+}
+.dg-record__head{ grid-area: name; }
+.dg-record__epitaph{ grid-area: eulogy; margin: 0; font-style: italic; color: var(--muted, #6c6f63); }
+.dg-actions{ grid-area: actions; display: flex; gap: 10px; align-self: start; }
+.dg-record__premium{ grid-area: premium; display: flex; gap: 12px; align-items: center; }
+.dg-record__meta{ grid-area: meta; color: var(--muted, #6c6f63); text-align: right; }
+
+.dg-btn{ width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 999px; background: transparent; cursor: pointer; }
+.dg-btn img{ width: 22px; height: 22px; }
+.dg-btn.is-playing{ background: rgba(0,0,0,.04); }
+
+.dg-premium-icon{ width: 34px; height: 34px; object-fit: contain; }
+
+@media (max-width: 640px){
+  .dg-record__layout{
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "name"
+      "actions"
+      "eulogy"
+      "premium"
+      "meta";
+  }
+  .dg-record__meta{ text-align: left; }
+}
+
+/* Centered pagination (top & bottom) */
+#paginationControls,
+#paginationControlsBottom{
+  display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; margin:14px 0;
+}
