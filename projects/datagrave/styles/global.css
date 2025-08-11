@@ -263,56 +263,71 @@ footer .legal {
 
 .grecaptcha-badge { visibility: hidden; }
 
-/* ===== Data Grave Cards v3 (scoped) ===== */
-.dg-list--v3 { display: grid; gap: 12px; }
+/* ===== Burial Record card (alt layout) ===== */
+.dg-list { display: grid; gap: 12px; }
 
-/* Card shell */
-.dg-card{
+.dg-record{
+  position: relative;
   border: 1px solid var(--line);
-  border-radius: 4px;           /* true 4px corners */
-  overflow: hidden;             /* ensures children respect radius */
+  border-radius: var(--radius-lg, 12px);
   background: var(--card, #fff);
-  box-shadow: none;             /* no shadows */
-  color: inherit;
-  font: inherit;                /* inherit global font & size */
-  line-height: 1.4;
+  padding: 18px 18px 16px;
+  color: inherit; font: inherit; line-height: 1.5;
 }
 
-/* Top row */
-.dg-card__top{
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: #fffefb;          /* requested top color */
+/* small legend on the border */
+.dg-record__legend{
+  position: absolute; top: -0.7em; left: 16px;
+  padding: 0 8px;
+  background: var(--bg, #fffef6);
+  color: var(--muted, #6c6f63);
+  font-style: italic; font-size: 0.95rem;
 }
 
-/* Elements */
-.dg-card__icon{ width: 22px; height: 22px; object-fit: contain; }
-.dg-card__name{
-  margin: 0;
-  font-weight: 600;             /* lighter than 700 to declutter */
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.dg-card__status{ opacity: .75; font-weight: 600; }
-
-/* Bottom row */
-.dg-card__bottom{
+/* Grid layout: name+actions on top, epitaph row, premium + meta bottom */
+.dg-record__layout{
   display: grid;
   grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: #bdbdbd;          /* keep your current grey for now */
-  color: #fff;
+  grid-template-rows: auto auto auto;
+  gap: 12px 22px;
+  grid-template-areas:
+    "name actions"
+    "eulogy actions"
+    "premium meta";
 }
-.dg-card__quote{ margin: 0; font-style: italic; opacity: .95; }
-.dg-card__meta{ font-family: var(--font-mono, inherit); font-weight: 700; }
+.dg-record__head{ grid-area: name; }
+.dg-actions{ grid-area: actions; display: flex; gap: 10px; align-self: start; }
+.dg-record__epitaph{ grid-area: eulogy; margin: 0; font-style: italic; color: var(--muted, #6c6f63); }
+.dg-record__premium{ grid-area: premium; display: flex; gap: 12px; align-items: center; }
+.dg-record__meta{ grid-area: meta; color: var(--muted, #6c6f63); text-align: right; }
+
+/* Title */
+.dg-record__name{ margin: 6px 0 4px; font-weight: 700; }
+
+/* Round icon buttons */
+.dg-btn{
+  width: 40px; height: 40px; display: grid; place-items: center;
+  border: 1px solid var(--line); border-radius: 999px; background: transparent;
+  cursor: pointer;
+}
+.dg-btn img{ width: 22px; height: 22px; }
+.dg-btn:focus{ outline: 2px solid #0aa; outline-offset: 2px; }
+.dg-btn.is-playing{ background: rgba(0,0,0,.04); }
+
+/* Premium icons (badges/tombstones) */
+.dg-premium-icon{ width: 34px; height: 34px; object-fit: contain; }
 
 /* Responsive */
-@media (max-width: 560px){
-  .dg-card__bottom{ grid-template-columns: 1fr; }
-  .dg-card__status{ font-weight: 500; }
+@media (max-width: 640px){
+  .dg-record__layout{
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto auto;
+    grid-template-areas:
+      "name"
+      "actions"
+      "eulogy"
+      "premium"
+      "meta";
+  }
+  .dg-record__meta{ text-align: left; }
 }
-
