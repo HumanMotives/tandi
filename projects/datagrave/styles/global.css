@@ -96,7 +96,7 @@ nav.top-menu ul {
 nav.top-menu li { display: flex; align-items: center; }
 nav.top-menu a {
   color: var(--ink); text-decoration: none; font-size: 15px; display: flex; align-items: center;
-  line-height: 1; padding: 2px 0; font-weight: 600;
+  line-height: 1; padding: 2px 0; font-weight: 300;
 }
 nav.top-menu a:hover { text-decoration: underline; }
 nav.top-menu .nav-icon { width: 25px; height: 25px; display:block; margin-right: 8px; object-fit: contain; }
