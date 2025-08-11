@@ -101,7 +101,7 @@ if (!listEl || !pageEl) {
       } else {
         const legacyNote = document.createElement('span');
         legacyNote.className = 'note';
-        legacyNote.textContent = 'Legacy burial — no extra info';
+        legacyNote.textContent = 'N/A';
         actions.appendChild(legacyNote);
       }
 
