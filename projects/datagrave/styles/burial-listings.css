@@ -4,11 +4,13 @@
 .grave-card {
   width: 100%;
   border: 1px solid var(--line);
-  border-radius: 4px; /* rounded corners */
+  border-radius: 4px !important; /* force 4px radius */
   overflow: hidden;
   background: var(--card);
   margin: var(--s2) 0;
-  box-shadow: none !important; /* remove any shadow from other CSS */
+  box-shadow: none !important;
+  font-size: 0.95rem; /* inherit site’s body size or slightly smaller */
+  line-height: 1.4;
 }
 
 /* Top row */
@@ -17,22 +19,25 @@
   align-items: center;
   gap: var(--s3);
   padding: var(--s3) var(--s4);
-  background-color: #fffefb !important; /* updated color, force override */
-  box-shadow: none !important; /* remove any top-row shadow */
+  background-color: #fffefb !important;
+  box-shadow: none !important;
+  font-weight: 500; /* less heavy than 700 */
+  font-size: 0.95rem;
 }
 
-/* File name (ellipsis on small screens) */
+/* File name */
 .grave-card .file-name {
-  font-weight: 700;
-  letter-spacing: .015em;
+  font-weight: 500;
+  letter-spacing: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 0.95rem; /* same as body text */
 }
 
 /* Action icons */
@@ -53,11 +58,11 @@
   justify-content: space-between;
   gap: var(--s3);
   padding: var(--s3) var(--s4);
-  background: #bdbdbd;
-  color: #fff;
+  background: #f4f4f4; /* lighter to match uncluttered look */
+  color: var(--ink);
   font-family: var(--font-mono);
-  font-size: 0.95rem;
-  box-shadow: none !important; /* remove any shadow */
+  font-size: 0.85rem; /* smaller to de-emphasize meta info */
+  box-shadow: none !important;
 }
 
 .grave-card .quote { color: var(--soft); font-style: italic; opacity: .95; }
