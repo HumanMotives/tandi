@@ -1,5 +1,5 @@
 /* ================================
-   global.css v2.005
+   global.css v3.001
    ================================ */
 
 /* Import Google Fonts */
@@ -262,4 +262,57 @@ footer .legal {
 }
 
 .grecaptcha-badge { visibility: hidden; }
+
+/* ===== Data Grave Cards v3 (scoped) ===== */
+.dg-list--v3 { display: grid; gap: 12px; }
+
+/* Card shell */
+.dg-card{
+  border: 1px solid var(--line);
+  border-radius: 4px;           /* true 4px corners */
+  overflow: hidden;             /* ensures children respect radius */
+  background: var(--card, #fff);
+  box-shadow: none;             /* no shadows */
+  color: inherit;
+  font: inherit;                /* inherit global font & size */
+  line-height: 1.4;
+}
+
+/* Top row */
+.dg-card__top{
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #fffefb;          /* requested top color */
+}
+
+/* Elements */
+.dg-card__icon{ width: 22px; height: 22px; object-fit: contain; }
+.dg-card__name{
+  margin: 0;
+  font-weight: 600;             /* lighter than 700 to declutter */
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dg-card__status{ opacity: .75; font-weight: 600; }
+
+/* Bottom row */
+.dg-card__bottom{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #bdbdbd;          /* keep your current grey for now */
+  color: #fff;
+}
+.dg-card__quote{ margin: 0; font-style: italic; opacity: .95; }
+.dg-card__meta{ font-family: var(--font-mono, inherit); font-weight: 700; }
+
+/* Responsive */
+@media (max-width: 560px){
+  .dg-card__bottom{ grid-template-columns: 1fr; }
+  .dg-card__status{ font-weight: 500; }
+}
 
