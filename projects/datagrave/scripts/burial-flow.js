@@ -1,6 +1,6 @@
 // --- burial-flow script ---
 
-console.log('[burial-flow] v2025-refactor-004 loaded');
+console.log('[burial-flow] v2025-refactor-002 loaded');
 
 // --- Supabase Edge endpoints + anon key (required) ---
 const FUNCTIONS_BASE = 'https://ticxhncusdycqjftohho.supabase.co/functions/v1';
@@ -42,7 +42,7 @@ async function ensureDialogsLoaded() {
   try {
     if (!(window.dgDialogs && typeof window.dgDialogs.load === 'function')) {
       console.log('[burial-flow] dialogs.js not found, injecting…');
-      await injectScript('scripts/dialogs.js'); // local path
+      await injectScript('/projects/datagrave/scripts/dialogs.js');
     }
     if (window.dgDialogs && typeof window.dgDialogs.load === 'function') {
       await window.dgDialogs.load();
@@ -433,7 +433,7 @@ async function showCeremony() {
     ceremony.innerHTML = '';
     const tomb = document.createElement('div');
     tomb.className = 'tombstone';
-    tomb.setAttribute('data-method', method);
+    tomb.setAttribute('data-method', method); // hide remains for bury via CSS
     const date1 = new Date(state.selectedFile.lastModified).toLocaleDateString();
     const date2 = new Date().toLocaleDateString();
     tomb.innerHTML = `
@@ -464,34 +464,13 @@ async function showCeremony() {
     } catch {}
   }
 
-  // Inject aftercare UI per method (REMOVE remains entirely from burial)
-  const aftercare = $('aftercare');
-  if (aftercare) {
-    if (method === 'cremate') {
-      aftercare.innerHTML = `
-        <p>Wish to collect the remains?</p>
-        <button class="js-remains" id="remainsBtn">Check the remains</button><br><br>
-        <audio id="ashesAudio" controls class="hidden"></audio>
-        <div class="link" onclick="location.reload()">Lay another track to rest</div>
-      `;
-      const btn = document.getElementById('remainsBtn');
-      if (btn) btn.addEventListener('click', () => {
-        try {
-          if (typeof window.playAshes === 'function') {
-            window.playAshes();
-          } else {
-            const a = new Audio('ashes1.mp3');
-            a.play().catch(()=>{});
-          }
-        } catch {}
-      });
-    } else {
-      aftercare.innerHTML = `
-        <div class="link" onclick="location.reload()">Lay another track to rest</div>
-      `;
-    }
-    aftercare.classList.remove('hidden');
+  // Ensure remains controls are removed everywhere on BURY
+  if (method === 'bury') {
+    hideRemainsEverywhere();
   }
+
+  const aftercare = $('aftercare');
+  aftercare && aftercare.classList.remove('hidden');
 
   // Refresh the listings so the new entry appears in the NEW card layout
   if (typeof window.dgReloadBurials === 'function') {
@@ -500,6 +479,30 @@ async function showCeremony() {
     location.reload();
   }
 } // <-- end showCeremony
+
+function hideRemainsEverywhere(){
+  console.log('[burial-flow] hide remains (bury)');
+  const selectors = [
+    '.js-remains',
+    '.button.remains',
+    '[data-role="remains"]',
+    '#remains', '#remainsBtn',
+    'a[href*="remains"]',
+    'button[aria-label*="remains" i]'
+  ];
+  selectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => {
+      el.style.display = 'none';
+      el.remove?.();
+    });
+  });
+  // If options-afterlife exists, only strip the remains control, keep the rest
+  const options = document.querySelector('.options-afterlife');
+  if (options) {
+    const r = options.querySelector('.js-remains, .button.remains, [data-role="remains"]');
+    if (r) r.remove();
+  }
+}
 
 // very small XSS guard for user strings
 function escapeHtml(s){
