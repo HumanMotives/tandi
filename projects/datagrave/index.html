@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Well Data Grave</title>
+  <title>Now Data Grave</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   <!-- Styles (kebab-case, under /styles) -->
@@ -108,47 +108,36 @@ function graveStats(){
   const crematedEl = document.getElementById('dg-cremated-count');
   if (!buriedEl || !crematedEl) return;
 
-  // Fallback to literal URL if window.SUPABASE_URL isn't set for any reason
+  // Use global if present, else fallback literal
   const URL = window.SUPABASE_URL || 'https://ticxhncusdycqjftohho.supabase.co';
   const KEY = window.SUPABASE_ANON_KEY;
-  if (!KEY) {
-    console.error('[grave-stats] SUPABASE_ANON_KEY missing.');
-    return;
-  }
+  if (!KEY) { console.error('[grave-stats] SUPABASE_ANON_KEY missing.'); return; }
 
-async function getCount(methodValue) {
-  const URL = window.SUPABASE_URL;
-  const KEY = window.SUPABASE_ANON_KEY;
-  const u = `${URL}/rest/v1/burials?select=method&method=eq.${encodeURIComponent(methodValue)}`;
-  const res = await fetch(u, {
-    headers: {
-      apikey: KEY,
-      Authorization: `Bearer ${KEY}`,
-      Prefer: 'count=exact',
-      Range: '0-0' // return no rows, just the count in Content-Range
+  async function getCount(methodValue) {
+    const u = `${URL}/rest/v1/burials?select=method&method=eq.${encodeURIComponent(methodValue)}`;
+    const res = await fetch(u, {
+      headers: {
+        apikey: KEY,
+        Authorization: `Bearer ${KEY}`,
+        Prefer: 'count=exact',
+        Range: '0-0'
+      }
+    });
+    if (!res.ok) {
+      const preview = await res.text().catch(()=> '');
+      console.error('[grave-stats] Bad response', res.status, u, preview.slice(0, 160));
+      throw new Error(`HTTP ${res.status}`);
     }
-    // note: GET is default
-  });
-
-  if (!res.ok) {
-    const preview = await res.text().catch(()=> '');
-    console.error('[grave-stats] Bad response', res.status, u, preview.slice(0,120));
-    throw new Error(`HTTP ${res.status}`);
+    const cr = res.headers.get('content-range');   // "0-0/123"
+    return Number(cr?.split('/')?.[1] ?? 0);
   }
-
-  const cr = res.headers.get('content-range'); // e.g. "0-0/235"
-  return Number(cr?.split('/')?.[1] ?? 0);
-}
 
   async function refresh() {
     try {
-      const [buried, cremated] = await Promise.all([
-        getCount('bury'),
-        getCount('cremate')
-      ]);
+      const [buried, cremated] = await Promise.all([ getCount('bury'), getCount('cremate') ]);
       buriedEl.textContent   = `#${buried}`;
       crematedEl.textContent = `#${cremated}`;
-    } catch (e) {
+    } catch {
       buriedEl.textContent   = '#—';
       crematedEl.textContent = '#—';
     }
@@ -158,13 +147,14 @@ async function getCount(methodValue) {
   setInterval(refresh, 30000);
 }
 
-// Run after DOM is ready (and after your header/hero markup exists)
+// Run after DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', graveStats);
 } else {
   graveStats();
 }
 </script>
+
   
 </body>
 </html>
