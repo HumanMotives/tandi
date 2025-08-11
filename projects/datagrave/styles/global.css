@@ -1,183 +1,119 @@
 /* ================================
-   global.css v3.001
+   global.css v3.1 — sanitized
    ================================ */
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400&family=Work+Sans:wght@400;500&display=swap');
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600&family=Work+Sans:wght@400;500;700&display=swap');
 
-/* Global font defaults */
-html, body {
-  font-family: 'Work Sans', sans-serif;
-  font-weight: 400;
-}
-
-h1, h2, h3 {
-  font-family: 'Lexend', sans-serif;
-  font-weight: 300; /* Light weight */
-}
-
-
-/* Design tokens */
+/* ============ Design tokens ============ */
 :root{
   /* colors */
   --bg:        #f9f7f3;
   --ink:       #000000;
   --muted:     #6b6b6b;
   --line:      rgba(0,0,0,.12);
-  --soft:      #f5f1df;   /* tinted surfaces (cards) */
+  --soft:      #f5f1df;     /* tinted surfaces (cards) */
   --card:      #ffffff;
+  --accent:    #A1A37A;
 
   /* spacing (8pt-ish) */
   --s-1: 4px;  --s0: 8px;  --s1: 12px; --s2: 16px; --s3: 20px;
   --s4: 24px;  --s5: 32px; --s6: 40px; --s7: 56px;
 
   /* radii / shadow */
-  --r-sm: 3px; --r-md: 5x; --r-lg: 8px; --r-xl: 12px;
+  --r-sm: 3px; --r-md: 5px; --r-lg: 8px; --r-xl: 12px;
   --shadow-1: 0 1px 0 rgba(0,0,0,.06);
 
-  /* type sizes */
+  /* type */
   --fs-title: clamp(28px, 3vw, 42px);
   --fs-body:  16px;
   --fs-small: 14px;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 
   /* layout */
   --maxw: 800px;
 }
 
-/* Reset-ish */
+/* ============ Base / reset-ish ============ */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-
-/* Wrapper to center logo + title */
-.site-logo-wrap {
-  text-align: center; /* center everything inside */
-  margin: 1.5rem auto;
-}
-
-/* Logo image */
-.site-logo {
-  display: block;
-  max-width: 250px; /* adjust size as needed */
-  height: auto;
-  margin: 0 auto; /* center the image itself */
-}
-
-/* Big title under logo */
-.site-title {
-  font-family: 'Lexend', sans-serif;
-  font-size: 2rem;      /* large title */
-  font-weight: 700;     /* bold */
-  margin-top: 0.5rem;   /* space between logo and text */
-  color: #000;          /* change to match your theme */
-  letter-spacing: 0.05em;
-}
-
-/* Responsive scaling for smaller screens */
-@media (max-width: 600px) {
-  .site-logo {
-    max-width: 140px;
-  }
-  .site-title {
-    font-size: 1.5rem;
-  }
-}
-
-
-html, body { height: 100%; }
-
-/* Body should span the full viewport; no centering here */
-body {
-   background-color: #f9f7f3;
+html, body { height: 100%; overflow-x: hidden; }
+html, body {
   font-family: 'Work Sans', sans-serif;
-  font-size: 12pt;
+  font-weight: 400;
+  font-size: var(--fs-body);
+  line-height: 1.6;
   color: #333;
-  /* removed: max-width / margin / padding */
+  background: var(--bg);
 }
 
-/* New centered page wrapper */
-.page {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
+/* Headings */
+h1, h2, h3 { font-family: 'Lexend', sans-serif; font-weight: 600; }
+h1{ font-size: var(--fs-title); letter-spacing: .01em; margin: var(--s6) 0 var(--s4); }
+h2{ font-size: 22px; margin: var(--s5) 0 var(--s2); }
 
-
-/* Headings & text */
-h1{ font-size: var(--fs-title); font-weight: 600; letter-spacing: .01em; margin: var(--s6) 0 var(--s4); }
-h2{ font-size: 22px; font-weight: 600; margin: var(--s5) 0 var(--s2); }
+/* Typography utils */
 p.muted{ color: var(--muted); }
+.mono{ font-family: var(--font-mono); }
 
 /* Links */
 a{ color: inherit; text-underline-offset: 3px; }
 a:hover{ text-decoration: none; }
 
-/* Utilities */
-.icon-img{ width: 25px; height: 25px; object-fit: contain; display:inline-block; }
-.mono{ font-family: var(--font-mono); }
-.stack > * + *{ margin-top: var(--s2); }
-.center{ text-align: center; }
+/* Layout wrapper */
+.page { max-width: var(--maxw); margin: 0 auto; padding: 0 1.5rem; }
 
-/* Logo & tagline */
-.logo-container { text-align: center; margin: var(--s6) auto 0; }
-#tagline { text-align: center; color: var(--muted); margin-bottom: var(--s4); }
-
-/* Divider */
-hr {
-  border: none;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--line), transparent);
-  margin: var(--s4) 0;
+/* Site logo + title */
+.site-logo-wrap { text-align: center; margin: 1.5rem auto; }
+.site-logo { display: block; max-width: 250px; height: auto; margin: 0 auto; }
+.site-title {
+  font-family: 'Lexend', sans-serif; font-size: 2rem; font-weight: 700;
+  margin-top: 0.5rem; color: #000; letter-spacing: 0.05em;
+}
+@media (max-width: 600px){
+  .site-logo { max-width: 140px; }
+  .site-title { font-size: 1.5rem; }
 }
 
 /* Header / nav */
-/* global.css */
 nav.top-menu {
   position: relative;
-  left: 0;                /* was 50% */
-  transform: none;        /* was translateX(-50%) */
-  width: 100%;            /* was 100vw */
+  left: 0;
+  transform: none;
+  width: 100%;
   background: #fff;
   padding: 0.5rem 0;
   margin-bottom: 1.5rem;
   box-sizing: border-box;
   z-index: 10;
 }
-
 nav.top-menu ul {
-  list-style: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--s3);
+  list-style: none; display: flex; justify-content: center; align-items: center; gap: var(--s3);
 }
-nav.top-menu li {
-  display: flex;
-  align-items: center;
-}
+nav.top-menu li { display: flex; align-items: center; }
 nav.top-menu a {
-  color: var(--ink);
-  text-decoration: none;
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  line-height: 1;
-  padding: 2px 0;
-  font-weight: 600;
+  color: var(--ink); text-decoration: none; font-size: 15px; display: flex; align-items: center;
+  line-height: 1; padding: 2px 0; font-weight: 600;
 }
 nav.top-menu a:hover { text-decoration: underline; }
 nav.top-menu .nav-icon { width: 25px; height: 25px; display:block; margin-right: 8px; object-fit: contain; }
 
-/* Make file inputs programmatically clickable while staying invisible */
-.hidden-file {
-  position: fixed;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
+/* Utilities */
+.icon-img{ width: 25px; height: 25px; object-fit: contain; display:inline-block; }
+.stack > * + *{ margin-top: var(--s2); }
+.center{ text-align: center; }
+img { max-width: 100%; height: auto; }
+
+/* Divider */
+hr {
+  border: none; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+  margin: var(--s4) 0;
 }
 
-/* Generic card + soft card (use everywhere) */
+/* Inputs */
+.hidden-file { position: fixed; left: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+/* Generic card */
 .card{
   background: var(--card);
   border: 1px solid var(--line);
@@ -191,10 +127,8 @@ nav.top-menu .nav-icon { width: 25px; height: 25px; display:block; margin-right:
 .button, .btn{
   display:inline-flex; align-items:center; justify-content:center;
   height: 42px; padding: 0 var(--s3);
-  border-radius: 4px;
-  border: 0px solid var(--ink);
-  background: transparent;
-  color: var(--ink);
+  border-radius: 4px; border: 0;
+  background: transparent; color: var(--ink);
   font-weight: 500; cursor:pointer;
 }
 .button:hover, .btn:hover{ background: rgba(0,0,0,.04); }
@@ -209,8 +143,12 @@ footer {
   color: var(--muted);
 }
 footer p { font-size: var(--fs-small); text-align:center; }
+footer .legal { font-size: 0.8em; opacity: 0.7; margin-top: 0.5em; }
 
-/* Floating-label container style */
+/* reCAPTCHA badge (legal notice is in footer) */
+.grecaptcha-badge { visibility: hidden; }
+
+/* Floating-label container style (shared aesthetic) */
 .labeled-container {
   position: relative;
   border: 1px solid #999;
@@ -219,34 +157,16 @@ footer p { font-size: var(--fs-small); text-align:center; }
   margin: 2rem 0;
   background: transparent;
 }
-
 .labeled-container .label {
-  position: absolute;
-  top: -0.7em;
-  left: 1rem;
-  background: #f9f7f3; /* matches your body background so it "blocks out" border */
+  position: absolute; top: -0.7em; left: 1rem;
+  background: var(--bg);
   padding: 0 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 400;
-  color: #999;
-  font-family: sans-serif;
+  font-size: 0.85rem; font-weight: 400; color: #999;
 }
 
-img { max-width: 100%; height: auto; }
-
-/* Remove gray background on click/focus for play and icon buttons */
-.play-icon,
-.icon-img {
-  outline: none;               /* remove outline */
-  -webkit-tap-highlight-color: transparent; /* remove mobile tap highlight */
-}
-
+/* Hero stats */
 .dg-hero-stat {
-  display: flex;
-  gap: .75rem;
-  align-items: baseline;
-  justify-content: center;
-  flex-wrap: wrap;
+  display: flex; gap: .75rem; align-items: baseline; justify-content: center; flex-wrap: wrap;
   margin: 1rem auto 1.5rem;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
 }
@@ -255,56 +175,55 @@ img { max-width: 100%; height: auto; }
 .dg-hero-stat .sep { opacity: .4; margin: 0 .5rem; }
 #dg-buried-count, #dg-cremated-count { font-variant-numeric: tabular-nums; }
 
-footer .legal {
-  font-size: 0.8em;
-  opacity: 0.7;
-  margin-top: 0.5em;
-}
-
-.grecaptcha-badge { visibility: hidden; }
-
-/* ===== Burial Record card (alt layout) ===== */
-.dg-list { display: grid; gap: 12px; }
+/* ===== Burial Record card (fieldset + legend) ===== */
+.dg-list { display: grid; gap: 14px; }
 
 .dg-record{
-  position: relative;
+  /* fieldset shell */
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg, 12px);
-  background: var(--card, #fff);
-  padding: 18px 18px 16px;
-  color: inherit; font: inherit; line-height: 1.5;
+  border-radius: var(--r-xl);
+  background: var(--card);             /* filled card */
+  padding: 18px;
+  margin: 10px 0 18px;
+  min-width: 0;
 }
 
-/* small legend on the border */
-.dg-record__legend{
-  position: absolute; top: -0.7em; left: 16px;
+/* legend neatly “cuts” the border regardless of card bg */
+.dg-record > legend.dg-record__legend{
   padding: 0 8px;
-  background: var(--bg, #fffef6);
-  color: var(--muted, #6c6f63);
-  font-style: italic; font-size: 0.95rem;
+  margin-left: 12px;
+  background: var(--bg);
+  color: var(--muted);
+  font-style: italic;
+  font-size: 0.95rem;
+  border-radius: 4px;
 }
 
-/* Grid layout: name+actions on top, epitaph row, premium + meta bottom */
+/* Grid layout: name+actions, epitaph, premium+meta */
 .dg-record__layout{
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto auto;
-  gap: 12px 22px;
   grid-template-areas:
     "name actions"
     "eulogy actions"
     "premium meta";
+  gap: 12px 22px;
 }
 .dg-record__head{ grid-area: name; }
-.dg-actions{ grid-area: actions; display: flex; gap: 10px; align-self: start; }
-.dg-record__epitaph{ grid-area: eulogy; margin: 0; font-style: italic; color: var(--muted, #6c6f63); }
-.dg-record__premium{ grid-area: premium; display: flex; gap: 12px; align-items: center; }
-.dg-record__meta{ grid-area: meta; color: var(--muted, #6c6f63); text-align: right; }
-
-/* Title */
 .dg-record__name{ margin: 6px 0 4px; font-weight: 700; }
+.dg-record__epitaph{ grid-area: eulogy; margin: 0; font-style: italic; color: var(--muted); }
+.dg-record__premium{ grid-area: premium; display: flex; gap: 12px; align-items: center; }
+.dg-record__meta{ grid-area: meta; color: var(--muted); text-align: right; }
 
-/* Round icon buttons */
+/* Actions: right-aligned, wraps left when crowded */
+.dg-actions{
+  grid-area: actions;
+  display: flex; gap: 10px; align-items: center;
+  justify-content: flex-end; justify-self: end;
+  flex-wrap: wrap; row-gap: 8px;
+}
+
+/* Icon buttons */
 .dg-btn{
   width: 40px; height: 40px; display: grid; place-items: center;
   border: 1px solid var(--line); border-radius: 999px; background: transparent;
@@ -313,15 +232,12 @@ footer .legal {
 .dg-btn img{ width: 22px; height: 22px; }
 .dg-btn:focus{ outline: 2px solid #0aa; outline-offset: 2px; }
 .dg-btn.is-playing{ background: rgba(0,0,0,.04); }
-
-/* Premium icons (badges/tombstones) */
 .dg-premium-icon{ width: 34px; height: 34px; object-fit: contain; }
 
 /* Responsive */
 @media (max-width: 640px){
   .dg-record__layout{
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto auto;
     grid-template-areas:
       "name"
       "actions"
@@ -330,95 +246,21 @@ footer .legal {
       "meta";
   }
   .dg-record__meta{ text-align: left; }
+  .dg-actions{ width: 100%; }
 }
 
-/* Cards use page background (no white fill) + spacing between */
-.dg-record{
-  background: var(--bg, #fffef6);   /* match page bg */
-  margin: 10px 0 18px;              /* room between cards */
-}
-
-/* Center pagination (top & bottom) and keep it tidy */
-#paginationControls,
-#paginationControlsBottom{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 14px 0;
-}
-
-/* Optional: center your list heading if you give it one of these selectors */
-.dg-listing-title,
-#burialsHeading,
-#burialTitle{
-  text-align: center;
-}
-
-/* Card now uses a fieldset so the legend cleanly breaks the border */
-.dg-list { display: grid; gap: 14px; }
-
-.dg-record {
-  /* fieldset */
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg, 12px);
-  background: var(--card, #fff);           /* card fill is back */
-  padding: 18px;                            /* content padding */
-  margin: 10px 0 18px;                      /* space between cards */
-  min-width: 0;
-}
-
-/* Legend that sits on the border line */
-.dg-record > legend.dg-record__legend {
-  position: static;                         /* override any previous absolute */
-  padding: 0 8px;
-  margin-left: 12px;                        /* tiny inset from left corner */
-  background: var(--bg, #fffef6);           /* page bg to get the “push-out” look */
-  color: var(--muted, #6c6f63);
-  font-style: italic;
-  font-size: 0.95rem;
-  border-radius: 4px;                       /* optional rounded label */
-}
-
-/* Keep the rest as-is */
-.dg-record__layout{
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto auto;
-  gap: 12px 22px;
-  grid-template-areas:
-    "name actions"
-    "eulogy actions"
-    "premium meta";
-}
-.dg-record__head{ grid-area: name; }
-.dg-record__epitaph{ grid-area: eulogy; margin: 0; font-style: italic; color: var(--muted, #6c6f63); }
-.dg-actions{ grid-area: actions; display: flex; gap: 10px; align-self: start; }
-.dg-record__premium{ grid-area: premium; display: flex; gap: 12px; align-items: center; }
-.dg-record__meta{ grid-area: meta; color: var(--muted, #6c6f63); text-align: right; }
-
-.dg-btn{ width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 999px; background: transparent; cursor: pointer; }
-.dg-btn img{ width: 22px; height: 22px; }
-.dg-btn.is-playing{ background: rgba(0,0,0,.04); }
-
-.dg-premium-icon{ width: 34px; height: 34px; object-fit: contain; }
-
-@media (max-width: 640px){
-  .dg-record__layout{
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "name"
-      "actions"
-      "eulogy"
-      "premium"
-      "meta";
-  }
-  .dg-record__meta{ text-align: left; }
-}
-
-/* Centered pagination (top & bottom) */
+/* Pagination (top & bottom) */
 #paginationControls,
 #paginationControlsBottom{
   display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; margin:14px 0;
 }
+.page-btn{
+  min-width:42px; height:42px; border-radius:4px;
+  border:1px solid var(--line); background:#fff;
+  display:inline-grid; place-items:center; font-weight:600;
+  margin: 0 4px; cursor:pointer;
+}
+.page-btn.active{ background: var(--soft); border-color: #000; }
+
+/* Tap highlight removal for icon buttons */
+.play-icon, .icon-img { outline: none; -webkit-tap-highlight-color: transparent; }
