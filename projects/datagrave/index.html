@@ -73,12 +73,22 @@
       // 1) Header
       await loadPartial('common-header', 'partials/header.html');
 
-      // 2) Burial zone → then its script
-      if ((await loadPartial('burial-zone-placeholder', 'partials/burial-zone.html')) !== false) {
-        const s = document.createElement('script');
-        s.src = 'scripts/burial-flow.js';
-        document.body.appendChild(s);
-      }
+  <!-- 2) Burial zone → then its scripts (dialogs first, then flow) -->
+<script>
+  if ((await loadPartial('burial-zone-placeholder', 'partials/burial-zone.html')) !== false) {
+    // Load dialogs.js explicitly so random lines work
+    const d = document.createElement('script');
+    d.src = 'scripts/dialogs.js';        // NOTE: relative to /projects/datagrave/
+    d.defer = true;
+    d.onload = () => {
+      const s = document.createElement('script');
+      s.src = 'scripts/burial-flow.js';
+      s.defer = true;
+      document.body.appendChild(s);
+    };
+    document.body.appendChild(d);
+  }
+</script>
 
       // 3) Upsell section → then its script
       if ((await loadPartial('upsell-section-placeholder', 'partials/upsell-section.html')) !== false) {
