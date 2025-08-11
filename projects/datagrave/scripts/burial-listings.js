@@ -70,7 +70,7 @@ if (!listEl || !pageEl) {
       if (b.method === 'cremate') {
         const note = document.createElement('span');
         note.className = 'note';
-        note.textContent = 'No info — cremated';
+        note.textContent = 'Cremated';
         actions.appendChild(note);
       } else if (hasAudio) {
         // Play icon (image only)
