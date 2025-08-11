@@ -261,3 +261,5 @@ footer .legal {
   margin-top: 0.5em;
 }
 
+.grecaptcha-badge { visibility: hidden; }
+
