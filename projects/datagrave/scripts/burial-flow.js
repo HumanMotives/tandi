@@ -1,6 +1,6 @@
 // --- burial-flow script ---
 
-console.log('[burial-flow] v2025-refactor-001 loaded');
+console.log('[burial-flow] v2025-refactor-003 loaded');
 
 // --- Supabase Edge endpoints + anon key (required) ---
 const FUNCTIONS_BASE = 'https://ticxhncusdycqjftohho.supabase.co/functions/v1';
@@ -416,7 +416,7 @@ async function showCeremony() {
     ceremony.innerHTML = '';
     const tomb = document.createElement('div');
     tomb.className = 'tombstone';
-    tomb.setAttribute('data-method', method); // hide remains for bury via CSS
+    tomb.setAttribute('data-method', method);
     const date1 = new Date(state.selectedFile.lastModified).toLocaleDateString();
     const date2 = new Date().toLocaleDateString();
     tomb.innerHTML = `
@@ -435,27 +435,17 @@ async function showCeremony() {
   const burialProgressEl = $('burialProgress');
   if (burialProgressEl) burialProgressEl.classList.add('hidden');
 
-  // If cremated, play the ashes sample
-  if (method === 'cremate') {
-    try {
-      if (typeof window.playAshes === 'function') {
-        window.playAshes();
-      } else {
-        const a = new Audio('ashes1.mp3');
-        a.play().catch(()=>{});
-      }
-    } catch {}
-  }
-
-  // Hide any "remains" section for burials (defense in depth)
-  if (method === 'bury') {
-    document.querySelector('.options-afterlife')?.classList.add('hidden');
-    document.querySelector('.js-remains')?.remove();
-    document.querySelector('[data-role="remains"]')?.remove();
-  }
-
+  // --- Aftercare (per method) ---
   const aftercare = $('aftercare');
-  aftercare && aftercare.classList.remove('hidden');
+  if (aftercare) {
+    if (method === 'cremate') {
+      renderCremateAftercare(aftercare);
+    } else {
+      // Burial: simple “lay another” link
+      aftercare.innerHTML = `<div class="link" onclick="location.reload()">Lay another track to rest</div>`;
+      aftercare.classList.remove('hidden');
+    }
+  }
 
   // Refresh the listings so the new entry appears in the NEW card layout
   if (typeof window.dgReloadBurials === 'function') {
@@ -464,6 +454,52 @@ async function showCeremony() {
     location.reload();
   }
 } // <-- end showCeremony
+
+// Cremation aftercare UI (no auto-play; plays on click and shows player)
+function renderCremateAftercare(aftercareEl){
+  aftercareEl.innerHTML = `
+    <div class="labeled-container collect-remains">
+      <div class="label">Collect Remains</div>
+
+      <p style="margin-bottom: .75rem;">
+        Do you wish to collect the remains? It comes in a modestly priced receptacle.
+      </p>
+
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <button id="collectYes" class="btn primary">Yes</button>
+        <a href="#" id="collectNo" class="link" style="margin:0">No thanks</a>
+      </div>
+
+      <audio id="ashesPlayer" class="hidden" preload="none"></audio>
+    </div>
+  `;
+  aftercareEl.classList.remove('hidden');
+
+  const yesBtn = document.getElementById('collectYes');
+  const noLink = document.getElementById('collectNo');
+  const player = document.getElementById('ashesPlayer');
+
+  yesBtn?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+      if (!player.src) {
+        // Adjust path if your file lives elsewhere
+        player.src = 'ashes1.mp3';
+      }
+      player.classList.remove('hidden');
+      player.controls = true;
+      yesBtn.disabled = true;
+      yesBtn.textContent = 'Playing…';
+      await player.play().catch(()=>{});
+    } catch {}
+  });
+
+  noLink?.addEventListener('click', (e) => {
+    e.preventDefault();
+    // Optional small acknowledgement
+    noLink.textContent = 'No problem.';
+  });
+}
 
 // very small XSS guard for user strings
 function escapeHtml(s){
