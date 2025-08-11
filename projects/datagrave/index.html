@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Le Data Grave</title>
+  <title>De Data Grave</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   <!-- Styles (kebab-case, under /styles) -->
@@ -103,36 +103,37 @@
   </script>
 
 <script>
-(function graveStats(){
+function graveStats(){
   const buriedEl   = document.getElementById('dg-buried-count');
   const crematedEl = document.getElementById('dg-cremated-count');
   if (!buriedEl || !crematedEl) return;
 
-  const URL   = window.SUPABASE_URL || 'https://ticxhncusdycqjftohho.supabase.co';
-  const KEY   = window.SUPABASE_ANON_KEY;
-  const TABLE = 'burials';   // change if your table name differs
-  const COL   = 'method';    // change if your column name differs
-
-async function getCount(methodValue) {
-  const url = `${window.SUPABASE_URL}/rest/v1/burials?select=id&method=eq.${encodeURIComponent(methodValue)}`;
-  const res = await fetch(url, {
-    headers: {
-      apikey: window.SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${window.SUPABASE_ANON_KEY}`,
-      Prefer: 'count=exact',
-      Range: '0-0' // we only need the count, not the rows
-    }
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(()=> '');
-    console.error('[grave-stats] Bad response', res.status, body.slice(0,200));
-    throw new Error(`HTTP ${res.status}`);
+  // Fallback to literal URL if window.SUPABASE_URL isn't set for any reason
+  const URL = window.SUPABASE_URL || 'https://ticxhncusdycqjftohho.supabase.co';
+  const KEY = window.SUPABASE_ANON_KEY;
+  if (!KEY) {
+    console.error('[grave-stats] SUPABASE_ANON_KEY missing.');
+    return;
   }
-  const contentRange = res.headers.get('content-range'); // e.g. "0-0/123"
-  const total = contentRange?.split('/')?.[1];
-  return Number(total || 0);
-}
 
+  async function getCount(methodValue) {
+    const u = `${URL}/rest/v1/burials?select=id&method=eq.${encodeURIComponent(methodValue)}`;
+    const res = await fetch(u, {
+      headers: {
+        apikey: KEY,
+        Authorization: `Bearer ${KEY}`,
+        Prefer: 'count=exact',
+        Range: '0-0'
+      }
+    });
+    if (!res.ok) {
+      const preview = await res.text().catch(()=> '');
+      console.error('[grave-stats] Bad response', res.status, u, preview.slice(0,120));
+      throw new Error(`HTTP ${res.status}`);
+    }
+    const cr = res.headers.get('content-range'); // "0-0/123"
+    return Number(cr?.split('/')?.[1] ?? 0);
+  }
 
   async function refresh() {
     try {
@@ -142,8 +143,7 @@ async function getCount(methodValue) {
       ]);
       buriedEl.textContent   = `#${buried}`;
       crematedEl.textContent = `#${cremated}`;
-    } catch (err) {
-      console.error('[grave-stats] Failed to load counts:', err);
+    } catch (e) {
       buriedEl.textContent   = '#—';
       crematedEl.textContent = '#—';
     }
@@ -151,10 +151,15 @@ async function getCount(methodValue) {
 
   refresh();
   setInterval(refresh, 30000);
-})();
-</script>
+}
 
+// Run after DOM is ready (and after your header/hero markup exists)
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', graveStats);
+} else {
+  graveStats();
+}
+</script>
   
-    
 </body>
 </html>
