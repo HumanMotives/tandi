@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ze Data Grave</title>
+  <title>Le Data Grave</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   <!-- Styles (kebab-case, under /styles) -->
@@ -113,19 +113,26 @@
   const TABLE = 'burials';   // change if your table name differs
   const COL   = 'method';    // change if your column name differs
 
-  async function getCount(methodValue) {
-    // Returns: [{ "count": 123 }]
-    const u = `${URL}/rest/v1/${TABLE}?select=count:id&${COL}=eq.${encodeURIComponent(methodValue)}`;
-    const res = await fetch(u, {
-      headers: {
-        apikey: KEY,
-        Authorization: `Bearer ${KEY}`
-      }
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    return Number(json?.[0]?.count ?? 0);
+async function getCount(methodValue) {
+  const url = `${window.SUPABASE_URL}/rest/v1/burials?select=id&method=eq.${encodeURIComponent(methodValue)}`;
+  const res = await fetch(url, {
+    headers: {
+      apikey: window.SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${window.SUPABASE_ANON_KEY}`,
+      Prefer: 'count=exact',
+      Range: '0-0' // we only need the count, not the rows
+    }
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(()=> '');
+    console.error('[grave-stats] Bad response', res.status, body.slice(0,200));
+    throw new Error(`HTTP ${res.status}`);
   }
+  const contentRange = res.headers.get('content-range'); // e.g. "0-0/123"
+  const total = contentRange?.split('/')?.[1];
+  return Number(total || 0);
+}
+
 
   async function refresh() {
     try {
