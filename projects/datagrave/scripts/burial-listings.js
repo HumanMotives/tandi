@@ -1,5 +1,5 @@
 // burial-listings.js — v2025-08-12 alt card layout
-console.log('[burial-listings] v2025-08-11-alt-card');
+console.log('[burial-listings] v2025-08-12-alt-card');
 
 let currentPage = 1;
 const pageSize   = 25;
