@@ -1,5 +1,5 @@
 /* ================================
-   global.css v3.3 — final
+   global.css v3.4 — added tombstone styling card
    ================================ */
 
 /* Fonts */
@@ -284,3 +284,43 @@ footer .legal { font-size: 0.8em; opacity: 0.7; margin-top: 0.5em; }
 
 /* Tap highlight removal for icon buttons */
 .play-icon, .icon-img { outline: none; -webkit-tap-highlight-color: transparent; }
+
+/* ===== Tombstone card ===== */
+.ts-card{
+  background: var(--soft);
+  border: 1.5px solid rgba(0,0,0,.35);
+  border-radius: 36px 36px 10px 10px;    /* mega round top corners, small bottom */
+  padding: clamp(16px, 4vw, 48px);
+  text-align: center;
+  box-shadow: 0 1px 0 rgba(0,0,0,.06) inset;
+  max-width: 900px;
+  margin: 0 auto;
+  /* gentle “stone” shade on top */
+  background-image: linear-gradient(180deg, rgba(0,0,0,.035), rgba(0,0,0,0) 40%);
+  background-blend-mode: multiply;
+}
+.ts-title{ font-size: clamp(18px, 2.3vw, 28px); color: var(--muted); margin-bottom: .6em; }
+.ts-name{ font-weight: 700; font-size: clamp(26px, 4vw, 42px); letter-spacing: .01em; }
+.ts-epitaph{ font-style: italic; color: var(--muted); margin-top: .9em; }
+.ts-dates{
+  margin-top: .6em;
+  font-size: clamp(16px, 2vw, 22px);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .02em;
+}
+.ts-dates .sep{ opacity: .6; margin: 0 .35em; }
+
+/* Actions under the stone */
+.ts-actions{ text-align: center; margin: 1.25rem 0 0; }
+.ts-actions .btn{ border: 1px solid var(--ink); padding: 0 .9rem; height: 38px; }
+.ts-actions .btn.primary{ background: var(--ink); color:#fff; }
+
+/* optional link under actions */
+.ts-link-under{
+  display:block; text-align:center; margin-top: .9rem;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* Small helper: hide remains button for burials via data-attr (defense in depth) */
+.ts-card[data-method="bury"] .js-remains { display: none !important; }
+
