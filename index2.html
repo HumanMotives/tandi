@@ -2,314 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>H/M Mobile Site</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Grave — We Moved</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root{
+      --bg:#f9f7f3; --ink:#111; --line:rgba(0,0,0,.12);
     }
-
-    body {
-      font-family: 'Helvetica Neue', sans-serif;
-      background-color: #ffffff;
-      color: #111;
-      line-height: 1.5;
-      padding: 1rem;
+    html,body{height:100%}
+    body{
+      margin:0; display:grid; place-items:center; background:var(--bg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+      color:var(--ink);
     }
-
-    header {
-      padding: 2rem 1rem;
-      text-align: center;
+    .card{
+      text-align:center; padding:2rem 2.25rem; background:#fff; border:1px solid var(--line);
+      border-radius:12px; max-width:520px; box-shadow:0 1px 0 rgba(0,0,0,.06);
     }
-
-    header h1 {
-      font-size: 2.4rem;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
+    h1{margin:0 0 .5rem; font-size:1.6rem; letter-spacing:.01em}
+    p{margin:.25rem 0 1.25rem; color:#555}
+    .btn{
+      display:inline-block; min-width:220px; height:44px; line-height:44px;
+      padding:0 16px; border-radius:6px; border:1px solid #000; background:#000; color:#fff;
+      text-decoration:none; font-weight:600;
     }
-
-    header p {
-      font-size: 1.1rem;
-      color: #555;
-    }
-
-    .section {
-      border-radius: 0;
-      padding: 1.5rem 0;
-      margin: 1.5rem 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .section img {
-      width: 100%;
-        clip-path: polygon(0 0, 100% 8%, 100% 92%, 0% 100%);
-      border-radius: 0px;
-      margin-bottom: 1rem;
-    }
-
-    .section h2 {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .section p {
-      color: #444;
-      margin-bottom: 1rem;
-    }
-
-    .tag {
-      display: inline-block;
-      background: #eee;
-      color: #333;
-      font-size: 0.75rem;
-      padding: 0.3rem 0.6rem;
-      border-radius: 8px;
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .author {
-      display: flex;
-      align-items: center;
-      margin-top: 1rem;
-    }
-
-    .author img {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      margin-right: 0.5rem;
-    }
-
-    .footer {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #aaa;
-      padding: 2rem 0;
-    }
-
-    .project-list {
-      list-style: none;
-      padding: 0;
-      margin-top: 1rem;
-    }
-
-    .project-list li {
-      margin-bottom: 0.8rem;
-    }
-
-    .project-list a {
-      text-decoration: none;
-      color: #111;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      transition: color 0.3s ease;
-    }
-
-    .project-list a:hover {
-      color: #555;
-    }
-
-    .project-list .arrow {
-      display: inline-block;
-      margin-right: 0.5rem;
-      transition: transform 0.3s ease;
-    }
-
-    .project-list a:hover .arrow {
-      transform: translateX(4px);
-    }
-
-    .scroll-section {
-      margin: 2rem 0;
-    }
-
-    .scroll-section h2 {
-      font-size: 1.4rem;
-      margin-bottom: 1rem;
-      padding-left: 0.25rem;
-    }
-
-    .scroll-cards {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  overflow-x: auto;
-  padding: 0.25rem 0 1rem;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
-}
-
-.scroll-cards::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
-}
-
-.scroll-card {
-  min-width: 200px; /* ~15% of 480px image width */
-  max-width: 200px;
-  background: none; /* Optional: remove card background */
-  border: none;     /* Optional: remove border */
-  box-shadow: none; /* Optional: remove shadow */
-  padding: 0.25rem;
-  flex-shrink: 0;
-  text-align: center;
-}
-
-.scroll-card img {
-  width: 100%;
-  border-radius: 8px;
-  margin-bottom: 0.25rem;
-}
-
-    .vertical-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin: 2rem 0;
-}
-
-.vertical-card {
-  background: #f5f5f5;
-  border-radius: 16px;
-  padding: 1rem;
-  overflow: hidden;
-}
-
-.vertical-card img {
-  width: 100%;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-}
-
-.vertical-card h3 {
-  font-size: 1.1rem;
-  margin: 0 0 0.5rem;
-}
-
-.vertical-card .tag {
-  display: inline-block;
-  background: #e0e0e0;
-  color: #333;
-  font-size: 0.75rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 8px;
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-    
-.subscribe-form {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  max-width: 400px;
-}
-
-.subscribe-form input[type="email"] {
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  width: 100%;
-}
-
-.subscribe-form button {
-  background: #111;
-  color: #fff;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.subscribe-form button:hover {
-  background: #333;
-}
-    
+    .btn:hover{filter:brightness(.96)}
+    .hint{margin-top:.75rem; font-size:.9rem; color:#777}
   </style>
 </head>
 <body>
+  <main class="card">
+    <h1>The Data Grave has evolved</h1>
+    <p>We’ve moved to a new URL. Click below to continue.</p>
+    <p><a id="goBtn" class="btn" href="https://humanmotives.org/projects/datagrave/">Go to the new site</a></p>
+    <div class="hint">If nothing happens, use the button above.</div>
+  </main>
 
-  <header>
-    <h1>H / M</h1>
-    <p>Where sound, projects, and story come together.</p>
-  </header>
+  <script>
+    // Change this if your new URL is different:
+    const NEW_URL = "https://humanmotives.org/projects/datagrave/";
 
-  <div class="section">
-    <img src="/images/HumanMotivesMusic.jpg" alt="Music Image">
-    <div class="tag">Sound</div><div class="tag">Composition</div>
-    <h2>My Music</h2>
-    <p>Original compositions, experimental loops, and personal sonic moments — captured and shared with care.</p>
+    // Keep the button in sync with the constant:
+    document.getElementById('goBtn').href = NEW_URL;
 
-    <ul class="project-list">
-      <li><a href="https://youtube.com/@humanmotives?si=pDWmPlBnZm3XFPXw" target="_blank"><span class="arrow">➝</span> YouTube</a></li>
-      <li><a href="https://open.spotify.com/artist/5XwCzd52xR5uw1kp3q31JI?si=cRzLf_ZnTpGP9zQM65iTow" target="_blank"><span class="arrow">➝</span> Spotify</a></li>
-      <li><a href="https://humanmotives.bandcamp.com" target="_blank"><span class="arrow">➝</span> Bandcamp</a></li>
-    </ul>
-    </div>
-  </div>
-
-  <div class="section">
-    <img src="images/IMG_9875.jpeg" alt="Projects Image">
-    <div class="tag">Code</div><div class="tag">Design</div>
-    <h2>My Projects</h2>
-    <p>A digital shelf of passion projects, art experiments, and design explorations — constantly evolving.</p>
-
-    <ul class="project-list">
-      <li><a href="https://transcendent-otter-ee8661.netlify.app/projects/thedatagrave/"><span class="arrow">➝</span> Data Grave</a></li>
-      <li><a href="/projects/ghostradio/"><span class="arrow">➝</span> Ghost Radio</a></li>
-      <li><a href="/projects/genc/"><span class="arrow">➝</span> Gen C</a></li>
-    </ul> 
-    </div>
-  </div>
-
-<div class="scroll-section">
-  <h2>Projects</h2>
-  <div class="scroll-cards">
-    
-    <a href="https://transcendent-otter-ee8661.netlify.app/projects/thedatagrave/" class="scroll-card">
-      <img src="IMG_9882.jpeg" alt="Data Grave">
-      <p>Data Grave</p>
-    </a>
-
-    <a href="/projects/ghostradio/" class="scroll-card">
-      <img src="IMG_9880.jpeg" alt="Ghost Radio">
-      <p>Ghost Radio</p>
-    </a>
-
-    <a href="#" class="scroll-card">
-      <img src="IMG_9884.jpeg" alt="Gen C">
-      <p>Gen C</p>
-    </a>
-
-  </div>
-</div>
-  
-  <div class="section">
-    <img src="images/HumanMotivesPortrait.jpg" alt="Story Image">
-    <div class="tag">Personal</div><div class="tag">Intentional</div>
-    <h2>My Story</h2>
-    <p>This space is more than work — it’s a thread of thoughts, inspiring moments, and the journey so far. After drumming in rock bands, I gradually moved into experimental electronic music and generative techniques. I embrace chance, imperfection, and rhythm.</p>
-    </div>
-  </div>
-
-<div class="section">
-  <h2>Stay in the loop</h2>
-  <p>Join the H/M list for new sounds, releases & moments.</p>
-  <form action="#" method="POST" class="subscribe-form">
-    <input type="email" name="email" placeholder="you@example.com" required />
-    <button type="submit">Subscribe</button>
-  </form>
-</div>
-  
-  <div class="footer">
-    &copy; 2025 H/M — Crafted with clarity.
-  </div>
-
+    // Optional: auto-redirect after 5 seconds
+    setTimeout(() => { window.location.href = NEW_URL; }, 5000);
+  </script>
 </body>
 </html>
