@@ -1,4 +1,4 @@
-// burial-listings.js — v2025-08-11 alt card layout + bottom pager
+// burial-listings.js — v2025-08-12 alt card layout + bottom pager
 console.log('[burial-listings] v2025-08-11-alt-card');
 
 let currentPage = 1;
@@ -59,12 +59,12 @@ if (!listEl || !pageEl) {
       const size     = b.filesize || b.size || '';
 
       // ===== Card =====
-      const card = document.createElement('section');
+      const card = document.createElement('fieldset');
       card.className = 'dg-record';
       card.dataset.method = b.method || 'bury';
 
       // Legend
-      const legend = document.createElement('div');
+      const legend = document.createElement('legend');
       legend.className = 'dg-record__legend';
       legend.textContent = (b.method === 'cremate') ? 'Crematory Record' : 'Burial Record';
       card.appendChild(legend);
