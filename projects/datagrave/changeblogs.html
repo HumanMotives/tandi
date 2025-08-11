@@ -1,1 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Changelogs — Data Grave</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles/global.css" />
+  <style>
+    /* tiny page-local polish */
+    .change-entry { margin-bottom: 1rem; }
+    .change-meta { color: var(--muted); font-size: 0.95rem; margin-bottom: .35rem; }
+    .badge { border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; font-size: .75rem; margin-right: 6px; }
+    .change-body ul { margin-left: 1.1rem; line-height: 1.7; }
+  </style>
+</head>
+<body>
+  <!-- Header partial -->
+  <div id="common-header"></div>
 
+  <main class="page">
+    <div class="logo-container">
+      <a href="/projects/datagrave/" class="site-logo-link" aria-label="Home">
+        <img src="/projects/datagrave/images/datagrave_sitelogo.png" alt="The Data Grave Logo" class="site-logo" />
+      </a>
+      <div class="site-title">DATA GRAVE</div>
+    </div>
+
+    <h1>Changelogs</h1>
+    <p class="muted">Manual log of notable changes, fixes, and tweaks.</p>
+    <hr />
+
+    <!-- =======================
+         COPY/PASTE TEMPLATE
+         =======================
+    <div class="card soft change-entry" id="vX-Y">
+      <div class="change-meta">
+        <strong>vX.Y</strong> · <time datetime="YYYY-MM-DD">Mon DD, YYYY</time>
+      </div>
+      <div class="change-body">
+        <ul>
+          <li><span class="badge">Added</span> …</li>
+          <li><span class="badge">Changed</span> …</li>
+          <li><span class="badge">Fixed</span> …</li>
+        </ul>
+      </div>
+    </div>
+    -->
+
+    <!-- Example entries (edit/remove as you like) -->
+    <div class="card soft change-entry" id="v2-2">
+      <div class="change-meta">
+        <strong>v2.2</strong> · <time datetime="2025-08-11">Aug 11, 2025</time>
+      </div>
+      <div class="change-body">
+        <ul>
+          <li><span class="badge">Changed</span> New burial listing card layout & pagination alignment.</li>
+          <li><span class="badge">Fixed</span> Invisible reCAPTCHA domain config and badge visibility.</li>
+          <li><span class="badge">UI</span> Footer links & site logo home link.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card soft change-entry" id="v2-1">
+      <div class="change-meta">
+        <strong>v2.1</strong> · <time datetime="2025-08-10">Aug 10, 2025</time>
+      </div>
+      <div class="change-body">
+        <ul>
+          <li><span class="badge">Added</span> Burial “tombstone” summary screen polish.</li>
+          <li><span class="badge">Fixed</span> Asset path for audio play icons.</li>
+        </ul>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer partial -->
+  <div id="common-footer"></div>
+
+  <!-- Minimal loader for header/footer -->
+  <script>
+    async function loadPartial(containerId, url) {
+      const el = document.getElementById(containerId);
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(res.status);
+        el.innerHTML = await res.text();
+        return true;
+      } catch (err) {
+        console.error(`Failed to load ${url}:`, err);
+        return false;
+      }
+    }
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadPartial('common-header', 'partials/header.html');
+      await loadPartial('common-footer', 'partials/footer.html');
+    });
+  </script>
+</body>
+</html>
