@@ -1,6 +1,6 @@
 // --- burial-flow script ---
 
-console.log('[burial-flow] v2025-aug-015-burial-flow loaded');
+console.log('[burial-flow] v2025-refactor-001 loaded');
 
 // --- Supabase Edge endpoints + anon key (required) ---
 const FUNCTIONS_BASE = 'https://ticxhncusdycqjftohho.supabase.co/functions/v1';
