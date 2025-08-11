@@ -1,6 +1,6 @@
 // --- burial-flow script ---
 
-console.log('[burial-flow] v2025-refactor-003 loaded');
+console.log('[burial-flow] v2025-refactor-005 loaded');
 
 // --- Supabase Edge endpoints + anon key (required) ---
 const FUNCTIONS_BASE = 'https://ticxhncusdycqjftohho.supabase.co/functions/v1';
@@ -283,7 +283,6 @@ function uploadBurialFileWithProgress(file, onProgress) {
           const pct = Math.max(0, Math.min(100, Math.round((evt.loaded / evt.total) * 100)));
           if (typeof onProgress === 'function') onProgress(pct);
         } else {
-          // if not computable, give a gentle nudge so the bar isn't stuck at 0%
           if (typeof onProgress === 'function') onProgress(10);
         }
       };
@@ -341,7 +340,7 @@ async function showCeremony() {
       : '';
 
     if (method === 'cremate') {
-      // 🔥 CREMATE: NO upload — give the user a quick visible pass on bar #2
+      // 🔥 CREMATE: NO upload — quick visible pass on bar #2
       await new Promise((res) => {
         const ms = 1200, start = performance.now();
         function tick(t){
@@ -441,13 +440,14 @@ async function showCeremony() {
     if (method === 'cremate') {
       renderCremateAftercare(aftercare);
     } else {
-      // Burial: simple “lay another” link
+      // Burial: simple “lay another” link + conclude card
       aftercare.innerHTML = `<div class="link" onclick="location.reload()">Lay another track to rest</div>`;
       aftercare.classList.remove('hidden');
+      showConclusion('bury');
     }
   }
 
-  // Refresh the listings so the new entry appears in the NEW card layout
+  // Refresh the listings so the new entry appears
   if (typeof window.dgReloadBurials === 'function') {
     window.dgReloadBurials();
   } else {
@@ -455,49 +455,82 @@ async function showCeremony() {
   }
 } // <-- end showCeremony
 
-// Cremation aftercare UI (no auto-play; plays on click and shows player)
+// Cremation aftercare UI (centered; hides controls on click; blank line before audio)
 function renderCremateAftercare(aftercareEl){
   aftercareEl.innerHTML = `
-    <div class="labeled-container collect-remains">
+    <div class="labeled-container collect-remains" style="text-align:center">
       <div class="label">Collect Remains</div>
 
-      <p style="margin-bottom: .75rem;">
+      <p style="margin-bottom: .9rem; font-size: clamp(16px,2.4vw,22px);">
         Do you wish to collect the remains? It comes in a modestly priced receptacle.
       </p>
 
-      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+      <div id="collectActions" class="collect-actions"
+           style="display:flex; justify-content:center; align-items:center; gap:12px; flex-wrap:wrap; margin:.25rem 0;">
         <button id="collectYes" class="btn primary">Yes</button>
         <a href="#" id="collectNo" class="link" style="margin:0">No thanks</a>
       </div>
 
-      <audio id="ashesPlayer" class="hidden" preload="none"></audio>
+      <div style="height: 12px;"></div>
+
+      <audio id="ashesPlayer" class="hidden" preload="none" style="margin-top:.25rem;"></audio>
     </div>
   `;
   aftercareEl.classList.remove('hidden');
 
-  const yesBtn = document.getElementById('collectYes');
-  const noLink = document.getElementById('collectNo');
-  const player = document.getElementById('ashesPlayer');
+  const actions = document.getElementById('collectActions');
+  const yesBtn  = document.getElementById('collectYes');
+  const noLink  = document.getElementById('collectNo');
+  const player  = document.getElementById('ashesPlayer');
 
   yesBtn?.addEventListener('click', async (e) => {
     e.preventDefault();
     try {
+      actions && (actions.style.display = 'none'); // hide controls
       if (!player.src) {
         // Adjust path if your file lives elsewhere
         player.src = 'ashes1.mp3';
       }
       player.classList.remove('hidden');
       player.controls = true;
-      yesBtn.disabled = true;
-      yesBtn.textContent = 'Playing…';
       await player.play().catch(()=>{});
+      // When audio ends, show the conclusion card
+      player.addEventListener('ended', () => showConclusion('cremate'), { once: true });
     } catch {}
   });
 
   noLink?.addEventListener('click', (e) => {
     e.preventDefault();
-    // Optional small acknowledgement
-    noLink.textContent = 'No problem.';
+    actions && (actions.style.display = 'none'); // hide controls
+    showConclusion('cremate');                    // finish immediately
+  });
+}
+
+// “Service Concluded” card — one per ceremony
+function showConclusion(method){
+  if (document.getElementById('dg-conclusion')) return;
+
+  const after = $('aftercare');
+  if (!after) return;
+
+  const box = document.createElement('div');
+  box.id = 'dg-conclusion';
+  box.className = 'labeled-container';
+  box.innerHTML = `
+    <div class="label">Service Concluded</div>
+    <div class="center" style="margin-top:.25rem">
+      <button id="backHomeBtn" class="btn primary" style="min-width:220px">Back to the Graveyard</button>
+      <div id="layAnotherLink" class="link" style="margin-top:.5rem">Lay another track to rest</div>
+    </div>
+  `;
+  after.appendChild(box);
+
+  document.getElementById('backHomeBtn')?.addEventListener('click', () => {
+    // change if your site lives elsewhere
+    location.href = '/projects/datagrave/';
+  });
+  document.getElementById('layAnotherLink')?.addEventListener('click', () => {
+    location.reload();
   });
 }
 
