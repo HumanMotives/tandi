@@ -1,4 +1,4 @@
-// burial-listings.js — v2025-08-11 alt card layout
+// burial-listings.js — v2025-08-11 alt card layout + bottom pager
 console.log('[burial-listings] v2025-08-11-alt-card');
 
 let currentPage = 1;
@@ -10,14 +10,14 @@ const ICON_BASE  = '/projects/datagrave/images';
 const ICON_PLAY  = `${ICON_BASE}/icon_playaudio.png`;
 const ICON_PAUSE = `${ICON_BASE}/icon_pauseaudio.png`;
 const ICON_DL    = `${ICON_BASE}/icon_download.png`;
-const ICON_LIKE  = `${ICON_BASE}/icon_like.png`;   // optional placeholder
-const ICON_LOVE  = `${ICON_BASE}/icon_heart.png`;  // optional placeholder
 const ICON_URN   = `${ICON_BASE}/icon_urn.png`;
 const ICON_STONE = `${ICON_BASE}/icon_tombstone.png`;
 
 if (!listEl || !pageEl) {
   console.error('[burial-listings] Missing #graveList or #paginationControls');
 } else {
+  const pageBottomEl = ensureBottomPager();
+
   hideTableHeadings();  // keep table wrapper but hide header
 
   async function fetchPage(page) {
@@ -94,6 +94,8 @@ if (!listEl || !pageEl) {
         playBtn.dataset.url = url;
         const playImg = document.createElement('img');
         playImg.src = ICON_PLAY; playImg.alt = '';
+        // if an icon is missing, hide the whole button silently
+        playImg.onerror = () => playBtn.remove();
         playBtn.appendChild(playImg);
         actions.appendChild(playBtn);
 
@@ -104,18 +106,10 @@ if (!listEl || !pageEl) {
         dl.title = 'Download';
         const dlImg = document.createElement('img');
         dlImg.src = ICON_DL; dlImg.alt = 'Download';
+        dlImg.onerror = () => dl.remove();
         dl.appendChild(dlImg);
         actions.appendChild(dl);
       }
-
-      // Optional future actions (comment out if you don’t have these assets)
-      const likeBtn = document.createElement('button');
-      likeBtn.className = 'dg-btn'; likeBtn.title = 'Like';
-      likeBtn.appendChild(Object.assign(document.createElement('img'), { src: ICON_LIKE, alt: '' }));
-      const loveBtn = document.createElement('button');
-      loveBtn.className = 'dg-btn'; loveBtn.title = 'Love';
-      loveBtn.appendChild(Object.assign(document.createElement('img'), { src: ICON_LOVE, alt: '' }));
-      actions.append(likeBtn, loveBtn);
 
       grid.appendChild(actions);
 
@@ -132,6 +126,7 @@ if (!listEl || !pageEl) {
       badge.className = 'dg-premium-icon';
       badge.src = (b.method === 'cremate') ? ICON_URN : ICON_STONE;
       badge.alt = '';
+      badge.onerror = () => premium.remove();
       premium.appendChild(badge);
       grid.appendChild(premium);
 
@@ -149,14 +144,20 @@ if (!listEl || !pageEl) {
 
   function renderPagination(totalCount) {
     const totalPages = Math.ceil(totalCount / pageSize) || 1;
-    pageEl.innerHTML = '';
+    buildPager(pageEl, totalPages);
+    if (pageBottomEl) buildPager(pageBottomEl, totalPages);
+  }
+
+  function buildPager(container, totalPages) {
+    if (!container) return;
+    container.innerHTML = '';
     for (let i = 1; i <= totalPages; i++) {
       const btn = document.createElement('button');
       btn.textContent = i;
       btn.className = 'page-btn';
       if (i === currentPage) btn.classList.add('active');
       btn.onclick = () => fetchPage(i);
-      pageEl.appendChild(btn);
+      container.appendChild(btn);
     }
   }
 
@@ -172,6 +173,17 @@ if (!listEl || !pageEl) {
     if (!table) return;
     const thead = table.querySelector('thead');
     if (thead) thead.style.display = 'none';
+  }
+
+  function ensureBottomPager() {
+    let bottom = document.getElementById('paginationControlsBottom');
+    if (bottom) return bottom;
+    const table = listEl.closest('table');
+    const host  = table?.parentNode || listEl.parentNode;
+    bottom = document.createElement('div');
+    bottom.id = 'paginationControlsBottom';
+    host.insertBefore(bottom, table ? table.nextSibling : listEl.nextSibling);
+    return bottom;
   }
 
   // Expose a reload helper so burial-flow can refresh after a new entry
