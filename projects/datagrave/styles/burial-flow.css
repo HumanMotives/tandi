@@ -77,6 +77,8 @@ h1, h2, h3 {
 .ceremony {
   margin-top: 2rem;
 }
+
+/* Tombstone card: arch top + subtle stone shading */
 .tombstone {
   margin-top: 2rem;
   padding: 2rem;
@@ -86,9 +88,24 @@ h1, h2, h3 {
   font-size: 1.3rem;
   opacity: 0;
   transition: opacity 2s ease-in;
+
+  /* new: mega-rounded top corners, small bottom corners */
+  border-radius: 36px 36px 10px 10px;
+
+  /* new: gentle “stone” shading */
+  box-shadow: inset 0 1px 0 rgba(0,0,0,.06);
+  background-image: linear-gradient(180deg, rgba(0,0,0,.035), rgba(0,0,0,0) 40%);
+  background-blend-mode: multiply;
 }
 .tombstone.show {
   opacity: 1;
+}
+
+/* Hide "Check the remains" when method is bury (no markup rename required) */
+.tombstone[data-method="bury"] .js-remains,
+.tombstone[data-method="bury"] .button.remains,
+.tombstone[data-method="bury"] [data-role="remains"] {
+  display: none !important;
 }
 
 .options-afterlife {
@@ -175,4 +192,3 @@ h1, h2, h3 {
 }
 .license-note a{ text-decoration: underline; }
 .license-note a:hover{ text-decoration: none; }
-
