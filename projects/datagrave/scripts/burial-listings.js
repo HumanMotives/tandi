@@ -1,4 +1,4 @@
-// burial-listings.js — v2025-08-12 alt card layout + bottom pager
+// burial-listings.js — v2025-08-12 alt card layout
 console.log('[burial-listings] v2025-08-11-alt-card');
 
 let currentPage = 1;
