@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>La Data Grave</title>
+  <title>Ze Data Grave</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   <!-- Styles (kebab-case, under /styles) -->
@@ -22,52 +22,7 @@
   </script>
   <script src="https://www.google.com/recaptcha/api.js?render=6LfLF48rAAAAANYVfuKbMf4frZIVuKQ3Y8s5rB5W" defer></script>
 
-<script>
-(function graveStats(){
-  const buriedEl   = document.getElementById('dg-buried-count');
-  const crematedEl = document.getElementById('dg-cremated-count');
-  if (!buriedEl || !crematedEl) return;
 
-  const URL   = window.SUPABASE_URL || 'https://ticxhncusdycqjftohho.supabase.co';
-  const KEY   = window.SUPABASE_ANON_KEY;
-  const TABLE = 'burials';   // change if your table name differs
-  const COL   = 'method';    // change if your column name differs
-
-  async function getCount(methodValue) {
-    // Returns: [{ "count": 123 }]
-    const u = `${URL}/rest/v1/${TABLE}?select=count:id&${COL}=eq.${encodeURIComponent(methodValue)}`;
-    const res = await fetch(u, {
-      headers: {
-        apikey: KEY,
-        Authorization: `Bearer ${KEY}`
-      }
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    return Number(json?.[0]?.count ?? 0);
-  }
-
-  async function refresh() {
-    try {
-      const [buried, cremated] = await Promise.all([
-        getCount('bury'),
-        getCount('cremate')
-      ]);
-      buriedEl.textContent   = `#${buried}`;
-      crematedEl.textContent = `#${cremated}`;
-    } catch (err) {
-      console.error('[grave-stats] Failed to load counts:', err);
-      buriedEl.textContent   = '#—';
-      crematedEl.textContent = '#—';
-    }
-  }
-
-  refresh();
-  setInterval(refresh, 30000);
-})();
-</script>
-
-  
 </head>
 <body>
   <!-- placeholders for partials -->
@@ -146,5 +101,53 @@
       document.body.appendChild(sh);
     });
   </script>
+
+<script>
+(function graveStats(){
+  const buriedEl   = document.getElementById('dg-buried-count');
+  const crematedEl = document.getElementById('dg-cremated-count');
+  if (!buriedEl || !crematedEl) return;
+
+  const URL   = window.SUPABASE_URL || 'https://ticxhncusdycqjftohho.supabase.co';
+  const KEY   = window.SUPABASE_ANON_KEY;
+  const TABLE = 'burials';   // change if your table name differs
+  const COL   = 'method';    // change if your column name differs
+
+  async function getCount(methodValue) {
+    // Returns: [{ "count": 123 }]
+    const u = `${URL}/rest/v1/${TABLE}?select=count:id&${COL}=eq.${encodeURIComponent(methodValue)}`;
+    const res = await fetch(u, {
+      headers: {
+        apikey: KEY,
+        Authorization: `Bearer ${KEY}`
+      }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    return Number(json?.[0]?.count ?? 0);
+  }
+
+  async function refresh() {
+    try {
+      const [buried, cremated] = await Promise.all([
+        getCount('bury'),
+        getCount('cremate')
+      ]);
+      buriedEl.textContent   = `#${buried}`;
+      crematedEl.textContent = `#${cremated}`;
+    } catch (err) {
+      console.error('[grave-stats] Failed to load counts:', err);
+      buriedEl.textContent   = '#—';
+      crematedEl.textContent = '#—';
+    }
+  }
+
+  refresh();
+  setInterval(refresh, 30000);
+})();
+</script>
+
+  
+    
 </body>
 </html>
