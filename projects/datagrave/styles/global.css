@@ -264,3 +264,20 @@ footer .legal { font-size: 0.8em; opacity: 0.7; margin-top: 0.5em; }
 
 /* Tap highlight removal for icon buttons */
 .play-icon, .icon-img { outline: none; -webkit-tap-highlight-color: transparent; }
+
+/* Center the main site title */
+.site-title,
+h1.site-title {
+  text-align: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Match legend outline to the fieldset + seamless half/half background */
+.dg-record > legend.dg-record__legend {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  /* top half = page bg, bottom half = card bg */
+  background: linear-gradient(to bottom, var(--bg) 50%, var(--card) 50%);
+}
