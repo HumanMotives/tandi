@@ -1,6 +1,6 @@
 // --- burial-flow script ---
 
-console.log('[burial-flow] v2025-refactor-002 loaded');
+console.log('[burial-flow] v2025-refactor-001 loaded');
 
 // --- Supabase Edge endpoints + anon key (required) ---
 const FUNCTIONS_BASE = 'https://ticxhncusdycqjftohho.supabase.co/functions/v1';
@@ -25,34 +25,16 @@ function isClean(text) {
 
 /* --------------------------------------------
    dialogs: load once when we first need them
-   (auto-inject dialogs.js if it's missing)
 --------------------------------------------- */
-function injectScript(src){
-  return new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = src;
-    s.defer = true;
-    s.onload = () => resolve(true);
-    s.onerror = () => reject(new Error('Failed to load ' + src));
-    document.head.appendChild(s);
-  });
-}
-
 async function ensureDialogsLoaded() {
   try {
-    if (!(window.dgDialogs && typeof window.dgDialogs.load === 'function')) {
-      console.log('[burial-flow] dialogs.js not found, injecting…');
-      await injectScript('/projects/datagrave/scripts/dialogs.js');
-    }
     if (window.dgDialogs && typeof window.dgDialogs.load === 'function') {
       await window.dgDialogs.load();
-      console.log('[burial-flow] dialogs ready');
       return true;
     }
   } catch (e) {
     console.warn('[burial-flow] dialogs load failed:', e);
   }
-  console.warn('[burial-flow] dialogs unavailable — using fallback lines');
   return false;
 }
 
@@ -110,7 +92,7 @@ window.__dgOnFileChange = async function __dgOnFileChange(e) {
   setTimeout(() => { if (analyzeFill) analyzeFill.style.width = '100%'; }, 50);
 
   // Load dialogs in parallel with step 1
-  const dialogsOk = await ensureDialogsLoaded();
+  await ensureDialogsLoaded();
 
   // After a short delay, show details + enable commit
   setTimeout(() => {
@@ -127,7 +109,7 @@ window.__dgOnFileChange = async function __dgOnFileChange(e) {
 
     if (sarcasticRemark) {
       const line =
-        (dialogsOk && window.__dgDialogs?.randomSnark)
+        (window.__dgDialogs && window.__dgDialogs.randomSnark)
           ? window.__dgDialogs.randomSnark()
           : (typeof sarcasticRemarks !== 'undefined' && sarcasticRemarks.length
               ? sarcasticRemarks[Math.floor(Math.random()*sarcasticRemarks.length)]
@@ -139,7 +121,7 @@ window.__dgOnFileChange = async function __dgOnFileChange(e) {
     if (fileSizeEl) fileSizeEl.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
     if (fileVibeEl) {
       const vibe =
-        (dialogsOk && window.__dgDialogs?.randomGenre)
+        (window.__dgDialogs && window.__dgDialogs.randomGenre)
           ? window.__dgDialogs.randomGenre()
           : (typeof vibes !== 'undefined' && vibes.length
               ? vibes[Math.floor(Math.random()*vibes.length)]
@@ -148,7 +130,7 @@ window.__dgOnFileChange = async function __dgOnFileChange(e) {
     }
     if (epitaphInput) {
       const suggestion =
-        (dialogsOk && window.__dgDialogs?.randomEpitaph)
+        (window.__dgDialogs && window.__dgDialogs.randomEpitaph)
           ? window.__dgDialogs.randomEpitaph()
           : (typeof eulogies !== 'undefined' && eulogies.length
               ? eulogies[Math.floor(Math.random()*eulogies.length)]
@@ -301,6 +283,7 @@ function uploadBurialFileWithProgress(file, onProgress) {
           const pct = Math.max(0, Math.min(100, Math.round((evt.loaded / evt.total) * 100)));
           if (typeof onProgress === 'function') onProgress(pct);
         } else {
+          // if not computable, give a gentle nudge so the bar isn't stuck at 0%
           if (typeof onProgress === 'function') onProgress(10);
         }
       };
@@ -358,7 +341,7 @@ async function showCeremony() {
       : '';
 
     if (method === 'cremate') {
-      // 🔥 CREMATE: NO upload — quick visible pass on bar #2
+      // 🔥 CREMATE: NO upload — give the user a quick visible pass on bar #2
       await new Promise((res) => {
         const ms = 1200, start = performance.now();
         function tick(t){
@@ -464,9 +447,11 @@ async function showCeremony() {
     } catch {}
   }
 
-  // Ensure remains controls are removed everywhere on BURY
+  // Hide any "remains" section for burials (defense in depth)
   if (method === 'bury') {
-    hideRemainsEverywhere();
+    document.querySelector('.options-afterlife')?.classList.add('hidden');
+    document.querySelector('.js-remains')?.remove();
+    document.querySelector('[data-role="remains"]')?.remove();
   }
 
   const aftercare = $('aftercare');
@@ -479,30 +464,6 @@ async function showCeremony() {
     location.reload();
   }
 } // <-- end showCeremony
-
-function hideRemainsEverywhere(){
-  console.log('[burial-flow] hide remains (bury)');
-  const selectors = [
-    '.js-remains',
-    '.button.remains',
-    '[data-role="remains"]',
-    '#remains', '#remainsBtn',
-    'a[href*="remains"]',
-    'button[aria-label*="remains" i]'
-  ];
-  selectors.forEach(sel => {
-    document.querySelectorAll(sel).forEach(el => {
-      el.style.display = 'none';
-      el.remove?.();
-    });
-  });
-  // If options-afterlife exists, only strip the remains control, keep the rest
-  const options = document.querySelector('.options-afterlife');
-  if (options) {
-    const r = options.querySelector('.js-remains, .button.remains, [data-role="remains"]');
-    if (r) r.remove();
-  }
-}
 
 // very small XSS guard for user strings
 function escapeHtml(s){
