@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>De Data Grave</title>
+  <title>Well Data Grave</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   <!-- Styles (kebab-case, under /styles) -->
@@ -116,24 +116,29 @@ function graveStats(){
     return;
   }
 
-  async function getCount(methodValue) {
-    const u = `${URL}/rest/v1/burials?select=id&method=eq.${encodeURIComponent(methodValue)}`;
-    const res = await fetch(u, {
-      headers: {
-        apikey: KEY,
-        Authorization: `Bearer ${KEY}`,
-        Prefer: 'count=exact',
-        Range: '0-0'
-      }
-    });
-    if (!res.ok) {
-      const preview = await res.text().catch(()=> '');
-      console.error('[grave-stats] Bad response', res.status, u, preview.slice(0,120));
-      throw new Error(`HTTP ${res.status}`);
+async function getCount(methodValue) {
+  const URL = window.SUPABASE_URL;
+  const KEY = window.SUPABASE_ANON_KEY;
+  const u = `${URL}/rest/v1/burials?select=method&method=eq.${encodeURIComponent(methodValue)}`;
+  const res = await fetch(u, {
+    headers: {
+      apikey: KEY,
+      Authorization: `Bearer ${KEY}`,
+      Prefer: 'count=exact',
+      Range: '0-0' // return no rows, just the count in Content-Range
     }
-    const cr = res.headers.get('content-range'); // "0-0/123"
-    return Number(cr?.split('/')?.[1] ?? 0);
+    // note: GET is default
+  });
+
+  if (!res.ok) {
+    const preview = await res.text().catch(()=> '');
+    console.error('[grave-stats] Bad response', res.status, u, preview.slice(0,120));
+    throw new Error(`HTTP ${res.status}`);
   }
+
+  const cr = res.headers.get('content-range'); // e.g. "0-0/235"
+  return Number(cr?.split('/')?.[1] ?? 0);
+}
 
   async function refresh() {
     try {
