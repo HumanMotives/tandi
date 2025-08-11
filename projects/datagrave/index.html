@@ -74,7 +74,7 @@
       await loadPartial('common-header', 'partials/header.html');
 
   <!-- 2) Burial zone → then its scripts (dialogs first, then flow) -->
-<script>
+
   if ((await loadPartial('burial-zone-placeholder', 'partials/burial-zone.html')) !== false) {
     // Load dialogs.js explicitly so random lines work
     const d = document.createElement('script');
@@ -88,7 +88,7 @@
     };
     document.body.appendChild(d);
   }
-</script>
+
 
       // 3) Upsell section → then its script
       if ((await loadPartial('upsell-section-placeholder', 'partials/upsell-section.html')) !== false) {
