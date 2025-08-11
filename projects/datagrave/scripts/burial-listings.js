@@ -1,19 +1,24 @@
-// burial-listings.js — icon-only play/pause image
-console.log('[burial-listings] v2025-08-16-icon-fix');
+// burial-listings.js — v2025-08-11 alt card layout
+console.log('[burial-listings] v2025-08-11-alt-card');
 
 let currentPage = 1;
 const pageSize   = 25;
 const listEl     = document.getElementById('graveList');            // tbody
 const pageEl     = document.getElementById('paginationControls');
 
-const ICON_PLAY  = '/projects/datagrave/images/icon_playaudio.png';
-const ICON_PAUSE = '/projects/datagrave/images/icon_pauseaudio.png';
+const ICON_BASE  = '/projects/datagrave/images';
+const ICON_PLAY  = `${ICON_BASE}/icon_playaudio.png`;
+const ICON_PAUSE = `${ICON_BASE}/icon_pauseaudio.png`;
+const ICON_DL    = `${ICON_BASE}/icon_download.png`;
+const ICON_LIKE  = `${ICON_BASE}/icon_like.png`;   // optional placeholder
+const ICON_LOVE  = `${ICON_BASE}/icon_heart.png`;  // optional placeholder
+const ICON_URN   = `${ICON_BASE}/icon_urn.png`;
+const ICON_STONE = `${ICON_BASE}/icon_tombstone.png`;
 
 if (!listEl || !pageEl) {
   console.error('[burial-listings] Missing #graveList or #paginationControls');
 } else {
-  injectGraveCardStyles();
-  hideTableHeadings();  // <— hide OG column titles
+  hideTableHeadings();  // keep table wrapper but hide header
 
   async function fetchPage(page) {
     currentPage = page;
@@ -43,85 +48,99 @@ if (!listEl || !pageEl) {
     listEl.innerHTML = '';
     rows.forEach(b => {
       const tr  = document.createElement('tr');
-      tr.classList.add('fade-in');
-
       const td  = document.createElement('td');
+      tr.classList.add('fade-in');
       td.colSpan = 4;
 
-      const card = el('div', 'grave-card');
-
-      // Top row
-      const top  = el('div', 'card-top');
-
-      // left icon (urn/tombstone)
-      const icon = document.createElement('img');
-      icon.src   = (b.method === 'cremate') ? 'images/icon_urn.png' : 'images/icon_tombstone.png';
-      icon.className = 'icon-img';
-      icon.width = 28; icon.height = 28; icon.alt = '';
-
-      const nameBox = el('div', 'file-name', b.name || 'Unknown');
-
-      const actions = el('div', 'actions');
-
-      // Play & download if we have audio
-      const url = b.audio_url || b.audioUrl || b.publicUrl || '';
+      const url      = b.audio_url || b.audioUrl || b.publicUrl || '';
       const hasAudio = !!url;
+      const user     = b.username || b.user || 'Guest';
+      const country  = (b.country && String(b.country).trim()) || '—';
+      const size     = b.filesize || b.size || '';
 
-      if (b.method === 'cremate') {
-        const note = document.createElement('span');
-        note.className = 'note';
-        note.textContent = 'Cremated';
-        actions.appendChild(note);
-      } else if (hasAudio) {
-        // Play icon (image only)
+      // ===== Card =====
+      const card = document.createElement('section');
+      card.className = 'dg-record';
+      card.dataset.method = b.method || 'bury';
+
+      // Legend
+      const legend = document.createElement('div');
+      legend.className = 'dg-record__legend';
+      legend.textContent = (b.method === 'cremate') ? 'Crematory Record' : 'Burial Record';
+      card.appendChild(legend);
+
+      // Layout grid
+      const grid = document.createElement('div');
+      grid.className = 'dg-record__layout';
+      card.appendChild(grid);
+
+      // Name
+      const head = document.createElement('div');
+      head.className = 'dg-record__head';
+      const nameEl = document.createElement('h3');
+      nameEl.className = 'dg-record__name';
+      nameEl.textContent = b.name || 'Unknown';
+      head.appendChild(nameEl);
+      grid.appendChild(head);
+
+      // Actions
+      const actions = document.createElement('div');
+      actions.className = 'dg-actions';
+
+      if (b.method !== 'cremate' && hasAudio) {
+        const playBtn = document.createElement('button');
+        playBtn.className = 'dg-btn dg-btn--play';
+        playBtn.setAttribute('aria-label', 'Play or pause audio');
+        playBtn.dataset.url = url;
         const playImg = document.createElement('img');
-        playImg.src = ICON_PLAY;
-        playImg.alt = 'Play audio';
-        playImg.className = 'icon-img play-icon paused';
-        playImg.width = 28; playImg.height = 28;
-        playImg.dataset.url = url;
-        playImg.setAttribute('role', 'button');
-        playImg.setAttribute('tabindex', '0');
-        playImg.setAttribute('aria-label', 'Play or pause audio');
-        actions.appendChild(playImg);
+        playImg.src = ICON_PLAY; playImg.alt = '';
+        playBtn.appendChild(playImg);
+        actions.appendChild(playBtn);
 
-        // Download
         const dl = document.createElement('a');
-        dl.href = url;
-        dl.download = '';
-        dl.target = '_blank';
-        dl.rel = 'noopener noreferrer';
+        dl.className = 'dg-btn';
+        dl.href = url; dl.download = '';
+        dl.target = '_blank'; dl.rel = 'noopener noreferrer';
         dl.title = 'Download';
         const dlImg = document.createElement('img');
-        dlImg.src = 'images/icon_download.png';
-        dlImg.alt = 'Download';
-        dlImg.className = 'icon-img';
+        dlImg.src = ICON_DL; dlImg.alt = 'Download';
         dl.appendChild(dlImg);
         actions.appendChild(dl);
-      } else {
-        const legacyNote = document.createElement('span');
-        legacyNote.className = 'note';
-        legacyNote.textContent = 'N/A';
-        actions.appendChild(legacyNote);
       }
 
-      top.append(icon, nameBox, actions);
+      // Optional future actions (comment out if you don’t have these assets)
+      const likeBtn = document.createElement('button');
+      likeBtn.className = 'dg-btn'; likeBtn.title = 'Like';
+      likeBtn.appendChild(Object.assign(document.createElement('img'), { src: ICON_LIKE, alt: '' }));
+      const loveBtn = document.createElement('button');
+      loveBtn.className = 'dg-btn'; loveBtn.title = 'Love';
+      loveBtn.appendChild(Object.assign(document.createElement('img'), { src: ICON_LOVE, alt: '' }));
+      actions.append(likeBtn, loveBtn);
 
-      // Bottom row
-      const bottom = el('div', 'card-bottom');
+      grid.appendChild(actions);
 
-      const quote  = el('div', 'quote', `“${b.epitaph || ''}”`);
-      const right  = document.createElement('div');
-      right.innerHTML = `<strong>Buried:</strong> ${formatDate(b.timestamp)}${
-        (b.country && String(b.country).trim())
-          ? ` &nbsp;&nbsp; <strong>Country:</strong> ${String(b.country).trim()}`
-          : ''
-      }`;
+      // Epitaph
+      const epi = document.createElement('p');
+      epi.className = 'dg-record__epitaph';
+      epi.textContent = b.epitaph ? `“${b.epitaph}”` : '';
+      grid.appendChild(epi);
 
-      bottom.append(quote, right);
+      // Premium / method icon (placeholder area)
+      const premium = document.createElement('div');
+      premium.className = 'dg-record__premium';
+      const badge = document.createElement('img');
+      badge.className = 'dg-premium-icon';
+      badge.src = (b.method === 'cremate') ? ICON_URN : ICON_STONE;
+      badge.alt = '';
+      premium.appendChild(badge);
+      grid.appendChild(premium);
 
-      // Put it all together
-      card.append(top, bottom);
+      // Meta (fine print)
+      const meta = document.createElement('div');
+      meta.className = 'dg-record__meta';
+      meta.innerHTML = `Country: ${country} | Buried: ${formatDate(b.timestamp)}${size ? ' | ' + size : ''}<br> User: ${user}`;
+      grid.appendChild(meta);
+
       td.appendChild(card);
       tr.appendChild(td);
       listEl.appendChild(tr);
@@ -142,13 +161,6 @@ if (!listEl || !pageEl) {
   }
 
   // Helpers
-  function el(tag, className, text) {
-    const n = document.createElement(tag);
-    if (className) n.className = className;
-    if (typeof text === 'string') n.textContent = text;
-    return n;
-  }
-
   function formatDate(iso) {
     const d = iso ? new Date(iso) : new Date();
     if (Number.isNaN(d.getTime())) return '';
@@ -162,92 +174,59 @@ if (!listEl || !pageEl) {
     if (thead) thead.style.display = 'none';
   }
 
-  function injectGraveCardStyles() {
-    if (document.getElementById('grave-card-styles')) return;
-    const css = `
-      .grave-card { margin: 12px 0; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 0 rgba(0,0,0,0.06); }
-      .grave-card .card-top { background: #F6EED3; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px 14px 0 0; }
-      .grave-card .file-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; font-size: 1.05rem; letter-spacing: 0.02em; flex: 1; display: flex; align-items: center; gap: 10px; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .grave-card .actions { display: flex; align-items: center; gap: 14px; }
-
-      /* Icon-only play button */
-      .play-icon { cursor: pointer; user-select: none; }
-      .play-icon.playing { filter: drop-shadow(0 0 0.5px rgba(0,0,0,0.25)) brightness(1.05); transform: translateZ(0); }
-      .play-icon:focus { outline: 2px solid #0aa; outline-offset: 2px; }
-
-      .grave-card .card-bottom { background: #B6B6B6; color: #fff; padding: 12px 16px; display: flex; gap: 12px; justify-content: space-between; border: 1px solid rgba(0,0,0,0.15); border-top: none; box-shadow: inset 0 1px 0 rgba(255,255,255,0.18); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.95rem; border-radius: 0 0 14px 14px; }
-      .grave-card .quote { opacity: 0.9; color: #F6EED3; font-style: italic; }
-      .icon-img { width: 28px; height: 28px; object-fit: contain; }
-    `;
-    const style = document.createElement('style');
-    style.id = 'grave-card-styles';
-    style.textContent = css;
-    document.head.appendChild(style);
-  }
-
   // Expose a reload helper so burial-flow can refresh after a new entry
   window.dgReloadBurials = () => fetchPage(1);
 
-  // Shared audio player (singleton) for all play icons
+  // ---- Shared audio player & handlers (for .dg-btn--play) ----
   if (!window.__dgPlayer) {
     const player = new Audio();
     player.preload = 'none';
 
-    const toggleIconState = (img, playing) => {
-      img.classList.toggle('playing', playing);
-      img.classList.toggle('paused', !playing);
-      img.setAttribute('aria-label', playing ? 'Pause audio' : 'Play audio');
-      img.src = playing ? ICON_PAUSE : ICON_PLAY;
-    };
-
     document.addEventListener('click', (e) => {
-      const img = e.target.closest('.play-icon');
-      if (!img) return;
+      const btn = e.target.closest('.dg-btn--play');
+      if (!btn) return;
 
-      const url = img.dataset.url;
-      if (!url) return;
+      const img = btn.querySelector('img');
+      const url = btn.dataset.url;
+      if (!img || !url) return;
 
-      // Switching track?
       const changingTrack = player.src !== url;
 
       if (changingTrack) {
         player.pause();
-        document.querySelectorAll('.play-icon.playing').forEach(i => toggleIconState(i, false));
+        document.querySelectorAll('.dg-btn--play.is-playing').forEach(b => {
+          b.classList.remove('is-playing');
+          const i = b.querySelector('img'); if (i) i.src = ICON_PLAY;
+        });
         player.src = url;
       }
 
       if (player.paused) {
         player.play().then(() => {
-          document.querySelectorAll('.play-icon.playing').forEach(i => toggleIconState(i, false));
-          toggleIconState(img, true);
+          document.querySelectorAll('.dg-btn--play.is-playing').forEach(b => {
+            b.classList.remove('is-playing');
+            const i = b.querySelector('img'); if (i) i.src = ICON_PLAY;
+          });
+          btn.classList.add('is-playing');
+          img.src = ICON_PAUSE;
         }).catch(()=>{});
       } else {
         player.pause();
-        toggleIconState(img, false);
+        btn.classList.remove('is-playing');
+        img.src = ICON_PLAY;
       }
     });
 
-    // keyboard support
-    document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      const img = document.activeElement?.closest?.('.play-icon');
-      if (!img) return;
-      e.preventDefault();
-      img.click();
-    });
-
     player.addEventListener('ended', () => {
-      document.querySelectorAll('.play-icon.playing').forEach(i => {
-        i.classList.remove('playing');
-        i.classList.add('paused');
-        i.src = ICON_PLAY;
-        i.setAttribute('aria-label', 'Play audio');
+      document.querySelectorAll('.dg-btn--play.is-playing').forEach(b => {
+        b.classList.remove('is-playing');
+        const i = b.querySelector('img'); if (i) i.src = ICON_PLAY;
       });
     });
 
     window.__dgPlayer = player;
   }
 
-  // Kick off the first page
+  // Kick off
   fetchPage(1);
 }
