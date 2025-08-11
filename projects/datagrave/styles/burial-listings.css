@@ -49,8 +49,8 @@
 }
 
 .icon-img { width: 25px; height: 25px; object-fit: contain; }
-.icon-img.playing { content: url('/images/icon_pauseaudio.png'); }
-.icon-img.paused { content: url('/images/icon_playaudio.png'); }
+.icon-img.playing { content: url('/projects/datagrave/images/icon_pauseaudio.png'); }
+.icon-img.paused { content: url('/projects/datagrave/images/icon_playaudio.png'); }
 
 /* Bottom row */
 .grave-card .card-bottom {
