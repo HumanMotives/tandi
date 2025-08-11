@@ -23,6 +23,21 @@ function isClean(text) {
   return !(/[<>]/.test(text) || /\bhttps?:\/\//i.test(text));
 }
 
+/* --------------------------------------------
+   dialogs: load once when we first need them
+--------------------------------------------- */
+async function ensureDialogsLoaded() {
+  try {
+    if (window.dgDialogs && typeof window.dgDialogs.load === 'function') {
+      await window.dgDialogs.load();
+      return true;
+    }
+  } catch (e) {
+    console.warn('[burial-flow] dialogs load failed:', e);
+  }
+  return false;
+}
+
 // === File picker + change handler (full, self-contained) ===
 window.__dgOpenPicker = function __dgOpenPicker() {
   const input = document.getElementById('fileInput');
@@ -34,7 +49,7 @@ window.__dgOpenPicker = function __dgOpenPicker() {
   input.click();
 };
 
-window.__dgOnFileChange = function __dgOnFileChange(e) {
+window.__dgOnFileChange = async function __dgOnFileChange(e) {
   const file = e?.target?.files?.[0];
   if (!file) {
     console.log('[burial-flow] onFileChange: no file selected');
@@ -73,8 +88,11 @@ window.__dgOnFileChange = function __dgOnFileChange(e) {
   if (analyzeFill) analyzeFill.style.width = '0';
   progressContainer && progressContainer.classList.remove('hidden');
 
-  // Kick the progress fill
+  // Kick the progress fill (step 1 - fake)
   setTimeout(() => { if (analyzeFill) analyzeFill.style.width = '100%'; }, 50);
+
+  // Load dialogs in parallel with step 1
+  await ensureDialogsLoaded();
 
   // After a short delay, show details + enable commit
   setTimeout(() => {
@@ -90,19 +108,34 @@ window.__dgOnFileChange = function __dgOnFileChange(e) {
     const epitaphInput    = $id('epitaph');
 
     if (sarcasticRemark) {
-      const pool = (typeof sarcasticRemarks !== 'undefined' ? sarcasticRemarks : ['Not your magnum opus.']);
-      sarcasticRemark.textContent = `"${pool[Math.floor(Math.random()*pool.length)]}"`;
+      const line =
+        (window.__dgDialogs && window.__dgDialogs.randomSnark)
+          ? window.__dgDialogs.randomSnark()
+          : (typeof sarcasticRemarks !== 'undefined' && sarcasticRemarks.length
+              ? sarcasticRemarks[Math.floor(Math.random()*sarcasticRemarks.length)]
+              : 'Not your magnum opus.');
+      sarcasticRemark.textContent = `"${line}"`;
     }
     if (fileNameEl) fileNameEl.textContent = file.name || '';
     if (fileDateEl) fileDateEl.textContent = new Date(file.lastModified).toLocaleDateString();
     if (fileSizeEl) fileSizeEl.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
     if (fileVibeEl) {
-      const vibesPool = (typeof vibes !== 'undefined' ? vibes : ['Unclassifiable']);
-      fileVibeEl.textContent = vibesPool[Math.floor(Math.random()*vibesPool.length)];
+      const vibe =
+        (window.__dgDialogs && window.__dgDialogs.randomGenre)
+          ? window.__dgDialogs.randomGenre()
+          : (typeof vibes !== 'undefined' && vibes.length
+              ? vibes[Math.floor(Math.random()*vibes.length)]
+              : 'Unclassifiable');
+      fileVibeEl.textContent = vibe;
     }
     if (epitaphInput) {
-      const eul = (typeof eulogies !== 'undefined' ? eulogies : ['Fade out forever.']);
-      epitaphInput.value = eul[Math.floor(Math.random()*eul.length)];
+      const suggestion =
+        (window.__dgDialogs && window.__dgDialogs.randomEpitaph)
+          ? window.__dgDialogs.randomEpitaph()
+          : (typeof eulogies !== 'undefined' && eulogies.length
+              ? eulogies[Math.floor(Math.random()*eulogies.length)]
+              : 'Fade out forever.');
+      epitaphInput.value = suggestion;
     }
 
     // Enable commit button
@@ -115,7 +148,7 @@ window.__dgOnFileChange = function __dgOnFileChange(e) {
     // Show/hide the license note ONLY for "bury"
     const selectedMethod = (document.querySelector('input[name="method"]:checked') || {}).value;
     toggleLicenseNote(selectedMethod === 'bury');
-  }, 1500); // adjust to 5000ms if you want the longer effect
+  }, 1500); // keep your pacing
 };
 
 // === Toggle license note helper ===
@@ -183,20 +216,19 @@ function handleBuryClick() {
   if (readyToBury)    readyToBury.classList.add('hidden');
   if (burialProgress) burialProgress.classList.remove('hidden');
 
-  const phrases = (Array.isArray(window.cremationPhrases) && window.cremationPhrases.length)
-    ? window.cremationPhrases
-    : ['Performing last rites...', 'Processing...'];
+  // Message line (snarky or fallback)
+  const phrase =
+    (window.__dgDialogs && window.__dgDialogs.randomSnark)
+      ? window.__dgDialogs.randomSnark()
+      : (Array.isArray(window.cremationPhrases) && window.cremationPhrases.length
+          ? window.cremationPhrases[Math.floor(Math.random() * window.cremationPhrases.length)]
+          : 'Processing…');
+  if (burialMessage) burialMessage.textContent = phrase;
 
-  if (burialMessage) burialMessage.textContent = phrases[Math.floor(Math.random() * phrases.length)];
-  if (buryFill) {
-    buryFill.style.width = '0';
-    setTimeout(() => { buryFill.style.width = '100%'; }, 50);
-  }
+  if (buryFill) buryFill.style.width = '0%';
 
-  setTimeout(() => {
-    if (burialProgress) burialProgress.classList.add('hidden');
-    showCeremony();
-  }, 5000);
+  // Start ceremony immediately; showCeremony will drive real upload progress
+  showCeremony();
 }
 
 function resetAll() {
@@ -232,35 +264,57 @@ function resetAll() {
   }
 }
 
-// === Upload helper (used only for BURY) ===
-async function uploadBurialFile(file) {
-  const fd = new FormData();
-  fd.append('file', file);
+/* --------------------------------------------------------
+   Upload helper WITH PROGRESS (used for BURY step 2)
+   - keeps your endpoint & headers
+--------------------------------------------------------- */
+function uploadBurialFileWithProgress(file, onProgress) {
+  return new Promise((resolve, reject) => {
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
 
-  const res = await fetch(UPLOAD_FN_URL, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
-    body: fd
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', UPLOAD_FN_URL, true);
+      xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
+
+      xhr.upload.onprogress = (evt) => {
+        if (evt.lengthComputable) {
+          const pct = Math.max(0, Math.min(100, Math.round((evt.loaded / evt.total) * 100)));
+          if (typeof onProgress === 'function') onProgress(pct);
+        } else {
+          // if not computable, give a gentle nudge so the bar isn't stuck at 0%
+          if (typeof onProgress === 'function') onProgress(10);
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('[upload-burial] network error'));
+      xhr.onload  = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          let out = null;
+          try { out = JSON.parse(xhr.responseText); } catch {}
+          if (!out || !out.ok || !out.publicUrl) {
+            return reject(new Error('[upload-burial] invalid response ' + xhr.responseText));
+          }
+          console.log('[upload-burial] OK', out);
+          resolve({
+            audio_url: out.publicUrl,
+            audio_mime: out.contentType || null,
+            audio_bytes: out.bytes || null
+          });
+        } else {
+          reject(new Error(`[upload-burial] ${xhr.status} ${xhr.responseText || ''}`));
+        }
+      };
+
+      xhr.send(fd);
+    } catch (err) {
+      reject(err);
+    }
   });
-
-  if (!res.ok) {
-    const text = await res.text().catch(()=>'');
-    throw new Error(`[upload-burial] ${res.status} ${text}`);
-  }
-  const out = await res.json().catch(()=> ({}));
-  if (!out || !out.ok || !out.publicUrl) {
-    throw new Error('[upload-burial] invalid response ' + JSON.stringify(out));
-  }
-  console.log('[upload-burial] OK', out);
-  return {
-    audio_url: out.publicUrl,
-    audio_mime: out.contentType || null,
-    audio_bytes: out.bytes || null
-  };
 }
 
 async function showCeremony() {
-
   const f = state.selectedFile;
   if (!f) return;
 
@@ -272,8 +326,13 @@ async function showCeremony() {
     return resetAll();
   }
 
-  // we'll keep these for the listing row
+  // We'll keep these for the listing row
   let audio_url = null, audio_mime = null, audio_bytes = null;
+
+  const burialProgress = $('burialProgress');
+  const buryFill       = $('buryFill');
+  if (burialProgress) burialProgress.classList.remove('hidden');
+  if (buryFill) buryFill.style.width = '0%';
 
   try {
     // reCAPTCHA (same for both methods)
@@ -282,7 +341,17 @@ async function showCeremony() {
       : '';
 
     if (method === 'cremate') {
-      // 🔥 CREMATE: do NOT upload, store no audio fields
+      // 🔥 CREMATE: NO upload — give the user a quick visible pass on bar #2
+      await new Promise((res) => {
+        const ms = 1200, start = performance.now();
+        function tick(t){
+          const pct = Math.min(100, Math.round(((t - start) / ms) * 100));
+          if (buryFill) buryFill.style.width = pct + '%';
+          if (pct < 100) requestAnimationFrame(tick); else res();
+        }
+        requestAnimationFrame(tick);
+      });
+
       const recRes = await fetch(RECORD_FN_URL, {
         method: 'POST',
         headers: {
@@ -306,8 +375,10 @@ async function showCeremony() {
         throw new Error(`[record-burial:cremate] ${recRes.status} ${text}`);
       }
     } else {
-      // ⚰️ BURY: upload then record with audio fields
-      const up = await uploadBurialFile(f);
+      // ⚰️ BURY: upload with REAL progress on bar #2, then record
+      const up = await uploadBurialFileWithProgress(f, (pct) => {
+        if (buryFill) buryFill.style.width = pct + '%';
+      });
       audio_url   = up.audio_url;
       audio_mime  = up.audio_mime;
       audio_bytes = up.audio_bytes;
@@ -339,21 +410,30 @@ async function showCeremony() {
     console.warn('[burial-flow] record/upload failed:', err);
   }
 
-  // Ceremony UI
+  // Ceremony UI (DATE 1 = file creation, DATE 2 = now)
   const ceremony = $('ceremony');
   if (ceremony) {
     ceremony.innerHTML = '';
     const tomb = document.createElement('div');
     tomb.className = 'tombstone';
+    tomb.setAttribute('data-method', method); // hide remains for bury via CSS
+    const date1 = new Date(state.selectedFile.lastModified).toLocaleDateString();
+    const date2 = new Date().toLocaleDateString();
     tomb.innerHTML = `
-      Here lies<br>
-      <strong>${f.name}</strong><br>
-      ${new Date(f.lastModified).toLocaleDateString()}<br><br>
-      <em>"${epit}"</em>
+      <div class="ts-title">Here lies</div>
+      <div class="ts-name" style="font-weight:700;font-size:clamp(26px,4vw,42px);letter-spacing:.01em">${escapeHtml(f.name)}</div>
+      <div class="ts-dates" style="margin-top:.6em;font-variant-numeric:tabular-nums;letter-spacing:.02em;font-size:clamp(16px,2vw,22px)">
+        <span>${date1}</span><span class="sep" style="opacity:.6;margin:0 .35em">—</span><span>${date2}</span>
+      </div>
+      ${epit ? `<div class="ts-epitaph" style="font-style:italic;color:#6b6b6b;margin-top:.9em">“${escapeHtml(epit)}”</div>` : ''}
     `;
     ceremony.appendChild(tomb);
     setTimeout(() => tomb.classList.add('show'), 50);
   }
+
+  // Hide/upload progress now that the stone is shown
+  const burialProgressEl = $('burialProgress');
+  if (burialProgressEl) burialProgressEl.classList.add('hidden');
 
   // If cremated, play the ashes sample
   if (method === 'cremate') {
@@ -367,6 +447,13 @@ async function showCeremony() {
     } catch {}
   }
 
+  // Hide any "remains" section for burials (defense in depth)
+  if (method === 'bury') {
+    document.querySelector('.options-afterlife')?.classList.add('hidden');
+    document.querySelector('.js-remains')?.remove();
+    document.querySelector('[data-role="remains"]')?.remove();
+  }
+
   const aftercare = $('aftercare');
   aftercare && aftercare.classList.remove('hidden');
 
@@ -376,4 +463,9 @@ async function showCeremony() {
   } else {
     location.reload();
   }
-} // <-- end showCeremony (previous version missed this and extra old code)
+} // <-- end showCeremony
+
+// very small XSS guard for user strings
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
