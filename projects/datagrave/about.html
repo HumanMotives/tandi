@@ -1,1 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>About — Data Grave</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/global.css" />
+</head>
+<body>
+  <!-- Header partial -->
+  <div id="common-header"></div>
+
+  <main class="page">
+    <!-- Site logo/title (same pattern as index) -->
+    <div class="logo-container">
+      <a href="/projects/datagrave/" class="site-logo-link" aria-label="Home">
+        <img src="/projects/datagrave/images/datagrave_sitelogo.png" alt="The Data Grave Logo" class="site-logo" />
+      </a>
+      <div class="site-title">DATA GRAVE</div>
+    </div>
+
+    <h1>About Data Grave</h1>
+    <p class="muted">Where musicians bury their unfinished tracks.</p>
+    <hr />
+
+    <div class="card soft stack">
+      <p>
+        Data Grave is a small web project by Chris&nbsp;van&nbsp;der&nbsp;Linden. It’s a
+        playful resting place for your unfinished audio ideas—drop a file, pick
+        a fate (bury or cremate), add an epitaph, and let it go. Your entry
+        appears on the public graveyard with minimal metadata.
+      </p>
+
+      <p><strong>How it works</strong></p>
+      <ul style="margin-left:1rem; line-height:1.7">
+        <li>Upload a <em>.wav</em>, <em>.mp3</em>, or <em>.ogg</em>.</li>
+        <li>Choose <strong>Burial</strong> (keeps a playable copy) or <strong>Cremation</strong> (no audio stored).</li>
+        <li>Add a short epitaph and commit the file.</li>
+      </ul>
+
+      <p><strong>Contact & feedback</strong> — Join the
+        <a href="https://discord.gg/7teZhkQutJ" target="_blank" rel="noopener">Discord</a>
+        to share thoughts or report issues.</p>
+    </div>
+
+    <div class="card stack">
+      <p><strong>Legal & privacy</strong></p>
+      <p class="muted">
+        This site uses reCAPTCHA and may store minimal metadata for the public listings.
+        See:
+        <a href="privacy.html">Privacy</a> ·
+        <a href="terms.html">Terms</a> ·
+        <a href="license.html">Usage License</a>.
+      </p>
+    </div>
+  </main>
+
+  <!-- Footer partial -->
+  <div id="common-footer"></div>
+
+  <!-- Minimal loader for header/footer -->
+  <script>
+    async function loadPartial(containerId, url) {
+      const el = document.getElementById(containerId);
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(res.status);
+        el.innerHTML = await res.text();
+        return true;
+      } catch (err) {
+        console.error(`Failed to load ${url}:`, err);
+        return false;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadPartial('common-header', 'partials/header.html');
+      await loadPartial('common-footer', 'partials/footer.html');
+    });
+  </script>
+</body>
+</html>
 
