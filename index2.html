@@ -3,49 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Data Grave — We Moved</title>
+  <title>Data Grave — Moving…</title>
+
+  <!-- Hard redirect fallback for non-JS/bots -->
+  <meta http-equiv="refresh" content="0; url=https://humanmotives.org/projects/datagrave/" />
+  <link rel="canonical" href="https://humanmotives.org/projects/datagrave/" />
+
   <style>
-    :root{
-      --bg:#f9f7f3; --ink:#111; --line:rgba(0,0,0,.12);
-    }
+    :root{ --bg:#f9f7f3; --ink:#111; --line:rgba(0,0,0,.12); }
     html,body{height:100%}
-    body{
-      margin:0; display:grid; place-items:center; background:var(--bg);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
-      color:var(--ink);
-    }
-    .card{
-      text-align:center; padding:2rem 2.25rem; background:#fff; border:1px solid var(--line);
-      border-radius:12px; max-width:520px; box-shadow:0 1px 0 rgba(0,0,0,.06);
-    }
-    h1{margin:0 0 .5rem; font-size:1.6rem; letter-spacing:.01em}
-    p{margin:.25rem 0 1.25rem; color:#555}
-    .btn{
-      display:inline-block; min-width:220px; height:44px; line-height:44px;
-      padding:0 16px; border-radius:6px; border:1px solid #000; background:#000; color:#fff;
-      text-decoration:none; font-weight:600;
-    }
-    .btn:hover{filter:brightness(.96)}
-    .hint{margin-top:.75rem; font-size:.9rem; color:#777}
+    body{margin:0; display:grid; place-items:center; background:var(--bg);
+         font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--ink);}
+    .card{ text-align:center; padding:1.5rem 2rem; background:#fff; border:1px solid var(--line);
+           border-radius:12px; max-width:520px; box-shadow:0 1px 0 rgba(0,0,0,.06); }
+    .btn{ display:inline-block; min-width:220px; height:44px; line-height:44px; padding:0 16px;
+          border-radius:6px; border:1px solid #000; background:#000; color:#fff; text-decoration:none; font-weight:600; }
   </style>
+
+  <script>
+    const NEW_URL = 'https://humanmotives.org/projects/datagrave/';
+    // Instant redirect; replace() keeps the old URL out of browser history
+    location.replace(NEW_URL);
+  </script>
 </head>
 <body>
   <main class="card">
-    <h1>The Data Grave has evolved</h1>
-    <p>We’ve moved to a new URL. Click below to continue.</p>
-    <p><a id="goBtn" class="btn" href="https://humanmotives.org/projects/datagrave/">Go to the new site</a></p>
-    <div class="hint">If nothing happens, use the button above.</div>
+    <h1>The Data Grave has moved</h1>
+    <p>Redirecting you to the new site…</p>
+    <p><a class="btn" href="https://humanmotives.org/projects/datagrave/">Go now</a></p>
+    <noscript>
+      <p>JavaScript is disabled. Please use the button above.</p>
+    </noscript>
   </main>
-
-  <script>
-    // Change this if your new URL is different:
-    const NEW_URL = "https://humanmotives.org/projects/datagrave/";
-
-    // Keep the button in sync with the constant:
-    document.getElementById('goBtn').href = NEW_URL;
-
-    // Optional: auto-redirect after 5 seconds
-    setTimeout(() => { window.location.href = NEW_URL; }, 5000);
-  </script>
 </body>
 </html>
