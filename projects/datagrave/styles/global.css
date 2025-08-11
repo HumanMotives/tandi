@@ -331,3 +331,28 @@ footer .legal {
   }
   .dg-record__meta{ text-align: left; }
 }
+
+/* Cards use page background (no white fill) + spacing between */
+.dg-record{
+  background: var(--bg, #fffef6);   /* match page bg */
+  margin: 10px 0 18px;              /* room between cards */
+}
+
+/* Center pagination (top & bottom) and keep it tidy */
+#paginationControls,
+#paginationControlsBottom{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 14px 0;
+}
+
+/* Optional: center your list heading if you give it one of these selectors */
+.dg-listing-title,
+#burialsHeading,
+#burialTitle{
+  text-align: center;
+}
+
