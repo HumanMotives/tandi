@@ -324,3 +324,15 @@ footer .legal { font-size: 0.8em; opacity: 0.7; margin-top: 0.5em; }
 /* Small helper: hide remains button for burials via data-attr (defense in depth) */
 .ts-card[data-method="bury"] .js-remains { display: none !important; }
 
+/* Restore list spacing inside labeled containers */
+.labeled-container ul,
+.labeled-container ol {
+  margin-left: 1.1rem;   /* shift list body right */
+  padding-left: 1.1rem;  /* space for bullets/numbers */
+  list-style-position: outside;
+}
+
+.labeled-container li + li {
+  margin-top: .35rem;    /* nice vertical rhythm */
+}
+
