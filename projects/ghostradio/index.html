@@ -1,192 +1,481 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ghost Radio – Carousel Layers</title>
-  <style>
-    body { margin:0; padding:1rem; font-family:'IBM Plex Mono',monospace; background:#f5f1e6; color:#333; }
-    h1 { text-align:center; font-size:2rem; margin-bottom:1rem; }
-    #loader { text-align:center; margin-bottom:1rem; }
-    #statusText { margin-bottom:0.5rem; }
-    #startButton {
-      padding:0.8rem 1.5rem; font-size:1rem;
-      background:#111; color:#f5f1e6; border:none; border-radius:6px;
-      cursor:pointer;
-    }
-    #startButton:hover { background:#444; }
-    .container { display:flex; flex-wrap:wrap; justify-content:center; gap:1rem; max-width:800px; margin:0 auto; }
-    .panel { flex:1 1 280px; }
-    #wave { width:100%; height:120px; background:rgba(0,0,0,0.05); display:none; }
-    #knob {
-      display:none; width:100px; height:100px; margin:0 auto 1.5rem;
-      border:4px solid #888; border-radius:50%; background:#fdfbf8;
-      touch-action:none; cursor:grab; position:relative; user-select:none;
-    }
-    #knob.active { cursor:grabbing; border-color:#000; }
-    #knob::before {
-      content:''; position:absolute; top:8px; left:50%;
-      width:4px; height:30px; background:#333;
-      transform-origin:bottom center;
-    }
-    .instructions { text-align:center; color:#666; display:none; }
-    @media(max-width:600px){
-      #wave{height:100px;} #knob{width:80px;height:80px;} #knob::before{height:24px;}
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ghost Radio — Stereo Scan + Focus/Tape</title>
+<style>
+  body{margin:0;padding:1rem;font-family:'IBM Plex Mono',monospace;background:#f5f1e6;color:#333}
+  h1{margin:0 0 1rem;text-align:center;font-size:2rem}
+  #loader{text-align:center;margin-bottom:1rem}
+  #statusText{margin-bottom:.5rem}
+  #startButton{padding:.8rem 1.5rem;font-size:1rem;background:#111;color:#f5f1e6;border:none;border-radius:6px;cursor:pointer}
+  #startButton:hover{background:#444}
+
+  .ui{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:1rem}
+  .row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;justify-content:center}
+
+  .control{background:#fdfbf8;border:1px solid #aaa;border-radius:10px;padding:.6rem .8rem;display:flex;align-items:center;gap:.5rem}
+  .control label{font-size:.9rem}
+  input[type="range"]{width:160px}
+
+  .switch{display:flex;gap:.5rem}
+  .switch button{
+    padding:.4rem .8rem;border:1px solid #aaa;border-radius:10px;background:#fdfbf8;cursor:pointer
+  }
+  .switch button.active{background:#111;color:#fdfbf8;border-color:#111}
+
+  .knobWrap{display:flex;flex-direction:column;align-items:center;gap:.5rem}
+  #knob{
+    width:110px;height:110px;border:4px solid #888;border-radius:50%;background:#fdfbf8;
+    touch-action:none;cursor:grab;position:relative;user-select:none
+  }
+  #knob.active{cursor:grabbing;border-color:#000}
+  #knob::before{
+    content:'';position:absolute;top:10px;left:50%;width:4px;height:34px;background:#333;transform-origin:bottom center
+  }
+  .hint{font-size:.85rem;color:#666}
+
+  .canvases{position:relative;max-width:900px;margin:0 auto}
+  #wave,#tuner{width:100%;height:140px;display:none}
+  #tuner{position:absolute;left:0;top:0;pointer-events:none}
+
+  @media (max-width:600px){
+    #knob{width:90px;height:90px}
+    #knob::before{height:26px}
+    #wave,#tuner{height:110px}
+  }
+</style>
 </head>
 <body>
   <h1>GHOST RADIO</h1>
-  <div id="loader" class="panel">
+
+  <div id="loader">
     <p id="statusText">Loading sounds…</p>
     <button id="startButton">Start Listening</button>
   </div>
-  <div class="container">
-    <div class="panel"><canvas id="wave"></canvas></div>
-    <div class="panel">
-      <div id="knob"></div>
-      <p class="instructions">Rotate the dial to scan</p>
+
+  <div class="ui">
+    <div class="row">
+      <div class="knobWrap control">
+        <div id="knob"></div>
+        <div class="hint">Rotate to scan</div>
+      </div>
+      <div class="control">
+        <label for="focus">Focus</label>
+        <input id="focus" type="range" min="0" max="1" step="0.001" value="0.5">
+      </div>
+      <div class="control">
+        <label for="age">Tape Age</label>
+        <input id="age" type="range" min="0" max="1" step="0.001" value="0.25">
+      </div>
+      <div class="control">
+        <span>Mode</span>
+        <div class="switch">
+          <button id="amBtn">AM</button>
+          <button id="fmBtn" class="active">FM</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="canvases">
+      <canvas id="wave"></canvas>
+      <canvas id="tuner"></canvas>
     </div>
   </div>
 
 <script>
 (async function(){
-  const loader=document.getElementById('loader'),statusText=document.getElementById('statusText');
-  const startButton=document.getElementById('startButton'),wave=document.getElementById('wave');
-  const knob=document.getElementById('knob'),instr=document.querySelector('.instructions');
+  // ===== UI refs =====
+  const loader = document.getElementById('loader');
+  const statusText = document.getElementById('statusText');
+  const startButton = document.getElementById('startButton');
+  const knob = document.getElementById('knob');
+  const focusDial = document.getElementById('focus');
+  const ageDial = document.getElementById('age');
+  const amBtn = document.getElementById('amBtn');
+  const fmBtn = document.getElementById('fmBtn');
+  const wave = document.getElementById('wave');
+  const tuner = document.getElementById('tuner');
 
-  const AudioCtx=window.AudioContext||window.webkitAudioContext; const ctx=new AudioCtx();
-  const analyser=ctx.createAnalyser(); analyser.fftSize=256;
-  const bufLen=analyser.fftSize, dataArr=new Uint8Array(bufLen);
-  const masterGain=ctx.createGain(); masterGain.gain.value=1;
-  analyser.connect(masterGain); masterGain.connect(ctx.destination);
+  // ===== Audio context & core nodes =====
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AudioCtx();
 
-  // Noise bed
-  function makeNoiseBuffer(dur=2){
-    const sz=ctx.sampleRate*dur, buf=ctx.createBuffer(1,sz,ctx.sampleRate), d=buf.getChannelData(0);
-    for(let i=0;i<sz;i++) d[i]=Math.random()*2-1; return buf;
-  }
-  const noiseSrc=ctx.createBufferSource(); noiseSrc.buffer=makeNoiseBuffer(); noiseSrc.loop=true;
-  const noiseGain=ctx.createGain(); noiseGain.gain.value=0.02;
-  noiseSrc.connect(noiseGain).connect(analyser);
+  const analyser = ctx.createAnalyser(); analyser.fftSize = 256;
+  const bufLen = analyser.fftSize; const dataArr = new Uint8Array(bufLen);
 
-  // Sounds
-  const files=['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
-  const base=location.pathname.replace(/[^\\/]+$/,''); const buffers={};
-  for(let i=0;i<files.length;i++){
-    try{
-      const res=await fetch(base+'sounds/'+files[i]); const ab=await res.arrayBuffer();
-      buffers[files[i]]=await ctx.decodeAudioData(ab); statusText.textContent=`Loaded ${i+1}/${files.length}`;
-    }catch(e){statusText.textContent='Error '+files[i]; return;}
-  }
-  statusText.textContent='Ready!';
+  const masterGain = ctx.createGain(); masterGain.gain.value = 1;
+  analyser.connect(masterGain).connect(ctx.destination);
 
-  // Ring of layers
-  const NUM=4; let ring=[];
-  function createLayer(file,gainVal=0){
-    const src=ctx.createBufferSource(); src.buffer=buffers[file]; src.loop=true;
-    const dur=src.buffer.duration, start=Math.random()*Math.max(0,dur-12);
-    src.loopStart=start; src.loopEnd=Math.min(dur,start+6+Math.random()*6);
-    src.playbackRate.value=0.995+Math.random()*0.01;
-    const g=ctx.createGain(); g.gain.value=gainVal; src.connect(g).connect(analyser); src.start();
-    const phaseLFO={amp:0.003,freq:0.02+Math.random()*0.03,t:Math.random()*1000};
-    const loopTimer={next:performance.now()+4000+Math.random()*4000};
-    return {src,gain:g,file,phaseLFO,loopTimer};
-  }
-  function initRing(){
-    ring.forEach(l=>{try{l.src.stop()}catch(_){}}); ring=[];
-    const pick=[...files]; for(let i=0;i<NUM;i++){
-      const f=pick.splice(Math.floor(Math.random()*pick.length),1)[0];
-      ring.push(createLayer(f,i===0?1:0));
-    }
-  }
+  // Master tone filter for AM/FM tilt
+  const masterFilter = ctx.createBiquadFilter();
+  // Wire: dry/reverb -> masterFilter -> analyser
+  masterFilter.type = 'lowpass'; masterFilter.frequency.value = 12000;
+  masterFilter.connect(analyser);
 
-  // Dial
-  let angle=0,lastAng=0,drag=false,cx=0,cy=0;
-  let p=0,lastPIndex=0;
-  knob.addEventListener('pointerdown',e=>{
-    drag=true; knob.setPointerCapture(e.pointerId); knob.classList.add('active');
-    const r=knob.getBoundingClientRect(); cx=r.left+r.width/2; cy=r.top+r.height/2;
-    lastAng=Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI;
-  });
-  knob.addEventListener('pointermove',e=>{
-    if(!drag) return;
-    const ang=Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI;
-    let d=ang-lastAng; if(d>180)d-=360;if(d<-180)d+=360; angle+=d; lastAng=ang;
-    knob.style.transform=`rotate(${angle}deg)`;
-  });
-  ['pointerup','pointerleave'].forEach(ev=>knob.addEventListener(ev,e=>{
-    drag=false; knob.classList.remove('active'); try{knob.releasePointerCapture(e.pointerId)}catch(_){}
-  }));
-
-  function updateAudio(dt){
-    const raw=((angle%720)+720)%720;
-    const val=raw<360? raw/360:(raw-720)/360; // [-1,1]
-    p=(val+1)*(NUM/2);
-    const spread=1.2; let maxMus=0;
-    for(let i=0;i<NUM;i++){
-      let d=Math.abs(i-p); d=Math.min(d,NUM-d);
-      const w=Math.max(0,1-d/spread);
-      ring[i].gain.gain.setTargetAtTime(w,ctx.currentTime,0.05);
-      if(w>maxMus) maxMus=w;
-    }
-    noiseGain.gain.setTargetAtTime(0.02*(1-maxMus),ctx.currentTime,0.1);
-  }
-  function maybeSwap(){
-    const idx=Math.round(p)%NUM; if(idx===lastPIndex) return;
-    if(Math.abs(p-idx)<0.25) return;
-    let far=(idx+Math.floor(NUM/2))%NUM;
-    const old=ring[far]; const fresh=files[Math.floor(Math.random()*files.length)];
-    const incoming=createLayer(fresh,0);
-    old.gain.gain.setTargetAtTime(0,ctx.currentTime,0.15);
-    incoming.gain.gain.setTargetAtTime(0.5,ctx.currentTime,0.15);
-    setTimeout(()=>{try{old.src.stop()}catch(_){}} ,400);
-    ring[far]=incoming; lastPIndex=idx;
-  }
-  function updatePhasing(dt){
-    for(const l of ring){
-      l.phaseLFO.t+=dt*l.phaseLFO.freq*0.001;
-      const mod=1+l.phaseLFO.amp*Math.sin(2*Math.PI*l.phaseLFO.t);
-      l.src.playbackRate.setTargetAtTime(mod,ctx.currentTime,0.2);
-      const now=performance.now();
-      if(now>l.loopTimer.next){
-        const b=l.src.buffer, span=Math.min(12,b.duration);
-        const c=Math.random()*Math.max(0,b.duration-span);
-        l.src.loopStart=c+Math.random()*0.2-0.1;
-        l.src.loopEnd=Math.min(b.duration,l.src.loopStart+span);
-        l.loopTimer.next=now+4000+Math.random()*4000;
+  // Reverb: lightweight procedural IR (decaying noise)
+  function makeIR(seconds=1.4, decay=2.6){
+    const rate = ctx.sampleRate;
+    const len = Math.floor(rate * seconds);
+    const ir = ctx.createBuffer(2, len, rate);
+    for (let ch=0; ch<2; ch++){
+      const data = ir.getChannelData(ch);
+      for (let i=0;i<len;i++){
+        data[i] = (Math.random()*2 - 1) * Math.pow(1 - i/len, decay);
       }
     }
+    return ir;
   }
+  const convolver = ctx.createConvolver();
+  convolver.buffer = makeIR(1.2, 2.2);
 
-  function drawWave(){
-    const canvas=wave,c2=canvas.getContext('2d'); let last=0;
-    function draw(ts=0){
-      requestAnimationFrame(draw); if(ts-last<1000/30)return; last=ts;
-      canvas.width=canvas.clientWidth;
-      analyser.getByteTimeDomainData(dataArr);
-      c2.fillStyle='rgba(245,241,230,0.3)'; c2.fillRect(0,0,canvas.width,canvas.height);
-      c2.lineWidth=1; c2.strokeStyle='#555'; c2.beginPath();
-      const slice=canvas.width/bufLen; let x=0;
-      for(let i=0;i<bufLen;i++){ const v=dataArr[i]/128,y=v*canvas.height/2;
-        i===0?c2.moveTo(x,y):c2.lineTo(x,y); x+=slice; }
-      c2.stroke();
+  const reverbGain = ctx.createGain(); reverbGain.gain.value = 0.15; // global wet
+  convolver.connect(reverbGain).connect(masterFilter);
+
+  // Noise (tape hiss) bed
+  function makeNoiseBuffer(dur=2){
+    const len = ctx.sampleRate * dur;
+    const b = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = b.getChannelData(0);
+    for(let i=0;i<len;i++) d[i] = Math.random()*2-1;
+    return b;
+  }
+  const noiseSrc = ctx.createBufferSource();
+  noiseSrc.buffer = makeNoiseBuffer();
+  noiseSrc.loop = true;
+  const noiseGain = ctx.createGain(); noiseGain.gain.value = 0.015;
+  noiseSrc.connect(noiseGain).connect(masterFilter);
+  let noiseStarted = false;
+
+  // ===== Sound buffers =====
+  const files = [
+    'sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3',
+    'sound7.mp3','sound8.mp3','sound9.mp3','sound10.mp3','sound11.mp3','sound12.mp3','sound13.mp3'
+  ];
+  const base = location.pathname.replace(/[^\/]+$/, '');
+  const buffers = {};
+  for (let i=0;i<files.length;i++){
+    try {
+      const res = await fetch(base + 'sounds/' + files[i]);
+      const ab = await res.arrayBuffer();
+      buffers[files[i]] = await ctx.decodeAudioData(ab);
+      statusText.textContent = `Loaded ${i+1} / ${files.length}`;
+    } catch (e){
+      statusText.textContent = `Error loading ${files[i]}`;
+      console.error(e);
+      return;
     }
-    draw();
+  }
+  statusText.textContent = 'Ready!';
+
+  // ===== Carousel of 4 layers =====
+  const NUM = 4;
+  let ring = []; // each: { src, gain, panner, lp, send, file, phaseLFO, loopTimer }
+
+  function createLayer(file, gainVal=0){
+    const src = ctx.createBufferSource();
+    src.buffer = buffers[file];
+    src.loop = true;
+
+    // random loop window (6–12s)
+    const D = src.buffer.duration;
+    const start = Math.random() * Math.max(0, D - 12);
+    src.loopStart = start;
+    src.loopEnd = Math.min(D, start + 6 + Math.random()*6);
+
+    // base playback rate (tiny offset)
+    src.playbackRate.value = 0.995 + Math.random()*0.01;
+
+    const g = ctx.createGain(); g.gain.value = gainVal;
+
+    // per-layer LPF (dynamic per weight/focus/age)
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 12000; lp.Q.value = 0.0001;
+
+    // stereo panner
+    const panner = ctx.createStereoPanner(); panner.pan.value = 0;
+
+    // reverb send
+    const send = ctx.createGain(); send.gain.value = 0.0;
+
+    // Routing:
+    // src -> g (split) -> lp -> panner -> DRY -> masterFilter
+    //               \-> send -> convolver
+    src.connect(g);
+    g.connect(lp).connect(panner).connect(masterFilter);
+    g.connect(send).connect(convolver);
+
+    src.start();
+
+    // LFO & loop-nudge timers
+    const phaseLFO = {
+      wowAmp: 0.003, wowHz: 0.25 + Math.random()*0.1,  t: Math.random()*100,
+      fltAmp: 0.0015, fltHz: 6.5 + Math.random()*0.8
+    };
+    const loopTimer = { next: performance.now() + 4000 + Math.random()*4000 };
+
+    return { src, gain: g, panner, lp, send, file, phaseLFO, loopTimer };
   }
 
-  let lastTs=0;
+  function initRing(){
+    ring.forEach(l => { try { l.src.stop() } catch(_){ } });
+    ring = [];
+    const pool = [...files];
+    for (let i=0;i<NUM;i++){
+      const f = pool.splice(Math.floor(Math.random()*pool.length),1)[0];
+      ring.push(createLayer(f, i===0 ? 1 : 0)); // slot 0 starts loud-ish
+    }
+  }
+
+  // ===== Controls state =====
+  let mode = 'FM';            // 'AM' | 'FM'
+  let focus = parseFloat(focusDial.value); // 0..1
+  let age   = parseFloat(ageDial.value);   // 0..1
+
+  amBtn.onclick = () => { mode='AM'; amBtn.classList.add('active'); fmBtn.classList.remove('active'); };
+  fmBtn.onclick = () => { mode='FM'; fmBtn.classList.add('active'); amBtn.classList.remove('active'); };
+  focusDial.oninput = () => { focus = parseFloat(focusDial.value); };
+  ageDial.oninput = () => { age = parseFloat(ageDial.value); };
+
+  // ===== Dial interaction (infinite) =====
+  let angle = 0, lastAng = 0, dragging = false, cx = 0, cy = 0;
+  let p = 0, lastPIndex = 0; // position on ring, [0..NUM)
+
+  knob.addEventListener('pointerdown', e=>{
+    dragging = true; knob.setPointerCapture(e.pointerId); knob.classList.add('active');
+    const r = knob.getBoundingClientRect(); cx = r.left + r.width/2; cy = r.top + r.height/2;
+    lastAng = Math.atan2(e.clientY - cy, e.clientX - cx) * 180/Math.PI;
+  });
+  knob.addEventListener('pointermove', e=>{
+    if (!dragging) return;
+    const ang = Math.atan2(e.clientY - cy, e.clientX - cx) * 180/Math.PI;
+    let d = ang - lastAng; if (d > 180) d -= 360; if (d < -180) d += 360;
+    angle += d; lastAng = ang;
+    knob.style.transform = `rotate(${angle}deg)`;
+  });
+  ['pointerup','pointerleave'].forEach(ev=>knob.addEventListener(ev, e=>{
+    dragging = false; knob.classList.remove('active'); try{ knob.releasePointerCapture(e.pointerId) }catch(_){}
+  }));
+
+  // ===== Cheap crackle & dropouts tied to Tape Age =====
+  const noiseBuf = makeNoiseBuffer(0.05);
+  function scheduleCrackle(){
+    if (age <= 0.02) { setTimeout(scheduleCrackle, 1000); return; }
+    // pops/sec ~ 0..3
+    const rate = age * 3;
+    const nextIn = 200 + Math.random()* (1000/Math.max(0.25, rate));
+    setTimeout(()=>{
+      try{
+        const pop = ctx.createBufferSource();
+        pop.buffer = noiseBuf;
+        const hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value = 2500;
+        const pg = ctx.createGain(); pg.gain.value = 0.0;
+        pop.connect(hp).connect(pg).connect(masterFilter);
+        const now = ctx.currentTime;
+        // 6ms blip
+        pg.gain.setValueAtTime(0, now);
+        pg.gain.linearRampToValueAtTime(0.06 + 0.12*age, now + 0.003);
+        pg.gain.linearRampToValueAtTime(0, now + 0.006);
+        pop.start();
+        pop.stop(now + 0.06);
+      }catch(_){}
+      scheduleCrackle();
+    }, nextIn);
+  }
+
+  function scheduleDropouts(){
+    if (age <= 0.05) { setTimeout(scheduleDropouts, 1500); return; }
+    const every = 1500 + Math.random()*2500;
+    setTimeout(()=>{
+      const l = ring.length ? ring[Math.floor(Math.random()*ring.length)] : null;
+      if (l){
+        const now = ctx.currentTime;
+        const dip = 0.5 + 0.5*age; // 0.5..1
+        l.gain.gain.setTargetAtTime(l.gain.gain.value * (1 - 0.3*dip), now, 0.01);
+        l.gain.gain.setTargetAtTime(1.0, now + 0.06, 0.08); // snap back
+      }
+      scheduleDropouts();
+    }, every);
+  }
+
+  // ===== Audio update loop =====
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function clamp(x,a,b){ return Math.max(a, Math.min(b,x)); }
+
+  function updateAudio(dt){
+    // map dial angle → [-1,1] → ring pos p∈[0..NUM)
+    const raw = ((angle % 720) + 720) % 720;
+    const val = (raw < 360) ? (raw/360) : ((raw-720)/360);
+    p = (val + 1) * (NUM/2);
+
+    // Focus → spread / stereo spread / LPF curve / reverb curve / noise scale / flutter scale
+    const spread   = lerp(0.6, 1.9, focus);      // wider overlap when focus high
+    const panRange = lerp(0.15, 0.7, focus);     // more stereo at wide
+    const lpfFar   = lerp(6000, 2500, focus);    // far layers darker when wide
+    const lpfNear  = lerp(14000, 9000, focus);   // near/center brightness (also scaled by age below)
+    const sendMax  = lerp(0.05, 0.35, focus);    // more verb when wide
+    const sendMin  = lerp(0.0,  0.05, focus);
+
+    // Tape Age affects tone & modulation
+    const ageDark  = lerp(1.0, 0.7, age);        // reduce near cutoff
+    const noiseBase= 0.01 + 0.06*age;
+    const wowMul   = 1.0 + 0.8*age;              // more wow with age
+    const fltMul   = 1.0 + 0.6*age;              // more flutter with age
+
+    // Mode voicing on master filter
+    if (mode==='AM'){
+      masterFilter.type = 'bandpass';
+      masterFilter.Q.setTargetAtTime(1.2 + 2.0*focus, ctx.currentTime, 0.1);
+      masterFilter.frequency.setTargetAtTime(1500 + 1500*focus, ctx.currentTime, 0.1);
+    } else {
+      masterFilter.type = 'lowpass';
+      masterFilter.Q.setTargetAtTime(0.0001, ctx.currentTime, 0.1);
+      masterFilter.frequency.setTargetAtTime(12000 + 3000*focus, ctx.currentTime, 0.1);
+    }
+
+    // Per-layer weighting + per-layer FX mapping
+    let maxW = 0;
+    for (let i=0;i<NUM;i++){
+      const L = ring[i];
+      // circular distance from p
+      let d = Math.abs(i - p); d = Math.min(d, NUM - d);
+      const w = clamp(1 - d/spread, 0, 1); // 0..1
+      if (w > maxW) maxW = w;
+
+      // GAIN (setTarget = fewer events)
+      L.gain.gain.setTargetAtTime(w, ctx.currentTime, 0.05);
+
+      // PAN: sign by side of p (delta in [-NUM/2, NUM/2])
+      let delta = i - p;
+      if (delta >  NUM/2) delta -= NUM;
+      if (delta < -NUM/2) delta += NUM;
+      const side = (delta >= 0) ? +1 : -1;
+      const panAmt = side * panRange * (1 - w); // farther = wider
+      L.panner.pan.setTargetAtTime(panAmt, ctx.currentTime, 0.06);
+
+      // LPF per layer: near bright, far dark; also darken by Tape Age
+      const nearCut = lpfNear * ageDark;
+      const farCut  = lpfFar * ageDark * (mode==='AM'?0.9:1.0);
+      const cut = lerp(farCut, nearCut, w);
+      L.lp.frequency.setTargetAtTime(cut, ctx.currentTime, 0.08);
+
+      // Reverb send per layer: far = more, near = less
+      const send = lerp(sendMax, sendMin, w);
+      L.send.gain.setTargetAtTime(send, ctx.currentTime, 0.08);
+
+      // Wow/flutter LFOs on playbackRate (very subtle, depth scales with focus & age)
+      const tSec = performance.now()/1000;
+      const wow = L.phaseLFO.wowAmp * wowMul * Math.sin(2*Math.PI*L.phaseLFO.wowHz*tSec);
+      const flt = L.phaseLFO.fltAmp * fltMul * Math.sin(2*Math.PI*L.phaseLFO.fltHz*tSec + i);
+      const pr = 1.0 + wow + flt;
+      L.src.playbackRate.setTargetAtTime(pr, ctx.currentTime, 0.2);
+
+      // occasional loop nudge
+      const nowMs = performance.now();
+      if (nowMs > L.loopTimer.next){
+        const b = L.src.buffer, span = Math.min(12, b.duration);
+        const c = Math.random() * Math.max(0, b.duration - span);
+        L.src.loopStart = c + (Math.random()*0.2 - 0.1);
+        L.src.loopEnd   = Math.min(b.duration, L.src.loopStart + span);
+        L.loopTimer.next = nowMs + 4000 + Math.random()*4000;
+      }
+    }
+
+    // Noise ducks under loudest
+    noiseGain.gain.setTargetAtTime(noiseBase * (1 - maxW) * (mode==='AM'?1.4:1.0), ctx.currentTime, 0.1);
+  }
+
+  // Station swap: when dial crosses a clear slot change (with hysteresis)
+  const SWAP_MARGIN = 0.25;
+  function maybeSwap(){
+    const idx = Math.round(p) % NUM;
+    if (Math.abs(p - idx) < SWAP_MARGIN) return;
+    if (idx === lastPIndex) return;
+
+    const far = (idx + Math.floor(NUM/2)) % NUM;
+    const old = ring[far];
+    const freshFile = files[Math.floor(Math.random()*files.length)];
+    const incoming = createLayer(freshFile, 0);
+
+    // soft crossfade: old → 0, incoming → 0.5 (weights will grab it)
+    old.gain.gain.setTargetAtTime(0, ctx.currentTime, 0.15);
+    incoming.gain.gain.setTargetAtTime(0.5, ctx.currentTime, 0.15);
+    setTimeout(()=>{ try{ old.src.stop() }catch(_){ } }, 400);
+
+    ring[far] = incoming;
+    lastPIndex = idx;
+  }
+
+  // ===== Visualization =====
+  function drawWave(){
+    const c = wave, ctx2 = c.getContext('2d'); let last = 0;
+    function loop(ts=0){
+      requestAnimationFrame(loop);
+      if (ts - last < 1000/30) return; last = ts;
+      c.width = c.clientWidth; c.height = c.clientHeight;
+      analyser.getByteTimeDomainData(dataArr);
+      ctx2.fillStyle = 'rgba(245,241,230,0.3)'; ctx2.fillRect(0,0,c.width,c.height);
+      ctx2.lineWidth = 1; ctx2.strokeStyle = '#555'; ctx2.beginPath();
+      const slice = c.width / bufLen; let x = 0;
+      for (let i=0;i<bufLen;i++){
+        const v = dataArr[i]/128; const y = v * c.height/2;
+        if (i===0) ctx2.moveTo(x,y); else ctx2.lineTo(x,y);
+        x += slice;
+      }
+      ctx2.stroke();
+    }
+    loop();
+  }
+
+  function drawTuner(){
+    const c = tuner, g = c.getContext('2d'); let last = 0;
+    function loop(ts=0){
+      requestAnimationFrame(loop);
+      if (ts - last < 1000/30) return; last = ts;
+      c.width = c.clientWidth; c.height = c.clientHeight;
+
+      // fade brightness based on how "between" we are
+      let nearest = Math.min(...[0,1,2,3].map(i => {
+        let d = Math.abs(i - p); return Math.min(d, NUM - d);
+      }));
+      const between = clamp(nearest / 0.6, 0, 1); // brighter between stations
+      g.clearRect(0,0,c.width,c.height);
+
+      // tick marks scrolling opposite to rotation
+      g.strokeStyle = `rgba(0,0,0,${0.25 + 0.45*between})`;
+      g.lineWidth = 1;
+      g.beginPath();
+      const spacing = 18; const off = (p * spacing * 1.2) % spacing;
+      for (let x = -off; x < c.width; x += spacing){
+        g.moveTo(x, 0); g.lineTo(x, c.height);
+      }
+      g.stroke();
+
+      // center needle
+      g.strokeStyle = '#000'; g.lineWidth = 1.2;
+      g.beginPath(); g.moveTo(c.width/2, 0); g.lineTo(c.width/2, c.height); g.stroke();
+    }
+    loop();
+  }
+
+  // Master update tick (audio params + swap + phasing)
+  let lastTs = 0;
   function tick(ts=0){
     requestAnimationFrame(tick);
-    if(!lastTs) lastTs=ts; const dt=ts-lastTs; lastTs=ts;
-    if(ring.length){ updateAudio(dt); maybeSwap(); updatePhasing(dt); }
+    if (!lastTs) lastTs = ts; const dt = ts - lastTs; lastTs = ts;
+    if (ring.length) { updateAudio(dt); maybeSwap(); }
   }
 
-  startButton.addEventListener('click',async()=>{
-    await ctx.resume(); try{noiseSrc.start()}catch(_){}
-    loader.style.display='none'; initRing();
-    wave.style.display='block'; knob.style.display='block'; instr.style.display='block';
-    drawWave(); tick();
+  // ===== Start =====
+  startButton.addEventListener('click', async ()=>{
+    await ctx.resume();
+    if (!noiseStarted) { try { noiseSrc.start() } catch(_){} noiseStarted = true; }
+
+    loader.style.display = 'none';
+    wave.style.display = 'block'; tuner.style.display = 'block';
+    initRing(); drawWave(); drawTuner(); tick();
+    scheduleCrackle(); scheduleDropouts();
   });
 })();
 </script>
