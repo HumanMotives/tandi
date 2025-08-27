@@ -29,7 +29,15 @@
 
   .canvases{position:relative;max-width:900px;margin:0 auto}
   #wave,#tuner{width:100%;height:160px;display:none}
-  #tuner{position:absolute;left:0;top:0;pointer-events:auto;touch-action:pan-x}
+  #tuner{position:absolute;left:0;top:0;pointer-events:none} /* visual only */
+  /* Full-bleed gesture layer (captures swipe anywhere in the area) */
+  #gesture{
+    position:absolute;left:0;top:0;width:100%;height:160px;
+    pointer-events:auto;touch-action:pan-x; /* allow horizontal pan */
+    background:transparent;
+    display:none; /* becomes block when started */
+  }
+
   .hint{font-size:.85rem;color:#666;text-align:center}
 
   #lockDisplay{ text-align:center; margin-top:.3rem; font-size:.9rem; color:#555; display:none; align-items:center; justify-content:center; gap:.5rem }
@@ -38,7 +46,7 @@
   #stationName{font-weight:500}
 
   @media (max-width:600px){
-    #wave,#tuner{height:120px}
+    #wave,#tuner,#gesture{height:120px}
   }
 </style>
 </head>
@@ -74,12 +82,13 @@
     <div class="canvases">
       <canvas id="wave"></canvas>
       <canvas id="tuner"></canvas>
+      <div id="gesture" aria-label="Swipe anywhere to scan"></div>
     </div>
     <div id="lockDisplay" class="row">
       <span class="led" id="led"></span>
       <span id="stationName">— — —</span>
     </div>
-    <div class="hint">Swipe left/right on the ruler to scan</div>
+    <div class="hint">Swipe anywhere on the ruler to scan</div>
   </div>
 
 <script>
@@ -96,6 +105,7 @@
   const fmBtn = document.getElementById('fmBtn');
   const wave = document.getElementById('wave');
   const tuner = document.getElementById('tuner');
+  const gesture = document.getElementById('gesture');
   const led = document.getElementById('led');
   const lockDisplay = document.getElementById('lockDisplay');
   const stationNameEl = document.getElementById('stationName');
@@ -171,7 +181,7 @@
 
   // ===== Carousel of 4 layers =====
   const NUM = 4;
-  let ring = []; // each: { src, gain, panner, lp, send, file, phaseLFO, loopTimer }
+  let ring = []; // each: { src, gain, panner, lp, send, file, phaseLFO, loopTimer, spliceTimer }
 
   function createLayer(file, gainVal=0){
     const src = ctx.createBufferSource();
@@ -248,45 +258,54 @@
     return {
       cur: startVal, from: startVal, to: startVal,
       t: 0, dur: 1,
-      next(){
-        this.from = this.cur;
-        this.to = Math.random();
-        this.t = 0;
-        this.dur = 3 + Math.random()*8; // 3–11s segments
-      },
-      step(dt){
-        this.t += dt;
-        const k = Math.min(1, this.t / this.dur);
-        // smoothstep easing
-        const e = k*k*(3 - 2*k);
-        this.cur = this.from + (this.to - this.from) * e;
-        if (k >= 1) this.next();
-        return this.cur;
-      }
+      next(){ this.from = this.cur; this.to = Math.random(); this.t = 0; this.dur = 3 + Math.random()*8; },
+      step(dt){ this.t += dt; const k = Math.min(1, this.t / this.dur); const e = k*k*(3 - 2*k); this.cur = this.from + (this.to - this.from) * e; if (k>=1) this.next(); return this.cur; }
     };
   }
   const focusAutoEnv = makeAuto(focus); focusAutoEnv.next();
   const ageAutoEnv   = makeAuto(age);   ageAutoEnv.next();
 
-  // ===== Swipe-to-scan (no knob) =====
-  let scrollX = 0;    // accumulates swipe distance
-  let lastX = 0;      // pointer last x
+  // ===== Swipe-to-scan with inertia =====
+  let scrollX = 0;      // continuous ring position accumulator
+  let p = 0, lastPIndex = 0; // position on ring
   let dragging = false;
-  let p = 0, lastPIndex = 0;   // position on ring, [0..NUM)
+  let lastX = 0, lastT = 0;
+  let velocity = 0;     // ring units per ms
+  let inertial = false;
 
-  const SENS = 1/140; // px → ring units (140px ~ 1 slot). Increase for faster scan.
+  const SENS = 1/90;     // higher sensitivity (pixels → ring units)
+  const FRICTION = 0.95; // inertial slowdown per frame (~60 fps)
+  const MAX_VEL = 0.02;  // clamp to avoid runaway
 
-  tuner.addEventListener('pointerdown', e=>{
-    dragging = true; tuner.setPointerCapture(e.pointerId); lastX = e.clientX;
-  });
-  tuner.addEventListener('pointermove', e=>{
+  function onPointerDown(e){
+    dragging = true; inertial = false; velocity = 0;
+    gesture.setPointerCapture(e.pointerId);
+    lastX = e.clientX; lastT = performance.now();
+  }
+  function onPointerMove(e){
     if (!dragging) return;
-    const dx = e.clientX - lastX; lastX = e.clientX;
-    scrollX += dx * SENS; // continuous
-  });
-  ['pointerup','pointerleave','pointercancel'].forEach(ev=>{
-    tuner.addEventListener(ev, e=>{ dragging = false; try{ tuner.releasePointerCapture(e.pointerId) }catch(_){ } });
-  });
+    const now = performance.now();
+    const dx = e.clientX - lastX;
+    const dt = Math.max(1, now - lastT);
+    lastX = e.clientX; lastT = now;
+
+    const delta = dx * SENS;
+    scrollX += delta;
+
+    // instantaneous velocity estimate (units/ms), clamped
+    const v = delta / dt;
+    velocity = Math.max(-MAX_VEL, Math.min(MAX_VEL, v));
+  }
+  function onPointerUp(e){
+    dragging = false;
+    try{ gesture.releasePointerCapture(e.pointerId) }catch(_){}
+    // kick inertia if we have meaningful velocity
+    if (Math.abs(velocity) > 0.0002) inertial = true;
+  }
+
+  gesture.addEventListener('pointerdown', onPointerDown);
+  gesture.addEventListener('pointermove', onPointerMove);
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>gesture.addEventListener(ev, onPointerUp));
 
   // ===== Lock LED + station names =====
   const stationNames = [
@@ -361,6 +380,14 @@
       ageDial.value = age.toFixed(3);
     }
 
+    // inertia: keep scrolling after release
+    if (!dragging && inertial){
+      // dt is in ms; velocity is units/ms
+      scrollX += velocity * dt;
+      velocity *= FRICTION;
+      if (Math.abs(velocity) < 0.00005) inertial = false;
+    }
+
     // scrollX → ring pos p ∈ [0..NUM)
     p = ((scrollX % NUM) + NUM) % NUM;
 
@@ -427,7 +454,7 @@
       const pr = 1.0 + wow + flt;
       L.src.playbackRate.setTargetAtTime(pr, ctx.currentTime, 0.2);
 
-      // Loop nudge & occasional micro-splice (gain dip during jump)
+      // Loop nudge & occasional micro-splice
       const nowMs = performance.now();
       if (nowMs > L.loopTimer.next){
         const b = L.src.buffer, span = Math.min(12, b.duration);
@@ -437,7 +464,6 @@
         L.loopTimer.next = nowMs + 2500 + Math.random()*3500;
       }
       if (nowMs > L.spliceTimer.next){
-        // micro jump 50–150ms, brief fade
         const jump = (Math.random()*0.1 + 0.05);
         const b = L.src.buffer;
         const newStart = Math.min(b.duration - 0.2, Math.max(0, L.src.loopStart + jump));
@@ -558,6 +584,7 @@
 
     loader.style.display = 'none';
     wave.style.display = 'block'; tuner.style.display = 'block';
+    gesture.style.display = 'block';
     lockDisplay.style.display = 'flex';
 
     initRing(); drawWave(); drawTuner(); tick();
