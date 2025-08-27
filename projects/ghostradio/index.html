@@ -1,26 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ghost Radio – Smooth Scan with Static</title>
+  <title>Ghost Radio – Carousel Layers</title>
   <style>
     body { margin:0; padding:1rem; font-family:'IBM Plex Mono',monospace; background:#f5f1e6; color:#333; }
-    h1 { text-align:center; font-size:2rem; margin-bottom:1rem; user-select:none; }
+    h1 { text-align:center; font-size:2rem; margin-bottom:1rem; }
     #loader { text-align:center; margin-bottom:1rem; }
     #statusText { margin-bottom:0.5rem; }
     #startButton {
       padding:0.8rem 1.5rem; font-size:1rem;
       background:#111; color:#f5f1e6; border:none; border-radius:6px;
-      cursor:pointer; user-select:none;
+      cursor:pointer;
     }
     #startButton:hover { background:#444; }
     .container { display:flex; flex-wrap:wrap; justify-content:center; gap:1rem; max-width:800px; margin:0 auto; }
     .panel { flex:1 1 280px; }
     #wave { width:100%; height:120px; background:rgba(0,0,0,0.05); display:none; }
     #knob {
-      display:none; width:100px; height:100px;
-      margin:0 auto 1.5rem;
+      display:none; width:100px; height:100px; margin:0 auto 1.5rem;
       border:4px solid #888; border-radius:50%; background:#fdfbf8;
       touch-action:none; cursor:grab; position:relative; user-select:none;
     }
@@ -30,11 +29,9 @@
       width:4px; height:30px; background:#333;
       transform-origin:bottom center;
     }
-    .instructions { text-align:center; color:#666; display:none; user-select:none; }
-    @media(max-width:600px) {
-      #wave { height:100px; }
-      #knob { width:80px; height:80px; }
-      #knob::before { height:24px; }
+    .instructions { text-align:center; color:#666; display:none; }
+    @media(max-width:600px){
+      #wave{height:100px;} #knob{width:80px;height:80px;} #knob::before{height:24px;}
     }
   </style>
 </head>
@@ -52,236 +49,146 @@
     </div>
   </div>
 
-  <script>
-  (async function(){
-    // UI
-    const loader      = document.getElementById('loader');
-    const statusText  = document.getElementById('statusText');
-    const startButton = document.getElementById('startButton');
-    const wave        = document.getElementById('wave');
-    const knob        = document.getElementById('knob');
-    const instr       = document.querySelector('.instructions');
+<script>
+(async function(){
+  const loader=document.getElementById('loader'),statusText=document.getElementById('statusText');
+  const startButton=document.getElementById('startButton'),wave=document.getElementById('wave');
+  const knob=document.getElementById('knob'),instr=document.querySelector('.instructions');
 
-    // AudioContext & analyser
-    const AudioCtx = window.AudioContext||window.webkitAudioContext;
-    const ctx = new AudioCtx();
-    const analyser = ctx.createAnalyser(); analyser.fftSize = 256;
-    const bufLen = analyser.fftSize;
-    const dataArr = new Uint8Array(bufLen);
-    const masterGain = ctx.createGain(); masterGain.gain.value = 1;
-    analyser.connect(masterGain); masterGain.connect(ctx.destination);
+  const AudioCtx=window.AudioContext||window.webkitAudioContext; const ctx=new AudioCtx();
+  const analyser=ctx.createAnalyser(); analyser.fftSize=256;
+  const bufLen=analyser.fftSize, dataArr=new Uint8Array(bufLen);
+  const masterGain=ctx.createGain(); masterGain.gain.value=1;
+  analyser.connect(masterGain); masterGain.connect(ctx.destination);
 
-    // --- Static noise bed (ducked under music) ---
-    function makeNoiseBuffer(duration=2){
-      const size = ctx.sampleRate * duration;
-      const buf = ctx.createBuffer(1, size, ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for(let i=0;i<size;i++) d[i] = Math.random()*2-1;
-      return buf;
+  // Noise bed
+  function makeNoiseBuffer(dur=2){
+    const sz=ctx.sampleRate*dur, buf=ctx.createBuffer(1,sz,ctx.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<sz;i++) d[i]=Math.random()*2-1; return buf;
+  }
+  const noiseSrc=ctx.createBufferSource(); noiseSrc.buffer=makeNoiseBuffer(); noiseSrc.loop=true;
+  const noiseGain=ctx.createGain(); noiseGain.gain.value=0.02;
+  noiseSrc.connect(noiseGain).connect(analyser);
+
+  // Sounds
+  const files=['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
+  const base=location.pathname.replace(/[^\\/]+$/,''); const buffers={};
+  for(let i=0;i<files.length;i++){
+    try{
+      const res=await fetch(base+'sounds/'+files[i]); const ab=await res.arrayBuffer();
+      buffers[files[i]]=await ctx.decodeAudioData(ab); statusText.textContent=`Loaded ${i+1}/${files.length}`;
+    }catch(e){statusText.textContent='Error '+files[i]; return;}
+  }
+  statusText.textContent='Ready!';
+
+  // Ring of layers
+  const NUM=4; let ring=[];
+  function createLayer(file,gainVal=0){
+    const src=ctx.createBufferSource(); src.buffer=buffers[file]; src.loop=true;
+    const dur=src.buffer.duration, start=Math.random()*Math.max(0,dur-12);
+    src.loopStart=start; src.loopEnd=Math.min(dur,start+6+Math.random()*6);
+    src.playbackRate.value=0.995+Math.random()*0.01;
+    const g=ctx.createGain(); g.gain.value=gainVal; src.connect(g).connect(analyser); src.start();
+    const phaseLFO={amp:0.003,freq:0.02+Math.random()*0.03,t:Math.random()*1000};
+    const loopTimer={next:performance.now()+4000+Math.random()*4000};
+    return {src,gain:g,file,phaseLFO,loopTimer};
+  }
+  function initRing(){
+    ring.forEach(l=>{try{l.src.stop()}catch(_){}}); ring=[];
+    const pick=[...files]; for(let i=0;i<NUM;i++){
+      const f=pick.splice(Math.floor(Math.random()*pick.length),1)[0];
+      ring.push(createLayer(f,i===0?1:0));
     }
-    const noiseBuf  = makeNoiseBuffer();
-    const noiseSrc  = ctx.createBufferSource();
-    const noiseGain = ctx.createGain();
-    noiseSrc.buffer = noiseBuf;
-    noiseSrc.loop   = true;
-    noiseGain.gain.value = 0; // start muted; will be controlled in crossfade()
-    noiseSrc.connect(noiseGain).connect(analyser);
-    let noiseStarted = false;
+  }
 
-    // Load your samples
-    const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
-    const base = location.pathname.replace(/[^\\/]+$/,'');
-    const buffers = {};
-    for(let i=0;i<files.length;i++){
-      const f = files[i];
-      const url = base + 'sounds/' + f;
-      try {
-        const res = await fetch(url);
-        if(!res.ok) throw new Error(res.status);
-        const ab = await res.arrayBuffer();
-        buffers[f] = await ctx.decodeAudioData(ab);
-        statusText.textContent = `Loaded ${i+1}/${files.length}`;
-      } catch(err){
-        statusText.textContent = `Error loading ${f}`;
-        console.error(err);
-        return;
+  // Dial
+  let angle=0,lastAng=0,drag=false,cx=0,cy=0;
+  let p=0,lastPIndex=0;
+  knob.addEventListener('pointerdown',e=>{
+    drag=true; knob.setPointerCapture(e.pointerId); knob.classList.add('active');
+    const r=knob.getBoundingClientRect(); cx=r.left+r.width/2; cy=r.top+r.height/2;
+    lastAng=Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI;
+  });
+  knob.addEventListener('pointermove',e=>{
+    if(!drag) return;
+    const ang=Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI;
+    let d=ang-lastAng; if(d>180)d-=360;if(d<-180)d+=360; angle+=d; lastAng=ang;
+    knob.style.transform=`rotate(${angle}deg)`;
+  });
+  ['pointerup','pointerleave'].forEach(ev=>knob.addEventListener(ev,e=>{
+    drag=false; knob.classList.remove('active'); try{knob.releasePointerCapture(e.pointerId)}catch(_){}
+  }));
+
+  function updateAudio(dt){
+    const raw=((angle%720)+720)%720;
+    const val=raw<360? raw/360:(raw-720)/360; // [-1,1]
+    p=(val+1)*(NUM/2);
+    const spread=1.2; let maxMus=0;
+    for(let i=0;i<NUM;i++){
+      let d=Math.abs(i-p); d=Math.min(d,NUM-d);
+      const w=Math.max(0,1-d/spread);
+      ring[i].gain.gain.setTargetAtTime(w,ctx.currentTime,0.05);
+      if(w>maxMus) maxMus=w;
+    }
+    noiseGain.gain.setTargetAtTime(0.02*(1-maxMus),ctx.currentTime,0.1);
+  }
+  function maybeSwap(){
+    const idx=Math.round(p)%NUM; if(idx===lastPIndex) return;
+    if(Math.abs(p-idx)<0.25) return;
+    let far=(idx+Math.floor(NUM/2))%NUM;
+    const old=ring[far]; const fresh=files[Math.floor(Math.random()*files.length)];
+    const incoming=createLayer(fresh,0);
+    old.gain.gain.setTargetAtTime(0,ctx.currentTime,0.15);
+    incoming.gain.gain.setTargetAtTime(0.5,ctx.currentTime,0.15);
+    setTimeout(()=>{try{old.src.stop()}catch(_){}} ,400);
+    ring[far]=incoming; lastPIndex=idx;
+  }
+  function updatePhasing(dt){
+    for(const l of ring){
+      l.phaseLFO.t+=dt*l.phaseLFO.freq*0.001;
+      const mod=1+l.phaseLFO.amp*Math.sin(2*Math.PI*l.phaseLFO.t);
+      l.src.playbackRate.setTargetAtTime(mod,ctx.currentTime,0.2);
+      const now=performance.now();
+      if(now>l.loopTimer.next){
+        const b=l.src.buffer, span=Math.min(12,b.duration);
+        const c=Math.random()*Math.max(0,b.duration-span);
+        l.src.loopStart=c+Math.random()*0.2-0.1;
+        l.src.loopEnd=Math.min(b.duration,l.src.loopStart+span);
+        l.loopTimer.next=now+4000+Math.random()*4000;
       }
     }
-    statusText.textContent = 'Ready!';
+  }
 
-    // Three samples state
-    let leftFile, centerFile, rightFile;
-    let leftNode, centerNode, rightNode;
-
-    function createNode(file, gainVal){
-      const src = ctx.createBufferSource();
-      src.buffer = buffers[file]; src.loop = true;
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(gainVal, ctx.currentTime);
-      src.connect(g).connect(analyser);
-      src.start();
-      return {src, gain: g};
+  function drawWave(){
+    const canvas=wave,c2=canvas.getContext('2d'); let last=0;
+    function draw(ts=0){
+      requestAnimationFrame(draw); if(ts-last<1000/30)return; last=ts;
+      canvas.width=canvas.clientWidth;
+      analyser.getByteTimeDomainData(dataArr);
+      c2.fillStyle='rgba(245,241,230,0.3)'; c2.fillRect(0,0,canvas.width,canvas.height);
+      c2.lineWidth=1; c2.strokeStyle='#555'; c2.beginPath();
+      const slice=canvas.width/bufLen; let x=0;
+      for(let i=0;i<bufLen;i++){ const v=dataArr[i]/128,y=v*canvas.height/2;
+        i===0?c2.moveTo(x,y):c2.lineTo(x,y); x+=slice; }
+      c2.stroke();
     }
+    draw();
+  }
 
-    function initThree(){
-      centerFile = files[Math.floor(Math.random()*files.length)];
-      do { leftFile = files[Math.floor(Math.random()*files.length)]; }
-      while(leftFile===centerFile);
-      do { rightFile = files[Math.floor(Math.random()*files.length)]; }
-      while(rightFile===centerFile||rightFile===leftFile);
-      leftNode   = createNode(leftFile,   0);
-      centerNode = createNode(centerFile, 1);
-      rightNode  = createNode(rightFile,  0);
-    }
+  let lastTs=0;
+  function tick(ts=0){
+    requestAnimationFrame(tick);
+    if(!lastTs) lastTs=ts; const dt=ts-lastTs; lastTs=ts;
+    if(ring.length){ updateAudio(dt); maybeSwap(); updatePhasing(dt); }
+  }
 
-    function shift(direction){
-      // direction < 0: left becomes center; > 0: right becomes center
-      const fade = 1.0;
-      if(direction<0){
-        // Left -> Center
-        leftNode.gain.gain.linearRampToValueAtTime(1, ctx.currentTime+fade);
-        centerNode.gain.gain.linearRampToValueAtTime(0, ctx.currentTime+fade);
-        rightNode.gain.gain.linearRampToValueAtTime(0, ctx.currentTime+fade);
-
-        rightNode.src.stop(); // discard previous right
-        [rightFile,rightNode]   = [centerFile, centerNode]; // old center moves to right (still connected)
-        [centerFile,centerNode] = [leftFile, leftNode];     // left becomes center
-
-        // new left
-        let nf;
-        do { nf = files[Math.floor(Math.random()*files.length)]; }
-        while([leftFile,centerFile,rightFile].includes(nf));
-        leftFile = nf;
-        leftNode = createNode(leftFile, 0);
-      } else {
-        // Right -> Center
-        rightNode.gain.gain.linearRampToValueAtTime(1, ctx.currentTime+fade);
-        centerNode.gain.gain.linearRampToValueAtTime(0, ctx.currentTime+fade);
-        leftNode.gain.gain.linearRampToValueAtTime(0, ctx.currentTime+fade);
-
-        leftNode.src.stop(); // discard previous left
-        [leftFile,leftNode]     = [centerFile, centerNode]; // old center moves to left
-        [centerFile,centerNode] = [rightFile, rightNode];   // right becomes center
-
-        // new right
-        let nf;
-        do { nf = files[Math.floor(Math.random()*files.length)]; }
-        while([leftFile,centerFile,rightFile].includes(nf));
-        rightFile = nf;
-        rightNode = createNode(rightFile, 0);
-      }
-    }
-
-    // --- Crossfade with static ducking ---
-    function crossfade(val){
-      // val ∈ [-1,1] from dial; 0=center, -1=full left, +1=full right
-      const fadeTime = 0.1;
-
-      // Linear crossfade (side only hits 1.0 at extremes)
-      const cGain = 1 - Math.abs(val);
-      const lGain = Math.max(0, -val);
-      const rGain = Math.max(0,  val);
-
-      // (Optional equal-power curve; comment the three lines above and use:)
-      // const cGain = Math.cos((Math.abs(val) * Math.PI) / 2);
-      // const sGain = Math.sin((Math.abs(val) * Math.PI) / 2);
-      // const lGain = val < 0 ? sGain : 0, rGain = val > 0 ? sGain : 0;
-
-      centerNode.gain.gain.linearRampToValueAtTime(cGain, ctx.currentTime + fadeTime);
-      leftNode.gain.gain.linearRampToValueAtTime(lGain,   ctx.currentTime + fadeTime);
-      rightNode.gain.gain.linearRampToValueAtTime(rGain,  ctx.currentTime + fadeTime);
-
-      // Static: very quiet, and ducks against the loudest sample
-      const baseNoise = 0.02; // softer overall
-      const maxMus = Math.max(cGain, lGain, rGain);
-      const noiseTarget = baseNoise * (1 - maxMus);
-      noiseGain.gain.linearRampToValueAtTime(noiseTarget, ctx.currentTime + fadeTime);
-    }
-
-    // Draw waveform
-    function drawWave(){
-      const canvas = wave, c2 = canvas.getContext('2d');
-      let last = 0;
-      function draw(ts=0){
-        requestAnimationFrame(draw);
-        if(ts-last<1000/30) return;
-        last = ts;
-        canvas.width = canvas.clientWidth;
-        analyser.getByteTimeDomainData(dataArr);
-        c2.fillStyle='rgba(245,241,230,0.3)'; c2.fillRect(0,0,canvas.width,canvas.height);
-        c2.lineWidth=1; c2.strokeStyle='#555'; c2.beginPath();
-        const slice = canvas.width/bufLen; let x=0;
-        for(let i=0;i<bufLen;i++){
-          const v = dataArr[i]/128, y=v*canvas.height/2;
-          i===0?c2.moveTo(x,y):c2.lineTo(x,y);
-          x+=slice;
-        }
-        c2.stroke();
-      }
-      draw();
-    }
-
-    // Dial (two revolutions → [-1,1] mapping)
-    function attachDial(){
-      let angle=0, lastAng=0, drag=false;
-      const thresh = 15; // degrees from 0/720
-
-      knob.addEventListener('pointerdown', e=>{
-        drag=true; knob.setPointerCapture(e.pointerId); knob.classList.add('active');
-        const r=knob.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
-        lastAng = Math.atan2(e.clientY-cy, e.clientX-cx)*180/Math.PI;
-      });
-
-      knob.addEventListener('pointermove', e=>{
-        if(!drag) return;
-        const r=knob.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
-        const ang = Math.atan2(e.clientY-cy, e.clientX-cx)*180/Math.PI;
-        let d = ang - lastAng; if(d>180) d-=360; if(d<-180) d+=360;
-        angle+=d; lastAng=ang;
-
-        // map two revs to [-1,1]
-        const raw = ((angle%720)+720)%720;
-        const val = raw<360 ? raw/360 : (raw-720)/360;
-        crossfade(val);
-
-        // shift at thresholds
-        if(raw < thresh){
-          shift(-1);
-          angle += 360;  // keep continuity
-        } else if(raw > 720-thresh){
-          shift(1);
-          angle -= 360;
-        }
-
-        knob.style.transform = `rotate(${angle}deg)`;
-      });
-
-      ['pointerup','pointerleave'].forEach(ev =>
-        knob.addEventListener(ev, e=>{
-          drag=false; knob.classList.remove('active'); knob.releasePointerCapture(e.pointerId);
-        })
-      );
-    }
-
-    // Start Listening
-    startButton.addEventListener('click', async ()=>{
-      await ctx.resume();
-
-      // Start static once, safely
-      if (!noiseStarted) {
-        noiseSrc.start();
-        noiseStarted = true;
-      }
-
-      loader.style.display='none';
-      initThree();
-      wave.style.display='block';
-      knob.style.display='block';
-      instr.style.display='block';
-      drawWave();
-      attachDial();
-    });
-  })();
-  </script>
+  startButton.addEventListener('click',async()=>{
+    await ctx.resume(); try{noiseSrc.start()}catch(_){}
+    loader.style.display='none'; initRing();
+    wave.style.display='block'; knob.style.display='block'; instr.style.display='block';
+    drawWave(); tick();
+  });
+})();
+</script>
 </body>
 </html>
