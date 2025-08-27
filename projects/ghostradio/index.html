@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ghost Radio — Stereo Scan + Focus/Tape</title>
+<title>Ghost Radio — Swipe Scan + Focus/Tape Auto</title>
 <style>
   body{margin:0;padding:1rem;font-family:'IBM Plex Mono',monospace;background:#f5f1e6;color:#333}
   h1{margin:0 0 1rem;text-align:center;font-size:2rem}
@@ -15,28 +15,30 @@
   .ui{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:1rem}
   .row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;justify-content:center}
 
-  .control{background:#fdfbf8;border:1px solid #aaa;border-radius:10px;padding:.6rem .8rem;display:flex;align-items:center;gap:.5rem}
+  .control{background:#fdfbf8;border:1px solid #aaa;border-radius:10px;padding:.6rem .8rem;display:flex;align-items:center;gap:.6rem}
   .control label{font-size:.9rem}
+  .control .auto{
+    display:flex;align-items:center;gap:.35rem;background:#fff;border:1px solid #aaa;border-radius:8px;padding:.15rem .4rem;cursor:pointer;
+  }
+  .control .auto input{accent-color:#111}
   input[type="range"]{width:160px}
 
   .switch{display:flex;gap:.5rem}
   .switch button{padding:.4rem .8rem;border:1px solid #aaa;border-radius:10px;background:#fdfbf8;cursor:pointer}
   .switch button.active{background:#111;color:#fdfbf8;border-color:#111}
 
-  .knobWrap{display:flex;flex-direction:column;align-items:center;gap:.5rem}
-  #knob{width:110px;height:110px;border:4px solid #888;border-radius:50%;background:#fdfbf8;touch-action:none;cursor:grab;position:relative;user-select:none}
-  #knob.active{cursor:grabbing;border-color:#000}
-  #knob::before{content:'';position:absolute;top:10px;left:50%;width:4px;height:34px;background:#333;transform-origin:bottom center}
-  .hint{font-size:.85rem;color:#666}
-
   .canvases{position:relative;max-width:900px;margin:0 auto}
-  #wave,#tuner{width:100%;height:140px;display:none}
-  #tuner{position:absolute;left:0;top:0;pointer-events:none}
+  #wave,#tuner{width:100%;height:160px;display:none}
+  #tuner{position:absolute;left:0;top:0;pointer-events:auto;touch-action:pan-x}
+  .hint{font-size:.85rem;color:#666;text-align:center}
+
+  #lockDisplay{ text-align:center; margin-top:.3rem; font-size:.9rem; color:#555; display:none; align-items:center; justify-content:center; gap:.5rem }
+  #lockDisplay .led{display:inline-block;width:12px;height:12px;border-radius:50%;background:#444;transition:background .25s ease, box-shadow .25s ease}
+  #lockDisplay .led.on{background:#1ed760; box-shadow:0 0 10px rgba(30,215,96,.75)}
+  #stationName{font-weight:500}
 
   @media (max-width:600px){
-    #knob{width:90px;height:90px}
-    #knob::before{height:26px}
-    #wave,#tuner{height:110px}
+    #wave,#tuner{height:120px}
   }
 </style>
 </head>
@@ -50,17 +52,15 @@
 
   <div class="ui">
     <div class="row">
-      <div class="knobWrap control">
-        <div id="knob"></div>
-        <div class="hint">Rotate to scan</div>
-      </div>
       <div class="control">
         <label for="focus">Focus</label>
         <input id="focus" type="range" min="0" max="1" step="0.001" value="0.5">
+        <label class="auto"><input id="focusAuto" type="checkbox"> Auto</label>
       </div>
       <div class="control">
         <label for="age">Tape Age</label>
         <input id="age" type="range" min="0" max="1" step="0.001" value="0.25">
+        <label class="auto"><input id="ageAuto" type="checkbox"> Auto</label>
       </div>
       <div class="control">
         <span>Mode</span>
@@ -75,6 +75,11 @@
       <canvas id="wave"></canvas>
       <canvas id="tuner"></canvas>
     </div>
+    <div id="lockDisplay" class="row">
+      <span class="led" id="led"></span>
+      <span id="stationName">— — —</span>
+    </div>
+    <div class="hint">Swipe left/right on the ruler to scan</div>
   </div>
 
 <script>
@@ -83,13 +88,17 @@
   const loader = document.getElementById('loader');
   const statusText = document.getElementById('statusText');
   const startButton = document.getElementById('startButton');
-  const knob = document.getElementById('knob');
   const focusDial = document.getElementById('focus');
-  const ageDial = document.getElementById('age');
+  const focusAuto = document.getElementById('focusAuto');
+  const ageDial   = document.getElementById('age');
+  const ageAuto   = document.getElementById('ageAuto');
   const amBtn = document.getElementById('amBtn');
   const fmBtn = document.getElementById('fmBtn');
   const wave = document.getElementById('wave');
   const tuner = document.getElementById('tuner');
+  const led = document.getElementById('led');
+  const lockDisplay = document.getElementById('lockDisplay');
+  const stationNameEl = document.getElementById('stationName');
 
   // ===== Audio context & core nodes =====
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -99,7 +108,7 @@
   const bufLen = analyser.fftSize; const dataArr = new Uint8Array(bufLen);
 
   // master chain: (dry+reverb) -> masterFilter -> modeMakeup -> analyser -> destination
-  const modeMakeup = ctx.createGain();       // AM makeup gain here
+  const modeMakeup = ctx.createGain();
   const masterFilter = ctx.createBiquadFilter();
   masterFilter.type = 'lowpass';
   masterFilter.frequency.value = 12000;
@@ -109,7 +118,7 @@
   modeMakeup.connect(analyser).connect(masterGain).connect(ctx.destination);
 
   // Reverb: lightweight procedural IR (decaying noise)
-  function makeIR(seconds=1.3, decay=2.3){
+  function makeIR(seconds=1.0, decay=2.0){
     const rate = ctx.sampleRate, len = Math.floor(rate * seconds);
     const ir = ctx.createBuffer(2, len, rate);
     for (let ch=0; ch<2; ch++){
@@ -119,7 +128,7 @@
     return ir;
   }
   const convolver = ctx.createConvolver();
-  convolver.buffer = makeIR(1.1, 2.0);
+  convolver.buffer = makeIR(1.0, 2.0);
 
   const reverbGain = ctx.createGain(); reverbGain.gain.value = 0.18; // global wet
   convolver.connect(reverbGain).connect(masterFilter);
@@ -139,7 +148,7 @@
   noiseSrc.connect(noiseGain).connect(masterFilter);
   let noiseStarted = false;
 
-  // ===== Sound buffers =====
+  // ===== Sounds =====
   const files = [
     'sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3',
     'sound7.mp3','sound8.mp3','sound9.mp3','sound10.mp3','sound11.mp3','sound12.mp3','sound13.mp3'
@@ -169,25 +178,26 @@
     src.buffer = buffers[file];
     src.loop = true;
 
-    // random loop window (6–12s)
+    // random loop window (3–15s), brand new each spawn
     const D = src.buffer.duration;
-    const start = Math.random() * Math.max(0, D - 12);
+    const span = 3 + Math.random()*12;
+    const start = Math.random() * Math.max(0, D - span);
     src.loopStart = start;
-    src.loopEnd = Math.min(D, start + 6 + Math.random()*6);
+    src.loopEnd = Math.min(D, start + span);
 
-    // base playback rate (tiny offset)
-    src.playbackRate.value = 0.995 + Math.random()*0.01;
+    // base playback rate ±15%
+    src.playbackRate.value = 0.85 + Math.random()*0.30;
 
     const g = ctx.createGain(); g.gain.value = gainVal;
 
-    // per-layer LPF
+    // per-layer LPF with tiny random Q for individual tone
     const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 12000; lp.Q.value = 0.0001;
+    lp.type = 'lowpass'; lp.frequency.value = 12000; lp.Q.value = 0.0001 + Math.random()*0.5;
 
     // stereo panner
     const panner = ctx.createStereoPanner(); panner.pan.value = 0;
 
-    // reverb send (POST-PANNER so stereo image informs reverb too)
+    // reverb send (post-panner)
     const send = ctx.createGain(); send.gain.value = 0.0;
 
     // Routing:
@@ -199,14 +209,15 @@
 
     src.start();
 
-    // LFO & loop-nudge timers
+    // LFO & loop-nudge timers + micro-splice
     const phaseLFO = {
       wowAmp: 0.003, wowHz: 0.25 + Math.random()*0.1,  t: Math.random()*100,
       fltAmp: 0.0015, fltHz: 6.5 + Math.random()*0.8
     };
-    const loopTimer = { next: performance.now() + 4000 + Math.random()*4000 };
+    const loopTimer = { next: performance.now() + 2500 + Math.random()*3500 };
+    const spliceTimer = { next: performance.now() + 3000 + Math.random()*7000 };
 
-    return { src, gain: g, panner, lp, send, file, phaseLFO, loopTimer };
+    return { src, gain: g, panner, lp, send, file, phaseLFO, loopTimer, spliceTimer };
   }
 
   function initRing(){
@@ -223,39 +234,84 @@
   let mode = 'FM';            // 'AM' | 'FM'
   let focus = parseFloat(focusDial.value); // 0..1
   let age   = parseFloat(ageDial.value);   // 0..1
+  let focusAutoOn = false, ageAutoOn = false;
 
   amBtn.onclick = () => { mode='AM'; amBtn.classList.add('active'); fmBtn.classList.remove('active'); };
   fmBtn.onclick = () => { mode='FM'; fmBtn.classList.add('active'); amBtn.classList.remove('active'); };
-  focusDial.oninput = () => { focus = parseFloat(focusDial.value); };
-  ageDial.oninput   = () => { age   = parseFloat(ageDial.value);   };
+  focusDial.oninput = () => { if(!focusAutoOn) focus = parseFloat(focusDial.value); };
+  ageDial.oninput   = () => { if(!ageAutoOn)   age   = parseFloat(ageDial.value);   };
+  focusAuto.onchange= () => { focusAutoOn = focusAuto.checked; if (!focusAutoOn) focus = parseFloat(focusDial.value); };
+  ageAuto.onchange  = () => { ageAutoOn   = ageAuto.checked;   if (!ageAutoOn)   age   = parseFloat(ageDial.value);   };
 
-  // ===== Dial interaction (infinite) =====
-  let angle = 0, lastAng = 0, dragging = false, cx = 0, cy = 0;
-  let p = 0, lastPIndex = 0; // position on ring, [0..NUM)
+  // ===== Auto envelopes (random shapes) =====
+  function makeAuto(startVal){
+    return {
+      cur: startVal, from: startVal, to: startVal,
+      t: 0, dur: 1,
+      next(){
+        this.from = this.cur;
+        this.to = Math.random();
+        this.t = 0;
+        this.dur = 3 + Math.random()*8; // 3–11s segments
+      },
+      step(dt){
+        this.t += dt;
+        const k = Math.min(1, this.t / this.dur);
+        // smoothstep easing
+        const e = k*k*(3 - 2*k);
+        this.cur = this.from + (this.to - this.from) * e;
+        if (k >= 1) this.next();
+        return this.cur;
+      }
+    };
+  }
+  const focusAutoEnv = makeAuto(focus); focusAutoEnv.next();
+  const ageAutoEnv   = makeAuto(age);   ageAutoEnv.next();
 
-  knob.addEventListener('pointerdown', e=>{
-    dragging = true; knob.setPointerCapture(e.pointerId); knob.classList.add('active');
-    const r = knob.getBoundingClientRect(); cx = r.left + r.width/2; cy = r.top + r.height/2;
-    lastAng = Math.atan2(e.clientY - cy, e.clientX - cx) * 180/Math.PI;
+  // ===== Swipe-to-scan (no knob) =====
+  let scrollX = 0;    // accumulates swipe distance
+  let lastX = 0;      // pointer last x
+  let dragging = false;
+  let p = 0, lastPIndex = 0;   // position on ring, [0..NUM)
+
+  const SENS = 1/140; // px → ring units (140px ~ 1 slot). Increase for faster scan.
+
+  tuner.addEventListener('pointerdown', e=>{
+    dragging = true; tuner.setPointerCapture(e.pointerId); lastX = e.clientX;
   });
-  knob.addEventListener('pointermove', e=>{
+  tuner.addEventListener('pointermove', e=>{
     if (!dragging) return;
-    const ang = Math.atan2(e.clientY - cy, e.clientX - cx) * 180/Math.PI;
-    let d = ang - lastAng; if (d > 180) d -= 360; if (d < -180) d += 360;
-    angle += d; lastAng = ang;
-    knob.style.transform = `rotate(${angle}deg)`;
+    const dx = e.clientX - lastX; lastX = e.clientX;
+    scrollX += dx * SENS; // continuous
   });
-  ['pointerup','pointerleave'].forEach(ev=>knob.addEventListener(ev, e=>{
-    dragging = false; knob.classList.remove('active'); try{ knob.releasePointerCapture(e.pointerId) }catch(_){}
-  }));
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>{
+    tuner.addEventListener(ev, e=>{ dragging = false; try{ tuner.releasePointerCapture(e.pointerId) }catch(_){ } });
+  });
 
-  // ===== Cheap crackle & dropouts tied to Tape Age =====
+  // ===== Lock LED + station names =====
+  const stationNames = [
+    "Echo Relay","Tape Horizon","Number Station 51","Phantom Loop","Crystal Dial",
+    "Reich Drift","Signal Bloom","Midnight Carrier","Static Orchard","Orpheus Band",
+    "Sferics 7","Dust & Splice","VLF Garden","Afterimage FM","Shortwave Arcade"
+  ];
+  let lockArmed = false, lockTimer = null, lastName = "";
+
+  function setLED(on){
+    if(on){ led.classList.add('on'); lockDisplay.style.display='flex'; }
+    else   { led.classList.remove('on'); }
+  }
+  function pickName(){
+    let n;
+    do { n = stationNames[Math.floor(Math.random()*stationNames.length)]; } while (n===lastName);
+    lastName = n; stationNameEl.textContent = n;
+  }
+
+  // ===== Crackle & Dropouts with age =====
   const noiseBufTiny = makeNoiseBuffer(0.05);
   function scheduleCrackle(){
     if (age <= 0.02) { setTimeout(scheduleCrackle, 1000); return; }
-    // pops/sec ~ 0..3
-    const rate = age * 3;
-    const nextIn = 200 + Math.random()* (1000/Math.max(0.25, rate));
+    const rate = age * 3; // 0..3 pops/sec
+    const nextIn = 200 + Math.random()*(1000/Math.max(0.25, rate));
     setTimeout(()=>{
       try{
         const pop = ctx.createBufferSource();
@@ -264,12 +320,10 @@
         const pg = ctx.createGain(); pg.gain.value = 0.0;
         pop.connect(hp).connect(pg).connect(masterFilter);
         const now = ctx.currentTime;
-        // 6ms blip
         pg.gain.setValueAtTime(0, now);
         pg.gain.linearRampToValueAtTime(0.05 + 0.12*age, now + 0.003);
         pg.gain.linearRampToValueAtTime(0, now + 0.006);
-        pop.start();
-        pop.stop(now + 0.06);
+        pop.start(); pop.stop(now + 0.06);
       }catch(_){}
       scheduleCrackle();
     }, nextIn);
@@ -291,36 +345,45 @@
     }, every);
   }
 
-  // ===== Audio update loop =====
+  // ===== Helpers =====
   function lerp(a,b,t){ return a + (b-a)*t; }
   function clamp(x,a,b){ return Math.max(a, Math.min(b,x)); }
 
+  // ===== Audio update loop =====
   function updateAudio(dt){
-    // map dial angle → [-1,1] → ring pos p∈[0..NUM)
-    const raw = ((angle % 720) + 720) % 720;
-    const val = (raw < 360) ? (raw/360) : ((raw-720)/360);
-    p = (val + 1) * (NUM/2);
+    // Auto envelopes
+    if (focusAutoOn){
+      focus = focusAutoEnv.step(dt/1000);
+      focusDial.value = focus.toFixed(3);
+    }
+    if (ageAutoOn){
+      age = ageAutoEnv.step(dt/1000);
+      ageDial.value = age.toFixed(3);
+    }
 
-    // Focus → spread / stereo spread / LPF curve / reverb curve / noise scale / flutter scale
-    const spread   = lerp(0.6, 1.9, focus);      // wider overlap when focus high
-    const panRange = lerp(0.25, 0.9, focus);     // ↑ for stronger stereo
-    const lpfFar   = lerp(6000, 2500, focus);    // far layers darker when wide
-    const lpfNear  = lerp(14000, 9000, focus);   // near/center brightness (also scaled by age below)
-    const sendMax  = lerp(0.07, 0.42, focus);    // more verb when wide
+    // scrollX → ring pos p ∈ [0..NUM)
+    p = ((scrollX % NUM) + NUM) % NUM;
+
+    // Focus mapping
+    const spread   = lerp(0.6, 1.9, focus);
+    const panRange = lerp(0.25, 0.95, focus);
+    const lpfFar   = lerp(6000, 2500, focus);
+    const lpfNear  = lerp(14000, 9000, focus);
+    const sendMax  = lerp(0.07, 0.42, focus);
     const sendMin  = lerp(0.0,  0.08, focus);
 
-    // Tape Age affects tone & modulation
+    // Tape Age mapping
     const ageDark  = lerp(1.0, 0.7, age);
     const noiseBase= 0.01 + 0.06*age;
     const wowMul   = 1.0 + 0.8*age;
     const fltMul   = 1.0 + 0.6*age;
 
-    // Mode voicing on master filter + makeup gain
+    // Mode voicing + makeup
     if (mode==='AM'){
       masterFilter.type = 'bandpass';
       masterFilter.Q.setTargetAtTime(1.8 + 2.0*focus, ctx.currentTime, 0.1);
       masterFilter.frequency.setTargetAtTime(1400 + 1600*focus, ctx.currentTime, 0.1);
-      modeMakeup.gain.setTargetAtTime(1.25, ctx.currentTime, 0.1); // AM makeup
+      modeMakeup.gain.setTargetAtTime(1.25, ctx.currentTime, 0.1);
     } else {
       masterFilter.type = 'lowpass';
       masterFilter.Q.setTargetAtTime(0.0001, ctx.currentTime, 0.1);
@@ -328,60 +391,83 @@
       modeMakeup.gain.setTargetAtTime(1.0, ctx.currentTime, 0.1);
     }
 
-    // Per-layer weighting + per-layer FX mapping
+    // Per-layer processing
     let maxW = 0;
     for (let i=0;i<NUM;i++){
       const L = ring[i];
-      // circular distance from p
+      // circular distance
       let d = Math.abs(i - p); d = Math.min(d, NUM - d);
-      const w = clamp(1 - d/spread, 0, 1); // 0..1
+      const w = clamp(1 - d/spread, 0, 1);
       if (w > maxW) maxW = w;
 
-      // GAIN
+      // Gain
       L.gain.gain.setTargetAtTime(w, ctx.currentTime, 0.05);
 
-      // PAN (non-linear for stronger edge emphasis)
+      // Pan (non-linear)
       let delta = i - p;
       if (delta >  NUM/2) delta -= NUM;
       if (delta < -NUM/2) delta += NUM;
       const side = (delta >= 0) ? +1 : -1;
-      const nonlin = Math.pow(1 - w, 0.65); // emphasize width when far
-      const panAmt = side * panRange * nonlin;
-      L.panner.pan.setTargetAtTime(panAmt, ctx.currentTime, 0.06);
+      const nonlin = Math.pow(1 - w, 0.65);
+      L.panner.pan.setTargetAtTime(side * panRange * nonlin, ctx.currentTime, 0.06);
 
-      // LPF per layer
+      // LPF per layer + age darkening
       const nearCut = lpfNear * ageDark;
-      const farCut  = lpfFar * ageDark * (mode==='AM'?0.9:1.0);
+      const farCut  = lpfFar  * ageDark * (mode==='AM'?0.9:1.0);
       const cut = lerp(farCut, nearCut, w);
       L.lp.frequency.setTargetAtTime(cut, ctx.currentTime, 0.08);
 
-      // Reverb send per layer (post-panner)
-      const send = lerp(sendMax, sendMin, w);
-      L.send.gain.setTargetAtTime(send, ctx.currentTime, 0.08);
+      // Reverb send
+      L.send.gain.setTargetAtTime(lerp(sendMax, sendMin, w), ctx.currentTime, 0.08);
 
-      // Wow/flutter LFOs on playbackRate (very subtle)
+      // Wow/flutter
       const tSec = performance.now()/1000;
       const wow = L.phaseLFO.wowAmp * wowMul * Math.sin(2*Math.PI*L.phaseLFO.wowHz*tSec);
       const flt = L.phaseLFO.fltAmp * fltMul * Math.sin(2*Math.PI*L.phaseLFO.fltHz*tSec + i);
       const pr = 1.0 + wow + flt;
       L.src.playbackRate.setTargetAtTime(pr, ctx.currentTime, 0.2);
 
-      // occasional loop nudge
+      // Loop nudge & occasional micro-splice (gain dip during jump)
       const nowMs = performance.now();
       if (nowMs > L.loopTimer.next){
         const b = L.src.buffer, span = Math.min(12, b.duration);
         const c = Math.random() * Math.max(0, b.duration - span);
         L.src.loopStart = c + (Math.random()*0.2 - 0.1);
         L.src.loopEnd   = Math.min(b.duration, L.src.loopStart + span);
-        L.loopTimer.next = nowMs + 4000 + Math.random()*4000;
+        L.loopTimer.next = nowMs + 2500 + Math.random()*3500;
+      }
+      if (nowMs > L.spliceTimer.next){
+        // micro jump 50–150ms, brief fade
+        const jump = (Math.random()*0.1 + 0.05);
+        const b = L.src.buffer;
+        const newStart = Math.min(b.duration - 0.2, Math.max(0, L.src.loopStart + jump));
+        const now = ctx.currentTime;
+        const cur = L.gain.gain.value || 1;
+        L.gain.gain.setTargetAtTime(cur*0.7, now, 0.01);
+        L.src.loopStart = newStart;
+        L.gain.gain.setTargetAtTime(w, now + 0.05, 0.05);
+        L.spliceTimer.next = nowMs + 3000 + Math.random()*7000;
       }
     }
 
     // Noise ducks under loudest; AM slightly hissier
     noiseGain.gain.setTargetAtTime(noiseBase * (1 - maxW) * (mode==='AM'?1.3:1.0), ctx.currentTime, 0.1);
+
+    // LED lock: require solid center (maxW>=0.9) for 500ms
+    if (maxW >= 0.9){
+      if (!lockArmed){
+        lockArmed = true;
+        if (lockTimer) clearTimeout(lockTimer);
+        lockTimer = setTimeout(()=>{ setLED(true); pickName(); }, 500);
+      }
+    } else {
+      lockArmed = false;
+      if (lockTimer) { clearTimeout(lockTimer); lockTimer = null; }
+      setLED(false);
+    }
   }
 
-  // Station swap: when dial crosses a clear slot change (with hysteresis)
+  // Station swap: when passing clear slot change (with hysteresis)
   const SWAP_MARGIN = 0.25;
   function maybeSwap(){
     const idx = Math.round(p) % NUM;
@@ -392,12 +478,9 @@
     const old = ring[far];
     const freshFile = files[Math.floor(Math.random()*files.length)];
     const incoming = createLayer(freshFile, 0);
-
-    // soft crossfade: old → 0, incoming → 0.5 (weights will take over)
     old.gain.gain.setTargetAtTime(0, ctx.currentTime, 0.15);
     incoming.gain.gain.setTargetAtTime(0.5, ctx.currentTime, 0.15);
     setTimeout(()=>{ try{ old.src.stop() }catch(_){ } }, 400);
-
     ring[far] = incoming;
     lastPIndex = idx;
   }
@@ -437,29 +520,30 @@
       }));
       const between = Math.max(0, Math.min(1, nearest / 0.6));
 
-      // mid gray ticks; every 5th taller
+      // mid gray ticks; every 5th taller (tape ruler style)
       g.strokeStyle = `rgba(80,80,80,${0.35 + 0.35*between})`;
       g.lineWidth = 1;
       g.beginPath();
       const spacing = 18;
       const off = (p * spacing * 1.2) % spacing;
-      for (let i= -Math.ceil(c.width/spacing)-1, n=0; i < Math.ceil(c.width/spacing)+1; i++, n++){
-        const x = (i*spacing) - off;
+      let n = 0;
+      for (let x = -off; x < c.width; x += spacing){
         const tall = (n % 5 === 0);
         const h = tall ? c.height : c.height * 0.5;
         const y0 = tall ? 0 : (c.height - h)/2;
         g.moveTo(x, y0); g.lineTo(x, y0 + h);
+        n++;
       }
       g.stroke();
 
-      // center needle
-      g.strokeStyle = '#000'; g.lineWidth = 1.2;
+      // center needle (thicker)
+      g.strokeStyle = '#000'; g.lineWidth = 2.4;
       g.beginPath(); g.moveTo(c.width/2, 0); g.lineTo(c.width/2, c.height); g.stroke();
     }
     loop();
   }
 
-  // Master update tick (audio params + swap)
+  // Master tick
   let lastTs = 0;
   function tick(ts=0){
     requestAnimationFrame(tick);
@@ -470,10 +554,12 @@
   // ===== Start =====
   startButton.addEventListener('click', async ()=>{
     await ctx.resume();
-    if (!noiseStarted) { try { noiseSrc.start() } catch(_){} noiseStarted = true; }
+    if (!noiseStarted) { try { noiseSrc.start() } catch(_){ } noiseStarted = true; }
 
     loader.style.display = 'none';
     wave.style.display = 'block'; tuner.style.display = 'block';
+    lockDisplay.style.display = 'flex';
+
     initRing(); drawWave(); drawTuner(); tick();
 
     // Start degradation schedulers
