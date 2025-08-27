@@ -3,256 +3,267 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-<title>Leyletters — Leylines Typo Spinoff</title>
+<title>Leyletters – Modular Bauhaus Tiles</title>
 <style>
-  html, body { margin:0; height:100%; overflow:hidden; background:#A1A37A; }
-  canvas { display:block; }
-  /* disable scroll and gestures on mobile */
-  body, canvas { touch-action:none; }
+  html,body { margin:0; height:100%; overflow:hidden; background:#E9E6DB; }
+  canvas { display:block; touch-action:none; }
   .hint {
-    position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%);
-    font: 12px/1.4 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    color: rgba(255,255,255,.9);
-    background: rgba(0,0,0,.25);
-    padding: 8px 10px; border-radius: 8px; pointer-events:none; user-select:none;
+    position:fixed; left:50%; bottom:12px; transform:translateX(-50%);
+    font:12px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    color:#222; background:rgba(255,255,255,0.7);
+    padding:6px 10px; border-radius:8px; pointer-events:none; user-select:none;
   }
 </style>
-<!-- p5 for visuals -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
-<!-- Tone for audio -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.min.js"></script>
 </head>
 <body>
-<div class="hint">tap/click to start • swipe L/R = speed • swipe U/D = thickness/brightness • pinch = size/pitch • rotate = rounding/reverb</div>
+<div class="hint">swipe L/R = flow • swipe U/D = size • pinch = rounding • rotate / wheel = palette • double-tap = reseed</div>
 
 <script>
-// ———————————————————————————————————————————————
-// Leyletters (single-file) — superellipse “letters” + audio
-// ———————————————————————————————————————————————
+/* ---------------------------------------------------------
+   Leyletters — modular geometric tiles (Bauhaus inspo)
+   --------------------------------------------------------- */
 
-// Visual state
-let t = 0;
-let speed = 0.35;             // 0..1 (flow + tremolo rate)
-let thickness = 6;            // stroke px (maps to filter brightness)
-let sizeScale = 0.85;         // 0.6..1.3 (glyph size + pitch)
-let roundExp = 2.2;           // superellipse exponent (1.2..8) (rounding + reverb)
-let deformAmt = 0.18;         // radial wobble amount
-let showTwo = true;           // draw 2 glyphs (toggle by key '2')
+// palettes (bg, ink)
+const PALETTES = [
+  { bg:"#E9E6DB", ink:"#0E234B" },          // warm beige + deep navy
+  { bg:"#E9E6DB", ink:"#111111" },          // beige + black
+  { bg:"#F1EFE6", ink:"#325A8C" },          // light paper + bauhaus blue
+  { bg:"#F3F1E8", ink:"#3C6E71" },          // sage blue-green
+  { bg:"#EFE7D7", ink:"#2D2A26" },          // newsprint + coal
+];
 
-// Gesture helpers
-let dragging = false;
-let lastX = 0, lastY = 0;
+let paletteIndex = 0;
 
-// 2-finger gestures
-let initTouches = [];
-function dist2(a,b){ const dx=a.x-b.x, dy=a.y-b.y; return Math.hypot(dx,dy); }
-function angle2(a,b){ return Math.atan2(b.y-a.y, b.x-a.x); }
+// grid state
+let cols, rows, tile;
+let tiles = [];  // array of tile objects {type, rot, flip, phase}
+let seed = Math.floor(Math.random()*1e9);
 
-// Audio
-let audioStarted = false;
-let filterNode, tremoloNode, reverbNode, limiter, compressor, pure, rich, chordLoop;
+// morph params
+let flowSpeed = 0.35;     // 0..1 (affects wobble motion)
+let wobbleAmp = 0.12;     // 0..0.3
+let shapeScale = 0.78;    // 0.5..1.0 (amount of solid in each tile)
+let roundness  = 0.55;    // 0..1 (0 = rect, 1 = capsule/circle)
 
-// Scale (happy)
-const scaleNotes = ['C4','D4','E4','G4','A4','C5','D5','E5'];
+// gestures
+let dragging=false, lastX=0, lastY=0;
+let touchStartData = [];
 
-// ——— Setup p5
 function setup(){
   createCanvas(windowWidth, windowHeight);
-  stroke(255); noFill(); strokeCap(ROUND); strokeJoin(ROUND);
-  textFont('system-ui'); textSize(14);
+  randomSeed(seed);
+  buildGrid();
 }
 
-// ——— Superellipse points (vector-like “O”)
-function superellipsePoints(cx, cy, rx, ry, n, steps=360, phase=0){
-  const pts = [];
-  const nn = n; // exponent
-  for(let i=0;i<steps;i++){
-    const a = (i/steps) * TAU;
-    const ca = Math.cos(a), sa = Math.sin(a);
-    // superellipse param
-    const x = Math.sign(ca) * Math.pow(Math.abs(ca), 2/nn) * rx;
-    const y = Math.sign(sa) * Math.pow(Math.abs(sa), 2/nn) * ry;
-    // subtle radial deformation
-    const rWob = 1 + deformAmt * Math.sin(5*a + phase);
-    pts.push({x: cx + x * rWob, y: cy + y * rWob});
+function windowResized(){
+  resizeCanvas(windowWidth, windowHeight);
+  buildGrid();
+}
+
+function buildGrid(){
+  // pick tile size that fits nicely
+  const target = 120; // px
+  cols = max(3, floor(width / target));
+  tile = width / cols;
+  rows = max(4, floor(height / tile));
+  tile = min(tile, height/rows); // keep square cells
+
+  // re-seed tiles
+  tiles = [];
+  randomSeed(seed);
+  const types = 13; // # of primitive glyphs below
+  for (let r=0; r<rows; r++){
+    for (let c=0; c<cols; c++){
+      tiles.push({
+        type: floor(random(types)),
+        rot:  floor(random(4)),
+        flip: random()<0.5?1:-1,
+        phase: random(TAU)
+      });
+    }
   }
-  return pts;
-}
-
-function drawGlyph(cx, cy, scale, exp, thk, phase=0){
-  const rx = min(width, height) * 0.28 * scale;
-  const ry = rx;
-  const pts = superellipsePoints(cx, cy, rx, ry, exp, 240, phase);
-  strokeWeight(thk);
-  beginShape();
-  for (const p of pts) vertex(p.x, p.y);
-  endShape(CLOSE);
 }
 
 function draw(){
-  // pastel bg (subtle hue shift from parameters)
-  colorMode(HSL, 360, 100, 100);
-  const hue = 110 + (roundExp-2.2)*8 + (speed-0.35)*20;
-  const sat = 12 + deformAmt*40;
-  const lit = 85 - (thickness/16)*10;
-  background(hue, sat, lit);
-  colorMode(RGB);
+  const pal = PALETTES[paletteIndex % PALETTES.length];
+  background(pal.bg);
+  noStroke();
+  const t = millis()/1000;
 
-  // animate phase by speed
-  t += speed * 0.02;
+  // shadows / ink
+  fill(pal.ink);
 
-  // draw one or two big glyphs
-  const cx = width*0.5, cy = height*0.5;
-  drawGlyph(cx - (showTwo? width*0.18:0), cy, sizeScale, roundExp, thickness, t);
-  if (showTwo) drawGlyph(cx + width*0.18, cy, sizeScale, roundExp, thickness, t+PI/4);
+  // layout padding for poster feel
+  const margin = tile*0.08;
+  const startX = (width  - cols*tile)/2;
+  const startY = (height - rows*tile)/2;
+
+  for (let r=0; r<rows; r++){
+    for (let c=0; c<cols; c++){
+      const i = r*cols + c;
+      const obj = tiles[i];
+      const x = startX + c*tile + margin;
+      const y = startY + r*tile + margin;
+      const s = tile - margin*2;
+
+      push();
+      translate(x+s/2, y+s/2);
+
+      // subtle flowing offset per row/col (wavy posters)
+      const flow = sin( (t* (0.2 + flowSpeed*1.8)) + r*0.5 + obj.phase ) * wobbleAmp * s;
+      translate(flow, 0);
+
+      rotate(obj.rot * HALF_PI);
+
+      // draw primitive
+      drawGlyph(obj.type, s, shapeScale, roundness);
+      pop();
+    }
+  }
 }
 
-// ———————————————————————————————————————————————
-// Input (mobile + desktop)
-// ———————————————————————————————————————————————
-function touchStarted(){
-  if (!audioStarted) startAudio();  // unlock audio on first gesture
-  initTouches = touches.map(t=>({x:t.x,y:t.y}));
-  if (touches.length===1){
-    dragging = true; lastX = touches[0].x; lastY = touches[0].y;
+// ---------------------------------------------------------
+// Primitive glyphs — built from circles, half/quarters,
+// bars and rounded rects. Everything obeys scale & rounding.
+// ---------------------------------------------------------
+function drawGlyph(type, s, k, r){
+  // k = shapeScale; r = roundness (0..1)
+  const inset = (1 - k) * s * 0.5;
+  const w = s - inset*2;
+  const h = w;
+  const rad = lerp(0, w*0.5, r);  // corner radius
+
+  rectMode(CENTER); ellipseMode(CENTER);
+  noStroke(); // solid ink shapes
+
+  switch(type){
+    case 0: // full circle
+      ellipse(0,0,w,w); break;
+
+    case 1: // half circle right
+      arc(0,0,w,w,-HALF_PI,HALF_PI,PIE); break;
+
+    case 2: // half circle left
+      arc(0,0,w,w,HALF_PI,-HALF_PI,PIE); break;
+
+    case 3: // half circle top
+      arc(0,0,w,w,PI,0,PIE); break;
+
+    case 4: // half circle bottom
+      arc(0,0,w,w,0,PI,PIE); break;
+
+    case 5: // quarter circle TL
+      arc(-w/2,-h/2,w,w,0,HALF_PI,PIE); break;
+
+    case 6: // quarter circle TR
+      arc( w/2,-h/2,w,w,HALF_PI,PI,PIE); break;
+
+    case 7: // quarter circle BL
+      arc(-w/2, h/2,w,w,-HALF_PI,0,PIE); break;
+
+    case 8: // quarter circle BR
+      arc( w/2, h/2,w,w,PI,PI+HALF_PI,PIE); break;
+
+    case 9: // vertical bar (rounded)
+      rect(0,0, w*0.42, h, rad); break;
+
+    case 10: // horizontal bar (rounded)
+      rect(0,0, w, h*0.42, rad); break;
+
+    case 11: // capsule horizontal
+      rect(0,0, w, h*0.58, w*0.5); break;
+
+    case 12: // capsule vertical
+      rect(0,0, w*0.58, h, h*0.5); break;
   }
+
+  // Optional thin strokes overlay to echo poster wire feel:
+  stroke(0,20); noFill();
+  const lw = max(1, s*0.004);
+  strokeWeight(lw);
+  rect(0,0,w,h, rad*0.6);
+}
+
+// ---------------------------------------------------------
+// Gestures
+// ---------------------------------------------------------
+function touchStarted(){
+  touchStartData = touches.map(t=>({x:t.x,y:t.y}));
+  if (touches.length===1){ dragging=true; lastX=touches[0].x; lastY=touches[0].y; }
   return false;
 }
 function touchMoved(){
   if (touches.length===1 && dragging){
     const dx = touches[0].x - lastX;
     const dy = touches[0].y - lastY;
-    // L/R → speed
-    speed = constrain(speed + dx / width, 0.02, 1.0);
-    // U/D → thickness & brightness feel
-    thickness = constrain(thickness - dy * 0.03, 1, 16);
-    // deform subtly scales with speed
-    deformAmt = map(speed, 0.02, 1.0, 0.08, 0.25, true);
+    // L/R: flow speed & amplitude
+    flowSpeed = constrain(flowSpeed + dx/width, 0.0, 1.0);
+    wobbleAmp = constrain( map(flowSpeed, 0,1, 0.04, 0.28), 0.02, 0.3 );
+    // U/D: size (thickness)
+    shapeScale = constrain(shapeScale - dy*0.003, 0.45, 1.0);
 
-    // audio mappings live update
-    if (tremoloNode){ tremoloNode.frequency.value = map(speed, 0.02, 1.0, 1.2, 9); }
-    if (filterNode){  filterNode.frequency.rampTo(map(thickness,1,16, 4500, 400), 0.2); }
-
-    lastX = touches[0].x; lastY = touches[0].y;
+    lastX=touches[0].x; lastY=touches[0].y;
   }
-  else if (touches.length===2 && initTouches.length===2){
-    const [a0,b0] = initTouches;
+  else if (touches.length===2 && touchStartData.length===2){
+    const [a0,b0] = touchStartData;
     const [a1,b1] = touches;
-    // pinch → sizeScale
-    const d0 = dist2(a0,b0), d1 = dist2(a1,b1);
-    if (d0>0){
+    // pinch = rounding
+    const d0 = dist(a0.x,a0.y,b0.x,b0.y);
+    const d1 = dist(a1.x,a1.y,b1.x,b1.y);
+    if (d0>0) {
       const ratio = d1/d0;
-      sizeScale = constrain(sizeScale * ratio, 0.6, 1.3);
-      // map to chord transpose: -4..+4 semitones
-      const semis = Math.round(map(sizeScale,0.6,1.3,-4,4));
-      transposeSemis = semis; // global used in playChord()
+      roundness = constrain(roundness * ratio, 0.02, 0.98);
     }
-    // rotate → rounding exponent
-    const ang0 = angle2(a0,b0);
-    const ang1 = angle2(a1,b1);
-    let delta = ang1 - ang0;
-    // wrap
-    delta = (delta + PI) % (TAU) - PI;
-    roundExp = constrain(roundExp + delta*0.6, 1.2, 8.0);
-    if (reverbNode) reverbNode.wet.rampTo(map(roundExp,1.2,8.0, 0.65, 0.05), 0.4);
-
-    // update baseline for smooth gesture
-    initTouches = touches.map(t=>({x:t.x,y:t.y}));
+    // rotate = palette cycle (small threshold)
+    const ang0 = atan2(b0.y-a0.y, b0.x-a0.x);
+    const ang1 = atan2(b1.y-a1.y, b1.x-a1.x);
+    if (abs(ang1-ang0) > 0.25) {
+      paletteIndex = (paletteIndex + (ang1>ang0?1:-1) + PALETTES.length) % PALETTES.length;
+      // also update page bg to match
+      document.body.style.background = PALETTES[paletteIndex].bg;
+    }
+    touchStartData = touches.map(t=>({x:t.x,y:t.y}));
   }
   return false;
 }
 function touchEnded(){
-  dragging = false;
-  initTouches = [];
+  dragging=false; touchStartData=[];
+  // double-tap reseed
+  if (touches.length===0){
+    if (!touchEnded.last) touchEnded.last = {time:0};
+    const now = millis();
+    if (now - touchEnded.last.time < 300) { reseed(); }
+    touchEnded.last.time = now;
+  }
   return false;
 }
 
-// Desktop: map mouse to same logic
-function mousePressed(){ if (!audioStarted) startAudio(); dragging = true; lastX=mouseX; lastY=mouseY; return false; }
+// Desktop equivalents
+function mousePressed(){ dragging=true; lastX=mouseX; lastY=mouseY; return false; }
 function mouseDragged(){
-  if (dragging){
-    const dx = mouseX - lastX, dy = mouseY - lastY;
-    speed = constrain(speed + dx / width, 0.02, 1.0);
-    thickness = constrain(thickness - dy * 0.03, 1, 16);
-    deformAmt = map(speed, 0.02, 1.0, 0.08, 0.25, true);
-    if (tremoloNode){ tremoloNode.frequency.value = map(speed, 0.02, 1.0, 1.2, 9); }
-    if (filterNode){  filterNode.frequency.rampTo(map(thickness,1,16, 4500, 400), 0.2); }
-    lastX=mouseX; lastY=mouseY;
-  }
-  return false;
+  const dx = mouseX-lastX, dy = mouseY-lastY;
+  flowSpeed = constrain(flowSpeed + dx/width, 0.0, 1.0);
+  wobbleAmp = constrain( map(flowSpeed, 0,1, 0.04, 0.28), 0.02, 0.3 );
+  shapeScale = constrain(shapeScale - dy*0.003, 0.45, 1.0);
+  lastX=mouseX; lastY=mouseY; return false;
 }
 function mouseReleased(){ dragging=false; return false; }
+function doubleClicked(){ reseed(); return false; }
 function mouseWheel(e){
-  // wheel = rounding (like rotate)
-  roundExp = constrain(roundExp + (-e.deltaY)*0.0025, 1.2, 8.0);
-  if (reverbNode) reverbNode.wet.rampTo(map(roundExp,1.2,8.0, 0.65, 0.05), 0.4);
+  // wheel = palette cycle (or fine rounding)
+  if (e.shiftKey){
+    roundness = constrain(roundness + (-e.deltaY)*0.0008, 0.02, 0.98);
+  } else {
+    paletteIndex = (paletteIndex + (e.deltaY>0?1:-1) + PALETTES.length) % PALETTES.length;
+    document.body.style.background = PALETTES[paletteIndex].bg;
+  }
   return false;
 }
-function keyTyped(){
-  if (key === '2') showTwo = !showTwo;
-}
 
-// ———————————————————————————————————————————————
-// AUDIO: gentle drone + dynamics (limiter+compressor)
-// ———————————————————————————————————————————————
-let transposeSemis = 0;
-
-async function startAudio(){
-  try{
-    await Tone.start();
-    const ctx = Tone.getContext().rawContext;
-    if (ctx.state !== 'running') await ctx.resume();
-
-    // Master headroom and dynamics
-    Tone.Destination.volume.value = -6;
-    compressor = new Tone.Compressor({ threshold:-24, ratio:3, attack:0.02, release:0.3 }).toDestination();
-    limiter    = new Tone.Limiter(-6).connect(compressor);
-
-    // FX & synths
-    filterNode = new Tone.Filter(1500, 'lowpass');       // brightness via thickness
-    tremoloNode= new Tone.Tremolo(2, 0.25).start();      // rate via speed
-    reverbNode = new Tone.Reverb({ decay: 3, wet: 0.2 }).connect(limiter);
-
-    filterNode.connect(tremoloNode);
-    tremoloNode.connect(reverbNode);
-
-    pure = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type:'sine' },
-      envelope:   { attack:0.6, decay:0.2, sustain:0.7, release:1.6 }
-    }).connect(filterNode);
-    pure.volume.value = -20;
-
-    rich = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type:'triangle' },
-      envelope:   { attack:0.2, decay:0.5, sustain:0.35, release:1.6 }
-    }).connect(filterNode);
-    rich.volume.value = -26;
-
-    // Start a looping chord (every bar)
-    Tone.Transport.start();
-    chordLoop = new Tone.Loop(playChord, '1m').start(0);
-
-    // Initialize param→audio mappings
-    tremoloNode.frequency.value = map(speed, 0.02, 1.0, 1.2, 9);
-    filterNode.frequency.value  = map(thickness, 1, 16, 4500, 400);
-    reverbNode.wet.value        = map(roundExp, 1.2, 8.0, 0.65, 0.05);
-  } catch(e){
-    console.warn('Audio init error:', e);
-  }
-}
-
-function playChord(time){
-  // pick triad from scale by speed; transpose by pinch
-  let idx = floor(map(speed, 0.02, 1.0, 0, scaleNotes.length-3));
-  idx = constrain(idx, 0, scaleNotes.length-3);
-  let chord = [scaleNotes[idx], scaleNotes[idx+1], scaleNotes[idx+2]];
-
-  if (transposeSemis){
-    chord = chord.map(n => Tone.Frequency(n).transpose(transposeSemis).toNote());
-  }
-
-  pure.triggerAttackRelease(chord, '1m', time);
-  rich.triggerAttackRelease(chord, '1m', time);
+function reseed(){
+  seed = Math.floor(Math.random()*1e9);
+  buildGrid();
 }
 </script>
 </body>
