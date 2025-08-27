@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-<title>Leyletters – fixed grid, morph + sound</title>
+<title>Leyletters – Bauhaus Grid</title>
 <style>
   html,body { margin:0; height:100%; overflow:hidden; background:#E9E6DB; }
   canvas { display:block; touch-action:none; }
-  .hint {
+  .hint{
     position:fixed; left:50%; bottom:12px; transform:translateX(-50%);
-    font:12px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-    color:#222; background:rgba(255,255,255,0.75);
+    font:12px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    color:#222; background:rgba(255,255,255,.78);
     padding:6px 10px; border-radius:8px; pointer-events:none; user-select:none;
   }
 </style>
@@ -18,26 +18,25 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.min.js"></script>
 </head>
 <body>
-<div class="hint">tap/click to start • L/R = rate • U/D = size/brightness • pinch = rounding/transpose • rotate/wheel = palette</div>
+<div class="hint">tap/click to start • L/R=rate • U/D=size/brightness • pinch=rounding/transpose • rotate/wheel=palette • double-tap=remix</div>
 
 <script>
-// ---------------------- palettes ----------------------
+/* ===================== Palettes ===================== */
 const PALETTES = [
-  { bg:"#E9E6DB", ink:"#0E234B" }, // beige / navy
-  { bg:"#E9E6DB", ink:"#111111" }, // beige / black
-  { bg:"#F1EFE6", ink:"#325A8C" }, // paper / blue
-  { bg:"#EFE7D7", ink:"#2D2A26" }, // newsprint / coal
-  { bg:"#EEEAE0", ink:"#3C6E71" }, // pebble / sage-blue
+  { bg:"#E9E6DB", ink:"#0E234B" },  // beige / navy
+  { bg:"#E9E6DB", ink:"#111111" },  // beige / black
+  { bg:"#F1EFE6", ink:"#325A8C" },  // paper / bauhaus blue
+  { bg:"#EFE7D7", ink:"#2D2A26" },  // newsprint / coal
+  { bg:"#EEEAE0", ink:"#3C6E71" },  // pebble / sage blue
 ];
 let paletteIndex = 0;
 
-// ---------------------- grid ----------------------
+/* ===================== Grid ===================== */
 let cols, rows, tile, tiles=[];
-let shapeScale = 0.78;   // 0.45..1.0 (amount of solid)
-let roundness  = 0.55;   // 0.05..0.95
+let shapeScale = 0.9;      // can exceed 1 → overscale into cell
+let roundness  = 0.6;      // 0.05..1.15 (extreme rounding)
 let seed = Math.floor(Math.random()*1e9);
 
-// fixed grid, no horizontal sine motion
 function buildGrid(){
   const target = 120; // px
   cols = max(3, floor(windowWidth / target));
@@ -50,7 +49,11 @@ function buildGrid(){
   const types = 13;
   for (let r=0;r<rows;r++){
     for (let c=0;c<cols;c++){
-      tiles.push({type: floor(random(types)), rot: floor(random(4))});
+      tiles.push({
+        type: floor(random(types)),
+        rot:  floor(random(4)),
+        mode: random()<0.55 ? 'solid' : 'outline'  // per-tile style
+      });
     }
   }
 }
@@ -59,17 +62,15 @@ function setup(){
   createCanvas(windowWidth, windowHeight);
   document.body.style.background = PALETTES[paletteIndex].bg;
   buildGrid();
-  noLoop(); // static by default (no sine motion) — we redraw on param changes
-  draw();   // initial frame
+  noLoop();  // static: redraw only on parameter changes
+  draw();    // first frame
 }
-
 function windowResized(){ resizeCanvas(windowWidth, windowHeight); buildGrid(); redraw(); }
 
-// ---------------------- draw ----------------------
+/* ===================== Draw ===================== */
 function draw(){
   const pal = PALETTES[paletteIndex % PALETTES.length];
   background(pal.bg);
-  noStroke(); fill(pal.ink);
 
   const margin = tile*0.08;
   const startX = (width  - cols*tile)/2;
@@ -85,64 +86,96 @@ function draw(){
       push();
       translate(x+s/2, y+s/2);
       rotate(obj.rot * HALF_PI);
-      drawGlyph(obj.type, s, shapeScale, roundness);
+
+      // ---- clip to the cell so overscaled shapes don't bleed outside
+      const ctx = drawingContext;
+      ctx.save();
+      ctx.beginPath(); ctx.rect(-s/2, -s/2, s, s); ctx.clip();
+
+      drawGlyph(obj.type, s, shapeScale, roundness, obj.mode, pal.ink);
+
+      ctx.restore();
       pop();
     }
   }
 }
 
-// primitives
-function drawGlyph(type, s, k, r){
+// primitives (circle/halves/quarters/bars/capsules)
+function drawGlyph(type, s, k, r, mode, ink){
+  // allow scale > 1.0 (overshoot); < 0.45 still okay
   const inset = (1 - k) * s * 0.5;
-  const w = s - inset*2, h = w;
-  const rad = lerp(0, w*0.5, r);
-  rectMode(CENTER); ellipseMode(CENTER); noStroke(); fill(PALETTES[paletteIndex].ink);
+  const w = s - inset*2;
+  const h = w;
+  const rad = min(w*0.58, max(0, lerp(0, w*0.9, constrain(r,0,1.15))));
+
+  // style
+  const strokeW = max(1, s * (0.015 + (1-k)*0.03)); // thicker when small
+  if (mode === 'solid'){ fill(ink); noStroke(); }
+  else { noFill(); stroke(ink); strokeWeight(strokeW); strokeCap(ROUND); strokeJoin(ROUND); }
+
+  rectMode(CENTER); ellipseMode(CENTER);
 
   switch(type){
-    case 0: ellipse(0,0,w,w); break;                     // circle
-    case 1: arc(0,0,w,w,-HALF_PI,HALF_PI,PIE); break;    // half R
-    case 2: arc(0,0,w,w,HALF_PI,-HALF_PI,PIE); break;    // half L
-    case 3: arc(0,0,w,w,PI,0,PIE); break;                // half T
-    case 4: arc(0,0,w,w,0,PI,PIE); break;                // half B
-    case 5: arc(-w/2,-h/2,w,w,0,HALF_PI,PIE); break;     // quarter TL
-    case 6: arc( w/2,-h/2,w,w,HALF_PI,PI,PIE); break;    // quarter TR
-    case 7: arc(-w/2, h/2,w,w,-HALF_PI,0,PIE); break;    // quarter BL
-    case 8: arc( w/2, h/2,w,w,PI,PI+HALF_PI,PIE); break; // quarter BR
-    case 9: rect(0,0, w*0.42, h, rad); break;            // vertical bar
-    case 10: rect(0,0, w, h*0.42, rad); break;           // horizontal bar
-    case 11: rect(0,0, w, h*0.58, w*0.5); break;         // capsule H
-    case 12: rect(0,0, w*0.58, h, h*0.5); break;         // capsule V
+    case 0: // circle
+      if (mode==='solid') ellipse(0,0,w,w);
+      else ellipse(0,0,w,w);
+      break;
+
+    case 1: // half right
+      arc(0,0,w,w,-HALF_PI,HALF_PI, mode==='solid'?PIE:PIE); break;
+    case 2: // half left
+      arc(0,0,w,w,HALF_PI,-HALF_PI, mode==='solid'?PIE:PIE); break;
+    case 3: // half top
+      arc(0,0,w,w,PI,0, mode==='solid'?PIE:PIE); break;
+    case 4: // half bottom
+      arc(0,0,w,w,0,PI, mode==='solid'?PIE:PIE); break;
+
+    case 5: // quarter TL
+      arc(-w/2,-h/2,w,w,0,HALF_PI, mode==='solid'?PIE:PIE); break;
+    case 6: // quarter TR
+      arc( w/2,-h/2,w,w,HALF_PI,PI, mode==='solid'?PIE:PIE); break;
+    case 7: // quarter BL
+      arc(-w/2, h/2,w,w,-HALF_PI,0, mode==='solid'?PIE:PIE); break;
+    case 8: // quarter BR
+      arc( w/2, h/2,w,w,PI,PI+HALF_PI, mode==='solid'?PIE:PIE); break;
+
+    case 9: // vertical bar (rounded)
+      rect(0,0, w*0.42*(mode==='solid'?1:1), h, rad); break;
+    case 10: // horizontal bar (rounded)
+      rect(0,0, w, h*0.42*(mode==='solid'?1:1), rad); break;
+
+    case 11: // capsule H
+      rect(0,0, w, h*0.65, w*0.6); break;
+    case 12: // capsule V
+      rect(0,0, w*0.65, h, h*0.6); break;
   }
+
+  // OPTIONAL: subtle cell frame when outline mode dominates
+  // (comment out if you prefer totally flat)
+  // if (mode==='outline'){ noFill(); stroke(ink+'22'); strokeWeight(1); rect(0,0,s,s,6); }
 }
 
-// ---------------------- gestures ----------------------
-let dragging=false, lastX=0, lastY=0;
-let initTouches=[];
-
+/* ===================== Gestures ===================== */
+let dragging=false, lastX=0, lastY=0, initTouches=[];
 function touchStarted(){ initTouches = touches.map(t=>({x:t.x,y:t.y})); if (touches.length===1){ dragging=true; lastX=touches[0].x; lastY=touches[0].y; } maybeStartAudio(); return false; }
 function touchMoved(){
   if (touches.length===1 && dragging){
     const dx = touches[0].x - lastX;
     const dy = touches[0].y - lastY;
-    // L/R → pluck rate
-    rateVal = constrain(rateVal + dx/width, 0.02, 1.0);
-    applyRate();
-    // U/D → shape + brightness
-    shapeScale = constrain(shapeScale - dy*0.003, 0.45, 1.0);
-    const cutoff = map(shapeScale, 0.45, 1.0, 5000, 400);
-    if (filterNode) filterNode.frequency.rampTo(cutoff, 0.15);
+    rateVal = constrain(rateVal + dx/width, 0.02, 1.0); applyRate();
+    shapeScale = constrain(shapeScale - dy*0.004, 0.35, 1.35); // bigger range (overscale)
+    // brightness with scale
+    if (filterNode) filterNode.frequency.rampTo(map(shapeScale,0.35,1.35,5500,280), 0.15);
     lastX=touches[0].x; lastY=touches[0].y; redraw();
   }
   else if (touches.length===2 && initTouches.length===2){
-    const [a0,b0] = initTouches;
-    const [a1,b1] = touches;
+    const [a0,b0] = initTouches, [a1,b1] = touches;
     const d0 = dist(a0.x,a0.y,b0.x,b0.y), d1 = dist(a1.x,a1.y,b1.x,b1.y);
     if (d0>0){
       const ratio = d1/d0;
-      roundness = constrain(roundness * ratio, 0.05, 0.95);
+      roundness = constrain(roundness * ratio, 0.05, 1.15); // more extreme
+      transposeSemis = Math.round(map(roundness,0.05,1.15,-5,5));
       redraw();
-      // transpose -4..+4
-      transposeSemis = Math.round(map(roundness,0.05,0.95,-4,4));
     }
     const ang0 = atan2(b0.y-a0.y, b0.x-a0.x);
     const ang1 = atan2(b1.y-a1.y, b1.x-a1.x);
@@ -155,36 +188,46 @@ function touchMoved(){
   }
   return false;
 }
-function touchEnded(){ dragging=false; initTouches=[]; return false; }
-
-// Desktop
+function touchEnded(){
+  dragging=false; initTouches=[];
+  // double-tap to reseed composition (keeps current params)
+  if (touches.length===0){
+    if (!touchEnded.last) touchEnded.last = {time:0};
+    const now=millis();
+    if (now - touchEnded.last.time < 300){ seed = Math.floor(Math.random()*1e9); buildGrid(); redraw(); }
+    touchEnded.last.time = now;
+  }
+  return false;
+}
+// Desktop equivalents
 function mousePressed(){ dragging=true; lastX=mouseX; lastY=mouseY; maybeStartAudio(); return false; }
 function mouseDragged(){
-  const dx = mouseX-lastX, dy = mouseY-lastY;
+  const dx=mouseX-lastX, dy=mouseY-lastY;
   rateVal = constrain(rateVal + dx/width, 0.02, 1.0); applyRate();
-  shapeScale = constrain(shapeScale - dy*0.003, 0.45, 1.0);
-  if (filterNode) filterNode.frequency.rampTo(map(shapeScale,0.45,1.0,5000,400), 0.15);
+  shapeScale = constrain(shapeScale - dy*0.004, 0.35, 1.35);
+  if (filterNode) filterNode.frequency.rampTo(map(shapeScale,0.35,1.35,5500,280), 0.15);
   lastX=mouseX; lastY=mouseY; redraw(); return false;
 }
 function mouseReleased(){ dragging=false; return false; }
+function doubleClicked(){ seed = Math.floor(Math.random()*1e9); buildGrid(); redraw(); return false; }
 function mouseWheel(e){
-  // wheel = palette cycle (shift = fine rounding)
   if (e.shiftKey){
-    roundness = constrain(roundness + (-e.deltaY)*0.0008, 0.05, 0.95);
-    transposeSemis = Math.round(map(roundness,0.05,0.95,-4,4));
+    roundness = constrain(roundness + (-e.deltaY)*0.001, 0.05, 1.15);
+    transposeSemis = Math.round(map(roundness,0.05,1.15,-5,5));
+    redraw();
   } else {
     paletteIndex = (paletteIndex + (e.deltaY>0?1:-1) + PALETTES.length) % PALETTES.length;
-    document.body.style.background = PALETTES[paletteIndex].bg;
+    document.body.style.background = PALETTES[paletteIndex].bg; redraw();
   }
-  redraw(); return false;
+  return false;
 }
 
-// ---------------------- audio ----------------------
+/* ===================== Audio ===================== */
 let audioStarted=false;
 let filterNode, reverbNode, compressor, limiter;
 let pure, rich, pluck;
 let chordLoop, pluckLoop;
-let rateVal = 0.35;   // 0.02..1 → pluck speed
+let rateVal = 0.35; // 0.02..1
 let transposeSemis = 0;
 const scaleNotes = ['C4','D4','E4','G4','A4','C5','D5','E5'];
 
@@ -198,9 +241,9 @@ async function maybeStartAudio(){
   compressor = new Tone.Compressor({ threshold:-22, ratio:3, attack:0.01, release:0.25 }).toDestination();
   limiter    = new Tone.Limiter(-6).connect(compressor);
 
-  // fx chain
-  filterNode = new Tone.Filter(1500, 'lowpass');
-  reverbNode = new Tone.Reverb({ decay: 3.5, wet: 0.2 }).connect(limiter);
+  // FX chain
+  filterNode = new Tone.Filter(1500,'lowpass');
+  reverbNode = new Tone.Reverb({ decay:3.5, wet:0.2 }).connect(limiter);
   filterNode.connect(reverbNode);
 
   // synths
@@ -218,22 +261,19 @@ async function maybeStartAudio(){
 
   pluck = new Tone.Synth({
     oscillator:{ type:'sine' },
-    envelope:{ attack:0.01, decay:0.35, sustain:0.0, release:0.7 }
+    envelope:{ attack:0.012, decay:0.34, sustain:0.0, release:0.65 }
   }).connect(filterNode);
   pluck.volume.value = -18;
 
-  // transport
   Tone.Transport.start();
+  chordLoop = new Tone.Loop(playChord,'1m').start(0);
+  pluckLoop = new Tone.Loop(playPluck, 0.6).start(0);
+  applyRate();
 
-  chordLoop = new Tone.Loop(playChord, '1m').start(0);
-  pluckLoop = new Tone.Loop(playPluck, 0.6).start(0); // interval updated by applyRate()
-
-  applyRate(); // set initial rate & filter
   audioStarted = true;
 }
 
 function playChord(time){
-  // choose triad from speed (stable, soothing)
   let idx = floor(map(rateVal, 0.02, 1.0, 0, scaleNotes.length-3));
   idx = constrain(idx, 0, scaleNotes.length-3);
   let chord = [scaleNotes[idx], scaleNotes[idx+1], scaleNotes[idx+2]];
@@ -241,24 +281,19 @@ function playChord(time){
   pure.triggerAttackRelease(chord, '1m', time);
   rich.triggerAttackRelease(chord, '1m', time);
 }
-
 function playPluck(time){
-  // gentle arpeggio within the scale
   const i = floor(random(scaleNotes.length));
   let n = scaleNotes[i];
   if (transposeSemis) n = Tone.Frequency(n).transpose(transposeSemis).toNote();
-  // envelope varies with rate: slower = longer
   const atk = map(rateVal, 0.02, 1.0, 0.4, 0.01);
   const dec = map(rateVal, 0.02, 1.0, 0.8, 0.15);
   pluck.envelope.attack = atk;
   pluck.envelope.decay  = dec;
   pluck.triggerAttackRelease(n, '8n', time, 0.5);
 }
-
 function applyRate(){
-  // map rateVal → seconds interval & filter cutoff
   if (pluckLoop) pluckLoop.interval = map(rateVal, 0.02, 1.0, 2.5, 0.18);
-  if (filterNode) filterNode.frequency.rampTo(map(shapeScale,0.45,1.0,5000,400), 0.15);
+  if (filterNode) filterNode.frequency.rampTo(map(shapeScale,0.35,1.35,5500,280), 0.15);
 }
 </script>
 </body>
