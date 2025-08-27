@@ -71,7 +71,7 @@
     const masterGain = ctx.createGain(); masterGain.gain.value = 1;
     analyser.connect(masterGain); masterGain.connect(ctx.destination);
 
-    // Static noise bed
+    // --- Static noise bed (ducked under music) ---
     function makeNoiseBuffer(duration=2){
       const size = ctx.sampleRate * duration;
       const buf = ctx.createBuffer(1, size, ctx.sampleRate);
@@ -79,13 +79,14 @@
       for(let i=0;i<size;i++) d[i] = Math.random()*2-1;
       return buf;
     }
-    const noiseBuf = makeNoiseBuffer();
-    const noiseSrc = ctx.createBufferSource();
-    noiseSrc.buffer = noiseBuf;
-    noiseSrc.loop = true;
+    const noiseBuf  = makeNoiseBuffer();
+    const noiseSrc  = ctx.createBufferSource();
     const noiseGain = ctx.createGain();
-    noiseGain.gain.value = 0; // start muted
+    noiseSrc.buffer = noiseBuf;
+    noiseSrc.loop   = true;
+    noiseGain.gain.value = 0; // start muted; will be controlled in crossfade()
     noiseSrc.connect(noiseGain).connect(analyser);
+    let noiseStarted = false;
 
     // Load your samples
     const files = ['sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3'];
@@ -134,46 +135,67 @@
     }
 
     function shift(direction){
+      // direction < 0: left becomes center; > 0: right becomes center
       const fade = 1.0;
       if(direction<0){
-        // Left becomes center
-        // fade new center up
+        // Left -> Center
         leftNode.gain.gain.linearRampToValueAtTime(1, ctx.currentTime+fade);
         centerNode.gain.gain.linearRampToValueAtTime(0, ctx.currentTime+fade);
         rightNode.gain.gain.linearRampToValueAtTime(0, ctx.currentTime+fade);
-        // rotate files/nodes
-        rightNode.src.stop();
-        [rightFile,rightNode] = [centerFile, centerNode];
-        [centerFile,centerNode] = [leftFile, leftNode];
-        do { leftFile = files[Math.floor(Math.random()*files.length)]; }
-        while([leftFile,centerFile,rightFile].includes(leftFile));
+
+        rightNode.src.stop(); // discard previous right
+        [rightFile,rightNode]   = [centerFile, centerNode]; // old center moves to right (still connected)
+        [centerFile,centerNode] = [leftFile, leftNode];     // left becomes center
+
+        // new left
+        let nf;
+        do { nf = files[Math.floor(Math.random()*files.length)]; }
+        while([leftFile,centerFile,rightFile].includes(nf));
+        leftFile = nf;
         leftNode = createNode(leftFile, 0);
       } else {
-        // Right becomes center
+        // Right -> Center
         rightNode.gain.gain.linearRampToValueAtTime(1, ctx.currentTime+fade);
         centerNode.gain.gain.linearRampToValueAtTime(0, ctx.currentTime+fade);
         leftNode.gain.gain.linearRampToValueAtTime(0, ctx.currentTime+fade);
-        leftNode.src.stop();
-        [leftFile,leftNode] = [centerFile, centerNode];
-        [centerFile,centerNode] = [rightFile, rightNode];
-        do { rightFile = files[Math.floor(Math.random()*files.length)]; }
-        while([leftFile,centerFile,rightFile].includes(rightFile));
+
+        leftNode.src.stop(); // discard previous left
+        [leftFile,leftNode]     = [centerFile, centerNode]; // old center moves to left
+        [centerFile,centerNode] = [rightFile, rightNode];   // right becomes center
+
+        // new right
+        let nf;
+        do { nf = files[Math.floor(Math.random()*files.length)]; }
+        while([leftFile,centerFile,rightFile].includes(nf));
+        rightFile = nf;
         rightNode = createNode(rightFile, 0);
       }
     }
 
+    // --- Crossfade with static ducking ---
     function crossfade(val){
-      // val ∈ [-1,1]
+      // val ∈ [-1,1] from dial; 0=center, -1=full left, +1=full right
       const fadeTime = 0.1;
+
+      // Linear crossfade (side only hits 1.0 at extremes)
       const cGain = 1 - Math.abs(val);
       const lGain = Math.max(0, -val);
-      const rGain = Math.max(0, val);
-      centerNode.gain.gain.linearRampToValueAtTime(cGain, ctx.currentTime+fadeTime);
-      leftNode.gain.gain.linearRampToValueAtTime(lGain, ctx.currentTime+fadeTime);
-      rightNode.gain.gain.linearRampToValueAtTime(rGain, ctx.currentTime+fadeTime);
-      // noise fades out as any sample comes up
-      const noiseLevel = 0.05;
-      noiseGain.gain.linearRampToValueAtTime(noiseLevel * (1 - Math.min(1, Math.abs(val))), ctx.currentTime+fadeTime);
+      const rGain = Math.max(0,  val);
+
+      // (Optional equal-power curve; comment the three lines above and use:)
+      // const cGain = Math.cos((Math.abs(val) * Math.PI) / 2);
+      // const sGain = Math.sin((Math.abs(val) * Math.PI) / 2);
+      // const lGain = val < 0 ? sGain : 0, rGain = val > 0 ? sGain : 0;
+
+      centerNode.gain.gain.linearRampToValueAtTime(cGain, ctx.currentTime + fadeTime);
+      leftNode.gain.gain.linearRampToValueAtTime(lGain,   ctx.currentTime + fadeTime);
+      rightNode.gain.gain.linearRampToValueAtTime(rGain,  ctx.currentTime + fadeTime);
+
+      // Static: very quiet, and ducks against the loudest sample
+      const baseNoise = 0.02; // softer overall
+      const maxMus = Math.max(cGain, lGain, rGain);
+      const noiseTarget = baseNoise * (1 - maxMus);
+      noiseGain.gain.linearRampToValueAtTime(noiseTarget, ctx.currentTime + fadeTime);
     }
 
     // Draw waveform
@@ -199,23 +221,23 @@
       draw();
     }
 
-    // Attach rotary dial (two revs → [-1,1])
+    // Dial (two revolutions → [-1,1] mapping)
     function attachDial(){
       let angle=0, lastAng=0, drag=false;
       const thresh = 15; // degrees from 0/720
+
       knob.addEventListener('pointerdown', e=>{
         drag=true; knob.setPointerCapture(e.pointerId); knob.classList.add('active');
         const r=knob.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
         lastAng = Math.atan2(e.clientY-cy, e.clientX-cx)*180/Math.PI;
       });
+
       knob.addEventListener('pointermove', e=>{
         if(!drag) return;
         const r=knob.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
         const ang = Math.atan2(e.clientY-cy, e.clientX-cx)*180/Math.PI;
         let d = ang - lastAng; if(d>180) d-=360; if(d<-180) d+=360;
         angle+=d; lastAng=ang;
-        // start static
-        if(noiseSrc.playbackState!==noiseSrc.PLAYING_STATE) noiseSrc.start();
 
         // map two revs to [-1,1]
         const raw = ((angle%720)+720)%720;
@@ -225,14 +247,16 @@
         // shift at thresholds
         if(raw < thresh){
           shift(-1);
-          angle += 360;  // jump ahead one rev
+          angle += 360;  // keep continuity
         } else if(raw > 720-thresh){
           shift(1);
           angle -= 360;
         }
+
         knob.style.transform = `rotate(${angle}deg)`;
       });
-      ['pointerup','pointerleave'].forEach(ev=>
+
+      ['pointerup','pointerleave'].forEach(ev =>
         knob.addEventListener(ev, e=>{
           drag=false; knob.classList.remove('active'); knob.releasePointerCapture(e.pointerId);
         })
@@ -242,6 +266,13 @@
     // Start Listening
     startButton.addEventListener('click', async ()=>{
       await ctx.resume();
+
+      // Start static once, safely
+      if (!noiseStarted) {
+        noiseSrc.start();
+        noiseStarted = true;
+      }
+
       loader.style.display='none';
       initThree();
       wave.style.display='block';
