@@ -47,15 +47,15 @@ document.body.style.background = PALETTES[paletteIndex].bg;
 /* ---------------- grid config ---------------- */
 const ROWS = 4, COLS = 2;         // 2 columns × 4 rows = 8 steps
 const ORDER = Array.from({length:ROWS*COLS}, (_,i)=>({r:Math.floor(i/2), c:i%2})); // row-major
-let tile, startX, startY, shapeScale = 1.1; // fill the portrait nicely
+let tile, startX, startY, shapeScale = 1.1;
 
-// per-cell state: active, hard (0..1), shape (0..N-1), solid (fill vs outline)
+// per-cell state
 const SHAPES = ['circle','squircle','half','bar','pill','triangle'];
 let grid = [];
 function resetPattern(){
   grid = Array.from({length:ROWS}, (_,r)=>(
     Array.from({length:COLS},(_,c)=>({
-      active: (r===0 && c===0) || (r===2), // give a tiny starting groove
+      active: (r===0 && c===0) || (r===2),
       hard: 0.45 + (r*0.1),
       shape: (r + c) % SHAPES.length,
       solid: r%2===0
@@ -73,7 +73,6 @@ function setup(){
 }
 function windowResized(){ resizeCanvas(windowWidth, windowHeight); calcLayout(); redraw(); }
 function calcLayout(){
-  // big tiles: fit 2×4 with small margin
   const pad = min(width, height)*0.04;
   const wTile = (width - pad*2) / COLS;
   const hTile = (height - pad*2) / ROWS;
@@ -93,8 +92,12 @@ function draw(){
       const cell = grid[r][c];
       const x = startX + c*tile, y = startY + r*tile, s = tile;
 
-      // soft grid tile
-      fill(color(pal.ink + '12')); rect(x+0.75, y+0.75, s-1.5, s-1.5, 14);
+      // subtle tile panel
+      push();
+      drawingContext.globalAlpha = 0.07;
+      fill(pal.ink);
+      rect(x+0.75, y+0.75, s-1.5, s-1.5, 14);
+      pop();
 
       // shape
       const scl = constrain(shapeScale, 0.7, 1.35);
@@ -110,7 +113,7 @@ function draw(){
       else { noFill(); stroke(ink); strokeWeight(max(2, s*0.06)); }
 
       push(); translate(cx, cy); rectMode(CENTER); ellipseMode(CENTER);
-      drawShape(SHAPES[cell.shape], inner, radius, hard);
+      drawShape(SHAPES[cell.shape], inner, radius, hard, cell.solid);
       pop();
 
       // current step highlight (faint ring)
@@ -126,15 +129,25 @@ function draw(){
     }
   }
 }
-function drawShape(kind, size, rad, hard){
+
+/* fixed: no more getStyle(); use the 'solid' flag */
+function drawShape(kind, size, rad, hard, solid){
   switch(kind){
-    case 'circle': ellipse(0,0,size,size); break;
-    case 'squircle': rect(0,0,size,size, rad); break;
-    case 'pill': rect(0,0,size, size*0.5, size*0.5); break;
-    case 'bar': rect(0,0,size, size*0.28, rad*0.5); break;
+    case 'circle':
+      ellipse(0,0,size,size);
+      break;
+    case 'squircle':
+      rect(0,0,size,size, rad);
+      break;
+    case 'pill':
+      rect(0,0,size, size*0.5, size*0.5);
+      break;
+    case 'bar':
+      rect(0,0,size, size*0.28, rad*0.5);
+      break;
     case 'half':
-      if (getStyle().fillStyle) { arc(0,0,size,size, Math.PI, 0, PIE); }
-      else { arc(0,0,size,size, Math.PI, 0); }
+      if (solid) arc(0,0,size,size, Math.PI, 0, PIE);
+      else       arc(0,0,size,size, Math.PI, 0);
       break;
     case 'triangle':
       const h = size*0.55;
@@ -181,12 +194,10 @@ function pointerUp(x,y){
   const now = millis();
   const hit = cellAt(x,y);
   if (hit && editing && dist(x,y,lastX,lastY)<6){
-    // tap toggles step
     const cell = grid[hit.r][hit.c];
     cell.active = !cell.active;
     redraw();
   }
-  // double-tap cycles shape & toggles fill on long series
   if (now - tapT < 300 && hit){
     const cell = grid[hit.r][hit.c];
     if (keyIsDown(SHIFT)) cell.solid = !cell.solid;
@@ -276,10 +287,9 @@ async function maybeStartAudio(){
       bassHard.triggerAttackRelease(note,'8n',time,0.85);
     }
 
-    step++; // advance to next of the 8 cells
-    // redraw highlight
+    step++;
     if (!isLooping()) loop(); setTimeout(()=>noLoop(), 10);
-  }, '8n'); // 8 steps = nice with 8th notes
+  }, '8n');
 
   Tone.Transport.start();
   started = true;
@@ -294,10 +304,24 @@ async function startFromGesture(){
 }
 const overlay = document.getElementById('overlay');
 const startBtn = document.getElementById('startBtn');
-function hideOverlay(){ overlay.classList.add('hidden'); setTimeout(()=>{ overlay.style.display='none'; }, 380); }
+function hideOverlay(){ overlay.classList.add('hidden'); setTimeout(()=>{ overlay.style.display='none'; redraw(); }, 380); }
 function handleOverlayStart(ev){ ev.preventDefault(); (async()=>{ try{await Tone.start();}catch(e){} await maybeStartAudio(); hideOverlay(); })(); }
 startBtn.addEventListener('click', handleOverlayStart, {passive:false});
 overlay.addEventListener('touchstart', handleOverlayStart, {passive:false});
+
+/* ---------------- pointer glue ---------------- */
+function mousePressed(){ startFromGesture(); pointerDown(mouseX,mouseY); return false; }
+function mouseDragged(){ pointerMove(mouseX,mouseY); return false; }
+function mouseReleased(){ pointerUp(mouseX,mouseY); return false; }
+function touchStarted(){ startFromGesture(); pointerDown(touches[0].x,touches[0].y); return false; }
+function touchMoved(){ pointerMove(touches[0].x,touches[0].y); return false; }
+function touchEnded(){ pointerUp((touches[0]||{}).x||lastX,(touches[0]||{}).y||lastY); return false; }
+
+/* state vars used above */
+let started=false, step=0, bpm=112;
+let filterNode, reverbNode, comp, limit;
+let kick, snareNoise, snareTone, snareCF, hat, bassSoft, bassHard, bassX;
+
 </script>
 </body>
 </html>
