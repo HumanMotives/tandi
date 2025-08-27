@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+<title>Leyletters — Leylines Typo Spinoff</title>
+<style>
+  html, body { margin:0; height:100%; overflow:hidden; background:#A1A37A; }
+  canvas { display:block; }
+  /* disable scroll and gestures on mobile */
+  body, canvas { touch-action:none; }
+  .hint {
+    position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%);
+    font: 12px/1.4 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    color: rgba(255,255,255,.9);
+    background: rgba(0,0,0,.25);
+    padding: 8px 10px; border-radius: 8px; pointer-events:none; user-select:none;
+  }
+</style>
+<!-- p5 for visuals -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+<!-- Tone for audio -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.39/Tone.min.js"></script>
+</head>
+<body>
+<div class="hint">tap/click to start • swipe L/R = speed • swipe U/D = thickness/brightness • pinch = size/pitch • rotate = rounding/reverb</div>
+
+<script>
+// ———————————————————————————————————————————————
+// Leyletters (single-file) — superellipse “letters” + audio
+// ———————————————————————————————————————————————
+
+// Visual state
+let t = 0;
+let speed = 0.35;             // 0..1 (flow + tremolo rate)
+let thickness = 6;            // stroke px (maps to filter brightness)
+let sizeScale = 0.85;         // 0.6..1.3 (glyph size + pitch)
+let roundExp = 2.2;           // superellipse exponent (1.2..8) (rounding + reverb)
+let deformAmt = 0.18;         // radial wobble amount
+let showTwo = true;           // draw 2 glyphs (toggle by key '2')
+
+// Gesture helpers
+let dragging = false;
+let lastX = 0, lastY = 0;
+
+// 2-finger gestures
+let initTouches = [];
+function dist2(a,b){ const dx=a.x-b.x, dy=a.y-b.y; return Math.hypot(dx,dy); }
+function angle2(a,b){ return Math.atan2(b.y-a.y, b.x-a.x); }
+
+// Audio
+let audioStarted = false;
+let filterNode, tremoloNode, reverbNode, limiter, compressor, pure, rich, chordLoop;
+
+// Scale (happy)
+const scaleNotes = ['C4','D4','E4','G4','A4','C5','D5','E5'];
+
+// ——— Setup p5
+function setup(){
+  createCanvas(windowWidth, windowHeight);
+  stroke(255); noFill(); strokeCap(ROUND); strokeJoin(ROUND);
+  textFont('system-ui'); textSize(14);
+}
+
+// ——— Superellipse points (vector-like “O”)
+function superellipsePoints(cx, cy, rx, ry, n, steps=360, phase=0){
+  const pts = [];
+  const nn = n; // exponent
+  for(let i=0;i<steps;i++){
+    const a = (i/steps) * TAU;
+    const ca = Math.cos(a), sa = Math.sin(a);
+    // superellipse param
+    const x = Math.sign(ca) * Math.pow(Math.abs(ca), 2/nn) * rx;
+    const y = Math.sign(sa) * Math.pow(Math.abs(sa), 2/nn) * ry;
+    // subtle radial deformation
+    const rWob = 1 + deformAmt * Math.sin(5*a + phase);
+    pts.push({x: cx + x * rWob, y: cy + y * rWob});
+  }
+  return pts;
+}
+
+function drawGlyph(cx, cy, scale, exp, thk, phase=0){
+  const rx = min(width, height) * 0.28 * scale;
+  const ry = rx;
+  const pts = superellipsePoints(cx, cy, rx, ry, exp, 240, phase);
+  strokeWeight(thk);
+  beginShape();
+  for (const p of pts) vertex(p.x, p.y);
+  endShape(CLOSE);
+}
+
+function draw(){
+  // pastel bg (subtle hue shift from parameters)
+  colorMode(HSL, 360, 100, 100);
+  const hue = 110 + (roundExp-2.2)*8 + (speed-0.35)*20;
+  const sat = 12 + deformAmt*40;
+  const lit = 85 - (thickness/16)*10;
+  background(hue, sat, lit);
+  colorMode(RGB);
+
+  // animate phase by speed
+  t += speed * 0.02;
+
+  // draw one or two big glyphs
+  const cx = width*0.5, cy = height*0.5;
+  drawGlyph(cx - (showTwo? width*0.18:0), cy, sizeScale, roundExp, thickness, t);
+  if (showTwo) drawGlyph(cx + width*0.18, cy, sizeScale, roundExp, thickness, t+PI/4);
+}
+
+// ———————————————————————————————————————————————
+// Input (mobile + desktop)
+// ———————————————————————————————————————————————
+function touchStarted(){
+  if (!audioStarted) startAudio();  // unlock audio on first gesture
+  initTouches = touches.map(t=>({x:t.x,y:t.y}));
+  if (touches.length===1){
+    dragging = true; lastX = touches[0].x; lastY = touches[0].y;
+  }
+  return false;
+}
+function touchMoved(){
+  if (touches.length===1 && dragging){
+    const dx = touches[0].x - lastX;
+    const dy = touches[0].y - lastY;
+    // L/R → speed
+    speed = constrain(speed + dx / width, 0.02, 1.0);
+    // U/D → thickness & brightness feel
+    thickness = constrain(thickness - dy * 0.03, 1, 16);
+    // deform subtly scales with speed
+    deformAmt = map(speed, 0.02, 1.0, 0.08, 0.25, true);
+
+    // audio mappings live update
+    if (tremoloNode){ tremoloNode.frequency.value = map(speed, 0.02, 1.0, 1.2, 9); }
+    if (filterNode){  filterNode.frequency.rampTo(map(thickness,1,16, 4500, 400), 0.2); }
+
+    lastX = touches[0].x; lastY = touches[0].y;
+  }
+  else if (touches.length===2 && initTouches.length===2){
+    const [a0,b0] = initTouches;
+    const [a1,b1] = touches;
+    // pinch → sizeScale
+    const d0 = dist2(a0,b0), d1 = dist2(a1,b1);
+    if (d0>0){
+      const ratio = d1/d0;
+      sizeScale = constrain(sizeScale * ratio, 0.6, 1.3);
+      // map to chord transpose: -4..+4 semitones
+      const semis = Math.round(map(sizeScale,0.6,1.3,-4,4));
+      transposeSemis = semis; // global used in playChord()
+    }
+    // rotate → rounding exponent
+    const ang0 = angle2(a0,b0);
+    const ang1 = angle2(a1,b1);
+    let delta = ang1 - ang0;
+    // wrap
+    delta = (delta + PI) % (TAU) - PI;
+    roundExp = constrain(roundExp + delta*0.6, 1.2, 8.0);
+    if (reverbNode) reverbNode.wet.rampTo(map(roundExp,1.2,8.0, 0.65, 0.05), 0.4);
+
+    // update baseline for smooth gesture
+    initTouches = touches.map(t=>({x:t.x,y:t.y}));
+  }
+  return false;
+}
+function touchEnded(){
+  dragging = false;
+  initTouches = [];
+  return false;
+}
+
+// Desktop: map mouse to same logic
+function mousePressed(){ if (!audioStarted) startAudio(); dragging = true; lastX=mouseX; lastY=mouseY; return false; }
+function mouseDragged(){
+  if (dragging){
+    const dx = mouseX - lastX, dy = mouseY - lastY;
+    speed = constrain(speed + dx / width, 0.02, 1.0);
+    thickness = constrain(thickness - dy * 0.03, 1, 16);
+    deformAmt = map(speed, 0.02, 1.0, 0.08, 0.25, true);
+    if (tremoloNode){ tremoloNode.frequency.value = map(speed, 0.02, 1.0, 1.2, 9); }
+    if (filterNode){  filterNode.frequency.rampTo(map(thickness,1,16, 4500, 400), 0.2); }
+    lastX=mouseX; lastY=mouseY;
+  }
+  return false;
+}
+function mouseReleased(){ dragging=false; return false; }
+function mouseWheel(e){
+  // wheel = rounding (like rotate)
+  roundExp = constrain(roundExp + (-e.deltaY)*0.0025, 1.2, 8.0);
+  if (reverbNode) reverbNode.wet.rampTo(map(roundExp,1.2,8.0, 0.65, 0.05), 0.4);
+  return false;
+}
+function keyTyped(){
+  if (key === '2') showTwo = !showTwo;
+}
+
+// ———————————————————————————————————————————————
+// AUDIO: gentle drone + dynamics (limiter+compressor)
+// ———————————————————————————————————————————————
+let transposeSemis = 0;
+
+async function startAudio(){
+  try{
+    await Tone.start();
+    const ctx = Tone.getContext().rawContext;
+    if (ctx.state !== 'running') await ctx.resume();
+
+    // Master headroom and dynamics
+    Tone.Destination.volume.value = -6;
+    compressor = new Tone.Compressor({ threshold:-24, ratio:3, attack:0.02, release:0.3 }).toDestination();
+    limiter    = new Tone.Limiter(-6).connect(compressor);
+
+    // FX & synths
+    filterNode = new Tone.Filter(1500, 'lowpass');       // brightness via thickness
+    tremoloNode= new Tone.Tremolo(2, 0.25).start();      // rate via speed
+    reverbNode = new Tone.Reverb({ decay: 3, wet: 0.2 }).connect(limiter);
+
+    filterNode.connect(tremoloNode);
+    tremoloNode.connect(reverbNode);
+
+    pure = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type:'sine' },
+      envelope:   { attack:0.6, decay:0.2, sustain:0.7, release:1.6 }
+    }).connect(filterNode);
+    pure.volume.value = -20;
+
+    rich = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type:'triangle' },
+      envelope:   { attack:0.2, decay:0.5, sustain:0.35, release:1.6 }
+    }).connect(filterNode);
+    rich.volume.value = -26;
+
+    // Start a looping chord (every bar)
+    Tone.Transport.start();
+    chordLoop = new Tone.Loop(playChord, '1m').start(0);
+
+    // Initialize param→audio mappings
+    tremoloNode.frequency.value = map(speed, 0.02, 1.0, 1.2, 9);
+    filterNode.frequency.value  = map(thickness, 1, 16, 4500, 400);
+    reverbNode.wet.value        = map(roundExp, 1.2, 8.0, 0.65, 0.05);
+  } catch(e){
+    console.warn('Audio init error:', e);
+  }
+}
+
+function playChord(time){
+  // pick triad from scale by speed; transpose by pinch
+  let idx = floor(map(speed, 0.02, 1.0, 0, scaleNotes.length-3));
+  idx = constrain(idx, 0, scaleNotes.length-3);
+  let chord = [scaleNotes[idx], scaleNotes[idx+1], scaleNotes[idx+2]];
+
+  if (transposeSemis){
+    chord = chord.map(n => Tone.Frequency(n).transpose(transposeSemis).toNote());
+  }
+
+  pure.triggerAttackRelease(chord, '1m', time);
+  rich.triggerAttackRelease(chord, '1m', time);
+}
+</script>
+</body>
+</html>
