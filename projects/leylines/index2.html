@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-<title>BAUHAUS — grid groove</title>
+<title>BAUHAUS — 8-step</title>
 <style>
   html,body{margin:0;height:100%;overflow:hidden;background:#E9E6DB;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
   canvas{display:block;touch-action:none;position:relative;z-index:0}
@@ -13,10 +13,8 @@
   }
   #overlay.hidden{opacity:0;pointer-events:none}
   h1{margin:0;font-size:40px;letter-spacing:.04em}
-  p{margin:0 24px;max-width:26ch;text-align:center;opacity:.75}
-  button{
-    font:600 16px/1.1 inherit;padding:12px 22px;border-radius:12px;border:0;background:#111;color:#fff
-  }
+  p{margin:0 24px;max-width:28ch;text-align:center;opacity:.75}
+  button{font:600 16px/1.1 inherit;padding:12px 22px;border-radius:12px;border:0;background:#111;color:#fff}
   .hint{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);font-size:12px;
         background:rgba(255,255,255,.78);padding:6px 8px;border-radius:8px}
 </style>
@@ -29,13 +27,13 @@
     <path d="M2 18c8 0 8-12 16-12s8 12 16 12 8-12 16-12 8 12 16 12"/>
   </svg>
   <h1>BAUHAUS</h1>
-  <p>Minimal shapes, minimal groove. Tap cells to place steps; drag vertically to change timbre (round → sine, sharp → square).</p>
+  <p>8 big steps · Tap to toggle · Drag in a tile to soften/sharpen · Double-tap to change shape.</p>
   <button id="startBtn">Play</button>
 </div>
-<div class="hint">tap=toggle • drag in cell=hardness • L/R=tempo • U/D=size • wheel/rotate=palette</div>
+<div class="hint">tap=toggle • drag in tile=soft/hard • double-tap=shape • L/R=tempo • U/D=size • wheel=palette</div>
 
 <script>
-/* -------------------- palettes -------------------- */
+/* ---------------- palettes ---------------- */
 const PALETTES = [
   { bg:"#E9E6DB", ink:"#0E234B" },
   { bg:"#E9E6DB", ink:"#111111" },
@@ -46,26 +44,27 @@ const PALETTES = [
 let paletteIndex = 0;
 document.body.style.background = PALETTES[paletteIndex].bg;
 
-/* -------------------- grid / state -------------------- */
-const ROWS = 4, COLS = 16;
-let tile, startX, startY;
-let grid = [];
-let shapeScale = 0.9;
-let dragGlobal = null;
+/* ---------------- grid config ---------------- */
+const ROWS = 4, COLS = 2;         // 2 columns × 4 rows = 8 steps
+const ORDER = Array.from({length:ROWS*COLS}, (_,i)=>({r:Math.floor(i/2), c:i%2})); // row-major
+let tile, startX, startY, shapeScale = 1.1; // fill the portrait nicely
 
+// per-cell state: active, hard (0..1), shape (0..N-1), solid (fill vs outline)
+const SHAPES = ['circle','squircle','half','bar','pill','triangle'];
+let grid = [];
 function resetPattern(){
   grid = Array.from({length:ROWS}, (_,r)=>(
-    Array.from({length:COLS},(_,c)=>{
-      if (r===0) return {active: c%4===0, hard:0.35};
-      if (r===1) return {active: c%8===4, hard:0.55};
-      if (r===2) return {active: c%2===1, hard:0.6};
-      if (r===3) return {active: (c%8===0)||c===10, hard:0.25};
-    })
+    Array.from({length:COLS},(_,c)=>({
+      active: (r===0 && c===0) || (r===2), // give a tiny starting groove
+      hard: 0.45 + (r*0.1),
+      shape: (r + c) % SHAPES.length,
+      solid: r%2===0
+    }))
   ));
 }
 resetPattern();
 
-/* -------------------- p5 layout -------------------- */
+/* ---------------- p5 layout ---------------- */
 function setup(){
   createCanvas(windowWidth, windowHeight);
   calcLayout();
@@ -74,13 +73,16 @@ function setup(){
 }
 function windowResized(){ resizeCanvas(windowWidth, windowHeight); calcLayout(); redraw(); }
 function calcLayout(){
-  const tileX = width / COLS, tileY = height / ROWS;
-  tile = Math.min(tileX, tileY);
+  // big tiles: fit 2×4 with small margin
+  const pad = min(width, height)*0.04;
+  const wTile = (width - pad*2) / COLS;
+  const hTile = (height - pad*2) / ROWS;
+  tile = min(wTile, hTile);
   startX = (width  - tile*COLS)/2;
   startY = (height - tile*ROWS)/2;
 }
 
-/* -------------------- draw cells -------------------- */
+/* ---------------- draw ---------------- */
 function draw(){
   const pal = PALETTES[paletteIndex];
   background(pal.bg);
@@ -91,59 +93,86 @@ function draw(){
       const cell = grid[r][c];
       const x = startX + c*tile, y = startY + r*tile, s = tile;
 
-      fill(color(pal.ink + '1A')); rect(x+0.5, y+0.5, s-1, s-1, 6);
+      // soft grid tile
+      fill(color(pal.ink + '12')); rect(x+0.75, y+0.75, s-1.5, s-1.5, 14);
 
-      const scl = Math.max(0.5, Math.min(1.4, shapeScale));
+      // shape
+      const scl = constrain(shapeScale, 0.7, 1.35);
       const inner = s*scl;
       const cx = x + s/2, cy = y + s/2;
 
-      const hard = cell.hard ?? 0.5;
-      const rad = (1-hard) * (inner/2);
+      const hard = constrain(cell.hard ?? 0.5, 0, 1);
+      const radius = (1-hard) * (inner/2);           // roundness
 
-      if (cell.active){ fill(PALETTES[paletteIndex].ink); noStroke(); }
-      else { noFill(); stroke(PALETTES[paletteIndex].ink); strokeWeight(Math.max(1, s*0.05)); }
+      // styles
+      const ink = pal.ink;
+      if (cell.solid){ fill(ink); noStroke(); }
+      else { noFill(); stroke(ink); strokeWeight(max(2, s*0.06)); }
 
       push(); translate(cx, cy); rectMode(CENTER); ellipseMode(CENTER);
-      switch (r){
-        case 0: rect(0,0, inner, inner, rad); break;                 // Kick
-        case 1: if (hard<0.5){ arc(0,0,inner,inner,Math.PI,0,PIE); }  // Snare
-                else { rect(0,0, inner, inner*0.68, rad*0.6); } break;
-        case 2: rect(0,0, inner, inner*0.33, inner*0.5); break;       // Hat
-        case 3: rect(0,0, inner*0.85, inner*0.55, rad); break;        // Bass
-      }
+      drawShape(SHAPES[cell.shape], inner, radius, hard);
       pop();
+
+      // current step highlight (faint ring)
+      if (started){
+        const cur = ORDER[step % ORDER.length];
+        if (cur.r===r && cur.c===c){
+          noFill(); stroke(ink); strokeWeight(2);
+          drawingContext.setLineDash([8,8]);
+          rect(x+6, y+6, s-12, s-12, 16);
+          drawingContext.setLineDash([]);
+        }
+      }
     }
   }
 }
+function drawShape(kind, size, rad, hard){
+  switch(kind){
+    case 'circle': ellipse(0,0,size,size); break;
+    case 'squircle': rect(0,0,size,size, rad); break;
+    case 'pill': rect(0,0,size, size*0.5, size*0.5); break;
+    case 'bar': rect(0,0,size, size*0.28, rad*0.5); break;
+    case 'half':
+      if (getStyle().fillStyle) { arc(0,0,size,size, Math.PI, 0, PIE); }
+      else { arc(0,0,size,size, Math.PI, 0); }
+      break;
+    case 'triangle':
+      const h = size*0.55;
+      triangle(-h, h*0.6, h, h*0.6, 0, -h);
+      break;
+  }
+}
 
-/* -------------------- hit test & edit -------------------- */
+/* ---------------- hit-testing & gestures ---------------- */
 function cellAt(px, py){
-  const c = Math.floor((px - startX)/tile);
-  const r = Math.floor((py - startY)/tile);
+  const c = floor((px - startX)/tile);
+  const r = floor((py - startY)/tile);
   if (r>=0 && r<ROWS && c>=0 && c<COLS) return {r,c};
   return null;
 }
 
-let editing = null, lastY = 0, lastX = 0, tapT = 0;
+let editing=null, lastY=0, lastX=0, tapT=0;
+let dragGlobal=null;
+
 function pointerDown(x,y){
   const hit = cellAt(x,y);
   if (hit){ editing = hit; lastY = y; lastX = x; }
-  else { editing = null; lastX = x; lastY = y; dragGlobal = Math.abs(x-width/2) > Math.abs(y-height/2) ? 'bpm' : 'size'; }
+  else { editing=null; lastX=x; lastY=y; dragGlobal = abs(x-width/2) > abs(y-height/2) ? 'bpm':'size'; }
 }
 function pointerMove(x,y){
   if (editing){
-    const dy = y - lastY;
-    const cell = grid[editing.r][editing.c];
-    cell.hard = Math.max(0, Math.min(1, (cell.hard ?? 0.5) - dy*0.004));
-    lastY = y; redraw();
-  }else if (dragGlobal==='bpm'){
-    const dx = x - lastX; lastX = x;
-    bpm = Math.max(60, Math.min(160, bpm + dx*0.2));
-    Tone.Transport.bpm.rampTo(bpm, 0.05);
-  }else if (dragGlobal==='size'){
     const dy = y - lastY; lastY = y;
-    shapeScale = Math.max(0.5, Math.min(1.4, shapeScale - dy*0.003));
-    const cutoff = map(shapeScale, 0.5, 1.4, 5200, 300);
+    const cell = grid[editing.r][editing.c];
+    cell.hard = constrain((cell.hard ?? 0.5) - dy*0.004, 0, 1);
+    redraw();
+  } else if (dragGlobal==='bpm'){
+    const dx = x - lastX; lastX = x;
+    bpm = constrain(bpm + dx*0.25, 50, 180);
+    Tone.Transport.bpm.rampTo(bpm, 0.05);
+  } else if (dragGlobal==='size'){
+    const dy = y - lastY; lastY = y;
+    shapeScale = constrain(shapeScale - dy*0.003, 0.7, 1.35);
+    const cutoff = map(shapeScale, 0.7, 1.35, 5200, 350);
     if (filterNode) filterNode.frequency.rampTo(cutoff, 0.1);
     redraw();
   }
@@ -152,18 +181,23 @@ function pointerUp(x,y){
   const now = millis();
   const hit = cellAt(x,y);
   if (hit && editing && dist(x,y,lastX,lastY)<6){
-    grid[hit.r][hit.c].active = !grid[hit.r][hit.c].active;
+    // tap toggles step
+    const cell = grid[hit.r][hit.c];
+    cell.active = !cell.active;
     redraw();
   }
-  if (now - tapT < 300){
-    paletteIndex=(paletteIndex+1)%PALETTES.length;
-    document.body.style.background=PALETTES[paletteIndex].bg; redraw();
+  // double-tap cycles shape & toggles fill on long series
+  if (now - tapT < 300 && hit){
+    const cell = grid[hit.r][hit.c];
+    if (keyIsDown(SHIFT)) cell.solid = !cell.solid;
+    else cell.shape = (cell.shape + 1) % SHAPES.length;
+    redraw();
   }
   tapT = now;
-  editing = null; dragGlobal = null;
+  editing=null; dragGlobal=null;
 }
 
-/* -------------------- input wire-up -------------------- */
+/* pointer wiring */
 function mousePressed(){ startFromGesture(); pointerDown(mouseX,mouseY); return false; }
 function mouseDragged(){ pointerMove(mouseX,mouseY); return false; }
 function mouseReleased(){ pointerUp(mouseX,mouseY); return false; }
@@ -176,11 +210,10 @@ function mouseWheel(e){
   return false;
 }
 
-/* -------------------- audio -------------------- */
-let started=false, step=0, bpm=120;
+/* ---------------- audio ---------------- */
+let started=false, step=0, bpm=112;
 let filterNode, reverbNode, comp, limit;
 let kick, snareNoise, snareTone, snareCF, hat, bassSoft, bassHard, bassX;
-const bassScale = ['C2','D#2','F2','G2','A#1','C3','D#3','F3'];
 
 async function maybeStartAudio(){
   if (started) return;
@@ -211,64 +244,58 @@ async function maybeStartAudio(){
 
   Tone.Transport.bpm.value = bpm;
   Tone.Transport.scheduleRepeat((time)=>{
-    const col = step % COLS;
-    if (grid[0][col].active){
-      const h = grid[0][col].hard;
+    const cur = ORDER[step % ORDER.length];
+    const r = cur.r, c = cur.c;
+    const cell = grid[r][c];
+
+    if (r===0 && cell.active){
+      const h = cell.hard;
       kick.pitchDecay = lerp(0.06,0.02,h);
       kick.triggerAttackRelease('C1','16n',time,1.0);
     }
-    if (grid[1][col].active){
-      const h = grid[1][col].hard;
+    if (r===1 && cell.active){
+      const h = cell.hard;
       snareNoise.envelope.decay = lerp(0.22,0.08,h);
       snareCF.frequency.value   = lerp(1800,3500,h);
       snareNoise.triggerAttack(time,0.8);
       snareTone.triggerAttackRelease('D#3','16n',time,0.3);
     }
-    if (grid[2][col].active){
-      const h = grid[2][col].hard;
+    if (r===2 && cell.active){
+      const h = cell.hard;
       hat.envelope.decay = lerp(0.03,0.18,h);
-      filterNode.frequency.rampTo(map(shapeScale,0.5,1.4,5200,300),0.08);
+      filterNode.frequency.rampTo(map(shapeScale, 0.7, 1.35, 5200, 350), 0.08);
       hat.triggerAttack(time, lerp(0.25,0.6,h));
     }
-    if (grid[3][col].active){
-      const h = grid[3][col].hard;
+    if (r===3 && cell.active){
+      const h = cell.hard;
       bassX.fade.rampTo(h,0.01);
-      const note = bassScale[(col*3)%bassScale.length];
-      bassSoft.triggerAttackRelease(note,'8n',time,0.8);
-      bassHard.triggerAttackRelease(note,'8n',time,0.8);
+      const notes = ['C2','G1','A#1','F2','G2','A#2','C2','F2'];
+      const idx = (r*COLS+c) % notes.length;
+      const note = notes[idx];
+      bassSoft.triggerAttackRelease(note,'8n',time,0.85);
+      bassHard.triggerAttackRelease(note,'8n',time,0.85);
     }
-    step++;
-  }, '16n');
 
-  const pad = new Tone.PolySynth(Tone.Synth, {
-    oscillator:{type:'sine'}, envelope:{attack:0.4, decay:0.2, sustain:0.6, release:1.2}
-  }).connect(filterNode);
-  new Tone.Loop((t)=>{ pad.triggerAttackRelease(['C4','D#4','G4'],'1m',t,0.2); }, '1m').start(0);
+    step++; // advance to next of the 8 cells
+    // redraw highlight
+    if (!isLooping()) loop(); setTimeout(()=>noLoop(), 10);
+  }, '8n'); // 8 steps = nice with 8th notes
 
   Tone.Transport.start();
   started = true;
 }
 
-/* ---------- overlay start: do audio inside the gesture, then hide ---------- */
-function hideOverlay(){
-  const o = document.getElementById('overlay');
-  o.classList.add('hidden');
-  setTimeout(()=>{ o.style.display='none'; }, 380);
-}
+/* start from user gesture + overlay fade */
 async function startFromGesture(){
-  // called on any press/touch
   if (!started) {
-    // ensure we start the audio context synchronously with the gesture
-    try { await Tone.start(); } catch(e){}
+    try{ await Tone.start(); }catch(e){}
     await maybeStartAudio();
   }
 }
 const overlay = document.getElementById('overlay');
 const startBtn = document.getElementById('startBtn');
-function handleOverlayStart(ev){
-  ev.preventDefault();
-  (async()=>{ try{ await Tone.start(); }catch(e){} await maybeStartAudio(); hideOverlay(); })();
-}
+function hideOverlay(){ overlay.classList.add('hidden'); setTimeout(()=>{ overlay.style.display='none'; }, 380); }
+function handleOverlayStart(ev){ ev.preventDefault(); (async()=>{ try{await Tone.start();}catch(e){} await maybeStartAudio(); hideOverlay(); })(); }
 startBtn.addEventListener('click', handleOverlayStart, {passive:false});
 overlay.addEventListener('touchstart', handleOverlayStart, {passive:false});
 </script>
