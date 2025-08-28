@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Ghost Radio — Swipe Scan + Focus/Tape Auto</title>
+<title>Ghost Radio — Category Blend (Textures / Tonal / Ritmic)</title>
 <style>
   body{margin:0;padding:1rem;font-family:'IBM Plex Mono',monospace;background:#f5f1e6;color:#333}
   h1{margin:0 0 1rem;text-align:center;font-size:2rem}
@@ -17,9 +17,7 @@
 
   .control{background:#fdfbf8;border:1px solid #aaa;border-radius:10px;padding:.6rem .8rem;display:flex;align-items:center;gap:.6rem}
   .control label{font-size:.9rem}
-  .control .auto{
-    display:flex;align-items:center;gap:.35rem;background:#fff;border:1px solid #aaa;border-radius:8px;padding:.15rem .4rem;cursor:pointer;
-  }
+  .control .auto{display:flex;align-items:center;gap:.35rem;background:#fff;border:1px solid #aaa;border-radius:8px;padding:.15rem .4rem;cursor:pointer}
   .control .auto input{accent-color:#111}
   input[type="range"]{width:160px}
 
@@ -29,14 +27,8 @@
 
   .canvases{position:relative;max-width:900px;margin:0 auto}
   #wave,#tuner{width:100%;height:160px;display:none}
-  #tuner{position:absolute;left:0;top:0;pointer-events:none} /* visual only */
-  /* Full-bleed gesture layer (captures swipe anywhere in the area) */
-  #gesture{
-    position:absolute;left:0;top:0;width:100%;height:160px;
-    pointer-events:auto;touch-action:pan-x; /* allow horizontal pan */
-    background:transparent;
-    display:none; /* becomes block when started */
-  }
+  #tuner{position:absolute;left:0;top:0;pointer-events:none}
+  #gesture{position:absolute;left:0;top:0;width:100%;height:160px;pointer-events:auto;touch-action:pan-x;background:transparent;display:none}
 
   .hint{font-size:.85rem;color:#666;text-align:center}
 
@@ -82,7 +74,7 @@
     <div class="canvases">
       <canvas id="wave"></canvas>
       <canvas id="tuner"></canvas>
-      <div id="gesture" aria-label="Swipe anywhere to scan"></div>
+      <div id="gesture" aria-label="Swipe to scan"></div>
     </div>
     <div id="lockDisplay" class="row">
       <span class="led" id="led"></span>
@@ -101,12 +93,12 @@
   const focusAuto = document.getElementById('focusAuto');
   const ageDial   = document.getElementById('age');
   const ageAuto   = document.getElementById('ageAuto');
-  const amBtn = document.getElementById('amBtn');
-  const fmBtn = document.getElementById('fmBtn');
-  const wave = document.getElementById('wave');
-  const tuner = document.getElementById('tuner');
-  const gesture = document.getElementById('gesture');
-  const led = document.getElementById('led');
+  const amBtn     = document.getElementById('amBtn');
+  const fmBtn     = document.getElementById('fmBtn');
+  const wave      = document.getElementById('wave');
+  const tuner     = document.getElementById('tuner');
+  const gesture   = document.getElementById('gesture');
+  const led       = document.getElementById('led');
   const lockDisplay = document.getElementById('lockDisplay');
   const stationNameEl = document.getElementById('stationName');
 
@@ -158,38 +150,74 @@
   noiseSrc.connect(noiseGain).connect(masterFilter);
   let noiseStarted = false;
 
-  // ===== Sounds =====
-  const files = [
-    'sound1.mp3','sound2.mp3','sound3.mp3','sound4.mp3','sound5.mp3','sound6.mp3',
-    'sound7.mp3','sound8.mp3','sound9.mp3','sound10.mp3','sound11.mp3','sound12.mp3','sound13.mp3'
+  // ===== Categories & files (EDIT THESE LISTS TO MATCH YOUR REPO) =====
+  const texturesFiles = [
+    'texture01.mp3','texture02.mp3','texture03.mp3','texture04.mp3','texture05.mp3','texture06.mp3'
   ];
+  const tonalFiles = [
+    'pad01.mp3','pad02.mp3','pad03.mp3','pad04.mp3','pad05.mp3','pad06.mp3'
+  ];
+  const ritmicFiles = [
+    'ritmic01.mp3','ritmic02.mp3','ritmic03.mp3','ritmic04.mp3','ritmic05.mp3','ritmic05.mp3'
+  ];
+
+  // Base path helper (auto-encode spaces in subfolders)
   const base = location.pathname.replace(/[^\/]+$/, '');
-  const buffers = {};
-  for (let i=0;i<files.length;i++){
-    try {
-      const res = await fetch(base + 'sounds/' + files[i]);
-      const ab = await res.arrayBuffer();
-      buffers[files[i]] = await ctx.decodeAudioData(ab);
-      statusText.textContent = `Loaded ${i+1} / ${files.length}`;
-    } catch (e){
-      statusText.textContent = `Error loading ${files[i]}`;
-      console.error(e);
-      return;
+  function urlJoin(...parts){
+    // join & encode each path segment except filenames that may include safe chars
+    return parts.map((p,i)=>{
+      // keep file names as-is; encode folder segments
+      return (i < parts.length-1) ? encodeURIComponent(p) : p;
+    }).join('/').replace(/%2F/g,'/');
+  }
+
+  // Preload buffers from categories
+  const buffers = { Textures:{}, Tonal:{}, Ritmic:{} };
+  async function loadCategory(folder, filesArr, bucket){
+    for (let i=0;i<filesArr.length;i++){
+      const f = filesArr[i];
+      const url = base + urlJoin('sounds', folder, f);
+      try{
+        const res = await fetch(url);
+        const ab  = await res.arrayBuffer();
+        bucket[f] = await ctx.decodeAudioData(ab);
+        statusText.textContent = `Loaded ${folder} ${i+1}/${filesArr.length}`;
+      }catch(e){
+        statusText.textContent = `Error loading ${folder}/${f}`;
+        console.error(e);
+        throw e;
+      }
     }
+  }
+
+  try{
+    await loadCategory('Textures',   texturesFiles, buffers.Textures);
+    await loadCategory('Tonal Pads', tonalFiles,    buffers.Tonal);
+    await loadCategory('Ritmic',     ritmicFiles,   buffers.Ritmic);
+  }catch(e){
+    // stop if any failed
+    return;
   }
   statusText.textContent = 'Ready!';
 
-  // ===== Carousel of 4 layers =====
-  const NUM = 4;
-  let ring = []; // each: { src, gain, panner, lp, send, file, phaseLFO, loopTimer, spliceTimer }
+  // ===== Trio of layers (Textures, Tonal, Ritmic) =====
+  const CATS = ['Textures','Tonal','Ritmic']; // fixed order left→center→right idea-friendly
+  const NUM = CATS.length;
+  let ring = []; // { src,gain,panner,lp,send, file, cat, phaseLFO, loopTimer, spliceTimer }
 
-  function createLayer(file, gainVal=0){
+  function pickFrom(bucket){ const keys = Object.keys(bucket); return keys[Math.floor(Math.random()*keys.length)]; }
+
+  function createLayer(catName, gainVal=0){
+    const bucket = buffers[catName];
+    const file = pickFrom(bucket);
+    const buf = bucket[file];
+
     const src = ctx.createBufferSource();
-    src.buffer = buffers[file];
+    src.buffer = buf;
     src.loop = true;
 
-    // random loop window (3–15s), brand new each spawn
-    const D = src.buffer.duration;
+    // random loop window (3–15s)
+    const D = buf.duration;
     const span = 3 + Math.random()*12;
     const start = Math.random() * Math.max(0, D - span);
     src.loopStart = start;
@@ -200,48 +228,44 @@
 
     const g = ctx.createGain(); g.gain.value = gainVal;
 
-    // per-layer LPF with tiny random Q for individual tone
+    // per-layer LPF with tiny random Q
     const lp = ctx.createBiquadFilter();
     lp.type = 'lowpass'; lp.frequency.value = 12000; lp.Q.value = 0.0001 + Math.random()*0.5;
 
-    // stereo panner
+    // stereo panner + reverb send (post-panner)
     const panner = ctx.createStereoPanner(); panner.pan.value = 0;
-
-    // reverb send (post-panner)
     const send = ctx.createGain(); send.gain.value = 0.0;
 
-    // Routing:
-    // src -> g -> lp -> panner -> (dry to masterFilter) & (send to convolver)
+    // routing
     src.connect(g);
     g.connect(lp).connect(panner);
-    panner.connect(masterFilter);           // DRY path
-    panner.connect(send).connect(convolver);// WET path
+    panner.connect(masterFilter);
+    panner.connect(send).connect(convolver);
 
     src.start();
 
-    // LFO & loop-nudge timers + micro-splice
     const phaseLFO = {
       wowAmp: 0.003, wowHz: 0.25 + Math.random()*0.1,  t: Math.random()*100,
       fltAmp: 0.0015, fltHz: 6.5 + Math.random()*0.8
     };
-    const loopTimer = { next: performance.now() + 2500 + Math.random()*3500 };
+    const loopTimer   = { next: performance.now() + 2500 + Math.random()*3500 };
     const spliceTimer = { next: performance.now() + 3000 + Math.random()*7000 };
 
-    return { src, gain: g, panner, lp, send, file, phaseLFO, loopTimer, spliceTimer };
+    return { src, gain:g, panner, lp, send, file, cat:catName, phaseLFO, loopTimer, spliceTimer };
   }
 
   function initRing(){
     ring.forEach(l => { try { l.src.stop() } catch(_){ } });
     ring = [];
-    const pool = [...files];
+    // one per category
     for (let i=0;i<NUM;i++){
-      const pick = pool.splice(Math.floor(Math.random()*pool.length),1)[0] ?? files[Math.floor(Math.random()*files.length)];
-      ring.push(createLayer(pick, i===0 ? 1 : 0));
+      const cat = CATS[i];
+      ring.push(createLayer(cat, i===1 ? 1 : 0)); // start: make Tonal (index 1) a bit more centered
     }
   }
 
   // ===== Controls state =====
-  let mode = 'FM';            // 'AM' | 'FM'
+  let mode = 'FM';
   let focus = parseFloat(focusDial.value); // 0..1
   let age   = parseFloat(ageDial.value);   // 0..1
   let focusAutoOn = false, ageAutoOn = false;
@@ -253,29 +277,29 @@
   focusAuto.onchange= () => { focusAutoOn = focusAuto.checked; if (!focusAutoOn) focus = parseFloat(focusDial.value); };
   ageAuto.onchange  = () => { ageAutoOn   = ageAuto.checked;   if (!ageAutoOn)   age   = parseFloat(ageDial.value);   };
 
-  // ===== Auto envelopes (random shapes) =====
+  // ===== Auto envelopes =====
   function makeAuto(startVal){
     return {
       cur: startVal, from: startVal, to: startVal,
       t: 0, dur: 1,
-      next(){ this.from = this.cur; this.to = Math.random(); this.t = 0; this.dur = 3 + Math.random()*8; },
-      step(dt){ this.t += dt; const k = Math.min(1, this.t / this.dur); const e = k*k*(3 - 2*k); this.cur = this.from + (this.to - this.from) * e; if (k>=1) this.next(); return this.cur; }
+      next(){ this.from=this.cur; this.to=Math.random(); this.t=0; this.dur=3+Math.random()*8; },
+      step(dt){ this.t+=dt; const k=Math.min(1,this.t/this.dur); const e=k*k*(3-2*k); this.cur=this.from+(this.to-this.from)*e; if(k>=1)this.next(); return this.cur; }
     };
   }
   const focusAutoEnv = makeAuto(focus); focusAutoEnv.next();
   const ageAutoEnv   = makeAuto(age);   ageAutoEnv.next();
 
   // ===== Swipe-to-scan with inertia =====
-  let scrollX = 0;      // continuous ring position accumulator
-  let p = 0, lastPIndex = 0; // position on ring
+  let scrollX = 0;      // continuous position in ring units
+  let p = 0;            // 0..NUM
   let dragging = false;
   let lastX = 0, lastT = 0;
   let velocity = 0;     // ring units per ms
   let inertial = false;
 
-  const SENS = 1/90;     // higher sensitivity (pixels → ring units)
-  const FRICTION = 0.95; // inertial slowdown per frame (~60 fps)
-  const MAX_VEL = 0.02;  // clamp to avoid runaway
+  const SENS = 1/90;     // px → ring units (tweak for speed)
+  const FRICTION = 0.95; // inertia decay per frame
+  const MAX_VEL = 0.02;  // clamp
 
   function onPointerDown(e){
     dragging = true; inertial = false; velocity = 0;
@@ -292,14 +316,12 @@
     const delta = dx * SENS;
     scrollX += delta;
 
-    // instantaneous velocity estimate (units/ms), clamped
     const v = delta / dt;
     velocity = Math.max(-MAX_VEL, Math.min(MAX_VEL, v));
   }
   function onPointerUp(e){
     dragging = false;
     try{ gesture.releasePointerCapture(e.pointerId) }catch(_){}
-    // kick inertia if we have meaningful velocity
     if (Math.abs(velocity) > 0.0002) inertial = true;
   }
 
@@ -307,7 +329,7 @@
   gesture.addEventListener('pointermove', onPointerMove);
   ['pointerup','pointerleave','pointercancel'].forEach(ev=>gesture.addEventListener(ev, onPointerUp));
 
-  // ===== Lock LED + station names =====
+  // ===== LED lock + station names =====
   const stationNames = [
     "Echo Relay","Tape Horizon","Number Station 51","Phantom Loop","Crystal Dial",
     "Reich Drift","Signal Bloom","Midnight Carrier","Static Orchard","Orpheus Band",
@@ -315,26 +337,21 @@
   ];
   let lockArmed = false, lockTimer = null, lastName = "";
 
-  function setLED(on){
-    if(on){ led.classList.add('on'); lockDisplay.style.display='flex'; }
-    else   { led.classList.remove('on'); }
-  }
+  function setLED(on){ if(on){ led.classList.add('on'); lockDisplay.style.display='flex'; } else { led.classList.remove('on'); } }
   function pickName(){
-    let n;
-    do { n = stationNames[Math.floor(Math.random()*stationNames.length)]; } while (n===lastName);
+    let n; do { n = stationNames[Math.floor(Math.random()*stationNames.length)]; } while (n===lastName);
     lastName = n; stationNameEl.textContent = n;
   }
 
-  // ===== Crackle & Dropouts with age =====
+  // ===== Crackle & Dropouts tied to Tape Age =====
   const noiseBufTiny = makeNoiseBuffer(0.05);
   function scheduleCrackle(){
     if (age <= 0.02) { setTimeout(scheduleCrackle, 1000); return; }
-    const rate = age * 3; // 0..3 pops/sec
+    const rate = age * 3;
     const nextIn = 200 + Math.random()*(1000/Math.max(0.25, rate));
     setTimeout(()=>{
       try{
-        const pop = ctx.createBufferSource();
-        pop.buffer = noiseBufTiny;
+        const pop = ctx.createBufferSource(); pop.buffer = noiseBufTiny;
         const hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value = 2500;
         const pg = ctx.createGain(); pg.gain.value = 0.0;
         pop.connect(hp).connect(pg).connect(masterFilter);
@@ -355,7 +372,7 @@
       const l = ring.length ? ring[Math.floor(Math.random()*ring.length)] : null;
       if (l){
         const now = ctx.currentTime;
-        const dip = 0.5 + 0.5*age; // 0.5..1
+        const dip = 0.5 + 0.5*age;
         const current = l.gain.gain.value || 1;
         l.gain.gain.setTargetAtTime(current * (1 - 0.3*dip), now, 0.01);
         l.gain.gain.setTargetAtTime(1.0, now + 0.06, 0.08);
@@ -371,28 +388,27 @@
   // ===== Audio update loop =====
   function updateAudio(dt){
     // Auto envelopes
-    if (focusAutoOn){
+    if (focusAuto.checked){
       focus = focusAutoEnv.step(dt/1000);
       focusDial.value = focus.toFixed(3);
     }
-    if (ageAutoOn){
+    if (ageAuto.checked){
       age = ageAutoEnv.step(dt/1000);
       ageDial.value = age.toFixed(3);
     }
 
-    // inertia: keep scrolling after release
+    // inertia
     if (!dragging && inertial){
-      // dt is in ms; velocity is units/ms
       scrollX += velocity * dt;
-      velocity *= FRICTION;
+      velocity *= 0.95;
       if (Math.abs(velocity) < 0.00005) inertial = false;
     }
 
-    // scrollX → ring pos p ∈ [0..NUM)
+    // position in ring
     p = ((scrollX % NUM) + NUM) % NUM;
 
     // Focus mapping
-    const spread   = lerp(0.6, 1.9, focus);
+    const spread   = lerp(0.8, 1.9, focus);     // slightly tighter base for 3 layers
     const panRange = lerp(0.25, 0.95, focus);
     const lpfFar   = lerp(6000, 2500, focus);
     const lpfNear  = lerp(14000, 9000, focus);
@@ -438,7 +454,7 @@
       const nonlin = Math.pow(1 - w, 0.65);
       L.panner.pan.setTargetAtTime(side * panRange * nonlin, ctx.currentTime, 0.06);
 
-      // LPF per layer + age darkening
+      // LPF + Age
       const nearCut = lpfNear * ageDark;
       const farCut  = lpfFar  * ageDark * (mode==='AM'?0.9:1.0);
       const cut = lerp(farCut, nearCut, w);
@@ -447,14 +463,14 @@
       // Reverb send
       L.send.gain.setTargetAtTime(lerp(sendMax, sendMin, w), ctx.currentTime, 0.08);
 
-      // Wow/flutter
+      // Wow/Flutter
       const tSec = performance.now()/1000;
       const wow = L.phaseLFO.wowAmp * wowMul * Math.sin(2*Math.PI*L.phaseLFO.wowHz*tSec);
       const flt = L.phaseLFO.fltAmp * fltMul * Math.sin(2*Math.PI*L.phaseLFO.fltHz*tSec + i);
       const pr = 1.0 + wow + flt;
       L.src.playbackRate.setTargetAtTime(pr, ctx.currentTime, 0.2);
 
-      // Loop nudge & occasional micro-splice
+      // Loop nudge & micro-splice
       const nowMs = performance.now();
       if (nowMs > L.loopTimer.next){
         const b = L.src.buffer, span = Math.min(12, b.duration);
@@ -479,7 +495,7 @@
     // Noise ducks under loudest; AM slightly hissier
     noiseGain.gain.setTargetAtTime(noiseBase * (1 - maxW) * (mode==='AM'?1.3:1.0), ctx.currentTime, 0.1);
 
-    // LED lock: require solid center (maxW>=0.9) for 500ms
+    // LED lock (centered strongly) for 500ms
     if (maxW >= 0.9){
       if (!lockArmed){
         lockArmed = true;
@@ -493,22 +509,27 @@
     }
   }
 
-  // Station swap: when passing clear slot change (with hysteresis)
-  const SWAP_MARGIN = 0.25;
+  // Station swap: replace the **farthest** layer and keep its category
+  let lastSwapIdx = -1;
   function maybeSwap(){
-    const idx = Math.round(p) % NUM;
-    if (Math.abs(p - idx) < SWAP_MARGIN) return;
-    if (idx === lastPIndex) return;
+    // find farthest layer from p
+    let farIdx = 0, farDist = -1;
+    for (let i=0;i<NUM;i++){
+      let d = Math.abs(i - p); d = Math.min(d, NUM - d);
+      if (d > farDist) { farDist = d; farIdx = i; }
+    }
+    // Hysteresis: only swap when we cross a new "station area"
+    const nearestIdx = Math.round(p) % NUM;
+    if (nearestIdx === lastSwapIdx) return;
+    lastSwapIdx = nearestIdx;
 
-    const far = (idx + Math.floor(NUM/2)) % NUM;
-    const old = ring[far];
-    const freshFile = files[Math.floor(Math.random()*files.length)];
-    const incoming = createLayer(freshFile, 0);
+    const old = ring[farIdx];
+    const cat = old.cat;
+    const incoming = createLayer(cat, 0);
     old.gain.gain.setTargetAtTime(0, ctx.currentTime, 0.15);
     incoming.gain.gain.setTargetAtTime(0.5, ctx.currentTime, 0.15);
     setTimeout(()=>{ try{ old.src.stop() }catch(_){ } }, 400);
-    ring[far] = incoming;
-    lastPIndex = idx;
+    ring[farIdx] = incoming;
   }
 
   // ===== Visualization =====
@@ -540,13 +561,13 @@
       c.width = c.clientWidth; c.height = c.clientHeight;
       g.clearRect(0,0,c.width,c.height);
 
-      // brightness based on "between"
-      let nearest = Math.min(...[0,1,2,3].map(i => {
+      // "between" brightness
+      let nearest = Math.min(...[0,1,2].map(i => {
         let d = Math.abs(i - p); return Math.min(d, NUM - d);
       }));
       const between = Math.max(0, Math.min(1, nearest / 0.6));
 
-      // mid gray ticks; every 5th taller (tape ruler style)
+      // mid gray ticks; every 5th taller (tape ruler)
       g.strokeStyle = `rgba(80,80,80,${0.35 + 0.35*between})`;
       g.lineWidth = 1;
       g.beginPath();
@@ -583,13 +604,11 @@
     if (!noiseStarted) { try { noiseSrc.start() } catch(_){ } noiseStarted = true; }
 
     loader.style.display = 'none';
-    wave.style.display = 'block'; tuner.style.display = 'block';
-    gesture.style.display = 'block';
+    wave.style.display = 'block'; tuner.style.display = 'block'; gesture.style.display = 'block';
     lockDisplay.style.display = 'flex';
 
     initRing(); drawWave(); drawTuner(); tick();
 
-    // Start degradation schedulers
     scheduleCrackle(); scheduleDropouts();
   });
 })();
