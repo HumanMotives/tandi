@@ -73,10 +73,10 @@ function setup(){
 }
 function windowResized(){ resizeCanvas(windowWidth, windowHeight); calcLayout(); redraw(); }
 function calcLayout(){
-  const pad = min(width, height)*0.04;
+  const pad = Math.min(windowWidth, windowHeight)*0.04;
   const wTile = (width - pad*2) / COLS;
   const hTile = (height - pad*2) / ROWS;
-  tile = min(wTile, hTile);
+  tile = Math.min(wTile, hTile);
   startX = (width  - tile*COLS)/2;
   startY = (height - tile*ROWS)/2;
 }
@@ -110,7 +110,7 @@ function draw(){
       // styles
       const ink = pal.ink;
       if (cell.solid){ fill(ink); noStroke(); }
-      else { noFill(); stroke(ink); strokeWeight(max(2, s*0.06)); }
+      else { noFill(); stroke(ink); strokeWeight(Math.max(2, s*0.06)); }
 
       push(); translate(cx, cy); rectMode(CENTER); ellipseMode(CENTER);
       drawShape(SHAPES[cell.shape], inner, radius, hard, cell.solid);
@@ -130,25 +130,14 @@ function draw(){
   }
 }
 
-/* fixed: no more getStyle(); use the 'solid' flag */
 function drawShape(kind, size, rad, hard, solid){
   switch(kind){
-    case 'circle':
-      ellipse(0,0,size,size);
-      break;
-    case 'squircle':
-      rect(0,0,size,size, rad);
-      break;
-    case 'pill':
-      rect(0,0,size, size*0.5, size*0.5);
-      break;
-    case 'bar':
-      rect(0,0,size, size*0.28, rad*0.5);
-      break;
-    case 'half':
-      if (solid) arc(0,0,size,size, Math.PI, 0, PIE);
-      else       arc(0,0,size,size, Math.PI, 0);
-      break;
+    case 'circle':   ellipse(0,0,size,size); break;
+    case 'squircle': rect(0,0,size,size, rad); break;
+    case 'pill':     rect(0,0,size, size*0.5, size*0.5); break;
+    case 'bar':      rect(0,0,size, size*0.28, rad*0.5); break;
+    case 'half':     solid ? arc(0,0,size,size, Math.PI, 0, PIE)
+                           : arc(0,0,size,size, Math.PI, 0); break;
     case 'triangle':
       const h = size*0.55;
       triangle(-h, h*0.6, h, h*0.6, 0, -h);
@@ -158,8 +147,8 @@ function drawShape(kind, size, rad, hard, solid){
 
 /* ---------------- hit-testing & gestures ---------------- */
 function cellAt(px, py){
-  const c = floor((px - startX)/tile);
-  const r = floor((py - startY)/tile);
+  const c = Math.floor((px - startX)/tile);
+  const r = Math.floor((py - startY)/tile);
   if (r>=0 && r<ROWS && c>=0 && c<COLS) return {r,c};
   return null;
 }
@@ -170,7 +159,7 @@ let dragGlobal=null;
 function pointerDown(x,y){
   const hit = cellAt(x,y);
   if (hit){ editing = hit; lastY = y; lastX = x; }
-  else { editing=null; lastX=x; lastY=y; dragGlobal = abs(x-width/2) > abs(y-height/2) ? 'bpm':'size'; }
+  else { editing=null; lastX=x; lastY=y; dragGlobal = Math.abs(x-width/2) > Math.abs(y-height/2) ? 'bpm':'size'; }
 }
 function pointerMove(x,y){
   if (editing){
@@ -228,7 +217,8 @@ let kick, snareNoise, snareTone, snareCF, hat, bassSoft, bassHard, bassX;
 
 async function maybeStartAudio(){
   if (started) return;
-  const ctx = Tone.getContext().rawContext; if (ctx.state!=='running') await ctx.resume();
+  const ctx = Tone.getContext().rawContext;
+  if (ctx.state!=='running') await ctx.resume();
 
   Tone.Destination.volume.value = -6;
   comp  = new Tone.Compressor({threshold:-18, ratio:3, attack:0.01, release:0.2}).toDestination();
@@ -275,7 +265,7 @@ async function maybeStartAudio(){
       const h = cell.hard;
       hat.envelope.decay = lerp(0.03,0.18,h);
       filterNode.frequency.rampTo(map(shapeScale, 0.7, 1.35, 5200, 350), 0.08);
-      hat.triggerAttack(time, lerp(0.25,0.6,h));
+      hat.triggerAttack(time, lerp(0.25, 0.6, h));
     }
     if (r===3 && cell.active){
       const h = cell.hard;
@@ -305,23 +295,12 @@ async function startFromGesture(){
 const overlay = document.getElementById('overlay');
 const startBtn = document.getElementById('startBtn');
 function hideOverlay(){ overlay.classList.add('hidden'); setTimeout(()=>{ overlay.style.display='none'; redraw(); }, 380); }
-function handleOverlayStart(ev){ ev.preventDefault(); (async()=>{ try{await Tone.start();}catch(e){} await maybeStartAudio(); hideOverlay(); })(); }
+function handleOverlayStart(ev){
+  ev.preventDefault();
+  (async()=>{ try{await Tone.start();}catch(e){} await maybeStartAudio(); hideOverlay(); })();
+}
 startBtn.addEventListener('click', handleOverlayStart, {passive:false});
 overlay.addEventListener('touchstart', handleOverlayStart, {passive:false});
-
-/* ---------------- pointer glue ---------------- */
-function mousePressed(){ startFromGesture(); pointerDown(mouseX,mouseY); return false; }
-function mouseDragged(){ pointerMove(mouseX,mouseY); return false; }
-function mouseReleased(){ pointerUp(mouseX,mouseY); return false; }
-function touchStarted(){ startFromGesture(); pointerDown(touches[0].x,touches[0].y); return false; }
-function touchMoved(){ pointerMove(touches[0].x,touches[0].y); return false; }
-function touchEnded(){ pointerUp((touches[0]||{}).x||lastX,(touches[0]||{}).y||lastY); return false; }
-
-/* state vars used above */
-let started=false, step=0, bpm=112;
-let filterNode, reverbNode, comp, limit;
-let kick, snareNoise, snareTone, snareCF, hat, bassSoft, bassHard, bassX;
-
 </script>
 </body>
 </html>
