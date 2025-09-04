@@ -80,6 +80,36 @@
     .subscribe-form button:hover { background: #333; }
 
     .footer { text-align: center; font-size: 0.9rem; color: #aaa; padding: 2rem 0; }
+
+    /* Override the global section image rule for Substack thumbnails */
+.section .substack-list img.substack-image {
+  width: 90px !important;
+  height: 90px !important;
+  object-fit: cover;
+  border-radius: 8px;
+  clip-path: none !important;       /* cancel the polygon clip from .section img */
+}
+
+/* Ensure row layout */
+.substack-list { display: grid; gap: 1rem; list-style: none; padding: 0; }
+.substack-post {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.8rem;
+}
+.substack-content { flex: 1; }
+
+/* Optional: stack on very narrow screens */
+@media (max-width: 420px) {
+  .substack-post { flex-direction: column; }
+  .section .substack-list img.substack-image {
+    width: 100% !important;
+    height: 180px !important;
+  }
+}
+
   </style>
 </head>
 <body>
