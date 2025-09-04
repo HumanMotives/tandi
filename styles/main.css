@@ -71,4 +71,46 @@ footer {
   display: block;
 }
 
+.substack-list { 
+  display: grid; 
+  gap: 1rem; 
+  list-style: none; 
+  padding: 0; 
+}
+.substack-post {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: #fff;
+}
+.substack-image {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.substack-content { flex: 1; }
+.substack-title { 
+  margin: 0 0 0.2rem; 
+  font-size: 1rem; 
+  line-height: 1.3; 
+}
+.substack-title a { text-decoration: none; color: #111; }
+.substack-title a:hover { color: #555; text-decoration: underline; }
+.substack-meta { 
+  color: #666; 
+  font-size: 0.85rem; 
+  margin-bottom: 0.35rem; 
+  display: block; 
+}
+.substack-snippet { 
+  color: #333; 
+  margin: 0.25rem 0 0.5rem; 
+  font-size: 0.9rem; 
+  line-height: 1.4;
+}
 
