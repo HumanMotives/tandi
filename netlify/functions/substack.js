@@ -1,6 +1,6 @@
 // netlify/functions/substack.js
 export async function handler(event, context) {
-  const FEED_URL = process.env.SUBSTACK_FEED_URL || "https://YOUR-HANDLE.substack.com/feed";
+  const FEED_URL = process.env.SUBSTACK_FEED_URL || "https://humanmotives.substack.com/feed";
 
   try {
     const res = await fetch(FEED_URL);
