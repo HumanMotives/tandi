@@ -2,38 +2,331 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Data Grave — Moving…</title>
-
-  <!-- Hard redirect fallback for non-JS/bots -->
-  <meta http-equiv="refresh" content="0; url=https://humanmotives.org/projects/datagrave/" />
-  <link rel="canonical" href="https://humanmotives.org/projects/datagrave/" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>H/M Human Motives</title>
   <style>
-    :root{ --bg:#f9f7f3; --ink:#111; --line:rgba(0,0,0,.12); }
-    html,body{height:100%}
-    body{margin:0; display:grid; place-items:center; background:var(--bg);
-         font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--ink);}
-    .card{ text-align:center; padding:1.5rem 2rem; background:#fff; border:1px solid var(--line);
-           border-radius:12px; max-width:520px; box-shadow:0 1px 0 rgba(0,0,0,.06); }
-    .btn{ display:inline-block; min-width:220px; height:44px; line-height:44px; padding:0 16px;
-          border-radius:6px; border:1px solid #000; background:#000; color:#fff; text-decoration:none; font-weight:600; }
-  </style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background-color: #ffffff;
+      color: #111;
+      line-height: 1.5;
+      padding: 1rem;
+    }
+    .container { max-width: 720px; margin: 0 auto; padding: 0 1rem; }
+    .site-title { font-size: 4rem; line-height: 1.1; }
 
-  <script>
-    const NEW_URL = 'https://humanmotives.org/projects/datagrave/';
-    // Instant redirect; replace() keeps the old URL out of browser history
-    location.replace(NEW_URL);
-  </script>
+    header { padding: 2rem 0; text-align: center; }
+    header h1 { font-size: 2.4rem; font-weight: bold; margin-bottom: 0.5rem; }
+    header p { font-size: 1.1rem; color: #555; }
+
+    .section { padding: 1.5rem 0; margin: 1.5rem 0; border-bottom: 1px solid #eee; }
+    .section img { width: 100%; clip-path: polygon(0 0, 100% 8%, 100% 92%, 0% 100%); margin-bottom: 1rem; }
+    .section h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .section p { color: #444; margin-bottom: 1rem; }
+
+    .tag {
+      display: inline-block; background: #eee; color: #333;
+      font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 8px;
+      margin-right: 0.5rem; margin-bottom: 0.5rem;
+    }
+
+    .project-list { list-style: none; padding: 0; margin-top: 1rem; }
+    .project-list li { margin-bottom: 0.8rem; }
+    .project-list a {
+      text-decoration: none; color: #111; font-weight: 500;
+      display: flex; align-items: center; transition: color 0.3s ease;
+    }
+    .project-list a:hover { color: #555; }
+    .project-list .arrow { margin-right: 0.5rem; transition: transform 0.3s ease; }
+    .project-list a:hover .arrow { transform: translateX(4px); }
+
+    /* horizontal scroll cards */
+    .scroll-section { margin: 2rem 0; }
+    .scroll-section h2 { font-size: 1.4rem; margin-bottom: 1rem; }
+    .scroll-cards {
+      display: flex; flex-wrap: nowrap; gap: 1rem; overflow-x: auto; padding-bottom: 1rem;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .scroll-cards::-webkit-scrollbar { display: none; }
+    .scroll-card { flex: 0 0 calc((100% - 2rem) / 3); max-width: calc((100% - 2rem) / 3); text-align: center; flex-shrink: 0; }
+    .scroll-card img { width: 100%; border-radius: 8px; margin-bottom: 0.25rem; }
+
+    .vertical-cards { display: flex; flex-direction: column; gap: 1.5rem; margin: 2rem 0; }
+    .vertical-card { background: #f5f5f5; border-radius: 16px; padding: 1rem; }
+    .vertical-card img { width: 100%; border-radius: 12px; margin-bottom: 1rem; }
+    .vertical-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .vertical-card .tag { background: #e0e0e0; color: #333; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 8px; margin-right: 0.5rem; margin-bottom: 0.5rem; }
+
+    /* Substack list */
+    .notes-section h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .notes-intro { color: #444; margin-bottom: 1rem; }
+    .substack-list { display: grid; gap: 0.9rem; list-style: none; padding: 0; }
+    .substack-post { border: 1px solid #eee; border-radius: 12px; padding: 0.9rem 1rem; background: #fff; }
+    .substack-title { margin: 0 0 0.2rem; font-size: 1.05rem; line-height: 1.3; }
+    .substack-title a { text-decoration: none; color: #111; }
+    .substack-title a:hover { color: #555; text-decoration: underline; }
+    .substack-meta { color: #666; font-size: 0.9rem; margin-bottom: 0.35rem; display: block; }
+    .substack-snippet { color: #333; margin: 0.25rem 0 0.5rem; }
+    .substack-read a { text-decoration: none; color: #111; font-weight: 500; }
+    .substack-read a:hover { text-decoration: underline; }
+
+    .subscribe-form { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem; max-width: 400px; }
+    .subscribe-form input { padding: 0.75rem; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; width: 100%; }
+    .subscribe-form button {
+      background: #111; color: #fff; padding: 0.75rem; border: none;
+      border-radius: 8px; font-size: 1rem; cursor: pointer; transition: background 0.3s ease;
+    }
+    .subscribe-form button:hover { background: #333; }
+
+    .footer { text-align: center; font-size: 0.9rem; color: #aaa; padding: 2rem 0; }
+  </style>
 </head>
 <body>
-  <main class="card">
-    <h1>The Data Grave has moved</h1>
-    <p>Redirecting you to the new site…</p>
-    <p><a class="btn" href="https://humanmotives.org/projects/datagrave/">Go now</a></p>
-    <noscript>
-      <p>JavaScript is disabled. Please use the button above.</p>
-    </noscript>
-  </main>
+  <div class="container">
+
+    <header>
+      <h1 class="site-title">H/M</h1>
+      <p>Human Motives is where sound, projects, and story come together.</p>
+    </header>
+
+    <div class="section">
+      <img src="/images/HumanMotivesMusic.jpg" alt="Music Image">
+      <div class="tag">Sound</div><div class="tag">Composition</div>
+      <h2>My Music</h2>
+      <p>Original compositions, experimental loops, and personal sonic moments — captured and shared with care.</p>
+      <ul class="project-list">
+        <li><a href="https://youtube.com/@humanmotives?si=pDWmPlBnZm3XFPXw" target="_blank" rel="noopener"><span class="arrow">➝</span> YouTube</a></li>
+        <li><a href="https://open.spotify.com/artist/5XwCzd52xR5uw1kp3q31JI?si=cRzLf_ZnTpGP9zQM65iTow" target="_blank" rel="noopener"><span class="arrow">➝</span> Spotify</a></li>
+        <li><a href="https://humanmotives.bandcamp.com" target="_blank" rel="noopener"><span class="arrow">➝</span> Bandcamp</a></li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <img src="images/IMG_9875.jpeg" alt="Projects Image">
+      <div class="tag">Code</div><div class="tag">Design</div>
+      <h2>My Projects</h2>
+      <p>A digital shelf of passion projects, art experiments, and design explorations — constantly evolving.</p>
+      <ul class="project-list">
+        <li><a href="/projects/datagrave/"><span class="arrow">➝</span> Data Grave</a></li>
+        <li><a href="/projects/ghostradio/"><span class="arrow">➝</span> Ghost Radio</a></li>
+        <li><a href="/projects/leylines/"><span class="arrow">➝</span>Leylines</a></li>
+      </ul>
+    </div>
+
+    <div class="scroll-section">
+      <h2>Projects</h2>
+      <div class="scroll-cards">
+        <a href="https://transcendent-otter-ee8661.netlify.app/projects/thedatagrave/" class="scroll-card">
+          <img src="images/DataGraveProjectImage.jpg" alt="Data Grave">
+          <p>Data Grave</p>
+        </a>
+        <a href="/projects/leylines/" class="scroll-card">
+          <img src="images/LeylinesProjectImage.jpg" alt="Leylines">
+          <p>Leylines</p>
+        </a>
+        <a href="#" class="scroll-card">
+          <img src="IMG_9884.jpeg" alt="Ghost Radio">
+          <p>Ghost Radio</p>
+        </a>
+      </div>
+    </div>
+
+    <div class="section">
+      <img src="images/HumanMotivesPortrait.jpg" alt="Portrait of H/M">
+      <div class="tag">Personal</div><div class="tag">Intentional</div>
+      <h2>My Story</h2>
+      <p>This space is more than work — it’s a thread of thoughts, inspiring moments, and the journey so far. After drumming in rock bands, I gradually moved into experimental electronic music and generative techniques. I embrace chance, imperfection, and rhythm.</p>
+    </div>
+
+    <!-- ===== Substack Notes Section ===== -->
+    <div class="section notes-section" id="notes">
+      <h2>Studio Notes</h2>
+      <p class="notes-intro">Latest entries from my Substack — short reflections on sound, process, and experiments.</p>
+      <ul class="substack-list" id="substack-list">
+        <li class="substack-post"><em>Loading notes…</em></li>
+      </ul>
+    </div>
+    <!-- ===== /Substack Notes Section ===== -->
+
+    <!-- Begin Brevo Form -->
+    <!-- START - We recommend to place the below code in head tag of your website html  -->
+    <style>
+      @font-face {
+        font-display: block;
+        font-family: Roboto;
+        src: url(https://assets.brevo.com/font/Roboto/Latin/normal/normal/7529907e9eaf8ebb5220c5f9850e3811.woff2) format("woff2"), url(https://assets.brevo.com/font/Roboto/Latin/normal/normal/25c678feafdc175a70922a116c9be3e7.woff) format("woff")
+      }
+      @font-face {
+        font-display: fallback;
+        font-family: Roboto;
+        font-weight: 600;
+        src: url(https://assets.brevo.com/font/Roboto/Latin/medium/normal/6e9caeeafb1f3491be3e32744bc30440.woff2) format("woff2"), url(https://assets.brevo.com/font/Roboto/Latin/medium/normal/71501f0d8d5aa95960f6475d5487d4c2.woff) format("woff")
+      }
+      @font-face {
+        font-display: fallback;
+        font-family: Roboto;
+        font-weight: 700;
+        src: url(https://assets.brevo.com/font/Roboto/Latin/bold/normal/3ef7cf158f310cf752d5ad08cd0e7e60.woff2) format("woff2"), url(https://assets.brevo.com/font/Roboto/Latin/bold/normal/ece3a1d82f18b60bcce0211725c476aa.woff) format("woff")
+      }
+      #sib-container input:-ms-input-placeholder { text-align: left; font-family: Helvetica, sans-serif; color: #c0ccda; }
+      #sib-container input::placeholder { text-align: left; font-family: Helvetica, sans-serif; color: #c0ccda; }
+      #sib-container textarea::placeholder { text-align: left; font-family: Helvetica, sans-serif; color: #c0ccda; }
+      #sib-container a { text-decoration: underline; color: #2BB2FC; }
+    </style>
+    <link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
+    <!--  END - We recommend to place the above code in head tag of your website html -->
+
+    <!-- START - We recommend to place the below code where you want the form in your website html  -->
+    <div class="sib-form" style="text-align: center; background-color: transparent;">
+      <div id="sib-form-container" class="sib-form-container">
+
+        <div id="error-message" class="sib-form-message-panel" style="font-size:16px; text-align:left; font-family:Helvetica, sans-serif; color:#661d1d; background-color:#ffeded; border-radius:3px; border-color:#ff4949;max-width:540px;">
+          <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
+            <svg viewBox="0 0 512 512" class="sib-icon sib-notification__icon">
+              <path d="M256 40c118.621 0 216 96.075 216 216 0 119.291-96.61 216-216 216-119.244 0-216-96.562-216-216 0-119.203 96.602-216 216-216m0-32C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm-11.49 120h22.979c6.823 0 12.274 5.682 11.99 12.5l-7 168c-.268 6.428-5.556 11.5-11.99 11.5h-8.979c-6.433 0-11.722-5.073-11.99-11.5l-7-168c-.283-6.818 5.167-12.5 11.99-12.5zM256 340c-15.464 0-28 12.536-28 28s12.536 28 28 28 28-12.536 28-28-12.536-28-28-28z"/>
+            </svg>
+            <span class="sib-form-message-panel__inner-text">
+              Your subscription could not be saved. Please try again.
+            </span>
+          </div>
+        </div>
+
+        <div></div>
+
+        <div id="success-message" class="sib-form-message-panel" style="font-size:16px; text-align:left; font-family:Helvetica, sans-serif; color:#085229; background-color:#e7faf0; border-radius:3px; border-color:#13ce66;max-width:540px;">
+          <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
+            <svg viewBox="0 0 512 512" class="sib-icon sib-notification__icon">
+              <path d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 464c-118.664 0-216-96.055-216-216 0-118.663 96.055-216 216-216 118.664 0 216 96.055 216 216 0 118.663-96.055 216-216 216zm141.63-274.961L217.15 376.071c-4.705 4.667-12.303 4.637-16.97-.068l-85.878-86.572c-4.667-4.705-4.637-12.303.068-16.97l8.52-8.451c4.705-4.667 12.303-4.637 16.97.068l68.976 69.533 163.441-162.13c4.705-4.667 12.303-4.637 16.97.068l8.451 8.52c4.668 4.705 4.637 12.303-.068 16.97z"/>
+            </svg>
+            <span class="sib-form-message-panel__inner-text">
+              Your subscription has been successful.
+            </span>
+          </div>
+        </div>
+
+        <div></div>
+
+        <div id="sib-container" class="sib-container--large sib-container--vertical" style="text-align:center; background-color:rgba(255,255,255,1); max-width:540px; border-radius:3px; border-width:0px; border-color:#ffffff; border-style:solid; direction:ltr">
+          <form id="sib-form" method="POST" action="https://c8faef39.sibforms.com/serve/MUIFABy9H3LnzOydeIXvJc9ce59foCFqzg0l9Ie4T9L1cpfiwCglvtmtEPmCQDnzoiF3s9C3q8EwEAxtByIiWfH7EzrjZNSR4lq8fy6997NC5eKlz9guRyKJYTj28j5GF-5Xvwuqcr1bLBG216LP875cjhfXs_h3PB5mIcTb_pn904Yc7urFUB8cEu0l0PjpyyoLDyPUHnRFyLpd" data-type="subscription">
+            <div style="padding: 8px 0;">
+              <div class="sib-form-block" style="font-size:16px; text-align:left; font-family:Helvetica, sans-serif; color:#3C4858; background-color:transparent; text-align:left">
+                <div class="sib-text-form-block">
+                  <p>Join the H/M list for new sounds, releases &amp; moments.</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding: 8px 0;">
+              <div class="sib-input sib-form-block">
+                <div class="form__entry entry_block">
+                  <div class="form__label-row ">
+                    <label class="entry__label" style="font-weight: 700; text-align:left; font-size:16px; text-align:left; font-weight:700; font-family:Helvetica, sans-serif; color:#3c4858;" for="EMAIL" data-required="*">Enter your email:</label>
+                    <div class="entry__field">
+                      <input class="input " type="text" id="EMAIL" name="EMAIL" autocomplete="off" placeholder="EMAIL" data-required="true" required />
+                    </div>
+                  </div>
+                  <label class="entry__error entry__error--primary" style="font-size:16px; text-align:left; font-family:Helvetica, sans-serif; color:#661d1d; background-color:#ffeded; border-radius:3px; border-color:#ff4949;"></label>
+                  <label class="entry__specification" style="font-size:12px; text-align:left; font-family:Helvetica, sans-serif; color:#8390A4; text-align:left">
+                    Provide your email address to subscribe. For e.g abc@xyz.com
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding: 8px 0;">
+              <div class="sib-form-block" style="text-align: left">
+                <button class="sib-form-block__button sib-form-block__button-with-loader" style="font-size:16px; text-align:left; font-family:Helvetica, sans-serif; color:#FFFFFF; background-color:#030303; border-radius:3px; border-width:0px;" form="sib-form" type="submit">
+                  <svg class="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512" style="">
+                    <path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z"/>
+                  </svg>
+                  SUBSCRIBE
+                </button>
+              </div>
+            </div>
+
+            <input type="text" name="email_address_check" value="" class="input--hidden">
+            <input type="hidden" name="locale" value="en">
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- END - We recommend to place the above code where you want the form in your website html  -->
+
+    <!-- START - We recommend to place the below code in footer or bottom of your website html  -->
+    <script>
+      window.REQUIRED_CODE_ERROR_MESSAGE = 'Please choose a country code';
+      window.LOCALE = 'en';
+      window.EMAIL_INVALID_MESSAGE = window.SMS_INVALID_MESSAGE = "The information provided is invalid. Please review the field format and try again.";
+      window.REQUIRED_ERROR_MESSAGE = "This field cannot be left blank. ";
+      window.GENERIC_INVALID_MESSAGE = "The information provided is invalid. Please review the field format and try again.";
+      window.translation = {
+        common: {
+          selectedList: '{quantity} list selected',
+          selectedLists: '{quantity} lists selected',
+          selectedOption: '{quantity} selected',
+          selectedOptions: '{quantity} selected'
+        }
+      };
+      var AUTOHIDE = Boolean(0);
+    </script>
+    <script defer src="https://sibforms.com/forms/end-form/build/main.js"></script>
+    <!-- END - We recommend to place the above code in footer or bottom of your website html  -->
+    <!-- End Brevo Form -->
+
+    <div class="footer">
+      &copy; 2025 H/M — Crafted with clarity.
+    </div>
+
+  </div>
+
+  <!-- Substack loader: fetches your RSS via Netlify Function and renders list -->
+  <script>
+  (async function loadSubstack() {
+    const list = document.getElementById("substack-list");
+    try {
+      const res = await fetch("/.netlify/functions/substack");
+      if (!res.ok) throw new Error("Feed fetch failed");
+      const xmlText = await res.text();
+
+      const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+      const items = Array.from(doc.querySelectorAll("item")).slice(0, 5);
+
+      if (!items.length) {
+        list.innerHTML = '<li class="substack-post"><em>No posts yet.</em></li>';
+        return;
+      }
+
+      const html = items.map((item) => {
+        const title = item.querySelector("title")?.textContent?.trim() || "Untitled";
+        const link = item.querySelector("link")?.textContent?.trim() || "#";
+        const pubDate = item.querySelector("pubDate")?.textContent || "";
+        const dateStr = pubDate ? new Date(pubDate).toLocaleDateString() : "";
+
+        // Prefer full body if available, else description
+        const fullNode = item.getElementsByTagName("content:encoded")[0];
+        const raw = (fullNode?.textContent || item.querySelector("description")?.textContent || "").trim();
+
+        // Strip HTML → snippet
+        const textOnly = raw.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+        const snippet = textOnly.length > 180 ? textOnly.slice(0, 180) + "…" : textOnly;
+
+        return `
+          <li class="substack-post">
+            <h3 class="substack-title"><a href="${link}" target="_blank" rel="noopener">${title}</a></h3>
+            ${dateStr ? `<time class="substack-meta" datetime="${new Date(pubDate).toISOString()}">${dateStr}</time>` : ""}
+            ${snippet ? `<p class="substack-snippet">${snippet}</p>` : ""}
+            <p class="substack-read"><a href="${link}" target="_blank" rel="noopener">Read on Substack →</a></p>
+          </li>
+        `;
+      }).join("");
+
+      list.innerHTML = html;
+    } catch (e) {
+      console.error(e);
+      list.innerHTML = '<li class="substack-post"><em>Couldn’t load notes right now.</em></li>';
+    }
+  })();
+  </script>
 </body>
 </html>
