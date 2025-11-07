@@ -1,7 +1,7 @@
 // ========================= js/main.js =========================
-import {AudioEngine} from 'mangler/js/audioEngine.js';
-import {Waveform}     from 'mangler/js/waveform.js';
-import {UI}           from 'mangler/js/ui.js';
+import {AudioEngine} from './js/audioEngine.js';
+import {Waveform}     from './js/waveform.js';
+import {UI}           from ./js/ui.js';
 
 // ---- bootstrap singletons
 const ui     = new UI(document);
