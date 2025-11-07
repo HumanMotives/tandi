@@ -1,4 +1,50 @@
 <!-- =============================================
+MANGLER V2 — Modularized Starter Kit
+Files in this document:
+1) index.html
+2) styles.css
+3) js/audioEngine.js
+4) js/waveform.js
+5) js/ui.js
+6) js/main.js
+Copy each section into your project with matching filenames.
+============================================= -->
+
+
+<!-- ========================= 1) index.html ========================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MANGLER V2</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+<header class="bar">
+<h1>MANGLER <span class="pill">V2</span></h1>
+<div class="spacer"></div>
+<button id="randomLoad" class="btn">Random from Archive.org</button>
+<label class="btn file">
+<input id="fileInput" type="file" accept="audio/*" hidden />
+Load file…
+</label>
+</header>
+
+
+<!-- Canvas waveform with slice overlay -->
+<section class="panel">
+<canvas id="wave" height="180" aria-label="Waveform visualization"></canvas>
+<div class="legend">
+<span class="tag tag-play">playhead</span>
+<span class="tag tag-slice">slice</span>
+<span class="tag tag-loop">loop</span>
+</div>
+</section>
+
+
+<!-- Transport -->
 <section class="panel grid transport">
 <button id="playOnce" class="btn primary">Play Slice</button>
 <button id="startLoop" class="btn">Start Loop</button>
@@ -14,7 +60,6 @@
 <div class="hint">Tip: drag on the waveform to select start/length. Scroll to zoom, Shift+drag to pan.</div>
 </section>
 
-<script type="module" src="./js/main.js"></script>
 
 <!-- Core slice params -->
 <section class="panel grid">
@@ -38,33 +83,3 @@
 
 
 <!-- Envelope / Tone -->
-<section class="panel grid">
-<div class="field"><label>Attack</label><input id="attack" type="range" min="0" max="1" step="0.01" value="0.01" /><output id="attackOut">0.01</output></div>
-<div class="field"><label>Decay</label><input id="decay" type="range" min="0" max="1" step="0.01" value="0.10" /><output id="decayOut">0.10</output></div>
-<div class="field"><label>Sustain</label><input id="sustain" type="range" min="0" max="1" step="0.01" value="0.70" /><output id="sustainOut">0.70</output></div>
-<div class="field"><label>Release</label><input id="release" type="range" min="0" max="3" step="0.01" value="0.50" /><output id="releaseOut">0.50</output></div>
-<div class="field"><label>Filter (Hz)</label><input id="filter" type="range" min="100" max="20000" step="1" value="20000" /><output id="filterOut">20000</output></div>
-<div class="field"><label>Reverb Mix</label><input id="wet" type="range" min="0" max="1" step="0.01" value="0.30" /><output id="wetOut">0.30</output></div>
-<button id="randomTone" class="btn ghost">🎲 Random Tone</button>
-</section>
-
-
-<!-- Delay / Feedback -->
-<section class="panel grid">
-<div class="field"><label>Delay Time (s)</label><input id="delay" type="range" min="0" max="5" step="0.01" value="1.5" /><output id="delayOut">1.50</output></div>
-<div class="field"><label>Feedback</label><input id="feedback" type="range" min="0" max="0.95" step="0.01" value="0.6" /><output id="feedbackOut">0.60</output></div>
-<button id="randomFX" class="btn ghost">🎲 Random FX</button>
-<button id="randomAll" class="btn">🔀 Randomize All</button>
-</section>
-
-
-<section class="panel log">
-<pre id="log">📝 Log:</pre>
-</section>
-</div>
-
-
-
-</body>
-</html>
-
