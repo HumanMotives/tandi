@@ -1,7 +1,4 @@
-
-
-
-
+// ========================= 6) js/main.js =========================
 // transport
 ui.on(ui.playOnce,'click', ()=>{
 if (!engine.buffer) return alert('Load audio first');
