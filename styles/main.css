@@ -10,7 +10,7 @@ body {
   background-color: #f5f1e6;
   font-family: monospace;
   font-size: 12pt;
-  color: #333;
+  color: #167380;
   max-width: 800px;
   margin: 4rem auto;
   padding: 0 1.5rem;
@@ -52,7 +52,7 @@ a:hover {
   display: block;
   margin-top: 1rem;
   text-align: center;
-  color: #555;
+  color: #167380;
   text-decoration: underline;
   cursor: pointer;
   font-size: 0.9rem;
