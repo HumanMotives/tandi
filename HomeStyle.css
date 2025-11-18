@@ -206,21 +206,18 @@ p {
   text-decoration: none;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: transform 120ms ease-out, box-shadow 120ms ease-out,
-    background-color 120ms ease-out, border-color 120ms ease-out,
-    color 120ms ease-out;
+  transition: transform 120ms ease-out, background-color 120ms ease-out,
+    border-color 120ms ease-out, color 120ms ease-out;
   white-space: nowrap;
 }
 
 .btn.primary {
   background-color: var(--hm-primary);
   color: #ffffff;
-  box-shadow: 0 10px 25px rgba(22, 115, 128, 0.22);
 }
 
 .btn.primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 16px 35px rgba(22, 115, 128, 0.26);
 }
 
 .btn.ghost {
@@ -253,10 +250,27 @@ p {
 --------------------------- */
 
 .hero {
+  position: relative;
   padding: 3.6rem 0 3.8rem;
+  overflow: hidden;
+}
+
+/* subtle contour-ish background on the right */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 110% 0%, rgba(179, 145, 66, 0.15) 0, transparent 55%),
+    radial-gradient(circle at 105% 40%, rgba(146, 190, 190, 0.22) 0, transparent 55%),
+    radial-gradient(circle at 120% 80%, rgba(99, 79, 73, 0.18) 0, transparent 60%);
+  opacity: 0.8;
+  pointer-events: none;
 }
 
 .hero-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 2.4rem;
   align-items: start;
@@ -269,136 +283,97 @@ p {
   margin-top: 1.6rem;
 }
 
+/* animated sequencer grid */
+
 .hero-visual {
-  display: grid;
-  gap: 1.4rem;
-}
-
-.hero-panel {
-  position: relative;
-  border-radius: 1.4rem;
-  border: 1px solid var(--hm-border-subtle);
-  padding: 1.4rem;
-  background-color: #fafafa;
-  overflow: hidden;
-}
-
-.panel-label {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--hm-text-muted);
-  margin: 0 0 0.6rem;
-}
-
-/* Dotted grid panel */
-.panel-dots {
-  background: radial-gradient(circle, #c4c7c9 1px, transparent 1px);
-  background-size: 10px 10px;
-}
-
-/* Diagram panel */
-.diagram-elements {
-  margin-top: 0.5rem;
-}
-
-.diagram-row {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 0.8rem;
 }
 
-.diagram-circle {
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  border: 1.5px solid var(--hm-primary);
-}
-
-.diagram-arrow {
-  flex: 1;
-  height: 0;
-  border-top: 1.5px solid var(--hm-primary);
-  position: relative;
-}
-
-.diagram-arrow::after {
-  content: "";
-  position: absolute;
-  right: -4px;
-  top: -3px;
-  border-width: 4px 0 4px 6px;
-  border-style: solid;
-  border-color: transparent transparent transparent var(--hm-primary);
-}
-
-.diagram-block {
-  width: 26px;
-  height: 22px;
-  border-radius: 4px;
-  border: 1.5px solid var(--hm-primary);
-}
-
-.diagram-block.highlighted {
-  border-color: var(--hm-accent);
-}
-
-.diagram-waveforms {
+.sequencer-grid {
   display: grid;
-  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+  width: min(220px, 60vw);
 }
 
-/* Simple fake wave and steps using gradients */
-.diagram-wave {
-  height: 30px;
-  background-image: linear-gradient(
-      to right,
-      transparent 0,
-      transparent 5%,
-      rgba(22, 115, 128, 0.25) 5%,
-      rgba(22, 115, 128, 0.25) 10%,
-      transparent 10%
-    ),
-    repeating-linear-gradient(
-      to right,
-      var(--hm-primary),
-      var(--hm-primary) 8px,
-      transparent 8px,
-      transparent 16px
-    );
-  mix-blend-mode: multiply;
-  opacity: 0.85;
+.sq {
+  position: relative;
+  padding-bottom: 100%;
+  border-radius: 0.55rem;
+  background-color: var(--hm-genoa);
+  animation: colorPulse 7s infinite alternate ease-in-out;
 }
 
-.diagram-steps {
-  height: 22px;
-  background: repeating-linear-gradient(
-    to right,
-    var(--hm-primary),
-    var(--hm-primary) 8px,
-    var(--hm-bg) 8px,
-    var(--hm-bg) 16px
-  );
-  clip-path: polygon(
-    0 100%,
-    0 0,
-    15% 0,
-    15% 100%,
-    30% 100%,
-    30% 0,
-    45% 0,
-    45% 100%,
-    60% 100%,
-    60% 0,
-    75% 0,
-    75% 100%,
-    90% 100%,
-    90% 0,
-    100% 0,
-    100% 100%
-  );
-  opacity: 0.9;
+/* each square has its own color path + delay */
+
+.s1 {
+  --from: #0f8b92;
+  --to: var(--hm-genoa);
+  animation-delay: 0s;
+}
+
+.s2 {
+  --from: #d7dfdf;
+  --to: var(--hm-shadow-green);
+  animation-delay: 0.4s;
+}
+
+.s3 {
+  --from: #ffc772;
+  --to: var(--hm-tussock);
+  animation-delay: 0.8s;
+}
+
+.s4 {
+  --from: #f3e0b0;
+  --to: var(--hm-tussock);
+  animation-delay: 1.2s;
+}
+
+.s5 {
+  --from: var(--hm-genoa);
+  --to: #39b9a6;
+  animation-delay: 1.6s;
+}
+
+.s6 {
+  --from: #39b9a6;
+  --to: var(--hm-shadow-green);
+  animation-delay: 2s;
+}
+
+.s7 {
+  --from: var(--hm-shadow-green);
+  --to: #e9f4f4;
+  animation-delay: 2.4s;
+}
+
+.s8 {
+  --from: #0f8b92;
+  --to: #49d0e0;
+  animation-delay: 2.8s;
+}
+
+.s9 {
+  --from: #f6d192;
+  --to: var(--hm-tussock);
+  animation-delay: 3.2s;
+}
+
+@keyframes colorPulse {
+  0% {
+    background-color: var(--from);
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+  100% {
+    background-color: var(--to);
+    transform: translateY(0);
+  }
 }
 
 /* --------------------------
