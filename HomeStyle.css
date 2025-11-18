@@ -389,6 +389,42 @@ p {
   font-size: 0.98rem;
 }
 
+/* social links under About */
+
+.about-links {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.7rem;
+  font-size: 0.88rem;
+}
+
+.about-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  text-decoration: none;
+  color: var(--hm-heading);
+  font-weight: 500;
+}
+
+.about-link::before {
+  content: "→";
+  font-size: 0.85rem;
+  display: inline-block;
+  transform: translateX(0);
+  transition: transform 140ms ease-out;
+}
+
+.about-link:hover {
+  color: var(--hm-primary);
+}
+
+.about-link:hover::before {
+  transform: translateX(4px);
+}
+
 /* --------------------------
    Projects grid
 --------------------------- */
