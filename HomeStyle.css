@@ -261,8 +261,8 @@ p {
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(circle at 110% 0%, rgba(179, 145, 66, 0.15) 0, transparent 55%),
-    radial-gradient(circle at 105% 40%, rgba(146, 190, 190, 0.22) 0, transparent 55%),
+    radial-gradient(circle at 110% 0%, rgba(179, 145, 66, 0.15) 0, transparent 25%),
+    radial-gradient(circle at 105% 40%, rgba(146, 190, 190, 0.22) 0, transparent 25%),
     radial-gradient(circle at 120% 80%, rgba(99, 79, 73, 0.18) 0, transparent 30%);
   opacity: 0.5;
   pointer-events: none;
