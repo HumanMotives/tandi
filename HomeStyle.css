@@ -1,0 +1,594 @@
+/* --------------------------
+   Color system
+   Change these variables to adjust typography and buttons
+--------------------------- */
+:root {
+  --hm-bg: #ffffff;
+  --hm-bg-tint: #f7f8f7;
+
+  /* Palette */
+  --hm-shadow-green: #92bebe;
+  --hm-genoa: #167380;
+  --hm-tussock: #b39142;
+  --hm-ferra: #634f49;
+
+  /* Typographic colors */
+  --hm-text-main: #151515;
+  --hm-text-muted: #4f4f4f;
+  --hm-heading: #161c24;
+
+  /* UI colors */
+  --hm-border-subtle: #e3e5e6;
+  --hm-card-bg: #ffffff;
+
+  --hm-primary: var(--hm-genoa);
+  --hm-accent: var(--hm-tussock);
+}
+
+/* --------------------------
+   Base reset
+--------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background-color: var(--hm-bg);
+  color: var(--hm-text-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --------------------------
+   Layout helpers
+--------------------------- */
+
+.container {
+  width: min(1120px, 100% - 3rem);
+  margin-inline: auto;
+}
+
+.section {
+  padding: 3.5rem 0;
+}
+
+.section-tinted {
+  background-color: var(--hm-bg-tint);
+}
+
+.section-header {
+  max-width: 40rem;
+  margin-bottom: 2.5rem;
+}
+
+.section-header h2 {
+  margin: 0 0 0.75rem;
+}
+
+.section-header p {
+  margin: 0;
+  color: var(--hm-text-muted);
+}
+
+/* --------------------------
+   Typography
+--------------------------- */
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--hm-heading);
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(2.3rem, 5vw, 3.8rem);
+  line-height: 1.05;
+}
+
+h2 {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  line-height: 1.1;
+}
+
+h3 {
+  font-size: 1.25rem;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--hm-text-muted);
+}
+
+.hero-text {
+  font-size: 1.05rem;
+  max-width: 32rem;
+  color: var(--hm-text-muted);
+}
+
+/* --------------------------
+   Header / nav
+--------------------------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--hm-bg);
+  border-bottom: 1px solid var(--hm-border-subtle);
+  backdrop-filter: blur(10px);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 0;
+}
+
+.logo {
+  font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.86rem;
+  text-decoration: none;
+  color: var(--hm-heading);
+}
+
+.main-nav {
+  display: flex;
+  gap: 1.75rem;
+  font-size: 0.95rem;
+}
+
+.main-nav a {
+  text-decoration: none;
+  color: var(--hm-text-muted);
+  position: relative;
+  padding-bottom: 0.2rem;
+}
+
+.main-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 1px;
+  background-color: var(--hm-primary);
+  transition: width 160ms ease-out;
+}
+
+.main-nav a:hover {
+  color: var(--hm-heading);
+}
+
+.main-nav a:hover::after {
+  width: 100%;
+}
+
+/* --------------------------
+   Buttons
+--------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.4rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 120ms ease-out, box-shadow 120ms ease-out,
+    background-color 120ms ease-out, border-color 120ms ease-out,
+    color 120ms ease-out;
+  white-space: nowrap;
+}
+
+.btn.primary {
+  background-color: var(--hm-primary);
+  color: #ffffff;
+  box-shadow: 0 10px 25px rgba(22, 115, 128, 0.22);
+}
+
+.btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 35px rgba(22, 115, 128, 0.26);
+}
+
+.btn.ghost {
+  background-color: transparent;
+  border-color: var(--hm-border-subtle);
+  color: var(--hm-heading);
+}
+
+.btn.ghost:hover {
+  border-color: var(--hm-primary);
+  color: var(--hm-primary);
+}
+
+.btn.subtle {
+  padding-inline: 1.1rem;
+  font-size: 0.82rem;
+  border-radius: 999px;
+  border-color: rgba(0, 0, 0, 0.06);
+  background-color: #ffffff;
+  color: var(--hm-heading);
+}
+
+.btn.subtle:hover {
+  border-color: var(--hm-primary);
+  color: var(--hm-primary);
+}
+
+/* --------------------------
+   Hero
+--------------------------- */
+
+.hero {
+  padding: 3.6rem 0 3.8rem;
+}
+
+.hero-grid {
+  display: grid;
+  gap: 2.4rem;
+  align-items: start;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1.6rem;
+}
+
+.hero-visual {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.hero-panel {
+  position: relative;
+  border-radius: 1.4rem;
+  border: 1px solid var(--hm-border-subtle);
+  padding: 1.4rem;
+  background-color: #fafafa;
+  overflow: hidden;
+}
+
+.panel-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--hm-text-muted);
+  margin: 0 0 0.6rem;
+}
+
+/* Dotted grid panel */
+.panel-dots {
+  background: radial-gradient(circle, #c4c7c9 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+/* Diagram panel */
+.diagram-elements {
+  margin-top: 0.5rem;
+}
+
+.diagram-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.diagram-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1.5px solid var(--hm-primary);
+}
+
+.diagram-arrow {
+  flex: 1;
+  height: 0;
+  border-top: 1.5px solid var(--hm-primary);
+  position: relative;
+}
+
+.diagram-arrow::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: -3px;
+  border-width: 4px 0 4px 6px;
+  border-style: solid;
+  border-color: transparent transparent transparent var(--hm-primary);
+}
+
+.diagram-block {
+  width: 26px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1.5px solid var(--hm-primary);
+}
+
+.diagram-block.highlighted {
+  border-color: var(--hm-accent);
+}
+
+.diagram-waveforms {
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* Simple fake wave and steps using gradients */
+.diagram-wave {
+  height: 30px;
+  background-image: linear-gradient(
+      to right,
+      transparent 0,
+      transparent 5%,
+      rgba(22, 115, 128, 0.25) 5%,
+      rgba(22, 115, 128, 0.25) 10%,
+      transparent 10%
+    ),
+    repeating-linear-gradient(
+      to right,
+      var(--hm-primary),
+      var(--hm-primary) 8px,
+      transparent 8px,
+      transparent 16px
+    );
+  mix-blend-mode: multiply;
+  opacity: 0.85;
+}
+
+.diagram-steps {
+  height: 22px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--hm-primary),
+    var(--hm-primary) 8px,
+    var(--hm-bg) 8px,
+    var(--hm-bg) 16px
+  );
+  clip-path: polygon(
+    0 100%,
+    0 0,
+    15% 0,
+    15% 100%,
+    30% 100%,
+    30% 0,
+    45% 0,
+    45% 100%,
+    60% 100%,
+    60% 0,
+    75% 0,
+    75% 100%,
+    90% 100%,
+    90% 0,
+    100% 0,
+    100% 100%
+  );
+  opacity: 0.9;
+}
+
+/* --------------------------
+   About
+--------------------------- */
+
+.two-column {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.two-column p {
+  font-size: 0.98rem;
+}
+
+/* --------------------------
+   Projects grid
+--------------------------- */
+
+.projects-grid {
+  display: grid;
+  gap: 1.7rem;
+}
+
+.project-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 2fr);
+  gap: 1.2rem;
+  border-radius: 1.4rem;
+  padding: 1.4rem;
+  border: 1px solid var(--hm-border-subtle);
+  background-color: var(--hm-card-bg);
+}
+
+.project-thumb {
+  border-radius: 1.1rem;
+  background-size: cover;
+  background-position: center;
+  min-height: 150px;
+}
+
+/* Faux imagery with gradients that use the palette */
+.thumb-genoa {
+  background-image: linear-gradient(135deg, #0f4f5a, var(--hm-genoa)),
+    radial-gradient(circle at 20% 20%, #ffffff 0, transparent 50%);
+}
+
+.thumb-tussock {
+  background-image: linear-gradient(135deg, #f0d2a0, var(--hm-tussock)),
+    radial-gradient(circle at 70% 10%, #ffffff 0, transparent 55%);
+}
+
+.thumb-shadow {
+  background-image: linear-gradient(135deg, var(--hm-shadow-green), #f5f9f9),
+    radial-gradient(circle at 0% 100%, var(--hm-genoa) 0, transparent 50%);
+}
+
+.thumb-ferra {
+  background-image: linear-gradient(135deg, #3c2e2b, var(--hm-ferra)),
+    radial-gradient(circle at 80% 90%, #f7f4ef 0, transparent 55%);
+}
+
+/* Accent borders per project card */
+.accent-genoa {
+  border-color: rgba(22, 115, 128, 0.35);
+}
+
+.accent-tussock {
+  border-color: rgba(179, 145, 66, 0.35);
+}
+
+.accent-shadow {
+  border-color: rgba(146, 190, 190, 0.45);
+}
+
+.accent-ferra {
+  border-color: rgba(99, 79, 73, 0.45);
+}
+
+.project-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.project-tag {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--hm-text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.project-text {
+  font-size: 0.95rem;
+  color: var(--hm-text-muted);
+  margin-bottom: 1.1rem;
+}
+
+/* --------------------------
+   Store / CTA
+--------------------------- */
+
+.store-grid {
+  display: grid;
+  gap: 1.6rem;
+  align-items: center;
+}
+
+.store-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+}
+
+/* --------------------------
+   Footer
+--------------------------- */
+
+.site-footer {
+  border-top: 1px solid var(--hm-border-subtle);
+  padding: 1.6rem 0 2.2rem;
+  background-color: #ffffff;
+}
+
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--hm-text-muted);
+}
+
+.footer-meta {
+  opacity: 0.8;
+}
+
+/* --------------------------
+   Responsive tweaks
+--------------------------- */
+
+@media (min-width: 720px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr);
+    align-items: center;
+  }
+
+  .hero {
+    padding: 4.4rem 0 4.6rem;
+  }
+
+  .two-column {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .projects-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-card {
+    grid-template-columns: 1fr;
+  }
+
+  .store-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr);
+  }
+
+  .footer-inner {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .header-inner {
+    gap: 1rem;
+  }
+
+  .main-nav {
+    gap: 1rem;
+    font-size: 0.85rem;
+  }
+
+  .logo {
+    letter-spacing: 0.14em;
+  }
+
+  .project-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
