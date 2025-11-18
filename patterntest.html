@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Human Motives – Line Background Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root {
+      --hm-shadow-green: #92bebe;
+      --hm-genoa: #167380;
+      --hm-tussock: #b39142;
+      --hm-ferra: #634f49;
+      --hm-bg: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--hm-bg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      min-height: 100vh;
+      color: #111;
+      overflow: hidden; /* for demo */
+    }
+
+    /* Fullscreen canvas sitting behind everything */
+    #bg-lines {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+    }
+
+    /* Simple content so you can see readability on top */
+    .demo-content {
+      position: relative;
+      z-index: 1;
+      padding: 3rem 1.5rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 4vw, 3.2rem);
+      letter-spacing: 0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      max-width: 40rem;
+      line-height: 1.6;
+      opacity: 0.86;
+      margin-bottom: 1rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      opacity: 0.7;
+    }
+
+    .controls {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-lines"></canvas>
+
+<div class="demo-content">
+  <span class="badge">Background lines demo</span>
+  <h1>Flowing geometric lines</h1>
+  <p>
+    This is a lightweight canvas experiment: a handful of animated lines that
+    morph over time using simple trig functions. It is close to what you could
+    use behind sections on the Human Motives site without a big performance hit.
+  </p>
+  <p>
+    Resize the window or open this on your phone to see how it behaves. If it
+    feels smooth enough here, we can integrate a reduced version behind your
+    hero or project sections.
+  </p>
+  <div class="controls">
+    Tip: if you need to, you can always lower detail by increasing the
+    <code>step</code> value or decreasing the number of lines.
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById("bg-lines");
+  const ctx = canvas.getContext("2d");
+
+  let width = 0;
+  let height = 0;
+  let dpr = window.devicePixelRatio || 1;
+
+  // A few line "voices" that move differently
+  const lines = [];
+  const colors = [
+    "rgba(22, 115, 128, 0.65)",  // genoa
+    "rgba(146, 190, 190, 0.6)",  // shadow green
+    "rgba(179, 145, 66, 0.5)",   // tussock
+    "rgba(99, 79, 73, 0.55)"     // ferra
+  ];
+
+  function setupLines() {
+    lines.length = 0;
+    const count = 6; // keep small for perf
+    for (let i = 0; i < count; i++) {
+      lines.push({
+        amplitude: 40 + Math.random() * 40,
+        amplitude2: 15 + Math.random() * 25,
+        freq: 0.001 + Math.random() * 0.0015,
+        freq2: 0.002 + Math.random() * 0.0015,
+        speed: 0.0004 + Math.random() * 0.0005,
+        speed2: 0.0003 + Math.random() * 0.0004,
+        offsetY: (height / (count + 1)) * (i + 1) + (Math.random() * 40 - 20),
+        color: colors[i % colors.length],
+        phase: Math.random() * 1000
+      });
+    }
+  }
+
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+    canvas.width = width * dpr * 0.9; // small trick: draw a bit lower res
+    canvas.height = height * dpr * 0.9;
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+
+    ctx.setTransform(dpr * 0.9, 0, 0, dpr * 0.9, 0, 0);
+    ctx.lineWidth = 1.2;
+
+    setupLines();
+  }
+
+  window.addEventListener("resize", resize);
+  resize();
+
+  let lastTime = performance.now();
+
+  function draw(now) {
+    const delta = now - lastTime;
+    lastTime = now;
+
+    // Light fade instead of full clear creates soft trails
+    ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.fillRect(0, 0, width, height);
+
+    const time = now;
+
+    const step = 14; // horizontal resolution; bigger = less detailed, faster
+    for (const line of lines) {
+      ctx.beginPath();
+      for (let x = 0; x <= width + step; x += step) {
+        const t = time;
+        const y =
+          line.offsetY +
+          Math.sin(x * line.freq + t * line.speed + line.phase) * line.amplitude +
+          Math.cos(x * line.freq2 + t * line.speed2) * line.amplitude2;
+
+        if (x === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.strokeStyle = line.color;
+      ctx.stroke();
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
+</script>
+
+</body>
+</html>
