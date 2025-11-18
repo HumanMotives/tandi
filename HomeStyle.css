@@ -601,7 +601,7 @@ p {
   line-height: 1.05;
   letter-spacing: -0.01em;
   margin: 0 0 1rem;
-  color: var(--hm-heading);
+  color: #fff;
 }
 
 /* Adjust layout when using background-image hero */
