@@ -41,6 +41,16 @@
   --hm-radius-small: 10px;
 }
 
+/* Remove accidental gap above hero band */
+.site-header {
+  margin-bottom: 0;
+}
+
+.hero.hero-band {
+  margin-top: 0;
+  padding-top: 0;
+}
+
 
 /* --------------------------
    Base reset
