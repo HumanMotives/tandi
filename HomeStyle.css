@@ -532,6 +532,31 @@ p {
   transform: translateX(3px);
 }
 
+/* Mini project card sizing */
+.project-mini-card {
+  max-width: 180px;      /* keeps cards compact on large screens */
+}
+
+.mini-thumb {
+  width: 100%;
+  max-width: 180px;      /* hard cap */
+  max-height: 180px;     /* hard cap */
+  aspect-ratio: 1 / 1;
+  border-radius: var(--hm-radius-medium);
+  overflow: hidden;
+}
+
+.mini-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+
+  /* safety limit: even if the original file is huge, it won’t break layout */
+  max-width: 180px;
+  max-height: 180px;
+}
+
 
 /* --------------------------
    Store / CTA
