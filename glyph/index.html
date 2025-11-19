@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glyph Sequencer v9</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 24px 16px;
+  background: #e5e7eb;
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, sans-serif;
+  text-align: center;
+  color: #050816;
+}
+
+.app {
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* Heading */
+
+h1 {
+  font-size: 18px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+}
+
+/* Panel */
+
+.panel {
+  background: #e4e7ee;
+  border-radius: 12px;
+  padding: 18px 18px 16px;
+  display: inline-block;
+}
+
+/* Grid */
+
+.grid-wrapper {
+  display: inline-block;
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+#grid {
+  display: grid;
+  grid-template-columns: repeat(4, 70px);
+  grid-auto-rows: 70px;
+  grid-gap: 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Column backgrounds: use existing palette */
+.col-0 { background-color: #DA6E30; }
+.col-1 { background-color: #BE82A0; }
+.col-2 { background-color: #F5C5C0; }
+.col-3 { background-color: #FFD870; }
+
+.tile {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+  line-height: 1;
+  user-select: none;
+  border: none;
+  overflow: hidden;
+  transition: filter 0.08s ease, opacity 0.12s ease;
+}
+
+.tile span {
+  display: block;
+  line-height: 1;
+  color: #050816;
+}
+
+.tile.active {
+  filter: brightness(1.35);
+}
+
+/* Controls row: play, download, random */
+
+.controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.btn-group-left,
+.btn-group-right {
+  display: flex;
+  gap: 10px;
+}
+
+.circle-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: #050816;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.circle-btn:active {
+  transform: translateY(1px);
+}
+
+/* Sliders section */
+
+.sliders {
+  margin-top: 4px;
+}
+
+.slider-group {
+  margin-bottom: 12px;
+}
+
+.slider-label {
+  font-size: 12px;
+  text-transform: none;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.slider-wrap {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: #BE82A0;
+  overflow: hidden;
+}
+
+/* custom range slider */
+
+.slider-wrap input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 10px;
+  background: transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+}
+
+.slider-wrap::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--fill, 50%);
+  background: #050816;
+}
+
+.slider-wrap input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e4e7ee;
+  border: 2px solid #050816;
+  margin-top: -2px;
+}
+
+.slider-wrap input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e4e7ee;
+  border: 2px solid #050816;
+}
+
+/* Value text under sliders */
+
+.slider-value {
+  font-size: 11px;
+  margin-top: 3px;
+  color: #111827;
+}
+
+/* Scale dropdown */
+
+.scale-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.scale-row label {
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+.scale-row select {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #050816;
+  background: #f9fafb;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #050816;
+}
+
+/* Dials */
+
+.dials-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.dial {
+  position: relative;
+  width: 74px;
+  height: 88px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dial-ring {
+  --value: 0deg;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background:
+    conic-gradient(#050816 var(--value), #BE82A0 0deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dial-inner {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #e4e7ee;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.dial-inner span.value {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dial-inner span.unit {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dial input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dial-label {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Help note */
+
+.note {
+  font-size: 11px;
+  color: #4b5563;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="panel">
+    <h1>Glyph Sequencer</h1>
+
+    <div class="grid-wrapper">
+      <div id="grid">
+        <!-- row 0 -->
+        <div class="tile col-0" data-index="0" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>●</span></div>
+        <div class="tile col-1" data-index="1" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>◐</span></div>
+        <div class="tile col-2" data-index="2" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>■</span></div>
+        <div class="tile col-3" data-index="3" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>▲</span></div>
+        <!-- row 1 -->
+        <div class="tile col-0" data-index="4" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>●</span></div>
+        <div class="tile col-1" data-index="5" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>◐</span></div>
+        <div class="tile col-2" data-index="6" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>■</span></div>
+        <div class="tile col-3" data-index="7" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>▲</span></div>
+        <!-- row 2 -->
+        <div class="tile col-0" data-index="8" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>●</span></div>
+        <div class="tile col-1" data-index="9" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>◐</span></div>
+        <div class="tile col-2" data-index="10" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>■</span></div>
+        <div class="tile col-3" data-index="11" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>▲</span></div>
+        <!-- row 3 -->
+        <div class="tile col-0" data-index="12" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>●</span></div>
+        <div class="tile col-1" data-index="13" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>◐</span></div>
+        <div class="tile col-2" data-index="14" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>■</span></div>
+        <div class="tile col-3" data-index="15" onmousemove="dragEnv(event,this)" ontouchmove="dragEnv(event,this)"><span>▲</span></div>
+      </div>
+    </div>
+
+    <div class="controls-row">
+      <div class="btn-group-left">
+        <button class="circle-btn" id="playBtn" onclick="togglePlayback()">
+          <span id="playIcon">▶</span>
+        </button>
+        <button class="circle-btn" onclick="downloadMIDI()" title="Download MIDI">
+          ⬇
+        </button>
+      </div>
+      <div class="btn-group-right">
+        <button class="circle-btn" onclick="randomizeAll()" title="Randomize all">
+          🎲
+        </button>
+      </div>
+    </div>
+
+    <div class="sliders">
+      <div class="slider-group">
+        <div class="slider-label">Sequence Length</div>
+        <div class="slider-wrap" id="seqLenTrack">
+          <input id="seqLen" type="range" min="1" max="16" value="16" oninput="updateSeqLenUI()">
+        </div>
+        <div class="slider-value"><span id="seqLenValue">16</span> steps</div>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">Notes (Euclidean)</div>
+        <div class="slider-wrap" id="fillTrack">
+          <input id="fill" type="range" min="0" max="16" value="8" oninput="updateFillUI()">
+        </div>
+        <div class="slider-value"><span id="fillValue">8</span> active</div>
+      </div>
+    </div>
+
+    <div class="scale-row">
+      <label for="scaleSelect">Scale</label>
+      <select id="scaleSelect" onchange="updateScale()">
+        <option value="minorPent">Minor Pentatonic</option>
+        <option value="major">Major</option>
+        <option value="dorian">Dorian</option>
+        <option value="lydian">Lydian</option>
+        <option value="japanese">Japanese</option>
+      </select>
+    </div>
+
+    <div class="dials-row">
+      <div class="dial" data-type="bpm">
+        <div class="dial-ring" id="bpmDialRing">
+          <div class="dial-inner">
+            <span class="value" id="bpmDialValue">110</span>
+            <span class="unit">BPM</span>
+          </div>
+        </div>
+        <input id="bpm" type="range" min="40" max="200" value="110" oninput="updateBpmUI()">
+        <div class="dial-label">Tempo</div>
+      </div>
+
+      <div class="dial" data-type="oct">
+        <div class="dial-ring" id="octDialRing">
+          <div class="dial-inner">
+            <span class="value" id="octDialValue">2</span>
+            <span class="unit">Oct</span>
+          </div>
+        </div>
+        <input id="octRange" type="range" min="1" max="4" value="2" oninput="updateOctUI()">
+        <div class="dial-label">Octaves</div>
+      </div>
+    </div>
+
+    <div class="note">
+      Click tiles to change glyphs. Click and drag inside a tile: up = longer decay, right = longer attack.
+    </div>
+  </div>
+</div>
+
+<script>
+var glyphs = ["●", "◐", "■", "▲"];
+var tiles = document.getElementsByClassName("tile");
+var seq = [];
+var audioCtx = null;
+var playing = false;
+var currentStep = 0;
+var loopTimeout = null;
+
+var seqLength = 16;
+var fillCount = 8;
+var pattern = [];
+var octRange = 2;
+
+var defaultAttack = 0.02;
+var defaultDecay = 0.35;
+var attackVals = new Array(16).fill(defaultAttack);
+var decayVals = new Array(16).fill(defaultDecay);
+
+var scales = {
+  minorPent: [0, 3, 5, 7, 10],
+  major:     [0, 2, 4, 5, 7, 9, 11],
+  dorian:    [0, 2, 3, 5, 7, 9, 10],
+  lydian:    [0, 2, 4, 6, 7, 9, 11],
+  japanese:  [0, 1, 5, 7, 8]
+};
+var currentScaleKey = "minorPent";
+
+/* init tiles and click handlers */
+for (var i = 0; i < tiles.length; i++) {
+  (function(idx, tile){
+    var span = tile.getElementsByTagName("span")[0];
+    var symbol = span.textContent;
+    seq[idx] = glyphs.indexOf(symbol);
+
+    tile.addEventListener("click", function(e){
+      if (Math.abs(e.movementX) > 3 || Math.abs(e.movementY) > 3) return;
+      cycleTile(tile);
+    });
+  })(i, tiles[i]);
+}
+
+/* envelope drag */
+function dragEnv(e, el) {
+  var isDown = e.buttons === 1 || e.type === "touchmove";
+  if (!isDown) return;
+  var idx = parseInt(el.getAttribute("data-index"), 10);
+  var rect = el.getBoundingClientRect();
+  var clientX, clientY;
+  if (e.touches && e.touches.length > 0) {
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
+  } else {
+    clientX = e.clientX;
+    clientY = e.clientY;
+  }
+  var x = (clientX - rect.left) / rect.width;
+  var y = (clientY - rect.top) / rect.height;
+  x = Math.min(Math.max(x, 0), 1);
+  y = Math.min(Math.max(y, 0), 1);
+
+  var minA = 0.005, maxA = 0.12;
+  attackVals[idx] = minA + x * (maxA - minA);
+
+  var minD = 0.12, maxD = 1.2;
+  decayVals[idx] = minD + (1 - y) * (maxD - minD);
+}
+
+/* glyph cycle */
+
+function cycleTile(el) {
+  var index = parseInt(el.getAttribute("data-index"), 10);
+  var value = seq[index];
+  value = (value + 1) % glyphs.length;
+  seq[index] = value;
+  var span = el.getElementsByTagName("span")[0];
+  span.textContent = glyphs[value];
+}
+
+/* sliders and dials UI */
+
+function setSliderFill(trackId, value, min, max) {
+  var track = document.getElementById(trackId);
+  var pct = (value - min) / (max - min);
+  track.style.setProperty("--fill", (pct * 100) + "%");
+}
+
+function updateBpmUI() {
+  var slider = document.getElementById("bpm");
+  var bpm = parseInt(slider.value, 10) || 110;
+  document.getElementById("bpmDialValue").textContent = bpm;
+  var deg = (bpm - 40) / (200 - 40) * 270 + 45; // arc from 45 to 315 deg
+  document.getElementById("bpmDialRing").style.setProperty("--value", deg + "deg");
+}
+
+function updateSeqLenUI() {
+  var slider = document.getElementById("seqLen");
+  seqLength = parseInt(slider.value, 10) || 16;
+  document.getElementById("seqLenValue").textContent = seqLength;
+  setSliderFill("seqLenTrack", seqLength, 1, 16);
+
+  for (var i = 0; i < tiles.length; i++) {
+    tiles[i].style.opacity = (i < seqLength) ? 1 : 0.25;
+  }
+
+  if (fillCount > seqLength) {
+    fillCount = seqLength;
+    var fSlider = document.getElementById("fill");
+    fSlider.value = fillCount;
+    document.getElementById("fillValue").textContent = fillCount;
+    setSliderFill("fillTrack", fillCount, 0, 16);
+  }
+  buildPattern();
+}
+
+function updateFillUI() {
+  var slider = document.getElementById("fill");
+  fillCount = parseInt(slider.value, 10) || 0;
+  if (fillCount > seqLength) {
+    fillCount = seqLength;
+    slider.value = fillCount;
+  }
+  document.getElementById("fillValue").textContent = fillCount;
+  setSliderFill("fillTrack", fillCount, 0, 16);
+  buildPattern();
+}
+
+function updateScale() {
+  var sel = document.getElementById("scaleSelect");
+  currentScaleKey = sel.value;
+}
+
+function updateOctUI() {
+  var slider = document.getElementById("octRange");
+  octRange = parseInt(slider.value, 10) || 1;
+  document.getElementById("octDialValue").textContent = octRange;
+  var deg = (octRange - 1) / (4 - 1) * 270 + 45;
+  document.getElementById("octDialRing").style.setProperty("--value", deg + "deg");
+}
+
+/* Euclidean pattern */
+
+function buildPattern() {
+  pattern = [];
+  var steps = seqLength;
+  var pulses = fillCount;
+
+  if (pulses <= 0) {
+    for (var i = 0; i < steps; i++) pattern.push(0);
+    return;
+  }
+  if (pulses >= steps) {
+    for (var j = 0; j < steps; j++) pattern.push(1);
+    return;
+  }
+
+  for (var k = 0; k < steps; k++) {
+    var val = (k * pulses) % steps < pulses ? 1 : 0;
+    pattern.push(val);
+  }
+}
+
+/* audio */
+
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function stepDurationMs() {
+  var slider = document.getElementById("bpm");
+  var bpm = parseInt(slider.value, 10) || 110;
+  return 60000 / bpm / 4;
+}
+
+function clearActive() {
+  for (var i = 0; i < tiles.length; i++) {
+    tiles[i].classList.remove("active");
+    tiles[i].style.filter = "";
+  }
+}
+
+function midiToFreq(m) {
+  return 440 * Math.pow(2, (m - 69) / 12);
+}
+
+function noteMidi(stepIndex, glyphIndex) {
+  var scale = scales[currentScaleKey] || scales.minorPent;
+  var degree = (stepIndex + glyphIndex) % scale.length;
+  var rootMidi = 60;
+  var baseMidi = rootMidi + scale[degree];
+  var bandSize = Math.max(1, Math.floor(seqLength / octRange));
+  var octaveOffset = Math.floor(stepIndex / bandSize);
+  return baseMidi + 12 * octaveOffset;
+}
+
+function noteFrequency(stepIndex, glyphIndex) {
+  return midiToFreq(noteMidi(stepIndex, glyphIndex));
+}
+
+function playStep(step) {
+  if (!audioCtx) return;
+  var isActive = pattern[step] === 1;
+  clearActive();
+
+  if (!isActive) {
+    tiles[step].classList.add("active");
+    tiles[step].style.filter = "brightness(1.1)";
+    (function(t){ setTimeout(function(){ t.classList.remove("active"); t.style.filter=""; }, stepDurationMs()*0.6); })(tiles[step]);
+    return;
+  }
+
+  var value = seq[step];
+  var now = audioCtx.currentTime;
+
+  var osc = audioCtx.createOscillator();
+  var gain = audioCtx.createGain();
+  var filter = audioCtx.createBiquadFilter();
+
+  var freq = noteFrequency(step, value);
+  osc.type = "sine";
+  osc.frequency.value = freq;
+
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(2000, now);
+  filter.Q.value = 0.7;
+
+  var att = attackVals[step] || defaultAttack;
+  var dec = decayVals[step] || defaultDecay;
+  var peakTime = now + att;
+  var endTime = peakTime + dec;
+
+  gain.gain.setValueAtTime(0.0, now);
+  gain.gain.linearRampToValueAtTime(0.4, peakTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, endTime);
+
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start(now);
+  osc.stop(endTime + 0.05);
+
+  tiles[step].classList.add("active");
+  (function(t){ setTimeout(function(){ t.classList.remove("active"); }, stepDurationMs()*0.6); })(tiles[step]);
+}
+
+/* transport */
+
+function scheduleNextStep() {
+  if (!playing) return;
+  playStep(currentStep);
+  currentStep = (currentStep + 1) % seqLength;
+  loopTimeout = setTimeout(scheduleNextStep, stepDurationMs());
+}
+
+function startPlayback() {
+  ensureAudio();
+  if (playing) return;
+  playing = true;
+  currentStep = 0;
+  document.getElementById("playBtn").classList.add("active");
+  document.getElementById("playIcon").textContent = "■";
+  scheduleNextStep();
+}
+
+function stopPlayback() {
+  playing = false;
+  if (loopTimeout) {
+    clearTimeout(loopTimeout);
+    loopTimeout = null;
+  }
+  clearActive();
+  document.getElementById("playBtn").classList.remove("active");
+  document.getElementById("playIcon").textContent = "▶";
+}
+
+function togglePlayback() {
+  if (playing) stopPlayback(); else startPlayback();
+}
+
+/* Randomize */
+
+function randomizeTiles() {
+  for (var i = 0; i < tiles.length; i++) {
+    var r = Math.floor(Math.random() * glyphs.length);
+    seq[i] = r;
+    tiles[i].getElementsByTagName("span")[0].textContent = glyphs[r];
+  }
+}
+
+function randomizeAll() {
+  randomizeTiles();
+
+  var bpmSlider = document.getElementById("bpm");
+  bpmSlider.value = 80 + Math.floor(Math.random() * 81);
+  updateBpmUI();
+
+  var lenSlider = document.getElementById("seqLen");
+  lenSlider.value = 4 + Math.floor(Math.random() * 13);
+  updateSeqLenUI();
+
+  var fillSlider = document.getElementById("fill");
+  fillSlider.value = Math.floor(Math.random() * (seqLength + 1));
+  updateFillUI();
+
+  var scaleSel = document.getElementById("scaleSelect");
+  scaleSel.selectedIndex = Math.floor(Math.random() * scaleSel.options.length);
+  updateScale();
+
+  var octSlider = document.getElementById("octRange");
+  octSlider.value = 1 + Math.floor(Math.random() * 4);
+  updateOctUI();
+
+  for (var i = 0; i < 16; i++) {
+    attackVals[i] = 0.005 + Math.random() * (0.12 - 0.005);
+    decayVals[i] = 0.12 + Math.random() * (1.2 - 0.12);
+  }
+}
+
+/* MIDI export */
+
+function writeVarLen(value, out) {
+  var buffer = value & 0x7F;
+  while ((value >>= 7)) {
+    buffer <<= 8;
+    buffer |= ((value & 0x7F) | 0x80);
+  }
+  while (true) {
+    out.push(buffer & 0xFF);
+    if (buffer & 0x80) buffer >>= 8; else break;
+  }
+}
+
+function downloadMIDI() {
+  var PPQ = 96;
+  var stepTicks = PPQ / 4;
+  var events = [];
+  var time = 0;
+
+  for (var i = 0; i < seqLength; i++) {
+    if (pattern[i] === 1) {
+      var midi = noteMidi(i, seq[i]);
+      writeVarLen(time, events);
+      events.push(0x90, midi, 100); // on
+      time = stepTicks;
+      writeVarLen(time, events);
+      events.push(0x80, midi, 0);   // off
+      time = 0;
+    } else {
+      time += stepTicks;
+    }
+  }
+  writeVarLen(time, events);
+  events.push(0xFF, 0x2F, 0x00);
+
+  var header = [
+    0x4d,0x54,0x68,0x64,
+    0x00,0x00,0x00,0x06,
+    0x00,0x00,
+    0x00,0x01,
+    0x00,PPQ,
+    0x4d,0x54,0x72,0x6b
+  ];
+  var length = events.length;
+  header.push(
+    (length>>24)&0xFF,
+    (length>>16)&0xFF,
+    (length>>8)&0xFF,
+    length&0xFF
+  );
+
+  var bytes = new Uint8Array(header.concat(events));
+  var blob = new Blob([bytes], {type: "audio/midi"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "glyph_sequence.mid";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* initial UI setup */
+
+updateBpmUI();
+updateSeqLenUI();
+updateFillUI();
+updateOctUI();
+buildPattern();
+</script>
+</body>
+</html>
