@@ -21,7 +21,6 @@
         <a href="#projects">Projects</a>
         <a href="#store">Music</a>
         <a href="https://ko-fi.com/chrisvanderlinden" target="_blank">Ko-fi</a>
-
       </nav>
     </div>
   </header>
@@ -192,7 +191,9 @@
 
           <div class="project-mini-grid">
             <a href="./projects/datagrave/" class="project-mini-card">
-              <div class="mini-thumb mini-thumb-data-grave"></div>
+              <div class="mini-thumb">
+                <img src="./images/more-datagrave.jpg" alt="Data Grave artwork">
+              </div>
               <div class="mini-label">
                 <span class="mini-title">Data Grave</span>
                 <span class="mini-arrow">↗</span>
@@ -200,7 +201,9 @@
             </a>
 
             <a href="./projects/ghostradio/" class="project-mini-card">
-              <div class="mini-thumb mini-thumb-ghost-radio"></div>
+              <div class="mini-thumb">
+                <img src="./images/more-ghostradio.jpg" alt="Ghost Radio artwork">
+              </div>
               <div class="mini-label">
                 <span class="mini-title">Ghost Radio</span>
                 <span class="mini-arrow">↗</span>
@@ -208,7 +211,9 @@
             </a>
 
             <a href="./projects/leylines/" class="project-mini-card">
-              <div class="mini-thumb mini-thumb-shaper"></div>
+              <div class="mini-thumb">
+                <img src="./images/human-motives-leylines-sequencer-synth-free.jpg" alt="Leylines">
+              </div>
               <div class="mini-label">
                 <span class="mini-title">Leylines</span>
                 <span class="mini-arrow">↗</span>
@@ -216,16 +221,19 @@
             </a>
 
             <a href="./projects/pitchdork/" class="project-mini-card">
-              <div class="mini-thumb mini-thumb-microloops"></div>
+              <div class="mini-thumb">
+                <img src="./images/more-pitchdork.jpg" alt="Pitchdork">
+              </div>
               <div class="mini-label">
                 <span class="mini-title">Pitchdork</span>
                 <span class="mini-arrow">↗</span>
               </div>
             </a>
 
-            <!-- Adjust these hrefs once you know the exact URLs -->
             <a href="./glyph/" class="project-mini-card">
-              <div class="mini-thumb mini-thumb-random-gene"></div>
+              <div class="mini-thumb">
+                <img src="./images/human-motives-glyph-sequencer.jpg" alt="Glyph Sequencer">
+              </div>
               <div class="mini-label">
                 <span class="mini-title">Glyph Sequencer</span>
                 <span class="mini-arrow">↗</span>
@@ -233,7 +241,9 @@
             </a>
 
             <a href="./projects/inspirationgenerator/" class="project-mini-card">
-              <div class="mini-thumb mini-thumb-ghost-notes"></div>
+              <div class="mini-thumb">
+                <img src="./images/more-inspirationgen.jpg" alt="Inspiration Generator">
+              </div>
               <div class="mini-label">
                 <span class="mini-title">Inspiration Gen</span>
                 <span class="mini-arrow">↗</span>
@@ -241,7 +251,9 @@
             </a>
 
             <a href="./projects/momentplace/" class="project-mini-card">
-              <div class="mini-thumb mini-thumb-signal-field"></div>
+              <div class="mini-thumb">
+                <img src="./images/more-momentplace.jpg" alt="Moment Place">
+              </div>
               <div class="mini-label">
                 <span class="mini-title">Moment Place</span>
                 <span class="mini-arrow">↗</span>
@@ -249,7 +261,9 @@
             </a>
 
             <a href="./mangler/" class="project-mini-card">
-              <div class="mini-thumb mini-thumb-phase-study"></div>
+              <div class="mini-thumb">
+                <img src="./images/more-morphasteal.jpg" alt="Morphasteal">
+              </div>
               <div class="mini-label">
                 <span class="mini-title">Morphasteal</span>
                 <span class="mini-arrow">↗</span>
@@ -260,19 +274,17 @@
       </div>
     </section>
 
-        <!-- STACK ARTICLES -->
-
+    <!-- STACK ARTICLES -->
     <section id="notes" class="section">
-  <div class="container">
-    <div class="section-header">
-      <h2>Notes & Articles</h2>
-      <p class="notes-intro">Writing, thoughts, and behind-the-scenes process from my Substack.</p>
-    </div>
+      <div class="container">
+        <div class="section-header">
+          <h2>Notes & Articles</h2>
+          <p class="notes-intro">Writing, thoughts, and behind-the-scenes process from my Substack.</p>
+        </div>
 
-    <ul id="substack-list" class="substack-list"></ul>
-  </div>
-</section>
-
+        <ul id="substack-list" class="substack-list"></ul>
+      </div>
+    </section>
 
     <!-- MY MUSIC -->
     <section id="store" class="section section-tinted">
@@ -307,78 +319,74 @@
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 
-<script>
-(async function loadSubstack() {
-  const list = document.getElementById("substack-list");
-  if (!list) return;
+  <script>
+  (async function loadSubstack() {
+    const list = document.getElementById("substack-list");
+    if (!list) return;
 
-  try {
-    const res = await fetch("/.netlify/functions/substack");
-    if (!res.ok) throw new Error("Feed fetch failed");
-    const xmlText = await res.text();
+    try {
+      const res = await fetch("/.netlify/functions/substack");
+      if (!res.ok) throw new Error("Feed fetch failed");
+      const xmlText = await res.text();
 
-    const doc = new DOMParser().parseFromString(xmlText, "application/xml");
-    const items = Array.from(doc.querySelectorAll("item")).slice(0, 5);
+      const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+      const items = Array.from(doc.querySelectorAll("item")).slice(0, 5);
 
-    if (!items.length) {
-      list.innerHTML = '<li class="substack-post"><em>No posts yet.</em></li>';
-      return;
+      if (!items.length) {
+        list.innerHTML = '<li class="substack-post"><em>No posts yet.</em></li>';
+        return;
+      }
+
+      const html = items.map((item) => {
+        const title = item.querySelector("title")?.textContent?.trim() || "Untitled";
+        const link = item.querySelector("link")?.textContent?.trim() || "#";
+        const pubDateRaw = item.querySelector("pubDate")?.textContent || "";
+        const pubDate = pubDateRaw ? new Date(pubDateRaw) : null;
+        const dateStr = pubDate ? pubDate.toLocaleDateString() : "";
+
+        const contentNode =
+          item.querySelector("content\\:encoded") ||
+          item.getElementsByTagName("content:encoded")[0] ||
+          item.querySelector("description");
+
+        const raw = (contentNode?.textContent || "").trim();
+
+        // Find first image in content
+        let image = "";
+        const imgMatch = raw.match(/<img[^>]+src="([^">]+)"/i);
+        if (imgMatch && imgMatch[1]) image = imgMatch[1];
+
+        // Strip HTML → snippet
+        const textOnly = raw.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+        const snippet = textOnly.length > 120 ? textOnly.slice(0, 120) + "…" : textOnly;
+
+        // Thumbnail: real image if present, otherwise placeholder square
+        const thumb = image
+          ? `<a href="${link}" target="_blank" rel="noopener">
+               <img src="${image}" alt="" class="substack-image">
+             </a>`
+          : `<div class="substack-image substack-placeholder"></div>`;
+
+        return `
+          <li class="substack-post">
+            ${thumb}
+            <div class="substack-content">
+              <h3 class="substack-title">
+                <a href="${link}" target="_blank" rel="noopener">${title}</a>
+              </h3>
+              ${dateStr ? `<time class="substack-meta">${dateStr}</time>` : ""}
+              ${snippet ? `<p class="substack-snippet">${snippet}</p>` : ""}
+            </div>
+          </li>
+        `;
+      }).join("");
+
+      list.innerHTML = html;
+    } catch (err) {
+      console.error(err);
+      list.innerHTML = '<li class="substack-post"><em>Couldn’t load notes right now.</em></li>';
     }
-
-    const html = items.map((item) => {
-      const title = item.querySelector("title")?.textContent?.trim() || "Untitled";
-      const link = item.querySelector("link")?.textContent?.trim() || "#";
-      const pubDateRaw = item.querySelector("pubDate")?.textContent || "";
-      const pubDate = pubDateRaw ? new Date(pubDateRaw) : null;
-      const dateStr = pubDate ? pubDate.toLocaleDateString() : "";
-
-      const contentNode =
-        item.querySelector("content\\:encoded") ||
-        item.getElementsByTagName("content:encoded")[0] ||
-        item.querySelector("description");
-
-      const raw = (contentNode?.textContent || "").trim();
-
-      // Find first image in content
-      let image = "";
-      const imgMatch = raw.match(/<img[^>]+src="([^">]+)"/i);
-      if (imgMatch && imgMatch[1]) image = imgMatch[1];
-
-      // Strip HTML → snippet
-      const textOnly = raw.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-      const snippet = textOnly.length > 120 ? textOnly.slice(0, 120) + "…" : textOnly;
-
-      // Thumbnail: real image if present, otherwise placeholder square
-      const thumb = image
-        ? `<a href="${link}" target="_blank" rel="noopener">
-             <img src="${image}" alt="" class="substack-image">
-           </a>`
-        : `<div class="substack-image substack-placeholder"></div>`;
-
-      return `
-        <li class="substack-post">
-          ${thumb}
-          <div class="substack-content">
-            <h3 class="substack-title">
-              <a href="${link}" target="_blank" rel="noopener">${title}</a>
-            </h3>
-            ${dateStr ? `<time class="substack-meta">${dateStr}</time>` : ""}
-            ${snippet ? `<p class="substack-snippet">${snippet}</p>` : ""}
-          </div>
-        </li>
-      `;
-    }).join("");
-
-    list.innerHTML = html;
-  } catch (err) {
-    console.error(err);
-    list.innerHTML = '<li class="substack-post"><em>Couldn’t load notes right now.</em></li>';
-  }
-})();
-</script>
-
-
-
-  
+  })();
+  </script>
 </body>
 </html>
