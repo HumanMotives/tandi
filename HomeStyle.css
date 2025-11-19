@@ -625,3 +625,14 @@ p {
     width: 100%;
   }
 }
+
+.footer-kofi {
+  color: var(--hm-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer-kofi:hover {
+  color: var(--hm-primary);
+}
+
