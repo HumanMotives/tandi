@@ -5,10 +5,10 @@
   <title>Human Motives – Algorithmic Music & Generative Systems</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Funnel Sans, Red Hat Display, Nunito, Quicksand -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Funnel+Sans:wght@300;400;500;600;700&family=Red+Hat+Display:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="HomeStyle.css">
 </head>
@@ -25,20 +25,16 @@
   </header>
 
   <main id="top">
-    <!-- HERO with full-width image -->
-    <section class="hero hero-img">
-      <div class="hero-overlay"></div>
-
+    <!-- HERO (no full-width image, image tile on the right) -->
+    <section class="hero">
       <div class="container hero-grid">
         <div class="hero-copy">
           <p class="eyebrow">Generative music, systems, and sound design</p>
 
-          <!-- You can change this text however you like -->
           <h1 class="hero-title">
-            HUMAN MUSIC<br>
-            FROM<br>
-            NON_HUMAN<br>
-            SYSTEMS
+            Human music<br>
+            from nonhuman<br>
+            systems
           </h1>
 
           <p class="hero-text">
@@ -49,6 +45,12 @@
           <div class="hero-actions">
             <a href="#projects" class="btn primary">Explore projects</a>
             <a href="#about" class="btn ghost">What is Human Motives?</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-media">
+            <img src="testhero1.jpg" alt="Abstract flowing forms">
           </div>
         </div>
       </div>
@@ -110,59 +112,67 @@
 
         <div class="projects-grid">
           <!-- PROJECT TILE 1 -->
-          <article class="project-card accent-genoa">
-            <div class="project-thumb thumb-genoa"></div>
-            <div class="project-body">
-              <p class="project-tag">Interactive web piece</p>
-              <h3>Leylines</h3>
-              <p class="project-text">
-                A browser-based sequencer where drifting paths trigger tones and
-                pulses, mapping invisible routes through a shared grid.
-              </p>
-              <a href="leylines.html" class="btn subtle">Open project</a>
+          <article class="project-card">
+            <div class="project-media"></div>
+            <div class="project-meta">
+              <span class="project-date">2025</span>
+              <span class="project-pill">Interactive</span>
+              <span class="project-pill">Web</span>
             </div>
+            <h3 class="project-title">Leylines</h3>
+            <p class="project-text">
+              A browser-based sequencer where drifting paths trigger tones and
+              pulses, mapping invisible routes through a shared grid.
+            </p>
+            <a href="leylines.html" class="project-link">Open project</a>
           </article>
 
           <!-- PROJECT TILE 2 -->
-          <article class="project-card accent-tussock">
-            <div class="project-thumb thumb-tussock"></div>
-            <div class="project-body">
-              <p class="project-tag">Album</p>
-              <h3>Tidrae</h3>
-              <p class="project-text">
-                Ambient pieces built from modular sketches and coastal field
-                recordings that blur tides, memory, and resonance.
-              </p>
-              <a href="tidrae.html" class="btn subtle">Listen &amp; notes</a>
+          <article class="project-card">
+            <div class="project-media project-media-tussock"></div>
+            <div class="project-meta">
+              <span class="project-date">2025</span>
+              <span class="project-pill">Album</span>
+              <span class="project-pill">Ambient</span>
             </div>
+            <h3 class="project-title">Tidrae</h3>
+            <p class="project-text">
+              Ambient pieces built from modular sketches and coastal field
+              recordings that blur tides, memory, and resonance.
+            </p>
+            <a href="tidrae.html" class="project-link">Listen &amp; notes</a>
           </article>
 
           <!-- PROJECT TILE 3 -->
-          <article class="project-card accent-shadow">
-            <div class="project-thumb thumb-shadow"></div>
-            <div class="project-body">
-              <p class="project-tag">Performance system</p>
-              <h3>Algorithmic Pulse</h3>
-              <p class="project-text">
-                A modular patch that generates evolving rhythmic lattices
-                from a handful of control voltages and probability curves.
-              </p>
-              <a href="algorithmic-pulse.html" class="btn subtle">View system</a>
+          <article class="project-card">
+            <div class="project-media project-media-shadow"></div>
+            <div class="project-meta">
+              <span class="project-date">2024</span>
+              <span class="project-pill">Performance</span>
+              <span class="project-pill">Rhythm</span>
             </div>
+            <h3 class="project-title">Algorithmic Pulse</h3>
+            <p class="project-text">
+              A modular patch that generates evolving rhythmic lattices
+              from a handful of control voltages and probability curves.
+            </p>
+            <a href="algorithmic-pulse.html" class="project-link">View system</a>
           </article>
 
           <!-- PROJECT TILE 4 -->
-          <article class="project-card accent-ferra">
-            <div class="project-thumb thumb-ferra"></div>
-            <div class="project-body">
-              <p class="project-tag">Sound installation</p>
-              <h3>Data Grave</h3>
-              <p class="project-text">
-                An online graveyard for retired sounds where samples are buried,
-                slowly eroded, and re-emerge as granular echoes.
-              </p>
-              <a href="data-grave.html" class="btn subtle">Visit graveyard</a>
+          <article class="project-card">
+            <div class="project-media project-media-ferra"></div>
+            <div class="project-meta">
+              <span class="project-date">2024</span>
+              <span class="project-pill">Installation</span>
+              <span class="project-pill">Granular</span>
             </div>
+            <h3 class="project-title">Data Grave</h3>
+            <p class="project-text">
+              An online graveyard for retired sounds where samples are buried,
+              slowly eroded, and re-emerge as granular echoes.
+            </p>
+            <a href="data-grave.html" class="project-link">Visit graveyard</a>
           </article>
         </div>
       </div>
@@ -199,7 +209,6 @@
   </footer>
 
   <script>
-    // Simple dynamic year
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
