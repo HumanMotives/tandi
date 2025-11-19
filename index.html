@@ -400,5 +400,43 @@
     }
   })();
   </script>
+
+<script>
+  (function () {
+    const el = document.querySelector(".hero-dynamic-word");
+    if (!el) return;
+
+    const words = [
+      "Non-Human",
+      "Generative",
+      "Chance",
+      "Modular",
+      "Algorithmic"
+    ];
+
+    let index = 0;
+    const cycleTime = 2600; // ms between changes
+
+    function swapWord() {
+      el.classList.add("hero-word-out");
+
+      setTimeout(() => {
+        index = (index + 1) % words.length;
+        el.textContent = words[index];
+
+        el.classList.remove("hero-word-out");
+        el.classList.add("hero-word-in");
+
+        setTimeout(() => {
+          el.classList.remove("hero-word-in");
+        }, 220);
+      }, 220);
+    }
+
+    setInterval(swapWord, cycleTime);
+  })();
+</script>
+
+  
 </body>
 </html>
