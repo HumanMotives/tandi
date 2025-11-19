@@ -368,17 +368,16 @@ p {
 
 .project-card {
   background-color: var(--hm-card-bg);
-  border-radius: 24px;
-  padding: 1.6rem 1.8rem 1.7rem;
+  border-radius: var(--hm-radius-large);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
 }
 
+/* image runs to edges of the card */
 .project-media {
   width: 100%;
   aspect-ratio: 4 / 3;
-  border-radius: 20px;
   overflow: hidden;
 }
 
@@ -387,6 +386,14 @@ p {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* padded text area inside card */
+.project-body {
+  padding: 1.4rem 1.6rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .project-meta {
@@ -415,6 +422,31 @@ p {
 .project-title {
   font-size: 1.4rem;
   line-height: 1.2;
+  margin: 0;
+}
+
+/* clickable orange title + arrow, similar to Substack style */
+.project-title-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  color: var(--hm-accent);
+  font-family: var(--font-heading);
+}
+
+.project-title-link:hover {
+  color: var(--hm-primary);
+}
+
+.project-title-arrow {
+  font-size: 0.9rem;
+  transform: translateX(0);
+  transition: transform 140ms ease-out;
+}
+
+.project-title-link:hover .project-title-arrow {
+  transform: translateX(4px);
 }
 
 .project-text {
@@ -422,18 +454,11 @@ p {
   color: var(--hm-text-muted);
 }
 
+/* old bottom .project-link not needed anymore, but keeping here in case anything still references it */
 .project-link {
-  margin-top: 0.4rem;
-  font-size: 0.88rem;
-  font-weight: 600;
-  font-family: var(--font-ui);
-  color: var(--hm-accent);
-  text-decoration: none;
+  display: none;
 }
 
-.project-link:hover {
-  color: var(--hm-primary);
-}
 
 
 /* MINI PROJECT GRID – square icon + title + arrow */
