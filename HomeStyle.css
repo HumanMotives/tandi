@@ -7,8 +7,8 @@
 
   /* Palette */
   --hm-shadow-green: #92bebe;
-  --hm-genoa: #167380;
-  --hm-tussock: #b39142;
+  --hm-genoa: #167380;   /* teal */
+  --hm-tussock: #b39142; /* warm orangy accent */
   --hm-ferra: #634f49;
 
   /* Typographic colors */
@@ -186,12 +186,12 @@ p {
   bottom: 0;
   width: 0;
   height: 1px;
-  background-color: var(--hm-primary);
+  background-color: var(--hm-accent);
   transition: width 160ms ease-out;
 }
 
 .main-nav a:hover {
-  color: var(--hm-primary);
+  color: var(--hm-accent);
 }
 
 .main-nav a:hover::after {
@@ -199,7 +199,7 @@ p {
 }
 
 /* --------------------------
-   Buttons
+   Buttons – now orange accent
 --------------------------- */
 
 .btn {
@@ -220,23 +220,23 @@ p {
 }
 
 .btn.primary {
-  background-color: var(--hm-primary);
+  background-color: var(--hm-accent);
   color: #ffffff;
 }
 
 .btn.primary:hover {
   transform: translateY(-1px);
-  background-color: #0f5963;
+  background-color: #946f2f; /* slightly darker */
 }
 
 .btn.ghost {
   background-color: transparent;
-  border-color: var(--hm-primary);
-  color: var(--hm-primary);
+  border-color: var(--hm-accent);
+  color: var(--hm-accent);
 }
 
 .btn.ghost:hover {
-  background-color: rgba(22, 115, 128, 0.06);
+  background-color: rgba(179, 145, 66, 0.07);
 }
 
 /* --------------------------
@@ -306,7 +306,7 @@ p {
   align-items: center;
   gap: 0.45rem;
   text-decoration: none;
-  color: var(--hm-primary);
+  color: var(--hm-accent);
   font-weight: 600;
   font-family: var(--font-ui);
 }
@@ -317,11 +317,11 @@ p {
   display: inline-block;
   transform: translateX(0);
   transition: transform 140ms ease-out, color 140ms ease-out;
-  color: var(--hm-accent);
+  color: var(--hm-primary);
 }
 
 .about-link:hover {
-  color: var(--hm-accent);
+  color: var(--hm-primary);
 }
 
 .about-link:hover::before {
@@ -329,7 +329,7 @@ p {
 }
 
 /* --------------------------
-   Projects grid – clean card layout
+   Projects grid – clean cards
 --------------------------- */
 
 .projects-grid {
@@ -350,22 +350,14 @@ p {
   width: 100%;
   aspect-ratio: 4 / 3;
   border-radius: 20px;
-  background-image: linear-gradient(135deg, #0fcedb, #f5f5f5);
-  background-size: cover;
-  background-position: center;
+  overflow: hidden;
 }
 
-/* slight palette variations per card */
-.project-media-tussock {
-  background-image: linear-gradient(135deg, #f7c979, #f4f4ff);
-}
-
-.project-media-shadow {
-  background-image: linear-gradient(135deg, #92bebe, #ffffff);
-}
-
-.project-media-ferra {
-  background-image: linear-gradient(135deg, #634f49, #f7f3eb);
+.project-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .project-meta {
@@ -406,12 +398,69 @@ p {
   font-size: 0.88rem;
   font-weight: 600;
   font-family: var(--font-ui);
-  color: var(--hm-primary);
+  color: var(--hm-accent);
   text-decoration: none;
 }
 
 .project-link:hover {
+  color: var(--hm-primary);
+}
+
+/* --------------------------
+   More projects list
+--------------------------- */
+
+.project-list-wrapper {
+  margin-top: 3rem;
+}
+
+.project-list-heading {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.project-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 18px;
+  background-color: #f7f7f7;
+}
+
+.project-list li + li {
+  border-top: 1px solid var(--hm-border-subtle);
+}
+
+.project-list-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.2rem;
+  text-decoration: none;
+  color: var(--hm-heading);
+  font-size: 0.92rem;
+}
+
+.pl-name {
+  flex: 0 0 auto;
+  font-weight: 600;
+}
+
+.pl-meta {
+  flex: 1 1 auto;
+  color: var(--hm-text-muted);
+  font-size: 0.86rem;
+}
+
+.pl-arrow {
+  flex: 0 0 auto;
+  font-size: 0.95rem;
   color: var(--hm-accent);
+  transition: transform 140ms ease-out;
+}
+
+.project-list-link:hover .pl-arrow {
+  transform: translateX(3px);
 }
 
 /* --------------------------
