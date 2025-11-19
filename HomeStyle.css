@@ -100,8 +100,9 @@ body {
 /* Space between image and text */
 .hero-content {
   padding-top: 3rem;
-  padding-bottom: 3rem;
+  padding-bottom: 1.6rem;   /* was 3rem */
 }
+
 
 /* Typography stays as you defined earlier */
 
