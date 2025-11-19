@@ -425,62 +425,102 @@ p {
 }
 
 
-/* --------------------------
-   More projects list
---------------------------- */
-
-.project-list-wrapper {
+/* MINI PROJECT GRID – square icon + title + arrow */
+.project-mini-wrapper {
   margin-top: 3rem;
 }
 
-.project-list-heading {
-  font-size: 1.1rem;
+.project-mini-heading {
+  font-size: 1.05rem;
   margin-bottom: 1rem;
 }
 
-.project-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-radius: 18px;
-  background-color: #f7f7f7;
+/* Auto-fit; can go up to ~8 per row on wide screens */
+.project-mini-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 
-.project-list li + li {
-  border-top: 1px solid var(--hm-border-subtle);
-}
-
-.project-list-link {
+.project-mini-card {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 1.2rem;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 16px;
+  background-color: #f7f7f7;
+  border: 1px solid #e3e5e6;
   text-decoration: none;
   color: var(--hm-heading);
-  font-size: 0.92rem;
 }
 
-.pl-name {
-  flex: 0 0 auto;
+.project-mini-card:hover {
+  border-color: var(--hm-accent);
+}
+
+.mini-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Placeholder gradient “icons” – replace with real images via background-image if you want */
+.mini-thumb-data-grave {
+  background-image: linear-gradient(135deg, #171717, #444);
+}
+
+.mini-thumb-ghost-radio {
+  background-image: linear-gradient(135deg, #92bebe, #ffffff);
+}
+
+.mini-thumb-shaper {
+  background-image: linear-gradient(135deg, #634f49, #f5e7de);
+}
+
+.mini-thumb-microloops {
+  background-image: linear-gradient(135deg, #167380, #f5f5f5);
+}
+
+.mini-thumb-random-gene {
+  background-image: linear-gradient(135deg, #b39142, #f7f3e5);
+}
+
+.mini-thumb-ghost-notes {
+  background-image: linear-gradient(135deg, #d8e2ff, #ffffff);
+}
+
+.mini-thumb-signal-field {
+  background-image: linear-gradient(135deg, #c9ffe0, #f5ffff);
+}
+
+.mini-thumb-phase-study {
+  background-image: linear-gradient(135deg, #f0c2ff, #ffffff);
+}
+
+.mini-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.mini-title {
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
-.pl-meta {
-  flex: 1 1 auto;
-  color: var(--hm-text-muted);
-  font-size: 0.86rem;
-}
-
-.pl-arrow {
-  flex: 0 0 auto;
-  font-size: 0.95rem;
+.mini-arrow {
+  font-size: 0.9rem;
   color: var(--hm-accent);
   transition: transform 140ms ease-out;
 }
 
-.project-list-link:hover .pl-arrow {
+.project-mini-card:hover .mini-arrow {
   transform: translateX(3px);
 }
+
 
 /* --------------------------
    Store / CTA
