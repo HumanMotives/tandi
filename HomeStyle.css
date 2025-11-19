@@ -95,6 +95,73 @@ body {
 
 /* Typography stays as you defined earlier */
 
+/* HERO BAND LAYOUT ---------------------------------- */
+
+.hero-band {
+  padding: 0;
+  margin: 0 0 3rem;
+}
+
+.hero-band-image {
+  width: 100%;
+  height: 220px;          /* tweak to taste: 160–260px works well */
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-band-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Optional soft fade into page background */
+.hero-band-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 1) 90%
+  );
+}
+
+.hero-content {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+/* HERO TITLE DYNAMIC WORD --------------------------- */
+
+.hero-title-main {
+  color: var(--hm-accent);      /* make "Human Sounds" orange; remove if you don't like it */
+}
+
+.hero-title-line2 {
+  display: inline-block;
+}
+
+.hero-dynamic-word {
+  color: var(--hm-accent);
+  display: inline-block;
+  transition: opacity 0.22s ease-out, transform 0.22s ease-out;
+}
+
+/* states used by JS for smooth swap */
+.hero-word-out {
+  opacity: 0;
+  transform: translateY(0.4em);
+}
+
+.hero-word-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
 
 /* --------------------------
    Layout helpers
