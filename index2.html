@@ -328,40 +328,55 @@
     const html = items.map((item) => {
       const title = item.querySelector("title")?.textContent?.trim() || "Untitled";
       const link = item.querySelector("link")?.textContent?.trim() || "#";
-      const pubDate = new Date(item.querySelector("pubDate")?.textContent || "");
-      const dateStr = pubDate.toLocaleDateString();
+      const pubDateRaw = item.querySelector("pubDate")?.textContent || "";
+      const pubDate = pubDateRaw ? new Date(pubDateRaw) : null;
+      const dateStr = pubDate ? pubDate.toLocaleDateString() : "";
 
-      const raw = item.querySelector("content\\:encoded")?.textContent
-        || item.querySelector("description")?.textContent
-        || "";
+      const contentNode =
+        item.querySelector("content\\:encoded") ||
+        item.getElementsByTagName("content:encoded")[0] ||
+        item.querySelector("description");
 
+      const raw = (contentNode?.textContent || "").trim();
+
+      // Find first image in content
       let image = "";
       const imgMatch = raw.match(/<img[^>]+src="([^">]+)"/i);
-      if (imgMatch) image = imgMatch[1];
+      if (imgMatch && imgMatch[1]) image = imgMatch[1];
 
+      // Strip HTML → snippet
       const textOnly = raw.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
       const snippet = textOnly.length > 120 ? textOnly.slice(0, 120) + "…" : textOnly;
 
+      // Thumbnail: real image if present, otherwise placeholder square
+      const thumb = image
+        ? `<a href="${link}" target="_blank" rel="noopener">
+             <img src="${image}" alt="" class="substack-image">
+           </a>`
+        : `<div class="substack-image substack-placeholder"></div>`;
+
       return `
         <li class="substack-post">
-          ${image ? `<a href="${link}" target="_blank"><img src="${image}" class="substack-image"></a>` : ""}
+          ${thumb}
           <div class="substack-content">
-            <h3 class="substack-title"><a href="${link}" target="_blank">${title}</a></h3>
-            <time class="substack-meta">${dateStr}</time>
-            <p class="substack-snippet">${snippet}</p>
+            <h3 class="substack-title">
+              <a href="${link}" target="_blank" rel="noopener">${title}</a>
+            </h3>
+            ${dateStr ? `<time class="substack-meta">${dateStr}</time>` : ""}
+            ${snippet ? `<p class="substack-snippet">${snippet}</p>` : ""}
           </div>
         </li>
       `;
     }).join("");
 
     list.innerHTML = html;
-
   } catch (err) {
     console.error(err);
     list.innerHTML = '<li class="substack-post"><em>Couldn’t load notes right now.</em></li>';
   }
 })();
 </script>
+
 
 
   
