@@ -192,37 +192,48 @@
 
     let synth, reverb, delay, limiter;
 
-    function initSynth() {
-      if (synth) return;
+function initSynth() {
+  if (synth) return;
 
-      limiter = new Tone.Limiter(-8).toDestination();
+  limiter = new Tone.Limiter(-8).toDestination();
 
-      reverb = new Tone.Reverb({
-        decay: 8,
-        wet: 0.4
-      }).connect(limiter);
+  reverb = new Tone.Reverb({
+    decay: 6,
+    wet: 0.35
+  }).connect(limiter);
 
-      delay = new Tone.FeedbackDelay({
-        delayTime: "8n",
-        feedback: 0.35,
-        wet: 0.3
-      }).connect(reverb);
+  delay = new Tone.FeedbackDelay({
+    delayTime: "8n",
+    feedback: 0.25,
+    wet: 0.25
+  }).connect(reverb);
 
-      synth = new Tone.PolySynth(Tone.Synth, {
-        oscillator: { type: "sine" },
-        envelope: {
-          attack: 0.15,
-          decay: 2.0,
-          sustain: 0.5,
-          release: 4.0
-        }
-      }).connect(delay);
+  // MALLET / MARIMBA STYLE SYNTH
+  synth = new Tone.PolySynth(Tone.Synth, {
+    oscillator: {
+      type: "triangle"
+    },
+    envelope: {
+      attack: 0.001,
+      decay: 0.25,
+      sustain: 0.0,
+      release: 1.2
+    },
+    volume: -12
+  }).connect(delay);
 
-      // Lower overall synth level to avoid reverb overload
-      synth.volume.value = -10;
+  // Add gentle HF damping
+  const filter = new Tone.Filter({
+    type: "lowpass",
+    frequency: 4500,
+    Q: 0.5
+  }).connect(delay);
 
-      Tone.Transport.bpm.value = parseFloat(bpmSlider.value) || 70;
-    }
+  synth.disconnect();        // remove direct out
+  synth.connect(filter);     // route through filter
+
+  Tone.Transport.bpm.value = parseFloat(bpmSlider.value) || 70;
+}
 
     function getScale() {
       return scaleDefs[state.currentScaleIndex % scaleDefs.length];
