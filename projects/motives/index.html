@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Better Ambient Generative Sequencer – Cluster Prototype</title>
+  <title>Better Ambient Generative Sequencer – Cluster Prototype v0.2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Tone.js CDN -->
@@ -69,43 +69,50 @@
 <body>
   <h1>Better Ambient Generative Sequencer</h1>
   <p>
-    Prototype focused on <strong>clusters</strong> of notes (motifs) with long gaps at low density,
-    and a <strong>Symmetry</strong> control for how much the motif branches or evolves.
+    Prototype focused on <strong>motif clusters</strong> with long controllable gaps (Space),
+    quantised rhythmic shapes, and an <strong>Evolution</strong> parameter that branches from
+    a base motif.
   </p>
 
   <div class="row">
     <button id="startStopBtn">Start</button>
     <button id="reseedBtn">Reseed motif</button>
     <p class="small">
-      Start: begins a loop of phrase clusters + rests.  
+      Start: begins a loop of motif clusters + rests.<br>
       Reseed: creates a completely new base motif.
     </p>
   </div>
 
   <div class="row">
     <label for="densitySlider">
-      Density (0 = rare, long gaps · 1 = near continuous clusters):
-      <span id="densityLabel">0.20</span>
+      Density — how much happens inside each cluster (notes & spacing):
+      <span id="densityLabel">0.30</span>
     </label>
-    <input type="range" id="densitySlider" min="0" max="1" step="0.01" value="0.2">
+    <input type="range" id="densitySlider" min="0" max="1" step="0.01" value="0.3">
 
-    <label for="symmetrySlider">
-      Symmetry (0 = identical motif forever · 1 = strong branching / evolution):
-      <span id="symmetryLabel">0.30</span>
+    <label for="spaceSlider">
+      Space — gaps between clusters (0 = almost continuous · 1 = big gaps):
+      <span id="spaceLabel">0.40</span>
     </label>
-    <input type="range" id="symmetrySlider" min="0" max="1" step="0.01" value="0.3">
+    <input type="range" id="spaceSlider" min="0" max="1" step="0.01" value="0.4">
 
     <label for="stabilitySlider">
-      Stability (0 = roaming harmonic center · 1 = very anchored):
+      Stability — harmonic stability (0 = roaming · 1 = anchored):
       <span id="stabilityLabel">0.70</span>
     </label>
     <input type="range" id="stabilitySlider" min="0" max="1" step="0.01" value="0.7">
 
+    <label for="evolutionSlider">
+      Evolution — 0 = no change, 1 = continuous branching / new ideas:
+      <span id="evolutionLabel">0.40</span>
+    </label>
+    <input type="range" id="evolutionSlider" min="0" max="1" step="0.01" value="0.4">
+
     <p class="small">
-      Density controls the <strong>time between clusters</strong> (2–10 seconds at low values,
-      down to short gaps at high values).  
-      Symmetry controls how much each repetition is mutated.  
-      Stability controls how much the harmonic center moves around the scale.
+      Density: how many notes and how tightly they are packed in a cluster.<br>
+      Space: how long to wait between clusters, including possible full silences.<br>
+      Stability: how much the harmonic center moves around the scale.<br>
+      Evolution: how strongly each repetition mutates the motif (0 = identical loop).
     </p>
   </div>
 
@@ -129,16 +136,21 @@
     const startStopBtn = document.getElementById("startStopBtn");
     const reseedBtn = document.getElementById("reseedBtn");
     const densitySlider = document.getElementById("densitySlider");
-    const symmetrySlider = document.getElementById("symmetrySlider");
+    const spaceSlider = document.getElementById("spaceSlider");
     const stabilitySlider = document.getElementById("stabilitySlider");
+    const evolutionSlider = document.getElementById("evolutionSlider");
+
     const densityLabel = document.getElementById("densityLabel");
-    const symmetryLabel = document.getElementById("symmetryLabel");
+    const spaceLabel = document.getElementById("spaceLabel");
     const stabilityLabel = document.getElementById("stabilityLabel");
+    const evolutionLabel = document.getElementById("evolutionLabel");
     const statusText = document.getElementById("statusText");
 
     // -------------------------
     // Basic musical setup
     // -------------------------
+    const bpm = 70;
+    const secondsPerBeat = 60 / bpm;
 
     const rootMidi = 50; // D3
     const scaleDorian = [0, 2, 3, 5, 7, 9, 10]; // D Dorian scale degrees
@@ -180,7 +192,7 @@
       return min + Math.random() * (max - min);
     }
 
-    // Decide harmonic center movement based on stability
+    // Harmonic center movement based on stability
     function chooseChordRootIndex(stability) {
       const current = state.currentChordRootIndex;
       const r = Math.random();
@@ -203,14 +215,54 @@
     }
 
     // -------------------------
+    // Durations from Space
+    // -------------------------
+
+    function computeRest(space) {
+      // At space = 0: short gaps (0.2–1.5 s), almost continuous
+      // At space = 1: long gaps (2–10+ s)
+      let restMin = 0.2 + 1.8 * space;
+      let restMax = 1.5 + 8.5 * space;
+
+      restMin = Math.max(0.2, restMin);
+      restMax = Math.max(restMin + 0.1, restMax);
+
+      // More space -> higher chance of skipping an entire phrase (pure silence)
+      const silenceProb = 0.1 + 0.4 * space;
+
+      return { restDuration: randomRange(restMin, restMax), silenceProb };
+    }
+
+    // -------------------------
     // Motif (phrase) creation
     // -------------------------
 
-    // Base motif: cluster of notes over 1–3 seconds
-    function createBasePhrase() {
+    // Base motif: cluster of notes with quantised rhythmic steps
+    function createBasePhrase(density) {
       const phrase = [];
-      const phraseDuration = randomRange(1.2, 3.0); // seconds
-      const noteCount = Math.floor(randomRange(3, 7)); // 3–6 notes
+
+      // note count: 2–8 depending on density
+      const minNotes = 2;
+      const maxAdditional = 6; // up to 8 total
+      const noteCount = Math.max(
+        minNotes,
+        Math.round(minNotes + density * maxAdditional)
+      );
+
+      // step durations in beats
+      const slowSteps = [1, 0.5];                // quarter, eighth
+      const midSteps  = [0.5, 0.25];             // eighth, sixteenth
+      const fastSteps = [0.25, 0.125, 0.0625];   // 16th, 32nd
+
+      let stepPool;
+
+      if (density < 0.3) {
+        stepPool = slowSteps;
+      } else if (density < 0.7) {
+        stepPool = slowSteps.concat(midSteps);
+      } else {
+        stepPool = midSteps.concat(fastSteps);
+      }
 
       // Pick harmonic center for this motif
       const rootIndex = state.currentChordRootIndex;
@@ -219,34 +271,43 @@
       );
       const centerDegree = randomChoice(chordDegrees);
 
-      // Generate times and pitches
+      let currentTime = 0;
+
       for (let i = 0; i < noteCount; i++) {
-        const tNorm = i / Math.max(1, noteCount - 1); // 0..1
-        let offset = tNorm * phraseDuration;
+        const stepBeats = randomChoice(stepPool);
+        currentTime += stepBeats * secondsPerBeat;
 
         // small jitter in time
-        offset += randomRange(-0.1, 0.1);
-        offset = Math.max(0, offset);
+        const jitter = randomRange(-0.03, 0.03);
+        const offsetSeconds = Math.max(0, currentTime + jitter);
 
-        // interval around center (small steps)
+        // pitch movement around center (small steps)
         const stepOffset = randomChoice([-2, -1, 0, 1, 2]);
         const degreeIndex =
           (centerDegree + stepOffset + scaleDorian.length) % scaleDorian.length;
         const degreeOffset = scaleDorian[degreeIndex];
 
-        // choose octave range (mostly two octaves)
-        const octaveOffset = randomChoice([0, 12, 12]);
+        // choose octave range (mostly two octaves, sometimes a jump)
+        let octaveOffset;
+        if (density < 0.5) {
+          octaveOffset = randomChoice([0, 12]);
+        } else {
+          octaveOffset = randomChoice([0, 12, 24, -12]);
+        }
 
         const midi = rootMidi + degreeOffset + octaveOffset;
 
-        const vel = randomRange(0.35, 0.75);
-        const dur = randomRange(0.4, 1.4); // seconds
+        // durations loosely tied to rhythm length, scaled to seconds
+        const durBeats = stepBeats * randomRange(0.8, 1.6);
+        const durationSeconds = Math.max(0.15, durBeats * secondsPerBeat);
+
+        const velocity = randomRange(0.35, 0.75);
 
         phrase.push({
-          offsetSeconds: offset,
+          offsetSeconds,
           midi,
-          velocity: vel,
-          durationSeconds: dur
+          velocity,
+          durationSeconds
         });
       }
 
@@ -255,75 +316,57 @@
       return phrase;
     }
 
-    // Mutate phrase based on symmetry factor (0..1)
-    function mutatePhrase(basePhrase, symmetry) {
-      if (symmetry <= 0.001) {
-        // exactly identical
+    // Mutate phrase based on evolution factor (0..1)
+    function mutatePhrase(basePhrase, evolution) {
+      if (evolution <= 0.001) {
+        // exactly identical copy
         return basePhrase.map(n => ({ ...n }));
       }
 
       const mutated = basePhrase.map(note => {
         const n = { ...note };
 
-        // time jitter proportional to symmetry
-        const maxTimeJitter = 0.12 * symmetry; // seconds
+        // time jitter proportional to evolution
+        const maxTimeJitter = 0.12 * evolution; // seconds
         n.offsetSeconds = Math.max(
           0,
           n.offsetSeconds + randomRange(-maxTimeJitter, maxTimeJitter)
         );
 
-        // pitch small changes
-        if (Math.random() < symmetry * 0.9) {
+        // pitch changes
+        if (Math.random() < evolution * 0.9) {
           const semitoneShift = randomChoice([-2, -1, 1, 2, 0]);
           n.midi += semitoneShift;
         }
 
         // duration variation
-        if (Math.random() < symmetry * 0.6) {
+        if (Math.random() < evolution * 0.7) {
           const factor = randomRange(0.8, 1.3);
           n.durationSeconds = Math.max(0.1, n.durationSeconds * factor);
         }
 
         // velocity variation
-        if (Math.random() < symmetry * 0.5) {
+        if (Math.random() < evolution * 0.6) {
           n.velocity = Math.min(1, Math.max(0.1, n.velocity + randomRange(-0.15, 0.15)));
         }
 
         return n;
       });
 
-      // sort again in case offsets changed order
+      // At high evolution, sometimes let the new mutation become the new base (branching)
+      if (evolution > 0.7 && Math.random() < (evolution - 0.7) * 1.5) {
+        state.basePhrase = mutated.map(n => ({ ...n }));
+      }
+
       mutated.sort((a, b) => a.offsetSeconds - b.offsetSeconds);
       return mutated;
     }
 
     // -------------------------
-    // Cluster scheduling
+    // Rough section feeling (A / B / A')
     // -------------------------
 
-    function computeDurations(density) {
-      // Phrase duration: 1–4 seconds depending slightly on density
-      const phraseDuration = 1.0 + density * 3.0; // 1 → 4 seconds
-
-      // Rest duration strongly controlled by density
-      // density = 0  ->  rest between 2 and 10 s
-      // density = 1  ->  rest between 0.2 and 1.5 s
-      let restMin = 2.0 - 1.8 * density;
-      let restMax = 10.0 - 8.5 * density;
-
-      restMin = Math.max(0.2, restMin);
-      restMax = Math.max(restMin + 0.1, restMax);
-
-      const restDuration = randomRange(restMin, restMax);
-
-      // At very low density, sometimes skip a phrase entirely (just rest)
-      const silenceProb = (1 - density) * 0.5;
-
-      return { phraseDuration, restDuration, silenceProb };
-    }
-
     function describeSection(phraseCount) {
-      // Just a rough A / B / A' feeling: 8 phrases per section
       const index = phraseCount % 24;
       if (index < 8) return "A";
       if (index < 16) return "B";
@@ -335,23 +378,29 @@
         `Phrase #: ${info.phraseCount}`,
         `Section (rough): ${info.section}`,
         `Chord center: ${info.chordName}`,
-        `Density: ${info.density.toFixed(2)}  ·  Symmetry: ${info.symmetry.toFixed(2)}  ·  Stability: ${info.stability.toFixed(2)}`,
+        `Density: ${info.density.toFixed(2)}  ·  Space: ${info.space.toFixed(2)}`,
+        `Stability: ${info.stability.toFixed(2)}  ·  Evolution: ${info.evolution.toFixed(2)}`,
         `Phrase duration ~ ${info.phraseDuration.toFixed(1)}s  ·  Next rest ~ ${info.restDuration.toFixed(1)}s`,
         info.silence ? "This cycle: silence (no phrase, just rest)" : "This cycle: motif cluster played"
       ];
       statusText.textContent = lines.join("\n");
     }
 
+    // -------------------------
+    // Cluster scheduling
+    // -------------------------
+
     function scheduleNextCycle() {
       if (!state.isRunning) return;
 
       const density = parseFloat(densitySlider.value);
-      const symmetry = parseFloat(symmetrySlider.value);
+      const space = parseFloat(spaceSlider.value);
       const stability = parseFloat(stabilitySlider.value);
+      const evolution = parseFloat(evolutionSlider.value);
 
-      const { phraseDuration, restDuration, silenceProb } = computeDurations(density);
+      const { restDuration, silenceProb } = computeRest(space);
 
-      // update harmonic center before each "cycle"
+      // update harmonic center before each cycle
       state.currentChordRootIndex = chooseChordRootIndex(stability);
       const chordName = chordNames[state.currentChordRootIndex];
 
@@ -363,15 +412,15 @@
       if (!willBeSilent) {
         // Ensure we have a base phrase
         if (!state.basePhrase) {
-          state.basePhrase = createBasePhrase();
+          state.basePhrase = createBasePhrase(density);
         }
 
-        // Mutate based on symmetry
-        const phraseToPlay = mutatePhrase(state.basePhrase, symmetry);
+        // Mutate based on evolution
+        const phraseToPlay = mutatePhrase(state.basePhrase, evolution);
 
-        // At high symmetry, occasionally let the mutation become the new base (branching)
-        if (symmetry > 0.7 && Math.random() < 0.3) {
-          state.basePhrase = phraseToPlay.map(n => ({ ...n }));
+        // At very high evolution, occasionally throw away base and create a fresh motif
+        if (evolution > 0.9 && Math.random() < 0.4) {
+          state.basePhrase = createBasePhrase(density);
         }
 
         // Schedule all notes in this phrase
@@ -385,9 +434,9 @@
             note.offsetSeconds + note.durationSeconds
           );
         }
-      }
 
-      state.phraseCount += willBeSilent ? 0 : 1;
+        state.phraseCount += 1;
+      }
 
       const sectionId = describeSection(state.phraseCount);
 
@@ -396,15 +445,15 @@
         section: sectionId,
         chordName,
         density,
-        symmetry,
+        space,
         stability,
-        phraseDuration: willBeSilent ? 0 : effectivePhraseDuration || phraseDuration,
+        evolution,
+        phraseDuration: willBeSilent ? 0 : effectivePhraseDuration || 0,
         restDuration,
         silence: willBeSilent
       });
 
-      // Next cycle: phraseDuration (if any) + restDuration
-      const totalDelay = (willBeSilent ? 0 : (effectivePhraseDuration || phraseDuration)) + restDuration;
+      const totalDelay = (willBeSilent ? 0 : (effectivePhraseDuration || 0)) + restDuration;
 
       state.cycleTimeoutId = setTimeout(() => {
         scheduleNextCycle();
@@ -463,13 +512,15 @@
 
     function updateLabels() {
       densityLabel.textContent = parseFloat(densitySlider.value).toFixed(2);
-      symmetryLabel.textContent = parseFloat(symmetrySlider.value).toFixed(2);
+      spaceLabel.textContent = parseFloat(spaceSlider.value).toFixed(2);
       stabilityLabel.textContent = parseFloat(stabilitySlider.value).toFixed(2);
+      evolutionLabel.textContent = parseFloat(evolutionSlider.value).toFixed(2);
     }
 
     densitySlider.addEventListener("input", updateLabels);
-    symmetrySlider.addEventListener("input", updateLabels);
+    spaceSlider.addEventListener("input", updateLabels);
     stabilitySlider.addEventListener("input", updateLabels);
+    evolutionSlider.addEventListener("input", updateLabels);
 
     updateLabels();
     statusText.textContent = "Idle. Press Start to begin.";
