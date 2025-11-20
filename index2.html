@@ -2,405 +2,1430 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Human Motives – Algorithmic Music & Generative Systems</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Better Ambient Generative Sequencer – UI Mock</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #101014;
+      --bg-alt: #16161d;
+      --panel: #171923;
+      --panel-alt: #1f2230;
+      --border-soft: #262938;
+      --text-main: #f5f5f5;
+      --text-muted: #9b9fb5;
+      --accent: #ff8a2a;
+      --accent-soft: rgba(255, 138, 42, 0.2);
+      --accent-2: #4fd1c5;
+      --accent-3: #ffd93b;
+      --danger: #f56565;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      --radius-lg: 18px;
+      --radius-sm: 9px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.45);
+    }
 
-  <!-- Google Fonts: Funnel Sans, Red Hat Display, Nunito, Quicksand -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Funnel+Sans:wght@300;400;500;600;700&family=Red+Hat+Display:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  <link rel="stylesheet" href="HomeStyle.css">
-</head>
-<body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="#top" class="logo">H/M</a>
-      <nav class="main-nav">
-        <a href="#about">About</a>
-        <a href="#projects">Projects</a>
-        <a href="#store">Music</a>
-        <a href="https://ko-fi.com/chrisvanderlinden" target="_blank">Ko-fi</a>
-      </nav>
-    </div>
-  </header>
+    body {
+      background: radial-gradient(circle at top, #191b26 0%, #090910 55%, #050509 100%);
+      color: var(--text-main);
+      font-family: var(--font-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 24px;
+    }
 
-  <main id="top">
-    <!-- HERO -->
-    <section class="hero">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow">Generative music, systems, and sound design</p>
+    .app-shell {
+      width: 100%;
+      max-width: 1200px;
+      background: linear-gradient(135deg, #151723 0%, #0d0f18 40%, #141627 100%);
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-          <h1 class="hero-title">
-            Human Sounds<br>
-            from Non-Human<br>
-            Systems
-          </h1>
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      background: linear-gradient(90deg, rgba(255, 138, 42, 0.04), transparent);
+    }
 
-          <p class="hero-text">
-            Human Motives explores how generative systems, modular synthesis, and chance
-            operations create sounds that still feel deeply human. I release music, experiments and collaborations.
-          </p>
+    .app-title-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-          <div class="hero-actions">
-            <a href="#projects" class="btn primary">My projects</a>
-            <a href="#about" class="btn ghost">Who am I?</a>
-          </div>
-        </div>
+    .app-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 45%, var(--accent-3) 100%);
+      position: relative;
+      overflow: hidden;
+    }
 
-        <div class="hero-visual" aria-hidden="true">
-          <div class="hero-media">
-            <img src="testhero1.jpg" alt="Abstract flowing forms">
-          </div>
-        </div>
-      </div>
-    </section>
+    .app-icon::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border-radius: 5px;
+      border: 2px solid rgba(0, 0, 0, 0.35);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+    }
 
-    <!-- ABOUT -->
-    <section id="about" class="section section-tinted">
-      <div class="container">
-        <div class="section-header">
-          <h2>Human Sounds from Non-Human Systems</h2>
-        </div>
-        <div class="two-column">
-          <p>
-            <i>Human Motives</i> is the artist name of Chris van der Linden, designer, creative and musician from the Netherlands. An ongoing practice in modular synthesis, generative composition, coding and design.
-          </p>
-          <p>
-            The focus is on clarity, repetition, and slow change. Some projects
-            become full releases, others live as sketches, Substack articles, or online
-            experiments that invite you to listen and play differently.
-          </p>
-        </div>
+    .app-title-main {
+      font-size: 15px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-main);
+    }
 
-        <div class="about-links">
-          <a class="about-link" href="https://www.instagram.com/humanmotives/" target="_blank" rel="noreferrer">
-            Instagram
-          </a>
-          <a class="about-link" href="https://www.tiktok.com/@chrisvanderlinden3" target="_blank" rel="noreferrer">
-            TikTok
-          </a>
-          <a class="about-link" href="https://www.youtube.com/@HumanMotives" target="_blank" rel="noreferrer">
-            YouTube
-          </a>
-          <a class="about-link" href="https://substack.com/@humanmotives" target="_blank" rel="noreferrer">
-            Substack
-          </a>
-          <a class="about-link" href="https://humanmotives.bandcamp.com/" target="_blank" rel="noreferrer">
-            Bandcamp
-          </a>
-          <a class="about-link" href="https://open.spotify.com/artist/5XwCzd52xR5uw1kp3q31JI?si=LzZaJUERTrqnF1wM6p85xA" target="_blank" rel="noreferrer">
-            Spotify
-          </a>
-        </div>
-      </div>
-    </section>
-<div class="projects-grid">
-  <!-- PROJECT TILE 1 – Leylines -->
-  <article class="project-card">
-    <div class="project-media">
-      <img src="./images/human-motives-leylines-sequencer-synth-free.jpg"
-           alt="Leylines generative sequencer interface">
-    </div>
-    <div class="project-body">
-      <div class="project-meta">
-        <span class="project-date">2025</span>
-        <span class="project-pill">Interactive</span>
-        <span class="project-pill">Web</span>
-      </div>
-      <h3 class="project-title">
-        <a href="./projects/leylines/index.html" class="project-title-link">
-          <span class="project-title-arrow">→</span>
-          <span class="project-title-text">Leylines</span>
-        </a>
-      </h3>
-      <p class="project-text">
-        A browser-based playful synth. Place invisible stones in the flow to trigger tones and
-        pulses that feel alive.
-      </p>
-    </div>
-  </article>
+    .app-title-sub {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
 
-  <!-- PROJECT TILE 2 – Tidrae -->
-  <article class="project-card">
-    <div class="project-media">
-      <img src="./images/human-motives-tidrae-ambient-music-generative.jpg"
-           alt="Tidrae ambient generative music artwork">
-    </div>
-    <div class="project-body">
-      <div class="project-meta">
-        <span class="project-date">2025</span>
-        <span class="project-pill">Album</span>
-        <span class="project-pill">Ambient</span>
-      </div>
-      <h3 class="project-title">
-        <a href="https://humanmotives.bandcamp.com/album/tidrae" class="project-title-link">
-          <span class="project-title-arrow">→</span>
-          <span class="project-title-text">Tidrae</span>
-        </a>
-      </h3>
-      <p class="project-text">
-        Ambient pieces built from modular sketches and coastal field
-        recordings that blur tides, memory, and resonance.
-      </p>
-    </div>
-  </article>
+    .view-toggle {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: 999px;
+      background: rgba(10, 11, 17, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow:
+        0 12px 24px rgba(0, 0, 0, 0.5),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.5);
+    }
 
-  <!-- PROJECT TILE 3 – Glyph Sequencer -->
-  <article class="project-card">
-    <div class="project-media">
-      <img src="./images/human-motives-glyph-sequencer.jpg"
-           alt="Glyph Sequencer grid-based interface">
-    </div>
-    <div class="project-body">
-      <div class="project-meta">
-        <span class="project-date">2024</span>
-        <span class="project-pill">Sequencer</span>
-        <span class="project-pill">Visual grid</span>
-      </div>
-      <h3 class="project-title">
-        <a href="./glyph/index.html" class="project-title-link">
-          <span class="project-title-arrow">→</span>
-          <span class="project-title-text">Glyph Sequencer</span>
-        </a>
-      </h3>
-      <p class="project-text">
-        A fun little step sequencer where simple glyphs define rhythm, pitch,
-        and modulation. Create playful melodies, then download the midi.
-      </p>
-    </div>
-  </article>
+    .view-toggle button {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        transform 0.12s ease;
+    }
 
-  <!-- PROJECT TILE 4 – Nory Kimijima collab -->
-  <article class="project-card">
-    <div class="project-media">
-      <img src="./images/human-motives-nory-kimijima-collaboration-ambient-works.jpg"
-           alt="Nory Kimijima collaboration artwork">
-    </div>
-    <div class="project-body">
-      <div class="project-meta">
-        <span class="project-date">2024</span>
-        <span class="project-pill">Collaboration</span>
-        <span class="project-pill">Ambient works</span>
-      </div>
-      <h3 class="project-title">
-        <a href="https://humanmotives.bandcamp.com/album/lines-between-us" class="project-title-link">
-          <span class="project-title-arrow">→</span>
-          <span class="project-title-text">Nory Kimijima Collaboration</span>
-        </a>
-      </h3>
-      <p class="project-text">
-        A series of slow-evolving ambient pieces built with Nory Kimijima,
-        combining physical modeling textures with melodic fragments.
-      </p>
-    </div>
-  </article>
-</div>
+    .view-toggle button.active {
+      background: rgba(255, 138, 42, 0.14);
+      color: var(--accent-3);
+      transform: translateY(-0.5px);
+      box-shadow: 0 0 0 1px rgba(255, 138, 42, 0.45);
+    }
 
+    .app-body {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(270px, 0.9fr);
+      gap: 0;
+      min-height: 540px;
+    }
 
-        <!-- MINI GRID: MORE PROJECTS -->
-        <div class="project-mini-wrapper">
-          <h3 class="project-mini-heading">More Projects</h3>
+    .left-panel {
+      padding: 18px 18px 20px 20px;
+      border-right: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
 
-          <div class="project-mini-grid">
-            <a href="./projects/datagrave/" class="project-mini-card">
-              <div class="mini-thumb">
-                <img src="./images/datagrave-humanmotives.png" alt="Data Grave artwork">
-              </div>
-              <div class="mini-label">
-                <span class="mini-title">Data Grave</span>
-                <span class="mini-arrow">↗</span>
-              </div>
-            </a>
+    .right-panel {
+      padding: 18px 20px 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: radial-gradient(circle at top, rgba(255, 138, 42, 0.11), transparent 52%);
+    }
 
-            <a href="./projects/ghostradio/" class="project-mini-card">
-              <div class="mini-thumb">
-                <img src="./images/ghostradio-humanmotives.png" alt="Ghost Radio artwork">
-              </div>
-              <div class="mini-label">
-                <span class="mini-title">Ghost Radio</span>
-                <span class="mini-arrow">↗</span>
-              </div>
-            </a>
+    .panel-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
 
-            <a href="./projects/leylines/" class="project-mini-card">
-              <div class="mini-thumb">
-                <img src="./images/human-motives-leylines-sequencer-synth-free.jpg" alt="Leylines">
-              </div>
-              <div class="mini-label">
-                <span class="mini-title">Leylines</span>
-                <span class="mini-arrow">↗</span>
-              </div>
-            </a>
+    .view-container {
+      position: relative;
+      flex: 1;
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at top, #202233 0%, #10121d 45%, #070812 100%);
+      border: 1px solid var(--border-soft);
+      overflow: hidden;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6);
+    }
 
-            <a href="./projects/pitchdork/" class="project-mini-card">
-              <div class="mini-thumb">
-                <img src="./images/pitchdork-humanmotives.png" alt="Pitchdork">
-              </div>
-              <div class="mini-label">
-                <span class="mini-title">Pitchdork</span>
-                <span class="mini-arrow">↗</span>
-              </div>
-            </a>
+    .view {
+      position: absolute;
+      inset: 0;
+      padding: 18px 18px 18px 18px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(6px);
+      transition:
+        opacity 0.22s ease,
+        transform 0.22s ease;
+    }
 
-            <a href="./glyph/" class="project-mini-card">
-              <div class="mini-thumb">
-                <img src="./images/human-motives-glyph-sequencer.jpg" alt="Glyph Sequencer">
-              </div>
-              <div class="mini-label">
-                <span class="mini-title">Glyph Sequencer</span>
-                <span class="mini-arrow">↗</span>
-              </div>
-            </a>
+    .view.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
 
-            <a href="./projects/inspirationgenerator/" class="project-mini-card">
-              <div class="mini-thumb">
-                <img src="./images/inspiration-humanmotives.png" alt="Inspiration Generator">
-              </div>
-              <div class="mini-label">
-                <span class="mini-title">Inspiration Gen</span>
-                <span class="mini-arrow">↗</span>
-              </div>
-            </a>
+    .view-caption {
+      position: absolute;
+      inset-inline: 18px;
+      bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
 
-            <a href="./projects/momentplace/" class="project-mini-card">
-              <div class="mini-thumb">
-                <img src="./images/momentplace-humanmotives.png" alt="Moment Place">
-              </div>
-              <div class="mini-label">
-                <span class="mini-title">Moment Place</span>
-                <span class="mini-arrow">↗</span>
-              </div>
-            </a>
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(3, 4, 8, 0.8);
+      box-shadow:
+        0 10px 20px rgba(0, 0, 0, 0.7),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+      pointer-events: auto;
+    }
 
-            <a href="./mangler/" class="project-mini-card">
-              <div class="mini-thumb">
-                <img src="./images/morphagene-humanmotives.png" alt="Morphasteal">
-              </div>
-              <div class="mini-label">
-                <span class="mini-title">Morphasteal</span>
-                <span class="mini-arrow">↗</span>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
+    .chip-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent-2);
+      box-shadow: 0 0 0 4px rgba(79, 209, 197, 0.25);
+    }
 
-    <!-- STACK ARTICLES -->
-    <section id="notes" class="section">
-      <div class="container">
-        <div class="section-header">
-          <h2>Notes & Articles</h2>
-          <p class="notes-intro">Writing, thoughts, and behind-the-scenes process from my Substack.</p>
-        </div>
+    .chip-indicator.pulsing {
+      animation: pulseIndicator 1.5s ease-out infinite;
+    }
 
-        <ul id="substack-list" class="substack-list"></ul>
-      </div>
-    </section>
+    @keyframes pulseIndicator {
+      0% {
+        box-shadow: 0 0 0 0 rgba(79, 209, 197, 0.45);
+      }
+      100% {
+        box-shadow: 0 0 0 12px rgba(79, 209, 197, 0);
+      }
+    }
 
-    <!-- MY MUSIC -->
-    <section id="store" class="section section-tinted">
-      <div class="container store-grid">
-        <div>
-          <h2>Music & Streaming</h2>
-          <p>
-            Releases live on Bandcamp, streaming platforms, and occasionally as
-            small physical editions.
-          </p>
-        </div>
-        <div class="store-actions">
-          <a href="https://humanmotives.bandcamp.com/" class="btn primary" target="_blank" rel="noreferrer">
-            Visit Bandcamp
-          </a>
-          <a href="https://open.spotify.com/artist/5XwCzd52xR5uw1kp3q31JI?si=uaedkkjiQZmziuVT6Dy9kA" class="btn ghost" target="_blank" rel="noreferrer">
-            Follow on Spotify</a>
-        </div>
-      </div>
-    </section>
-  </main>
+    /* ORRERY VIEW */
 
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <p>&copy; <span id="year"></span> Human Motives. All rights reserved.</p>
-      <p class="footer-meta">Built on systems, tape hiss, and late evenings.</p>
-      <p><a href="https://ko-fi.com/chrisvanderlinden" target="_blank" class="footer-kofi">Support via Ko-fi</a></p>
-    </div>
-  </footer>
+    .orrery-root {
+      position: absolute;
+      inset: 16% 18% 24% 18%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+    .orrery-core {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 25%, #2a2d46, #131527 70%, #080917 100%);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.04),
+        0 0 40px rgba(0, 0, 0, 0.9),
+        0 0 0 10px rgba(255, 255, 255, 0.02);
+      overflow: hidden;
+    }
 
-  <script>
-  (async function loadSubstack() {
-    const list = document.getElementById("substack-list");
-    if (!list) return;
+    .orrery-core::before {
+      content: "";
+      position: absolute;
+      inset: 50%;
+      width: 90px;
+      height: 90px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(255, 138, 42, 0.5), transparent 70%);
+      transform: translate(-50%, -50%);
+      filter: blur(8px);
+      opacity: 0.7;
+    }
 
-    try {
-      const res = await fetch("/.netlify/functions/substack");
-      if (!res.ok) throw new Error("Feed fetch failed");
-      const xmlText = await res.text();
+    .orrery-shell {
+      position: absolute;
+      inset: 18px;
+      border-radius: 999px;
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+    }
 
-      const doc = new DOMParser().parseFromString(xmlText, "application/xml");
-      const items = Array.from(doc.querySelectorAll("item")).slice(0, 5);
+    .orrery-orbit {
+      position: absolute;
+      inset: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      opacity: 0.9;
+    }
 
-      if (!items.length) {
-        list.innerHTML = '<li class="substack-post"><em>No posts yet.</em></li>';
-        return;
+    .orrery-orbit:nth-child(2) {
+      inset: 22px;
+      opacity: 0.8;
+    }
+
+    .orrery-orbit:nth-child(3) {
+      inset: 38px;
+      opacity: 0.7;
+    }
+
+    .orrery-orbit:nth-child(4) {
+      inset: 56px;
+      opacity: 0.6;
+    }
+
+    .orrery-planet {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      transform-origin: -90px 0;
+      transform: rotate(0deg) translateX(90px);
+      background: var(--accent);
+      box-shadow: 0 0 16px rgba(255, 138, 42, 0.9);
+      animation: orbitSlow 24s linear infinite;
+    }
+
+    .orrery-planet:nth-child(5) {
+      transform-origin: -70px 0;
+      transform: rotate(80deg) translateX(70px);
+      background: var(--accent-2);
+      animation-duration: 16s;
+      animation-delay: -4s;
+    }
+
+    .orrery-planet:nth-child(6) {
+      transform-origin: -52px 0;
+      transform: rotate(200deg) translateX(52px);
+      background: var(--accent-3);
+      animation-duration: 20s;
+      animation-delay: -9s;
+    }
+
+    .orrery-planet:nth-child(7) {
+      transform-origin: -32px 0;
+      transform: rotate(-140deg) translateX(32px);
+      background: var(--danger);
+      animation-duration: 12s;
+      animation-delay: -2s;
+    }
+
+    @keyframes orbitSlow {
+      0% {
+        transform: rotate(0deg) translateX(90px);
+      }
+      100% {
+        transform: rotate(360deg) translateX(90px);
+      }
+    }
+
+    .orrery-center {
+      position: absolute;
+      inset: 50%;
+      width: 64px;
+      height: 64px;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #ffffff, #ffe6d1 45%, #ff8a2a 60%, #16161f 100%);
+      box-shadow:
+        0 0 0 2px rgba(0, 0, 0, 0.6),
+        0 0 24px rgba(255, 138, 42, 0.9);
+    }
+
+    .orrery-center::after {
+      content: "ROOT";
+      position: absolute;
+      inset-inline: 0;
+      bottom: -18px;
+      font-size: 9px;
+      text-align: center;
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
+    }
+
+    .orrery-labels {
+      position: absolute;
+      inset: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .orrery-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .orrery-label-row span strong {
+      color: var(--accent-3);
+      font-weight: 600;
+    }
+
+    /* TIMELINE */
+
+    .timeline-block {
+      margin-top: 10px;
+      margin-inline: 18px;
+      padding: 12px;
+      border-radius: 12px;
+      background: radial-gradient(circle at top left, #22263a, #11131f 50%, #080914 100%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timeline-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .timeline-bar {
+      position: relative;
+      width: 100%;
+      height: 26px;
+      border-radius: 999px;
+      background: rgba(8, 10, 18, 0.9);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      display: flex;
+    }
+
+    .timeline-segment {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .timeline-segment:last-child {
+      border-right: none;
+    }
+
+    .timeline-segment.segment-a {
+      background: linear-gradient(90deg, rgba(255, 138, 42, 0.16), transparent);
+    }
+
+    .timeline-segment.segment-b {
+      background: linear-gradient(90deg, rgba(79, 209, 197, 0.18), transparent);
+    }
+
+    .timeline-segment.segment-ap {
+      background: linear-gradient(90deg, rgba(255, 217, 59, 0.16), transparent);
+    }
+
+    .timeline-playhead {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      border-radius: 999px;
+      background: var(--accent-3);
+      box-shadow: 0 0 0 5px rgba(255, 217, 59, 0.2);
+      animation: playheadLoop 18s linear infinite;
+    }
+
+    @keyframes playheadLoop {
+      0% { left: 0%; }
+      100% { left: 100%; }
+    }
+
+    /* CONSOLE VIEW */
+
+    .console-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 16px;
+      height: 100%;
+    }
+
+    .console-main {
+      border-radius: 15px;
+      background: linear-gradient(135deg, #191b2a, #10111c);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 16px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .console-title-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .console-leds {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .console-led {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .console-led.live {
+      background: var(--accent-2);
+      box-shadow: 0 0 9px rgba(79, 209, 197, 0.9);
+      animation: ledBlink 1.4s ease-in-out infinite;
+    }
+
+    .console-led.warn {
+      background: var(--danger);
+      box-shadow: 0 0 9px rgba(245, 101, 101, 0.9);
+      opacity: 0.7;
+    }
+
+    @keyframes ledBlink {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    .console-activity {
+      flex: 1;
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .console-strip {
+      position: relative;
+      border-radius: 9px;
+      overflow: hidden;
+      background: linear-gradient(90deg, #11121b, #181a27);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .console-strip::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.028) 0,
+        rgba(255, 255, 255, 0.028) 1px,
+        transparent 1px,
+        transparent 6px
+      );
+      opacity: 0.8;
+      mix-blend-mode: screen;
+    }
+
+    .console-strip-fill {
+      position: absolute;
+      inset-block: 4px;
+      left: -25%;
+      width: 30%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 50%, var(--accent-3) 100%);
+      opacity: 0.9;
+      animation: stripSweep 5s linear infinite;
+    }
+
+    .console-strip:nth-child(2) .console-strip-fill {
+      animation-duration: 7.5s;
+      animation-delay: -2s;
+      background: linear-gradient(90deg, var(--accent-2), var(--accent), var(--danger));
+    }
+
+    .console-strip:nth-child(3) .console-strip-fill {
+      animation-duration: 11s;
+      animation-delay: -4s;
+      background: linear-gradient(90deg, var(--accent-3), var(--accent-2), var(--accent));
+    }
+
+    @keyframes stripSweep {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(420%); }
+    }
+
+    .console-secondary {
+      border-radius: 15px;
+      background: linear-gradient(135deg, #171826, #10111c);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 14px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .console-section-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .console-section-value {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--accent-3);
+      text-transform: uppercase;
+    }
+
+    .console-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .console-mini-tile {
+      border-radius: 7px;
+      background: #0c0d16;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      height: 44px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 5px 6px 4px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+    }
+
+    .console-mini-tile strong {
+      font-size: 10px;
+      color: var(--accent-2);
+    }
+
+    .console-mini-bar {
+      position: relative;
+      width: 100%;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+    }
+
+    .console-mini-bar span {
+      position: absolute;
+      inset-block: 0;
+      width: 40%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent-2), var(--accent));
+      animation: consoleMini 6s ease-in-out infinite;
+      transform-origin: left;
+    }
+
+    .console-mini-tile:nth-child(2) .console-mini-bar span {
+      animation-duration: 4s;
+      background: linear-gradient(90deg, var(--accent), var(--danger));
+    }
+
+    .console-mini-tile:nth-child(3) .console-mini-bar span {
+      animation-duration: 8s;
+      background: linear-gradient(90deg, var(--accent-3), var(--accent));
+    }
+
+    @keyframes consoleMini {
+      0%, 100% { transform: scaleX(0.4); }
+      40% { transform: scaleX(0.85); }
+      70% { transform: scaleX(0.2); }
+    }
+
+    .console-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 6px 12px;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      background: #05060c;
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow:
+        0 10px 18px rgba(0, 0, 0, 0.7),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+      transition:
+        background 0.15s ease,
+        transform 0.09s ease,
+        box-shadow 0.1s ease,
+        border-color 0.15s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-3));
+      color: #130e07;
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow:
+        0 12px 24px rgba(255, 138, 42, 0.5),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-ghost {
+      background: rgba(4, 5, 10, 0.7);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 14px 26px rgba(0, 0, 0, 0.9),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow:
+        0 5px 10px rgba(0, 0, 0, 0.9),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.6);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary .btn-dot {
+      background: #1a1107;
+    }
+
+    /* DRAWING VIEW */
+
+    .drawing-root {
+      position: absolute;
+      inset: 16% 18% 24% 18%;
+      border-radius: 16px;
+      background: radial-gradient(circle at top, #23263a, #090a12 65%, #05050c 100%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+    }
+
+    .drawing-background-lines {
+      position: absolute;
+      inset: 0;
+      opacity: 0.26;
+      background-image: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 1px
+      );
+      background-size: 10px 100%;
+      mix-blend-mode: screen;
+    }
+
+    .drawing-canvas {
+      position: absolute;
+      inset: 0;
+    }
+
+    .drawing-overlay {
+      position: absolute;
+      inset: 10px 10px auto 10px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .drawing-tag {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      background: rgba(3, 3, 8, 0.9);
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      pointer-events: auto;
+    }
+
+    .drawing-tag-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(255, 138, 42, 0.9);
+      animation: floatDot 2.8s ease-in-out infinite;
+    }
+
+    @keyframes floatDot {
+      0%, 100% { transform: translateY(0); opacity: 0.8; }
+      50% { transform: translateY(-3px); opacity: 1; }
+    }
+
+    .drawing-section-indicators {
+      position: absolute;
+      inset-inline: 10px;
+      bottom: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .drawing-section-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .drawing-section-dot.active {
+      background: var(--accent-soft);
+      border-color: var(--accent-3);
+      box-shadow: 0 0 0 4px rgba(255, 217, 59, 0.24);
+    }
+
+    /* RIGHT PANEL CONTROLS */
+
+    .control-card {
+      border-radius: var(--radius-lg);
+      background: rgba(9, 10, 18, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 12px 13px 12px;
+      box-shadow:
+        0 12px 26px rgba(0, 0, 0, 0.8),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .control-header span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .control-badge {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--accent-3);
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: 4px;
+    }
+
+    .slider-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .slider-label-row strong {
+      color: var(--text-main);
+    }
+
+    .slider-track {
+      position: relative;
+      width: 100%;
+      height: 18px;
+      border-radius: 999px;
+      background: #050509;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding-inline: 6px;
+    }
+
+    .slider-fill {
+      position: absolute;
+      inset-block: 3px;
+      left: 4px;
+      width: 40%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent-soft), rgba(255, 138, 42, 0.9));
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+
+    .slider-thumb {
+      position: absolute;
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: #050509;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow:
+        0 0 0 4px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(255, 255, 255, 0.4);
+      transform: translateX(48px);
+    }
+
+    .slider-track[data-slider="evolution"] .slider-fill {
+      width: 65%;
+      background: linear-gradient(90deg, rgba(79, 209, 197, 0.3), var(--accent-2));
+    }
+
+    .slider-track[data-slider="evolution"] .slider-thumb {
+      transform: translateX(80px);
+    }
+
+    .slider-track[data-slider="density"] .slider-fill {
+      width: 30%;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), var(--accent));
+    }
+
+    .slider-track[data-slider="density"] .slider-thumb {
+      transform: translateX(32px);
+    }
+
+    .slider-track[data-slider="drift"] .slider-fill {
+      width: 55%;
+      background: linear-gradient(90deg, rgba(79, 209, 197, 0.08), var(--accent-3));
+    }
+
+    .slider-track[data-slider="drift"] .slider-thumb {
+      transform: translateX(64px);
+    }
+
+    .text-muted-small {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .pill {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      background: rgba(4, 4, 10, 0.95);
+      color: var(--text-muted);
+    }
+
+    .pill.active {
+      background: rgba(255, 138, 42, 0.12);
+      color: var(--accent-3);
+      border-color: rgba(255, 217, 59, 0.6);
+      box-shadow: 0 0 0 2px rgba(255, 138, 42, 0.24);
+    }
+
+    .footer-note {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 960px) {
+      body {
+        padding: 10px;
       }
 
-      const html = items.map((item) => {
-        const title = item.querySelector("title")?.textContent?.trim() || "Untitled";
-        const link = item.querySelector("link")?.textContent?.trim() || "#";
-        const pubDateRaw = item.querySelector("pubDate")?.textContent || "";
-        const pubDate = pubDateRaw ? new Date(pubDateRaw) : null;
-        const dateStr = pubDate ? pubDate.toLocaleDateString() : "";
+      .app-shell {
+        border-radius: 18px;
+      }
 
-        const contentNode =
-          item.querySelector("content\\:encoded") ||
-          item.getElementsByTagName("content:encoded")[0] ||
-          item.querySelector("description");
+      .app-body {
+        grid-template-columns: 1fr;
+      }
 
-        const raw = (contentNode?.textContent || "").trim();
+      .left-panel {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
 
-        // Find first image in content
-        let image = "";
-        const imgMatch = raw.match(/<img[^>]+src="([^">]+)"/i);
-        if (imgMatch && imgMatch[1]) image = imgMatch[1];
-
-        // Strip HTML → snippet
-        const textOnly = raw.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-        const snippet = textOnly.length > 120 ? textOnly.slice(0, 120) + "…" : textOnly;
-
-        // Thumbnail: real image if present, otherwise placeholder square
-        const thumb = image
-          ? `<a href="${link}" target="_blank" rel="noopener">
-               <img src="${image}" alt="" class="substack-image">
-             </a>`
-          : `<div class="substack-image substack-placeholder"></div>`;
-
-        return `
-          <li class="substack-post">
-            ${thumb}
-            <div class="substack-content">
-              <h3 class="substack-title">
-                <a href="${link}" target="_blank" rel="noopener">${title}</a>
-              </h3>
-              ${dateStr ? `<time class="substack-meta">${dateStr}</time>` : ""}
-              ${snippet ? `<p class="substack-snippet">${snippet}</p>` : ""}
-            </div>
-          </li>
-        `;
-      }).join("");
-
-      list.innerHTML = html;
-    } catch (err) {
-      console.error(err);
-      list.innerHTML = '<li class="substack-post"><em>Couldn’t load notes right now.</em></li>';
+      .view-container {
+        min-height: 300px;
+      }
     }
-  })();
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="app-title-block">
+        <div class="app-icon"></div>
+        <div>
+          <div class="app-title-main">Better Ambient Sequencer</div>
+          <div class="app-title-sub">Human guided generative system mock</div>
+        </div>
+      </div>
+      <div class="view-toggle">
+        <button data-view-btn="orrery" class="active">Orrery</button>
+        <button data-view-btn="console">Console</button>
+        <button data-view-btn="drawing">Drawing</button>
+      </div>
+    </header>
+
+    <div class="app-body">
+      <section class="left-panel">
+        <div class="panel-label">Structure and visuals</div>
+        <div class="view-container">
+          <!-- ORRERY VIEW -->
+          <div class="view active" id="view-orrery">
+            <div class="orrery-root">
+              <div class="orrery-core">
+                <div class="orrery-shell"></div>
+                <div class="orrery-orbit"></div>
+                <div class="orrery-orbit"></div>
+                <div class="orrery-orbit"></div>
+                <div class="orrery-orbit"></div>
+
+                <div class="orrery-planet"></div>
+                <div class="orrery-planet"></div>
+                <div class="orrery-planet"></div>
+                <div class="orrery-planet"></div>
+
+                <div class="orrery-center"></div>
+              </div>
+            </div>
+            <div class="orrery-labels">
+              <div class="orrery-label-row">
+                <span>Section <strong>A</strong> · D Dorian</span>
+                <span>Stability <strong>High</strong></span>
+              </div>
+              <div class="orrery-label-row">
+                <span>Motifs orbiting root</span>
+                <span>Evolution <strong>Medium</strong></span>
+              </div>
+            </div>
+            <footer class="view-caption">
+              <span>Orbits visualize phrase families around a harmonic center</span>
+              <span>Visual mode 01</span>
+            </footer>
+          </div>
+
+          <!-- CONSOLE VIEW -->
+          <div class="view" id="view-console">
+            <div class="console-grid">
+              <div class="console-main">
+                <div class="console-title-row">
+                  <span>Timeline activity</span>
+                  <div class="console-leds">
+                    <div class="console-led live"></div>
+                    <div class="console-led"></div>
+                    <div class="console-led warn"></div>
+                  </div>
+                </div>
+
+                <div class="console-activity">
+                  <div class="console-strip">
+                    <div class="console-strip-fill"></div>
+                  </div>
+                  <div class="console-strip">
+                    <div class="console-strip-fill"></div>
+                  </div>
+                  <div class="console-strip">
+                    <div class="console-strip-fill"></div>
+                  </div>
+                </div>
+
+                <div class="timeline-block">
+                  <div class="timeline-label">
+                    <span>Form · Pre planned sections</span>
+                    <span>A · B · A' · Loop</span>
+                  </div>
+                  <div class="timeline-bar">
+                    <div class="timeline-segment segment-a">A</div>
+                    <div class="timeline-segment segment-b">B</div>
+                    <div class="timeline-segment segment-ap">A'</div>
+                    <div class="timeline-playhead"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="console-secondary">
+                <div>
+                  <div class="console-section-label">Current section</div>
+                  <div class="console-section-value">A · Drifted return</div>
+                </div>
+
+                <div class="console-mini-grid">
+                  <div class="console-mini-tile">
+                    Stability
+                    <strong>High</strong>
+                    <div class="console-mini-bar"><span></span></div>
+                  </div>
+                  <div class="console-mini-tile">
+                    Evolution
+                    <strong>Mid</strong>
+                    <div class="console-mini-bar"><span></span></div>
+                  </div>
+                  <div class="console-mini-tile">
+                    Density
+                    <strong>Sparse</strong>
+                    <div class="console-mini-bar"><span></span></div>
+                  </div>
+                </div>
+
+                <div class="console-buttons">
+                  <button class="btn btn-primary">
+                    <span class="btn-dot"></span>
+                    <span>Start sketch</span>
+                  </button>
+                  <button class="btn btn-ghost">
+                    <span class="btn-dot"></span>
+                    <span>Reseed</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <footer class="view-caption">
+              <span>Bauhaus style console view of the generative brain</span>
+              <span>Visual mode 02</span>
+            </footer>
+          </div>
+
+          <!-- DRAWING VIEW -->
+          <div class="view" id="view-drawing">
+            <div class="drawing-root">
+              <div class="drawing-background-lines"></div>
+              <canvas class="drawing-canvas" id="gestureCanvas"></canvas>
+
+              <div class="drawing-overlay">
+                <div class="drawing-tag">
+                  <span class="drawing-tag-dot"></span>
+                  <span>Phrase contour</span>
+                </div>
+                <span>Register · tension envelope</span>
+              </div>
+
+              <div class="drawing-section-indicators">
+                <div class="drawing-section-dot active"></div>
+                <div class="drawing-section-dot"></div>
+                <div class="drawing-section-dot"></div>
+              </div>
+            </div>
+            <footer class="view-caption">
+              <span>The line draws what the sequence feels like, not what it is</span>
+              <span>Visual mode 03</span>
+            </footer>
+          </div>
+        </div>
+      </section>
+
+      <aside class="right-panel">
+        <div class="control-card">
+          <div class="control-header">
+            <span>Macro controls</span>
+            <span class="control-badge">Mock only</span>
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <span>Stability</span>
+              <span><strong>Structured</strong></span>
+            </div>
+            <div class="slider-track" data-slider="stability">
+              <div class="slider-fill"></div>
+              <div class="slider-thumb"></div>
+            </div>
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <span>Evolution</span>
+              <span><strong>Slow drift</strong></span>
+            </div>
+            <div class="slider-track" data-slider="evolution">
+              <div class="slider-fill"></div>
+              <div class="slider-thumb"></div>
+            </div>
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <span>Density</span>
+              <span><strong>Breathing</strong></span>
+            </div>
+            <div class="slider-track" data-slider="density">
+              <div class="slider-fill"></div>
+              <div class="slider-thumb"></div>
+            </div>
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <span>Harmonic drift</span>
+              <span><strong>Soft</strong></span>
+            </div>
+            <div class="slider-track" data-slider="drift">
+              <div class="slider-fill"></div>
+              <div class="slider-thumb"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-card">
+          <div class="control-header">
+            <span>Form plan</span>
+            <span class="control-badge">A · B · A'</span>
+          </div>
+
+          <p class="text-muted-small">
+            Final version will decide the piece anatomy at start:
+            sections, contrast, and where to leave space.
+          </p>
+
+          <div class="pill-row">
+            <div class="pill active">Pre planned length</div>
+            <div class="pill">Phrase focus</div>
+            <div class="pill">Motif memory</div>
+            <div class="pill">Breathing rests</div>
+          </div>
+
+          <div class="footer-note">
+            Current mock: visuals respond, engine is still under the hood.
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // Simple view switching
+    const viewButtons = document.querySelectorAll("[data-view-btn]");
+    const views = {
+      orrery: document.getElementById("view-orrery"),
+      console: document.getElementById("view-console"),
+      drawing: document.getElementById("view-drawing")
+    };
+
+    viewButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const target = btn.getAttribute("data-view-btn");
+        viewButtons.forEach(b => b.classList.toggle("active", b === btn));
+
+        Object.entries(views).forEach(([key, view]) => {
+          if (key === target) {
+            view.classList.add("active");
+          } else {
+            view.classList.remove("active");
+          }
+        });
+      });
+    });
+
+    // Drawing view faux gesture animation
+    const canvas = document.getElementById("gestureCanvas");
+    let ctx;
+    let animationId;
+    let lastTimestamp = 0;
+    let offset = 0;
+
+    function resizeCanvas() {
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      }
+    }
+
+    function drawGesture(timestamp) {
+      if (!ctx) return;
+
+      const delta = timestamp - lastTimestamp;
+      lastTimestamp = timestamp;
+      offset += (delta * 0.04);
+
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Background subtle gradient
+      const grd = ctx.createLinearGradient(0, 0, width, height);
+      grd.addColorStop(0, "rgba(255,255,255,0.03)");
+      grd.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, width, height);
+
+      // Main gesture line
+      ctx.beginPath();
+      const steps = 160;
+      const baseY = height * 0.55;
+      const amp1 = height * 0.18;
+      const amp2 = height * 0.08;
+
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const x = t * width;
+
+        const slowWave = Math.sin((t * 3 + offset * 0.02) * Math.PI * 2);
+        const fastWave = Math.sin((t * 12 + offset * 0.12) * Math.PI * 2);
+        const restless = Math.sin((t * 6 - offset * 0.08) * Math.PI * 2);
+
+        const y =
+          baseY
+          + slowWave * amp1
+          + fastWave * amp2 * (0.4 + 0.6 * Math.sin(offset * 0.02))
+          + restless * 6;
+
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+
+      ctx.lineWidth = 2.2;
+      ctx.strokeStyle = "rgba(255, 217, 59, 0.8)";
+      ctx.shadowColor = "rgba(255, 138, 42, 0.7)";
+      ctx.shadowBlur = 16;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Secondary faint echo line
+      ctx.beginPath();
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const x = t * width;
+
+        const slowWave = Math.sin((t * 3 + offset * 0.02 + 0.4) * Math.PI * 2);
+        const fastWave = Math.sin((t * 8 + offset * 0.1) * Math.PI * 2);
+
+        const y =
+          baseY
+          + slowWave * (amp1 * 0.6)
+          + fastWave * (amp2 * 0.8);
+
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.lineWidth = 1.1;
+      ctx.strokeStyle = "rgba(79, 209, 197, 0.5)";
+      ctx.stroke();
+
+      animationId = requestAnimationFrame(drawGesture);
+    }
+
+    function startGestureAnimation() {
+      if (!canvas) return;
+      cancelAnimationFrame(animationId);
+      resizeCanvas();
+      lastTimestamp = performance.now();
+      animationId = requestAnimationFrame(drawGesture);
+    }
+
+    window.addEventListener("resize", () => {
+      if (document.getElementById("view-drawing").classList.contains("active")) {
+        startGestureAnimation();
+      }
+    });
+
+    const drawingView = document.getElementById("view-drawing");
+    const observer = new MutationObserver(() => {
+      if (drawingView.classList.contains("active")) {
+        startGestureAnimation();
+      } else {
+        cancelAnimationFrame(animationId);
+      }
+    });
+    observer.observe(drawingView, { attributes: true, attributeFilter: ["class"] });
+
+    // Start animation once DOM is ready
+    document.addEventListener("DOMContentLoaded", () => {
+      if (drawingView.classList.contains("active")) {
+        startGestureAnimation();
+      }
+    });
   </script>
 </body>
 </html>
