@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Better Ambient Generative Sequencer – Prototype v0.1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Tone.js CDN -->
+  <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
+
+  <style>
+    :root {
+      --bg: #05060a;
+      --bg-panel: #101219;
+      --bg-panel-soft: #171925;
+      --accent: #ff8a2a;
+      --accent-soft: rgba(255, 138, 42, 0.25);
+      --accent-2: #4fd1c5;
+      --accent-3: #ffd93b;
+      --text: #f5f5f5;
+      --text-muted: #9ca2b8;
+      --border: #242638;
+      --radius-lg: 16px;
+      --radius-sm: 10px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.55);
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--font-main);
+      background: radial-gradient(circle at top, #191a26 0, #05060a 55%, #010106 100%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 960px;
+      background: linear-gradient(135deg, #151722, #0c0e16);
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: var(--shadow-soft);
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.9fr);
+      overflow: hidden;
+    }
+
+    .left,
+    .right {
+      padding: 18px 20px;
+    }
+
+    .left {
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .title-main {
+      font-size: 16px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .title-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--accent-3);
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      box-shadow:
+        0 12px 26px rgba(0, 0, 0, 0.7),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+    }
+
+    .panel + .panel {
+      margin-top: 10px;
+    }
+
+    .panel-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-label span:last-child {
+      font-size: 10px;
+    }
+
+    .timeline {
+      margin-top: 4px;
+      border-radius: 999px;
+      background: #070810;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      height: 26px;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timeline-section {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      border-right: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .timeline-section:last-child {
+      border-right: none;
+    }
+
+    .timeline-section.a {
+      background: linear-gradient(90deg, rgba(255, 138, 42, 0.18), transparent);
+    }
+
+    .timeline-section.b {
+      background: linear-gradient(90deg, rgba(79, 209, 197, 0.18), transparent);
+    }
+
+    .timeline-section.ap {
+      background: linear-gradient(90deg, rgba(255, 217, 59, 0.16), transparent);
+    }
+
+    .timeline-playhead {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      border-radius: 999px;
+      background: var(--accent-3);
+      box-shadow: 0 0 0 5px rgba(255, 217, 59, 0.25);
+      transform: translateX(0%);
+      transition: transform 0.25s linear;
+    }
+
+    .status-line {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .status-line strong {
+      color: var(--accent-3);
+    }
+
+    .activity {
+      margin-top: 8px;
+      height: 120px;
+      background: radial-gradient(circle at top, #212335, #0b0d16 60%, #05060c 100%);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .activity-grid {
+      position: absolute;
+      inset: 0;
+      opacity: 0.18;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+      background-size: 10px 100%, 100% 10px;
+      mix-blend-mode: screen;
+    }
+
+    .activity-bars {
+      position: absolute;
+      inset: 10px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+    }
+
+    .activity-bar {
+      flex: 1;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .activity-bar-fill {
+      position: absolute;
+      inset-inline: 0;
+      bottom: 0;
+      height: 40%;
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      opacity: 0.9;
+      transition: height 0.22s ease-out;
+    }
+
+    .controls-block {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 7px 14px;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      background: #05060c;
+      color: var(--text);
+      box-shadow:
+        0 10px 20px rgba(0, 0, 0, 0.7),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition:
+        background 0.14s ease,
+        transform 0.09s ease,
+        box-shadow 0.1s ease,
+        border-color 0.12s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-3));
+      color: #120d08;
+      border-color: rgba(255, 255, 255, 0.35);
+      box-shadow:
+        0 14px 26px rgba(255, 138, 42, 0.55),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+    }
+
+    .btn-secondary {
+      background: rgba(6, 8, 14, 0.9);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 14px 24px rgba(0, 0, 0, 0.9),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow:
+        0 6px 12px rgba(0, 0, 0, 0.9),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.6);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-primary .btn-dot {
+      background: #25160a;
+    }
+
+    .slider-block {
+      margin-top: 4px;
+    }
+
+    .slider-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .slider-label-row strong {
+      color: var(--text);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 4px;
+      border-radius: 999px;
+      background: #05060b;
+      outline: none;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 0;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: var(--accent);
+      border: 2px solid #05060b;
+      box-shadow:
+        0 0 0 4px var(--accent-soft),
+        0 0 0 1px rgba(255, 255, 255, 0.75);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: var(--accent);
+      border: 2px solid #05060b;
+      box-shadow:
+        0 0 0 4px var(--accent-soft),
+        0 0 0 1px rgba(255, 255, 255, 0.75);
+      cursor: pointer;
+    }
+
+    .text-small {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 840px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+      .left {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="left">
+      <div class="header">
+        <div class="title-block">
+          <div class="title-main">Better Ambient Sequencer</div>
+          <div class="title-sub">Phrase based generative prototype</div>
+        </div>
+        <span class="badge">Prototype · v0.1</span>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">
+          <span>Form · A / B / A'</span>
+          <span id="sectionLabel">Section: A</span>
+        </div>
+        <div class="timeline">
+          <div class="timeline-section a">A</div>
+          <div class="timeline-section b">B</div>
+          <div class="timeline-section ap">A'</div>
+          <div class="timeline-playhead" id="playhead"></div>
+        </div>
+        <div class="status-line">
+          <span id="barLabel">Bar: 1</span>
+          <span id="chordLabel">Center: Dm</span>
+        </div>
+
+        <div class="activity" aria-hidden="true">
+          <div class="activity-grid"></div>
+          <div class="activity-bars" id="activityBars">
+            <!-- Bars will be created with JS -->
+          </div>
+        </div>
+
+        <div class="controls-block">
+          <button class="btn btn-primary" id="startStopBtn">
+            <span class="btn-dot"></span>
+            <span id="startStopLabel">Start</span>
+          </button>
+          <button class="btn btn-secondary" id="reseedBtn">
+            <span class="btn-dot"></span>
+            <span>Reseed ideas</span>
+          </button>
+        </div>
+
+        <p class="text-small">
+          This version focuses on <strong>phrases</strong>: short ideas the system
+          repeats and slightly mutates, with built in rests and density logic.
+          No UI polish yet, just musical behaviour to poke at.
+        </p>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="panel">
+        <div class="panel-label">
+          <span>Macro controls</span>
+          <span>Interactive</span>
+        </div>
+
+        <div class="slider-block">
+          <div class="slider-label-row">
+            <span>Stability</span>
+            <span><strong id="stabilityValueLabel">0.7</strong></span>
+          </div>
+          <input type="range" id="stabilitySlider" min="0" max="1" step="0.01" value="0.7">
+        </div>
+
+        <div class="slider-block">
+          <div class="slider-label-row">
+            <span>Evolution</span>
+            <span><strong id="evolutionValueLabel">0.4</strong></span>
+          </div>
+          <input type="range" id="evolutionSlider" min="0" max="1" step="0.01" value="0.4">
+        </div>
+
+        <div class="slider-block">
+          <div class="slider-label-row">
+            <span>Density</span>
+            <span><strong id="densityValueLabel">0.35</strong></span>
+          </div>
+          <input type="range" id="densitySlider" min="0" max="1" step="0.01" value="0.35">
+        </div>
+
+        <p class="text-small">
+          Stability: how strongly phrases cling to a harmonic center and small
+          steps. Evolution: how much motifs mutate instead of repeating.
+          Density: how much the system prefers notes over silence.
+        </p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">
+          <span>Engine notes</span>
+          <span>What this does</span>
+        </div>
+        <p class="text-small">
+          At startup, the engine creates a simple form with sections A, B and A'.
+          Every bar it:
+        </p>
+        <ul class="text-small" style="margin-top:4px; padding-left:16px;">
+          <li>Chooses or mutates a phrase from its motif memory</li>
+          <li>Biases pitches using a D Dorian scale and chord centers</li>
+          <li>Enforces runs of notes and rests so it can breathe</li>
+        </ul>
+        <p class="text-small" style="margin-top:6px;">
+          It is intentionally opinionated and imperfect so we can tune behaviour
+          and later plug your visual interface on top.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Music engine state
+    const engineState = {
+      bpm: 70,
+      isRunning: false,
+      barGlobal: 0,
+      sectionIndex: 0,
+      barInSection: 0,
+      form: [],
+      motifBank: {
+        A: [],
+        B: [],
+        "A'": []
+      },
+      lastGateRun: 0,
+      lastGateWasNote: false,
+      currentChordRootIndex: 0,
+      lastActivityValues: Array(16).fill(0)
+    };
+
+    // UI elements
+    const startStopBtn = document.getElementById("startStopBtn");
+    const startStopLabel = document.getElementById("startStopLabel");
+    const reseedBtn = document.getElementById("reseedBtn");
+    const sectionLabel = document.getElementById("sectionLabel");
+    const barLabel = document.getElementById("barLabel");
+    const chordLabel = document.getElementById("chordLabel");
+    const playhead = document.getElementById("playhead");
+    const activityBarsContainer = document.getElementById("activityBars");
+
+    const stabilitySlider = document.getElementById("stabilitySlider");
+    const evolutionSlider = document.getElementById("evolutionSlider");
+    const densitySlider = document.getElementById("densitySlider");
+    const stabilityValueLabel = document.getElementById("stabilityValueLabel");
+    const evolutionValueLabel = document.getElementById("evolutionValueLabel");
+    const densityValueLabel = document.getElementById("densityValueLabel");
+
+    // Create 16 activity bars for density visualization
+    const activityBarEls = [];
+    for (let i = 0; i < 16; i++) {
+      const bar = document.createElement("div");
+      bar.className = "activity-bar";
+      const fill = document.createElement("div");
+      fill.className = "activity-bar-fill";
+      bar.appendChild(fill);
+      activityBarsContainer.appendChild(bar);
+      activityBarEls.push(fill);
+    }
+
+    // Base musical data
+    const rootMidi = 50; // D3
+    const scaleDorian = [0, 2, 3, 5, 7, 9, 10]; // D Dorian scale degrees
+    const chordNames = ["Dm", "Em", "F", "G", "Am", "Bm♭", "C"];
+
+    // Simple form definition
+    function initForm() {
+      engineState.form = [
+        {
+          id: "A",
+          bars: 8,
+          params: { stability: 0.75, evolution: 0.3, density: 0.35 }
+        },
+        {
+          id: "B",
+          bars: 8,
+          params: { stability: 0.4, evolution: 0.6, density: 0.55 }
+        },
+        {
+          id: "A'",
+          bars: 8,
+          params: { stability: 0.65, evolution: 0.45, density: 0.4 }
+        }
+      ];
+    }
+
+    // Utility: random helpers
+    function randomChoice(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function randomRange(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    // Decide gate based on density and recent run
+    function decideGate(targetDensity) {
+      let pNote = targetDensity;
+
+      if (engineState.lastGateWasNote) {
+        if (engineState.lastGateRun >= 3) {
+          pNote *= 0.3;
+        }
+      } else {
+        if (engineState.lastGateRun >= 3) {
+          pNote = 1 - (1 - pNote) * 0.3;
+        }
+      }
+
+      const gate = Math.random() < pNote ? 1 : 0;
+
+      if (gate === 1) {
+        if (engineState.lastGateWasNote) {
+          engineState.lastGateRun += 1;
+        } else {
+          engineState.lastGateWasNote = true;
+          engineState.lastGateRun = 1;
+        }
+      } else {
+        if (!engineState.lastGateWasNote) {
+          engineState.lastGateRun += 1;
+        } else {
+          engineState.lastGateWasNote = false;
+          engineState.lastGateRun = 1;
+        }
+      }
+
+      return gate;
+    }
+
+    // Choose chord root index based on stability and previous chord
+    function chooseChordRootIndex(stability) {
+      const current = engineState.currentChordRootIndex;
+      const r = Math.random();
+
+      if (Math.random() < stability) {
+        if (r < 0.6) {
+          return current;
+        } else if (r < 0.8) {
+          return (current + 1) % scaleDorian.length;
+        } else {
+          return (current + scaleDorian.length - 1) % scaleDorian.length;
+        }
+      } else {
+        const options = [];
+        for (let i = 0; i < scaleDorian.length; i++) {
+          if (i !== current) options.push(i);
+        }
+        return randomChoice(options);
+      }
+    }
+
+    // Generate a new phrase object for current bar
+    function generateNewPhrase(params, sectionId) {
+      const stepsPerBar = 16;
+      const stepBeat = 4 / stepsPerBar; // quarter note bar: 4 beats
+      const phrase = {
+        lengthBeats: 4,
+        steps: []
+      };
+
+      // Decide chord center for this bar
+      engineState.currentChordRootIndex = chooseChordRootIndex(params.stability);
+
+      // Sometimes whole bar rest based on density
+      const barRestChance = 0.18 - params.density * 0.12;
+      if (Math.random() < barRestChance) {
+        return phrase;
+      }
+
+      for (let i = 0; i < stepsPerBar; i++) {
+        const offsetBeats = i * stepBeat;
+        const gate = decideGate(params.density);
+
+        if (gate === 0) continue;
+
+        const chordRootIndex = engineState.currentChordRootIndex;
+        const chordDegrees = [0, 2, 4].map(
+          d => (chordRootIndex + d) % scaleDorian.length
+        );
+
+        let degreeIndex;
+        if (Math.random() < 0.75) {
+          degreeIndex = randomChoice(chordDegrees);
+        } else {
+          const all = [];
+          for (let j = 0; j < scaleDorian.length; j++) {
+            if (!chordDegrees.includes(j)) all.push(j);
+          }
+          degreeIndex = all.length ? randomChoice(all) : randomChoice(chordDegrees);
+        }
+
+        const degreeOffset = scaleDorian[degreeIndex];
+        let octaveOffset = 0;
+
+        if (params.stability < 0.35 && Math.random() < 0.3) {
+          octaveOffset = randomChoice([-12, 12]);
+        } else {
+          octaveOffset = randomChoice([0, 12]);
+        }
+
+        const midi = rootMidi + degreeOffset + octaveOffset;
+        const durationBeats = stepBeat * randomRange(0.85, 1.7);
+        const velocity = randomRange(0.35, 0.75);
+
+        phrase.steps.push({
+          offsetBeats,
+          midi,
+          durBeats: durationBeats,
+          vel: velocity
+        });
+      }
+
+      return phrase;
+    }
+
+    // Mutate phrase slightly based on evolution
+    function mutatePhrase(basePhrase, evolution) {
+      const clone = {
+        lengthBeats: basePhrase.lengthBeats,
+        steps: basePhrase.steps.map(s => ({ ...s }))
+      };
+
+      for (const step of clone.steps) {
+        if (Math.random() < evolution * 0.6) {
+          const stepShift = randomChoice([-1, 1, 0, 0]);
+          step.offsetBeats = Math.max(0, step.offsetBeats + stepShift * 0.25);
+        }
+
+        if (Math.random() < evolution * 0.7) {
+          const semitoneShift = randomChoice([-2, -1, 1, 2, 0]);
+          step.midi += semitoneShift;
+        }
+
+        if (Math.random() < evolution * 0.4) {
+          step.durBeats *= randomRange(0.8, 1.3);
+        }
+      }
+
+      return clone;
+    }
+
+    function getParamsForCurrentSection() {
+      const section = engineState.form[engineState.sectionIndex];
+
+      const userStability = parseFloat(stabilitySlider.value);
+      const userEvolution = parseFloat(evolutionSlider.value);
+      const userDensity = parseFloat(densitySlider.value);
+
+      return {
+        stability: (section.params.stability + userStability) / 2,
+        evolution: (section.params.evolution + userEvolution) / 2,
+        density: (section.params.density + userDensity) / 2
+      };
+    }
+
+    function choosePhraseForBar(sectionId, params) {
+      const bank = engineState.motifBank[sectionId];
+      const reuseProbability = 0.7;
+
+      if (bank.length && Math.random() < reuseProbability) {
+        const base = randomChoice(bank);
+        return mutatePhrase(base, params.evolution);
+      } else {
+        const phrase = generateNewPhrase(params, sectionId);
+        bank.push(phrase);
+        if (bank.length > 12) {
+          bank.shift();
+        }
+        return phrase;
+      }
+    }
+
+    // Tone.js setup
+    let synth;
+    let reverb;
+    let delay;
+
+    function initSynth() {
+      reverb = new Tone.Reverb({
+        decay: 8,
+        wet: 0.5
+      }).toDestination();
+
+      delay = new Tone.FeedbackDelay({
+        delayTime: "8n",
+        feedback: 0.45,
+        wet: 0.35
+      }).connect(reverb);
+
+      synth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: "sine" },
+        envelope: {
+          attack: 0.15,
+          decay: 2.0,
+          sustain: 0.5,
+          release: 4.0
+        }
+      }).connect(delay);
+
+      Tone.Transport.bpm.value = engineState.bpm;
+      Tone.Transport.loop = true;
+      Tone.Transport.loopStart = 0;
+      Tone.Transport.loopEnd = "96m";
+    }
+
+    function barIndexInForm() {
+      let total = 0;
+      for (let i = 0; i < engineState.sectionIndex; i++) {
+        total += engineState.form[i].bars;
+      }
+      return total + engineState.barInSection;
+    }
+
+    function scheduleNextBar(time) {
+      const section = engineState.form[engineState.sectionIndex];
+      const sectionId = section.id;
+      const params = getParamsForCurrentSection();
+      const phrase = choosePhraseForBar(sectionId, params);
+      const secPerBeat = 60 / engineState.bpm;
+
+      const chordName = chordNames[engineState.currentChordRootIndex];
+      chordLabel.textContent = "Center: " + chordName;
+      sectionLabel.textContent = "Section: " + sectionId;
+      barLabel.textContent = "Bar: " + (engineState.barGlobal + 1);
+
+      const totalBars = engineState.form.reduce((acc, s) => acc + s.bars, 0);
+      const barIndex = barIndexInForm();
+      const progress = barIndex / totalBars;
+      playhead.style.transform = "translateX(" + (progress * 100) + "%)";
+
+      const barsActivity = Array(16).fill(0);
+
+      for (const step of phrase.steps) {
+        const when = time + step.offsetBeats * secPerBeat;
+        const durSeconds = Math.max(0.05, step.durBeats * secPerBeat);
+        const freq = Tone.Midi(step.midi).toFrequency();
+
+        synth.triggerAttackRelease(freq, durSeconds, when, step.vel);
+
+        const stepIndex = Math.min(
+          15,
+          Math.floor((step.offsetBeats / 4) * 16)
+        );
+        barsActivity[stepIndex] = Math.min(1, barsActivity[stepIndex] + 0.7);
+      }
+
+      for (let i = 0; i < 16; i++) {
+        const merged = Math.max(
+          barsActivity[i],
+          engineState.lastActivityValues[i] * 0.5
+        );
+        engineState.lastActivityValues[i] = merged;
+        const heightPercent = 10 + merged * 80;
+        activityBarEls[i].style.height = heightPercent + "%";
+      }
+
+      engineState.barGlobal += 1;
+      engineState.barInSection += 1;
+
+      if (engineState.barInSection >= section.bars) {
+        engineState.sectionIndex =
+          (engineState.sectionIndex + 1) % engineState.form.length;
+        engineState.barInSection = 0;
+
+        const dots =
+          engineState.sectionIndex === 0 ? "A" :
+          engineState.sectionIndex === 1 ? "B" :
+          "A'";
+        sectionLabel.textContent = "Section: " + dots;
+      }
+    }
+
+    async function startEngine() {
+      if (!synth) {
+        initSynth();
+      }
+      await Tone.start();
+      engineState.isRunning = true;
+      engineState.barGlobal = 0;
+      engineState.sectionIndex = 0;
+      engineState.barInSection = 0;
+      engineState.lastActivityValues = Array(16).fill(0);
+      engineState.currentChordRootIndex = 0;
+      engineState.lastGateRun = 0;
+      engineState.lastGateWasNote = false;
+
+      const repeatId = Tone.Transport.scheduleRepeat(
+        (time) => scheduleNextBar(time),
+        "1m"
+      );
+      engineState.repeatId = repeatId;
+      Tone.Transport.start("+0.05");
+    }
+
+    function stopEngine() {
+      engineState.isRunning = false;
+      if (engineState.repeatId !== undefined) {
+        Tone.Transport.clear(engineState.repeatId);
+        engineState.repeatId = undefined;
+      }
+      Tone.Transport.stop();
+
+      playhead.style.transform = "translateX(0%)";
+      for (let i = 0; i < 16; i++) {
+        activityBarEls[i].style.height = "10%";
+      }
+    }
+
+    // Event listeners
+    startStopBtn.addEventListener("click", () => {
+      if (!engineState.isRunning) {
+        startEngine().catch(console.error);
+        startStopLabel.textContent = "Stop";
+      } else {
+        stopEngine();
+        startStopLabel.textContent = "Start";
+      }
+    });
+
+    reseedBtn.addEventListener("click", () => {
+      engineState.motifBank = { A: [], B: [], "A'": [] };
+      engineState.lastGateRun = 0;
+      engineState.lastGateWasNote = false;
+    });
+
+    stabilitySlider.addEventListener("input", () => {
+      stabilityValueLabel.textContent = stabilitySlider.value;
+    });
+    evolutionSlider.addEventListener("input", () => {
+      evolutionValueLabel.textContent = evolutionSlider.value;
+    });
+    densitySlider.addEventListener("input", () => {
+      densityValueLabel.textContent = densitySlider.value;
+    });
+
+    // Initial setup
+    initForm();
+  </script>
+</body>
+</html>
