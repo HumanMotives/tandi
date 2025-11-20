@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Better Ambient Generative Sequencer – Multi-lane v1</title>
+  <title>Better Ambient Generative Sequencer – Multi-lane v2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Tone.js -->
@@ -67,20 +67,20 @@
   </style>
 </head>
 <body>
-  <h1>Better Ambient Generative Sequencer – Multi-lane prototype</h1>
+  <h1>Better Ambient Generative Sequencer – Multi-lane v2</h1>
   <p>
     Two lanes:<br>
-    • <strong>Harmony</strong> lane (slow chords / root-ish drones)<br>
-    • <strong>Melody</strong> lane (phrases with mixed long/short notes, rhythmic shapes)<br>
-    Clocked to BPM, grid-based gaps. Evolution controls how much the motif branches.
+    • <strong>Chord lane</strong> – strummed chords at phrase starts, no continuous drones.<br>
+    • <strong>Melody lane</strong> – phrases mixing fast/short and slow/long notes.<br>
+    Clocked to BPM, grid-based gaps. Space controls gaps for <em>both</em> chords and melody.
   </p>
 
   <div class="row">
     <button id="startStopBtn">Start</button>
     <button id="reseedBtn">Reseed motif / scale</button>
     <p class="small">
-      Start: begins Transport-clocked lanes (bars).<br>
-      Reseed: new scale + new base melody motif and chord path.
+      Start: begins Transport-clocked bars.<br>
+      Reseed: new scale + new base melody motif and chord behavior.
     </p>
   </div>
 
@@ -93,12 +93,12 @@
 
     <label for="densitySlider">
       Density — how much happens inside each melody phrase:
-      <span id="densityLabel">0.40</span>
+      <span id="densityLabel">0.60</span>
     </label>
-    <input type="range" id="densitySlider" min="0" max="1" step="0.01" value="0.4">
+    <input type="range" id="densitySlider" min="0" max="1" step="0.01" value="0.6">
 
     <label for="spaceSlider">
-      Space — grid-aligned gaps between melody phrases (0 = frequent · 1 = rare):
+      Space — bars between phrases/chords (0 = frequent · 1 = rare):
       <span id="spaceLabel">0.40</span>
     </label>
     <input type="range" id="spaceSlider" min="0" max="1" step="0.01" value="0.4">
@@ -117,7 +117,7 @@
 
     <p class="small">
       Density: notes per phrase & how “frilly” the rhythm is.<br>
-      Space: bars between phrases (always on the grid).<br>
+      Space: how many bars between phrases (affects chords and melody).<br>
       Stability: how strongly chords gravitate around a center.<br>
       Evolution: motif mutation strength and how often new motifs appear.
     </p>
@@ -152,56 +152,55 @@
       barCount: 0,
       currentScaleIndex: 0,
       currentChordRootIndex: 0,   // degree index within scale
-      baseMotif: null,            // { rhythmBeats:[], intervals:[], baseDegreeIndex }
-      lastChordDegree: 0
+      baseMotif: null             // { rhythmBeats:[], contour:[], baseDegreeIndex }
     };
 
     // ---------- AUDIO ENGINE ----------
 
-    let limiter, reverb, delay, chordSynth, melodySynth;
+    let limiter, reverb, chordSynth, melodySynth;
+
+    function getSecondsPerBeat() {
+      const bpm = parseFloat(bpmSlider.value) || 70;
+      return 60 / bpm;
+    }
 
     function initAudio() {
       if (chordSynth) return;
 
       limiter = new Tone.Limiter(-8).toDestination();
 
+      // Only reverb, no delay
       reverb = new Tone.Reverb({
-        decay: 8,
+        decay: 7,
         wet: 0.35
       }).connect(limiter);
 
-      delay = new Tone.FeedbackDelay({
-        delayTime: "8n",
-        feedback: 0.3,
-        wet: 0.25
-      }).connect(reverb);
-
-      // Harmony lane: soft pad-ish triangle
+      // Chord lane: soft pad-ish but only in hits, not continuous
       chordSynth = new Tone.PolySynth(Tone.Synth, {
         oscillator: { type: "triangle" },
         envelope: {
-          attack: 1.0,
-          decay: 2.0,
-          sustain: 0.6,
-          release: 6.0
+          attack: 0.03,
+          decay: 1.5,
+          sustain: 0.5,
+          release: 4.5
         }
       }).connect(reverb);
-      chordSynth.volume.value = -14;
+      chordSynth.volume.value = -12;
 
-      // Melody lane: plucky marimba-like
+      // Melody lane: plucky marimba-ish
       const melodyFilter = new Tone.Filter({
         type: "lowpass",
         frequency: 4500,
         Q: 0.5
-      }).connect(delay);
+      }).connect(reverb);
 
       melodySynth = new Tone.PolySynth(Tone.Synth, {
         oscillator: { type: "triangle" },
         envelope: {
           attack: 0.001,
-          decay: 0.25,
+          decay: 0.22,
           sustain: 0,
-          release: 1.2
+          release: 1.0
         }
       }).connect(melodyFilter);
       melodySynth.volume.value = -10;
@@ -213,12 +212,7 @@
       return scaleDefs[state.currentScaleIndex % scaleDefs.length];
     }
 
-    function getSecondsPerBeat() {
-      const bpm = parseFloat(bpmSlider.value) || 70;
-      return 60 / bpm;
-    }
-
-    // ---------- HARMONY LANE (CHORDS / DRONE) ----------
+    // ---------- HARMONY: CHORD LANE ----------
 
     function chooseChordDegree(stability) {
       const scale = getScale();
@@ -235,99 +229,81 @@
           return (current + len - 1) % len;
         }
       } else {
-        // roam: pick some other degree, biased toward mediant / submediant
+        // roam: pick some other degree, slightly biased to mediant/submediant
         const candidates = [2, 4, 5, 1, 0, 6].map(i => i % len);
         const filtered = candidates.filter(d => d !== current);
         return randomChoice(filtered);
       }
     }
 
-    function scheduleChordBar(time, barIndex) {
+    function scheduleChordHit(time) {
       const scale = getScale();
       const degrees = scale.degrees;
       const rootMidi = scale.rootMidi;
       const secsPerBeat = getSecondsPerBeat();
+      const stability = parseFloat(stabilitySlider.value);
 
-      // Only change chord every 2 bars for now
-      const chordSpanBars = 2;
-      if (barIndex % chordSpanBars === 0) {
-        const stability = parseFloat(stabilitySlider.value);
-        state.currentChordRootIndex = chooseChordDegree(stability);
-        state.lastChordDegree = state.currentChordRootIndex;
-      }
-
+      // Move harmonic center a bit when we actually play
+      state.currentChordRootIndex = chooseChordDegree(stability);
       const degIndex = state.currentChordRootIndex;
-      const degOffsetsTriad = [0, 2, 4].map(d => (degIndex + d) % degrees.length);
+
+      // triad or 7th/9th
+      const chordDegreeOffsets = [0, 2, 4].map(d => (degIndex + d) % degrees.length);
+      const use7th = Math.random() < 0.5;
+      const use9th = Math.random() < 0.3;
+
+      if (use7th) chordDegreeOffsets.push((degIndex + 6) % degrees.length);
+      if (use9th) chordDegreeOffsets.push((degIndex + 1) % degrees.length);
 
       const chordNotes = [];
-      // Root-ish / low octave
-      chordNotes.push(rootMidi + degrees[degOffsetsTriad[0]] - 12);
-      // Mid triad
-      chordNotes.push(rootMidi + degrees[degOffsetsTriad[0]]);
-      chordNotes.push(rootMidi + degrees[degOffsetsTriad[1]]);
-      chordNotes.push(rootMidi + degrees[degOffsetsTriad[2]]);
-      // Optional top color
-      if (Math.random() < 0.6) {
-        chordNotes.push(rootMidi + degrees[degOffsetsTriad[1]] + 12);
+
+      // low root
+      chordNotes.push(rootMidi + degrees[degIndex] - 12);
+
+      // mid chord
+      chordDegreeOffsets.forEach(idx => {
+        chordNotes.push(rootMidi + degrees[idx]);
+      });
+
+      // occasional top color
+      if (Math.random() < 0.5) {
+        chordNotes.push(rootMidi + degrees[degIndex] + 12);
       }
 
-      const durationBeats = chordSpanBars * 4; // 4/4
-      const durationSeconds = durationBeats * secsPerBeat;
+      const unique = [...new Set(chordNotes)];
 
-      const uniqueNotes = [...new Set(chordNotes)];
-      uniqueNotes.forEach(midi => {
+      // Strum chord: small offsets within ~30–90 ms
+      const baseStrum = randomRange(0.03, 0.09);
+      const durBeats = randomRange(2, 4);
+      const durSec = durBeats * secsPerBeat;
+
+      unique.forEach((midi, i) => {
+        const offset = baseStrum * i;
         const freq = Tone.Midi(midi).toFrequency();
-        chordSynth.triggerAttackRelease(freq, durationSeconds, time, 0.4);
+        const vel = randomRange(0.3, 0.6);
+        chordSynth.triggerAttackRelease(freq, durSec, time + offset, vel);
       });
     }
 
-    // ---------- MELODY LANE (PHRASES) ----------
-
-    // Rhythm patterns in beats (4/4) – mix of long/short / bursts
-    const rhythmPatternsSparse = [
-      [1, 3],                // hit then long hold
-      [2, 2],                // two long tones
-      [1.5, 0.5, 2],         // long-short-long
-      [0.5, 0.5, 3],         // two pickups then sustain
-    ];
-
-    const rhythmPatternsMedium = [
-      [0.5, 0.5, 1, 2],
-      [1, 0.5, 0.5, 2],
-      [0.25, 0.25, 0.5, 1, 2],
-      [0.5, 1, 0.5, 2],
-    ];
-
-    const rhythmPatternsDense = [
-      [0.25, 0.25, 0.5, 0.5, 1, 1.5],
-      [0.125, 0.125, 0.25, 0.5, 0.5, 2.5],
-      [0.5, 0.25, 0.25, 0.5, 0.5, 1, 1],
-      [0.25, 0.25, 0.25, 0.25, 1, 2], // fast flurry then hold
-    ];
+    // ---------- MELODY LANE: MOTIFS / PHRASES ----------
 
     const contourTypes = ["up", "down", "arch", "zigzag"];
 
-    function pickRhythmPattern(density) {
-      if (density < 0.3) return randomChoice(rhythmPatternsSparse);
-      if (density < 0.7) return randomChoice(rhythmPatternsMedium);
-      return randomChoice(rhythmPatternsDense);
-    }
-
     function buildContour(len, type) {
-      // Returns an array of scale-degree offsets like [0, +1, +2, +1, 0]
+      // Returns scale-degree offsets like [0,+1,+2,+1,0]
       const steps = [];
 
       if (type === "up") {
         let pos = 0;
         for (let i = 0; i < len; i++) {
           steps.push(pos);
-          if (i < len - 1) pos += randomChoice([1, 1, 2]); // more likely small up
+          if (i < len - 1) pos += randomChoice([1, 1, 2]);
         }
       } else if (type === "down") {
         let pos = 0;
         for (let i = 0; i < len; i++) {
           steps.push(pos);
-          if (i < len - 1) pos += randomChoice([-1, -1, -2]); // more likely small down
+          if (i < len - 1) pos += randomChoice([-1, -1, -2]);
         }
       } else if (type === "arch") {
         const mid = Math.floor(len / 2);
@@ -349,9 +325,64 @@
         }
       }
 
-      // Normalize to start at 0
       const start = steps[0];
       return steps.map(s => s - start);
+    }
+
+    function generateRhythmBeats(density) {
+      // We generate durations that sum roughly 2–4 beats
+      // and alternate long vs short for hook-like feel.
+
+      const longDurOptionsLow = [1, 0.5];                 // quarter, eighth
+      const longDurOptionsHigh = [0.5, 0.25];             // eighth, 16th
+      const shortDurOptions = [0.25, 0.125, 0.0625];      // 16th, 32nd
+
+      // target total beats
+      const minTotal = 2;
+      const maxTotal = 4;
+      const targetTotal = randomRange(minTotal, maxTotal);
+
+      // note count gets higher with density
+      const minNotes = 3;
+      const maxNotes = 12;
+      let maxCount = Math.round(minNotes + density * (maxNotes - minNotes));
+
+      const beats = [];
+      let total = 0;
+      let lastWasLong = Math.random() < 0.5;
+
+      while (total < targetTotal && beats.length < maxCount) {
+        const useLong = !lastWasLong && Math.random() < 0.7
+          ? true
+          : lastWasLong && Math.random() < 0.3
+          ? false
+          : !lastWasLong;
+
+        let dur;
+        if (useLong) {
+          const longOptions =
+            density < 0.5 ? longDurOptionsLow : longDurOptionsHigh;
+          dur = randomChoice(longOptions);
+        } else {
+          dur = randomChoice(shortDurOptions);
+        }
+
+        if (total + dur > maxTotal + 0.25) break;
+
+        beats.push(dur);
+        total += dur;
+        lastWasLong = useLong;
+      }
+
+      // Guarantee at least one long and one short if possible
+      if (beats.length >= 3) {
+        const hasShort = beats.some(b => b <= 0.25);
+        const hasLong = beats.some(b => b >= 0.5);
+        if (!hasShort) beats[beats.length - 1] = 0.25;
+        if (!hasLong) beats[0] = 0.5;
+      }
+
+      return beats;
     }
 
     function createBaseMotif(density) {
@@ -359,19 +390,15 @@
       const degrees = scale.degrees;
       const rootIndex = state.currentChordRootIndex;
 
-      const rhythmBeats = pickRhythmPattern(density);
+      const rhythmBeats = generateRhythmBeats(density);
       const contourType = randomChoice(contourTypes);
       const contour = buildContour(rhythmBeats.length, contourType);
 
-      // anchor motif base roughly around current chord degree, but not always root
+      // anchor motif base roughly around chord degrees
       const chordDegrees = [0, 2, 4].map(d => (rootIndex + d) % degrees.length);
       const baseDegreeIndex = randomChoice(chordDegrees);
 
-      return {
-        rhythmBeats,
-        contour,
-        baseDegreeIndex
-      };
+      return { rhythmBeats, contour, baseDegreeIndex };
     }
 
     function mutateMotif(baseMotif, evolution) {
@@ -381,22 +408,44 @@
 
       const clone = JSON.parse(JSON.stringify(baseMotif));
 
-      // Small chance to tweak rhythm pattern
-      if (Math.random() < evolution * 0.4) {
+      // Small chance to completely refresh rhythm at higher evolution
+      if (Math.random() < evolution * 0.5) {
         const density = parseFloat(densitySlider.value);
-        clone.rhythmBeats = pickRhythmPattern(density);
+        clone.rhythmBeats = generateRhythmBeats(density);
+      } else {
+        // Otherwise, tweak existing durations
+        clone.rhythmBeats = clone.rhythmBeats.map(d => {
+          if (Math.random() < evolution * 0.6) {
+            const factor = randomRange(0.7, 1.3);
+            let nd = d * factor;
+            // snap to nearest grid step
+            const grid = [0.0625, 0.125, 0.25, 0.5, 1];
+            let best = grid[0];
+            let bestDiff = Math.abs(nd - grid[0]);
+            for (let g of grid) {
+              const diff = Math.abs(nd - g);
+              if (diff < bestDiff) {
+                bestDiff = diff;
+                best = g;
+              }
+            }
+            nd = best;
+            return nd;
+          }
+          return d;
+        });
       }
 
       // Tweak contour
       clone.contour = clone.contour.map(step => {
-        if (Math.random() < evolution * 0.6) {
+        if (Math.random() < evolution * 0.7) {
           return step + randomChoice([-1, 0, 1]);
         }
         return step;
       });
 
       // Chance to transpose motif base degree
-      if (Math.random() < evolution * 0.5) {
+      if (Math.random() < evolution * 0.6) {
         const shift = randomChoice([-2, -1, 1, 2]);
         const scale = getScale();
         const len = scale.degrees.length;
@@ -407,17 +456,14 @@
       return clone;
     }
 
-    function shouldPlayMelodyThisBar() {
+    function shouldPlayThisBar() {
       const space = parseFloat(spaceSlider.value);
-      // Map space -> probability of phrase this bar
-      // space=0 => ~0.9, space=1 => ~0.1
-      const p = 0.9 - 0.8 * space;
+      // space=0 => p≈0.9, space=1 => p≈0.15
+      const p = 0.9 - 0.75 * space;
       return Math.random() < p;
     }
 
-    function scheduleMelodyBar(time, barIndex) {
-      if (!shouldPlayMelodyThisBar()) return;
-
+    function scheduleMelodyPhrase(time) {
       const density = parseFloat(densitySlider.value);
       const evolution = parseFloat(evolutionSlider.value);
       const scale = getScale();
@@ -431,23 +477,23 @@
 
       let motif = mutateMotif(state.baseMotif, evolution);
 
-      // At high evolution, occasionally adopt mutated motif as new base
+      // At high evolution, sometimes adopt mutated motif as new base
       if (evolution > 0.7 && Math.random() < (evolution - 0.7) * 1.5) {
         state.baseMotif = motif;
       }
 
       const { rhythmBeats, contour, baseDegreeIndex } = motif;
 
-      let currentBeatOffset = 0;
+      let beatOffset = 0;
       for (let i = 0; i < rhythmBeats.length; i++) {
         const durBeats = rhythmBeats[i];
-        const offsetBeats = currentBeatOffset;
+        const offsetBeats = beatOffset;
 
-        const degreeIndex =
+        const scaleDegreeIndex =
           (baseDegreeIndex + contour[i] + degrees.length) % degrees.length;
-        const degreeOffset = degrees[degreeIndex];
+        const degreeOffset = degrees[scaleDegreeIndex];
 
-        // Register selection: mostly around mid, occasionally high or low
+        // Register selection: mostly mid/high, occasional low
         let octaveOffset;
         if (density < 0.5) {
           octaveOffset = randomChoice([0, 12]);
@@ -458,13 +504,12 @@
         const midi = rootMidi + degreeOffset + octaveOffset;
         const freq = Tone.Midi(midi).toFrequency();
 
-        // Duration in seconds, with slight variation
         const durSeconds = Math.max(
           0.1,
-          durBeats * secsPerBeat * randomRange(0.9, 1.4)
+          durBeats * secsPerBeat * randomRange(0.9, 1.5)
         );
 
-        const vel = randomRange(0.3, 0.7);
+        const vel = randomRange(0.3, 0.75);
 
         melodySynth.triggerAttackRelease(
           freq,
@@ -473,7 +518,7 @@
           vel
         );
 
-        currentBeatOffset += durBeats;
+        beatOffset += durBeats;
       }
     }
 
@@ -486,7 +531,7 @@
       return "A'";
     }
 
-    function updateStatus() {
+    function updateStatus(lastBarInfo) {
       const scale = getScale();
       const secsPerBeat = getSecondsPerBeat();
       const info = [
@@ -497,7 +542,8 @@
         `BPM: ${parseFloat(bpmSlider.value).toFixed(0)}`,
         `Density: ${parseFloat(densitySlider.value).toFixed(2)} · Space: ${parseFloat(spaceSlider.value).toFixed(2)}`,
         `Stability: ${parseFloat(stabilitySlider.value).toFixed(2)} · Evolution: ${parseFloat(evolutionSlider.value).toFixed(2)}`,
-        `Seconds per beat: ${secsPerBeat.toFixed(3)}`
+        `Seconds per beat: ${secsPerBeat.toFixed(3)}`,
+        lastBarInfo
       ];
       statusText.textContent = info.join("\n");
     }
@@ -505,14 +551,17 @@
     function onBar(time) {
       if (!state.isRunning) return;
 
-      // Harmony lane: pad chords
-      scheduleChordBar(time, state.barCount);
+      const playThisBar = shouldPlayThisBar();
+      let barInfo = "This bar: rest";
 
-      // Melody lane: phrase or rest
-      scheduleMelodyBar(time, state.barCount);
+      if (playThisBar) {
+        scheduleChordHit(time);
+        scheduleMelodyPhrase(time);
+        barInfo = "This bar: chord hit + melody phrase";
+      }
 
       state.barCount += 1;
-      updateStatus();
+      updateStatus(barInfo);
     }
 
     // ---------- START / STOP / RESEED ----------
@@ -530,12 +579,12 @@
       state.currentScaleIndex = Math.floor(Math.random() * scaleDefs.length);
       state.currentChordRootIndex = Math.floor(Math.random() * getScale().degrees.length);
 
-      Tone.Transport.cancel(); // clear previous events if any
+      Tone.Transport.cancel(); // clear previous events
       Tone.Transport.bpm.value = parseFloat(bpmSlider.value) || 70;
 
       Tone.Transport.scheduleRepeat(onBar, "1m");
       Tone.Transport.start("+0.05");
-      updateStatus();
+      updateStatus("Starting…");
     }
 
     function stopEngine() {
@@ -546,7 +595,6 @@
     }
 
     function reseed() {
-      // New scale + new motif
       state.currentScaleIndex = Math.floor(Math.random() * scaleDefs.length);
       state.baseMotif = null;
       state.barCount = 0;
