@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ikeda-style Microgrid</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root {
+      --bg: #050608;
+      --fg: #f5f5f5;
+      --accent: #f5d742;
+      --accent-soft: #2a2a2a;
+      --accent-2: #ff3366;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                   "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #14161d 0, #050608 55%, #000 100%);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .panel {
+      width: 100%;
+      max-width: 720px;
+      background: rgba(5, 6, 8, 0.96);
+      border: 1px solid #22242d;
+      border-radius: 10px;
+      padding: 18px 18px 14px 18px;
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7);
+    }
+
+    .header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+
+    .title {
+      font-size: 18px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 12px rgba(255, 51, 102, 0.9);
+    }
+
+    .subtitle {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8f92aa;
+      white-space: nowrap;
+    }
+
+    .grid {
+      margin: 10px 0 12px 0;
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      gap: 3px;
+      border-radius: 6px;
+      padding: 10px;
+      background: linear-gradient(90deg, #0b0d12 0, #050608 50%, #0b0d12 100%);
+      border: 1px solid #272935;
+    }
+
+    .step {
+      position: relative;
+      width: 100%;
+      padding-top: 100%;
+      border-radius: 2px;
+      background: #090b10;
+      overflow: hidden;
+    }
+
+    .step-inner {
+      position: absolute;
+      inset: 2px;
+      border-radius: 1px;
+      background: #151722;
+      opacity: 0.5;
+      transition: opacity 80ms linear, transform 80ms linear, background 80ms linear;
+    }
+
+    .step.active .step-inner {
+      opacity: 1;
+      transform: translateY(-1px);
+      background: #f5d742;
+      box-shadow: 0 0 10px rgba(245, 215, 66, 0.8);
+    }
+
+    .step.current .step-inner {
+      outline: 1px solid #ffffff;
+      outline-offset: -1px;
+    }
+
+    .step.click .step-inner {
+      background: #f5d742;
+    }
+
+    .step.beep .step-inner {
+      background: #5cd4ff;
+    }
+
+    .step.noise .step-inner {
+      background: #ff3366;
+    }
+
+    .controls-row {
+      display: grid;
+      grid-template-columns: 1.1fr 2fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .main-button-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button.play {
+      appearance: none;
+      border: none;
+      outline: none;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      background: var(--accent);
+      color: #1a1a1a;
+      box-shadow: 0 8px 20px rgba(245, 215, 66, 0.45);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 80ms ease, box-shadow 80ms ease, background 80ms ease;
+    }
+
+    button.play:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(245, 215, 66, 0.6);
+    }
+
+    button.play:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8);
+    }
+
+    button.play.stop {
+      background: #ff3366;
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(255, 51, 102, 0.55);
+    }
+
+    .indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #20222c;
+      box-shadow: 0 0 0 0 rgba(245, 215, 66, 0);
+      transition: background 120ms linear, box-shadow 120ms linear;
+    }
+
+    .indicator.on {
+      background: #f5d742;
+      box-shadow: 0 0 10px rgba(245, 215, 66, 1);
+    }
+
+    .indicator-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #7f8298;
+    }
+
+    .indicator-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sliders {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .slider {
+      background: var(--accent-soft);
+      border-radius: 6px;
+      padding: 6px 8px 8px 8px;
+    }
+
+    .slider-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #b0b3c9;
+      margin-bottom: 4px;
+    }
+
+    .slider-value {
+      font-size: 11px;
+      color: #8588a1;
+      margin-bottom: 4px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 999px;
+      background: #3a3d50;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #050608;
+      box-shadow: 0 0 6px rgba(245, 215, 66, 0.8);
+      cursor: pointer;
+      margin-top: -5px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #050608;
+      box-shadow: 0 0 6px rgba(245, 215, 66, 0.8);
+      cursor: pointer;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 10px;
+      color: #5e6276;
+      border-top: 1px solid #252735;
+      padding-top: 6px;
+      margin-top: 6px;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .sequence-label {
+      font-family: "SF Mono", ui-monospace, Menlo, Monaco, "Roboto Mono",
+        "Courier New", monospace;
+      font-size: 10px;
+      color: #9a9eb9;
+    }
+
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-swatch {
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      background: #444;
+    }
+
+    .legend-swatch.click {
+      background: #f5d742;
+    }
+
+    .legend-swatch.beep {
+      background: #5cd4ff;
+    }
+
+    .legend-swatch.noise {
+      background: #ff3366;
+    }
+
+    @media (max-width: 640px) {
+      .controls-row {
+        grid-template-columns: 1fr;
+      }
+      .sliders {
+        grid-template-columns: 1fr;
+      }
+      .subtitle {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <div class="header">
+      <div class="title">
+        <span class="title-dot"></span>
+        DATA MICROGRID
+      </div>
+      <div class="subtitle">High Frequency Pulses and Glitch Bursts</div>
+    </div>
+
+    <div class="grid" id="stepGrid"></div>
+
+    <div class="controls-row">
+      <div class="main-button-wrap">
+        <button class="play" id="playButton">
+          <span class="play-label">Start</span>
+        </button>
+        <div class="indicator-wrap">
+          <div class="indicator" id="powerLed"></div>
+          <div class="indicator-label">Audio Engine</div>
+        </div>
+      </div>
+
+      <div class="sliders">
+        <div class="slider">
+          <div class="slider-label">Tempo</div>
+          <div class="slider-value"><span id="tempoValue">160</span> bpm</div>
+          <input type="range" id="tempoSlider" min="60" max="320" value="160">
+        </div>
+        <div class="slider">
+          <div class="slider-label">Density</div>
+          <div class="slider-value"><span id="densityValue">0.55</span></div>
+          <input type="range" id="densitySlider" min="0" max="100" value="55">
+        </div>
+        <div class="slider">
+          <div class="slider-label">Harshness</div>
+          <div class="slider-value"><span id="harshValue">0.65</span></div>
+          <input type="range" id="harshSlider" min="0" max="100" value="65">
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="sequence-label" id="sequenceLabel">
+        sequence-id: dm-00001
+      </div>
+      <div class="legend">
+        <div class="legend-item">
+          <span class="legend-swatch click"></span>
+          <span>click</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-swatch beep"></span>
+          <span>beep</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-swatch noise"></span>
+          <span>noise</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Audio state
+    let audioCtx = null;
+    let masterGain = null;
+    let highpass = null;
+
+    let isPlaying = false;
+    let currentStep = 0;
+    let nextStepTime = 0;
+    let schedulerTimer = null;
+
+    const totalSteps = 16;
+    const stepStates = new Array(totalSteps).fill(null); // "click" | "beep" | "noise" | null
+
+    // Parameters
+    const params = {
+      tempo: 160,
+      density: 0.55,   // global probability something happens on a step
+      harsh: 0.65      // mix between clean beeps and more noise / higher freq
+    };
+
+    // UI references
+    const gridEl = document.getElementById("stepGrid");
+    const playButton = document.getElementById("playButton");
+    const playLabel = playButton.querySelector(".play-label");
+    const powerLed = document.getElementById("powerLed");
+    const tempoSlider = document.getElementById("tempoSlider");
+    const densitySlider = document.getElementById("densitySlider");
+    const harshSlider = document.getElementById("harshSlider");
+    const tempoValue = document.getElementById("tempoValue");
+    const densityValue = document.getElementById("densityValue");
+    const harshValue = document.getElementById("harshValue");
+    const sequenceLabel = document.getElementById("sequenceLabel");
+
+    // Create grid UI
+    const stepElements = [];
+    function buildGrid() {
+      gridEl.innerHTML = "";
+      for (let i = 0; i < totalSteps; i++) {
+        const step = document.createElement("div");
+        step.className = "step";
+        const inner = document.createElement("div");
+        inner.className = "step-inner";
+        step.appendChild(inner);
+        gridEl.appendChild(step);
+        stepElements.push(step);
+      }
+    }
+
+    buildGrid();
+
+    // Generate a random ID for the current pattern
+    let sequenceCounter = 1;
+    function updateSequenceLabel() {
+      const id = "dm-" + String(sequenceCounter).padStart(5, "0");
+      sequenceLabel.textContent = "sequence-id: " + id;
+      sequenceCounter++;
+    }
+
+    // Initialize audio when user interacts
+    function initAudio() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0.18;
+
+      // Highpass to keep it crisp
+      highpass = audioCtx.createBiquadFilter();
+      highpass.type = "highpass";
+      highpass.frequency.value = 150;
+
+      masterGain.connect(highpass);
+      highpass.connect(audioCtx.destination);
+    }
+
+    // Utility to connect a node to master gain
+    function connectToMaster(node) {
+      node.connect(masterGain);
+    }
+
+    // Sound generators
+    function triggerClick(time) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = "square";
+      osc.frequency.setValueAtTime(4000 + Math.random() * 8000, time);
+
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(0.8, time + 0.001);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.02);
+
+      osc.connect(gain);
+      connectToMaster(gain);
+
+      osc.start(time);
+      osc.stop(time + 0.03);
+    }
+
+    function triggerBeep(time, harshAmount) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = harshAmount > 0.5 ? "square" : "sine";
+
+      const baseFreq = harshAmount > 0.5 ? 1500 : 500;
+      const spread = harshAmount > 0.5 ? 6000 : 1200;
+      const f = baseFreq + Math.random() * spread;
+      osc.frequency.setValueAtTime(f, time);
+
+      // tiny stepping for digital feel
+      if (harshAmount > 0.5) {
+        const stepCount = 4 + Math.floor(Math.random() * 6);
+        const stepDur = 0.008;
+        for (let i = 0; i < stepCount; i++) {
+          const t = time + i * stepDur;
+          const vf = f * (1 + (Math.random() - 0.5) * 0.04);
+          osc.frequency.setValueAtTime(vf, t);
+        }
+      }
+
+      const dur = 0.04 + Math.random() * 0.12;
+
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(0.7, time + 0.003);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+
+      osc.connect(gain);
+      connectToMaster(gain);
+
+      osc.start(time);
+      osc.stop(time + dur + 0.02);
+    }
+
+    function createNoiseBuffer() {
+      const length = Math.floor(audioCtx.sampleRate * 0.08);
+      const buffer = audioCtx.createBuffer(1, length, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < length; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.9;
+      }
+      return buffer;
+    }
+
+    function triggerNoiseBurst(time, harshAmount) {
+      const bufferSource = audioCtx.createBufferSource();
+      bufferSource.buffer = createNoiseBuffer();
+
+      const bp = audioCtx.createBiquadFilter();
+      bp.type = "bandpass";
+
+      const centerFreq = 800 + harshAmount * 7500;
+      bp.frequency.setValueAtTime(centerFreq, time);
+      bp.Q.value = 8 + harshAmount * 12;
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(0.7 + harshAmount * 0.3, time + 0.002);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.05 + harshAmount * 0.08);
+
+      bufferSource.connect(bp);
+      bp.connect(gain);
+      connectToMaster(gain);
+
+      bufferSource.start(time);
+      bufferSource.stop(time + 0.12 + harshAmount * 0.08);
+    }
+
+    // Random pattern generation biased by parameters
+    function randomizePattern() {
+      for (let i = 0; i < totalSteps; i++) {
+        const step = stepElements[i];
+        const inner = step.firstChild;
+        step.classList.remove("click", "beep", "noise", "active");
+
+        const baseProb = params.density;
+        const stepBias =
+          i % 4 === 0 ? 0.2 : i % 2 === 0 ? 0.05 : -0.03;
+
+        const p = clamp(baseProb + stepBias, 0, 1);
+
+        if (Math.random() < p) {
+          const harsh = params.harsh;
+          const r = Math.random();
+
+          let type;
+          if (r < 0.45) {
+            type = "click";
+          } else if (r < 0.85) {
+            type = "beep";
+          } else {
+            type = "noise";
+          }
+
+          if (harsh > 0.7 && Math.random() < 0.35) {
+            type = "noise";
+          }
+
+          stepStates[i] = type;
+          step.classList.add(type, "active");
+        } else {
+          stepStates[i] = null;
+        }
+      }
+      updateSequenceLabel();
+    }
+
+    // Scheduler
+    function nextNoteInterval() {
+      return 60 / params.tempo / 4; // 16th notes
+    }
+
+    function scheduleStep(stepIndex, time) {
+      const type = stepStates[stepIndex];
+      if (!audioCtx || type === null) return;
+
+      const harsh = params.harsh;
+
+      if (type === "click") {
+        triggerClick(time);
+      } else if (type === "beep") {
+        triggerBeep(time, harsh);
+      } else if (type === "noise") {
+        triggerNoiseBurst(time, harsh);
+      }
+    }
+
+    function scheduler() {
+      if (!audioCtx || !isPlaying) return;
+
+      const lookAhead = 0.1; // seconds
+      while (nextStepTime < audioCtx.currentTime + lookAhead) {
+        scheduleStep(currentStep, nextStepTime);
+        highlightStep(currentStep);
+        nextStepTime += nextNoteInterval();
+        currentStep = (currentStep + 1) % totalSteps;
+      }
+    }
+
+    function highlightStep(index) {
+      stepElements.forEach((el, i) => {
+        el.classList.toggle("current", i === index);
+      });
+    }
+
+    function startTransport() {
+      initAudio();
+      if (!audioCtx) return;
+
+      isPlaying = true;
+      playButton.classList.add("stop");
+      playLabel.textContent = "Stop";
+      powerLed.classList.add("on");
+
+      currentStep = 0;
+      nextStepTime = audioCtx.currentTime + 0.05;
+
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+
+      randomizePattern();
+
+      if (schedulerTimer) {
+        clearInterval(schedulerTimer);
+      }
+      schedulerTimer = setInterval(scheduler, 25);
+    }
+
+    function stopTransport() {
+      isPlaying = false;
+      playButton.classList.remove("stop");
+      playLabel.textContent = "Start";
+      powerLed.classList.remove("on");
+      if (schedulerTimer) {
+        clearInterval(schedulerTimer);
+        schedulerTimer = null;
+      }
+      stepElements.forEach(el => el.classList.remove("current"));
+    }
+
+    // Clamp utility
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    // UI event handlers
+    playButton.addEventListener("click", () => {
+      if (!isPlaying) {
+        startTransport();
+      } else {
+        stopTransport();
+      }
+    });
+
+    tempoSlider.addEventListener("input", () => {
+      const val = parseInt(tempoSlider.value, 10);
+      params.tempo = val;
+      tempoValue.textContent = val;
+    });
+
+    densitySlider.addEventListener("input", () => {
+      const v = parseInt(densitySlider.value, 10) / 100;
+      params.density = v;
+      densityValue.textContent = v.toFixed(2);
+      if (isPlaying) {
+        randomizePattern();
+      }
+    });
+
+    harshSlider.addEventListener("input", () => {
+      const v = parseInt(harshSlider.value, 10) / 100;
+      params.harsh = v;
+      harshValue.textContent = v.toFixed(2);
+      if (isPlaying) {
+        randomizePattern();
+      }
+    });
+
+    // Clicking the grid forces a new pattern
+    gridEl.addEventListener("click", () => {
+      if (!audioCtx) initAudio();
+      randomizePattern();
+    });
+
+    // Initial pattern (for visual)
+    randomizePattern();
+  </script>
+</body>
+</html>
