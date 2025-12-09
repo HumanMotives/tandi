@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Moire Drone Playground – Light v2</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+
+  <!-- Tone.js -->
+  <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: #f5f5f7;
+      color: #111;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .app {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .top-bar {
+      padding: 10px 14px;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to bottom, #ffffff, #f1f1f5);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .title {
+      font-size: 12px;
+    }
+    .status {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+    .moire-container {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      background: #fafafa;
+      touch-action: none;
+    }
+    .layer {
+      position: absolute;
+      inset: -50%;
+      background-size: 40px 40px;
+      opacity: 0.9;
+    }
+    .layer.base {
+      background-image: repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.06) 0px,
+        rgba(0, 0, 0, 0.06) 2px,
+        transparent 2px,
+        transparent 20px
+      );
+    }
+    .layer.overlay {
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(255, 136, 0, 0.4) 0px,
+        rgba(255, 136, 0, 0.4) 3px,
+        transparent 3px,
+        transparent 24px
+      );
+      pointer-events: none;
+      mix-blend-mode: multiply;
+    }
+    .hint {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+      color: #222;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.95), rgba(245,245,247,0.98));
+      backdrop-filter: blur(4px);
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hint span {
+      border: 1px solid rgba(0, 0, 0, 0.25);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.9);
+    }
+    .bottom-bar {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 11px;
+      color: #444;
+      text-align: center;
+      pointer-events: none;
+    }
+    .bottom-bar div {
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top-bar">
+      <div class="title">Moire Drone Playground</div>
+      <div class="status" id="statusText">Touch + drag: angle / overlap</div>
+    </div>
+    <div class="moire-container" id="moire">
+      <div class="layer base"></div>
+      <div class="layer overlay" id="overlayLayer"></div>
+      <div class="hint" id="hint">
+        <span>Touch and move to shape the drone</span>
+      </div>
+      <div class="bottom-bar">
+        <div>Horizontal: overlap / chord color</div>
+        <div>Vertical: rotation / brightness</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const moire = document.getElementById("moire");
+    const overlayLayer = document.getElementById("overlayLayer");
+    const hint = document.getElementById("hint");
+    const statusText = document.getElementById("statusText");
+
+    let started = false;
+    let audioReady = false;
+
+    let padSynth, noiseLayer, filter, reverb, limiter;
+    let currentRootIndex = 0;
+
+    const roots = [48, 50, 53, 55]; // C3, D3, F3, G3
+    const dorian = [0, 2, 3, 5, 7, 9, 10];
+
+    function initAudio() {
+      if (audioReady) return;
+      audioReady = true;
+
+      limiter = new Tone.Limiter(-10).toDestination();
+
+      reverb = new Tone.Reverb({
+        decay: 12,
+        wet: 0.45
+      }).connect(limiter);
+
+      filter = new Tone.Filter({
+        type: "lowpass",
+        frequency: 1200,
+        Q: 0.7
+      }).connect(reverb);
+
+      padSynth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: "triangle" },
+        envelope: {
+          attack: 2.5,
+          decay: 4.0,
+          sustain: 0.7,
+          release: 6.0
+        }
+      }).connect(filter);
+      padSynth.volume.value = -16;
+
+      noiseLayer = new Tone.Noise("pink").connect(filter);
+      noiseLayer.volume.value = -32;
+
+      Tone.Transport.bpm.value = 40;
+      Tone.Transport.start();
+      noiseLayer.start();
+    }
+
+    function noteFrom(rootMidi, degreeIndex, octaveOffset) {
+      const deg = dorian[degreeIndex % dorian.length];
+      return rootMidi + deg + octaveOffset;
+    }
+
+    function triggerNewChord(normX, normY) {
+      if (!padSynth) return;
+
+      currentRootIndex = Math.floor(normX * roots.length) % roots.length;
+      const rootMidi = roots[currentRootIndex];
+
+      const tension = normX;
+      const brightness = normY;
+
+      const baseDegreeIndex = Math.floor(tension * dorian.length);
+      const chordDegrees = [0, 2, 4].map(
+        d => (baseDegreeIndex + d) % dorian.length
+      );
+
+      if (tension > 0.6) {
+        chordDegrees.push((baseDegreeIndex + 6) % dorian.length);
+      }
+      if (tension < 0.35) {
+        chordDegrees.push((baseDegreeIndex + 1) % dorian.length);
+      }
+
+      const notes = [];
+      notes.push(noteFrom(rootMidi, chordDegrees[0], -12));
+
+      chordDegrees.forEach((d, i) => {
+        notes.push(noteFrom(rootMidi, d, 0));
+        if (i % 2 === 0) {
+          notes.push(noteFrom(rootMidi, d, 12));
+        }
+      });
+
+      const uniqueNotes = [...new Set(notes)];
+
+      const freqTarget = 800 + brightness * 2400;
+      filter.frequency.rampTo(freqTarget, 1.2);
+
+      const now = Tone.now();
+      const dur = "8m";
+      uniqueNotes.forEach((midi, i) => {
+        const t = now + i * 0.08;
+        const v = 0.18 + (i / uniqueNotes.length) * 0.08;
+        padSynth.triggerAttackRelease(Tone.Midi(midi).toFrequency(), dur, t, v);
+      });
+
+      statusText.textContent =
+        "Root: " +
+        Tone.Frequency(roots[currentRootIndex], "midi").toNote() +
+        " · tension=" +
+        tension.toFixed(2) +
+        " · brightness=" +
+        brightness.toFixed(2);
+    }
+
+    function updateFromPointer(clientX, clientY) {
+      const rect = moire.getBoundingClientRect();
+      const x = (clientX - rect.left) / rect.width;
+      const y = (clientY - rect.top) / rect.height;
+
+      const normX = Math.min(1, Math.max(0, x));
+      const normY = Math.min(1, Math.max(0, y));
+
+      const offsetX = (normX - 0.5) * 60;
+      const angle = (normY - 0.5) * 70;
+
+      overlayLayer.style.transform =
+        "translate(" + offsetX + "px, 0px) rotate(" + angle + "deg)";
+
+      if (filter) {
+        const freqTarget = 600 + normY * 2800;
+        filter.frequency.rampTo(freqTarget, 0.4);
+      }
+
+      if (padSynth && Math.random() < 0.25) {
+        triggerNewChord(normX, normY);
+      }
+    }
+
+    function hideHint() {
+      if (!hint) return;
+      hint.style.opacity = "0";
+      setTimeout(() => {
+        hint.style.display = "none";
+      }, 250);
+    }
+
+    async function startAudioFromEvent(clientX, clientY) {
+      if (started) return;
+      started = true;
+      hideHint();
+      try {
+        await Tone.start();
+      } catch (e) {
+        console.warn("Tone.start failed:", e);
+      }
+      initAudio();
+      triggerNewChord(0.5, 0.5);
+      updateFromPointer(clientX, clientY);
+    }
+
+    function handlePointerDown(ev) {
+      if (!started) {
+        startAudioFromEvent(ev.clientX, ev.clientY);
+      } else {
+        updateFromPointer(ev.clientX, ev.clientY);
+      }
+    }
+
+    function handleTouchStart(ev) {
+      if (ev.touches.length > 0) {
+        const t = ev.touches[0];
+        if (!started) {
+          startAudioFromEvent(t.clientX, t.clientY);
+        } else {
+          updateFromPointer(t.clientX, t.clientY);
+        }
+      }
+      ev.preventDefault();
+    }
+
+    function handlePointerMove(ev) {
+      if (!started) return;
+      if (ev.pointerType === "mouse" && ev.buttons === 0) return;
+      updateFromPointer(ev.clientX, ev.clientY);
+    }
+
+    function handleTouchMove(ev) {
+      if (!started) return;
+      if (ev.touches.length > 0) {
+        const t = ev.touches[0];
+        updateFromPointer(t.clientX, t.clientY);
+      }
+      ev.preventDefault();
+    }
+
+    document.body.addEventListener("pointerdown", handlePointerDown);
+    document.body.addEventListener("pointermove", handlePointerMove);
+    document.body.addEventListener("touchstart", handleTouchStart, { passive: false });
+    document.body.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.body.addEventListener("mousedown", handlePointerDown);
+
+    window.addEventListener("load", () => {
+      updateFromPointer(window.innerWidth * 0.5, window.innerHeight * 0.5);
+    });
+  </script>
+</body>
+</html>
