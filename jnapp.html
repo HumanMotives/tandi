@@ -152,6 +152,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 6px;
+      gap: 6px;
     }
 
     .card-title {
@@ -167,6 +168,7 @@
       color: var(--jn-green);
       text-transform: uppercase;
       letter-spacing: 0.06em;
+      white-space: nowrap;
     }
 
     .card-body {
@@ -247,7 +249,7 @@
       background: white;
       box-shadow: 0 12px 26px rgba(0,0,0,0.18);
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       overflow: hidden;
     }
 
@@ -317,7 +319,92 @@
       cursor: pointer;
     }
 
-    /* simple responsive tweak for very small screens */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .toggle {
+      width: 38px;
+      height: 20px;
+      border-radius: 999px;
+      background: #d0d7d5;
+      position: relative;
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .toggle.on {
+      background: var(--jn-green);
+    }
+
+    .toggle.on::after {
+      left: 20px;
+    }
+
+    .poll-options {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+    }
+
+    .poll-option {
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: #f1f1f1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .poll-option span.bar {
+      display: block;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--jn-green-soft);
+      margin-left: 6px;
+      flex: 1;
+    }
+
+    .rsvp-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .rsvp-btn {
+      flex: 1;
+      text-align: center;
+      padding: 4px 0;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid #d0d7d5;
+      background: #f9faf9;
+    }
+
+    .rsvp-btn.primary {
+      border-color: var(--jn-green);
+      background: var(--jn-green-soft);
+      color: var(--jn-green);
+      font-weight: 600;
+    }
+
     @media (max-width: 380px) {
       .app {
         border-radius: 18px;
@@ -335,72 +422,95 @@
     <header class="app-header">
       <div class="logo-circle">P</div>
       <div class="header-text">
-        <span class="label">Jong Nederland • Demo</span>
+        <span class="label">Jong Nederland • App demo</span>
         <span class="title">De Pionier</span>
       </div>
     </header>
 
     <main class="app-main">
-      <!-- HOME -->
-      <section id="screen-home" class="screen active">
+      <!-- START -->
+      <section id="screen-start" class="screen active">
         <div class="highlight-banner">
-          <h2>Momenten die kinderen laten groeien</h2>
-          <p>De Pionier is de plek waar verhalen, spelideeën en ervaringen uit heel Jong Nederland samenkomen.</p>
+          <h2>Eén app voor verhalen, spel en contact</h2>
+          <p>De Pionier combineert het beste van een magazine, groepsapp en spelgids. Voor ouders, jeugdleden, leiding en bestuur.</p>
           <ul class="highlight-bullets">
-            <li>Clubs zien wat er landelijk speelt</li>
-            <li>Leiding vindt direct toepasbare inspiratie</li>
-            <li>Vrijwilligers voelen zich onderdeel van het geheel</li>
+            <li>Pushmeldingen bij echt belangrijke zaken</li>
+            <li>Nieuws en Pionier-verhalen op één plek</li>
+            <li>Agenda per leeftijdsgroep met aanwezigheidsknop</li>
           </ul>
         </div>
 
-        <div class="section-title">Vandaag</div>
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">Nieuwe kampvuurtraditie bij De Pionier</div>
-            <div class="card-tag">Voorbeeld</div>
-          </div>
-          <div class="card-body">
-            Op deze plek verschijnen straks korte updates uit alle hoeken van het land: jubilea, leuke acties,
-            bijzondere vrijwilligers en kampmomenten die je zo herkent.
-          </div>
-          <div class="card-meta">
-            <span>Landelijk • 2 min lezen</span>
-            <span class="subtle-link" data-tab="pionier">Bekijk Pionier-feed</span>
-          </div>
-        </div>
-
-        <div class="section-title">Wat biedt deze app?</div>
+        <div class="section-title">Wat lost deze app op?</div>
         <div class="card">
           <div class="card-body">
             <ul class="highlight-bullets">
-              <li>Eén plek voor verhalen, spelvormen en nieuws</li>
-              <li>Filter op leeftijdsgroep en rol (leiding, ouder, bestuur)</li>
-              <li>Pushmeldingen bij écht relevante zaken</li>
-              <li>Clubs kunnen zelf momenten en foto’s insturen</li>
+              <li>Geen losse mails, appgroepen en pdfs meer: iedereen kijkt in dezelfde app.</li>
+              <li>Landelijke verhalen en nieuws worden direct zichtbaar bij alle clubs.</li>
+              <li>Leiding heeft een praktische spelgids bij de hand voor elke clubavond.</li>
+              <li>Besturen krijgen meer grip op communicatie en aanwezigheid.</li>
             </ul>
+          </div>
+        </div>
+
+        <div class="section-title">Demo-rondleiding</div>
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">1. Nieuws</div>
+            <div class="card-tag">Landelijk + clubs</div>
+          </div>
+          <div class="card-body">
+            Laat het bestuur zien hoe De Pionier als nieuwsfeed werkt. Landelijke berichten, clubmomenten en inspirerende verhalen in één tijdlijn.
+          </div>
+          <div class="card-meta">
+            <span>Tip: klik onderin op <strong>Nieuws</strong></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">2. Agenda</div>
+            <div class="card-tag">Aanwezigheid</div>
+          </div>
+          <div class="card-body">
+            Hier ziet elke groep de komende opkomsten en activiteiten. Leden (of ouders) kunnen zich met één tik afmelden, leiding houdt automatisch de lijst bij.
+          </div>
+          <div class="card-meta">
+            <span>Tip: klik op <strong>Agenda</strong> om de UX te tonen</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">3. Spellen & hulpmiddelen</div>
+            <div class="card-tag">Spelgids</div>
+          </div>
+          <div class="card-body">
+            Digitale spelgids per leeftijdsgroep. Dit is de Jong Nederland versie van een zakboekje: direct toepasbare ideeën en formats.
+          </div>
+          <div class="card-meta">
+            <span>Tip: klik op <strong>Spellen</strong></span>
           </div>
         </div>
       </section>
 
-      <!-- PIONIER FEED -->
-      <section id="screen-pionier" class="screen">
+      <!-- NIEUWS / PIONIER -->
+      <section id="screen-nieuws" class="screen">
         <div class="chip-row">
           <div class="chip bright">
-            <span class="chip-dot"></span> Pionier-feed
+            <span class="chip-dot"></span> Nieuwsfeed
           </div>
-          <div class="chip">Verhalen</div>
+          <div class="chip">Pionier-verhalen</div>
           <div class="chip">Vrijwilligers</div>
-          <div class="chip">Jubilea</div>
+          <div class="chip">Landelijk nieuws</div>
         </div>
 
         <div class="card">
           <div class="card-header-row">
-            <div class="card-title">“Ik begon als 12-jarige bij de club...”</div>
-            <div class="card-tag">Vrijwilliger</div>
+            <div class="card-title">“De club waar ik opgroeide”</div>
+            <div class="card-tag">Pionier-verhaal</div>
           </div>
           <div class="card-body">
-            Voorbeeld van een Pionier-verhaal: een vrijwilliger vertelt hoe één clubavond
-            uitgroeide tot twintig jaar jeugdwerk en waarom dat nog steeds haar week maakt.
+            Voorbeeldverhaal: een oud-lid dat nu leiding is vertelt over een moment dat hem of haar gevormd heeft. Dit soort verhalen geven kleur aan Jong Nederland als geheel.
           </div>
           <div class="card-meta">
             <span>Deurne • 4 min lezen</span>
@@ -410,43 +520,102 @@
 
         <div class="card">
           <div class="card-header-row">
-            <div class="card-title">Kampmoment: nachtspel in het bos</div>
-            <div class="card-tag">Ervaring</div>
+            <div class="card-title">Landelijk: nieuwe campagne vrijwilligers</div>
+            <div class="card-tag">Landelijk nieuws</div>
           </div>
           <div class="card-body">
-            Hier zie je hoe clubs hun mooiste momenten delen. Tekst, foto’s en korte tips zodat
-            andere afdelingen het idee eenvoudig kunnen overnemen.
+            Hier komen landelijke updates, campagnes en belangrijke berichten. Clubs krijgen bij belangrijke items automatisch een pushmelding.
           </div>
           <div class="card-meta">
-            <span>Helden • ingestuurd door leiding</span>
-            <div class="pill-row">
-              <div class="pill">10–13 jaar</div>
-              <div class="pill">Kamp</div>
-              <div class="pill">Nachtspel</div>
-            </div>
+            <span>Landelijk bureau • voorbeeld</span>
+            <span class="subtle-link" data-tab="club">Laat zien in Mijn club</span>
           </div>
         </div>
 
         <div class="card">
           <div class="card-header-row">
-            <div class="card-title">Club in beeld: Someren-Heide</div>
-            <div class="card-tag">Clubportret</div>
+            <div class="card-title">Afdelingen delen hun mooiste momenten</div>
+            <div class="card-tag">Clubs</div>
           </div>
           <div class="card-body">
-            Elke maand een andere vereniging in de spotlight. Dit geeft clubs herkenning,
-            inspiratie en een trots moment om lokaal te delen.
+            Clubs kunnen zelf foto’s en korte verslagen insturen. De landelijke redactie bewaakt toon en kwaliteit, maar iedereen draagt bij.
           </div>
           <div class="card-meta">
-            <span>Maandthema: Samen sterker</span>
+            <span>Voorstel: 1 club in beeld per week</span>
           </div>
         </div>
       </section>
 
-      <!-- SPELLEN / INSPIRATIE -->
+      <!-- AGENDA -->
+      <section id="screen-agenda" class="screen">
+        <div class="chip-row">
+          <div class="chip bright">
+            <span class="chip-dot"></span> Agenda
+          </div>
+          <div class="chip">Speltak: 8–10 jaar</div>
+          <div class="chip">Alle groepen</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">Zaterdag 18 januari • Clubavond</div>
+            <div class="card-tag">Opkomst</div>
+          </div>
+          <div class="card-body">
+            Thema: Winterchallenge. Verzamelpunt om 18.45 uur bij het clubhuis. Neem warme kleding en een zaklamp mee.
+            <div class="rsvp-row">
+              <div class="rsvp-btn primary">Ik ben erbij</div>
+              <div class="rsvp-btn">Ik kan niet</div>
+            </div>
+          </div>
+          <div class="card-meta">
+            <span>15 aanwezig • 3 afgemeld</span>
+            <span>Leiding ziet live overzicht</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">20–23 juli • Zomerkamp</div>
+            <div class="card-tag">Kamp</div>
+          </div>
+          <div class="card-body">
+            In de echte app kan hier uitgebreide kampinformatie staan, met documenten, paklijst en betalingsstatus. Leden kunnen zich via de app aanmelden.
+          </div>
+          <div class="card-meta">
+            <span>Speltak 10–13 jaar</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">Poll: welk weekend past beter?</div>
+            <div class="card-tag">Poll</div>
+          </div>
+          <div class="card-body">
+            Polls helpen leiding en bestuur snel keuzes maken samen met leden en ouders.
+            <div class="poll-options">
+              <div class="poll-option">
+                <span>Weekend 1</span>
+                <span>60%</span>
+              </div>
+              <div class="poll-option">
+                <span>Weekend 2</span>
+                <span>40%</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-meta">
+            <span>Voorbeeldweergave van stemresultaat</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SPELLEN / SPELGIDS -->
       <section id="screen-spellen" class="screen">
         <div class="chip-row">
           <div class="chip bright">
-            <span class="chip-dot"></span> Spelbank
+            <span class="chip-dot"></span> Spelgids
           </div>
           <div class="chip">6–8 jaar</div>
           <div class="chip">8–10 jaar</div>
@@ -460,8 +629,8 @@
             <div class="card-tag">Spelidee</div>
           </div>
           <div class="card-body">
-            In de echte app kun je als leiding spelvormen zoeken op leeftijd, groepsgrootte en doel
-            (samenwerken, uitrazen, vertrouwen). Elk spel is direct inzetbaar op de volgende clubavond.
+            De digitale spelgids is de Jong Nederland versie van een zakboekje. Leiding zoekt op leeftijd, locatie en doel
+            (samenwerken, uitrazen, vertrouwen) en heeft binnen seconden een passend spel.
           </div>
           <div class="card-meta">
             <span>8–10 jaar • 20 minuten</span>
@@ -470,12 +639,14 @@
 
         <div class="card">
           <div class="card-header-row">
-            <div class="card-title">Filter op jouw groep</div>
-            <div class="card-tag">Demo</div>
+            <div class="card-title">Themapagina: Regenavond</div>
+            <div class="card-tag">Binnen</div>
           </div>
           <div class="card-body">
-            Laat aan het bestuur zien: dit kan dé praktische meerwaarde zijn van De Pionier-app.
-            Minder zoeken, meer spelen. Landelijke expertise in je broekzak.
+            Verzameling van snelle binnenactiviteiten voor avonden met slecht weer. Dit laat zien hoe de app echte problemen van leiding oplost.
+          </div>
+          <div class="card-meta">
+            <span>Filterbaar op duur en materiaal</span>
           </div>
         </div>
       </section>
@@ -489,42 +660,90 @@
           <div class="chip">Voorbeeld: Someren-Heide</div>
         </div>
 
-        <div class="empty-state">
-          <strong>Clubdashboard</strong>
-          Hier komt straks het clubnieuws, jouw agenda en berichten van het bestuur of
-          landelijke bureau. Denk aan:
-          <ul class="highlight-bullets">
-            <li>meldingen over trainingen en cursussen</li>
-            <li>downloads van posters en social posts</li>
-            <li>herinneringen voor subsidies en aanvragen</li>
-          </ul>
-        </div>
-
-        <div class="section-title">Landelijke berichten</div>
         <div class="card">
           <div class="card-header-row">
-            <div class="card-title">Nieuwe vrijwilligerscampagne</div>
-            <span class="badge">Demo</span>
+            <div class="card-title">Notificaties</div>
+            <div class="card-tag">Push</div>
           </div>
           <div class="card-body">
-            Toon hier hoe het landelijke bureau kant en klare materialen aanbiedt:
-            visuals, teksten, voorbeeldberichten voor socials en pers.
+            <div class="toggle-row">
+              <span>Belangrijke clubberichten</span>
+              <div class="toggle on"></div>
+            </div>
+            <div class="toggle-row">
+              <span>Landelijke updates</span>
+              <div class="toggle on"></div>
+            </div>
+            <div class="toggle-row">
+              <span>Spelgids tips</span>
+              <div class="toggle"></div>
+            </div>
           </div>
           <div class="card-meta">
-            <span>Landelijk bureau</span>
+            <span>Pushmeldingen zijn per persoon in te stellen</span>
           </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">Leden uitnodigen voor de app</div>
+            <div class="card-tag">Uitnodigen</div>
+          </div>
+          <div class="card-body">
+            In de echte app worden leden en ouders via de ledenadministratie ingelezen. Met één knop stuur je een uitnodiging met downloadlink naar iedereen.
+          </div>
+          <div class="card-meta">
+            <span>Voorbeeld: koppeling met ledenbestand</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">Mini-poll voor ouders</div>
+            <div class="card-tag">Poll</div>
+          </div>
+          <div class="card-body">
+            “Zouden jullie een ouderavond over online veiligheid waarderen?”
+            <div class="poll-options">
+              <div class="poll-option">
+                <span>Ja, graag</span>
+                <span>72%</span>
+              </div>
+              <div class="poll-option">
+                <span>Misschien</span>
+                <span>20%</span>
+              </div>
+              <div class="poll-option">
+                <span>Niet nodig</span>
+                <span>8%</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-meta">
+            <span>Laat zien hoe laagdrempelig feedback wordt</span>
+          </div>
+        </div>
+
+        <div class="empty-state">
+          <strong>Clubdashboard</strong>
+          In de definitieve app kan dit scherm uitgroeien tot het startpunt voor alles
+          wat specifiek is voor jouw vereniging: documenten, contactpersonen, lokale nieuwsberichten en meer.
         </div>
       </section>
     </main>
 
     <nav class="tabbar">
-      <button class="tab-btn active" data-tab="home">
+      <button class="tab-btn active" data-tab="start">
         <span class="icon"></span>
         Start
       </button>
-      <button class="tab-btn" data-tab="pionier">
+      <button class="tab-btn" data-tab="nieuws">
         <span class="icon"></span>
-        Pionier
+        Nieuws
+      </button>
+      <button class="tab-btn" data-tab="agenda">
+        <span class="icon"></span>
+        Agenda
       </button>
       <button class="tab-btn" data-tab="spellen">
         <span class="icon"></span>
@@ -540,22 +759,22 @@
   <script>
     const tabButtons = document.querySelectorAll('.tab-btn');
     const screens = {
-      home: document.getElementById('screen-home'),
-      pionier: document.getElementById('screen-pionier'),
+      start: document.getElementById('screen-start'),
+      nieuws: document.getElementById('screen-nieuws'),
+      agenda: document.getElementById('screen-agenda'),
       spellen: document.getElementById('screen-spellen'),
       club: document.getElementById('screen-club')
     };
 
     function activateTab(name) {
-      // update buttons
       tabButtons.forEach(btn => {
         btn.classList.toggle('active', btn.dataset.tab === name);
       });
-      // update screens
+
       Object.keys(screens).forEach(key => {
         screens[key].classList.toggle('active', key === name);
       });
-      // scroll top of main
+
       document.querySelector('.app-main').scrollTop = 0;
     }
 
@@ -565,9 +784,9 @@
       });
     });
 
-    // also allow inline "Bekijk Pionier-feed" link
-    document.querySelectorAll('[data-tab="pionier"]').forEach(el => {
-      el.addEventListener('click', () => activateTab('pionier'));
+    // inline links naar andere tabs
+    document.querySelectorAll('[data-tab="club"]').forEach(el => {
+      el.addEventListener('click', () => activateTab('club'));
     });
   </script>
 </body>
