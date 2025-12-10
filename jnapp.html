@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <title>De Pionier – App demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root {
+      --jn-green: #00796b;
+      --jn-green-soft: #e0f2f1;
+      --jn-accent: #ffb300;
+      --jn-bg: #f7f7f7;
+      --jn-text: #16302b;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow-soft: 0 8px 18px rgba(0,0,0,0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #ddd;
+      color: var(--jn-text);
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app {
+      background: var(--jn-bg);
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;
+      max-height: 880px;
+      border-radius: 26px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    header.app-header {
+      padding: 14px 18px 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: white;
+      border-bottom: 1px solid #eee;
+    }
+
+    .logo-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: var(--jn-green-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--jn-green);
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-text span.label {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #666;
+    }
+
+    .header-text span.title {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 0.02em;
+    }
+
+    main.app-main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px 80px;
+      scroll-behavior: smooth;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.18s ease-out;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(4px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: white;
+      border: 1px solid #e0e0e0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip.bright {
+      background: var(--jn-green-soft);
+      border-color: transparent;
+      color: var(--jn-green);
+      font-weight: 600;
+    }
+
+    .chip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--jn-green);
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 14px 14px 12px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .card-tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--jn-green-soft);
+      color: var(--jn-green);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .card-body {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+
+    .card-meta {
+      font-size: 11px;
+      color: #777;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #f1f1f1;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #777;
+      margin: 14px 2px 6px;
+    }
+
+    .highlight-banner {
+      border-radius: var(--radius-md);
+      padding: 12px 13px;
+      background: linear-gradient(135deg, var(--jn-green), #00a68a);
+      color: white;
+      margin-bottom: 14px;
+    }
+
+    .highlight-banner h2 {
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .highlight-banner p {
+      font-size: 12px;
+      opacity: 0.95;
+    }
+
+    .highlight-bullets {
+      margin-top: 6px;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .highlight-bullets li {
+      margin-left: 16px;
+      margin-bottom: 2px;
+    }
+
+    .tabbar {
+      position: absolute;
+      bottom: 8px;
+      left: 12px;
+      right: 12px;
+      height: 54px;
+      border-radius: 999px;
+      background: white;
+      box-shadow: 0 12px 26px rgba(0,0,0,0.18);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      overflow: hidden;
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      font-size: 11px;
+      color: #777;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: pointer;
+    }
+
+    .tab-btn span.icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1.4px solid #ccc;
+    }
+
+    .tab-btn.active span.icon {
+      border-color: var(--jn-green);
+      background: var(--jn-green-soft);
+    }
+
+    .tab-btn.active {
+      color: var(--jn-green);
+      font-weight: 600;
+    }
+
+    .empty-state {
+      border-radius: var(--radius-lg);
+      border: 1px dashed #c8d0cd;
+      padding: 18px 14px;
+      font-size: 13px;
+      text-align: left;
+      color: #555;
+      background: #f9faf9;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: var(--jn-accent);
+      color: #4a3000;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
+    .subtle-link {
+      font-size: 11px;
+      color: var(--jn-green);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* simple responsive tweak for very small screens */
+    @media (max-width: 380px) {
+      .app {
+        border-radius: 18px;
+        padding-bottom: 0;
+      }
+      main.app-main {
+        padding: 10px 10px 74px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="logo-circle">P</div>
+      <div class="header-text">
+        <span class="label">Jong Nederland • Demo</span>
+        <span class="title">De Pionier</span>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <!-- HOME -->
+      <section id="screen-home" class="screen active">
+        <div class="highlight-banner">
+          <h2>Momenten die kinderen laten groeien</h2>
+          <p>De Pionier is de plek waar verhalen, spelideeën en ervaringen uit heel Jong Nederland samenkomen.</p>
+          <ul class="highlight-bullets">
+            <li>Clubs zien wat er landelijk speelt</li>
+            <li>Leiding vindt direct toepasbare inspiratie</li>
+            <li>Vrijwilligers voelen zich onderdeel van het geheel</li>
+          </ul>
+        </div>
+
+        <div class="section-title">Vandaag</div>
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">Nieuwe kampvuurtraditie bij De Pionier</div>
+            <div class="card-tag">Voorbeeld</div>
+          </div>
+          <div class="card-body">
+            Op deze plek verschijnen straks korte updates uit alle hoeken van het land: jubilea, leuke acties,
+            bijzondere vrijwilligers en kampmomenten die je zo herkent.
+          </div>
+          <div class="card-meta">
+            <span>Landelijk • 2 min lezen</span>
+            <span class="subtle-link" data-tab="pionier">Bekijk Pionier-feed</span>
+          </div>
+        </div>
+
+        <div class="section-title">Wat biedt deze app?</div>
+        <div class="card">
+          <div class="card-body">
+            <ul class="highlight-bullets">
+              <li>Eén plek voor verhalen, spelvormen en nieuws</li>
+              <li>Filter op leeftijdsgroep en rol (leiding, ouder, bestuur)</li>
+              <li>Pushmeldingen bij écht relevante zaken</li>
+              <li>Clubs kunnen zelf momenten en foto’s insturen</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- PIONIER FEED -->
+      <section id="screen-pionier" class="screen">
+        <div class="chip-row">
+          <div class="chip bright">
+            <span class="chip-dot"></span> Pionier-feed
+          </div>
+          <div class="chip">Verhalen</div>
+          <div class="chip">Vrijwilligers</div>
+          <div class="chip">Jubilea</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">“Ik begon als 12-jarige bij de club...”</div>
+            <div class="card-tag">Vrijwilliger</div>
+          </div>
+          <div class="card-body">
+            Voorbeeld van een Pionier-verhaal: een vrijwilliger vertelt hoe één clubavond
+            uitgroeide tot twintig jaar jeugdwerk en waarom dat nog steeds haar week maakt.
+          </div>
+          <div class="card-meta">
+            <span>Deurne • 4 min lezen</span>
+            <span>Reeks: <strong>De Pioniers</strong></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">Kampmoment: nachtspel in het bos</div>
+            <div class="card-tag">Ervaring</div>
+          </div>
+          <div class="card-body">
+            Hier zie je hoe clubs hun mooiste momenten delen. Tekst, foto’s en korte tips zodat
+            andere afdelingen het idee eenvoudig kunnen overnemen.
+          </div>
+          <div class="card-meta">
+            <span>Helden • ingestuurd door leiding</span>
+            <div class="pill-row">
+              <div class="pill">10–13 jaar</div>
+              <div class="pill">Kamp</div>
+              <div class="pill">Nachtspel</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">Club in beeld: Someren-Heide</div>
+            <div class="card-tag">Clubportret</div>
+          </div>
+          <div class="card-body">
+            Elke maand een andere vereniging in de spotlight. Dit geeft clubs herkenning,
+            inspiratie en een trots moment om lokaal te delen.
+          </div>
+          <div class="card-meta">
+            <span>Maandthema: Samen sterker</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SPELLEN / INSPIRATIE -->
+      <section id="screen-spellen" class="screen">
+        <div class="chip-row">
+          <div class="chip bright">
+            <span class="chip-dot"></span> Spelbank
+          </div>
+          <div class="chip">6–8 jaar</div>
+          <div class="chip">8–10 jaar</div>
+          <div class="chip">Binnen</div>
+          <div class="chip">Buiten</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">Voorbeeld: “Touwbrug estafette”</div>
+            <div class="card-tag">Spelidee</div>
+          </div>
+          <div class="card-body">
+            In de echte app kun je als leiding spelvormen zoeken op leeftijd, groepsgrootte en doel
+            (samenwerken, uitrazen, vertrouwen). Elk spel is direct inzetbaar op de volgende clubavond.
+          </div>
+          <div class="card-meta">
+            <span>8–10 jaar • 20 minuten</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">Filter op jouw groep</div>
+            <div class="card-tag">Demo</div>
+          </div>
+          <div class="card-body">
+            Laat aan het bestuur zien: dit kan dé praktische meerwaarde zijn van De Pionier-app.
+            Minder zoeken, meer spelen. Landelijke expertise in je broekzak.
+          </div>
+        </div>
+      </section>
+
+      <!-- MIJN CLUB -->
+      <section id="screen-club" class="screen">
+        <div class="chip-row">
+          <div class="chip bright">
+            <span class="chip-dot"></span> Mijn club
+          </div>
+          <div class="chip">Voorbeeld: Someren-Heide</div>
+        </div>
+
+        <div class="empty-state">
+          <strong>Clubdashboard</strong>
+          Hier komt straks het clubnieuws, jouw agenda en berichten van het bestuur of
+          landelijke bureau. Denk aan:
+          <ul class="highlight-bullets">
+            <li>meldingen over trainingen en cursussen</li>
+            <li>downloads van posters en social posts</li>
+            <li>herinneringen voor subsidies en aanvragen</li>
+          </ul>
+        </div>
+
+        <div class="section-title">Landelijke berichten</div>
+        <div class="card">
+          <div class="card-header-row">
+            <div class="card-title">Nieuwe vrijwilligerscampagne</div>
+            <span class="badge">Demo</span>
+          </div>
+          <div class="card-body">
+            Toon hier hoe het landelijke bureau kant en klare materialen aanbiedt:
+            visuals, teksten, voorbeeldberichten voor socials en pers.
+          </div>
+          <div class="card-meta">
+            <span>Landelijk bureau</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabbar">
+      <button class="tab-btn active" data-tab="home">
+        <span class="icon"></span>
+        Start
+      </button>
+      <button class="tab-btn" data-tab="pionier">
+        <span class="icon"></span>
+        Pionier
+      </button>
+      <button class="tab-btn" data-tab="spellen">
+        <span class="icon"></span>
+        Spellen
+      </button>
+      <button class="tab-btn" data-tab="club">
+        <span class="icon"></span>
+        Mijn club
+      </button>
+    </nav>
+  </div>
+
+  <script>
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const screens = {
+      home: document.getElementById('screen-home'),
+      pionier: document.getElementById('screen-pionier'),
+      spellen: document.getElementById('screen-spellen'),
+      club: document.getElementById('screen-club')
+    };
+
+    function activateTab(name) {
+      // update buttons
+      tabButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === name);
+      });
+      // update screens
+      Object.keys(screens).forEach(key => {
+        screens[key].classList.toggle('active', key === name);
+      });
+      // scroll top of main
+      document.querySelector('.app-main').scrollTop = 0;
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        activateTab(btn.dataset.tab);
+      });
+    });
+
+    // also allow inline "Bekijk Pionier-feed" link
+    document.querySelectorAll('[data-tab="pionier"]').forEach(el => {
+      el.addEventListener('click', () => activateTab('pionier'));
+    });
+  </script>
+</body>
+</html>
