@@ -2,19 +2,22 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8">
-  <title>De Pionier – App demo</title>
+  <title>Jong Nederland App – Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
     :root {
-      --jn-green: #00796b;
-      --jn-green-soft: #e0f2f1;
-      --jn-accent: #ffb300;
-      --jn-bg: #f7f7f7;
-      --jn-text: #16302b;
-      --radius-lg: 18px;
-      --radius-md: 12px;
-      --shadow-soft: 0 8px 18px rgba(0,0,0,0.06);
+      --jn-green: #0d8a6f;
+      --jn-green-soft: #e3f3ee;
+      --jn-accent: #ffb347;
+      --jn-bg: #f5f5f8;
+      --jn-text: #1c2633;
+      --jn-muted: #7c8594;
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --shadow-soft: 0 18px 40px rgba(0,0,0,0.14);
+      --shadow-card: 0 10px 25px rgba(15, 26, 44, 0.10);
     }
 
     * {
@@ -25,21 +28,21 @@
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #ddd;
+      background: #dcdfe6;
       color: var(--jn-text);
       display: flex;
       justify-content: center;
-      padding: 16px;
+      padding: 20px;
     }
 
     .app {
       background: var(--jn-bg);
       width: 100%;
-      max-width: 480px;
+      max-width: 430px;
       height: 100vh;
       max-height: 880px;
-      border-radius: 26px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -47,25 +50,33 @@
     }
 
     header.app-header {
-      padding: 14px 18px 10px;
+      padding: 16px 18px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+    }
+
+    .header-left {
       display: flex;
       align-items: center;
       gap: 12px;
-      background: white;
-      border-bottom: 1px solid #eee;
     }
 
-    .logo-circle {
-      width: 34px;
-      height: 34px;
+    .avatar {
+      width: 40px;
+      height: 40px;
       border-radius: 999px;
-      background: var(--jn-green-soft);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--jn-green);
+      overflow: hidden;
+      border: 2px solid var(--jn-green-soft);
+      background: #ddd;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .header-text {
@@ -73,11 +84,9 @@
       flex-direction: column;
     }
 
-    .header-text span.label {
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #666;
+    .header-text span.greeting {
+      font-size: 12px;
+      color: var(--jn-muted);
     }
 
     .header-text span.title {
@@ -86,10 +95,20 @@
       letter-spacing: 0.02em;
     }
 
+    .header-badge {
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--jn-green-soft);
+      color: var(--jn-green);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
     main.app-main {
       flex: 1;
       overflow-y: auto;
-      padding: 14px 16px 80px;
+      padding: 14px 16px 82px;
       scroll-behavior: smooth;
     }
 
@@ -103,102 +122,80 @@
     }
 
     @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(4px);}
+      from {opacity: 0; transform: translateY(6px);}
       to {opacity: 1; transform: translateY(0);}
     }
 
-    .chip-row {
+    .hero-card {
+      position: relative;
+      border-radius: 26px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-card);
+      background: #111;
+      color: #ffffff;
+    }
+
+    .hero-image {
+      position: absolute;
+      inset: 0;
+    }
+
+    .hero-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.55);
+      display: block;
+    }
+
+    .hero-content {
+      position: relative;
+      padding: 16px 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .hero-pill-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-size: 11px;
+    }
+
+    .hero-pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.16);
+      backdrop-filter: blur(6px);
+    }
+
+    .hero-title {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .hero-sub {
+      font-size: 12px;
+      opacity: 0.92;
+    }
+
+    .hero-button-row {
+      margin-top: 8px;
       display: flex;
       gap: 8px;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
     }
 
-    .chip {
+    .btn-ghost-light {
+      border-radius: 999px;
       padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      background: white;
-      border: 1px solid #e0e0e0;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .chip.bright {
-      background: var(--jn-green-soft);
-      border-color: transparent;
-      color: var(--jn-green);
-      font-weight: 600;
-    }
-
-    .chip-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: var(--jn-green);
-    }
-
-    .card {
-      background: white;
-      border-radius: var(--radius-lg);
-      padding: 14px 14px 12px;
-      margin-bottom: 12px;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .card-header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-      gap: 6px;
-    }
-
-    .card-title {
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    .card-tag {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: var(--jn-green-soft);
-      color: var(--jn-green);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      white-space: nowrap;
-    }
-
-    .card-body {
-      font-size: 13px;
-      line-height: 1.4;
-      margin-bottom: 6px;
-    }
-
-    .card-meta {
-      font-size: 11px;
-      color: #777;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .pill-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 4px;
-      flex-wrap: wrap;
-    }
-
-    .pill {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: #f1f1f1;
+      border: 1px solid rgba(255,255,255,0.7);
+      font-size: 12px;
+      background: rgba(0,0,0,0.12);
+      cursor: pointer;
+      color: #ffffff;
     }
 
     .section-title {
@@ -206,48 +203,378 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.12em;
-      color: #777;
-      margin: 14px 2px 6px;
+      color: var(--jn-muted);
+      margin: 10px 2px 8px;
     }
 
-    .highlight-banner {
+    .card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 10px 10px 10px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .card-horizontal {
+      display: flex;
+      gap: 10px;
+    }
+
+    .card-image {
+      width: 92px;
       border-radius: var(--radius-md);
-      padding: 12px 13px;
-      background: linear-gradient(135deg, var(--jn-green), #00a68a);
-      color: white;
-      margin-bottom: 14px;
+      overflow: hidden;
+      background: #ccc;
+      flex-shrink: 0;
     }
 
-    .highlight-banner h2 {
-      font-size: 15px;
-      margin-bottom: 4px;
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
-    .highlight-banner p {
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .card-body {
       font-size: 12px;
-      opacity: 0.95;
-    }
-
-    .highlight-bullets {
-      margin-top: 6px;
-      font-size: 11px;
+      color: #444f5f;
       line-height: 1.4;
     }
 
-    .highlight-bullets li {
-      margin-left: 16px;
+    .card-meta {
+      font-size: 11px;
+      color: var(--jn-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .link-small {
+      font-size: 11px;
+      color: var(--jn-green);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* Nieuws tiles */
+    .tile-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .tile {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tile img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .tile-body {
+      padding: 10px 11px 10px;
+    }
+
+    .tile-kicker {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--jn-muted);
       margin-bottom: 2px;
     }
 
+    .tile-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .tile-text {
+      font-size: 12px;
+      color: #445;
+      margin-bottom: 6px;
+    }
+
+    .tile-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--jn-muted);
+    }
+
+    /* Agenda */
+    .agenda-item {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 10px 11px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .agenda-date {
+      width: 54px;
+      height: 54px;
+      border-radius: var(--radius-md);
+      background: var(--jn-green-soft);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--jn-green);
+      font-weight: 700;
+    }
+
+    .agenda-date span.day {
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .agenda-info-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .agenda-info-sub {
+      font-size: 12px;
+      color: var(--jn-muted);
+      margin-bottom: 4px;
+    }
+
+    .agenda-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      font-size: 11px;
+    }
+
+    .agenda-tag {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #f1f1f4;
+    }
+
+    .rsvp-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .rsvp-btn {
+      flex: 1;
+      text-align: center;
+      padding: 5px 0;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid #d4d6de;
+      background: #f8f8fb;
+      cursor: pointer;
+    }
+
+    .rsvp-btn.primary {
+      border-color: var(--jn-green);
+      background: var(--jn-green-soft);
+      color: var(--jn-green);
+      font-weight: 600;
+    }
+
+    /* Mijn club */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 10px 11px;
+      box-shadow: var(--shadow-card);
+      font-size: 12px;
+    }
+
+    .stat-label {
+      color: var(--jn-muted);
+      margin-bottom: 3px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .badge-soft {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: var(--jn-green-soft);
+      color: var(--jn-green);
+      display: inline-block;
+      margin-top: 3px;
+    }
+
+    .poll-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 10px 11px;
+      box-shadow: var(--shadow-card);
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .poll-question {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .poll-options {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .poll-option {
+      padding: 5px 6px;
+      border-radius: 999px;
+      background: #f4f4f8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .poll-meta {
+      margin-top: 4px;
+      font-size: 10px;
+      color: var(--jn-muted);
+    }
+
+    .todo-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 10px 11px;
+      box-shadow: var(--shadow-card);
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      gap: 6px;
+    }
+
+    .todo-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .todo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--jn-green-soft);
+      border: 1px solid var(--jn-green);
+    }
+
+    .todo-chip {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #f1f1f4;
+    }
+
+    /* Kennisbank */
+    .kb-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .kb-tile {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 10px 9px;
+      box-shadow: var(--shadow-card);
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .kb-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: var(--jn-green-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: var(--jn-green);
+    }
+
+    .kb-title {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .kb-sub {
+      font-size: 11px;
+      color: var(--jn-muted);
+    }
+
+    .empty-note {
+      font-size: 11px;
+      color: var(--jn-muted);
+      margin: 4px 2px 10px;
+    }
+
+    /* Tabbar */
     .tabbar {
       position: absolute;
-      bottom: 8px;
-      left: 12px;
-      right: 12px;
-      height: 54px;
+      bottom: 10px;
+      left: 18px;
+      right: 18px;
+      height: 56px;
       border-radius: 999px;
-      background: white;
-      box-shadow: 0 12px 26px rgba(0,0,0,0.18);
+      background: #ffffff;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.22);
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       overflow: hidden;
@@ -257,7 +584,7 @@
       border: none;
       background: transparent;
       font-size: 11px;
-      color: #777;
+      color: var(--jn-muted);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -270,7 +597,7 @@
       width: 18px;
       height: 18px;
       border-radius: 6px;
-      border: 1.4px solid #ccc;
+      border: 1.4px solid #ccd0da;
     }
 
     .tab-btn.active span.icon {
@@ -283,135 +610,12 @@
       font-weight: 600;
     }
 
-    .empty-state {
-      border-radius: var(--radius-lg);
-      border: 1px dashed #c8d0cd;
-      padding: 18px 14px;
-      font-size: 13px;
-      text-align: left;
-      color: #555;
-      background: #f9faf9;
-    }
-
-    .empty-state strong {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 14px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 999px;
-      background: var(--jn-accent);
-      color: #4a3000;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 700;
-      margin-left: 6px;
-    }
-
-    .subtle-link {
-      font-size: 11px;
-      color: var(--jn-green);
-      text-decoration: underline;
-      cursor: pointer;
-    }
-
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      gap: 10px;
-      font-size: 13px;
-    }
-
-    .toggle {
-      width: 38px;
-      height: 20px;
-      border-radius: 999px;
-      background: #d0d7d5;
-      position: relative;
-    }
-
-    .toggle::after {
-      content: "";
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 16px;
-      height: 16px;
-      border-radius: 999px;
-      background: white;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-
-    .toggle.on {
-      background: var(--jn-green);
-    }
-
-    .toggle.on::after {
-      left: 20px;
-    }
-
-    .poll-options {
-      margin-top: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 12px;
-    }
-
-    .poll-option {
-      padding: 6px 8px;
-      border-radius: 999px;
-      background: #f1f1f1;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .poll-option span.bar {
-      display: block;
-      height: 4px;
-      border-radius: 999px;
-      background: var(--jn-green-soft);
-      margin-left: 6px;
-      flex: 1;
-    }
-
-    .rsvp-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 6px;
-    }
-
-    .rsvp-btn {
-      flex: 1;
-      text-align: center;
-      padding: 4px 0;
-      border-radius: 999px;
-      font-size: 11px;
-      border: 1px solid #d0d7d5;
-      background: #f9faf9;
-    }
-
-    .rsvp-btn.primary {
-      border-color: var(--jn-green);
-      background: var(--jn-green-soft);
-      color: var(--jn-green);
-      font-weight: 600;
-    }
-
-    @media (max-width: 380px) {
+    @media (max-width: 400px) {
       .app {
-        border-radius: 18px;
-        padding-bottom: 0;
+        border-radius: 20px;
       }
       main.app-main {
-        padding: 10px 10px 74px;
+        padding: 12px 12px 78px;
       }
     }
   </style>
@@ -420,324 +624,351 @@
 <body>
   <div class="app">
     <header class="app-header">
-      <div class="logo-circle">P</div>
-      <div class="header-text">
-        <span class="label">Jong Nederland • App demo</span>
-        <span class="title">De Pionier</span>
+      <div class="header-left">
+        <div class="avatar">
+          <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=300&q=80" alt="Gebruiker">
+        </div>
+        <div class="header-text">
+          <span class="greeting">Hallo <span id="userName">Naam</span></span>
+          <span class="title">Jong Nederland App</span>
+        </div>
       </div>
+      <div class="header-badge">Demo</div>
     </header>
 
     <main class="app-main">
-      <!-- START -->
-      <section id="screen-start" class="screen active">
-        <div class="highlight-banner">
-          <h2>Eén app voor verhalen, spel en contact</h2>
-          <p>De Pionier combineert het beste van een magazine, groepsapp en spelgids. Voor ouders, jeugdleden, leiding en bestuur.</p>
-          <ul class="highlight-bullets">
-            <li>Pushmeldingen bij echt belangrijke zaken</li>
-            <li>Nieuws en Pionier-verhalen op één plek</li>
-            <li>Agenda per leeftijdsgroep met aanwezigheidsknop</li>
-          </ul>
-        </div>
-
-        <div class="section-title">Wat lost deze app op?</div>
-        <div class="card">
-          <div class="card-body">
-            <ul class="highlight-bullets">
-              <li>Geen losse mails, appgroepen en pdfs meer: iedereen kijkt in dezelfde app.</li>
-              <li>Landelijke verhalen en nieuws worden direct zichtbaar bij alle clubs.</li>
-              <li>Leiding heeft een praktische spelgids bij de hand voor elke clubavond.</li>
-              <li>Besturen krijgen meer grip op communicatie en aanwezigheid.</li>
-            </ul>
+      <!-- HOME -->
+      <section id="screen-home" class="screen active">
+        <div class="hero-card">
+          <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1526328828355-8a1cdc1caa49?auto=format&fit=crop&w=800&q=80" alt="Kinderen spelen buiten">
+          </div>
+          <div class="hero-content">
+            <div class="hero-pill-row">
+              <div class="hero-pill">Nieuw</div>
+              <div class="hero-pill">Voor alle clubs</div>
+            </div>
+            <div class="hero-title">Eén plek voor clubnieuws, agenda en inspiratie</div>
+            <div class="hero-sub">
+              Laat aan het bestuur zien hoe de Jong Nederland App communicatie en spelplezier samenbrengt.
+            </div>
+            <div class="hero-button-row">
+              <button class="btn-ghost-light" data-tab="news">Bekijk nieuws</button>
+              <button class="btn-ghost-light" data-tab="agenda">Bekijk agenda</button>
+            </div>
           </div>
         </div>
 
-        <div class="section-title">Demo-rondleiding</div>
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">1. Nieuws</div>
-            <div class="card-tag">Landelijk + clubs</div>
+        <div class="section-title">Laatste nieuws</div>
+
+        <div class="card card-horizontal">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1519378058457-4c29a0a2ef77?auto=format&fit=crop&w=500&q=80" alt="Clubavond">
           </div>
-          <div class="card-body">
-            Laat het bestuur zien hoe De Pionier als nieuwsfeed werkt. Landelijke berichten, clubmomenten en inspirerende verhalen in één tijdlijn.
-          </div>
-          <div class="card-meta">
-            <span>Tip: klik onderin op <strong>Nieuws</strong></span>
+          <div class="card-content">
+            <div>
+              <div class="card-title">Nieuwe Pionier-verhalenreeks</div>
+              <div class="card-body">
+                Elke maand delen we een club of vrijwilliger die het verschil maakt. Deze demo laat zien hoe dat in de app kan landen.
+              </div>
+            </div>
+            <div class="card-meta">
+              <span>Landelijk bureau • 2 min</span>
+              <span class="link-small" data-tab="news">Lees meer</span>
+            </div>
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">2. Agenda</div>
-            <div class="card-tag">Aanwezigheid</div>
+        <div class="card card-horizontal">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1534448311378-1e193fb2570e?auto=format&fit=crop&w=500&q=80" alt="Kampvuur">
           </div>
-          <div class="card-body">
-            Hier ziet elke groep de komende opkomsten en activiteiten. Leden (of ouders) kunnen zich met één tik afmelden, leiding houdt automatisch de lijst bij.
-          </div>
-          <div class="card-meta">
-            <span>Tip: klik op <strong>Agenda</strong> om de UX te tonen</span>
+          <div class="card-content">
+            <div>
+              <div class="card-title">Kampvuurmomenten delen</div>
+              <div class="card-body">
+                Clubs kunnen eenvoudig foto’s en korte verslagen insturen. De app bundelt deze momenten tot een inspirerende tijdlijn.
+              </div>
+            </div>
+            <div class="card-meta">
+              <span>Someren-Heide • voorbeeld</span>
+              <span class="link-small" data-tab="news">Naar nieuws</span>
+            </div>
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">3. Spellen & hulpmiddelen</div>
-            <div class="card-tag">Spelgids</div>
+        <div class="section-title">Vandaag op de planning</div>
+
+        <div class="card card-horizontal">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1504274066651-8d31a536b11a?auto=format&fit=crop&w=500&q=80" alt="Voetbalveld">
           </div>
-          <div class="card-body">
-            Digitale spelgids per leeftijdsgroep. Dit is de Jong Nederland versie van een zakboekje: direct toepasbare ideeën en formats.
-          </div>
-          <div class="card-meta">
-            <span>Tip: klik op <strong>Spellen</strong></span>
+          <div class="card-content">
+            <div>
+              <div class="card-title">Clubavond 8–10 jaar</div>
+              <div class="card-body">
+                In de echte app ziet een ouder hier direct de tijden, het thema en een knop om af te melden.
+              </div>
+            </div>
+            <div class="card-meta">
+              <span>Start 18:45 • Clubhuis</span>
+              <span class="link-small" data-tab="agenda">Naar agenda</span>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- NIEUWS / PIONIER -->
-      <section id="screen-nieuws" class="screen">
-        <div class="chip-row">
-          <div class="chip bright">
-            <span class="chip-dot"></span> Nieuwsfeed
-          </div>
-          <div class="chip">Pionier-verhalen</div>
-          <div class="chip">Vrijwilligers</div>
-          <div class="chip">Landelijk nieuws</div>
-        </div>
+      <!-- NIEUWS -->
+      <section id="screen-news" class="screen">
+        <div class="section-title">Nieuws & De Pionier</div>
+        <p class="empty-note">
+          Dit scherm simuleert hoe landelijke berichten, clubnieuws en Pionier-verhalen samenkomen in één overzicht.
+        </p>
 
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">“De club waar ik opgroeide”</div>
-            <div class="card-tag">Pionier-verhaal</div>
-          </div>
-          <div class="card-body">
-            Voorbeeldverhaal: een oud-lid dat nu leiding is vertelt over een moment dat hem of haar gevormd heeft. Dit soort verhalen geven kleur aan Jong Nederland als geheel.
-          </div>
-          <div class="card-meta">
-            <span>Deurne • 4 min lezen</span>
-            <span>Reeks: <strong>De Pioniers</strong></span>
-          </div>
-        </div>
+        <div class="tile-grid">
+          <article class="tile">
+            <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80" alt="Vrijwilliger">
+            <div class="tile-body">
+              <div class="tile-kicker">Pionier-verhaal</div>
+              <div class="tile-title">“Ik begon als 12-jarig lid bij de club...”</div>
+              <div class="tile-text">
+                Voorbeeld van een persoonlijk verhaal dat laat zien wat jeugdwerk kan betekenen in een leven.
+              </div>
+              <div class="tile-meta">
+                <span>Deurne • 4 min</span>
+                <span class="link-small">Lees meer</span>
+              </div>
+            </div>
+          </article>
 
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">Landelijk: nieuwe campagne vrijwilligers</div>
-            <div class="card-tag">Landelijk nieuws</div>
-          </div>
-          <div class="card-body">
-            Hier komen landelijke updates, campagnes en belangrijke berichten. Clubs krijgen bij belangrijke items automatisch een pushmelding.
-          </div>
-          <div class="card-meta">
-            <span>Landelijk bureau • voorbeeld</span>
-            <span class="subtle-link" data-tab="club">Laat zien in Mijn club</span>
-          </div>
-        </div>
+          <article class="tile">
+            <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80" alt="Knutsels">
+            <div class="tile-body">
+              <div class="tile-kicker">Club in beeld</div>
+              <div class="tile-title">Creatieve knutselavond in Helden</div>
+              <div class="tile-text">
+                Clubs sturen zelf foto’s en uitleg in. De redactie zet ze om naar mooie, deelbare items.
+              </div>
+              <div class="tile-meta">
+                <span>Helden • 3 min</span>
+                <span class="link-small">Lees meer</span>
+              </div>
+            </div>
+          </article>
 
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">Afdelingen delen hun mooiste momenten</div>
-            <div class="card-tag">Clubs</div>
-          </div>
-          <div class="card-body">
-            Clubs kunnen zelf foto’s en korte verslagen insturen. De landelijke redactie bewaakt toon en kwaliteit, maar iedereen draagt bij.
-          </div>
-          <div class="card-meta">
-            <span>Voorstel: 1 club in beeld per week</span>
-          </div>
+          <article class="tile">
+            <img src="https://images.unsplash.com/photo-1529270291171-1a0aa0cbb5e2?auto=format&fit=crop&w=800&q=80" alt="Groep kinderen">
+            <div class="tile-body">
+              <div class="tile-kicker">Landelijk nieuws</div>
+              <div class="tile-title">Nieuwe vrijwilligerscampagne</div>
+              <div class="tile-text">
+                Landelijke acties en materialen worden via de app gedeeld, inclusief kant-en-klare visuals en teksten.
+              </div>
+              <div class="tile-meta">
+                <span>Landelijk bureau</span>
+                <span class="link-small" data-tab="club">Toon in “Mijn club”</span>
+              </div>
+            </div>
+          </article>
         </div>
       </section>
 
       <!-- AGENDA -->
       <section id="screen-agenda" class="screen">
-        <div class="chip-row">
-          <div class="chip bright">
-            <span class="chip-dot"></span> Agenda
-          </div>
-          <div class="chip">Speltak: 8–10 jaar</div>
-          <div class="chip">Alle groepen</div>
-        </div>
+        <div class="section-title">Agenda club</div>
+        <p class="empty-note">
+          Voorbeeldweergave van opkomsten en activiteiten. Leden/ouders kunnen zich in de echte app aan- of afmelden.
+        </p>
 
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">Zaterdag 18 januari • Clubavond</div>
-            <div class="card-tag">Opkomst</div>
+        <div class="agenda-item">
+          <div class="agenda-date">
+            <span>JAN</span>
+            <span class="day">18</span>
           </div>
-          <div class="card-body">
-            Thema: Winterchallenge. Verzamelpunt om 18.45 uur bij het clubhuis. Neem warme kleding en een zaklamp mee.
+          <div>
+            <div class="agenda-info-title">Clubavond Winterchallenge</div>
+            <div class="agenda-info-sub">8–10 jaar • 18:45 – 20:15 • Clubhuis</div>
+            <div class="agenda-tags">
+              <span class="agenda-tag">Buiten</span>
+              <span class="agenda-tag">Samenwerken</span>
+            </div>
             <div class="rsvp-row">
-              <div class="rsvp-btn primary">Ik ben erbij</div>
-              <div class="rsvp-btn">Ik kan niet</div>
+              <button class="rsvp-btn primary">Ik ben erbij</button>
+              <button class="rsvp-btn">Ik kan niet</button>
             </div>
           </div>
-          <div class="card-meta">
-            <span>15 aanwezig • 3 afgemeld</span>
-            <span>Leiding ziet live overzicht</span>
-          </div>
         </div>
 
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">20–23 juli • Zomerkamp</div>
-            <div class="card-tag">Kamp</div>
+        <div class="agenda-item">
+          <div class="agenda-date">
+            <span>FEB</span>
+            <span class="day">02</span>
           </div>
-          <div class="card-body">
-            In de echte app kan hier uitgebreide kampinformatie staan, met documenten, paklijst en betalingsstatus. Leden kunnen zich via de app aanmelden.
-          </div>
-          <div class="card-meta">
-            <span>Speltak 10–13 jaar</span>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">Poll: welk weekend past beter?</div>
-            <div class="card-tag">Poll</div>
-          </div>
-          <div class="card-body">
-            Polls helpen leiding en bestuur snel keuzes maken samen met leden en ouders.
-            <div class="poll-options">
-              <div class="poll-option">
-                <span>Weekend 1</span>
-                <span>60%</span>
-              </div>
-              <div class="poll-option">
-                <span>Weekend 2</span>
-                <span>40%</span>
-              </div>
+          <div>
+            <div class="agenda-info-title">Glow-in-the-dark spelavond</div>
+            <div class="agenda-info-sub">10–13 jaar • 19:00 – 21:00 • Sporthal</div>
+            <div class="agenda-tags">
+              <span class="agenda-tag">Binnen</span>
+              <span class="agenda-tag">Actief</span>
             </div>
           </div>
-          <div class="card-meta">
-            <span>Voorbeeldweergave van stemresultaat</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- SPELLEN / SPELGIDS -->
-      <section id="screen-spellen" class="screen">
-        <div class="chip-row">
-          <div class="chip bright">
-            <span class="chip-dot"></span> Spelgids
-          </div>
-          <div class="chip">6–8 jaar</div>
-          <div class="chip">8–10 jaar</div>
-          <div class="chip">Binnen</div>
-          <div class="chip">Buiten</div>
         </div>
 
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">Voorbeeld: “Touwbrug estafette”</div>
-            <div class="card-tag">Spelidee</div>
+        <div class="agenda-item">
+          <div class="agenda-date">
+            <span>JUL</span>
+            <span class="day">20</span>
           </div>
-          <div class="card-body">
-            De digitale spelgids is de Jong Nederland versie van een zakboekje. Leiding zoekt op leeftijd, locatie en doel
-            (samenwerken, uitrazen, vertrouwen) en heeft binnen seconden een passend spel.
-          </div>
-          <div class="card-meta">
-            <span>8–10 jaar • 20 minuten</span>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">Themapagina: Regenavond</div>
-            <div class="card-tag">Binnen</div>
-          </div>
-          <div class="card-body">
-            Verzameling van snelle binnenactiviteiten voor avonden met slecht weer. Dit laat zien hoe de app echte problemen van leiding oplost.
-          </div>
-          <div class="card-meta">
-            <span>Filterbaar op duur en materiaal</span>
+          <div>
+            <div class="agenda-info-title">Zomerkamp</div>
+            <div class="agenda-info-sub">Kampterrein de Bosrand • 4 dagen</div>
+            <div class="agenda-tags">
+              <span class="agenda-tag">Kamp</span>
+              <span class="agenda-tag">Overnachting</span>
+            </div>
           </div>
         </div>
       </section>
 
       <!-- MIJN CLUB -->
       <section id="screen-club" class="screen">
-        <div class="chip-row">
-          <div class="chip bright">
-            <span class="chip-dot"></span> Mijn club
+        <div class="section-title">Mijn club</div>
+        <p class="empty-note">
+          Dit is het “dashboard” voor een aangesloten vereniging: cijfers, polls en acties in één oogopslag.
+        </p>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Jeugdleden</div>
+            <div class="stat-value">86</div>
+            <div class="badge-soft">4 speltakken</div>
           </div>
-          <div class="chip">Voorbeeld: Someren-Heide</div>
+          <div class="stat-card">
+            <div class="stat-label">Vrijwilligers</div>
+            <div class="stat-value">24</div>
+            <div class="badge-soft">incl. bestuur</div>
+          </div>
+        </div>
+
+        <div class="poll-card">
+          <div class="poll-question">Mini-poll: extra ouderhulp op kamp?</div>
+          <div class="poll-options">
+            <div class="poll-option">
+              <span>Ja, graag</span>
+              <span>68%</span>
+            </div>
+            <div class="poll-option">
+              <span>Misschien</span>
+              <span>22%</span>
+            </div>
+            <div class="poll-option">
+              <span>Niet nodig</span>
+              <span>10%</span>
+            </div>
+          </div>
+          <div class="poll-meta">Voorbeeld van snelle feedback richting bestuur.</div>
+        </div>
+
+        <div class="todo-card">
+          <div class="card-title" style="margin-bottom:6px;">Belangrijke taken</div>
+
+          <div class="todo-item">
+            <div class="todo-label">
+              <div class="todo-dot"></div>
+              <span>Vrijwilligersgegevens controleren</span>
+            </div>
+            <span class="todo-chip">Deze maand</span>
+          </div>
+
+          <div class="todo-item">
+            <div class="todo-label">
+              <div class="todo-dot"></div>
+              <span>Ouders uitnodigen voor Jong Nederland App</span>
+            </div>
+            <span class="todo-chip">Voorkeur</span>
+          </div>
+
+          <div class="todo-item">
+            <div class="todo-label">
+              <div class="todo-dot"></div>
+              <span>Kampdata in agenda zetten</span>
+            </div>
+            <span class="todo-chip">Planning</span>
+          </div>
         </div>
 
         <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">Notificaties</div>
-            <div class="card-tag">Push</div>
-          </div>
+          <div class="card-title" style="margin-bottom:4px;">Communicatie-instellingen</div>
           <div class="card-body">
-            <div class="toggle-row">
-              <span>Belangrijke clubberichten</span>
-              <div class="toggle on"></div>
-            </div>
-            <div class="toggle-row">
-              <span>Landelijke updates</span>
-              <div class="toggle on"></div>
-            </div>
-            <div class="toggle-row">
-              <span>Spelgids tips</span>
-              <div class="toggle"></div>
-            </div>
+            In de echte app kunnen hier notificaties per rol (ouder, leiding, jeugdlid) en speltak worden ingesteld.
           </div>
           <div class="card-meta">
-            <span>Pushmeldingen zijn per persoon in te stellen</span>
+            <span>Lokaal beheer door club</span>
+            <span class="link-small">Visie: landelijke + lokale laag</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- KENNISBANK -->
+      <section id="screen-kennis" class="screen">
+        <div class="section-title">Kennisbank</div>
+        <p class="empty-note">
+          Denk aan spelvormen, handleidingen, hulpmiddelen en achtergrondartikelen. Alles wat leiding en bestuur helpt.
+        </p>
+
+        <div class="kb-grid">
+          <div class="kb-tile">
+            <div class="kb-icon">🎲</div>
+            <div class="kb-title">Spelvormen</div>
+            <div class="kb-sub">Zoek op leeftijd, binnen/buiten en doel.</div>
+          </div>
+
+          <div class="kb-tile">
+            <div class="kb-icon">📚</div>
+            <div class="kb-title">Handleidingen</div>
+            <div class="kb-sub">Veiligheid, sociale veiligheid, kampregels.</div>
+          </div>
+
+          <div class="kb-tile">
+            <div class="kb-icon">🧩</div>
+            <div class="kb-title">Thema-avonden</div>
+            <div class="kb-sub">Kant-en-klare programma’s voor clubavonden.</div>
+          </div>
+
+          <div class="kb-tile">
+            <div class="kb-icon">📣</div>
+            <div class="kb-title">Communicatie</div>
+            <div class="kb-sub">PR-templates, social posts, flyers.</div>
+          </div>
+
+          <div class="kb-tile">
+            <div class="kb-icon">💶</div>
+            <div class="kb-title">Financiën</div>
+            <div class="kb-sub">Subsidies, fondsen, contributietips.</div>
+          </div>
+
+          <div class="kb-tile">
+            <div class="kb-icon">🤝</div>
+            <div class="kb-title">Vrijwilligers</div>
+            <div class="kb-sub">Werven, waarderen en behouden.</div>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">Leden uitnodigen voor de app</div>
-            <div class="card-tag">Uitnodigen</div>
-          </div>
+          <div class="card-title" style="margin-bottom:4px;">Visie op de kennisbank</div>
           <div class="card-body">
-            In de echte app worden leden en ouders via de ledenadministratie ingelezen. Met één knop stuur je een uitnodiging met downloadlink naar iedereen.
+            Laat aan het bestuur zien: dit kan de plek worden waar landelijke expertise écht landt in het dagelijks werk van leiding en bestuur.
           </div>
-          <div class="card-meta">
-            <span>Voorbeeld: koppeling met ledenbestand</span>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header-row">
-            <div class="card-title">Mini-poll voor ouders</div>
-            <div class="card-tag">Poll</div>
-          </div>
-          <div class="card-body">
-            “Zouden jullie een ouderavond over online veiligheid waarderen?”
-            <div class="poll-options">
-              <div class="poll-option">
-                <span>Ja, graag</span>
-                <span>72%</span>
-              </div>
-              <div class="poll-option">
-                <span>Misschien</span>
-                <span>20%</span>
-              </div>
-              <div class="poll-option">
-                <span>Niet nodig</span>
-                <span>8%</span>
-              </div>
-            </div>
-          </div>
-          <div class="card-meta">
-            <span>Laat zien hoe laagdrempelig feedback wordt</span>
-          </div>
-        </div>
-
-        <div class="empty-state">
-          <strong>Clubdashboard</strong>
-          In de definitieve app kan dit scherm uitgroeien tot het startpunt voor alles
-          wat specifiek is voor jouw vereniging: documenten, contactpersonen, lokale nieuwsberichten en meer.
         </div>
       </section>
     </main>
 
     <nav class="tabbar">
-      <button class="tab-btn active" data-tab="start">
+      <button class="tab-btn active" data-tab="home">
         <span class="icon"></span>
-        Start
+        Home
       </button>
-      <button class="tab-btn" data-tab="nieuws">
+      <button class="tab-btn" data-tab="news">
         <span class="icon"></span>
         Nieuws
       </button>
@@ -745,13 +976,13 @@
         <span class="icon"></span>
         Agenda
       </button>
-      <button class="tab-btn" data-tab="spellen">
-        <span class="icon"></span>
-        Spellen
-      </button>
       <button class="tab-btn" data-tab="club">
         <span class="icon"></span>
         Mijn club
+      </button>
+      <button class="tab-btn" data-tab="kennis">
+        <span class="icon"></span>
+        Kennisbank
       </button>
     </nav>
   </div>
@@ -759,22 +990,20 @@
   <script>
     const tabButtons = document.querySelectorAll('.tab-btn');
     const screens = {
-      start: document.getElementById('screen-start'),
-      nieuws: document.getElementById('screen-nieuws'),
+      home: document.getElementById('screen-home'),
+      news: document.getElementById('screen-news'),
       agenda: document.getElementById('screen-agenda'),
-      spellen: document.getElementById('screen-spellen'),
-      club: document.getElementById('screen-club')
+      club: document.getElementById('screen-club'),
+      kennis: document.getElementById('screen-kennis')
     };
 
     function activateTab(name) {
       tabButtons.forEach(btn => {
         btn.classList.toggle('active', btn.dataset.tab === name);
       });
-
       Object.keys(screens).forEach(key => {
         screens[key].classList.toggle('active', key === name);
       });
-
       document.querySelector('.app-main').scrollTop = 0;
     }
 
@@ -784,10 +1013,19 @@
       });
     });
 
-    // inline links naar andere tabs
-    document.querySelectorAll('[data-tab="club"]').forEach(el => {
-      el.addEventListener('click', () => activateTab('club'));
+    // inline links naar tabs
+    document.querySelectorAll('[data-tab]').forEach(el => {
+      el.addEventListener('click', () => {
+        const target = el.getAttribute('data-tab');
+        if (screens[target]) {
+          activateTab(target);
+        }
+      });
     });
+
+    // demo: naam invullen
+    const currentUserName = "Chris"; // pas dit gerust aan
+    document.getElementById('userName').textContent = currentUserName;
   </script>
 </body>
 </html>
