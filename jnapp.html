@@ -31,7 +31,7 @@
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-background: var(--jn-green);      
+      background: #dcdfe6;
       color: var(--jn-text);
       display: flex;
       justify-content: center;
@@ -254,6 +254,7 @@ background: var(--jn-green);
       margin-bottom: 18px;
       background: #111;
       color: #ffffff;
+      min-height: 230px; /* hoger hero blok */
     }
 
     .hero-image {
@@ -271,10 +272,12 @@ background: var(--jn-green);
 
     .hero-content {
       position: relative;
-      padding: 18px 18px 18px;
+      padding: 20px 18px 18px;
       display: flex;
       flex-direction: column;
       gap: 8px;
+      height: 100%;
+      justify-content: flex-end;
     }
 
     .hero-pill-row {
@@ -338,8 +341,9 @@ background: var(--jn-green);
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #ffb347, #ff6b81);
-      color: #241b28;
+      /* groen/blauw ipv oranje/rood */
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+      color: #052e26;
     }
 
     .btn-secondary {
@@ -562,9 +566,10 @@ background: var(--jn-green);
     }
 
     .rsvp-btn.primary {
-      border-color: #ffb347;
-      background: linear-gradient(135deg, #ffb347, #ff6b81);
-      color: #241b28;
+      /* ook groen/blauw */
+      border-color: #22c55e;
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+      color: #052e26;
     }
 
     .rsvp-btn:active {
@@ -686,6 +691,38 @@ background: var(--jn-green);
       margin-bottom: 4px;
       font-weight: 700;
       font-size: 13px;
+    }
+
+    /* Club logo bovenaan Mijn club */
+
+    .club-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 6px 0 12px;
+    }
+
+    .club-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #e5e7eb;
+      border: 2px solid rgba(0,0,0,0.06);
+      margin-bottom: 6px;
+    }
+
+    .club-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .club-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--jn-text);
     }
 
     /* KENNISBANK */
@@ -1060,6 +1097,16 @@ background: var(--jn-green);
         <!-- MIJN CLUB -->
         <section id="screen-club" class="screen">
           <div class="section-title">Mijn club</div>
+
+          <!-- Nieuw: clublogo bovenaan in rond kader -->
+          <div class="club-logo-wrap">
+            <div class="club-logo">
+              <!-- Vervang dit later door jouw echte clublogo-bestand -->
+              <img src="https://humanmotives.org/jnapp/images/1.jpg" alt="Clublogo">
+            </div>
+            <div class="club-name">Jong Nederland Clubnaam</div>
+          </div>
+
           <p class="empty-note">
             Dit is het “dashboard” voor een aangesloten vereniging: cijfers, polls en acties in één oogopslag.
           </p>
