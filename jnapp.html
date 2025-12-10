@@ -7,17 +7,23 @@
 
   <style>
     :root {
+      /* Basis kleuren */
       --jn-green: #0d8a6f;
-      --jn-green-soft: #e3f3ee;
-      --jn-accent: #ffb347;
-      --jn-bg: #f5f5f8;
-      --jn-text: #1c2633;
-      --jn-muted: #7c8594;
+      --jn-yellow: #ffc857;
+      --jn-pink: #ff6b81;
+      --jn-blue: #4f8cff;
+      --jn-purple: #9b6bff;
+
+      --jn-bg: #fdf6ff;
+      --jn-card: #ffffff;
+      --jn-text: #1d2330;
+      --jn-muted: #7a8190;
+
       --radius-xl: 26px;
       --radius-lg: 20px;
       --radius-md: 14px;
-      --shadow-soft: 0 18px 40px rgba(0,0,0,0.14);
-      --shadow-card: 0 10px 25px rgba(15, 26, 44, 0.10);
+      --shadow-soft: 0 18px 40px rgba(0,0,0,0.16);
+      --shadow-card: 0 12px 24px rgba(21, 20, 53, 0.16);
     }
 
     * {
@@ -28,7 +34,7 @@
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #dcdfe6;
+      background: radial-gradient(circle at top left, #ffe5f0 0, #f3f9ff 45%, #fefbe8 100%);
       color: var(--jn-text);
       display: flex;
       justify-content: center;
@@ -54,7 +60,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #ffffff;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.6);
     }
 
     .header-left {
@@ -68,8 +76,9 @@
       height: 40px;
       border-radius: 999px;
       overflow: hidden;
-      border: 2px solid var(--jn-green-soft);
+      border: 3px solid #ffe5a3;
       background: #ddd;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
 
     .avatar img {
@@ -90,31 +99,32 @@
     }
 
     .header-text span.title {
-      font-weight: 700;
+      font-weight: 800;
       font-size: 18px;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.03em;
     }
 
     .header-badge {
       font-size: 10px;
       padding: 4px 10px;
       border-radius: 999px;
-      background: var(--jn-green-soft);
-      color: var(--jn-green);
+      background: #ffe8b8;
+      color: #8a5a00;
       text-transform: uppercase;
       letter-spacing: 0.08em;
+      font-weight: 700;
     }
 
     main.app-main {
       flex: 1;
       overflow-y: auto;
-      padding: 14px 16px 82px;
+      padding: 14px 16px 90px;
       scroll-behavior: smooth;
     }
 
     .screen {
       display: none;
-      animation: fadeIn 0.18s ease-out;
+      animation: fadeIn 0.2s ease-out;
     }
 
     .screen.active {
@@ -122,13 +132,15 @@
     }
 
     @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(6px);}
+      from {opacity: 0; transform: translateY(8px);}
       to {opacity: 1; transform: translateY(0);}
     }
 
+    /* HERO */
+
     .hero-card {
       position: relative;
-      border-radius: 26px;
+      border-radius: 28px;
       overflow: hidden;
       margin-bottom: 18px;
       box-shadow: var(--shadow-card);
@@ -151,10 +163,10 @@
 
     .hero-content {
       position: relative;
-      padding: 16px 16px 18px;
+      padding: 18px 18px 18px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
     .hero-pill-row {
@@ -165,38 +177,74 @@
     }
 
     .hero-pill {
-      padding: 4px 8px;
+      padding: 4px 9px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.2);
       backdrop-filter: blur(6px);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .hero-pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #ffe45e;
     }
 
     .hero-title {
       font-size: 18px;
-      font-weight: 700;
+      font-weight: 800;
       line-height: 1.25;
     }
 
     .hero-sub {
       font-size: 12px;
-      opacity: 0.92;
+      opacity: 0.95;
     }
 
     .hero-button-row {
       margin-top: 8px;
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .btn-ghost-light {
+    .btn {
       border-radius: 999px;
-      padding: 6px 10px;
-      border: 1px solid rgba(255,255,255,0.7);
-      font-size: 12px;
-      background: rgba(0,0,0,0.12);
+      border: none;
       cursor: pointer;
-      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, opacity 0.08s;
     }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+      opacity: 0.92;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ffb347, #ff6b81);
+      color: #241b28;
+    }
+
+    .btn-secondary {
+      background: rgba(0,0,0,0.15);
+      color: #ffffff;
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: none;
+    }
+
+    /* SECTIONS & CARDS */
 
     .section-title {
       font-size: 13px;
@@ -208,7 +256,7 @@
     }
 
     .card {
-      background: #ffffff;
+      background: var(--jn-card);
       border-radius: var(--radius-lg);
       padding: 10px 10px 10px;
       margin-bottom: 12px;
@@ -245,12 +293,12 @@
 
     .card-title {
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .card-body {
       font-size: 12px;
-      color: #444f5f;
+      color: #41495a;
       line-height: 1.4;
     }
 
@@ -266,12 +314,20 @@
 
     .link-small {
       font-size: 11px;
-      color: var(--jn-green);
+      color: var(--jn-blue);
       text-decoration: underline;
       cursor: pointer;
+      font-weight: 600;
     }
 
-    /* Nieuws tiles */
+    .empty-note {
+      font-size: 11px;
+      color: var(--jn-muted);
+      margin: 4px 2px 10px;
+    }
+
+    /* NIEUWS TILES */
+
     .tile-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -279,7 +335,7 @@
     }
 
     .tile {
-      background: #ffffff;
+      background: var(--jn-card);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-card);
       overflow: hidden;
@@ -308,13 +364,13 @@
 
     .tile-title {
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 800;
       margin-bottom: 4px;
     }
 
     .tile-text {
       font-size: 12px;
-      color: #445;
+      color: #41495a;
       margin-bottom: 6px;
     }
 
@@ -326,9 +382,10 @@
       color: var(--jn-muted);
     }
 
-    /* Agenda */
+    /* AGENDA */
+
     .agenda-item {
-      background: #ffffff;
+      background: var(--jn-card);
       border-radius: var(--radius-lg);
       padding: 10px 11px;
       box-shadow: var(--shadow-card);
@@ -340,27 +397,27 @@
     }
 
     .agenda-date {
-      width: 54px;
-      height: 54px;
-      border-radius: var(--radius-md);
-      background: var(--jn-green-soft);
+      width: 56px;
+      height: 56px;
+      border-radius: 20px;
+      background: #ffe4f0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       font-size: 11px;
-      color: var(--jn-green);
+      color: #c6376b;
       font-weight: 700;
     }
 
     .agenda-date span.day {
-      font-size: 16px;
+      font-size: 18px;
       line-height: 1;
     }
 
     .agenda-info-title {
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 800;
       margin-bottom: 2px;
     }
 
@@ -380,7 +437,7 @@
     .agenda-tag {
       padding: 2px 8px;
       border-radius: 999px;
-      background: #f1f1f4;
+      background: #f1f1f8;
     }
 
     .rsvp-row {
@@ -395,19 +452,29 @@
       padding: 5px 0;
       border-radius: 999px;
       font-size: 11px;
-      border: 1px solid #d4d6de;
-      background: #f8f8fb;
+      border: 1px solid #e0d9ff;
+      background: #f9f6ff;
       cursor: pointer;
+      font-weight: 600;
+      color: #5b4a99;
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
 
     .rsvp-btn.primary {
-      border-color: var(--jn-green);
-      background: var(--jn-green-soft);
-      color: var(--jn-green);
-      font-weight: 600;
+      border-color: #ffb347;
+      background: linear-gradient(135deg, #ffb347, #ff6b81);
+      color: #241b28;
+      box-shadow: 0 4px 12px rgba(255,107,129,0.4);
     }
 
-    /* Mijn club */
+    .rsvp-btn:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    /* MIJN CLUB */
+
     .stat-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -416,7 +483,7 @@
     }
 
     .stat-card {
-      background: #ffffff;
+      background: var(--jn-card);
       border-radius: var(--radius-lg);
       padding: 10px 11px;
       box-shadow: var(--shadow-card);
@@ -429,22 +496,23 @@
     }
 
     .stat-value {
-      font-size: 18px;
-      font-weight: 700;
+      font-size: 20px;
+      font-weight: 800;
     }
 
     .badge-soft {
       font-size: 10px;
       padding: 2px 6px;
       border-radius: 999px;
-      background: var(--jn-green-soft);
-      color: var(--jn-green);
+      background: #e4f5ff;
+      color: #246fa8;
       display: inline-block;
       margin-top: 3px;
+      font-weight: 600;
     }
 
     .poll-card {
-      background: #ffffff;
+      background: var(--jn-card);
       border-radius: var(--radius-lg);
       padding: 10px 11px;
       box-shadow: var(--shadow-card);
@@ -453,7 +521,7 @@
     }
 
     .poll-question {
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 6px;
     }
 
@@ -466,7 +534,7 @@
     .poll-option {
       padding: 5px 6px;
       border-radius: 999px;
-      background: #f4f4f8;
+      background: #f4f4fb;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -480,7 +548,7 @@
     }
 
     .todo-card {
-      background: #ffffff;
+      background: var(--jn-card);
       border-radius: var(--radius-lg);
       padding: 10px 11px;
       box-shadow: var(--shadow-card);
@@ -507,18 +575,19 @@
       width: 10px;
       height: 10px;
       border-radius: 999px;
-      background: var(--jn-green-soft);
-      border: 1px solid var(--jn-green);
+      background: #ffe5a3;
+      border: 1px solid #f6a13b;
     }
 
     .todo-chip {
       font-size: 10px;
       padding: 2px 6px;
       border-radius: 999px;
-      background: #f1f1f4;
+      background: #f1f1f8;
     }
 
-    /* Kennisbank */
+    /* KENNISBANK */
+
     .kb-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -527,7 +596,7 @@
     }
 
     .kb-tile {
-      background: #ffffff;
+      background: var(--jn-card);
       border-radius: var(--radius-lg);
       padding: 10px 9px;
       box-shadow: var(--shadow-card);
@@ -538,19 +607,18 @@
     }
 
     .kb-icon {
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
       border-radius: 999px;
-      background: var(--jn-green-soft);
+      background: #ffe5f0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      color: var(--jn-green);
+      font-size: 17px;
     }
 
     .kb-title {
-      font-weight: 600;
+      font-weight: 700;
       font-size: 13px;
     }
 
@@ -559,25 +627,27 @@
       color: var(--jn-muted);
     }
 
-    .empty-note {
-      font-size: 11px;
-      color: var(--jn-muted);
-      margin: 4px 2px 10px;
+    .card-title-compact {
+      margin-bottom: 4px;
+      font-weight: 700;
+      font-size: 13px;
     }
 
-    /* Tabbar */
+    /* TABBAR SPEELS & KLEURRIJK */
+
     .tabbar {
       position: absolute;
-      bottom: 10px;
+      bottom: 12px;
       left: 18px;
       right: 18px;
-      height: 56px;
+      height: 64px;
       border-radius: 999px;
-      background: #ffffff;
-      box-shadow: 0 14px 30px rgba(0,0,0,0.22);
+      background: rgba(255,255,255,0.95);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.28);
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      overflow: hidden;
+      padding: 6px 8px;
+      backdrop-filter: blur(16px);
     }
 
     .tab-btn {
@@ -589,25 +659,67 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2px;
+      gap: 3px;
       cursor: pointer;
+      position: relative;
     }
 
-    .tab-btn span.icon {
-      width: 18px;
-      height: 18px;
-      border-radius: 6px;
-      border: 1.4px solid #ccd0da;
+    .tab-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 4px 6px;
+      border-radius: 18px;
+      transition: background 0.12s ease-out, transform 0.12s ease-out;
     }
 
-    .tab-btn.active span.icon {
-      border-color: var(--jn-green);
-      background: var(--jn-green-soft);
+    .tab-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      background: #f1f2fb;
     }
 
-    .tab-btn.active {
-      color: var(--jn-green);
-      font-weight: 600;
+    .tab-label {
+      line-height: 1;
+    }
+
+    .tab-btn.active .tab-inner {
+      transform: translateY(-2px);
+      background: #fef3d5;
+      font-weight: 700;
+    }
+
+    /* Kleuren per tab bij active state */
+
+    .tab-btn[data-tab="home"].active .tab-icon {
+      background: linear-gradient(135deg, #ffd66b, #ff9f43);
+      color: #3a2900;
+    }
+
+    .tab-btn[data-tab="news"].active .tab-icon {
+      background: linear-gradient(135deg, #ff9ac2, #ff6b81);
+      color: #3a0017;
+    }
+
+    .tab-btn[data-tab="agenda"].active .tab-icon {
+      background: linear-gradient(135deg, #9fe5ff, #4f8cff);
+      color: #00153a;
+    }
+
+    .tab-btn[data-tab="club"].active .tab-icon {
+      background: linear-gradient(135deg, #c3f5a7, #22c55e);
+      color: #04220f;
+    }
+
+    .tab-btn[data-tab="kennis"].active .tab-icon {
+      background: linear-gradient(135deg, #d7c7ff, #9b6bff);
+      color: #1d063a;
     }
 
     @media (max-width: 400px) {
@@ -615,7 +727,7 @@
         border-radius: 20px;
       }
       main.app-main {
-        padding: 12px 12px 78px;
+        padding: 12px 12px 86px;
       }
     }
   </style>
@@ -645,7 +757,10 @@
           </div>
           <div class="hero-content">
             <div class="hero-pill-row">
-              <div class="hero-pill">Nieuw</div>
+              <div class="hero-pill">
+                <span class="hero-pill-dot"></span>
+                Nieuw
+              </div>
               <div class="hero-pill">Voor alle clubs</div>
             </div>
             <div class="hero-title">Eén plek voor clubnieuws, agenda en inspiratie</div>
@@ -653,8 +768,8 @@
               Laat aan het bestuur zien hoe de Jong Nederland App communicatie en spelplezier samenbrengt.
             </div>
             <div class="hero-button-row">
-              <button class="btn-ghost-light" data-tab="news">Bekijk nieuws</button>
-              <button class="btn-ghost-light" data-tab="agenda">Bekijk agenda</button>
+              <button class="btn btn-primary" data-tab="news">Bekijk nieuws</button>
+              <button class="btn btn-secondary" data-tab="agenda">Bekijk agenda</button>
             </div>
           </div>
         </div>
@@ -800,7 +915,7 @@
         </div>
 
         <div class="agenda-item">
-          <div class="agenda-date">
+          <div class="agenda-date" style="background:#e4f4ff;color:#246fa8;">
             <span>FEB</span>
             <span class="day">02</span>
           </div>
@@ -815,7 +930,7 @@
         </div>
 
         <div class="agenda-item">
-          <div class="agenda-date">
+          <div class="agenda-date" style="background:#e6ffe1;color:#148547;">
             <span>JUL</span>
             <span class="day">20</span>
           </div>
@@ -870,7 +985,7 @@
         </div>
 
         <div class="todo-card">
-          <div class="card-title" style="margin-bottom:6px;">Belangrijke taken</div>
+          <div class="card-title-compact">Belangrijke taken</div>
 
           <div class="todo-item">
             <div class="todo-label">
@@ -898,7 +1013,7 @@
         </div>
 
         <div class="card">
-          <div class="card-title" style="margin-bottom:4px;">Communicatie-instellingen</div>
+          <div class="card-title-compact">Communicatie-instellingen</div>
           <div class="card-body">
             In de echte app kunnen hier notificaties per rol (ouder, leiding, jeugdlid) en speltak worden ingesteld.
           </div>
@@ -955,7 +1070,7 @@
         </div>
 
         <div class="card">
-          <div class="card-title" style="margin-bottom:4px;">Visie op de kennisbank</div>
+          <div class="card-title-compact">Visie op de kennisbank</div>
           <div class="card-body">
             Laat aan het bestuur zien: dit kan de plek worden waar landelijke expertise écht landt in het dagelijks werk van leiding en bestuur.
           </div>
@@ -965,24 +1080,34 @@
 
     <nav class="tabbar">
       <button class="tab-btn active" data-tab="home">
-        <span class="icon"></span>
-        Home
+        <div class="tab-inner">
+          <div class="tab-icon">🏠</div>
+          <span class="tab-label">Home</span>
+        </div>
       </button>
       <button class="tab-btn" data-tab="news">
-        <span class="icon"></span>
-        Nieuws
+        <div class="tab-inner">
+          <div class="tab-icon">📰</div>
+          <span class="tab-label">Nieuws</span>
+        </div>
       </button>
       <button class="tab-btn" data-tab="agenda">
-        <span class="icon"></span>
-        Agenda
+        <div class="tab-inner">
+          <div class="tab-icon">📅</div>
+          <span class="tab-label">Agenda</span>
+        </div>
       </button>
       <button class="tab-btn" data-tab="club">
-        <span class="icon"></span>
-        Mijn club
+        <div class="tab-inner">
+          <div class="tab-icon">👥</div>
+          <span class="tab-label">Club</span>
+        </div>
       </button>
       <button class="tab-btn" data-tab="kennis">
-        <span class="icon"></span>
-        Kennisbank
+        <div class="tab-inner">
+          <div class="tab-icon">📚</div>
+          <span class="tab-label">Kennis</span>
+        </div>
       </button>
     </nav>
   </div>
@@ -1013,18 +1138,19 @@
       });
     });
 
-    // inline links naar tabs
+    // inline links en knoppen met data-tab
     document.querySelectorAll('[data-tab]').forEach(el => {
-      el.addEventListener('click', () => {
+      el.addEventListener('click', evt => {
         const target = el.getAttribute('data-tab');
         if (screens[target]) {
+          evt.preventDefault();
           activateTab(target);
         }
       });
     });
 
     // demo: naam invullen
-    const currentUserName = "Chris"; // pas dit gerust aan
+    const currentUserName = "Chris"; // pas dit aan als je wilt
     document.getElementById('userName').textContent = currentUserName;
   </script>
 </body>
