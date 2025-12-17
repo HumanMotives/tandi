@@ -1,33 +1,88 @@
 {
   "articles": [
     {
-      "id": "rapenland",
-      "title": "Rapenland over Sociale Veiligheid",
-      "excerpt": "Een editie over veiligheid, vertrouwen en hoe je samen grenzen bewaakt.",
-      "author": "Landelijk Bureau",
-      "date": "2025-12-17",
+      "id": "rapenland-sociale-veiligheid",
+      "title": "Rapenland\nover sociale\nveiligheid",
+      "excerpt": "Korte omschrijving, introductietekst van het artikel komt hier. Een korte tekst die nieuwsgierig maakt en uitnodigt om verder te lezen.",
+      "author": "Landelijk Bureau Jong Nederland",
+      "date": "Dec 17 2025",
       "readTime": "4 min",
-      "heroImage": "https://humanmotives.org/jnapp/images/3.jpg",
-      "thumbImage": "https://humanmotives.org/jnapp/images/4.jpg",
+      "quote": "Voor ons is persoonlijke aandacht het belangrijkste",
+      "heroImage": "./assets/img/cover-rapenland.jpg",
+      "thumbImage": "./assets/img/thumb-rapenland.jpg",
       "body": [
-        "Sociale veiligheid is geen ‘project’, maar een cultuur.",
-        "In deze editie: herken signalen, maak afspraken en zorg dat iedereen zich gezien voelt.",
-        "Praktisch: werk met een vaste check-in, duidelijke gedragsregels en een aanspreekpunt."
+        "Sociale veiligheid is geen project met een begin en een eind. Het is een houding die je elke week opnieuw laat zien in hoe je met elkaar omgaat.",
+        "In Rapenland draait het om vertrouwen, nabijheid en het serieus nemen van signalen. Kleine momenten maken vaak het grootste verschil.",
+        "Door vaste afspraken te maken, elkaar aan te spreken en ruimte te geven voor twijfel, ontstaat er een cultuur waarin iedereen zich veilig kan voelen.",
+        "Deze editie van De Pionier zoomt in op hoe je sociale veiligheid praktisch maakt. Niet met dikke protocollen, maar met aandacht, gesprek en duidelijke keuzes."
       ]
     },
     {
-      "id": "vrijwilliger",
-      "title": "Vrijwilliger in de spotlight",
-      "excerpt": "Waarom kleine momenten van waardering het verschil maken.",
-      "author": "Redactie De Pionier",
-      "date": "2025-12-10",
+      "id": "zomerkamp-terugblik-diessen",
+      "title": "Zomerkamp\nterugblik\nDiessen",
+      "excerpt": "Een zomerkamp vol modder, samenwerking en kleine overwinningen. We kijken terug op een week waarin alles samenkwam.",
+      "author": "Jong Nederland Diessen",
+      "date": "Nov 29 2025",
       "readTime": "3 min",
-      "heroImage": "https://humanmotives.org/jnapp/images/5.jpg",
-      "thumbImage": "https://humanmotives.org/jnapp/images/6.jpg",
+      "quote": "Na dag twee was iedereen vies, moe en gelukkig",
+      "heroImage": "./assets/img/cover-zomerkamp.jpg",
+      "thumbImage": "./assets/img/thumb-zomerkamp.jpg",
       "body": [
-        "Vrijwilligers blijven langer als ze zich onderdeel voelen van een groep.",
-        "Waardering zit vaak in kleine dingen: een bedankje, een foto, een moment aandacht.",
-        "Maak het makkelijk voor afdelingen om iemand aan te melden voor ‘spotlight’."
+        "Het zomerkamp begon zoals altijd: gespannen gezichten, overvolle auto’s en net iets te veel bagage.",
+        "Al snel maakte dat plaats voor modderige schoenen, natte kleren en een groep die steeds hechter werd.",
+        "Spel, vuur, gesprekken en lange avonden zorgden ervoor dat iedereen zich onderdeel voelde van iets groters.",
+        "Dit kamp herinnerde ons eraan waarom we dit doen. Niet voor het perfecte programma, maar voor de momenten daartussen."
+      ]
+    },
+    {
+      "id": "vrijwilliger-in-de-spotlight",
+      "title": "Vrijwilliger\nin de\nspotlight",
+      "excerpt": "Elke vereniging draait op mensen die vaak op de achtergrond blijven. Tijd om één van hen in het licht te zetten.",
+      "author": "Redactie De Pionier",
+      "date": "Nov 18 2025",
+      "readTime": "2 min",
+      "quote": "Je hoeft geen held te zijn om het verschil te maken",
+      "heroImage": "./assets/img/cover-vrijwilliger.jpg",
+      "thumbImage": "./assets/img/thumb-vrijwilliger.jpg",
+      "body": [
+        "Vrijwilligerswerk zit vaak in kleine, herhalende momenten. Elke week klaarstaan, luisteren en meedoen.",
+        "Wat voor buitenstaanders vanzelfsprekend lijkt, vraagt inzet, aandacht en betrokkenheid.",
+        "Door vrijwilligers zichtbaar te maken, laten we zien hoe waardevol hun rol is binnen Jong Nederland.",
+        "Deze rubriek is een uitnodiging: kijk om je heen en zie wie er elke week het verschil maakt."
+      ]
+    },
+    {
+      "id": "uit-de-oude-doos",
+      "title": "Uit de\noude doos",
+      "excerpt": "Een foto, een anekdote en een herinnering die nog steeds wordt verteld bij het kampvuur.",
+      "author": "Archief Jong Nederland",
+      "date": "Oct 31 2025",
+      "readTime": "2 min",
+      "quote": "Sommige verhalen worden elk jaar een beetje mooier",
+      "heroImage": "./assets/img/cover-oude-doos.jpg",
+      "thumbImage": "./assets/img/thumb-oude-doos.jpg",
+      "body": [
+        "De foto is vergeeld en de kwaliteit laat te wensen over, maar de herinnering is glashelder.",
+        "Het was laat, het vuur brandde laag en iemand begon te vertellen. Iedereen luisterde.",
+        "Dit soort momenten verbinden generaties. Ze maken duidelijk dat Jong Nederland groter is dan één seizoen.",
+        "In deze rubriek duiken we regelmatig het archief in, op zoek naar verhalen die het waard zijn om opnieuw verteld te worden."
+      ]
+    },
+    {
+      "id": "samen-vooruit-kijken",
+      "title": "Samen\nvooruit\nkijken",
+      "excerpt": "Wat betekent Jong Nederland zijn in een veranderende tijd? Een korte vooruitblik.",
+      "author": "Landelijk Bestuur",
+      "date": "Oct 12 2025",
+      "readTime": "3 min",
+      "quote": "Blijven pionieren betekent blijven luisteren",
+      "heroImage": "./assets/img/cover-vooruit.jpg",
+      "thumbImage": "./assets/img/thumb-vooruit.jpg",
+      "body": [
+        "De wereld verandert, en jeugdwerk verandert mee. Dat vraagt om reflectie en durf.",
+        "Vooruitkijken betekent niet alles anders doen, maar bewust kiezen wat we behouden.",
+        "Samen met afdelingen, vrijwilligers en jeugdleden bouwen we verder aan een organisatie die past bij deze tijd.",
+        "De Pionier is één van de plekken waar dit gesprek gevoerd mag worden."
       ]
     }
   ]
