@@ -309,12 +309,13 @@ body{
   position:absolute;
   left:50%;
   transform:translateX(-50%);
-  bottom: 14px;
+  bottom: 10px; /* lager dan button */
   display:flex;
   gap:10px;
   align-items:center;
   justify-content:center;
 }
+
 
 .dot{
   width: 10px;
