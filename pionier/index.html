@@ -1,1 +1,68 @@
 
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>De Pionier – Prototype</title>
+  <link rel="stylesheet" href="./assets/css/app.css" />
+</head>
+<body>
+  <div class="device">
+    <!-- Start / splash -->
+    <section class="splash" id="splash">
+      <div class="splash-inner">
+        <div class="splash-logo">
+          <img src="https://humanmotives.org/jnapp/images/1.jpg" alt="De Pionier logo">
+        </div>
+        <div class="splash-title">DE PIONIER</div>
+        <div class="splash-sub">Jong Nederland bulletin</div>
+        <div class="splash-bar">
+          <div class="splash-bar-fill" id="splashBar"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- App -->
+    <div class="app hidden" id="app">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="chip">DEMO</div>
+          <div class="topbar-title">De Pionier</div>
+        </div>
+        <button class="icon-btn" id="shareAppBtn" title="Deel">↗</button>
+      </header>
+
+      <main class="content" id="view"></main>
+
+      <nav class="tabbar">
+        <button class="tab active" data-route="home">
+          <div class="tab-dot">🏠</div>
+          <div class="tab-label">Home</div>
+        </button>
+        <button class="tab" data-route="articles">
+          <div class="tab-dot">📰</div>
+          <div class="tab-label">Artikelen</div>
+        </button>
+        <button class="tab" data-route="poll">
+          <div class="tab-dot">📊</div>
+          <div class="tab-label">Poll</div>
+        </button>
+        <button class="tab" data-route="badges">
+          <div class="tab-dot">🎖️</div>
+          <div class="tab-label">Spelden</div>
+        </button>
+        <button class="tab" data-route="colofon">
+          <div class="tab-dot">✉️</div>
+          <div class="tab-label">Colofon</div>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <script src="./assets/js/data.js"></script>
+  <script src="./assets/js/share.js"></script>
+  <script src="./assets/js/router.js"></script>
+  <script src="./assets/js/app.js"></script>
+</body>
+</html>
