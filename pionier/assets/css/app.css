@@ -175,16 +175,21 @@ body{
   border-radius:999px;
 }
 
+/* IMPORTANT: restore padding so all tabs have margins */
 .content{
   flex:1;
   overflow:auto;
   background:var(--paper-tint);
-  padding:0 0 92px;
+  padding:14px 14px 92px;
 }
 
 /* HOME COVER EXPERIENCE */
 
-.home{min-height:100%}
+.home{
+  min-height:100%;
+  /* make cover full-bleed while keeping global padding */
+  margin:-14px -14px 0;
+}
 
 .cover{
   height: calc(100vh - 190px);
@@ -262,7 +267,6 @@ body{
   line-height: 1.02;
   letter-spacing: -0.02em;
   margin: 6px 0 12px;
-  text-shadow: none;
 }
 
 .cover-sub{
@@ -322,6 +326,8 @@ body{
   padding: 18px 14px 18px;
   border-top-left-radius: 26px;
   border-top-right-radius: 26px;
+  /* keep paper nicely inset inside the device padding */
+  margin:0 14px;
 }
 
 .paper-header{
@@ -414,6 +420,11 @@ body{
 
 /* ARTICLE PAGE */
 
+.article{
+  /* full-bleed cover while keeping global padding */
+  margin:-14px -14px 0;
+}
+
 .article-cover{
   height: 52vh;
   min-height: 420px;
@@ -447,6 +458,8 @@ body{
   margin-top: -24px;
   border-top-left-radius: 26px;
   border-top-right-radius: 26px;
+  margin-left:14px;
+  margin-right:14px;
 }
 
 .article-meta-row{
@@ -481,6 +494,12 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
+}
+
+.icon-round.active{
+  background:#111;
+  color:#fff;
+  border-color:#111;
 }
 
 .pullquote{
@@ -526,6 +545,15 @@ body{
   background: transparent;
   border: 1px solid var(--line);
   color:#232a3b;
+}
+
+/* GENERIC SECTION TITLES (for other tabs) */
+.section-title{
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color:#1a4ea0;
+  margin: 6px 2px 12px;
 }
 
 /* TABBAR */
