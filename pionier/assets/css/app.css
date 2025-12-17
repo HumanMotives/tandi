@@ -1,4 +1,4 @@
-cover:root{
+:root{
   --jn-green:#0d8a6f;
 
   --bg:#dcdfe6;
@@ -239,7 +239,6 @@ body{
 }
 
 
-
 .cover-mark{
   display:flex;
   flex-direction:column;
@@ -297,7 +296,6 @@ body{
   cursor: pointer;
 }
 
-
 .card-click{
   cursor:pointer;
 }
@@ -311,7 +309,7 @@ body{
   position:absolute;
   left:50%;
   transform:translateX(-50%);
-  bottom: 10px; /* lager dan button */
+  bottom: 14px;
   display:flex;
   gap:10px;
   align-items:center;
