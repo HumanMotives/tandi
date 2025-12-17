@@ -94,31 +94,32 @@ window.initHome = async function () {
 
   const list = document.getElementById("homeList");
   if (list) {
-    const rest = ARTICLES.slice(0);
-    list.innerHTML = rest.map((x, idx) => `
-      <div class="card">
+    list.innerHTML = ARTICLES.map((x, idx) => `
+      <div class="card card-click" data-open="${idx}">
         <div class="row">
-          <div class="thumb"><img src="${x.thumbImage}" alt=""></div>
+          <div class="thumb">
+            <img src="${x.thumbImage}" alt="">
+          </div>
           <div class="row-main">
             <div class="h3">${(x.title || "").replace(/\n/g, " ")}</div>
             <div class="p">${x.excerpt || ""}</div>
             <div class="meta">
               <span>${x.date} • ${x.readTime || ""}</span>
-              <button class="link" data-open="${idx}">Lees meer</button>
             </div>
           </div>
         </div>
       </div>
     `).join("");
 
-    list.querySelectorAll("[data-open]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        CURRENT_INDEX = Number(btn.dataset.open);
+    list.querySelectorAll(".card-click").forEach(card => {
+      card.addEventListener("click", () => {
+        CURRENT_INDEX = Number(card.dataset.open);
         loadRoute("article");
       });
     });
   }
 };
+
 
 window.initArticles = async function () {
   const view = document.getElementById("view");
