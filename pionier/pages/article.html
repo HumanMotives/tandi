@@ -1,15 +1,23 @@
-<section>
-  <div class="reader-hero" id="articleHero"></div>
+<section class="article">
+  <div class="article-cover" id="articleCover"></div>
 
-  <div class="reader-head">
-    <div class="reader-title" id="articleTitle"></div>
-    <div class="reader-meta" id="articleMeta"></div>
+  <div class="paper article-paper">
+    <div class="article-meta-row">
+      <div class="article-meta" id="articleMeta"></div>
+
+      <div class="article-icons">
+        <button class="icon-round" id="likeBtn" title="Bewaar">♥</button>
+        <button class="icon-round" id="shareArticleBtn" title="Deel">↗</button>
+      </div>
+    </div>
+
+    <blockquote class="pullquote" id="articleQuote"></blockquote>
+
+    <div class="reader-body" id="articleBody"></div>
+
+    <div class="reader-footer">
+      <button class="btn btn-ghost" data-route="articles">Alle artikelen</button>
+      <button class="btn btn-primary" id="nextArticleBtn">Volgende</button>
+    </div>
   </div>
-
-  <div class="reader-actions">
-    <button class="btn btn-primary" id="shareArticleBtn">Delen</button>
-    <button class="btn btn-ghost" id="nextArticleBtn">Volgende</button>
-  </div>
-
-  <div class="reader-body" id="articleBody"></div>
 </section>
