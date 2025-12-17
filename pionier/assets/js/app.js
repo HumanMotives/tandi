@@ -124,20 +124,28 @@ function wireTabs() {
 }
 
 async function boot() {
-  // Splash animatie
   const splashBar = document.getElementById("splashBar");
-  setTimeout(() => splashBar.style.width = "35%", 100);
-  setTimeout(() => splashBar.style.width = "70%", 450);
-  setTimeout(() => splashBar.style.width = "100%", 900);
+  const splash = document.getElementById("splash");
+  const app = document.getElementById("app");
 
+  // Start laadbalk fake progress
+  setTimeout(() => splashBar.style.width = "20%", 300);
+  setTimeout(() => splashBar.style.width = "45%", 900);
+  setTimeout(() => splashBar.style.width = "65%", 1700);
+  setTimeout(() => splashBar.style.width = "85%", 2600);
+  setTimeout(() => splashBar.style.width = "100%", 3600);
+
+  // Data alvast laden op de achtergrond
   ARTICLES = await loadArticles();
 
+  // Splash MINIMAAL 4 seconden zichtbaar
   setTimeout(() => {
-    document.getElementById("splash").style.display = "none";
-    document.getElementById("app").classList.remove("hidden");
+    splash.style.display = "none";
+    app.classList.remove("hidden");
     wireTabs();
     loadRoute("home");
-  }, 1200);
+  }, 4000);
 }
 
 boot();
+
