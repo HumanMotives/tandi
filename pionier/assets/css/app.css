@@ -606,3 +606,10 @@ body{
   color:#0e2230;
   background:#eefaf6;
 }
+
+.topbar-logo{
+  height:26px;
+  width:auto;
+  display:block;
+}
+
