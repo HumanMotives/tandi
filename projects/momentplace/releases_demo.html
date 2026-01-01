@@ -14,7 +14,7 @@
     --bg: #ffffff;
     --platinum: #E9F3EF;  /* soft mint / very light */
     --sand: #F2EDE1;      /* sand tint for subtle depth */
-    --lion: #A88D6F;      /* earthy accent for primary CTA */
+    --lion: #A88D6F;      /* earthy accent for primary CTA and brand */
     --cadet-gray: #86A7A9;
     --radius: 12px;
     --shadow: 0 8px 28px rgba(0,0,0,0.06);
@@ -31,9 +31,9 @@
     padding:24px 16px;
   }
   .container{max-width:var(--max-width);margin:0 auto}
-  .site-header{margin-bottom:18px}
-  h1{font-size:28px;margin:0 0 6px}
-  .lead{color:var(--muted);margin:0 0 18px;font-size:15px}
+  .site-header{margin-bottom:18px;text-align:center}
+  .site-header h1{font-weight:700;margin-bottom:6px;color:var(--lion);font-size:36px}
+  .site-header .lead{color:var(--muted);margin:0 auto 12px;font-size:15px;max-width:720px}
 
   /* masonry */
   .masonry{column-width: 240px; column-gap: var(--gap);}
@@ -62,7 +62,7 @@
 
   .flip-card {
     width:100%;
-    min-height:300px;
+    min-height:280px;
     max-width:520px;
     perspective: 1000px;
     margin:0 auto;
@@ -72,7 +72,7 @@
   .flip-card-inner {
     position:relative;
     width:100%;
-    min-height:300px;
+    min-height:280px;
     border-radius:var(--radius);
     transform-style: preserve-3d;
     transition: transform 0.6s cubic-bezier(.2,.9,.25,1);
@@ -88,7 +88,7 @@
     inset:0;
     backface-visibility: hidden;
     border-radius:var(--radius);
-    padding:28px;
+    padding:22px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -104,29 +104,30 @@
     background: linear-gradient(180deg, #fff 0%, #fafafa 100%);
     transform: rotateY(180deg);
     color:#111;
-    padding:22px;
+    padding:18px;
   }
 
   .hero-inner{max-width:520px}
+  /* slightly reduced brand size */
   .hero-brand{
-    font-size:84px;
-    line-height:0.9;
+    font-size:64px;
+    line-height:0.95;
     letter-spacing:-0.02em;
-    margin-bottom:8px;
+    margin-bottom:6px;
     font-weight:700;
-    color:var(--accent);
+    color:var(--lion);
     font-family: "Helvetica Neue", Arial, sans-serif;
   }
   .hero-tag{
     font-size:15px;
     color:var(--muted);
-    margin-bottom:12px;
+    margin-bottom:10px;
   }
 
   .hero-desc {
     color:var(--muted);
     font-size:14px;
-    margin: 12px 0 14px;
+    margin: 10px 0 12px;
     line-height:1.45;
   }
 
@@ -150,8 +151,15 @@
     padding: 8px 6px;
   }
 
-  /* normal card contents */
-  .card img{width:100%;display:block;height:auto;object-fit:cover}
+  /* square cover images */
+  .card img{
+    width:100%;
+    aspect-ratio: 1/1;
+    height: auto;
+    display:block;
+    object-fit:cover;
+  }
+
   .card-body{padding:12px}
   .card-title{font-weight:700;margin:0 0 6px;font-size:15px}
   .card-meta{color:var(--muted);font-size:13px;margin-bottom:10px}
@@ -172,18 +180,18 @@
   .small{font-size:13px}
 
   @media (max-width:720px){
-    .hero-brand{font-size:48px}
+    .hero-brand{font-size:44px}
     .flip-card { min-height:220px; padding:0;}
     .masonry{column-width:160px}
-    .flip-card-face { padding:18px; }
+    .flip-card-face { padding:14px; }
   }
   </style>
 </head>
 <body>
   <main class="container">
     <header class="site-header">
-      <h1 style="font-weight:700;margin-bottom:6px">Mōme</h1>
-      <p class="lead">Tiny sound releases from where you are</p>
+      <h1>Mōme</h1>
+      <p class="lead">tiny sound releases from where you are</p>
     </header>
 
     <section id="releasesGrid" class="masonry">
@@ -214,7 +222,7 @@
                   2) Take a square photo, then record three short sounds (max 15s each).  
                   3) We lightly process the audio, render a continuous micro-release and you can publish it to the grid.
                 </p>
-                <p class="muted small">Tip: pick sounds close to you — footsteps, distant chatter, wind — they become the texture of the release.</p>
+                <p class="muted small">Tip: pick sounds close to you — footsteps, distant chatter, wind — they become the texture of your release.</p>
                 <div style="margin-top:12px;text-align:center">
                   <button class="btn-help" id="btnBackClose">Close</button>
                 </div>
@@ -231,7 +239,7 @@
     <footer class="site-footer container"><small>Demo grid — click a card to open a release. Mōme focuses on short field recordings.</small></footer>
   </main>
 
-  <!-- Modal player (kept for demo) -->
+  <!-- Modal player -->
   <div id="playerModal" class="modal" aria-hidden="true">
     <div class="modal-inner" role="dialog" aria-modal="true">
       <button class="modal-close" id="modalClose">×</button>
@@ -254,12 +262,16 @@
   </div>
 
   <script>
-  // demo dataset
+  // expanded demo dataset (square-friendly covers)
   const DUMMY = [
-    { id:'r1', title:'Morning Pool', location:'Casteren, NL', date:'2025-01-10T09:12:00Z', cover:'https://images.unsplash.com/photo-1503435824048-a799a3a84f9e?auto=format&fit=crop&w=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Short ambient capture of sunlight and kids playing.', likes:12 },
-    { id:'r2', title:'Dune Walk', location:'California, USA', date:'2025-01-05T18:30:00Z', cover:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Wind and footsteps on sand.', likes:23 },
-    { id:'r3', title:'Night Tram', location:'Amsterdam, NL', date:'2025-01-20T21:15:00Z', cover:'https://images.unsplash.com/photo-1482192596544-9eb780fc7f66?auto=format&fit=crop&w=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Low hum and passing announcements.', likes:3 },
-    { id:'r4', title:'Forest Shimmer', location:'Unknown', date:'2024-12-29T07:00:00Z', cover:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Leaves, birds and distant water.', likes:9 }
+    { id:'r1', title:'Morning Pool', location:'Casteren, NL', date:'2025-01-10T09:12:00Z', cover:'https://images.unsplash.com/photo-1503435824048-a799a3a84f9e?auto=format&crop=entropy&w=800&h=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Short ambient capture of sunlight and kids playing.', likes:12 },
+    { id:'r2', title:'Dune Walk', location:'California, USA', date:'2025-01-05T18:30:00Z', cover:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&crop=entropy&w=800&h=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Wind and footsteps on sand.', likes:23 },
+    { id:'r3', title:'Night Tram', location:'Amsterdam, NL', date:'2025-01-20T21:15:00Z', cover:'https://images.unsplash.com/photo-1482192596544-9eb780fc7f66?auto=format&crop=entropy&w=800&h=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Low hum and passing announcements.', likes:3 },
+    { id:'r4', title:'Forest Shimmer', location:'Unknown', date:'2024-12-29T07:00:00Z', cover:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&crop=entropy&w=800&h=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Leaves, birds and distant water.', likes:9 },
+    { id:'r5', title:'Kitchen Window', location:'Tilburg, NL', date:'2025-02-02T11:00:00Z', cover:'https://images.unsplash.com/photo-1501386763603-4f4a7418b1c6?auto=format&crop=entropy&w=800&h=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Morning kettle and distant city noise.', likes:5 },
+    { id:'r6', title:'Atlantic Breeze', location:'Zeeland, NL', date:'2024-11-19T15:20:00Z', cover:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&crop=entropy&w=800&h=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Waves and gulls.', likes:8 },
+    { id:'r7', title:'Factory Door', location:'Eindhoven, NL', date:'2025-01-12T14:00:00Z', cover:'https://images.unsplash.com/photo-1505765056529-44d88a6f32d6?auto=format&crop=entropy&w=800&h=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Metal clinks and distant voices.', likes:7 },
+    { id:'r8', title:'Quiet Alley', location:'Gent, BE', date:'2024-10-01T09:15:00Z', cover:'https://images.unsplash.com/photo-1475688621402-4257b0886b3f?auto=format&crop=entropy&w=800&h=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Bicycle bells and distant chat.', likes:4 }
   ];
 
   // helpers
@@ -271,7 +283,7 @@
 
   const grid = document.getElementById('releasesGrid');
 
-  // render the grid cards AFTER the hero (hero is static in markup)
+  // render the other cards AFTER the hero (hero is in markup)
   function renderCards(list){
     list.forEach(r=>{
       const el = document.createElement('article');
@@ -316,31 +328,35 @@
       return;
     }
 
-    // other fallback: hide grid and look for camera container
-    const homeMain = document.querySelector('main') || document.body;
+    // fallback: hide main container grid and show camera container if present
     const cameraSection = document.getElementById('cameraContainer');
     if (cameraSection) {
-      // hide grid area visually
-      const parent = document.getElementById('releasesGrid')?.closest('main') || document.querySelector('.container');
+      // hide the grid / header visually
+      const parent = document.querySelector('main') || document.querySelector('.container');
       if (parent) parent.style.display = 'none';
+
+      // reveal camera section and scroll into view
       cameraSection.style.display = 'flex';
       cameraSection.scrollIntoView({behavior:'smooth', block:'start'});
-      // reset camera UI if present
-      const captureBtn = document.getElementById('captureBtn');
-      const continueBtn = document.getElementById('cameraContinueBtn') || document.getElementById('continueBtn');
-      const cameraVideo = document.getElementById('cameraVideo');
-      const snapshot = document.getElementById('cameraSnapshot') || document.getElementById('snapshotPreview');
-      if (captureBtn) { captureBtn.hidden = false; captureBtn.textContent = '📷 Enable Camera'; }
-      if (continueBtn) continueBtn.hidden = true;
-      if (snapshot) snapshot.hidden = true;
-      if (cameraVideo) cameraVideo.hidden = false;
-    } else {
-      // final fallback: just show a toast
-      alert('Start capture flow: camera UI niet gevonden. Zorg dat cameraContainer aanwezig is.');
+
+      // try to focus the enable camera button so user sees where to act
+      setTimeout(()=>{
+        const captureBtn = document.getElementById('captureBtn') || document.getElementById('enableCameraBtn');
+        if (captureBtn) {
+          captureBtn.hidden = false;
+          captureBtn.textContent = '📷 Enable Camera';
+          captureBtn.focus({preventScroll:false});
+        }
+      }, 300);
+
+      return;
     }
+
+    // final fallback message
+    alert('Start capture flow: camera UI niet gevonden. Zorg dat cameraContainer aanwezig is in de DOM.');
   });
 
-  // modal logic (same as demo)
+  // modal logic
   const modal = document.getElementById('playerModal');
   const modalClose = document.getElementById('modalClose');
   const modalTitle = document.getElementById('modalTitle');
@@ -385,6 +401,7 @@
     if(e.target === modal) closeModal();
   });
 
+  // likes using localStorage
   function getLikes(id){
     const saved = localStorage.getItem('likes_' + id);
     if(saved !== null) return Number(saved);
@@ -395,6 +412,7 @@
     localStorage.setItem('likes_' + id, String(n));
   }
 
+  // delegation
   document.addEventListener('click',(ev)=>{
     const openBtn = ev.target.closest('.btn-open');
     if(openBtn){ openById(openBtn.dataset.id); return; }
@@ -441,7 +459,7 @@
     if(e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') closeModal();
   });
 
-  // initial render for the other cards
+  // initial render
   renderCards(DUMMY);
   </script>
 </body>
