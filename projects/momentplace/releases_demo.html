@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Moment / Place — Releases (demo)</title>
+
+  <style>
+  :root{
+    --max-width: 980px;
+    --gap: 16px;
+    --muted: #6d6d6d;
+    --accent: #000;
+    --bg: #fff;
+    --card-bg: #fff;
+    --radius: 12px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.06);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:#111;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:24px 16px;
+  }
+  .container{max-width:var(--max-width);margin:0 auto}
+  .site-header{margin-bottom:18px}
+  h1{font-size:28px;margin:0 0 6px}
+  .lead{color:var(--muted);margin:0 0 18px;font-size:15px}
+
+  /* masonry */
+  .masonry{column-width: 240px; column-gap: var(--gap)}
+  .card{display:inline-block;width:100%;margin:0 0 var(--gap);background:var(--card-bg);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;vertical-align:top}
+  .card img{width:100%;display:block;height:auto;object-fit:cover}
+  .card-body{padding:12px}
+  .card-title{font-weight:700;margin:0 0 6px;font-size:15px}
+  .card-meta{color:var(--muted);font-size:13px;margin-bottom:10px}
+  .card-actions{display:flex;gap:8px;justify-content:space-between;align-items:center}
+  .btn{background:#000;color:#fff;border:0;padding:8px 12px;border-radius:8px;font-weight:600;cursor:pointer}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid #eee;padding:6px 10px}
+
+  .site-footer{margin-top:32px;color:var(--muted);font-size:13px;text-align:center;padding-bottom:40px}
+
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:2200}
+  .modal[aria-hidden="false"]{display:flex}
+  .modal-inner{max-width:760px;width:100%;background:#fff;border-radius:12px;padding:18px;box-shadow:0 20px 80px rgba(0,0,0,0.3);display:flex;gap:14px;position:relative}
+  .modal-close{position:absolute;right:18px;top:18px;background:transparent;border:0;font-size:22px;color:#111;cursor:pointer}
+  .modal-cover{width:220px;height:220px;object-fit:cover;border-radius:8px;flex-shrink:0}
+  .modal-meta{flex:1}
+  .muted{color:var(--muted)}
+  .small{font-size:13px}
+
+  @media (max-width:640px){
+    .modal-inner{flex-direction:column;padding:12px}
+    .modal-cover{width:100%;height:auto}
+    .masonry{column-width:160px}
+  }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <h1>Moment / Place</h1>
+    <p class="lead">Een demo grid met dummy releases. Klik op een kaart om te luisteren, liken of delen.</p>
+  </header>
+
+  <main class="container">
+    <section id="releasesGrid" class="masonry"></section>
+  </main>
+
+  <div id="playerModal" class="modal" aria-hidden="true">
+    <div class="modal-inner" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modalClose">×</button>
+      <img id="modalCover" src="" alt="Cover" class="modal-cover">
+      <div class="modal-meta">
+        <h2 id="modalTitle">Title</h2>
+        <p id="modalLocation" class="muted">Location</p>
+        <p id="modalDate" class="muted small">Date</p>
+
+        <audio id="modalAudio" controls preload="auto" style="width:100%;margin-top:10px"></audio>
+
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+          <button id="btnLike" class="btn">♡ Like <span id="likeCount" style="margin-left:8px">0</span></button>
+          <button id="btnShare" class="btn" style="background:#444">Share</button>
+        </div>
+
+        <p id="modalDesc" class="muted small" style="margin-top:12px"></p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer container"><small>Demo — klik een release om te openen.</small></footer>
+
+  <script>
+  // Demo dataset
+  const DUMMY = [
+    { id:'r1', title:'Morning Pool', location:'Casteren, NL', date:'2025-01-10T09:12:00Z', cover:'https://images.unsplash.com/photo-1503435824048-a799a3a84f9e?auto=format&fit=crop&w=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Short ambient capture of sunlight and kids playing.', likes:12 },
+    { id:'r2', title:'Dune Walk', location:'California, USA', date:'2025-01-05T18:30:00Z', cover:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Wind and footsteps on sand.', likes:23 },
+    { id:'r3', title:'Night Tram', location:'Amsterdam, NL', date:'2025-01-20T21:15:00Z', cover:'https://images.unsplash.com/photo-1482192596544-9eb780fc7f66?auto=format&fit=crop&w=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Low hum and passing announcements.', likes:3 },
+    { id:'r4', title:'Forest Shimmer', location:'Unknown', date:'2024-12-29T07:00:00Z', cover:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Leaves, birds and distant water.', likes:9 }
+  ];
+
+  // helpers
+  function fmtDate(iso){
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined,{ year:'numeric', month:'short', day:'numeric'});
+  }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, t=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[t])); }
+
+  // render grid
+  const grid = document.getElementById('releasesGrid');
+  function renderGrid(list){
+    grid.innerHTML = '';
+    list.forEach(r=>{
+      const el = document.createElement('article');
+      el.className = 'card';
+      el.innerHTML = `
+        <img loading="lazy" src="${r.cover}" alt="${escapeHtml(r.title)}">
+        <div class="card-body">
+          <div class="card-title">${escapeHtml(r.title)}</div>
+          <div class="card-meta">${escapeHtml(r.location)} • ${fmtDate(r.date)}</div>
+          <div class="card-actions">
+            <button class="btn btn-open" data-id="${r.id}">Luister</button>
+            <div><button class="btn-ghost btn-like" data-id="${r.id}">♡ <span class="count">${r.likes}</span></button></div>
+          </div>
+        </div>
+      `;
+      grid.appendChild(el);
+    });
+  }
+
+  // modal
+  const modal = document.getElementById('playerModal');
+  const modalClose = document.getElementById('modalClose');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalLocation = document.getElementById('modalLocation');
+  const modalDate = document.getElementById('modalDate');
+  const modalCover = document.getElementById('modalCover');
+  const modalAudio = document.getElementById('modalAudio');
+  const modalDesc = document.getElementById('modalDesc');
+  const btnLike = document.getElementById('btnLike');
+  const btnShare = document.getElementById('btnShare');
+  const likeCountSpan = document.getElementById('likeCount');
+
+  let current = null;
+
+  function openById(id){
+    const r = DUMMY.find(x=>x.id===id);
+    if(!r) return;
+    current = r;
+    modal.setAttribute('aria-hidden','false');
+    modalTitle.textContent = r.title;
+    modalLocation.textContent = r.location;
+    modalDate.textContent = fmtDate(r.date);
+    modalCover.src = r.cover;
+    modalDesc.textContent = r.description || '';
+    modalAudio.src = r.audio;
+    likeCountSpan.textContent = getLikes(r.id);
+    modalAudio.currentTime = 0;
+    modalAudio.play().catch(()=>{});
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(){
+    modalAudio.pause();
+    modalAudio.src = '';
+    modal.setAttribute('aria-hidden','true');
+    current = null;
+    document.body.style.overflow = '';
+  }
+  modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click',(e)=>{ if(e.target===modal) closeModal(); });
+
+  // likes local storage
+  function getLikes(id){
+    const v = localStorage.getItem('likes_' + id);
+    if(v !== null) return Number(v);
+    const r = DUMMY.find(x=>x.id===id);
+    return r ? (r.likes || 0) : 0;
+  }
+  function setLikes(id,n){ localStorage.setItem('likes_' + id, String(n)); }
+
+  // events
+  document.addEventListener('click', (ev)=>{
+    const openBtn = ev.target.closest('.btn-open');
+    if(openBtn){ openById(openBtn.dataset.id); return; }
+    const likeBtn = ev.target.closest('.btn-like');
+    if(likeBtn){
+      const id = likeBtn.dataset.id;
+      const cur = getLikes(id);
+      const next = cur + 1;
+      setLikes(id,next);
+      likeBtn.querySelector('.count').textContent = next;
+      // update modal if open
+      if(current && current.id === id) likeCountSpan.textContent = next;
+    }
+  });
+
+  btnLike.addEventListener('click', ()=>{
+    if(!current) return;
+    const id = current.id;
+    const cur = getLikes(id); const next = cur + 1;
+    setLikes(id,next); likeCountSpan.textContent = next;
+    const btn = document.querySelector(`.btn-like[data-id="${id}"]`);
+    if(btn) btn.querySelector('.count').textContent = next;
+  });
+
+  btnShare.addEventListener('click', async ()=>{
+    if(!current) return;
+    const url = location.href.split('#')[0] + '#release=' + current.id;
+    if(navigator.share){
+      try{ await navigator.share({ title: current.title, text: `Luister: ${current.title}`, url }); }catch(e){}
+    } else {
+      try{
+        await navigator.clipboard.writeText(url);
+        alert('Link gekopieerd naar klembord');
+      }catch(e){
+        prompt('Kopieer deze link', url);
+      }
+    }
+  });
+
+  // keyboard close
+  document.addEventListener('keydown',(e)=>{ if(e.key === 'Escape' && modal.getAttribute('aria-hidden')==='false') closeModal(); });
+
+  renderGrid(DUMMY);
+  </script>
+</body>
+</html>
