@@ -10,13 +10,14 @@
     --max-width: 980px;
     --gap: 16px;
     --muted: #6d6d6d;
-    --accent: #000;             /* black accents */
-    --bg: #fff;
-    --card-bg: #fff;
+    --accent: #000;
+    --bg: #ffffff;
+    --platinum: #E9F3EF;  /* soft mint / very light */
+    --sand: #F2EDE1;      /* sand tint for subtle depth */
+    --lion: #A88D6F;      /* earthy accent for primary CTA */
+    --cadet-gray: #86A7A9;
     --radius: 12px;
-    --shadow: 0 8px 24px rgba(0,0,0,0.06);
-    --platinum: #E0E1DE;
-    --lion: #A88D6F;
+    --shadow: 0 8px 28px rgba(0,0,0,0.06);
     font-family: "Helvetica Neue", Arial, sans-serif;
   }
   *{box-sizing:border-box}
@@ -35,33 +36,77 @@
   .lead{color:var(--muted);margin:0 0 18px;font-size:15px}
 
   /* masonry */
-  .masonry{column-width: 240px; column-gap: var(--gap)}
+  .masonry{column-width: 240px; column-gap: var(--gap);}
+
   /* base card */
   .card{
     display:inline-block;
     width:100%;
     margin:0 0 var(--gap);
-    background:var(--card-bg);
+    background: #fff;
     border-radius:var(--radius);
     box-shadow:var(--shadow);
     overflow:hidden;
     vertical-align:top;
   }
-  /* HERO card (first tile) */
-  .card--hero{
+
+  /* HERO flip-card (first tile): uses front/back flip */
+  .card--hero {
     display:inline-flex;
     width:100%;
     margin:0 0 var(--gap);
-    background: linear-gradient(180deg, var(--platinum) 0%, #fff 100%);
     border-radius:var(--radius);
-    overflow:hidden;
+    overflow:visible;
+    justify-content:center;
+  }
+
+  .flip-card {
+    width:100%;
+    min-height:300px;
+    max-width:520px;
+    perspective: 1000px;
+    margin:0 auto;
+    border-radius:var(--radius);
+  }
+
+  .flip-card-inner {
+    position:relative;
+    width:100%;
+    min-height:300px;
+    border-radius:var(--radius);
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(.2,.9,.25,1);
+    box-shadow: 0 10px 36px rgba(0,0,0,0.08);
+  }
+
+  .flip-card.is-flipped .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .flip-card-face {
+    position:absolute;
+    inset:0;
+    backface-visibility: hidden;
+    border-radius:var(--radius);
+    padding:28px;
+    display:flex;
     align-items:center;
     justify-content:center;
     text-align:center;
-    padding:28px;
-    min-height:300px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
   }
+
+  .flip-card-front {
+    background: linear-gradient(180deg, var(--platinum) 0%, var(--sand) 100%);
+    color: #111;
+  }
+
+  .flip-card-back {
+    background: linear-gradient(180deg, #fff 0%, #fafafa 100%);
+    transform: rotateY(180deg);
+    color:#111;
+    padding:22px;
+  }
+
   .hero-inner{max-width:520px}
   .hero-brand{
     font-size:84px;
@@ -73,12 +118,37 @@
     font-family: "Helvetica Neue", Arial, sans-serif;
   }
   .hero-tag{
-    font-size:16px;
+    font-size:15px;
     color:var(--muted);
-    margin-bottom:14px;
+    margin-bottom:12px;
   }
+
+  .hero-desc {
+    color:var(--muted);
+    font-size:14px;
+    margin: 12px 0 14px;
+    line-height:1.45;
+  }
+
   .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-  .hero-actions .btn{padding:10px 14px}
+  .hero-actions .btn{padding:12px 16px;border-radius:10px;font-weight:700;cursor:pointer;border:0}
+
+  /* primary CTA earthy */
+  .btn-primary {
+    background: var(--lion);
+    color: #fff;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .btn-help {
+    background: transparent;
+    color: var(--cadet-gray);
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 8px 6px;
+  }
 
   /* normal card contents */
   .card img{width:100%;display:block;height:auto;object-fit:cover}
@@ -103,27 +173,65 @@
 
   @media (max-width:720px){
     .hero-brand{font-size:48px}
-    .hero-inner{padding:6px}
+    .flip-card { min-height:220px; padding:0;}
     .masonry{column-width:160px}
-    .card--hero{min-height:220px;padding:18px}
+    .flip-card-face { padding:18px; }
   }
   </style>
 </head>
 <body>
   <main class="container">
-    <section class="site-header">
+    <header class="site-header">
       <h1 style="font-weight:700;margin-bottom:6px">Mōme</h1>
       <p class="lead">Tiny sound releases from where you are</p>
-    </section>
+    </header>
 
     <section id="releasesGrid" class="masonry">
-      <!-- Hero tile will be injected by JS as the first card -->
+      <!-- HERO: static flip-card as first tile -->
+      <article class="card card--hero" aria-label="Mome hero">
+        <div class="flip-card" id="heroFlip">
+          <div class="flip-card-inner">
+            <!-- FRONT -->
+            <div class="flip-card-face flip-card-front" role="region" aria-labelledby="heroTitle">
+              <div class="hero-inner">
+                <div id="heroTitle" class="hero-brand">Mōme</div>
+                <div class="hero-tag">tiny sound releases from where you are</div>
+                <p class="hero-desc">Capture three short audio moments from a place you love and publish a tiny, shareable micro-release. Listeners can browse and play without recording anything themselves.</p>
+
+                <div class="hero-actions" style="margin-top:6px">
+                  <button class="btn-primary" id="btnRecord">Record My Place</button>
+                  <button class="btn-help" id="btnHelp">Help</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- BACK -->
+            <div class="flip-card-face flip-card-back" role="region" aria-labelledby="heroHelpTitle" id="heroBack">
+              <div style="max-width:480px;margin:0 auto">
+                <h3 id="heroHelpTitle" style="margin:0 0 8px">How Mōme works</h3>
+                <p class="muted small" style="margin-bottom:10px">
+                  1) Tap Record My Place to start the capture flow.  
+                  2) Take a square photo, then record three short sounds (max 15s each).  
+                  3) We lightly process the audio, render a continuous micro-release and you can publish it to the grid.
+                </p>
+                <p class="muted small">Tip: pick sounds close to you — footsteps, distant chatter, wind — they become the texture of the release.</p>
+                <div style="margin-top:12px;text-align:center">
+                  <button class="btn-help" id="btnBackClose">Close</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </article>
+
+      <!-- other cards injected by JS below -->
     </section>
 
-    <footer class="site-footer container"><small>Demo grid — click a card to open a release. Mōme is focused on short field recordings.</small></footer>
+    <footer class="site-footer container"><small>Demo grid — click a card to open a release. Mōme focuses on short field recordings.</small></footer>
   </main>
 
-  <!-- Modal player -->
+  <!-- Modal player (kept for demo) -->
   <div id="playerModal" class="modal" aria-hidden="true">
     <div class="modal-inner" role="dialog" aria-modal="true">
       <button class="modal-close" id="modalClose">×</button>
@@ -146,7 +254,7 @@
   </div>
 
   <script>
-  /* ===== demo dataset (same as before) ===== */
+  // demo dataset
   const DUMMY = [
     { id:'r1', title:'Morning Pool', location:'Casteren, NL', date:'2025-01-10T09:12:00Z', cover:'https://images.unsplash.com/photo-1503435824048-a799a3a84f9e?auto=format&fit=crop&w=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Short ambient capture of sunlight and kids playing.', likes:12 },
     { id:'r2', title:'Dune Walk', location:'California, USA', date:'2025-01-05T18:30:00Z', cover:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Wind and footsteps on sand.', likes:23 },
@@ -154,7 +262,7 @@
     { id:'r4', title:'Forest Shimmer', location:'Unknown', date:'2024-12-29T07:00:00Z', cover:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=60', audio:'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3', description:'Leaves, birds and distant water.', likes:9 }
   ];
 
-  /* ===== helpers ===== */
+  // helpers
   function fmtDate(iso){
     const d = new Date(iso);
     return d.toLocaleDateString(undefined,{ year:'numeric', month:'short', day:'numeric'});
@@ -163,37 +271,8 @@
 
   const grid = document.getElementById('releasesGrid');
 
-  /* Render hero tile first (logo + tagline + quick actions) */
-  function renderHeroTile() {
-    const hero = document.createElement('article');
-    hero.className = 'card card--hero';
-    hero.innerHTML = `
-      <div class="hero-inner">
-        <div class="hero-brand">Mōme</div>
-        <div class="hero-tag">tiny sound releases from where you are</div>
-        <div class="hero-actions">
-          <button class="btn" id="btnCreate">Create</button>
-          <button class="btn btn-ghost" id="btnAbout">About</button>
-          <button class="btn btn-ghost" id="btnExplore">Explore</button>
-        </div>
-      </div>
-    `;
-    grid.appendChild(hero);
-
-    // Example wiring for the hero buttons
-    document.addEventListener('click', (e)=>{
-      const t = e.target;
-      if (t.id === 'btnCreate') alert('Start capture flow (hook into your app)');
-      if (t.id === 'btnAbout') alert('Mōme — tiny sound releases. Capture, craft, publish.');
-      if (t.id === 'btnExplore') alert('Explore releases (scroll the grid)');
-    });
-  }
-
-  /* render the rest of the cards */
-  function renderGrid(list){
-    // hero first
-    renderHeroTile();
-
+  // render the grid cards AFTER the hero (hero is static in markup)
+  function renderCards(list){
     list.forEach(r=>{
       const el = document.createElement('article');
       el.className = 'card';
@@ -212,7 +291,56 @@
     });
   }
 
-  /* modal */
+  // flip card wiring
+  const heroFlip = document.getElementById('heroFlip');
+  const btnHelp = document.getElementById('btnHelp');
+  const btnBackClose = document.getElementById('btnBackClose');
+
+  function flipHero(on){
+    if(on) heroFlip.classList.add('is-flipped');
+    else heroFlip.classList.remove('is-flipped');
+  }
+  btnHelp.addEventListener('click', ()=> flipHero(true));
+  btnBackClose.addEventListener('click', ()=> flipHero(false));
+
+  // Record button wiring
+  document.getElementById('btnRecord').addEventListener('click', (e) => {
+    // dispatch a namespaced event so your app can catch it cleanly
+    const ev = new Event('mome:startCapture', { bubbles: true });
+    document.dispatchEvent(ev);
+
+    // fallback: try to trigger existing welcomeCreateBtn
+    const welcomeStart = document.getElementById('welcomeCreateBtn');
+    if (welcomeStart) {
+      welcomeStart.click();
+      return;
+    }
+
+    // other fallback: hide grid and look for camera container
+    const homeMain = document.querySelector('main') || document.body;
+    const cameraSection = document.getElementById('cameraContainer');
+    if (cameraSection) {
+      // hide grid area visually
+      const parent = document.getElementById('releasesGrid')?.closest('main') || document.querySelector('.container');
+      if (parent) parent.style.display = 'none';
+      cameraSection.style.display = 'flex';
+      cameraSection.scrollIntoView({behavior:'smooth', block:'start'});
+      // reset camera UI if present
+      const captureBtn = document.getElementById('captureBtn');
+      const continueBtn = document.getElementById('cameraContinueBtn') || document.getElementById('continueBtn');
+      const cameraVideo = document.getElementById('cameraVideo');
+      const snapshot = document.getElementById('cameraSnapshot') || document.getElementById('snapshotPreview');
+      if (captureBtn) { captureBtn.hidden = false; captureBtn.textContent = '📷 Enable Camera'; }
+      if (continueBtn) continueBtn.hidden = true;
+      if (snapshot) snapshot.hidden = true;
+      if (cameraVideo) cameraVideo.hidden = false;
+    } else {
+      // final fallback: just show a toast
+      alert('Start capture flow: camera UI niet gevonden. Zorg dat cameraContainer aanwezig is.');
+    }
+  });
+
+  // modal logic (same as demo)
   const modal = document.getElementById('playerModal');
   const modalClose = document.getElementById('modalClose');
   const modalTitle = document.getElementById('modalTitle');
@@ -257,7 +385,6 @@
     if(e.target === modal) closeModal();
   });
 
-  /* likes using localStorage */
   function getLikes(id){
     const saved = localStorage.getItem('likes_' + id);
     if(saved !== null) return Number(saved);
@@ -268,14 +395,9 @@
     localStorage.setItem('likes_' + id, String(n));
   }
 
-  /* event delegation */
   document.addEventListener('click',(ev)=>{
     const openBtn = ev.target.closest('.btn-open');
-    if(openBtn){
-      const id = openBtn.dataset.id;
-      openById(id);
-      return;
-    }
+    if(openBtn){ openById(openBtn.dataset.id); return; }
     const likeBtn = ev.target.closest('.btn-like');
     if(likeBtn){
       const id = likeBtn.dataset.id;
@@ -283,7 +405,6 @@
       const next = current + 1;
       setLikes(id, next);
       likeBtn.querySelector('.count').textContent = next;
-      // Optional: send API call to server / Supabase to persist
       return;
     }
   });
@@ -316,13 +437,12 @@
     }
   });
 
-  // keyboard close
   document.addEventListener('keydown',(e)=>{
     if(e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') closeModal();
   });
 
-  // initial render
-  renderGrid(DUMMY);
+  // initial render for the other cards
+  renderCards(DUMMY);
   </script>
 </body>
 </html>
