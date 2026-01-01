@@ -10,11 +10,10 @@
     --max-width: 980px;
     --gap: 16px;
     --muted: #6d6d6d;
-    --accent: #000;
     --bg: #ffffff;
-    --platinum: #E9F3EF;  /* soft mint / very light */
-    --sand: #F2EDE1;      /* sand tint for subtle depth */
-    --lion: #A88D6F;      /* earthy accent for primary CTA and brand */
+    --platinum: #E9F3EF;
+    --sand: #F2EDE1;
+    --lion: #A88D6F;      /* brand accent */
     --cadet-gray: #86A7A9;
     --radius: 12px;
     --shadow: 0 8px 28px rgba(0,0,0,0.06);
@@ -50,7 +49,7 @@
     vertical-align:top;
   }
 
-  /* HERO flip-card (first tile): uses front/back flip */
+  /* HERO flip-card (first tile) */
   .card--hero {
     display:inline-flex;
     width:100%;
@@ -95,37 +94,37 @@
     text-align:center;
   }
 
+  /* NEW: solid theme color for front, white text */
   .flip-card-front {
-    background: linear-gradient(180deg, var(--platinum) 0%, var(--sand) 100%);
-    color: #111;
+    background: var(--lion);
+    color: #ffffff;
   }
 
   .flip-card-back {
-    background: linear-gradient(180deg, #fff 0%, #fafafa 100%);
+    background: #fff;
     transform: rotateY(180deg);
     color:#111;
     padding:18px;
   }
 
   .hero-inner{max-width:520px}
-  /* slightly reduced brand size */
   .hero-brand{
     font-size:64px;
     line-height:0.95;
     letter-spacing:-0.02em;
     margin-bottom:6px;
     font-weight:700;
-    color:var(--lion);
+    color:#ffffff; /* ensured white */
     font-family: "Helvetica Neue", Arial, sans-serif;
   }
   .hero-tag{
     font-size:15px;
-    color:var(--muted);
+    color: rgba(255,255,255,0.92);
     margin-bottom:10px;
   }
 
   .hero-desc {
-    color:var(--muted);
+    color: rgba(255,255,255,0.9);
     font-size:14px;
     margin: 10px 0 12px;
     line-height:1.45;
@@ -134,16 +133,19 @@
   .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
   .hero-actions .btn{padding:12px 16px;border-radius:10px;font-weight:700;cursor:pointer;border:0}
 
-  /* primary CTA earthy */
+  /* primary CTA inverted for contrast on dark tile */
   .btn-primary {
-    background: var(--lion);
-    color: #fff;
-    border: 1px solid rgba(0,0,0,0.06);
+    background: #ffffff;
+    color: var(--lion);
+    border: 1px solid rgba(0,0,0,0.04);
+    padding:10px 14px;
+    border-radius:10px;
+    font-weight:700;
   }
 
   .btn-help {
     background: transparent;
-    color: var(--cadet-gray);
+    color: rgba(255,255,255,0.9);
     border: none;
     text-decoration: underline;
     cursor: pointer;
@@ -224,7 +226,7 @@
                 </p>
                 <p class="muted small">Tip: pick sounds close to you — footsteps, distant chatter, wind — they become the texture of your release.</p>
                 <div style="margin-top:12px;text-align:center">
-                  <button class="btn-help" id="btnBackClose">Close</button>
+                  <button class="btn-ghost" id="btnBackClose">Close</button>
                 </div>
               </div>
             </div>
@@ -331,15 +333,11 @@
     // fallback: hide main container grid and show camera container if present
     const cameraSection = document.getElementById('cameraContainer');
     if (cameraSection) {
-      // hide the grid / header visually
       const parent = document.querySelector('main') || document.querySelector('.container');
       if (parent) parent.style.display = 'none';
-
-      // reveal camera section and scroll into view
       cameraSection.style.display = 'flex';
       cameraSection.scrollIntoView({behavior:'smooth', block:'start'});
 
-      // try to focus the enable camera button so user sees where to act
       setTimeout(()=>{
         const captureBtn = document.getElementById('captureBtn') || document.getElementById('enableCameraBtn');
         if (captureBtn) {
@@ -352,7 +350,6 @@
       return;
     }
 
-    // final fallback message
     alert('Start capture flow: camera UI niet gevonden. Zorg dat cameraContainer aanwezig is in de DOM.');
   });
 
