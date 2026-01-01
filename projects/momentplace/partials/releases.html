@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Moment/Place — Releases</title>
+  <link rel="stylesheet" href="css/grid.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>Moment / Place</h1>
+      <p class="lead">Een verzameling korte micro-releases. Klik om te luisteren, liken of delen.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="releasesGrid" class="masonry"></section>
+  </main>
+
+  <!-- Modal player -->
+  <div id="playerModal" class="modal" aria-hidden="true">
+    <div class="modal-inner" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modalClose">×</button>
+      <div class="modal-content">
+        <img id="modalCover" src="" alt="Cover" class="modal-cover">
+        <div class="modal-meta">
+          <h2 id="modalTitle">Title</h2>
+          <p id="modalLocation" class="muted">Location</p>
+          <p id="modalDate" class="muted small">Date</p>
+
+          <audio id="modalAudio" controls preload="auto"></audio>
+
+          <div class="modal-actions">
+            <button id="btnLike" class="btn">♡ Like <span id="likeCount">0</span></button>
+            <button id="btnShare" class="btn">Share</button>
+          </div>
+
+          <p id="modalDesc" class="muted small"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer container">
+    <small>Demo grid — dummy data. Klaar om te koppelen met Supabase/Storage.</small>
+  </footer>
+
+  <script src="js/grid.js" defer></script>
+</body>
+</html>
