@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VK Artists – Discovery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0e0e0e;
+      color: #eaeaea;
+      padding: 2rem;
+    }
+
+    h1 {
+      margin-bottom: 0.5rem;
+    }
+
+    button {
+      background: #ffffff;
+      color: #000;
+      border: none;
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+    }
+
+    th, td {
+      border-bottom: 1px solid #333;
+      padding: 0.4rem 0.5rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #aaa;
+      font-weight: normal;
+    }
+
+    a {
+      color: #9ad;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .status {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>VK Artists – Discovery</h1>
+  <p>Small / mid-size artists discovered via Last.fm</p>
+
+  <button id="runBtn">Run discovery</button>
+  <div class="status" id="status"></div>
+
+  <table id="results">
+    <thead>
+      <tr>
+        <th>Artist</th>
+        <th>Listeners</th>
+        <th>Playcount</th>
+        <th>Links</th>
+        <th>Tags</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const runBtn = document.getElementById("runBtn");
+    const statusEl = document.getElementById("status");
+    const tbody = document.querySelector("#results tbody");
+
+    // 👉 CHANGE THIS to your public Supabase anon URL later
+    const SUPABASE_URL = "https://YOURPROJECT.supabase.co";
+    const SUPABASE_ANON_KEY = "PUBLIC_ANON_KEY_HERE";
+
+    async function runDiscovery() {
+      runBtn.disabled = true;
+      statusEl.textContent = "Running discovery…";
+
+      try {
+        const res = await fetch("/.netlify/functions/discoverartists");
+        const json = await res.json();
+
+        if (!json.ok) throw new Error(json.error || "Discovery failed");
+
+        statusEl.textContent = "Discovery finished. Loading results…";
+        await loadResults();
+
+      } catch (err) {
+        statusEl.textContent = "Error: " + err.message;
+      } finally {
+        runBtn.disabled = false;
+      }
+    }
+
+    async function loadResults() {
+      tbody.innerHTML = "";
+      statusEl.textContent = "Fetching artists…";
+
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/artist_leads?order=listeners.desc`,
+        {
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        }
+      );
+
+      const rows = await res.json();
+
+      for (const a of rows) {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>${a.lastfm_name}</td>
+          <td>${a.listeners ?? "-"}</td>
+          <td>${a.playcount ?? "-"}</td>
+          <td>
+            ${a.lastfm_url ? `<a href="${a.lastfm_url}" target="_blank">Last.fm</a>` : ""}
+            ${a.musicbrainz_url ? ` | <a href="${a.musicbrainz_url}" target="_blank">MB</a>` : ""}
+          </td>
+          <td>${(a.tags || []).join(", ")}</td>
+        `;
+
+        tbody.appendChild(tr);
+      }
+
+      statusEl.textContent = `Loaded ${rows.length} artists`;
+    }
+
+    runBtn.addEventListener("click", runDiscovery);
+
+    // Load existing data on page load
+    loadResults();
+  </script>
+
+</body>
+</html>
