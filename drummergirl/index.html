@@ -446,7 +446,7 @@
 
     <div class="top">
       <div class="logoBox">
-        <img src="/drummergirl/logo.png" alt="Drummer Girl Logo" />
+        <img id="mainLogo" src="/drummergirl/logo.png" alt="Drummer Girl Logo" />
       </div>
 
       <div>
@@ -520,11 +520,21 @@
   // ===== Splash behavior =====
   const splash = document.getElementById("splash");
   const appEl  = document.getElementById("app");
+  const mainLogo = document.getElementById("mainLogo");
 
-  // Show splash for 5 seconds then reveal app
+  // We will call buildSequencer() after the app is visible.
+  let afterRevealRebuild = null;
+
   setTimeout(() => {
     splash.classList.add("hidden");
     appEl.classList.remove("hidden");
+
+    // ✅ FIX: rebuild after splash reveal (width is now real)
+    // Do it immediately, then again on the next frame (layout settles).
+    if (typeof afterRevealRebuild === "function") {
+      afterRevealRebuild();
+      requestAnimationFrame(() => afterRevealRebuild());
+    }
   }, 5000);
 
   // ===== Core =====
@@ -556,15 +566,12 @@
   let metronomeMuted = false;
   let hitsMuted = false;
 
-  // Bar start alternates pitch each bar
   let barStartFlip = false;
 
-  // Metronome will tick ONLY on quarter notes: steps 0,2,4,6
   function isQuarterStep(stepIndex){
     return stepIndex === 0 || stepIndex === 2 || stepIndex === 4 || stepIndex === 6;
   }
 
-  // force=true: used for count-in even if metronome is muted
   function metroTick(stepIndex, force=false){
     if (metronomeMuted && !force) return;
     if (!isQuarterStep(stepIndex)) return;
@@ -687,6 +694,11 @@
     currentHands = handsAlternateFromR(currentHits);
 
     const width = sequencer.clientWidth;
+    if (!width || width < 50) {
+      // If still hidden / not laid out, bail safely.
+      return;
+    }
+
     const leftPad = width * 0.05;
     const rightPad = width * 0.95;
     const usable = rightPad - leftPad;
@@ -741,7 +753,7 @@
     handRow.style.opacity = String(strength);
   }
 
-  let handsVisible = false; // default off
+  let handsVisible = false;
   function setHandsVisible(visible){
     handsVisible = visible;
     handRow.classList.toggle("hidden", !visible);
@@ -772,6 +784,15 @@
     }
   }
 
+  // Provide the rebuild function for splash callback
+  afterRevealRebuild = () => buildSequencer();
+
+  // Also rebuild after logo loads (sometimes shifts layout slightly)
+  mainLogo.addEventListener("load", () => {
+    buildSequencer();
+    requestAnimationFrame(() => buildSequencer());
+  });
+
   // ===== Playback (timeline-driven handoff) =====
   let bpm = Number(bpmSlider.value);
   let isPlaying = false;
@@ -779,18 +800,16 @@
 
   let barCount = 0;
 
-  // Groove timeline
-  let grooveStartPerf = null;   // planned start time (perf ms)
+  let grooveStartPerf = null;
   let lastStepCount = -1;
   let grooveStarted = false;
 
-  // Count-in scheduling
   let countInActive = false;
   let countInTimeouts = [];
 
   function beatMs(){ return 60000 / bpm; }
   function barMs(){ return beatMs() * 4; }
-  function stepDurMs(){ return barMs() / STEPS; } // still 8-step grid for hits + dot cursor
+  function stepDurMs(){ return barMs() / STEPS; }
 
   function updateBarText(){
     barText.textContent = `X${barCount}`;
@@ -812,50 +831,38 @@
     countInActive = false;
   }
 
-  // Schedule 4 count-in clicks on quarter notes (always audible), and compute exact groove start.
   function scheduleCountInAndGrooveStart(){
     countInActive = true;
 
     const now = performance.now();
-    const offset = 80;                 // small offset to avoid "immediate click" scheduling jitter
-    const start = now + offset;        // count-in click #1 time
+    const offset = 80;
+    const start = now + offset;
     const ms = beatMs();
 
-    // Clear any old timeouts
     clearCountIn();
     countInActive = true;
 
-    // Schedule 4 quarter clicks: t0, t1, t2, t3
     for (let n = 0; n < 4; n++){
       const tClick = start + n * ms;
       const delay = Math.max(0, tClick - performance.now());
       const id = setTimeout(() => {
-        // First click accented, rest soft. Always force audible.
         if (n === 0) metroTick(0, true);
-        else metroTick(2, true); // any quarter step index works for soft; we just want the soft pitch
+        else metroTick(2, true);
       }, delay);
       countInTimeouts.push(id);
     }
 
-    // Groove should start exactly on the NEXT downbeat after the 4th click:
-    // clicks are beats 1..4, groove begins on beat 1 of next bar
     grooveStartPerf = start + 4 * ms;
 
-    // End count-in state right before groove start
     const doneDelay = Math.max(0, grooveStartPerf - performance.now());
-    const doneId = setTimeout(() => {
-      countInActive = false;
-    }, doneDelay);
+    const doneId = setTimeout(() => { countInActive = false; }, doneDelay);
     countInTimeouts.push(doneId);
   }
 
   function triggerStep(stepIndex){
     setCurrentStep(stepIndex);
-
-    // Quarter-note metronome only
     metroTick(stepIndex, false);
 
-    // Active hits always (unless muted)
     if (currentHits[stepIndex] === 1){
       popStep(stepIndex);
       hitTick();
@@ -865,15 +872,11 @@
   function frame(t){
     if (!isPlaying) return;
 
-    // Wait until planned groove start, then begin
     if (!grooveStarted){
       if (grooveStartPerf !== null && t >= grooveStartPerf){
         grooveStarted = true;
-
-        // Initialize counters so the first computed step is 0
         lastStepCount = -1;
 
-        // Immediately fire step 0 right on the downbeat boundary
         triggerStep(0);
         lastStepCount = 0;
       }
@@ -882,7 +885,6 @@
       return;
     }
 
-    // We are in groove: compute stepCount from planned grooveStartPerf
     const elapsed = t - grooveStartPerf;
     const sDur = stepDurMs();
     const stepCount = Math.floor(elapsed / sDur);
@@ -891,7 +893,6 @@
       for (let sc = lastStepCount + 1; sc <= stepCount; sc++){
         const stepIndex = ((sc % STEPS) + STEPS) % STEPS;
 
-        // Every full bar
         if (sc > 0 && sc % STEPS === 0){
           barCount += 1;
           updateBarText();
@@ -901,7 +902,6 @@
           if (barCount % 8 === 0) sparkleBurst();
         }
 
-        // Avoid double-triggering step 0 at start (we already fired it)
         if (sc === 0) continue;
 
         triggerStep(stepIndex);
@@ -914,21 +914,6 @@
 
   function setBpm(newBpm){
     bpm = newBpm;
-
-    // If playing and groove already started, preserve phase
-    if (isPlaying && grooveStarted && grooveStartPerf !== null){
-      const now = performance.now();
-      const elapsed = now - grooveStartPerf;
-
-      // compute phase in old step duration
-      const oldStep = stepDurMs(); // uses bpm, but bpm already updated. So we need old bpm for true phase.
-      // Quick pragmatic approach: stop phase preservation while playing. It's fine for now.
-      // We can rebuild this later with explicit division setting.
-
-      // For now: restart timing reference so it doesn’t “jump” badly.
-      grooveStartPerf = now - elapsed;
-      lastStepCount = Math.floor((now - grooveStartPerf) / stepDurMs());
-    }
   }
 
   async function play(){
@@ -941,8 +926,6 @@
     stopBtn.disabled = false;
 
     resetPlaybackState();
-
-    // Schedule count-in and compute exact groove start time
     scheduleCountInAndGrooveStart();
 
     rafId = requestAnimationFrame(frame);
@@ -1002,8 +985,9 @@
   updateMuteButton(hitsMuteBtn, hitsMuted);
 
   setHandsVisible(false);
-  buildSequencer();
-  stop();
+
+  // Don’t build here anymore; the app is hidden during splash.
+  // The reveal callback will build it at the right time.
 </script>
 </body>
 </html>
