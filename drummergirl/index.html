@@ -12,7 +12,6 @@
     --tan: #e7bc8c;
     --card: #ffffff;
     --ink: #111111;
-    --muted: rgba(0,0,0,0.55);
     --shadow: 0 14px 40px rgba(0,0,0,0.08);
 
     --red: #ff3b30;
@@ -186,11 +185,18 @@
     align-items:center;
   }
 
+  /* IMPORTANT: Align right counter with sequencer row only */
   .seqWrap{
     display:grid;
     grid-template-columns: 1fr auto;
     gap:18px;
-    align-items:center;
+    align-items:start;
+  }
+
+  .leftStack{
+    display:grid;
+    grid-template-rows: 180px auto;
+    gap:10px;
   }
 
   .sequencer{
@@ -215,10 +221,7 @@
     border-radius: 999px;
   }
 
-  /* ✅ hide the sliding playhead */
-  .playhead{
-    display:none;
-  }
+  .playhead{ display:none; }
 
   .step{
     position:absolute;
@@ -251,7 +254,6 @@
     100%{ transform: translate(-50%, -50%) scale(1); }
   }
 
-  /* ✅ NEW: current-step highlight ring (works for active and inactive) */
   .step.current{
     box-shadow:
       0 0 0 6px rgba(0,0,0,0.10),
@@ -262,12 +264,14 @@
       0 0 0 6px rgba(0,0,0,0.10);
   }
 
+  /* Right counter sticks to the sequencer row */
   .multiplierWrap{
     position: relative;
     width: 140px;
     height: 180px;
     display:grid;
     place-items:center;
+    align-self:start;
   }
 
   .multiplier{
@@ -337,7 +341,7 @@
     gap: 12px;
     justify-items:center;
     align-items:start;
-    padding-top: 10px;
+    padding-top: 6px;
   }
 
   .handCell{
@@ -427,12 +431,12 @@
 
     <div class="stage">
       <div class="seqWrap">
-        <div>
+
+        <div class="leftStack">
           <div class="sequencer" id="sequencer">
             <div class="line"></div>
             <div class="playhead" id="playhead"></div>
           </div>
-
           <div class="handRow" id="handRow"></div>
         </div>
 
@@ -442,6 +446,7 @@
           </div>
           <div class="sparkleLayer" id="sparkleLayer"></div>
         </div>
+
       </div>
     </div>
 
@@ -451,7 +456,6 @@
   const STEPS = 8;
 
   const sequencer = document.getElementById("sequencer");
-  const playhead  = document.getElementById("playhead"); // hidden now
   const handRow   = document.getElementById("handRow");
 
   const multiplier = document.getElementById("multiplier");
@@ -477,10 +481,12 @@
   let metronomeMuted = false;
   let hitsMuted = false;
 
+  // Only bar-start alternates pitch each bar
   let barStartFlip = false;
 
-  function metroTick(stepIndex){
-    if (metronomeMuted) return;
+  // FORCE allows count-in even when metronome is muted
+  function metroTick(stepIndex, force=false){
+    if (metronomeMuted && !force) return;
 
     const isBarStart = (stepIndex === 0);
     const osc = audioCtx.createOscillator();
@@ -496,7 +502,7 @@
 
     const now = audioCtx.currentTime;
     const peak = isBarStart ? 0.22 : 0.07;
-    const dur = isBarStart ? 0.055 : 0.040;
+    const dur  = isBarStart ? 0.055 : 0.040;
 
     gain.gain.setValueAtTime(0.0001, now);
     gain.gain.exponentialRampToValueAtTime(peak, now + 0.002);
@@ -562,20 +568,37 @@
   }
 
   let stepEls = [];
-  let stepPos = [];
   let currentHits = new Array(STEPS).fill(0);
   let currentHands = new Array(STEPS).fill(null);
 
-  // ✅ NEW: track which step is currently "selected"
   let currentStepIndex = -1;
 
+  function setCurrentStep(i){
+    if (currentStepIndex >= 0 && stepEls[currentStepIndex]) {
+      stepEls[currentStepIndex].classList.remove("current");
+    }
+    currentStepIndex = i;
+    if (currentStepIndex >= 0 && stepEls[currentStepIndex]) {
+      stepEls[currentStepIndex].classList.add("current");
+    }
+  }
+
+  function popStep(i){
+    const el = stepEls[i];
+    if (!el) return;
+    if (!el.classList.contains("active")) return;
+
+    el.classList.remove("pop");
+    void el.offsetWidth;
+    el.classList.add("pop");
+  }
+
   function buildSequencer(){
-    const keep = Array.from(sequencer.querySelectorAll(".line, .playhead"));
+    const keep = Array.from(sequencer.querySelectorAll(".line"));
     sequencer.innerHTML = "";
     keep.forEach(el => sequencer.appendChild(el));
 
     stepEls = [];
-    stepPos = [];
 
     const pulses = Number(hitsSlider.value);
     currentHits = euclidean(STEPS, pulses);
@@ -601,8 +624,6 @@
       }
 
       const norm = i / STEPS;
-      stepPos.push(norm);
-
       const x = leftPad + norm * usable;
       step.style.left = `${x}px`;
 
@@ -611,7 +632,7 @@
     }
 
     buildHandRow();
-    setCurrentStep(-1); // reset highlight
+    setCurrentStep(-1);
   }
 
   function buildHandRow(){
@@ -644,115 +665,6 @@
     handRow.classList.toggle("hidden", !visible);
   }
 
-  function popStep(i){
-    const el = stepEls[i];
-    if (!el) return;
-    if (!el.classList.contains("active")) return;
-
-    el.classList.remove("pop");
-    void el.offsetWidth;
-    el.classList.add("pop");
-  }
-
-  // ✅ NEW: jump highlight to a specific step
-  function setCurrentStep(i){
-    if (currentStepIndex >= 0 && stepEls[currentStepIndex]) {
-      stepEls[currentStepIndex].classList.remove("current");
-    }
-    currentStepIndex = i;
-    if (currentStepIndex >= 0 && stepEls[currentStepIndex]) {
-      stepEls[currentStepIndex].classList.add("current");
-    }
-  }
-
-  function crossed(prev, curr, target){
-    if (prev === null) return false;
-    if (curr >= prev){
-      return target > prev && target <= curr;
-    } else {
-      return (target > prev && target <= 1) || (target >= 0 && target <= curr);
-    }
-  }
-
-  let bpm = Number(bpmSlider.value);
-  let isPlaying = false;
-  let rafId = null;
-  let startPerf = null;
-  let prevPos = null;
-  let barCount = 0;
-
-  let countInActive = false;
-  let countInTimers = [];
-
-  function beatMs(){ return 60000 / bpm; }
-  function barMs(){ return beatMs() * 4; }
-
-  function setBpm(newBpm){
-    const now = performance.now();
-    if (isPlaying && startPerf !== null){
-      const oldBar = barMs();
-      const elapsed = now - startPerf;
-      const phase = (elapsed % oldBar) / oldBar;
-
-      bpm = newBpm;
-
-      const newBar = barMs();
-      startPerf = now - phase * newBar;
-    } else {
-      bpm = newBpm;
-    }
-  }
-
-  function updateBarText(){
-    barText.textContent = `X${barCount}`;
-  }
-
-  function resetPlaybackState(){
-    startPerf = null;
-    prevPos = null;
-    barCount = 0;
-    updateBarText();
-    setCurrentStep(-1);
-  }
-
-  function clearCountIn(){
-    countInTimers.forEach(id => clearTimeout(id));
-    countInTimers = [];
-    countInActive = false;
-  }
-
-  async function runCountIn(){
-    countInActive = true;
-    const ms = beatMs();
-    const quarterSteps = [0, 2, 4, 6];
-
-    return new Promise(resolve => {
-      let n = 0;
-      const schedule = () => {
-        if (!countInActive) return resolve();
-
-        const isFirst = (n === 0);
-        if (isFirst) metroTick(0);
-        else metroTick(1);
-
-        n += 1;
-        if (n >= 4) {
-          const doneId = setTimeout(() => {
-            countInActive = false;
-            resolve();
-          }, Math.max(0, ms * 0.35));
-          countInTimers.push(doneId);
-          return;
-        }
-
-        const id = setTimeout(schedule, ms);
-        countInTimers.push(id);
-      };
-
-      schedule();
-    });
-  }
-
   function sparkleBurst(){
     multiplier.classList.remove("sparklePulse");
     void multiplier.offsetWidth;
@@ -778,40 +690,139 @@
     }
   }
 
+  // ===== Playback (step-driven) =====
+  let bpm = Number(bpmSlider.value);
+  let isPlaying = false;
+  let rafId = null;
+
+  let barCount = 0;
+
+  let startPerf = null;
+  let lastStepCount = -1;
+
+  let countInActive = false;
+  let countInTimers = [];
+
+  function beatMs(){ return 60000 / bpm; }
+  function barMs(){ return beatMs() * 4; }
+  function stepDurMs(){ return barMs() / STEPS; } // 8th notes by default
+
+  function updateBarText(){
+    barText.textContent = `X${barCount}`;
+  }
+
+  function resetPlaybackState(){
+    startPerf = null;
+    lastStepCount = -1;
+    barCount = 0;
+    updateBarText();
+    setCurrentStep(-1);
+  }
+
+  function clearCountIn(){
+    countInTimers.forEach(id => clearTimeout(id));
+    countInTimers = [];
+    countInActive = false;
+  }
+
+  async function runCountIn(){
+    // 4 quarter note clicks always audible (force=true)
+    countInActive = true;
+    const ms = beatMs();
+
+    return new Promise(resolve => {
+      let n = 0;
+      const schedule = () => {
+        if (!countInActive) return resolve();
+
+        const isFirst = (n === 0);
+        if (isFirst) metroTick(0, true);   // high accent
+        else metroTick(1, true);           // soft tick
+
+        n += 1;
+
+        if (n >= 4) {
+          const doneId = setTimeout(() => {
+            countInActive = false;
+            resolve();
+          }, Math.max(0, ms * 0.25));
+          countInTimers.push(doneId);
+          return;
+        }
+
+        const id = setTimeout(schedule, ms);
+        countInTimers.push(id);
+      };
+
+      schedule();
+    });
+  }
+
+  function triggerStep(stepIndex){
+    setCurrentStep(stepIndex);
+
+    // Metronome tick on every dot (unless muted)
+    metroTick(stepIndex, false);
+
+    // Hit sound and pop only on active steps
+    if (currentHits[stepIndex] === 1){
+      popStep(stepIndex);
+      hitTick();
+    }
+  }
+
   function frame(t){
     if (!isPlaying) return;
+
     if (startPerf === null) startPerf = t;
 
-    const bMs = barMs();
     const elapsed = t - startPerf;
-    const pos = (elapsed % bMs) / bMs;
+    const sDur = stepDurMs();
 
-    // ✅ No sliding playhead update anymore.
+    const stepCount = Math.floor(elapsed / sDur);
 
-    // bar wrap
-    if (prevPos !== null && pos < prevPos){
-      barCount += 1;
-      updateBarText();
-      barStartFlip = !barStartFlip;
+    // Catch up if we missed steps
+    if (stepCount > lastStepCount){
+      for (let sc = lastStepCount + 1; sc <= stepCount; sc++){
+        const stepIndex = ((sc % STEPS) + STEPS) % STEPS;
 
-      if (barCount % 8 === 0) sparkleBurst();
-    }
+        // Bar wrap: every STEPS steps
+        if (sc > 0 && sc % STEPS === 0){
+          barCount += 1;
+          updateBarText();
 
-    // ✅ Jump the current-step highlight on each metronome dot crossing.
-    for (let i=0;i<stepPos.length;i++){
-      if (crossed(prevPos, pos, stepPos[i])){
-        setCurrentStep(i);      // <-- the key change
-        metroTick(i);
+          barStartFlip = !barStartFlip;
 
-        if (currentHits[i] === 1){
-          popStep(i);
-          hitTick();
+          if (barCount % 8 === 0) sparkleBurst();
         }
+
+        triggerStep(stepIndex);
       }
+      lastStepCount = stepCount;
     }
 
-    prevPos = pos;
     rafId = requestAnimationFrame(frame);
+  }
+
+  function setBpm(newBpm){
+    const now = performance.now();
+
+    // Keep phase if already playing
+    if (isPlaying && startPerf !== null){
+      const oldStep = stepDurMs();
+      const elapsed = now - startPerf;
+      const phase = (elapsed % oldStep) / oldStep;
+
+      bpm = newBpm;
+
+      const newStep = stepDurMs();
+      startPerf = now - phase * newStep;
+
+      // Recompute lastStepCount so we do not burst-trigger
+      lastStepCount = Math.floor((now - startPerf) / newStep);
+    } else {
+      bpm = newBpm;
+    }
   }
 
   async function play(){
@@ -824,3 +835,78 @@
     stopBtn.disabled = false;
 
     resetPlaybackState();
+    clearCountIn();
+
+    // Always play count-in, even if metronome is muted
+    await runCountIn();
+    if (!isPlaying) return;
+
+    // Start groove exactly at step 0, with the high beep present
+    startPerf = performance.now();
+    lastStepCount = -1;
+
+    // Force an immediate step 0 trigger so it never feels skipped
+    triggerStep(0);
+    lastStepCount = 0;
+
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function stop(){
+    clearCountIn();
+
+    isPlaying = false;
+
+    playBtn.disabled = false;
+    stopBtn.disabled = true;
+
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+
+    resetPlaybackState();
+  }
+
+  // ===== UI wiring =====
+  bpmValue.textContent = bpmSlider.value;
+  hitsValue.textContent = hitsSlider.value;
+
+  bpmSlider.addEventListener("input", (e)=>{
+    const val = Number(e.target.value);
+    bpmValue.textContent = String(val);
+    setBpm(val);
+  });
+
+  hitsSlider.addEventListener("input", (e)=>{
+    hitsValue.textContent = e.target.value;
+    buildSequencer();
+  });
+
+  playBtn.addEventListener("click", play);
+  stopBtn.addEventListener("click", stop);
+
+  metroMuteBtn.addEventListener("click", ()=>{
+    metronomeMuted = !metronomeMuted;
+    updateMuteButton(metroMuteBtn, metronomeMuted);
+  });
+
+  hitsMuteBtn.addEventListener("click", ()=>{
+    hitsMuted = !hitsMuted;
+    updateMuteButton(hitsMuteBtn, hitsMuted);
+  });
+
+  handsToggleBtn.addEventListener("click", ()=>{
+    setHandsVisible(!handsVisible);
+  });
+
+  handsStrength.addEventListener("input", buildHandRow);
+  window.addEventListener("resize", buildSequencer);
+
+  // init
+  updateMuteButton(metroMuteBtn, metronomeMuted);
+  updateMuteButton(hitsMuteBtn, hitsMuted);
+  setHandsVisible(true);
+  buildSequencer();
+  stop();
+</script>
+</body>
+</html>
