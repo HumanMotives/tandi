@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<title>Drum Metronoom Prototype</title>
+
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    background: #fafafa;
+    padding: 40px;
+  }
+
+  .sequencer {
+    position: relative;
+    width: 600px;
+    height: 80px;
+    margin: 40px 0;
+    border-top: 2px solid #ccc;
+  }
+
+  .step {
+    position: absolute;
+    top: -6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ddd;
+  }
+
+  .quarter {
+    width: 16px;
+    height: 16px;
+    top: -8px;
+    background: #999;
+  }
+
+  .right {
+    background: #e74c3c;
+  }
+
+  .left {
+    background: #3498db;
+  }
+
+  .playhead {
+    position: absolute;
+    top: -20px;
+    width: 2px;
+    height: 60px;
+    background: #111;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+</style>
+</head>
+
+<body>
+
+<h2>Metronoom + maatvisualisatie</h2>
+
+<button id="start">Start</button>
+
+<div class="sequencer" id="sequencer">
+  <div class="playhead" id="playhead"></div>
+</div>
+
+<script>
+  const BPM = 60;
+  const STEPS = 8;        // achtsten in 4/4
+  const sequencer = document.getElementById("sequencer");
+  const playhead = document.getElementById("playhead");
+
+  // Voorbeeld patroon: R L R L R L R L
+  const pattern = ["R","L","R","L","R","L","R","L"];
+
+  // Bolletjes tekenen
+  for (let i = 0; i < STEPS; i++) {
+    const step = document.createElement("div");
+    step.classList.add("step");
+
+    // kwartnoten groter maken
+    if (i % 2 === 0) step.classList.add("quarter");
+
+    // handkleur
+    if (pattern[i] === "R") step.classList.add("right");
+    if (pattern[i] === "L") step.classList.add("left");
+
+    const x = (i / STEPS) * 600;
+    step.style.left = `${x - 8}px`;
+
+    sequencer.appendChild(step);
+  }
+
+  // Audio context
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  function click(accent = false) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.frequency.value = accent ? 1200 : 800;
+    gain.gain.value = 0.2;
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.05);
+  }
+
+  let startTime = null;
+
+  function animate(time) {
+    if (!startTime) startTime = time;
+
+    const beatDuration = 60000 / BPM;
+    const barDuration = beatDuration * 4;
+
+    const elapsed = time - startTime;
+    const position = (elapsed % barDuration) / barDuration;
+
+    playhead.style.left = `${position * 600}px`;
+
+    // Metronoom clicks
+    const beat = Math.floor((elapsed / beatDuration) % 4);
+    const prevBeat = Math.floor(((elapsed - 16) / beatDuration) % 4);
+
+    if (beat !== prevBeat) {
+      click(beat === 0);
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  document.getElementById("start").onclick = () => {
+    audioCtx.resume();
+    startTime = null;
+    requestAnimationFrame(animate);
+  };
+</script>
+
+</body>
+</html>
