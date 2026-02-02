@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Drummer Girl – World Map (Dummy)</title>
+<style>
+  :root{
+    --bg:#fafafa;
+    --card:#ffffff;
+    --ink:#111;
+    --muted:#666;
+    --shadow: 0 14px 40px rgba(0,0,0,0.08);
+    --radius: 22px;
+    --funGrad: linear-gradient(135deg, #ff7a18, #ff2d95, #7b61ff);
+    --lock:#d8d8d8;
+    --ok:#19c37d;
+  }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color:var(--ink);
+  }
+
+  .wrap{
+    width:min(1100px, 94vw);
+    margin: 0 auto;
+    padding: 22px 0 40px;
+    display:grid;
+    gap:18px;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .logo{
+    width:64px;
+    height:64px;
+    border-radius:18px;
+    background:var(--funGrad);
+    box-shadow: var(--shadow);
+  }
+  .title{
+    display:grid;
+    gap:2px;
+  }
+  .title h1{
+    margin:0;
+    font-size:22px;
+    font-weight:950;
+  }
+  .title div{
+    font-size:14px;
+    color:var(--muted);
+    font-weight:700;
+  }
+
+  .pill{
+    border:0;
+    border-radius:999px;
+    padding:10px 14px;
+    font-weight:900;
+    background:#111;
+    color:#fff;
+    cursor:pointer;
+  }
+
+  .screen{
+    background:var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px;
+  }
+
+  .hidden{ display:none; }
+
+  /* World map */
+  .worldHeader{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:12px;
+    padding: 6px 6px 14px;
+  }
+  .worldHeader h2{
+    margin:0;
+    font-size:20px;
+    font-weight:950;
+  }
+  .worldHeader .sub{
+    color:var(--muted);
+    font-weight:800;
+    font-size:14px;
+  }
+
+  .worldGrid{
+    display:grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap:14px;
+  }
+
+  .tile{
+    border-radius: 20px;
+    padding: 16px;
+    background: #fff;
+    border: 2px solid #eee;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.05);
+    cursor:pointer;
+    display:grid;
+    gap:10px;
+    min-height: 120px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .tile .name{
+    font-weight:950;
+    font-size:16px;
+  }
+  .tile .desc{
+    color:var(--muted);
+    font-weight:700;
+    font-size:13px;
+    line-height:1.25;
+  }
+  .tile .stars{
+    display:flex;
+    gap:4px;
+    font-size:16px;
+    align-items:center;
+  }
+
+  .tile.locked{
+    background: #f4f4f4;
+    border-color: #e6e6e6;
+    cursor:not-allowed;
+    opacity: 0.7;
+  }
+  .tile.locked::after{
+    content:"🔒";
+    position:absolute;
+    right:14px;
+    top:14px;
+    font-size:22px;
+  }
+
+  .tile.completed{
+    border-color: rgba(25,195,125,0.35);
+  }
+  .tile.completed::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background: radial-gradient(circle at 20% 10%, rgba(25,195,125,0.12), transparent 45%);
+    pointer-events:none;
+  }
+
+  .tile .badge{
+    position:absolute;
+    right:12px;
+    bottom:12px;
+    font-size:18px;
+    opacity:0.9;
+  }
+
+  /* Level screen */
+  .levelTop{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding: 6px 6px 12px;
+  }
+  .levelTop h2{
+    margin:0;
+    font-size:20px;
+    font-weight:950;
+  }
+  .levelTop .tiny{
+    font-size:13px;
+    color:var(--muted);
+    font-weight:800;
+  }
+
+  .card{
+    border-radius: 22px;
+    border: 2px solid #eee;
+    background:#fff;
+    padding: 18px;
+    display:grid;
+    gap:12px;
+  }
+
+  .bigExplain{
+    font-size:18px;
+    font-weight:900;
+    line-height:1.2;
+  }
+  .smallExplain{
+    color:var(--muted);
+    font-weight:700;
+    line-height:1.3;
+  }
+
+  .bigButtons{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    border:0;
+    border-radius: 18px;
+    padding: 14px 18px;
+    font-weight:950;
+    font-size:16px;
+    cursor:pointer;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+  }
+  .btn.primary{ background:#111; color:#fff; }
+  .btn.alt{ background:#f0f0f0; color:#111; }
+  .btn.good{ background: var(--funGrad); color:#fff; }
+  .btn:disabled{ opacity:0.55; cursor:not-allowed; box-shadow:none; }
+
+  .meter{
+    height: 18px;
+    border-radius:999px;
+    background:#ededed;
+    overflow:hidden;
+  }
+  .meterFill{
+    height:100%;
+    width: 40%;
+    background: var(--funGrad);
+  }
+
+  .practiceBox{
+    border-radius: 22px;
+    padding: 18px;
+    background: #fafafa;
+    border: 2px dashed #e2e2e2;
+    display:grid;
+    gap:12px;
+  }
+
+  .visualRow{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    align-items:center;
+    padding: 10px 0 6px;
+    font-size: 22px;
+    font-weight: 950;
+  }
+
+  .beatDot{
+    width:16px;
+    height:16px;
+    border-radius:999px;
+    background:#d9d9d9;
+  }
+  .beatDot.on{
+    width:28px;
+    height:28px;
+    background:#111;
+  }
+
+  .ratingRow{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .ratingRow button{
+    border:0;
+    border-radius: 14px;
+    padding: 10px 12px;
+    font-weight:950;
+    cursor:pointer;
+    background:#f1f1f1;
+  }
+  .ratingRow button.selected{
+    background: var(--funGrad);
+    color:#fff;
+  }
+
+  .footerNote{
+    color:var(--muted);
+    font-weight:700;
+    font-size:13px;
+    line-height:1.25;
+    padding: 6px 6px 0;
+  }
+
+  @media (max-width: 900px){
+    .worldGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div class="title">
+        <h1>Drummer Girl</h1>
+        <div>Adventure mode (dummy UI)</div>
+      </div>
+    </div>
+    <button class="pill" id="backToMapBtn" style="display:none;">← World Map</button>
+  </div>
+
+  <!-- WORLD MAP -->
+  <div class="screen" id="mapScreen">
+    <div class="worldHeader">
+      <div>
+        <h2>World 1: Big Beats</h2>
+        <div class="sub">One new thing per level. No tech words.</div>
+      </div>
+      <div class="sub" id="progressText">Progress: 0/6</div>
+    </div>
+
+    <div class="worldGrid" id="worldGrid"></div>
+
+    <div class="footerNote">
+      Tip: each level has Practice (no pressure) and Rock It! (4 bars). After that, your kid rates herself 1–10 ⭐.
+    </div>
+  </div>
+
+  <!-- LEVEL -->
+  <div class="screen hidden" id="levelScreen">
+    <div class="levelTop">
+      <div>
+        <h2 id="levelTitle">Level</h2>
+        <div class="tiny" id="levelSubtitle">Tiny intro, then practice</div>
+      </div>
+      <div class="tiny" id="levelStatus">Locked</div>
+    </div>
+
+    <div class="card" id="introCard">
+      <div class="bigExplain" id="introBig">Today: tap the BIG beats.</div>
+      <div class="smallExplain" id="introSmall">We only do 1–2–3–4. Slow is perfect. You are training your superpower: steady time.</div>
+      <div class="bigButtons">
+        <button class="btn primary" id="startPracticeBtn">Start Practice</button>
+        <button class="btn alt" id="backBtn2">Back</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="practiceCard">
+      <div class="bigExplain">Practice Mode</div>
+      <div class="smallExplain">
+        Press Play and just try to stay steady. No score here.
+      </div>
+
+      <div class="practiceBox">
+        <div class="visualRow" id="practiceVisual">
+          <div class="beatDot on"></div>
+          <div class="beatDot"></div>
+          <div class="beatDot"></div>
+          <div class="beatDot"></div>
+        </div>
+        <div class="meter"><div class="meterFill"></div></div>
+        <div class="smallExplain">Music: (future) cute background loop synced to the exercise.</div>
+      </div>
+
+      <div class="bigButtons">
+        <button class="btn primary" id="practicePlayBtn">Play</button>
+        <button class="btn alt" id="practiceStopBtn" disabled>Stop</button>
+        <button class="btn good" id="rockItBtn">Rock It! (Exam)</button>
+      </div>
+
+      <div class="footerNote">In the real version: count-in → 4 bars → then your kid rates herself.</div>
+    </div>
+
+    <div class="card hidden" id="examCard">
+      <div class="bigExplain">Rock It! (Exam)</div>
+      <div class="smallExplain">Imagine: 4-bar exam just played. How did it feel?</div>
+      <div class="ratingRow" id="ratingRow"></div>
+      <div class="bigButtons">
+        <button class="btn primary" id="completeBtn" disabled>Complete Level</button>
+        <button class="btn alt" id="retryBtn">Retry Exam</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Dummy level data (beginner-first)
+  const levels = [
+    {
+      id: "w1-1",
+      name: "Clap the Beat",
+      desc: "Only 1–2–3–4. No fast notes.",
+      introBig: "Today: clap the BIG beats.",
+      introSmall: "We only do 1–2–3–4. Slow is perfect. Try to make every beat feel the same.",
+      badge: "🌟"
+    },
+    {
+      id: "w1-2",
+      name: "Right Hand Hero",
+      desc: "Tap with one hand only.",
+      introBig: "Today: Right hand only.",
+      introSmall: "One hand can be super steady. Tap on 1–2–3–4.",
+      badge: "✋"
+    },
+    {
+      id: "w1-3",
+      name: "Left Hand Legend",
+      desc: "Switch hands. Still 1–2–3–4.",
+      introBig: "Today: Left hand only.",
+      introSmall: "Same beats, different hand. Your brain is leveling up.",
+      badge: "🖐️"
+    },
+    {
+      id: "w1-4",
+      name: "R L R L",
+      desc: "Alternate hands on the big beats.",
+      introBig: "Today: alternate hands.",
+      introSmall: "Right, Left, Right, Left on 1–2–3–4.",
+      badge: "🔁"
+    },
+    {
+      id: "w1-5",
+      name: "Quiet Hands",
+      desc: "Tiny taps. Same timing.",
+      introBig: "Today: tiny taps.",
+      introSmall: "Play super soft, but keep the beat strong inside your head.",
+      badge: "🤫"
+    },
+    {
+      id: "w1-6",
+      name: "Secret Door",
+      desc: "Bonus level unlocks later…",
+      introBig: "Secret!",
+      introSmall: "This is a bonus tile. It unlocks when you rate yourself 8–10 stars on a level.",
+      badge: "🗝️",
+      isBonus: true
+    }
+  ];
+
+  // Simple progress state in localStorage
+  const key = "drummergirl_dummy_progress_v1";
+  const defaultState = {
+    unlocked: { "w1-1": true },
+    stars: {}
+  };
+  const state = loadState();
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(key);
+      if(!raw) return structuredClone(defaultState);
+      const parsed = JSON.parse(raw);
+      return { ...structuredClone(defaultState), ...parsed };
+    }catch(e){
+      return structuredClone(defaultState);
+    }
+  }
+  function saveState(){
+    localStorage.setItem(key, JSON.stringify(state));
+    renderMap();
+  }
+
+  // UI refs
+  const mapScreen = document.getElementById("mapScreen");
+  const levelScreen = document.getElementById("levelScreen");
+  const worldGrid = document.getElementById("worldGrid");
+  const progressText = document.getElementById("progressText");
+  const backToMapBtn = document.getElementById("backToMapBtn");
+
+  const levelTitle = document.getElementById("levelTitle");
+  const levelSubtitle = document.getElementById("levelSubtitle");
+  const levelStatus = document.getElementById("levelStatus");
+
+  const introCard = document.getElementById("introCard");
+  const introBig = document.getElementById("introBig");
+  const introSmall = document.getElementById("introSmall");
+  const startPracticeBtn = document.getElementById("startPracticeBtn");
+  const backBtn2 = document.getElementById("backBtn2");
+
+  const practiceCard = document.getElementById("practiceCard");
+  const practicePlayBtn = document.getElementById("practicePlayBtn");
+  const practiceStopBtn = document.getElementById("practiceStopBtn");
+  const rockItBtn = document.getElementById("rockItBtn");
+
+  const examCard = document.getElementById("examCard");
+  const ratingRow = document.getElementById("ratingRow");
+  const completeBtn = document.getElementById("completeBtn");
+  const retryBtn = document.getElementById("retryBtn");
+
+  let currentLevel = null;
+  let selectedStars = null;
+
+  function isUnlocked(id){
+    return !!state.unlocked[id];
+  }
+
+  function starsFor(id){
+    return state.stars[id] || 0;
+  }
+
+  function renderMap(){
+    worldGrid.innerHTML = "";
+
+    const completedCount = Object.keys(state.stars).filter(k => (state.stars[k] || 0) > 0).length;
+    progressText.textContent = `Progress: ${completedCount}/6`;
+
+    levels.forEach((lvl, idx) => {
+      const unlocked = isUnlocked(lvl.id);
+      const isCompleted = starsFor(lvl.id) > 0;
+
+      // Bonus tile: only visible when unlocked
+      if (lvl.isBonus && !unlocked) {
+        // Show it locked but present (gamey tease)
+      }
+
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      if (!unlocked) tile.classList.add("locked");
+      if (isCompleted) tile.classList.add("completed");
+
+      tile.innerHTML = `
+        <div class="name">${idx+1}. ${lvl.name}</div>
+        <div class="desc">${lvl.desc}</div>
+        <div class="stars">${renderStarsSmall(starsFor(lvl.id))}</div>
+        <div class="badge">${lvl.badge || ""}</div>
+      `;
+
+      tile.addEventListener("click", () => {
+        if (!unlocked) return;
+        openLevel(lvl.id);
+      });
+
+      worldGrid.appendChild(tile);
+    });
+  }
+
+  function renderStarsSmall(n){
+    if (!n) return `<span style="opacity:0.45;font-weight:800;">No stars yet</span>`;
+    const filled = "⭐".repeat(Math.min(10, n));
+    return `<span>${filled}</span><span style="font-weight:950;color:#111;margin-left:6px;">${n}/10</span>`;
+  }
+
+  function openLevel(id){
+    currentLevel = levels.find(l => l.id === id);
+    selectedStars = null;
+
+    mapScreen.classList.add("hidden");
+    levelScreen.classList.remove("hidden");
+    backToMapBtn.style.display = "inline-flex";
+
+    introCard.classList.remove("hidden");
+    practiceCard.classList.add("hidden");
+    examCard.classList.add("hidden");
+
+    levelTitle.textContent = currentLevel.name;
+    levelSubtitle.textContent = "One new idea. Then you practice.";
+    levelStatus.textContent = `Best: ${starsFor(id) || 0}/10 ⭐`;
+
+    introBig.textContent = currentLevel.introBig;
+    introSmall.textContent = currentLevel.introSmall;
+  }
+
+  function backToMap(){
+    currentLevel = null;
+    mapScreen.classList.remove("hidden");
+    levelScreen.classList.add("hidden");
+    backToMapBtn.style.display = "none";
+  }
+
+  startPracticeBtn.addEventListener("click", () => {
+    introCard.classList.add("hidden");
+    practiceCard.classList.remove("hidden");
+  });
+
+  backBtn2.addEventListener("click", backToMap);
+  backToMapBtn.addEventListener("click", backToMap);
+
+  // Dummy practice play/stop (no audio here)
+  practicePlayBtn.addEventListener("click", () => {
+    practicePlayBtn.disabled = true;
+    practiceStopBtn.disabled = false;
+  });
+
+  practiceStopBtn.addEventListener("click", () => {
+    practicePlayBtn.disabled = false;
+    practiceStopBtn.disabled = true;
+  });
+
+  rockItBtn.addEventListener("click", () => {
+    practiceCard.classList.add("hidden");
+    examCard.classList.remove("hidden");
+    buildRatingButtons();
+  });
+
+  retryBtn.addEventListener("click", () => {
+    selectedStars = null;
+    buildRatingButtons();
+  });
+
+  function buildRatingButtons(){
+    ratingRow.innerHTML = "";
+    completeBtn.disabled = true;
+
+    for(let i=1;i<=10;i++){
+      const b = document.createElement("button");
+      b.textContent = `${"⭐".repeat(i)}  ${i}`;
+      b.addEventListener("click", () => {
+        selectedStars = i;
+        Array.from(ratingRow.querySelectorAll("button")).forEach(x => x.classList.remove("selected"));
+        b.classList.add("selected");
+        completeBtn.disabled = false;
+      });
+      ratingRow.appendChild(b);
+    }
+  }
+
+  completeBtn.addEventListener("click", () => {
+    if (!currentLevel || !selectedStars) return;
+
+    const id = currentLevel.id;
+    const prev = starsFor(id);
+    const best = Math.max(prev, selectedStars);
+    state.stars[id] = best;
+
+    // Unlock next linear level
+    const idx = levels.findIndex(l => l.id === id);
+    const next = levels[idx + 1];
+    if (next) state.unlocked[next.id] = true;
+
+    // Bonus logic: if 8+ stars, unlock bonus tile
+    if (selectedStars >= 8) {
+      const bonus = levels.find(l => l.isBonus);
+      if (bonus) state.unlocked[bonus.id] = true;
+    }
+
+    saveState();
+    levelStatus.textContent = `Best: ${best}/10 ⭐`;
+
+    // Go back to map for that "unlock" feeling
+    backToMap();
+  });
+
+  // Init
+  renderMap();
+</script>
+</body>
+</html>
