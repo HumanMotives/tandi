@@ -58,15 +58,8 @@
     min-width: 170px;
   }
 
-  button.primary {
-    background: #111;
-    color: white;
-  }
-
-  button:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
+  button.primary { background: #111; color: white; }
+  button:disabled { opacity: 0.35; cursor: not-allowed; }
 
   .label {
     font-size: clamp(18px, 2.4vw, 28px);
@@ -194,7 +187,6 @@
     transition: transform 120ms ease;
   }
 
-  /* Inactive = small grey */
   .step.inactive {
     width: 18px;
     height: 18px;
@@ -202,7 +194,6 @@
     box-shadow: none;
   }
 
-  /* Active = bigger colored */
   .step.active {
     width: 40px;
     height: 40px;
@@ -213,9 +204,7 @@
   .step.handR { background: var(--red); }
   .step.handL { background: var(--blue); }
 
-  .step.pop {
-    animation: pop 170ms ease-out;
-  }
+  .step.pop { animation: pop 170ms ease-out; }
 
   @keyframes pop {
     0%   { transform: translate(-50%, -50%) scale(1); }
@@ -343,14 +332,14 @@
       </div>
 
       <div class="multiplier">
-        <span id="multiplierText">X1</span>
+        <span id="multiplierText">X0</span>
       </div>
     </div>
   </div>
 
 <script>
   // ===== Core =====
-  const STEPS = 8; // 8 posities per maat (achtsten)
+  const STEPS = 8;
   let bpm = 103;
 
   // ===== DOM =====
@@ -373,61 +362,66 @@
 
   const multiplierText = document.getElementById("multiplierText");
 
-  // ===== Audio (simple metronome only) =====
+  // ===== Audio =====
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-  function click(accent = false) {
+  // Metronome: "PIEP" (accent on beat 1)
+  function metroClick(accent = false) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
     osc.type = "square";
-    osc.frequency.value = accent ? 1200 : 800;
-    gain.gain.value = accent ? 0.26 : 0.20;
+    osc.frequency.value = accent ? 1400 : 900;
+
+    const now = audioCtx.currentTime;
+    // short beep envelope
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(accent ? 0.35 : 0.22, now + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
 
     osc.connect(gain);
     gain.connect(audioCtx.destination);
 
-    const now = audioCtx.currentTime;
     osc.start(now);
-    osc.stop(now + 0.045);
+    osc.stop(now + 0.06);
+  }
+
+  // Hit sound: "tik" (separate from metronome), slightly different per hand
+  function hitTick(hand /* "R"|"L"|null */) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = "triangle";
+    // small variation: R slightly higher than L
+    osc.frequency.value = hand === "R" ? 700 : 560;
+
+    const now = audioCtx.currentTime;
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.18, now + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.04);
   }
 
   // ===== Patterns =====
-  // hits: boolean per step
-  // hands: "R"|"L"|null per step (only meaningful on active steps)
   const BUILT_IN = {
-    single8: {
-      hits: [1,1,1,1,1,1,1,1],
-      hands:[ "R","L","R","L","R","L","R","L" ]
-    },
-    doubles8: {
-      hits: [1,1,1,1,1,1,1,1],
-      hands:[ "R","R","L","L","R","R","L","L" ]
-    },
-    paradiddle8: {
-      hits: [1,1,1,1,1,1,1,1],
-      hands:[ "R","L","R","R","L","R","L","L" ]
-    },
-    quarters4: {
-      // quarter hits at 0,2,4,6
-      hits: [1,0,1,0,1,0,1,0],
-      hands:[ "R",null,"L",null,"R",null,"L",null ]
-    },
-    offbeats4: {
-      // hits on 2 and 4 (indices 2 and 6 if you count eight steps per bar starting on 1)
-      hits: [0,0,1,0,0,0,1,0],
-      hands:[ null,null,"L",null,null,null,"L",null ]
-    }
+    single8: { hits: [1,1,1,1,1,1,1,1], hands:[ "R","L","R","L","R","L","R","L" ] },
+    doubles8:{ hits: [1,1,1,1,1,1,1,1], hands:[ "R","R","L","L","R","R","L","L" ] },
+    paradiddle8:{ hits:[1,1,1,1,1,1,1,1], hands:[ "R","L","R","R","L","R","L","L" ] },
+    quarters4:{ hits: [1,0,1,0,1,0,1,0], hands:[ "R",null,"L",null,"R",null,"L",null ] },
+    offbeats4:{ hits: [0,0,1,0,0,0,1,0], hands:[ null,null,"L",null,null,null,"L",null ] }
   };
 
-  // ===== Euclidean-ish distribution for slider mode =====
   function euclidean(steps, pulses) {
     const pattern = new Array(steps).fill(0);
     for (let i = 0; i < steps; i++) {
       const v = Math.floor((i * pulses) / steps) !== Math.floor(((i - 1) * pulses) / steps);
       pattern[i] = v ? 1 : 0;
     }
-    // safety
     const count = pattern.reduce((a,b)=>a+b,0);
     if (count !== pulses) {
       pattern.fill(0);
@@ -468,7 +462,7 @@
   // ===== Visual build =====
   let stepEls = [];
   let stepPos = []; // normalized positions 0..1
-  const beatPos = [0, 0.25, 0.5, 0.75]; // quarters, normalized
+  const beatPos = [0, 0.25, 0.5, 0.75]; // quarter beats
 
   function buildSequencer() {
     const keep = Array.from(sequencer.querySelectorAll(".line, .playhead"));
@@ -489,7 +483,7 @@
 
     for (let i = 0; i < STEPS; i++) {
       const isActive = hits[i] === 1;
-      const hand = hands[i]; // "R"|"L"|null
+      const hand = hands[i];
 
       const step = document.createElement("div");
       step.classList.add("step");
@@ -502,7 +496,7 @@
         step.classList.add("inactive");
       }
 
-      const norm = i / STEPS; // 0..(steps-1)/steps
+      const norm = i / STEPS;
       stepPos.push(norm);
 
       const x = leftPad + norm * usable;
@@ -513,7 +507,7 @@
     }
 
     buildHandRow();
-    // reset playhead to start
+
     playhead.style.left = `${leftPad}px`;
   }
 
@@ -524,20 +518,16 @@
     for (let i=0;i<STEPS;i++){
       const cell = document.createElement("div");
       cell.classList.add("handCell");
-
       if (!show) cell.classList.add("muted");
 
       const isActive = currentHits[i] === 1;
       const h = currentHands[i];
 
       if (!isActive || !h) {
-        // keep spacing consistent
         cell.innerHTML = `<div style="height:24px;"></div><div style="height:34px;"></div>`;
       } else {
-        cell.classList.add(h); // colors via .R/.L
-        const icon = (h === "R") ? "✋" : "✋";
-        // (zelfde emoji, kleur doet het werk)
-        cell.innerHTML = `<div>${h}</div><div class="handIcon">${icon}</div>`;
+        cell.classList.add(h);
+        cell.innerHTML = `<div>${h}</div><div class="handIcon">✋</div>`;
       }
 
       handRow.appendChild(cell);
@@ -554,13 +544,12 @@
     el.classList.add("pop");
   }
 
-  // ===== Pass-detection sync (no drift) =====
+  // ===== Pass-detection sync =====
   function crossed(prev, curr, target) {
     if (prev === null) return false;
     if (curr >= prev) {
       return target > prev && target <= curr;
     } else {
-      // wrap
       return (target > prev && target <= 1) || (target >= 0 && target <= curr);
     }
   }
@@ -576,7 +565,7 @@
   function barMs(){ return beatMs() * 4; }
 
   function updateMultiplier() {
-    multiplierText.textContent = `X${Math.max(1, barCount + 1)}`;
+    multiplierText.textContent = `X${barCount}`;
   }
 
   function setBpm(newBpm) {
@@ -616,17 +605,20 @@
       updateMultiplier();
     }
 
-    // metronome clicks on quarters
+    // metronome clicks (quarter notes)
     for (let b = 0; b < beatPos.length; b++) {
       if (crossed(prevPos, pos, beatPos[b])) {
-        click(b === 0);
+        metroClick(b === 0);
       }
     }
 
-    // pop active steps exactly when passed
+    // active hit ticks + pop (exactly on passing)
     for (let i = 0; i < stepPos.length; i++) {
       if (crossed(prevPos, pos, stepPos[i])) {
-        popStep(i);
+        if (currentHits[i] === 1) {
+          popStep(i);
+          hitTick(currentHands[i]); // sound for the figure
+        }
       }
     }
 
@@ -643,6 +635,7 @@
     playBtn.disabled = true;
     stopBtn.disabled = false;
 
+    // restart counter at zero each time you hit play
     startPerf = null;
     prevPos = null;
     barCount = 0;
@@ -662,6 +655,8 @@
 
     startPerf = null;
     prevPos = null;
+
+    // Reset bar counter to zero on stop
     barCount = 0;
     updateMultiplier();
 
@@ -693,8 +688,6 @@
   });
 
   useSliderMode.addEventListener("change", () => {
-    // When slider mode is on, we still keep built-in selector visible,
-    // but the slider defines the hits.
     buildSequencer();
   });
 
