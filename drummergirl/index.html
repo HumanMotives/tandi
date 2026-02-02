@@ -2,37 +2,147 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8" />
-<title>Drum Metronoom Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Drum Metronoom Kids</title>
 
 <style>
+  :root {
+    --w: min(900px, 92vw);
+  }
+
   body {
-    font-family: system-ui, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
     background: #fafafa;
-    padding: 40px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #111;
+  }
+
+  .app {
+    width: var(--w);
+    display: grid;
+    gap: 28px;
+    justify-items: center;
+    text-align: center;
+    padding: 36px 16px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(28px, 4vw, 44px);
+    letter-spacing: 0.2px;
+  }
+
+  .controls {
+    width: 100%;
+    display: grid;
+    gap: 18px;
+    justify-items: center;
+  }
+
+  .buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  button {
+    font-size: clamp(18px, 2.4vw, 24px);
+    padding: 14px 26px;
+    border-radius: 16px;
+    border: 2px solid #111;
+    background: white;
+    cursor: pointer;
+    min-width: 140px;
+  }
+
+  button:active {
+    transform: scale(0.98);
+  }
+
+  button.primary {
+    background: #111;
+    color: white;
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .bpmRow {
+    width: 100%;
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+  }
+
+  .bpmLabel {
+    font-size: clamp(18px, 2.4vw, 26px);
+    font-weight: 700;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 22px;
+    accent-color: #111;
+  }
+
+  .hint {
+    font-size: clamp(14px, 2vw, 18px);
+    opacity: 0.75;
+  }
+
+  .sequencerWrap {
+    width: 100%;
+    display: grid;
+    justify-items: center;
   }
 
   .sequencer {
     position: relative;
-    width: 600px;
-    height: 80px;
-    margin: 40px 0;
-    border-top: 2px solid #ccc;
+    width: var(--w);
+    height: 140px;
+    border-radius: 22px;
+    background: white;
+    border: 2px solid #e6e6e6;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+
+  /* baseline line */
+  .line {
+    position: absolute;
+    left: 5%;
+    right: 5%;
+    top: 50%;
+    height: 6px;
+    transform: translateY(-50%);
+    background: #e1e1e1;
+    border-radius: 99px;
   }
 
   .step {
     position: absolute;
-    top: -6px;
-    width: 12px;
-    height: 12px;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background: #ddd;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+    transition: transform 120ms ease;
   }
 
+  /* quarter notes bigger */
   .quarter {
-    width: 16px;
-    height: 16px;
-    top: -8px;
-    background: #999;
+    width: 34px;
+    height: 34px;
   }
 
   .right {
@@ -43,105 +153,285 @@
     background: #3498db;
   }
 
-  .playhead {
-    position: absolute;
-    top: -20px;
-    width: 2px;
-    height: 60px;
-    background: #111;
+  .step.pop {
+    animation: pop 170ms ease-out;
   }
 
-  button {
-    padding: 10px 20px;
-    font-size: 16px;
+  @keyframes pop {
+    0%   { transform: translate(-50%, -50%) scale(1); }
+    60%  { transform: translate(-50%, -50%) scale(1.55); }
+    100% { transform: translate(-50%, -50%) scale(1); }
   }
+
+  .playhead {
+    position: absolute;
+    top: 18px;
+    bottom: 18px;
+    width: 6px;
+    border-radius: 99px;
+    background: #111;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.20);
+    transform: translateX(-50%);
+  }
+
+  .legend {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: clamp(14px, 2vw, 18px);
+    opacity: 0.85;
+  }
+
+  .chip {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: #fff;
+    border: 2px solid #eee;
+  }
+
+  .dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ddd;
+  }
+
+  .dot.right { background: #e74c3c; }
+  .dot.left { background: #3498db; }
 </style>
 </head>
 
 <body>
+  <div class="app">
+    <h1>Drum Metronoom</h1>
 
-<h2>Metronoom + maatvisualisatie</h2>
+    <div class="controls">
+      <div class="buttons">
+        <button id="playBtn" class="primary">Play</button>
+        <button id="stopBtn" disabled>Stop</button>
+      </div>
 
-<button id="start">Start</button>
+      <div class="bpmRow">
+        <div class="bpmLabel">
+          Tempo: <span id="bpmValue">60</span> BPM
+        </div>
+        <input id="bpmSlider" type="range" min="50" max="200" value="60" />
+        <div class="hint">Schuif langzamer of sneller</div>
+      </div>
+    </div>
 
-<div class="sequencer" id="sequencer">
-  <div class="playhead" id="playhead"></div>
-</div>
+    <div class="sequencerWrap">
+      <div class="sequencer" id="sequencer">
+        <div class="line"></div>
+        <div class="playhead" id="playhead"></div>
+      </div>
+
+      <div class="legend">
+        <span class="chip"><span class="dot right"></span>Rechts</span>
+        <span class="chip"><span class="dot left"></span>Links</span>
+      </div>
+    </div>
+  </div>
 
 <script>
-  const BPM = 60;
-  const STEPS = 8;        // achtsten in 4/4
+  // ===== Config =====
+  const STEPS = 8; // achtsten in 4/4
+  const pattern = ["R","L","R","L","R","L","R","L"]; // demo: single strokes
+
+  // ===== DOM =====
   const sequencer = document.getElementById("sequencer");
   const playhead = document.getElementById("playhead");
+  const playBtn = document.getElementById("playBtn");
+  const stopBtn = document.getElementById("stopBtn");
+  const bpmSlider = document.getElementById("bpmSlider");
+  const bpmValue = document.getElementById("bpmValue");
 
-  // Voorbeeld patroon: R L R L R L R L
-  const pattern = ["R","L","R","L","R","L","R","L"];
-
-  // Bolletjes tekenen
-  for (let i = 0; i < STEPS; i++) {
-    const step = document.createElement("div");
-    step.classList.add("step");
-
-    // kwartnoten groter maken
-    if (i % 2 === 0) step.classList.add("quarter");
-
-    // handkleur
-    if (pattern[i] === "R") step.classList.add("right");
-    if (pattern[i] === "L") step.classList.add("left");
-
-    const x = (i / STEPS) * 600;
-    step.style.left = `${x - 8}px`;
-
-    sequencer.appendChild(step);
-  }
-
-  // Audio context
+  // ===== Audio =====
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   function click(accent = false) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
+    osc.type = "square";
     osc.frequency.value = accent ? 1200 : 800;
-    gain.gain.value = 0.2;
+    gain.gain.value = accent ? 0.26 : 0.20;
 
     osc.connect(gain);
     gain.connect(audioCtx.destination);
 
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.05);
+    const now = audioCtx.currentTime;
+    osc.start(now);
+    osc.stop(now + 0.045);
   }
 
-  let startTime = null;
+  // ===== Build steps visually =====
+  const stepEls = [];
+  function buildSteps() {
+    // Clear old steps, keep line + playhead
+    const keep = Array.from(sequencer.querySelectorAll(".line, .playhead"));
+    sequencer.innerHTML = "";
+    keep.forEach(el => sequencer.appendChild(el));
 
-  function animate(time) {
-    if (!startTime) startTime = time;
+    stepEls.length = 0;
 
-    const beatDuration = 60000 / BPM;
+    const width = sequencer.clientWidth;
+    const leftPad = width * 0.05;
+    const rightPad = width * 0.95;
+    const usable = rightPad - leftPad;
+
+    for (let i = 0; i < STEPS; i++) {
+      const step = document.createElement("div");
+      step.classList.add("step");
+
+      // quarters bigger: indices 0,2,4,6
+      if (i % 2 === 0) step.classList.add("quarter");
+
+      // hand colors
+      if (pattern[i] === "R") step.classList.add("right");
+      if (pattern[i] === "L") step.classList.add("left");
+
+      const x = leftPad + (i / (STEPS - 1)) * usable;
+      step.style.left = `${x}px`;
+
+      sequencer.appendChild(step);
+      stepEls.push(step);
+    }
+  }
+
+  // Build once, rebuild on resize for proper spacing
+  buildSteps();
+  window.addEventListener("resize", () => buildSteps());
+
+  // ===== Timing + Animation =====
+  let bpm = Number(bpmSlider.value);
+  let isPlaying = false;
+  let rafId = null;
+  let startTime = null; // performance.now() at start
+  let lastBeatIndex = -1;
+  let lastStepIndex = -1;
+
+  function getBeatDurationMs() {
+    return 60000 / bpm;
+  }
+
+  function setBpm(newBpm) {
+    // Keep the playhead position continuous when BPM changes
+    const now = performance.now();
+    if (isPlaying && startTime !== null) {
+      const oldBeat = getBeatDurationMs();
+      const oldBar = oldBeat * 4;
+      const elapsed = now - startTime;
+      const posInBar = (elapsed % oldBar) / oldBar;
+
+      bpm = newBpm;
+
+      const newBeat = getBeatDurationMs();
+      const newBar = newBeat * 4;
+
+      startTime = now - (posInBar * newBar);
+    } else {
+      bpm = newBpm;
+    }
+  }
+
+  function popStep(i) {
+    const el = stepEls[i];
+    if (!el) return;
+    el.classList.remove("pop");
+    // Force reflow so animation can retrigger
+    void el.offsetWidth;
+    el.classList.add("pop");
+  }
+
+  function updateFrame(t) {
+    if (!isPlaying) return;
+
+    if (!startTime) startTime = t;
+
+    const beatDuration = getBeatDurationMs();
     const barDuration = beatDuration * 4;
+    const elapsed = t - startTime;
 
-    const elapsed = time - startTime;
+    // Continuous playhead position (0..1)
     const position = (elapsed % barDuration) / barDuration;
 
-    playhead.style.left = `${position * 600}px`;
+    // Map position to sequencer width with same pads as dots
+    const width = sequencer.clientWidth;
+    const leftPad = width * 0.05;
+    const rightPad = width * 0.95;
+    const usable = rightPad - leftPad;
 
-    // Metronoom clicks
-    const beat = Math.floor((elapsed / beatDuration) % 4);
-    const prevBeat = Math.floor(((elapsed - 16) / beatDuration) % 4);
+    const x = leftPad + position * usable;
+    playhead.style.left = `${x}px`;
 
-    if (beat !== prevBeat) {
-      click(beat === 0);
+    // Metronome beats (0..3)
+    const beatIndex = Math.floor((elapsed / beatDuration) % 4);
+    if (beatIndex !== lastBeatIndex) {
+      click(beatIndex === 0);
+      lastBeatIndex = beatIndex;
     }
 
-    requestAnimationFrame(animate);
+    // Step popping (0..STEPS-1)
+    const stepIndex = Math.floor((elapsed / (barDuration / STEPS)) % STEPS);
+    if (stepIndex !== lastStepIndex) {
+      popStep(stepIndex);
+      lastStepIndex = stepIndex;
+    }
+
+    rafId = requestAnimationFrame(updateFrame);
   }
 
-  document.getElementById("start").onclick = () => {
-    audioCtx.resume();
-    startTime = null;
-    requestAnimationFrame(animate);
-  };
-</script>
+  function play() {
+    if (isPlaying) return;
+    isPlaying = true;
 
+    audioCtx.resume();
+
+    playBtn.disabled = true;
+    stopBtn.disabled = false;
+
+    startTime = null;
+    lastBeatIndex = -1;
+    lastStepIndex = -1;
+
+    rafId = requestAnimationFrame(updateFrame);
+  }
+
+  function stop() {
+    isPlaying = false;
+
+    playBtn.disabled = false;
+    stopBtn.disabled = true;
+
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+
+    // Reset playhead to start
+    const width = sequencer.clientWidth;
+    const leftPad = width * 0.05;
+    playhead.style.left = `${leftPad}px`;
+  }
+
+  // ===== UI wiring =====
+  bpmValue.textContent = bpm;
+
+  bpmSlider.addEventListener("input", (e) => {
+    const val = Number(e.target.value);
+    bpmValue.textContent = val;
+    setBpm(val);
+  });
+
+  playBtn.addEventListener("click", play);
+  stopBtn.addEventListener("click", stop);
+
+  // Start playhead at beginning
+  stop();
+</script>
 </body>
 </html>
