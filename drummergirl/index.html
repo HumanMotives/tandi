@@ -1,163 +1,197 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Drum Metronoom</title>
+<title>Drummer Girl</title>
 
 <style>
-  :root {
-    --w: min(1000px, 92vw);
-    --pad: 5%;
+  :root{
+    --w: min(1200px, 94vw);
+    --tan: #e7bc8c;
+    --card: #ffffff;
+    --ink: #111111;
+    --muted: rgba(0,0,0,0.55);
+    --line: #e7e7e7;
+    --shadow: 0 14px 40px rgba(0,0,0,0.08);
+
     --red: #ff3b30;
     --blue: #3a6bff;
-    --gray: #d9d9d9;
-    --text: #111;
+    --grayDot: #d9d9d9;
+
+    --pad: 5%;
   }
 
-  body {
-    margin: 0;
-    min-height: 100vh;
-    display: grid;
-    place-items: center;
-    background: #fafafa;
+  body{
+    margin:0;
+    min-height:100vh;
+    display:grid;
+    place-items:center;
+    background:#fafafa;
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    color: var(--text);
+    color:var(--ink);
   }
 
-  .app {
-    width: var(--w);
-    display: grid;
-    gap: 22px;
-    justify-items: center;
-    text-align: center;
-    padding: 34px 14px 44px;
+  .app{
+    width:var(--w);
+    display:grid;
+    gap:26px;
+    padding:28px 10px 40px;
   }
 
-  h1 {
-    margin: 0;
-    font-size: clamp(34px, 4.6vw, 56px);
-    font-weight: 900;
+  /* Top row like mock: logo left, control panel right */
+  .top{
+    display:grid;
+    grid-template-columns: 1fr 1.35fr;
+    gap:26px;
+    align-items:center;
+  }
+
+  .logoBox{
+    display:grid;
+    place-items:center;
+    min-height:220px;
+  }
+
+  .logoBox img{
+    max-width: 520px;
+    width: 100%;
+    height:auto;
+    object-fit:contain;
+  }
+
+  .panel{
+    background: var(--tan);
+    border-radius: 26px;
+    padding: 26px 26px;
+    box-shadow: var(--shadow);
+    display:grid;
+    gap:18px;
+  }
+
+  .panelRow{
+    display:grid;
+    grid-template-columns: 70px 120px 1fr 56px;
+    gap:16px;
+    align-items:center;
+  }
+
+  .icon{
+    width:56px;
+    height:56px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.35);
+    display:grid;
+    place-items:center;
+    font-size:30px;
+    user-select:none;
+  }
+
+  .labelBox{
+    text-align:left;
+    font-weight:900;
+    color: rgba(255,255,255,0.95);
+    line-height:1.05;
+  }
+
+  .labelBox .small{
+    display:block;
+    font-weight:900;
+    font-size:16px;
+    opacity:0.9;
+    margin-bottom:6px;
+  }
+  .labelBox .value{
+    display:block;
+    font-size:28px;
     letter-spacing: 0.2px;
   }
 
-  .buttons {
-    display: flex;
-    gap: 18px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  button {
-    font-size: clamp(18px, 2.4vw, 26px);
-    padding: 14px 28px;
-    border-radius: 18px;
-    border: 2px solid #111;
-    background: white;
-    cursor: pointer;
-    min-width: 170px;
-  }
-
-  button.primary { background: #111; color: white; }
-  button:disabled { opacity: 0.35; cursor: not-allowed; }
-
-  .label {
-    font-size: clamp(18px, 2.4vw, 28px);
-    font-weight: 900;
-  }
-
-  .sub {
-    font-size: clamp(14px, 1.9vw, 18px);
-    opacity: 0.7;
-  }
-
-  .sliderWrap {
-    width: 100%;
-    display: grid;
-    gap: 10px;
-    justify-items: center;
-  }
-
   input[type="range"]{
-    width: 100%;
-    height: 24px;
-    accent-color: #111;
-  }
-
-  .options {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    align-items: end;
-  }
-
-  .optionCard {
-    background: white;
-    border: 2px solid #eee;
-    border-radius: 18px;
-    padding: 14px 14px 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    text-align: left;
-  }
-
-  .optionCard h3{
-    margin: 0 0 10px 0;
-    font-size: clamp(16px, 2vw, 20px);
-    font-weight: 900;
-  }
-
-  select {
-    width: 100%;
-    font-size: 18px;
-    padding: 12px 12px;
-    border-radius: 14px;
-    border: 2px solid #ddd;
-    background: white;
-  }
-
-  .toggleRow {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .toggle {
-    display: inline-flex;
-    gap: 10px;
-    align-items: center;
-    font-weight: 800;
-    font-size: 16px;
-    user-select: none;
-  }
-
-  .toggle input {
-    width: 22px;
+    width:100%;
     height: 22px;
+    accent-color: rgba(255,255,255,0.95);
   }
 
-  .stage {
-    width: 100%;
-    display: grid;
+  .muteBtn{
+    width:56px;
+    height:56px;
+    border-radius: 16px;
+    border: 0;
+    background: rgba(255,255,255,0.35);
+    color: rgba(255,255,255,0.95);
+    cursor:pointer;
+    display:grid;
+    place-items:center;
+    font-size:24px;
+  }
+
+  .muteBtn:active{ transform: scale(0.98); }
+  .muteBtn.isMuted{
+    background: rgba(0,0,0,0.18);
+    color: rgba(255,255,255,0.95);
+  }
+
+  .panelActions{
+    display:flex;
+    gap:14px;
+    justify-content:flex-end;
+    padding-top:6px;
+  }
+
+  .btn{
+    border:0;
+    cursor:pointer;
+    font-weight:900;
+    padding: 14px 20px;
+    border-radius: 18px;
+    font-size:18px;
+    min-width: 120px;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+  }
+
+  .btn.play{
+    background:#111;
+    color:#fff;
+  }
+  .btn.stop{
+    background: rgba(255,255,255,0.75);
+    color:#111;
+  }
+  .btn:disabled{
+    opacity:0.55;
+    cursor:not-allowed;
+    box-shadow:none;
+  }
+
+  /* Sequencer like earlier, centered and big */
+  .stage{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:14px;
+    align-items:center;
+  }
+
+  .seqWrap{
+    display:grid;
     grid-template-columns: 1fr auto;
-    gap: 18px;
-    align-items: center;
+    gap:18px;
+    align-items:center;
   }
 
-  .sequencer {
-    position: relative;
-    width: 100%;
-    height: 170px;
-    background: white;
-    border: 2px solid #eaeaea;
-    border-radius: 22px;
-    box-shadow: 0 10px 34px rgba(0,0,0,0.06);
-    overflow: hidden;
+  .sequencer{
+    position:relative;
+    width:100%;
+    height: 180px;
+    background: var(--card);
+    border: 2px solid #ededed;
+    border-radius: 26px;
+    box-shadow: var(--shadow);
+    overflow:hidden;
   }
 
-  .line {
-    position: absolute;
+  .line{
+    position:absolute;
     left: var(--pad);
     right: var(--pad);
     top: 50%;
@@ -167,10 +201,10 @@
     border-radius: 999px;
   }
 
-  .playhead {
-    position: absolute;
-    top: 22px;
-    bottom: 22px;
+  .playhead{
+    position:absolute;
+    top: 24px;
+    bottom: 24px;
     width: 6px;
     border-radius: 999px;
     background: #111;
@@ -179,221 +213,263 @@
     box-shadow: 0 10px 22px rgba(0,0,0,0.18);
   }
 
-  .step {
-    position: absolute;
+  .step{
+    position:absolute;
     top: 50%;
     transform: translate(-50%, -50%);
     border-radius: 999px;
-    transition: transform 120ms ease;
   }
 
-  .step.inactive {
+  .step.inactive{
     width: 18px;
     height: 18px;
-    background: var(--gray);
-    box-shadow: none;
+    background: var(--grayDot);
   }
 
-  .step.active {
-    width: 40px;
-    height: 40px;
+  .step.active{
+    width: 44px;
+    height: 44px;
+    border: 3px solid #fff;
     box-shadow: 0 10px 22px rgba(0,0,0,0.12);
-    border: 3px solid white;
   }
 
-  .step.handR { background: var(--red); }
-  .step.handL { background: var(--blue); }
+  .step.handR{ background: var(--red); }
+  .step.handL{ background: var(--blue); }
 
-  .step.pop { animation: pop 170ms ease-out; }
+  .step.pop{ animation: pop 170ms ease-out; }
 
-  @keyframes pop {
-    0%   { transform: translate(-50%, -50%) scale(1); }
-    60%  { transform: translate(-50%, -50%) scale(1.35); }
-    100% { transform: translate(-50%, -50%) scale(1); }
+  @keyframes pop{
+    0%{ transform: translate(-50%, -50%) scale(1); }
+    60%{ transform: translate(-50%, -50%) scale(1.35); }
+    100%{ transform: translate(-50%, -50%) scale(1); }
   }
 
-  .multiplier {
-    width: clamp(86px, 10vw, 130px);
-    height: 170px;
-    border-radius: 22px;
-    background: #111;
-    color: white;
-    display: grid;
-    place-items: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.14);
+  .multiplier{
+    width: 140px;
+    height: 180px;
+    border-radius: 26px;
+    background:#111;
+    color:#fff;
+    display:grid;
+    place-items:center;
+    box-shadow: var(--shadow);
   }
-
-  .multiplier span {
-    font-size: clamp(32px, 4vw, 56px);
+  .multiplier span{
+    font-size: 56px;
     font-weight: 950;
     letter-spacing: 1px;
   }
 
-  .handRow {
+  /* Hand row (toggleable) */
+  .handRow{
     width: 100%;
-    display: grid;
+    display:grid;
     grid-template-columns: repeat(8, 1fr);
     gap: 12px;
-    align-items: center;
-    justify-items: center;
+    justify-items:center;
+    align-items:start;
     padding-top: 6px;
   }
 
-  .handCell {
-    min-height: 72px;
-    display: grid;
+  .handCell{
+    min-height: 76px;
+    display:grid;
     gap: 6px;
-    justify-items: center;
-    align-content: start;
+    justify-items:center;
+    align-content:start;
     font-weight: 900;
     font-size: 24px;
   }
 
-  .handCell .handIcon {
+  .handCell .handIcon{
     font-size: 34px;
-    line-height: 1;
+    line-height:1;
   }
 
-  .handCell.R { color: var(--red); }
-  .handCell.L { color: var(--blue); }
+  .handCell.R{ color: var(--red); }
+  .handCell.L{ color: var(--blue); }
 
-  .handCell.muted {
-    opacity: 0.0;
-    pointer-events: none;
+  .handCell.hidden{
+    opacity:0;
+    pointer-events:none;
   }
 
-  @media (max-width: 820px) {
-    .options { grid-template-columns: 1fr; }
-    .handRow { gap: 8px; }
+  .belowControls{
+    display:flex;
+    gap:14px;
+    justify-content:flex-end;
+    align-items:center;
+  }
+
+  .check{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    font-weight: 900;
+    color: var(--muted);
+    user-select:none;
+  }
+  .check input{ width:22px; height:22px; }
+
+  @media (max-width: 980px){
+    .top{ grid-template-columns: 1fr; }
+    .logoBox{ min-height: 160px; }
+    .panelRow{ grid-template-columns: 60px 120px 1fr 56px; }
+    .multiplier{ width: 120px; }
   }
 </style>
 </head>
 
 <body>
   <div class="app">
-    <h1>Drum Metronoom</h1>
 
-    <div class="buttons">
-      <button id="playBtn" class="primary">Play</button>
-      <button id="stopBtn" disabled>Stop</button>
-    </div>
-
-    <div class="label">Tempo: <span id="bpmValue">103</span> BPM</div>
-
-    <div class="sliderWrap">
-      <input id="bpmSlider" type="range" min="50" max="200" value="103" />
-      <div class="sub">Schuif langzamer of sneller</div>
-    </div>
-
-    <div class="options">
-      <div class="optionCard">
-        <h3>A) Ingebouwde figuren</h3>
-        <select id="patternSelect">
-          <option value="single8">Single strokes (8) RLRLRLRL</option>
-          <option value="doubles8">Doubles (8) RRLLRRLL</option>
-          <option value="paradiddle8">Paradiddle (8) RLRR LRLL</option>
-          <option value="quarters4">Kwartnoten (4) R L R L</option>
-          <option value="offbeats4">Offbeats (4) L op 2&4</option>
-        </select>
+    <div class="top">
+      <div class="logoBox">
+        <img src="/drummergirl/logo.jpg" alt="Drummer Girl Logo" />
       </div>
 
-      <div class="optionCard">
-        <div class="toggleRow">
-          <h3 style="margin:0;">B) Slider: meer/minder hits</h3>
-          <label class="toggle">
-            <input id="useSliderMode" type="checkbox" />
-            Slider mode
-          </label>
+      <div class="panel">
+        <!-- BPM -->
+        <div class="panelRow">
+          <div class="icon">🎵</div>
+          <div class="labelBox">
+            <span class="small">BPM:</span>
+            <span class="value" id="bpmValue">120</span>
+          </div>
+          <input id="bpmSlider" type="range" min="50" max="200" value="120" />
+          <button id="metroMuteBtn" class="muteBtn" title="Mute metronome">🔊</button>
         </div>
 
-        <div style="height:10px;"></div>
+        <!-- HITS -->
+        <div class="panelRow">
+          <div class="icon">🥁</div>
+          <div class="labelBox">
+            <span class="small">HITS:</span>
+            <span class="value"><span id="hitsValue">3</span>/<span>8</span></span>
+          </div>
+          <input id="hitsSlider" type="range" min="1" max="8" value="3" />
+          <button id="hitsMuteBtn" class="muteBtn" title="Mute hits">🔊</button>
+        </div>
 
-        <div class="label" style="font-size:20px;">Hits: <span id="hitsValue">4</span> / 8</div>
-        <input id="hitsSlider" type="range" min="1" max="8" value="4" />
-        <div class="sub">Verdeelt hits automatisch over de maat</div>
+        <!-- (Optional third row placeholder like your mock, kept minimal) -->
+        <div class="panelRow" style="opacity:0.85;">
+          <div class="icon">🧢</div>
+          <div class="labelBox">
+            <span class="small">HANDS:</span>
+            <span class="value" style="font-size:22px;">ON/OFF</span>
+          </div>
+          <input id="handsStrength" type="range" min="0" max="100" value="100" />
+          <button id="handsToggleBtn" class="muteBtn" title="Toggle hands row">👀</button>
+        </div>
 
-        <div style="height:10px;"></div>
-
-        <label class="toggle" style="justify-content:flex-start;">
-          <input id="showHandsToggle" type="checkbox" checked />
-          Handzetting tonen
-        </label>
+        <div class="panelActions">
+          <button id="playBtn" class="btn play">Play</button>
+          <button id="stopBtn" class="btn stop" disabled>Stop</button>
+        </div>
       </div>
     </div>
 
     <div class="stage">
-      <div>
-        <div class="sequencer" id="sequencer">
-          <div class="line"></div>
-          <div class="playhead" id="playhead"></div>
+      <div class="seqWrap">
+        <div>
+          <div class="sequencer" id="sequencer">
+            <div class="line"></div>
+            <div class="playhead" id="playhead"></div>
+          </div>
+
+          <div class="belowControls">
+            <label class="check">
+              <input id="showHands" type="checkbox" checked />
+              Show hands
+            </label>
+          </div>
+
+          <div class="handRow" id="handRow"></div>
         </div>
 
-        <div class="handRow" id="handRow"></div>
-      </div>
-
-      <div class="multiplier">
-        <span id="multiplierText">X0</span>
+        <div class="multiplier">
+          <span id="barText">X0</span>
+        </div>
       </div>
     </div>
+
   </div>
 
 <script>
-  // ===== Core =====
-  const STEPS = 8;
-  let bpm = 103;
+  // ===== Constants =====
+  const STEPS = 8;                 // 8 positions per bar (like your dots)
+  const BEAT_POS = [0, 0.25, 0.5, 0.75]; // quarter notes (1,2,3,4) in bar
 
   // ===== DOM =====
   const sequencer = document.getElementById("sequencer");
-  const playhead = document.getElementById("playhead");
+  const playhead  = document.getElementById("playhead");
+  const handRow   = document.getElementById("handRow");
+  const barText   = document.getElementById("barText");
+
+  const bpmSlider = document.getElementById("bpmSlider");
+  const bpmValue  = document.getElementById("bpmValue");
+
+  const hitsSlider = document.getElementById("hitsSlider");
+  const hitsValue  = document.getElementById("hitsValue");
+
   const playBtn = document.getElementById("playBtn");
   const stopBtn = document.getElementById("stopBtn");
 
-  const bpmSlider = document.getElementById("bpmSlider");
-  const bpmValue = document.getElementById("bpmValue");
+  const metroMuteBtn = document.getElementById("metroMuteBtn");
+  const hitsMuteBtn  = document.getElementById("hitsMuteBtn");
 
-  const patternSelect = document.getElementById("patternSelect");
-
-  const useSliderMode = document.getElementById("useSliderMode");
-  const hitsSlider = document.getElementById("hitsSlider");
-  const hitsValue = document.getElementById("hitsValue");
-
-  const showHandsToggle = document.getElementById("showHandsToggle");
-  const handRow = document.getElementById("handRow");
-
-  const multiplierText = document.getElementById("multiplierText");
+  const showHands = document.getElementById("showHands");
+  const handsToggleBtn = document.getElementById("handsToggleBtn");
+  const handsStrength = document.getElementById("handsStrength");
 
   // ===== Audio =====
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let metronomeMuted = false;
+  let hitsMuted = false;
 
-  // Metronome: "PIEP" (accent on beat 1)
-  function metroClick(accent = false) {
+  // Metronome tick: 8th grid audible.
+  // - Strong on step 0 (bar start)
+  // - Medium on quarter steps (0,2,4,6)
+  // - Soft on off-steps (1,3,5,7)
+  function metroTick(stepIndex){
+    if (metronomeMuted) return;
+
+    const accent = (stepIndex === 0);
+    const quarter = (stepIndex % 2 === 0); // 0,2,4,6
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
     osc.type = "square";
-    osc.frequency.value = accent ? 1400 : 900;
+
+    // pitch mapping to make it super obvious:
+    // accent highest, quarter medium, offbeat lower
+    const freq = accent ? 1400 : (quarter ? 950 : 650);
+    osc.frequency.value = freq;
 
     const now = audioCtx.currentTime;
-    // short beep envelope
+    const peak = accent ? 0.28 : (quarter ? 0.18 : 0.08); // offbeat is intentionally quiet
+
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(accent ? 0.35 : 0.22, now + 0.002);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(peak, now + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
 
     osc.connect(gain);
     gain.connect(audioCtx.destination);
 
     osc.start(now);
-    osc.stop(now + 0.06);
+    osc.stop(now + 0.055);
   }
 
-  // Hit sound: "tik" (separate from metronome), slightly different per hand
-  function hitTick(hand /* "R"|"L"|null */) {
+  // Hit sound: separate from metronome so you hear the figure
+  function hitTick(hand){
+    if (hitsMuted) return;
+
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
     osc.type = "triangle";
-    // small variation: R slightly higher than L
-    osc.frequency.value = hand === "R" ? 700 : 560;
+    // subtle hand difference (optional)
+    osc.frequency.value = hand === "R" ? 720 : 560;
 
     const now = audioCtx.currentTime;
     gain.gain.setValueAtTime(0.0001, now);
@@ -407,21 +483,19 @@
     osc.stop(now + 0.04);
   }
 
-  // ===== Patterns =====
-  const BUILT_IN = {
-    single8: { hits: [1,1,1,1,1,1,1,1], hands:[ "R","L","R","L","R","L","R","L" ] },
-    doubles8:{ hits: [1,1,1,1,1,1,1,1], hands:[ "R","R","L","L","R","R","L","L" ] },
-    paradiddle8:{ hits:[1,1,1,1,1,1,1,1], hands:[ "R","L","R","R","L","R","L","L" ] },
-    quarters4:{ hits: [1,0,1,0,1,0,1,0], hands:[ "R",null,"L",null,"R",null,"L",null ] },
-    offbeats4:{ hits: [0,0,1,0,0,0,1,0], hands:[ null,null,"L",null,null,null,"L",null ] }
-  };
+  function updateMuteButton(btn, muted){
+    btn.textContent = muted ? "🔇" : "🔊";
+    btn.classList.toggle("isMuted", muted);
+  }
 
+  // ===== Pattern generation (slider mode only) =====
   function euclidean(steps, pulses) {
     const pattern = new Array(steps).fill(0);
     for (let i = 0; i < steps; i++) {
       const v = Math.floor((i * pulses) / steps) !== Math.floor(((i - 1) * pulses) / steps);
       pattern[i] = v ? 1 : 0;
     }
+    // safety
     const count = pattern.reduce((a,b)=>a+b,0);
     if (count !== pulses) {
       pattern.fill(0);
@@ -430,7 +504,7 @@
     return pattern;
   }
 
-  function handsAlternateFromR(hitsArr) {
+  function handsAlternateFromR(hitsArr){
     const hands = new Array(STEPS).fill(null);
     let next = "R";
     for (let i=0;i<STEPS;i++){
@@ -442,29 +516,14 @@
     return hands;
   }
 
-  // ===== State for current bar config =====
+  // ===== Visual state =====
+  let stepEls = [];
+  let stepPos = [];     // normalized 0..1 positions for each step
   let currentHits = new Array(STEPS).fill(0);
   let currentHands = new Array(STEPS).fill(null);
 
-  function computeCurrentPattern() {
-    if (useSliderMode.checked) {
-      const pulses = Number(hitsSlider.value);
-      const hits = euclidean(STEPS, pulses);
-      const hands = handsAlternateFromR(hits);
-      return { hits, hands };
-    } else {
-      const key = patternSelect.value;
-      const p = BUILT_IN[key];
-      return { hits: p.hits.slice(), hands: p.hands.slice() };
-    }
-  }
-
-  // ===== Visual build =====
-  let stepEls = [];
-  let stepPos = []; // normalized positions 0..1
-  const beatPos = [0, 0.25, 0.5, 0.75]; // quarter beats
-
-  function buildSequencer() {
+  function buildSequencer(){
+    // keep line + playhead
     const keep = Array.from(sequencer.querySelectorAll(".line, .playhead"));
     sequencer.innerHTML = "";
     keep.forEach(el => sequencer.appendChild(el));
@@ -472,31 +531,30 @@
     stepEls = [];
     stepPos = [];
 
-    const { hits, hands } = computeCurrentPattern();
-    currentHits = hits;
-    currentHands = hands;
+    const pulses = Number(hitsSlider.value);
+    currentHits = euclidean(STEPS, pulses);
+    currentHands = handsAlternateFromR(currentHits);
 
     const width = sequencer.clientWidth;
     const leftPad = width * 0.05;
     const rightPad = width * 0.95;
     const usable = rightPad - leftPad;
 
-    for (let i = 0; i < STEPS; i++) {
-      const isActive = hits[i] === 1;
-      const hand = hands[i];
+    for (let i=0;i<STEPS;i++){
+      const isActive = currentHits[i] === 1;
+      const hand = currentHands[i];
 
       const step = document.createElement("div");
       step.classList.add("step");
 
-      if (isActive) {
+      if (isActive){
         step.classList.add("active");
-        if (hand === "R") step.classList.add("handR");
-        if (hand === "L") step.classList.add("handL");
+        step.classList.add(hand === "R" ? "handR" : "handL");
       } else {
         step.classList.add("inactive");
       }
 
-      const norm = i / STEPS;
+      const norm = i / STEPS; // 0..(steps-1)/steps
       stepPos.push(norm);
 
       const x = leftPad + norm * usable;
@@ -507,23 +565,24 @@
     }
 
     buildHandRow();
-
     playhead.style.left = `${leftPad}px`;
   }
 
-  function buildHandRow() {
+  function buildHandRow(){
     handRow.innerHTML = "";
-    const show = showHandsToggle.checked;
+    const show = showHands.checked;
 
     for (let i=0;i<STEPS;i++){
       const cell = document.createElement("div");
       cell.classList.add("handCell");
-      if (!show) cell.classList.add("muted");
+
+      if (!show) cell.classList.add("hidden");
 
       const isActive = currentHits[i] === 1;
       const h = currentHands[i];
 
-      if (!isActive || !h) {
+      if (!isActive || !h){
+        // keep spacing consistent
         cell.innerHTML = `<div style="height:24px;"></div><div style="height:34px;"></div>`;
       } else {
         cell.classList.add(h);
@@ -532,9 +591,13 @@
 
       handRow.appendChild(cell);
     }
+
+    // optional "strength" slider, just fades the row for now
+    const strength = Number(handsStrength.value) / 100;
+    handRow.style.opacity = show ? String(strength) : "0";
   }
 
-  function popStep(i) {
+  function popStep(i){
     const el = stepEls[i];
     if (!el) return;
     if (!el.classList.contains("active")) return;
@@ -544,17 +607,19 @@
     el.classList.add("pop");
   }
 
-  // ===== Pass-detection sync =====
-  function crossed(prev, curr, target) {
+  // ===== Sync helpers (no drift) =====
+  function crossed(prev, curr, target){
     if (prev === null) return false;
-    if (curr >= prev) {
+    if (curr >= prev){
       return target > prev && target <= curr;
     } else {
+      // wrap-around
       return (target > prev && target <= 1) || (target >= 0 && target <= curr);
     }
   }
 
   // ===== Playback =====
+  let bpm = Number(bpmSlider.value);
   let isPlaying = false;
   let rafId = null;
   let startPerf = null;
@@ -564,13 +629,9 @@
   function beatMs(){ return 60000 / bpm; }
   function barMs(){ return beatMs() * 4; }
 
-  function updateMultiplier() {
-    multiplierText.textContent = `X${barCount}`;
-  }
-
-  function setBpm(newBpm) {
+  function setBpm(newBpm){
     const now = performance.now();
-    if (isPlaying && startPerf !== null) {
+    if (isPlaying && startPerf !== null){
       const oldBar = barMs();
       const elapsed = now - startPerf;
       const phase = (elapsed % oldBar) / oldBar;
@@ -584,7 +645,22 @@
     }
   }
 
-  function frame(t) {
+  function updateBarText(){
+    barText.textContent = `X${barCount}`;
+  }
+
+  function resetPlaybackState(){
+    startPerf = null;
+    prevPos = null;
+    barCount = 0;
+    updateBarText();
+
+    const width = sequencer.clientWidth;
+    const leftPad = width * 0.05;
+    playhead.style.left = `${leftPad}px`;
+  }
+
+  function frame(t){
     if (!isPlaying) return;
     if (startPerf === null) startPerf = t;
 
@@ -600,24 +676,20 @@
     playhead.style.left = `${leftPad + pos * usable}px`;
 
     // bar wrap
-    if (prevPos !== null && pos < prevPos) {
+    if (prevPos !== null && pos < prevPos){
       barCount += 1;
-      updateMultiplier();
+      updateBarText();
     }
 
-    // metronome clicks (quarter notes)
-    for (let b = 0; b < beatPos.length; b++) {
-      if (crossed(prevPos, pos, beatPos[b])) {
-        metroClick(b === 0);
-      }
-    }
+    // 8-step metronome (THIS fixes your confusion with 3 hits)
+    for (let i=0;i<stepPos.length;i++){
+      if (crossed(prevPos, pos, stepPos[i])){
+        metroTick(i);
 
-    // active hit ticks + pop (exactly on passing)
-    for (let i = 0; i < stepPos.length; i++) {
-      if (crossed(prevPos, pos, stepPos[i])) {
-        if (currentHits[i] === 1) {
+        // hits (figure) on active steps
+        if (currentHits[i] === 1){
           popStep(i);
-          hitTick(currentHands[i]); // sound for the figure
+          hitTick(currentHands[i]);
         }
       }
     }
@@ -626,25 +698,20 @@
     rafId = requestAnimationFrame(frame);
   }
 
-  function play() {
+  async function play(){
     if (isPlaying) return;
     isPlaying = true;
 
-    audioCtx.resume();
+    await audioCtx.resume();
 
     playBtn.disabled = true;
     stopBtn.disabled = false;
 
-    // restart counter at zero each time you hit play
-    startPerf = null;
-    prevPos = null;
-    barCount = 0;
-    updateMultiplier();
-
+    resetPlaybackState();
     rafId = requestAnimationFrame(frame);
   }
 
-  function stop() {
+  function stop(){
     isPlaying = false;
 
     playBtn.disabled = false;
@@ -653,56 +720,50 @@
     if (rafId) cancelAnimationFrame(rafId);
     rafId = null;
 
-    startPerf = null;
-    prevPos = null;
-
-    // Reset bar counter to zero on stop
-    barCount = 0;
-    updateMultiplier();
-
-    // reset playhead
-    const width = sequencer.clientWidth;
-    const leftPad = width * 0.05;
-    playhead.style.left = `${leftPad}px`;
+    // important: stop resets bar counter to zero
+    resetPlaybackState();
   }
 
-  // ===== UI Wiring =====
+  // ===== UI wiring =====
   bpmValue.textContent = bpmSlider.value;
-  bpm = Number(bpmSlider.value);
-
   hitsValue.textContent = hitsSlider.value;
 
-  bpmSlider.addEventListener("input", (e) => {
+  bpmSlider.addEventListener("input", (e)=>{
     const val = Number(e.target.value);
-    bpmValue.textContent = val;
+    bpmValue.textContent = String(val);
     setBpm(val);
+  });
+
+  hitsSlider.addEventListener("input", (e)=>{
+    hitsValue.textContent = e.target.value;
+    buildSequencer();
   });
 
   playBtn.addEventListener("click", play);
   stopBtn.addEventListener("click", stop);
 
-  patternSelect.addEventListener("change", () => {
-    if (!useSliderMode.checked) {
-      buildSequencer();
-    }
+  metroMuteBtn.addEventListener("click", ()=>{
+    metronomeMuted = !metronomeMuted;
+    updateMuteButton(metroMuteBtn, metronomeMuted);
   });
 
-  useSliderMode.addEventListener("change", () => {
-    buildSequencer();
+  hitsMuteBtn.addEventListener("click", ()=>{
+    hitsMuted = !hitsMuted;
+    updateMuteButton(hitsMuteBtn, hitsMuted);
   });
 
-  hitsSlider.addEventListener("input", (e) => {
-    hitsValue.textContent = e.target.value;
-    if (useSliderMode.checked) buildSequencer();
-  });
-
-  showHandsToggle.addEventListener("change", () => {
+  showHands.addEventListener("change", buildHandRow);
+  handsToggleBtn.addEventListener("click", ()=>{
+    showHands.checked = !showHands.checked;
     buildHandRow();
   });
+  handsStrength.addEventListener("input", buildHandRow);
 
-  window.addEventListener("resize", () => buildSequencer());
+  window.addEventListener("resize", buildSequencer);
 
-  // Init
+  // init
+  updateMuteButton(metroMuteBtn, metronomeMuted);
+  updateMuteButton(hitsMuteBtn, hitsMuted);
   buildSequencer();
   stop();
 </script>
