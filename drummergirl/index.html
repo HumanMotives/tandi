@@ -13,7 +13,6 @@
     --card: #ffffff;
     --ink: #111111;
     --muted: rgba(0,0,0,0.55);
-    --line: #e7e7e7;
     --shadow: 0 14px 40px rgba(0,0,0,0.08);
 
     --red: #ff3b30;
@@ -160,7 +159,6 @@
     box-shadow:none;
   }
 
-  /* star row under panel */
   .rewardLane{
     display:flex;
     align-items:center;
@@ -192,7 +190,7 @@
     display:grid;
     grid-template-columns: 1fr auto;
     gap:18px;
-    align-items:center; /* important: vertically align counter with bar */
+    align-items:center;
   }
 
   .sequencer{
@@ -217,16 +215,9 @@
     border-radius: 999px;
   }
 
+  /* ✅ hide the sliding playhead */
   .playhead{
-    position:absolute;
-    top: 24px;
-    bottom: 24px;
-    width: 6px;
-    border-radius: 999px;
-    background: #111;
-    transform: translateX(-50%);
-    left: var(--pad);
-    box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+    display:none;
   }
 
   .step{
@@ -258,6 +249,17 @@
     0%{ transform: translate(-50%, -50%) scale(1); }
     60%{ transform: translate(-50%, -50%) scale(1.35); }
     100%{ transform: translate(-50%, -50%) scale(1); }
+  }
+
+  /* ✅ NEW: current-step highlight ring (works for active and inactive) */
+  .step.current{
+    box-shadow:
+      0 0 0 6px rgba(0,0,0,0.10),
+      0 14px 26px rgba(0,0,0,0.10);
+  }
+  .step.inactive.current{
+    box-shadow:
+      0 0 0 6px rgba(0,0,0,0.10);
   }
 
   .multiplierWrap{
@@ -304,7 +306,6 @@
     100%{ transform: scale(1); }
   }
 
-  /* Particle layer */
   .sparkleLayer{
     position:absolute;
     inset:0;
@@ -329,7 +330,6 @@
     100% { opacity:0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.25); }
   }
 
-  /* Hands row (no checkbox now) */
   .handRow{
     width: 100%;
     display:grid;
@@ -382,7 +382,6 @@
 
       <div>
         <div class="panel">
-          <!-- BPM -->
           <div class="panelRow">
             <div class="icon">🎵</div>
             <div class="labelBox">
@@ -393,7 +392,6 @@
             <button id="metroMuteBtn" class="muteBtn" title="Mute metronome">🔊</button>
           </div>
 
-          <!-- HITS -->
           <div class="panelRow">
             <div class="icon">🥁</div>
             <div class="labelBox">
@@ -404,7 +402,6 @@
             <button id="hitsMuteBtn" class="muteBtn" title="Mute hits">🔊</button>
           </div>
 
-          <!-- HANDS TOGGLE ROW (cap replaced with hand icon) -->
           <div class="panelRow" style="opacity:0.9;">
             <div class="icon">✋</div>
             <div class="labelBox">
@@ -421,7 +418,6 @@
           </div>
         </div>
 
-        <!-- Star reward lane placeholder under the tan panel -->
         <div class="rewardLane" aria-label="Reward lane">
           <div class="star">⭐</div>
           <div class="text">Practice Stars</div>
@@ -452,12 +448,10 @@
   </div>
 
 <script>
-  // ===== Constants =====
   const STEPS = 8;
 
-  // ===== DOM =====
   const sequencer = document.getElementById("sequencer");
-  const playhead  = document.getElementById("playhead");
+  const playhead  = document.getElementById("playhead"); // hidden now
   const handRow   = document.getElementById("handRow");
 
   const multiplier = document.getElementById("multiplier");
@@ -479,26 +473,20 @@
   const handsToggleBtn = document.getElementById("handsToggleBtn");
   const handsStrength = document.getElementById("handsStrength");
 
-  // ===== Audio =====
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   let metronomeMuted = false;
   let hitsMuted = false;
 
-  // Only the FIRST metronome note alternates pitch (bar start).
-  // All other metronome dots: same soft pitch, regardless of step type or active note.
   let barStartFlip = false;
 
   function metroTick(stepIndex){
     if (metronomeMuted) return;
 
     const isBarStart = (stepIndex === 0);
-
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = "square";
 
-    // Bar start alternates between two high pitches.
-    // All other steps use one fixed softer pitch.
     const barStartFreqA = 1600;
     const barStartFreqB = 1900;
     const softFreq = 850;
@@ -507,8 +495,7 @@
     osc.frequency.value = freq;
 
     const now = audioCtx.currentTime;
-
-    const peak = isBarStart ? 0.22 : 0.07; // bar start louder, others soft
+    const peak = isBarStart ? 0.22 : 0.07;
     const dur = isBarStart ? 0.055 : 0.040;
 
     gain.gain.setValueAtTime(0.0001, now);
@@ -522,7 +509,6 @@
     osc.stop(now + dur + 0.01);
   }
 
-  // Active hit sound: fixed pitch (no alternation).
   function hitTick(){
     if (hitsMuted) return;
 
@@ -549,7 +535,6 @@
     btn.classList.toggle("isMuted", muted);
   }
 
-  // ===== Pattern generation (slider mode only) =====
   function euclidean(steps, pulses) {
     const pattern = new Array(steps).fill(0);
     for (let i = 0; i < steps; i++) {
@@ -576,11 +561,13 @@
     return hands;
   }
 
-  // ===== Visual state =====
   let stepEls = [];
   let stepPos = [];
   let currentHits = new Array(STEPS).fill(0);
   let currentHands = new Array(STEPS).fill(null);
+
+  // ✅ NEW: track which step is currently "selected"
+  let currentStepIndex = -1;
 
   function buildSequencer(){
     const keep = Array.from(sequencer.querySelectorAll(".line, .playhead"));
@@ -624,7 +611,7 @@
     }
 
     buildHandRow();
-    playhead.style.left = `${leftPad}px`;
+    setCurrentStep(-1); // reset highlight
   }
 
   function buildHandRow(){
@@ -647,12 +634,13 @@
       handRow.appendChild(cell);
     }
 
-    // Fade by "strength"
     const strength = Number(handsStrength.value) / 100;
     handRow.style.opacity = String(strength);
   }
 
+  let handsVisible = true;
   function setHandsVisible(visible){
+    handsVisible = visible;
     handRow.classList.toggle("hidden", !visible);
   }
 
@@ -666,7 +654,17 @@
     el.classList.add("pop");
   }
 
-  // ===== Sync helpers (no drift) =====
+  // ✅ NEW: jump highlight to a specific step
+  function setCurrentStep(i){
+    if (currentStepIndex >= 0 && stepEls[currentStepIndex]) {
+      stepEls[currentStepIndex].classList.remove("current");
+    }
+    currentStepIndex = i;
+    if (currentStepIndex >= 0 && stepEls[currentStepIndex]) {
+      stepEls[currentStepIndex].classList.add("current");
+    }
+  }
+
   function crossed(prev, curr, target){
     if (prev === null) return false;
     if (curr >= prev){
@@ -676,7 +674,6 @@
     }
   }
 
-  // ===== Playback =====
   let bpm = Number(bpmSlider.value);
   let isPlaying = false;
   let rafId = null;
@@ -684,10 +681,8 @@
   let prevPos = null;
   let barCount = 0;
 
-  // Count-in control
   let countInActive = false;
   let countInTimers = [];
-  let handsVisible = true;
 
   function beatMs(){ return 60000 / bpm; }
   function barMs(){ return beatMs() * 4; }
@@ -717,10 +712,7 @@
     prevPos = null;
     barCount = 0;
     updateBarText();
-
-    const width = sequencer.clientWidth;
-    const leftPad = width * 0.05;
-    playhead.style.left = `${leftPad}px`;
+    setCurrentStep(-1);
   }
 
   function clearCountIn(){
@@ -730,9 +722,7 @@
   }
 
   async function runCountIn(){
-    // 4-dot count-in on quarters: step indices 0,2,4,6
     countInActive = true;
-
     const ms = beatMs();
     const quarterSteps = [0, 2, 4, 6];
 
@@ -741,25 +731,12 @@
       const schedule = () => {
         if (!countInActive) return resolve();
 
-        const stepIndex = quarterSteps[n];
-
-        // Metronome on count-in: treat first click like bar-start accent, rest soft
         const isFirst = (n === 0);
-        if (isFirst) {
-          // use bar start pitch behavior
-          metroTick(0);
-        } else {
-          // soft ticks (same pitch)
-          metroTick(1);
-        }
-
-        // Optional: tiny visual hint by briefly popping the step dot (if it exists and is active)
-        // We won't force visual changes beyond what you asked.
-        // (leave it minimal)
+        if (isFirst) metroTick(0);
+        else metroTick(1);
 
         n += 1;
         if (n >= 4) {
-          // finish after last click
           const doneId = setTimeout(() => {
             countInActive = false;
             resolve();
@@ -777,12 +754,10 @@
   }
 
   function sparkleBurst(){
-    // pulse the counter
     multiplier.classList.remove("sparklePulse");
     void multiplier.offsetWidth;
     multiplier.classList.add("sparklePulse");
 
-    // emoji particles
     const count = 18;
     for (let i=0;i<count;i++){
       const s = document.createElement("div");
@@ -799,11 +774,7 @@
       s.style.fontSize = (18 + Math.random()*14).toFixed(0) + "px";
 
       sparkleLayer.appendChild(s);
-
-      // cleanup
-      setTimeout(() => {
-        s.remove();
-      }, 1000);
+      setTimeout(() => s.remove(), 1000);
     }
   }
 
@@ -815,33 +786,23 @@
     const elapsed = t - startPerf;
     const pos = (elapsed % bMs) / bMs;
 
-    // move playhead
-    const width = sequencer.clientWidth;
-    const leftPad = width * 0.05;
-    const rightPad = width * 0.95;
-    const usable = rightPad - leftPad;
-    playhead.style.left = `${leftPad + pos * usable}px`;
+    // ✅ No sliding playhead update anymore.
 
-    // bar wrap: when we complete a bar, increment, flip bar-start pitch, sparkle every 8
+    // bar wrap
     if (prevPos !== null && pos < prevPos){
       barCount += 1;
       updateBarText();
-
-      // alternate the FIRST metronome note pitch each bar
       barStartFlip = !barStartFlip;
 
-      if (barCount % 8 === 0) {
-        sparkleBurst();
-      }
+      if (barCount % 8 === 0) sparkleBurst();
     }
 
-    // 8-step metronome + hits
+    // ✅ Jump the current-step highlight on each metronome dot crossing.
     for (let i=0;i<stepPos.length;i++){
       if (crossed(prevPos, pos, stepPos[i])){
-        // Always metronome tick on each dot:
+        setCurrentStep(i);      // <-- the key change
         metroTick(i);
 
-        // Hits on active steps:
         if (currentHits[i] === 1){
           popStep(i);
           hitTick();
@@ -863,74 +824,3 @@
     stopBtn.disabled = false;
 
     resetPlaybackState();
-    clearCountIn();
-
-    // Count-in only when starting playback (after Stop or first run)
-    await runCountIn();
-    if (!isPlaying) return; // stop might have been pressed during count-in
-
-    // Start loop
-    rafId = requestAnimationFrame(frame);
-  }
-
-  function stop(){
-    // If stop during count-in, cancel it cleanly
-    clearCountIn();
-
-    isPlaying = false;
-
-    playBtn.disabled = false;
-    stopBtn.disabled = true;
-
-    if (rafId) cancelAnimationFrame(rafId);
-    rafId = null;
-
-    resetPlaybackState();
-  }
-
-  // ===== UI wiring =====
-  bpmValue.textContent = bpmSlider.value;
-  hitsValue.textContent = hitsSlider.value;
-
-  bpmSlider.addEventListener("input", (e)=>{
-    const val = Number(e.target.value);
-    bpmValue.textContent = String(val);
-    setBpm(val);
-  });
-
-  hitsSlider.addEventListener("input", (e)=>{
-    hitsValue.textContent = e.target.value;
-    buildSequencer();
-  });
-
-  playBtn.addEventListener("click", play);
-  stopBtn.addEventListener("click", stop);
-
-  metroMuteBtn.addEventListener("click", ()=>{
-    metronomeMuted = !metronomeMuted;
-    updateMuteButton(metroMuteBtn, metronomeMuted);
-  });
-
-  hitsMuteBtn.addEventListener("click", ()=>{
-    hitsMuted = !hitsMuted;
-    updateMuteButton(hitsMuteBtn, hitsMuted);
-  });
-
-  handsToggleBtn.addEventListener("click", ()=>{
-    handsVisible = !handsVisible;
-    setHandsVisible(handsVisible);
-  });
-
-  handsStrength.addEventListener("input", buildHandRow);
-
-  window.addEventListener("resize", buildSequencer);
-
-  // init
-  updateMuteButton(metroMuteBtn, metronomeMuted);
-  updateMuteButton(hitsMuteBtn, hitsMuted);
-  setHandsVisible(true);
-  buildSequencer();
-  stop();
-</script>
-</body>
-</html>
