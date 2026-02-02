@@ -185,7 +185,6 @@
     align-items:center;
   }
 
-  /* IMPORTANT: Align right counter with sequencer row only */
   .seqWrap{
     display:grid;
     grid-template-columns: 1fr auto;
@@ -220,8 +219,6 @@
     background: #e6e6e6;
     border-radius: 999px;
   }
-
-  .playhead{ display:none; }
 
   .step{
     position:absolute;
@@ -264,7 +261,6 @@
       0 0 0 6px rgba(0,0,0,0.10);
   }
 
-  /* Right counter sticks to the sequencer row */
   .multiplierWrap{
     position: relative;
     width: 140px;
@@ -400,9 +396,10 @@
             <div class="icon">🥁</div>
             <div class="labelBox">
               <span class="small">HITS:</span>
-              <span class="value"><span id="hitsValue">3</span>/<span>8</span></span>
+              <span class="value"><span id="hitsValue">4</span>/<span>8</span></span>
             </div>
-            <input id="hitsSlider" type="range" min="1" max="8" value="3" />
+            <!-- ✅ default to 4 -->
+            <input id="hitsSlider" type="range" min="1" max="8" value="4" />
             <button id="hitsMuteBtn" class="muteBtn" title="Mute hits">🔊</button>
           </div>
 
@@ -435,9 +432,8 @@
         <div class="leftStack">
           <div class="sequencer" id="sequencer">
             <div class="line"></div>
-            <div class="playhead" id="playhead"></div>
           </div>
-          <div class="handRow" id="handRow"></div>
+          <div class="handRow hidden" id="handRow"></div>
         </div>
 
         <div class="multiplierWrap">
@@ -481,10 +477,8 @@
   let metronomeMuted = false;
   let hitsMuted = false;
 
-  // Only bar-start alternates pitch each bar
   let barStartFlip = false;
 
-  // FORCE allows count-in even when metronome is muted
   function metroTick(stepIndex, force=false){
     if (metronomeMuted && !force) return;
 
@@ -659,7 +653,7 @@
     handRow.style.opacity = String(strength);
   }
 
-  let handsVisible = true;
+  let handsVisible = false; // ✅ default off
   function setHandsVisible(visible){
     handsVisible = visible;
     handRow.classList.toggle("hidden", !visible);
@@ -705,7 +699,7 @@
 
   function beatMs(){ return 60000 / bpm; }
   function barMs(){ return beatMs() * 4; }
-  function stepDurMs(){ return barMs() / STEPS; } // 8th notes by default
+  function stepDurMs(){ return barMs() / STEPS; }
 
   function updateBarText(){
     barText.textContent = `X${barCount}`;
@@ -736,8 +730,8 @@
         if (!countInActive) return resolve();
 
         const isFirst = (n === 0);
-        if (isFirst) metroTick(0, true);   // high accent
-        else metroTick(1, true);           // soft tick
+        if (isFirst) metroTick(0, true);
+        else metroTick(1, true);
 
         n += 1;
 
@@ -745,7 +739,7 @@
           const doneId = setTimeout(() => {
             countInActive = false;
             resolve();
-          }, Math.max(0, ms * 0.25));
+          }, Math.max(0, ms * 0.20));
           countInTimers.push(doneId);
           return;
         }
@@ -764,7 +758,6 @@
     // Metronome tick on every dot (unless muted)
     metroTick(stepIndex, false);
 
-    // Hit sound and pop only on active steps
     if (currentHits[stepIndex] === 1){
       popStep(stepIndex);
       hitTick();
@@ -773,20 +766,16 @@
 
   function frame(t){
     if (!isPlaying) return;
-
     if (startPerf === null) startPerf = t;
 
     const elapsed = t - startPerf;
     const sDur = stepDurMs();
-
     const stepCount = Math.floor(elapsed / sDur);
 
-    // Catch up if we missed steps
     if (stepCount > lastStepCount){
       for (let sc = lastStepCount + 1; sc <= stepCount; sc++){
         const stepIndex = ((sc % STEPS) + STEPS) % STEPS;
 
-        // Bar wrap: every STEPS steps
         if (sc > 0 && sc % STEPS === 0){
           barCount += 1;
           updateBarText();
@@ -807,7 +796,6 @@
   function setBpm(newBpm){
     const now = performance.now();
 
-    // Keep phase if already playing
     if (isPlaying && startPerf !== null){
       const oldStep = stepDurMs();
       const elapsed = now - startPerf;
@@ -818,11 +806,15 @@
       const newStep = stepDurMs();
       startPerf = now - phase * newStep;
 
-      // Recompute lastStepCount so we do not burst-trigger
       lastStepCount = Math.floor((now - startPerf) / newStep);
     } else {
       bpm = newBpm;
     }
+  }
+
+  // ✅ helper: wait exactly some ms without drifting
+  function sleep(ms){
+    return new Promise(res => setTimeout(res, ms));
   }
 
   async function play(){
@@ -841,11 +833,17 @@
     await runCountIn();
     if (!isPlaying) return;
 
-    // Start groove exactly at step 0, with the high beep present
+    // ✅ CRITICAL TIMING FIX:
+    // After 4 quarter notes, wait exactly one more quarter duration,
+    // then start the groove on the next downbeat.
+    await sleep(beatMs());
+    if (!isPlaying) return;
+
+    // Start groove
     startPerf = performance.now();
     lastStepCount = -1;
 
-    // Force an immediate step 0 trigger so it never feels skipped
+    // Trigger step 0 exactly on this new downbeat
     triggerStep(0);
     lastStepCount = 0;
 
@@ -904,7 +902,10 @@
   // init
   updateMuteButton(metroMuteBtn, metronomeMuted);
   updateMuteButton(hitsMuteBtn, hitsMuted);
-  setHandsVisible(true);
+
+  // ✅ hands off by default
+  setHandsVisible(false);
+
   buildSequencer();
   stop();
 </script>
