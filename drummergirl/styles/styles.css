@@ -302,3 +302,258 @@ a{ color: inherit; }
   .tileGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .brandMark{ width:54px; height:54px; }
 }
+
+/* ===========================
+   CHAT / INTRO SCREEN (Academy)
+   Paste at bottom of styles.css
+   =========================== */
+
+.chatScreen {
+  position: relative;
+  min-height: 520px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 12px;
+  overflow: hidden;
+}
+
+/* Header */
+.chatHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 10px 0;
+}
+
+.chatHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chatHeaderBadge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.88);
+  border: 3px solid rgba(27,27,31,0.85);
+  box-shadow: 0 10px 0 rgba(27,27,31,0.12);
+}
+
+.chatHeaderBadge img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(27,27,31,0.85);
+  background: #fff;
+}
+
+.chatHeaderBadge .meta {
+  display: grid;
+  gap: 2px;
+  line-height: 1.05;
+}
+
+.chatHeaderBadge .meta strong {
+  font-weight: 950;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+
+.chatHeaderBadge .meta span {
+  font-weight: 900;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.chatHeaderRight {
+  display: flex;
+  gap: 10px;
+}
+
+/* Chat body */
+.chatBody {
+  position: relative;
+  padding: 12px 12px 6px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Subtle dot-raster background in the chat area */
+.chatBody::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity: 0.9;
+  background-image: radial-gradient(circle, rgba(27,27,31,0.09) 2px, transparent 2.2px);
+  background-size: 16px 16px;
+  background-position: 10px 12px;
+  mix-blend-mode: multiply;
+}
+
+/* Bubbles wrapper ensures they sit above raster */
+.chatBody > * {
+  position: relative;
+  z-index: 1;
+}
+
+.bubbleRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* Teacher avatar floating next to bubbles */
+.bubbleAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 22px;
+  border: 4px solid rgba(27,27,31,0.9);
+  background: #fff;
+  box-shadow: 0 12px 0 rgba(27,27,31,0.12), 0 20px 34px rgba(27,27,31,0.10);
+  overflow: hidden;
+  flex: 0 0 auto;
+  transform: rotate(-2deg);
+}
+
+.bubbleAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Bubble */
+.bubble {
+  max-width: min(520px, 76%);
+  padding: 14px 16px;
+  border-radius: 22px;
+  border: 4px solid rgba(27,27,31,0.9);
+  box-shadow: 0 12px 0 rgba(27,27,31,0.12), 0 18px 34px rgba(27,27,31,0.10);
+  font-weight: 850;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0.1px;
+  position: relative;
+  animation: bubblePop 220ms ease-out;
+}
+
+/* Gloss highlight */
+.bubble::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius: 18px;
+  background: radial-gradient(circle at 18% 12%, rgba(255,255,255,0.55), transparent 55%);
+  pointer-events:none;
+}
+
+/* Teacher bubble styling */
+.bubble.teacher {
+  background: linear-gradient(180deg, #ffffff 0%, #f6f6ff 100%);
+}
+
+/* Player bubble styling */
+.bubble.player {
+  margin-left: auto;
+  background: linear-gradient(180deg, #fff2fb 0%, #ffe9f5 100%);
+}
+
+/* Special: Professor Octo bubble */
+.bubble.professor {
+  background: linear-gradient(135deg, rgba(255,122,24,0.22), rgba(255,45,149,0.22), rgba(123,97,255,0.22));
+}
+
+/* Bubble tail */
+.bubbleTail {
+  position:absolute;
+  width: 18px;
+  height: 18px;
+  left: -10px;
+  bottom: 14px;
+  background: inherit;
+  border-left: 4px solid rgba(27,27,31,0.9);
+  border-bottom: 4px solid rgba(27,27,31,0.9);
+  transform: rotate(45deg);
+  border-bottom-left-radius: 6px;
+}
+
+.bubble.player .bubbleTail {
+  left: auto;
+  right: -10px;
+  border-left: none;
+  border-bottom: 4px solid rgba(27,27,31,0.9);
+  border-right: 4px solid rgba(27,27,31,0.9);
+  transform: rotate(-45deg);
+}
+
+@keyframes bubblePop {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Typing indicator bubble */
+.typingBubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 22px;
+  border: 4px solid rgba(27,27,31,0.9);
+  background: #fff;
+  box-shadow: 0 12px 0 rgba(27,27,31,0.12), 0 18px 34px rgba(27,27,31,0.10);
+  width: fit-content;
+}
+
+.typingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(27,27,31,0.55);
+  animation: typing 1.2s infinite;
+}
+
+.typingDot:nth-child(2){ animation-delay: 0.16s; }
+.typingDot:nth-child(3){ animation-delay: 0.32s; }
+
+@keyframes typing {
+  0% { transform: translateY(0); opacity: 0.4; }
+  20% { transform: translateY(-3px); opacity: 1; }
+  40% { transform: translateY(0); opacity: 0.6; }
+  100% { transform: translateY(0); opacity: 0.4; }
+}
+
+/* Footer controls */
+.chatFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px 12px;
+}
+
+.chatFooterLeft {
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(27,27,31,0.65);
+}
+
+.chatFooterRight {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Mobile ergonomics */
+@media (max-width: 560px) {
+  .bubbleAvatar { width: 54px; height: 54px; border-radius: 20px; }
+  .bubble { font-size: 15px; }
+  .chatScreen { min-height: 540px; }
+}
+
