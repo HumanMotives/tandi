@@ -82,6 +82,35 @@ function render(route, force = false) {
 
   // fallback
   window.location.hash = "#map";
+
+  if (route === "intro") {
+  const screen = mountChatIntro({
+    container: wrapper,
+    title: "Rhythm Academy",
+    subtitle: "Level 1 • The Beat Awakens",
+    teacherName: "Teacher",
+    teacherAvatarSrc: "./assets/img/drumteacher_01.png",
+    professorName: "Professor Octo",
+    professorAvatarSrc: "./assets/img/professor_octo.png",
+    script: [
+      { from: "professor", text: "Welkom bij de Rhythm Academy! 🐙" },
+      { from: "teacher", text: "Hey! Ik ben jouw drumteacher 😄" },
+      { from: "teacher", text: "Vandaag leren we de BIG beats. Dat zijn er 4." },
+      { from: "teacher", text: "Als je wil, doen we straks Showtime met muziek als beloning 🎶" }
+    ],
+    onDone: () => {
+      // later: go to practice screen
+      window.location.hash = "#map";
+    },
+    onSkip: () => {
+      // optional analytics later
+    }
+  });
+  screen.route = "intro";
+  currentScreen = screen;
+  return;
+}
+
 }
 
 boot();
