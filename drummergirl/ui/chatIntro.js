@@ -1,181 +1,136 @@
+// ui/chatIntro.js
 export function mountChatIntro({
   container,
-  title = "Academy Intro",
-  subtitle = "One tiny step at a time",
-  teacherName = "Drum Teacher",
-  teacherAvatarSrc = "./assets/img/drumteacher_01.png",
+  title = "Drum School",
+  subtitle = "",
   professorName = "Professor Octo",
   professorAvatarSrc = "./assets/img/professor_octo.png",
+  teacherName = "Teacher",
+  teacherAvatarSrc = "./assets/img/drumteacher_01.png",
   script = [],
+  autoAdvanceMs = 5000,
   onDone,
   onSkip
 } = {}) {
-  const el = document.createElement("div");
-  el.className = "screen dots";
+  const root = document.createElement("div");
+  root.className = "introScreen";
 
-  el.innerHTML = `
-    <div class="chatScreen">
-      <div class="chatHeader">
-        <div class="chatHeaderLeft">
-          <div class="chatHeaderBadge">
-            <img src="${escapeAttr(professorAvatarSrc)}" alt="${escapeAttr(professorName)}" />
-            <div class="meta">
-              <strong>${escapeHtml(title)}</strong>
-              <span>${escapeHtml(subtitle)}</span>
-            </div>
-          </div>
-        </div>
-        <div class="chatHeaderRight">
-          <button class="btn ghost" id="skipBtn">Skip</button>
-        </div>
+  // Convert to internal script items with speaker resolution
+  const lines = (script || []).map((s) => {
+    const from = (s.from || "professor").toLowerCase();
+    const isProf = from === "professor";
+    return {
+      from,
+      speakerName: isProf ? professorName : teacherName,
+      avatarSrc: isProf ? professorAvatarSrc : teacherAvatarSrc,
+      text: String(s.text || "")
+    };
+  });
+
+  let index = 0;
+  let timer = null;
+
+  root.innerHTML = `
+    <div class="introTop">
+      <div class="introTitle">${escapeHtml(title)} <span class="introSub">${escapeHtml(subtitle)}</span></div>
+      <button class="btn ghost introSkip" type="button">Skip</button>
+    </div>
+
+    <div class="introStage" id="introStage">
+      <div class="introCharacterWrap">
+        <img class="introCharacter" id="introCharacter" src="${escapeAttr(professorAvatarSrc)}" alt="">
       </div>
 
-      <div class="chatBody" id="chatBody"></div>
+      <div class="introBubble">
+        <div class="introBubbleName" id="introName">${escapeHtml(professorName)}</div>
+        <div class="introBubbleText" id="introText"></div>
 
-      <div class="chatFooter">
-        <div class="chatFooterLeft" id="hint">Tip: korte zinnen. 1 idee per bubble.</div>
-        <div class="chatFooterRight">
-          <button class="btn ghost" id="nextBtn">Next</button>
-          <button class="btn green hidden" id="doneBtn">Let’s Drum! 🥁</button>
+        <div class="introBubbleActions">
+          <button class="btn primary" type="button" id="introNext">Next</button>
+          <button class="btn ghost" type="button" id="introLets">Let's Drum! 🥁</button>
         </div>
+
+        <div class="introHint">Tip: tik op het scherm om door te gaan</div>
       </div>
     </div>
   `;
 
-  const chatBody = el.querySelector("#chatBody");
-  const nextBtn = el.querySelector("#nextBtn");
-  const doneBtn = el.querySelector("#doneBtn");
-  const skipBtn = el.querySelector("#skipBtn");
+  container.appendChild(root);
 
-  let idx = 0;
-  let locked = false;
-  let typingEl = null;
+  const elChar = root.querySelector("#introCharacter");
+  const elName = root.querySelector("#introName");
+  const elText = root.querySelector("#introText");
+  const stage = root.querySelector("#introStage");
 
-  // Default script if empty
-  const lines = (script && script.length) ? script : [
-    { from: "professor", text: "Welkom bij de Rhythm Academy! 🐙🥁" },
-    { from: "teacher", text: "Hey! Ik ga je helpen. We doen steeds maar 1 klein ding." },
-    { from: "teacher", text: "Vandaag: klappen op de BIG beats. Dat zijn er 4." },
-    { from: "teacher", text: "Geen stress. Jij kiest wanneer je klaar bent voor Showtime." }
-  ];
+  function renderLine(i) {
+    const line = lines[i];
+    if (!line) return;
 
-  function scrollToBottom() {
-    chatBody.scrollTop = chatBody.scrollHeight;
+    elChar.src = line.avatarSrc;
+    elName.textContent = line.speakerName;
+
+    // Typewriter-like but instant (fast + not laggy)
+    elText.textContent = line.text;
+
+    clearTimer();
+    timer = setTimeout(() => {
+      goNext();
+    }, autoAdvanceMs);
   }
 
-  function addTyping(from) {
-    const row = document.createElement("div");
-    row.className = "bubbleRow";
-    row.innerHTML = `
-      ${from === "player" ? "" : `
-        <div class="bubbleAvatar">
-          <img src="${escapeAttr(from === "professor" ? professorAvatarSrc : teacherAvatarSrc)}" alt="" />
-        </div>
-      `}
-      <div class="typingBubble">
-        <span class="typingDot"></span>
-        <span class="typingDot"></span>
-        <span class="typingDot"></span>
-      </div>
-    `;
-    chatBody.appendChild(row);
-    scrollToBottom();
-    return row;
-  }
-
-  function addBubble(from, text) {
-    const row = document.createElement("div");
-    row.className = "bubbleRow";
-
-    const isPlayer = from === "player";
-    const bubbleClass = from === "professor" ? "bubble professor" : (isPlayer ? "bubble player" : "bubble teacher");
-    const avatarHtml = isPlayer ? "" : `
-      <div class="bubbleAvatar">
-        <img src="${escapeAttr(from === "professor" ? professorAvatarSrc : teacherAvatarSrc)}" alt="" />
-      </div>
-    `;
-
-    row.innerHTML = `
-      ${avatarHtml}
-      <div class="${bubbleClass}">
-        <div class="bubbleTail"></div>
-        ${escapeHtml(text)}
-      </div>
-    `;
-
-    if (isPlayer) {
-      // For player messages we want bubble on the right without avatar
-      row.style.justifyContent = "flex-end";
-    }
-
-    chatBody.appendChild(row);
-    scrollToBottom();
-  }
-
-  async function showNext() {
-    if (locked) return;
-    if (idx >= lines.length) return;
-
-    locked = true;
-    nextBtn.disabled = true;
-
-    const line = lines[idx];
-    typingEl = addTyping(line.from);
-
-    // Typing delay scales with text length (feels natural)
-    const delay = Math.min(1200, 520 + String(line.text).length * 18);
-
-    await wait(delay);
-
-    if (typingEl) typingEl.remove();
-    typingEl = null;
-
-    addBubble(line.from, line.text);
-    idx++;
-
-    locked = false;
-    nextBtn.disabled = false;
-
-    if (idx >= lines.length) {
-      nextBtn.classList.add("hidden");
-      doneBtn.classList.remove("hidden");
+  function clearTimer() {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
     }
   }
 
-  function finish() {
+  function goNext() {
+    index++;
+    if (index >= lines.length) {
+      clearTimer();
+      if (typeof onDone === "function") onDone();
+      return;
+    }
+    renderLine(index);
+  }
+
+  function goDoneNow() {
+    clearTimer();
     if (typeof onDone === "function") onDone();
   }
 
-  function skip() {
+  root.querySelector(".introSkip").addEventListener("click", () => {
+    clearTimer();
     if (typeof onSkip === "function") onSkip();
-    // Show everything instantly
-    if (typingEl) typingEl.remove();
-    typingEl = null;
-    chatBody.innerHTML = "";
-    lines.forEach(l => addBubble(l.from, l.text));
-    idx = lines.length;
-    nextBtn.classList.add("hidden");
-    doneBtn.classList.remove("hidden");
+    if (typeof onDone === "function") onDone();
+  });
+
+  root.querySelector("#introNext").addEventListener("click", goNext);
+  root.querySelector("#introLets").addEventListener("click", goDoneNow);
+
+  // Tap/click stage to advance
+  stage.addEventListener("click", (e) => {
+    // avoid double-advance when clicking buttons
+    const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
+    if (tag === "button") return;
+    goNext();
+  });
+
+  // Start
+  if (lines.length > 0) {
+    renderLine(0);
+  } else {
+    elText.textContent = "Welkom!";
+    clearTimer();
   }
 
-  nextBtn.addEventListener("click", showNext);
-  doneBtn.addEventListener("click", finish);
-  skipBtn.addEventListener("click", skip);
-
-  // Auto-play first message
-  container.appendChild(el);
-  showNext();
-
   function unmount() {
-    if (typingEl) typingEl.remove();
-    el.remove();
+    clearTimer();
+    root.remove();
   }
 
   return { unmount };
-}
-
-function wait(ms) {
-  return new Promise(r => setTimeout(r, ms));
 }
 
 function escapeHtml(str) {
@@ -188,6 +143,5 @@ function escapeHtml(str) {
 }
 
 function escapeAttr(str) {
-  // same as escapeHtml but kept separate for clarity
   return escapeHtml(str);
 }
