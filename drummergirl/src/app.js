@@ -5,8 +5,6 @@ import { mountMap } from "../ui/map.js";
 import { openNameModal } from "../ui/nameModal.js";
 import { mountChatIntro } from "../ui/chatIntro.js";
 
-
-
 const appRoot = document.getElementById("appRoot");
 
 let state = loadState();
@@ -22,7 +20,6 @@ async function boot() {
   await splash.waitDone();
   splash.destroy();
 
-
   // Ensure we have a route
   if (!window.location.hash) window.location.hash = "#map";
 
@@ -37,7 +34,6 @@ async function boot() {
       initialName: "",
       onSave: (name) => {
         setPlayerName(state, name);
-        // re-render current route so greeting updates
         render(router.getRoute(), true);
       },
       onCancel: () => {}
@@ -60,6 +56,34 @@ function render(route, force = false) {
   wrapper.className = "app";
   appRoot.appendChild(wrapper);
 
+  // 1) INTRO route (must come BEFORE fallback!)
+  if (route === "intro") {
+    const screen = mountChatIntro({
+      container: wrapper,
+      title: "Rhythm Academy",
+      subtitle: "Level 1 • The Beat Awakens",
+      teacherName: "Teacher",
+      teacherAvatarSrc: "./assets/img/drumteacher_01.png",
+      professorName: "Professor Octo",
+      professorAvatarSrc: "./assets/img/professor_octo.png",
+      script: [
+        { from: "professor", text: "Welkom bij de Rhythm Academy! 🐙" },
+        { from: "teacher", text: "Hey! Ik ben jouw drumteacher 😄" },
+        { from: "teacher", text: "Vandaag leren we de BIG beats. Dat zijn er 4." },
+        { from: "teacher", text: "Als je wil, doen we straks Showtime met muziek als beloning 🎶" }
+      ],
+      onDone: () => {
+        window.location.hash = "#map";
+      },
+      onSkip: () => {}
+    });
+
+    screen.route = "intro";
+    currentScreen = screen;
+    return;
+  }
+
+  // 2) MAP route
   if (route === "map") {
     const screen = mountMap({
       container: wrapper,
@@ -75,42 +99,14 @@ function render(route, force = false) {
         });
       }
     });
+
     screen.route = "map";
     currentScreen = screen;
     return;
   }
 
-  // fallback
+  // 3) Fallback (last)
   window.location.hash = "#map";
-
-  if (route === "intro") {
-  const screen = mountChatIntro({
-    container: wrapper,
-    title: "Rhythm Academy",
-    subtitle: "Level 1 • The Beat Awakens",
-    teacherName: "Teacher",
-    teacherAvatarSrc: "./assets/img/drumteacher_01.png",
-    professorName: "Professor Octo",
-    professorAvatarSrc: "./assets/img/professor_octo.png",
-    script: [
-      { from: "professor", text: "Welkom bij de Rhythm Academy! 🐙" },
-      { from: "teacher", text: "Hey! Ik ben jouw drumteacher 😄" },
-      { from: "teacher", text: "Vandaag leren we de BIG beats. Dat zijn er 4." },
-      { from: "teacher", text: "Als je wil, doen we straks Showtime met muziek als beloning 🎶" }
-    ],
-    onDone: () => {
-      // later: go to practice screen
-      window.location.hash = "#map";
-    },
-    onSkip: () => {
-      // optional analytics later
-    }
-  });
-  screen.route = "intro";
-  currentScreen = screen;
-  return;
-}
-
 }
 
 boot();
