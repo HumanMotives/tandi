@@ -1,68 +1,159 @@
-export function mountMap({ container, state, onEditName } = {}) {
-  const el = document.createElement("div");
-  el.className = "screen";
+// ui/map.js
+import { getWorld } from "../data/levels.js";
+import { isLevelUnlocked, getStars, setCurrentLevel, saveState, getTotalStars } from "../src/storage.js";
 
-  const playerName = (state?.player?.name || "").trim();
-  const greeting = playerName ? `Hi ${playerName}!` : "Hi drummer!";
+export function mountMap({ container, state, onEditName, onOpenLevel } = {}) {
+  const root = document.createElement("div");
+  root.className = "screen mapScreen";
 
-  el.innerHTML = `
-    <div class="topbar">
-      <div class="brand">
-        <div class="brandMark" aria-hidden="true"></div>
-        <div class="brandTitle">
-          <h1>Drummer Girl</h1>
-          <div>${greeting} Ready for a level?</div>
+  const currentWorldId = state.nav?.currentWorld || "world1";
+  const world = getWorld(currentWorldId);
+
+  const playerName = ((state.player?.name || "Lotty Girl").trim() || "Lotty Girl");
+  const avatarFile = (state.player?.avatarFile || "ds_avatar_rockbunny.png").trim();
+  const avatarSrc = `./assets/img/avatars/${avatarFile}`;
+
+  const totalStars = getTotalStars(state);
+
+  root.innerHTML = `
+    <div class="worldLayout">
+      <aside class="sidePanel">
+        <div class="sideLogo">DRUM<br/>SCHOOL</div>
+
+        <div class="sideAvatarCard">
+          <img class="sideAvatarImg" src="${escapeAttr(avatarSrc)}" alt="" onerror="this.style.display='none'">
         </div>
-      </div>
-      <button class="btn alt" id="nameBtn">${playerName ? "Naam wijzigen" : "Naam kiezen"}</button>
-    </div>
 
-    <div class="mapHeader">
-      <div>
-        <h2>World 1: Big Beats</h2>
-        <div class="sub">Begin super simpel. 1 idee per level.</div>
-      </div>
-      <div class="sub">Progress: (later)</div>
-    </div>
+        <div class="sideNameRow">
+          <div class="sideName">${escapeHtml(playerName)}</div>
+          <button class="sideNameEdit" type="button" title="Naam wijzigen">✏️</button>
+        </div>
 
-    <div class="tileGrid" id="grid"></div>
+        <div class="sideStats">
+          <div class="statRow"><span class="statIcon">⭐</span><span class="statLabel">Stars</span><span class="statValue">${totalStars}</span></div>
+          <div class="statRow"><span class="statIcon">✨</span><span class="statLabel">Ticks</span><span class="statValue">${formatNumber(state.currency.ticks)}</span></div>
+          <div class="statRow"><span class="statIcon">🥁</span><span class="statLabel">Grooves</span><span class="statValue">${formatNumber(state.stats.grooves)}</span></div>
+        </div>
 
-    <div class="footerNote">
-      Dit is nog de nieuwe basis. Hierna bouwen we: levels uit JSON, chat-intro, practice en exam flow.
+        <div class="sideBottomIcons">
+          <button class="iconBtn" id="backWorldsBtn" title="Werelden">🗺️</button>
+          <button class="iconBtn" title="Settings">⚙️</button>
+          <button class="iconBtn" title="Volume">🔊</button>
+          <button class="iconBtn" title="Help">ℹ️</button>
+        </div>
+      </aside>
+
+      <main class="mapMain">
+        <div class="mapHeader">
+          <div class="mapHeaderTop">
+            <div class="mapWorldSmall">${escapeHtml(worldLabel(currentWorldId))}</div>
+            <button class="btn ghost" id="worldsBtn">Back to Worlds</button>
+          </div>
+          <div class="mapWorldTitle">${escapeHtml(world?.worldTitle || "Wereld")}</div>
+        </div>
+
+        <div class="levelGrid" id="levelGrid"></div>
+      </main>
     </div>
   `;
 
-  const grid = el.querySelector("#grid");
-  const nameBtn = el.querySelector("#nameBtn");
-
-  nameBtn.addEventListener("click", () => {
+  // buttons
+  root.querySelector(".sideNameEdit").addEventListener("click", () => {
     if (typeof onEditName === "function") onEditName();
   });
 
-  // Dummy tiles
-  const tiles = [
-    { id:"w1-1", name:"1. Clap the Beat", desc:"Alleen 1–2–3–4.", locked:false },
-    { id:"w1-2", name:"2. Right Hand Hero", desc:"Eerst 1 hand.", locked:true },
-    { id:"w1-3", name:"3. Left Hand Legend", desc:"Andere hand.", locked:true },
-    { id:"w1-4", name:"4. R L R L", desc:"Om en om.", locked:true },
-  ];
-
-  tiles.forEach(t => {
-    const tile = document.createElement("div");
-    tile.className = "tile" + (t.locked ? " locked" : "");
-    tile.innerHTML = `
-      <div class="name">${t.name}</div>
-      <div class="desc">${t.desc}</div>
-      <div class="desc">${t.locked ? "Locked" : "Tap to open (later)"}</div>
-    `;
-    grid.appendChild(tile);
+  root.querySelector("#backWorldsBtn").addEventListener("click", () => {
+    window.location.hash = "#worlds";
   });
 
-  container.appendChild(el);
+  root.querySelector("#worldsBtn").addEventListener("click", () => {
+    window.location.hash = "#worlds";
+  });
+
+  const levelGrid = root.querySelector("#levelGrid");
+
+  if (!world) {
+    const msg = document.createElement("div");
+    msg.className = "levelEmpty";
+    msg.textContent = "World data not found.";
+    levelGrid.appendChild(msg);
+    container.appendChild(root);
+    return { unmount: () => root.remove() };
+  }
+
+  const levels = world.levels || [];
+
+  levels.forEach((lvl) => {
+    const unlocked = isLevelUnlocked(state, levels, lvl.id);
+    const stars = getStars(state, lvl.id);
+
+    const tile = document.createElement("button");
+    tile.type = "button";
+    tile.className = `levelTile ${unlocked ? "unlocked" : "locked"}`;
+    if (!unlocked) tile.disabled = true;
+
+    tile.innerHTML = `
+      <div class="levelTileInner">
+        <div class="levelTileTop">
+          <div class="levelLabel">${escapeHtml(lvl.label || "Les")}</div>
+          <div class="levelLock">${unlocked ? "" : "🔒"}</div>
+        </div>
+
+        <div class="levelTitle">${escapeHtml(lvl.title || "")}</div>
+
+        <div class="levelStars">
+          ${renderStars(stars)}
+        </div>
+      </div>
+    `;
+
+    tile.addEventListener("click", () => {
+      if (!unlocked) return;
+      setCurrentLevel(state, lvl.id);
+      saveState(state);
+      if (typeof onOpenLevel === "function") onOpenLevel(lvl.id);
+    });
+
+    levelGrid.appendChild(tile);
+  });
+
+  container.appendChild(root);
 
   function unmount() {
-    el.remove();
+    root.remove();
   }
 
   return { unmount };
+}
+
+function renderStars(stars) {
+  const s = Math.max(0, Math.min(5, Number(stars || 0)));
+  let out = "";
+  for (let i = 1; i <= 5; i++) {
+    out += `<span class="star ${i <= s ? "on" : "off"}">★</span>`;
+  }
+  return out;
+}
+
+function worldLabel(worldId) {
+  const m = String(worldId || "").match(/world(\d+)/i);
+  if (m) return `Wereld ${m[1]}`;
+  return "Wereld";
+}
+
+function formatNumber(n) {
+  try { return Number(n).toLocaleString("nl-NL"); } catch { return String(n); }
+}
+
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function escapeAttr(str) {
+  return escapeHtml(str);
 }
