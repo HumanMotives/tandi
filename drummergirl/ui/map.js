@@ -18,7 +18,10 @@ export function mountMap({ container, state, onEditName, onOpenLevel } = {}) {
   root.innerHTML = `
     <div class="worldLayout">
       <aside class="sidePanel">
-        <div class="sideLogo">DRUM<br/>SCHOOL</div>
+      <div class="sideLogoWrap">
+  <img class="sideLogoImg" src="./assets/img/logo.png" alt="Drum School" onerror="this.style.display='none'">
+</div>
+
 
         <div class="sideAvatarCard">
           <img class="sideAvatarImg" src="${escapeAttr(avatarSrc)}" alt="" onerror="this.style.display='none'">
