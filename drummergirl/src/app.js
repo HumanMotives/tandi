@@ -3,6 +3,8 @@ import { loadState, saveState, setPlayerName } from "./storage.js";
 import { mountSplash } from "../ui/splash.js";
 import { mountMap } from "../ui/map.js";
 import { openNameModal } from "../ui/nameModal.js";
+import { mountChatIntro } from "../ui/chatIntro.js";
+
 
 
 const appRoot = document.getElementById("appRoot");
