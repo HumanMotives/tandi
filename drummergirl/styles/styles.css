@@ -453,3 +453,54 @@ ds_avatar_lion.png
   font-weight: 900;
   opacity: 0.75;
 }
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(20,20,24,0.45);
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.modalCard {
+  width: min(520px, 92vw);
+  border-radius: 26px;
+  border: 5px solid rgba(20,20,24,0.95);
+  background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,230,250,0.90) 100%);
+  box-shadow: 0 16px 0 rgba(0,0,0,0.14), 0 30px 60px rgba(0,0,0,0.18);
+  padding: 18px 18px 16px;
+}
+
+.modalTitle {
+  font-weight: 1100;
+  font-size: 28px;
+  text-shadow: 2px 2px 0 rgba(20,20,24,0.18);
+}
+
+.modalSub {
+  margin-top: 6px;
+  font-weight: 900;
+  opacity: 0.75;
+}
+
+.modalInput {
+  margin-top: 14px;
+  width: 100%;
+  font-size: 22px;
+  font-weight: 900;
+  padding: 14px 14px;
+  border-radius: 18px;
+  border: 4px solid rgba(20,20,24,0.92);
+  outline: none;
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 10px 0 rgba(0,0,0,0.10);
+}
+
+.modalActions {
+  margin-top: 14px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
