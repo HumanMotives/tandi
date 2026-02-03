@@ -4,9 +4,12 @@ import { getTotalStars, setCurrentWorld, saveState } from "../src/storage.js";
 
 export function mountWorldSelect({ container, state, onGoWorld } = {}) {
   const root = document.createElement("div");
-  root.className = "screen worldSelect dots";
+  root.className = "screen worldSelect";
 
   const totalStars = getTotalStars(state);
+  const playerName = ((state.player?.name || "Lotty Girl").trim() || "Lotty Girl");
+  const avatarFile = (state.player?.avatarFile || "ds_avatar_rockbunny.png").trim();
+  const avatarSrc = `./assets/img/avatars/${avatarFile}`;
 
   root.innerHTML = `
     <div class="worldLayout">
@@ -14,14 +17,14 @@ export function mountWorldSelect({ container, state, onGoWorld } = {}) {
         <div class="sideLogo">DRUM<br/>SCHOOL</div>
 
         <div class="sideAvatarCard">
-          <img class="sideHeroImg" src="./assets/img/sidebar_hero.png" alt="" onerror="this.style.display='none'">
+          <img class="sideAvatarImg" src="${escapeAttr(avatarSrc)}" alt="" onerror="this.style.display='none'">
         </div>
 
-        <div class="sideName">${escapeHtml((state.player.name || "Lotty Girl").trim() || "Lotty Girl")}</div>
+        <div class="sideName">${escapeHtml(playerName)}</div>
 
         <div class="sideStats">
           <div class="statRow"><span class="statIcon">⭐</span><span class="statLabel">Stars</span><span class="statValue">${totalStars}</span></div>
-          <div class="statRow"><span class="statIcon">⭐</span><span class="statLabel">Ticks</span><span class="statValue">${formatNumber(state.currency.ticks)}</span></div>
+          <div class="statRow"><span class="statIcon">✨</span><span class="statLabel">Ticks</span><span class="statValue">${formatNumber(state.currency.ticks)}</span></div>
           <div class="statRow"><span class="statIcon">🥁</span><span class="statLabel">Grooves</span><span class="statValue">${formatNumber(state.stats.grooves)}</span></div>
         </div>
 
@@ -33,41 +36,49 @@ export function mountWorldSelect({ container, state, onGoWorld } = {}) {
       </aside>
 
       <main class="worldMain">
-        <div class="worldRing" id="worldRing"></div>
+        <div class="worldHeader">
+          <div class="worldHeaderSmall">Kies een wereld</div>
+          <div class="worldHeaderBig">Waar gaan we vandaag heen?</div>
+        </div>
+
+        <div class="worldGrid" id="worldGrid"></div>
       </main>
     </div>
   `;
 
-  const ring = root.querySelector("#worldRing");
+  const grid = root.querySelector("#worldGrid");
 
-  // simple circular placement (CSS handles dotted ring)
   WORLDS.forEach((w, i) => {
     const unlocked = totalStars >= (w.requiredStarsToUnlock || 0);
-    const btn = document.createElement("button");
-    btn.className = `worldNode ${unlocked ? "unlocked" : "locked"}`;
-    btn.type = "button";
-    btn.innerHTML = `
-      <div class="worldNodeImgWrap">
+
+    const tile = document.createElement("button");
+    tile.type = "button";
+    tile.className = `worldTile ${unlocked ? "unlocked" : "locked"}`;
+
+    tile.innerHTML = `
+      <div class="worldTileImg">
         <img src="${escapeAttr(w.thumb)}" alt="" onerror="this.style.display='none'">
-        <div class="worldNodeFallback">${i + 1}</div>
+        <div class="worldTileFallback">${i + 1}</div>
+        ${unlocked ? "" : `<div class="worldTileLock">🔒</div>`}
       </div>
-      <div class="worldNodeText">
-        <div class="worldNodeSmall">${escapeHtml(w.titleSmall)}</div>
-        <div class="worldNodeBig">${escapeHtml(w.titleBig)}</div>
+
+      <div class="worldTileText">
+        <div class="worldTileSmall">${escapeHtml(w.titleSmall)}</div>
+        <div class="worldTileBig">${escapeHtml(w.titleBig)}</div>
+        <div class="worldTileReq">${unlocked ? "Unlocked" : `Need ${w.requiredStarsToUnlock} stars`}</div>
       </div>
     `;
 
-    if (!unlocked) {
-      btn.disabled = true;
-    } else {
-      btn.addEventListener("click", () => {
-        setCurrentWorld(state, w.id);
-        saveState(state);
-        if (typeof onGoWorld === "function") onGoWorld(w.id);
-      });
-    }
+    if (!unlocked) tile.disabled = true;
 
-    ring.appendChild(btn);
+    tile.addEventListener("click", () => {
+      if (!unlocked) return;
+      setCurrentWorld(state, w.id);
+      saveState(state);
+      if (typeof onGoWorld === "function") onGoWorld(w.id);
+    });
+
+    grid.appendChild(tile);
   });
 
   container.appendChild(root);
