@@ -504,3 +504,115 @@ ds_avatar_lion.png
   gap: 12px;
   justify-content: flex-end;
 }
+
+.introScreen {
+  width: 100%;
+  min-height: 78vh;
+  padding: 18px;
+  background: radial-gradient(circle at 30% 15%, rgba(255,255,255,0.85) 0%, rgba(235,225,255,0.88) 38%, rgba(210,190,255,0.92) 100%);
+  border-radius: 26px;
+  position: relative;
+
+  /* dot raster vibe */
+  background-image:
+    radial-gradient(rgba(60,40,120,0.10) 1px, transparent 1px),
+    radial-gradient(rgba(60,40,120,0.06) 1px, transparent 1px);
+  background-size: 18px 18px, 18px 18px;
+  background-position: 0 0, 9px 9px;
+}
+
+.introTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.introTitle {
+  font-weight: 1000;
+  opacity: 0.9;
+}
+
+.introSub {
+  font-weight: 900;
+  opacity: 0.65;
+  margin-left: 8px;
+}
+
+.introStage {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  padding: 10px 0 0;
+}
+
+.introCharacterWrap {
+  width: min(520px, 90vw);
+  display: grid;
+  place-items: center;
+}
+
+.introCharacter {
+  width: min(520px, 90vw);
+  height: auto;
+  display: block;
+  filter: drop-shadow(10px 10px 0 rgba(20,20,24,0.35));
+}
+
+.introBubble {
+  width: min(760px, 92vw);
+  border-radius: 26px;
+  border: 5px solid rgba(20,20,24,0.95);
+  background: rgba(255, 246, 214, 0.92);
+  box-shadow: 0 16px 0 rgba(0,0,0,0.12), 0 30px 60px rgba(0,0,0,0.14);
+  padding: 14px 16px 12px;
+
+  /* speech bubble tail */
+  position: relative;
+}
+
+.introBubble::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  left: 48%;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 246, 214, 0.92);
+  border-left: 5px solid rgba(20,20,24,0.95);
+  border-top: 5px solid rgba(20,20,24,0.95);
+  transform: rotate(45deg);
+}
+
+.introBubbleName {
+  font-weight: 1100;
+  font-size: 18px;
+  opacity: 0.85;
+  margin-bottom: 8px;
+}
+
+.introBubbleText {
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 900;
+
+  /* comic vibe */
+  font-family: "Comic Sans MS", "Comic Neue", system-ui, -apple-system, Segoe UI, Arial;
+}
+
+.introBubbleActions {
+  margin-top: 14px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.introHint {
+  margin-top: 10px;
+  font-weight: 900;
+  opacity: 0.7;
+}
+
