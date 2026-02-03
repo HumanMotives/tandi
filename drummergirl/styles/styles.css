@@ -393,3 +393,17 @@ ds_avatar_lion.png
   .levelGrid { grid-template-columns: 1fr; }
 }
 
+.sideLogoWrap {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  padding: 10px 6px 6px;
+}
+
+.sideLogoImg {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(4px 4px 0 rgba(20,20,24,0.85));
+}
