@@ -1,17 +1,18 @@
+// src/app.js
 import { createRouter } from "./router.js";
-import { loadState, saveState, setPlayerName, setCurrentLevel, setStars, isLevelUnlocked } from "./storage.js";
+import { loadState, saveState, setPlayerName } from "./storage.js";
 
 import { mountSplash } from "../ui/splash.js";
-import { mountWorldSelect } from "../ui/worldSelect.js";
 import { mountMap } from "../ui/map.js";
+import { mountWorldSelect } from "../ui/worldSelect.js";
 import { openNameModal } from "../ui/nameModal.js";
 import { mountChatIntro } from "../ui/chatIntro.js";
-import { mountPractice } from "../ui/practice.js";
-import { openCompleteOverlay } from "../ui/completeOverlay.js";
 
-import { getWorld, findLevel } from "../data/levels.js";
+// (Optional) if you already have practice screen module later:
+// import { mountPractice } from "../ui/practice.js";
 
 const appRoot = document.getElementById("appRoot");
+
 let state = loadState();
 saveState(state);
 
@@ -19,14 +20,23 @@ const router = createRouter();
 let currentScreen = null;
 
 async function boot() {
-  const splash = mountSplash({ logoSrc: "./assets/img/logo.png", durationMs: 1500 });
+  // 1) Splash
+  const splash = mountSplash({
+    logoSrc: "./assets/img/logo.png",
+    durationMs: 5000
+  });
   await splash.waitDone();
   splash.destroy();
 
+  // 2) Default route
   if (!window.location.hash) window.location.hash = "#worlds";
 
-  router.onChange((route) => render(route));
+  // 3) Router change handler
+  router.onChange((route) => {
+    render(route);
+  });
 
+  // 4) Ask name once
   if (!(state.player?.name || "").trim()) {
     openNameModal({
       initialName: "",
@@ -38,6 +48,7 @@ async function boot() {
     });
   }
 
+  // 5) Initial render
   render(router.getRoute(), true);
 }
 
@@ -56,6 +67,38 @@ function render(route, force = false) {
   wrapper.className = "app";
   appRoot.appendChild(wrapper);
 
+  // IMPORTANT:
+  // Put specific routes BEFORE fallback, otherwise #intro can get overwritten.
+  if (route === "intro") {
+    const screen = mountChatIntro({
+      container: wrapper,
+      title: "Drum School",
+      subtitle: "Les 2 • De maat is vol!",
+      professorName: "Professor Octo",
+      professorAvatarSrc: "./assets/img/professor_octo.png",
+      teacherName: "Teacher",
+      teacherAvatarSrc: "./assets/img/drumteacher_01.png",
+      script: [
+        { from: "professor", text: "Hey hallo! Welkom op de Drum School!" },
+        { from: "professor", text: "Wist je dat ritmes al eeuwen bestaan?" },
+        { from: "teacher", text: "Ok grapje. Nu begint het pas echt..." },
+        { from: "teacher", text: "Korte zinnen. 1 idee per bubble." }
+      ],
+      autoAdvanceMs: 5000,
+      onDone: () => {
+        // Later: go to practice screen
+        window.location.hash = "#map";
+      },
+      onSkip: () => {
+        window.location.hash = "#map";
+      }
+    });
+
+    screen.route = "intro";
+    currentScreen = screen;
+    return;
+  }
+
   if (route === "worlds") {
     const screen = mountWorldSelect({
       container: wrapper,
@@ -64,6 +107,7 @@ function render(route, force = false) {
         window.location.hash = "#map";
       }
     });
+
     screen.route = "worlds";
     currentScreen = screen;
     return;
@@ -83,82 +127,37 @@ function render(route, force = false) {
           onCancel: () => {}
         });
       },
-      onOpenLevel: (levelId) => {
-        setCurrentLevel(state, levelId);
+      onOpenLevel: () => {
+        // For now: always show intro when clicking a level
         window.location.hash = "#intro";
       }
     });
+
     screen.route = "map";
     currentScreen = screen;
     return;
   }
 
-  if (route === "intro") {
-    const found = findLevel(state.nav.currentLevel);
-    const level = found?.level;
-
-    const teacherId = state.avatar?.teacherId || "drumteacher_01";
-
-    const screen = mountChatIntro({
-      container: wrapper,
-      title: "Drum School",
-      subtitle: level ? `${level.label} • ${level.title}` : "Intro",
-      teacherName: "Teacher",
-      teacherAvatarSrc: `./assets/img/${teacherId}.png`,
-      professorName: "Professor Octo",
-      professorAvatarSrc: "./assets/img/professor_octo.png",
-      typingSpeed: "fast",
-      script: level?.introScript || [
-        { from: "professor", text: "Welkom bij Drum School!" },
-        { from: "teacher", text: "Let’s go!" }
-      ],
-      onDone: () => {
-        window.location.hash = "#practice";
-      },
-      onSkip: () => {
-        window.location.hash = "#practice";
-      }
-    });
-
-    screen.route = "intro";
-    currentScreen = screen;
-    return;
-  }
-
+  // Optional placeholder route (in case your router produces it)
   if (route === "practice") {
-    const found = findLevel(state.nav.currentLevel);
-    const level = found?.level;
-
-    const screen = mountPractice({
-      container: wrapper,
-      level,
-      onBack: () => {
-        window.location.hash = "#map";
-      },
-      onShowtime: () => {
-        // In MVP: meteen “complete” overlay tonen en stars opslaan.
-        // Later vervang je dit door echte fixed-bars showtime + muziek.
-        openCompleteOverlay({
-          state,
-          levelTitle: level?.title || "Level",
-          onSelectStars: (stars) => {
-            if (stars > 0) {
-              setStars(state, state.nav.currentLevel, stars);
-            }
-            window.location.hash = "#map";
-          },
-          onClose: () => {
-            window.location.hash = "#map";
-          }
-        });
-      }
+    // If you don’t have practice UI yet, keep it simple.
+    const placeholder = document.createElement("div");
+    placeholder.style.padding = "20px";
+    placeholder.innerHTML = `
+      <div style="font-weight:900;font-size:24px;">Practice</div>
+      <div style="margin-top:10px;">(Coming next)</div>
+      <button class="btn primary" style="margin-top:14px;" type="button">Back</button>
+    `;
+    placeholder.querySelector("button").addEventListener("click", () => {
+      window.location.hash = "#map";
     });
+    wrapper.appendChild(placeholder);
 
-    screen.route = "practice";
-    currentScreen = screen;
+    currentScreen = { route: "practice", unmount: () => {} };
     return;
   }
 
+  // Fallback route
   window.location.hash = "#worlds";
 }
 
