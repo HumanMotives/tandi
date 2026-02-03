@@ -1,71 +1,60 @@
+// ui/nameModal.js
 export function openNameModal({ initialName = "", onSave, onCancel } = {}) {
   const overlay = document.createElement("div");
   overlay.className = "modalOverlay";
-  overlay.innerHTML = `
-    <div class="modal" role="dialog" aria-modal="true">
-      <h3>Hoe heet jij?</h3>
-      <p>Kies je naam. We onthouden dit op dit apparaat.</p>
 
-      <div class="field">
-        <input class="input" id="nameInput" type="text" placeholder="Bijv. Lot" maxlength="24" value="${escapeHtml(initialName)}" />
-      </div>
+  overlay.innerHTML = `
+    <div class="modalCard" role="dialog" aria-modal="true">
+      <div class="modalTitle">Hoe heet jij?</div>
+      <div class="modalSub">Dit zetten we op jouw Drum School pasje.</div>
+
+      <input class="modalInput" type="text" maxlength="18" placeholder="Bijv. Lotty" value="${escapeAttr(initialName)}" />
 
       <div class="modalActions">
-        <button class="btn ghost" id="cancelBtn">Later</button>
-        <button class="btn primary" id="saveBtn">Start!</button>
+        <button class="btn ghost" type="button" data-action="cancel">Later</button>
+        <button class="btn primary" type="button" data-action="save">Save</button>
       </div>
     </div>
   `;
 
   document.body.appendChild(overlay);
 
-  const input = overlay.querySelector("#nameInput");
-  const saveBtn = overlay.querySelector("#saveBtn");
-  const cancelBtn = overlay.querySelector("#cancelBtn");
-
+  const input = overlay.querySelector(".modalInput");
   input.focus();
+  input.select();
 
-  function close() {
+  const cleanup = () => {
     overlay.remove();
-  }
+    window.removeEventListener("keydown", onKeyDown);
+  };
 
-  function doSave() {
-    const name = String(input.value || "").trim();
-    if (!name) {
-      input.focus();
-      input.style.borderColor = "rgba(255,45,149,0.8)";
-      return;
-    }
-    close();
-    if (typeof onSave === "function") onSave(name);
-  }
-
-  saveBtn.addEventListener("click", doSave);
-  cancelBtn.addEventListener("click", () => {
-    close();
+  const doCancel = () => {
+    cleanup();
     if (typeof onCancel === "function") onCancel();
-  });
+  };
+
+  const doSave = () => {
+    const name = (input.value || "").trim();
+    cleanup();
+    if (typeof onSave === "function") onSave(name);
+  };
 
   overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) {
-      close();
-      if (typeof onCancel === "function") onCancel();
-    }
+    if (e.target === overlay) doCancel();
   });
 
-  input.addEventListener("keydown", (e) => {
+  overlay.querySelector('[data-action="cancel"]').addEventListener("click", doCancel);
+  overlay.querySelector('[data-action="save"]').addEventListener("click", doSave);
+
+  function onKeyDown(e) {
+    if (e.key === "Escape") doCancel();
     if (e.key === "Enter") doSave();
-    if (e.key === "Escape") {
-      close();
-      if (typeof onCancel === "function") onCancel();
-    }
-  });
-
-  return { close };
+  }
+  window.addEventListener("keydown", onKeyDown);
 }
 
-function escapeHtml(str) {
-  return String(str || "")
+function escapeAttr(str) {
+  return String(str ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
