@@ -1,8 +1,9 @@
 import { createRouter } from "./router.js";
 import { loadState, saveState, setPlayerName } from "./storage.js";
-import { mountSplash } from "./ui/splash.js";
-import { mountMap } from "./ui/map.js";
-import { openNameModal } from "./ui/nameModal.js";
+import { mountSplash } from "../ui/splash.js";
+import { mountMap } from "../ui/map.js";
+import { openNameModal } from "../ui/nameModal.js";
+
 
 const appRoot = document.getElementById("appRoot");
 
