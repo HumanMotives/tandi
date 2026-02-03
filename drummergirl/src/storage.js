@@ -21,6 +21,11 @@ export function setPlayerName(state, name) {
   saveState(state);
 }
 
+export function setPlayerAvatar(state, avatarFile) {
+  state.player.avatarFile = String(avatarFile || "").trim();
+  saveState(state);
+}
+
 export function setCurrentWorld(state, worldId) {
   state.nav.currentWorld = worldId;
   saveState(state);
@@ -46,8 +51,8 @@ export function getTotalStars(state) {
 }
 
 export function isLevelUnlocked(state, worldLevels, levelId) {
-  // Simple linear unlock per world:
-  // first level always unlocked
+  // linear unlock inside a world:
+  // first level unlocked
   // next unlocked if previous has >= 1 star
   const idx = worldLevels.findIndex((l) => l.id === levelId);
   if (idx <= 0) return true;
@@ -67,7 +72,10 @@ export function addGrooves(state, amount) {
 
 function defaultState() {
   return {
-    player: { name: "" },
+    player: {
+      name: "",
+      avatarFile: "ds_avatar_rockbunny.png"
+    },
     avatar: { teacherId: "drumteacher_01" },
     currency: { ticks: 13255 },
     stats: { grooves: 35 },
@@ -80,7 +88,7 @@ function defaultState() {
 function normalizeState(s) {
   const state = (s && typeof s === "object") ? s : defaultState();
 
-  if (!state.player) state.player = { name: "" };
+  if (!state.player) state.player = { name: "", avatarFile: "ds_avatar_rockbunny.png" };
   if (!state.avatar) state.avatar = { teacherId: "drumteacher_01" };
   if (!state.currency) state.currency = { ticks: 0 };
   if (!state.stats) state.stats = { grooves: 0 };
@@ -90,6 +98,10 @@ function normalizeState(s) {
   if (!state.settings) state.settings = { muted: false };
 
   if (typeof state.player.name !== "string") state.player.name = "";
+  if (typeof state.player.avatarFile !== "string" || !state.player.avatarFile.trim()) {
+    state.player.avatarFile = "ds_avatar_rockbunny.png";
+  }
+
   if (typeof state.avatar.teacherId !== "string") state.avatar.teacherId = "drumteacher_01";
 
   state.currency.ticks = clampInt(state.currency.ticks ?? 0, 0, 999999999);
