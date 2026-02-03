@@ -15,9 +15,10 @@ let currentScreen = null;
 
 async function boot() {
   // Splash first
-  const splash = mountSplash({ logoSrc: "/assets/img/logo.png", durationMs: 5000 });
+  const splash = mountSplash({ logoSrc: "./assets/img/logo.png", durationMs: 5000 });
   await splash.waitDone();
   splash.destroy();
+
 
   // Ensure we have a route
   if (!window.location.hash) window.location.hash = "#map";
