@@ -29,23 +29,11 @@ export function mountChatIntro({
 
       <div class="introCenter">
         <div class="introCard">
+          <div class="introBubbleWrap">
+            <div class="introNameTag">${escapeHtml(professorName)}</div>
 
-          <div class="introContentRow">
-            <div class="introBubbleCol">
-              <div class="introNameTag">${escapeHtml(professorName)}</div>
-
-              <div class="introBubble">
-                <div class="introBubbleText" id="introBubbleText"></div>
-              </div>
-
-              <div class="introFooterRow">
-                <button class="introSkipInline" type="button" data-skip>
-                  Overslaan
-                  <span class="introSkipArrow" aria-hidden="true">↪</span>
-                </button>
-
-                <div class="introTapHint">Klik ergens op het scherm om door te gaan</div>
-              </div>
+            <div class="introBubble">
+              <div class="introBubbleText" id="introBubbleText"></div>
             </div>
 
             ${
@@ -57,6 +45,15 @@ export function mountChatIntro({
             }
           </div>
 
+          <div class="introFooterRow">
+            <button class="introSkipInline" type="button" data-skip>
+              Uitleg overslaan <span class="introSkipArrow" aria-hidden="true">↪</span>
+            </button>
+
+            <button class="introNextInline" type="button" data-next>
+              Volgende <span class="introNextArrow" aria-hidden="true">→</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -64,16 +61,23 @@ export function mountChatIntro({
 
   const bubbleTextEl = root.querySelector("#introBubbleText");
   const skipBtn = root.querySelector("[data-skip]");
+  const nextBtn = root.querySelector("[data-next]");
 
   renderLine();
 
+  // Buttons
   skipBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
     cleanupTimers();
     onSkip();
   });
 
-  // Tap anywhere to advance (except when clicking skip)
+  nextBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    advanceOrDone(false);
+  });
+
+  // Tap anywhere to advance (except when clicking buttons)
   root.addEventListener("click", () => {
     advanceOrDone(false);
   });
@@ -93,6 +97,9 @@ export function mountChatIntro({
 
     const line = script[index]?.text || "";
     bubbleTextEl.textContent = line;
+
+    // Laat "Volgende" altijd staan. Op laatste regel werkt het als "klaar".
+    // (Geen extra tekst, jij wilde specifiek "Volgende".)
   }
 
   function advanceOrDone(fromAuto = false) {
@@ -100,7 +107,6 @@ export function mountChatIntro({
 
     const isLast = index >= script.length - 1;
 
-    // Als we op de laatste regel zitten, dan is een tik "klaar"
     if (isLast) {
       cleanupTimers();
       onDone();
@@ -110,11 +116,9 @@ export function mountChatIntro({
     index += 1;
     renderLine();
 
-    // Als auto-advance net de laatste regel bereikt heeft, laat die dan zien
-    // en rond af bij de volgende tick, of door user tap
     if (fromAuto && index >= script.length - 1) {
-      // niets extra, user kan nog lezen. Wil je dat hij meteen afsluit:
-      // cleanupTimers(); onDone();
+      // Laat de laatste regel even staan om te lezen.
+      // Volgende tik of auto-tick rondt af.
     }
   }
 
