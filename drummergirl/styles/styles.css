@@ -58,7 +58,6 @@ button,
   letter-spacing: 0.3px;
 }
 
-
 *,
 *::before,
 *::after {
@@ -488,59 +487,24 @@ input[type="text"]:focus,
 }
 
 /* ---------------------------
-   9) Intro / Chat screen (functional defaults)
-   (No comic look here; we’re keeping it minimal for now)
+   9) Intro / Chat screen (updated)
 ---------------------------- */
-.introScreen {
-  padding: 14px;
-}
 
-.introTop {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.introStage {
-  display: grid;
-  place-items: center;
-  gap: 12px;
-}
-
-.introCharacter {
-  max-width: 520px;
-  height: auto;
-}
-
-.introBubble {
-  width: min(760px, 92vw);
-  padding: 14px;
-}
-
-/* ---------------------------
-   10) Utility
----------------------------- */
-.hidden {
-  display: none !important;
-}
-
-/* =========================
-   Intro / Chat Screen
-   ========================= */
-
+/* Base wrapper */
 .introScreen {
   width: 100%;
   min-height: 100vh;
+  padding: 14px;
 }
 
+/* Stage layout */
 .introStage {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 18px;
   box-sizing: border-box;
+  gap: 12px;
 }
 
 .introTopBar {
@@ -570,6 +534,7 @@ input[type="text"]:focus,
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* Card container */
 .introCard {
   width: min(980px, 100%);
   position: relative;
@@ -578,22 +543,31 @@ input[type="text"]:focus,
   gap: 14px;
 }
 
-.introBubbleWrap {
+/* NEW: row with bubble on left and avatar on right */
+.introContentRow {
   width: 100%;
-  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
   padding: 12px 8px;
   box-sizing: border-box;
 }
 
+/* Bubble column (left) */
+.introBubbleCol {
+  flex: 1 1 auto;
+  min-width: 0;
+  position: relative;
+}
+
+/* Name tag above bubble */
 .introNameTag {
   position: absolute;
   top: -18px;
   left: 22px;
   background: #ffffff;
-  border: 3px solid rgba(0,0,0,0.85);
+  border: 3px solid rgba(0, 0, 0, 0.85);
   border-radius: 14px;
   padding: 6px 12px;
   font-family: var(--font-heading, "Chewy", system-ui);
@@ -601,14 +575,15 @@ input[type="text"]:focus,
   z-index: 3;
 }
 
+/* Bubble itself */
 .introBubble {
-  width: min(720px, 92vw);
+  width: 100%;
   background: #f6e6b6;
-  border: 4px solid rgba(0,0,0,0.85);
+  border: 4px solid rgba(0, 0, 0, 0.85);
   border-radius: 20px;
-  padding: 22px 22px 16px 22px;
+  padding: 22px 22px 18px 22px;
   box-sizing: border-box;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
   position: relative;
 }
 
@@ -616,42 +591,66 @@ input[type="text"]:focus,
   font-family: var(--font-body, "Delius", cursive);
   font-size: clamp(18px, 2.2vw, 28px);
   line-height: 1.25;
-  padding-right: 140px; /* ruimte voor avatar overlap op desktop */
+  padding-right: 0; /* IMPORTANT: no overlap padding anymore */
 }
 
-.introControls {
+/* Footer row UNDER bubble: Skip + Tap hint on one line */
+.introFooterRow {
   display: flex;
-  gap: 10px;
-  margin-top: 14px;
-  flex-wrap: wrap;
-}
-
-.introBtn,
-.introBtnPrimary {
-  border-radius: 14px;
-  padding: 10px 14px;
-  font-family: var(--font-heading, "Chewy", system-ui);
-  font-size: 16px;
-}
-
-.introHint {
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-top: 10px;
+}
+
+/* New inline skip button (used in updated JS) */
+.introSkipInline {
+  background: transparent;
+  border: none;
+  padding: 4px 6px;
   font-family: var(--font-body, "Delius", cursive);
-  font-size: 14px;
+  font-size: 16px;
+  text-decoration: underline;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.introSkipInline:hover {
   opacity: 0.9;
 }
 
-.introAvatar {
-  position: absolute;
-  right: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(320px, 36vw);
-  height: auto;
-  z-index: 2;
-  pointer-events: none;
+.introSkipInline:active {
+  transform: translateY(1px);
 }
 
+.introSkipArrow {
+  margin-left: 2px;
+  font-size: 20px;
+}
+
+/* Tap hint on same baseline as skip */
+.introTapHint {
+  font-family: var(--font-body, "Delius", cursive);
+  font-size: 14px;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+/* Avatar on right: push it further right */
+.introAvatar {
+  flex: 0 0 auto;
+  width: min(320px, 36vw);
+  height: auto;
+  pointer-events: none;
+
+  /* "more to the right" feel */
+  margin-left: 8px;
+  transform: translateX(10px);
+}
+
+/* Backward-compat: old skip button class (not used by new JS anymore) */
 .introSkip {
   align-self: flex-end;
   background: transparent;
@@ -663,34 +662,54 @@ input[type="text"]:focus,
   cursor: pointer;
 }
 
-.introSkipArrow {
-  margin-left: 6px;
-  font-size: 20px;
-}
-
-/* Mobile layout fixes */
+/* ---------------------------
+   Mobile layout fixes
+---------------------------- */
 @media (max-width: 720px) {
-  .introBubble {
-    padding: 18px 16px 14px 16px;
+  .introStage {
+    padding: 14px;
   }
 
-  .introBubbleText {
-    padding-right: 0; /* avatar gaat onder of kleiner */
+  .introContentRow {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
   }
 
-  .introAvatar {
-    position: static;
-    transform: none;
-    width: min(280px, 70vw);
-    margin: 14px auto 0 auto;
-    display: block;
+  .introBubbleCol {
+    width: 100%;
   }
 
   .introNameTag {
     left: 12px;
   }
 
-  .introSkip {
-    align-self: center;
+  .introBubble {
+    padding: 18px 16px 14px 16px;
   }
+
+  .introAvatar {
+    width: min(280px, 70vw);
+    transform: none;
+    margin-left: 0;
+  }
+
+  .introFooterRow {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .introTapHint {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+/* ---------------------------
+   10) Utility
+---------------------------- */
+.hidden {
+  display: none !important;
 }
