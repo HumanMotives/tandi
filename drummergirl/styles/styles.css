@@ -487,24 +487,21 @@ input[type="text"]:focus,
 }
 
 /* ---------------------------
-   9) Intro / Chat screen (updated)
+   9) Intro / Chat screen (overlap style as requested)
 ---------------------------- */
 
-/* Base wrapper */
 .introScreen {
   width: 100%;
   min-height: 100vh;
   padding: 14px;
 }
 
-/* Stage layout */
 .introStage {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 18px;
   box-sizing: border-box;
-  gap: 12px;
 }
 
 .introTopBar {
@@ -534,34 +531,26 @@ input[type="text"]:focus,
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Card container */
 .introCard {
-  width: min(980px, 100%);
+  width: min(1180px, 100%);
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
-/* NEW: row with bubble on left and avatar on right */
-.introContentRow {
+/* Wrap where bubble + avatar overlap */
+.introBubbleWrap {
   width: 100%;
+  position: relative;
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 18px;
+  align-items: center;
+  justify-content: flex-start;
   padding: 12px 8px;
   box-sizing: border-box;
 }
 
-/* Bubble column (left) */
-.introBubbleCol {
-  flex: 1 1 auto;
-  min-width: 0;
-  position: relative;
-}
-
-/* Name tag above bubble */
+/* Name tag */
 .introNameTag {
   position: absolute;
   top: -18px;
@@ -575,9 +564,9 @@ input[type="text"]:focus,
   z-index: 3;
 }
 
-/* Bubble itself */
+/* Bubble should extend under the avatar on the right */
 .introBubble {
-  width: 100%;
+  width: min(980px, 96vw);
   background: #f6e6b6;
   border: 4px solid rgba(0, 0, 0, 0.85);
   border-radius: 20px;
@@ -587,41 +576,61 @@ input[type="text"]:focus,
   position: relative;
 }
 
+/* Text should stop earlier on the right so it never goes behind Octo */
 .introBubbleText {
   font-family: var(--font-body, "Delius", cursive);
   font-size: clamp(18px, 2.2vw, 28px);
   line-height: 1.25;
-  padding-right: 0; /* IMPORTANT: no overlap padding anymore */
+
+  /* This is the key: reserve space for the overlapping avatar */
+  padding-right: clamp(220px, 28vw, 420px);
 }
 
-/* Footer row UNDER bubble: Skip + Tap hint on one line */
+/* Avatar overlaps on the right, and sits a bit more to the right */
+.introAvatar {
+  position: absolute;
+  right: -22px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(340px, 38vw);
+  height: auto;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Footer row under bubble aligned RIGHT: "Uitleg overslaan" + "Volgende" */
 .introFooterRow {
+  width: min(980px, 96vw);
+  margin-left: auto;
   display: flex;
+  justify-content: flex-end;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 10px;
+  gap: 18px;
+  padding: 0 6px;
 }
 
-/* New inline skip button (used in updated JS) */
-.introSkipInline {
+/* Inline link-style buttons */
+.introSkipInline,
+.introNextInline {
   background: transparent;
   border: none;
-  padding: 4px 6px;
+  padding: 6px 6px;
+  cursor: pointer;
   font-family: var(--font-body, "Delius", cursive);
   font-size: 16px;
   text-decoration: underline;
-  cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
-.introSkipInline:hover {
+.introSkipInline:hover,
+.introNextInline:hover {
   opacity: 0.9;
 }
 
-.introSkipInline:active {
+.introSkipInline:active,
+.introNextInline:active {
   transform: translateY(1px);
 }
 
@@ -630,27 +639,12 @@ input[type="text"]:focus,
   font-size: 20px;
 }
 
-/* Tap hint on same baseline as skip */
-.introTapHint {
-  font-family: var(--font-body, "Delius", cursive);
-  font-size: 14px;
-  opacity: 0.9;
-  white-space: nowrap;
+.introNextArrow {
+  margin-left: 2px;
+  font-size: 18px;
 }
 
-/* Avatar on right: push it further right */
-.introAvatar {
-  flex: 0 0 auto;
-  width: min(320px, 36vw);
-  height: auto;
-  pointer-events: none;
-
-  /* "more to the right" feel */
-  margin-left: 8px;
-  transform: translateX(10px);
-}
-
-/* Backward-compat: old skip button class (not used by new JS anymore) */
+/* Backward-compat: old class not used by new JS */
 .introSkip {
   align-self: flex-end;
   background: transparent;
@@ -662,48 +656,39 @@ input[type="text"]:focus,
   cursor: pointer;
 }
 
-/* ---------------------------
-   Mobile layout fixes
----------------------------- */
+/* Mobile layout fixes */
 @media (max-width: 720px) {
   .introStage {
     padding: 14px;
   }
 
-  .introContentRow {
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
+  .introBubble {
+    padding: 18px 16px 14px 16px;
+    width: min(760px, 92vw);
   }
 
-  .introBubbleCol {
-    width: 100%;
+  .introBubbleText {
+    padding-right: 0; /* on mobile: no overlap padding */
+  }
+
+  .introAvatar {
+    position: static;
+    transform: none;
+    width: min(280px, 70vw);
+    margin: 14px auto 0 auto;
+    display: block;
   }
 
   .introNameTag {
     left: 12px;
   }
 
-  .introBubble {
-    padding: 18px 16px 14px 16px;
-  }
-
-  .introAvatar {
-    width: min(280px, 70vw);
-    transform: none;
-    margin-left: 0;
-  }
-
   .introFooterRow {
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    margin-top: 10px;
-  }
-
-  .introTapHint {
-    white-space: normal;
-    text-align: center;
+    width: min(760px, 92vw);
+    margin-left: 0;
+    justify-content: center;
+    gap: 14px;
+    padding: 0;
   }
 }
 
