@@ -3,13 +3,10 @@ import { createRouter } from "./router.js";
 import { loadState, saveState, setPlayerName } from "./storage.js";
 
 import { mountSplash } from "../ui/splash.js";
-import { mountMap } from "../ui/map.js";
 import { mountWorldSelect } from "../ui/worldSelect.js";
-import { openNameModal } from "../ui/nameModal.js";
+import { mountLevels } from "../ui/levels.js";
 import { mountChatIntro } from "../ui/chatIntro.js";
-
-// (Optional) if you already have practice screen module later:
-// import { mountPractice } from "../ui/practice.js";
+import { openNameModal } from "../ui/nameModal.js";
 
 const appRoot = document.getElementById("appRoot");
 
@@ -20,35 +17,36 @@ const router = createRouter();
 let currentScreen = null;
 
 async function boot() {
-  // 1) Splash
+  // Splash first
   const splash = mountSplash({
     logoSrc: "./assets/img/logo.png",
-    durationMs: 5000
+    durationMs: 4500
   });
   await splash.waitDone();
   splash.destroy();
 
-  // 2) Default route
+  // Default route
   if (!window.location.hash) window.location.hash = "#worlds";
 
-  // 3) Router change handler
+  // Listen to route changes
   router.onChange((route) => {
     render(route);
   });
 
-  // 4) Ask name once
+  // Ask name once (optional but useful)
   if (!(state.player?.name || "").trim()) {
     openNameModal({
       initialName: "",
       onSave: (name) => {
-        setPlayerName(state, name);
+        state = setPlayerName(state, name);
+        saveState(state);
         render(router.getRoute(), true);
       },
       onCancel: () => {}
     });
   }
 
-  // 5) Initial render
+  // Initial render
   render(router.getRoute(), true);
 }
 
@@ -67,44 +65,28 @@ function render(route, force = false) {
   wrapper.className = "app";
   appRoot.appendChild(wrapper);
 
-  // IMPORTANT:
-  // Put specific routes BEFORE fallback, otherwise #intro can get overwritten.
-  if (route === "intro") {
-    const screen = mountChatIntro({
-      container: wrapper,
-      title: "Drum School",
-      subtitle: "Les 2 • De maat is vol!",
-      professorName: "Professor Octo",
-      professorAvatarSrc: "./assets/img/professor_octo.png",
-      teacherName: "Teacher",
-      teacherAvatarSrc: "./assets/img/drumteacher_01.png",
-      script: [
-        { from: "professor", text: "Hey hallo! Welkom op de Drum School!" },
-        { from: "professor", text: "Wist je dat ritmes al eeuwen bestaan?" },
-        { from: "teacher", text: "Ok grapje. Nu begint het pas echt..." },
-        { from: "teacher", text: "Korte zinnen. 1 idee per bubble." }
-      ],
-      autoAdvanceMs: 5000,
-      onDone: () => {
-        // Later: go to practice screen
-        window.location.hash = "#map";
-      },
-      onSkip: () => {
-        window.location.hash = "#map";
-      }
-    });
-
-    screen.route = "intro";
-    currentScreen = screen;
-    return;
-  }
+  // -------- ROUTES --------
 
   if (route === "worlds") {
     const screen = mountWorldSelect({
       container: wrapper,
       state,
-      onGoWorld: () => {
-        window.location.hash = "#map";
+      onGoWorld: (worldId) => {
+        state.nav = state.nav || {};
+        state.nav.worldId = worldId;
+        saveState(state);
+        window.location.hash = "#levels";
+      },
+      onEditName: () => {
+        openNameModal({
+          initialName: (state.player?.name || ""),
+          onSave: (name) => {
+            state = setPlayerName(state, name);
+            saveState(state);
+            render("worlds", true);
+          },
+          onCancel: () => {}
+        });
       }
     });
 
@@ -113,52 +95,81 @@ function render(route, force = false) {
     return;
   }
 
-  if (route === "map") {
-    const screen = mountMap({
+  if (route === "levels") {
+    const worldId = state?.nav?.worldId || "w1";
+
+    const screen = mountLevels({
       container: wrapper,
       state,
-      onEditName: () => {
-        openNameModal({
-          initialName: (state.player?.name || ""),
-          onSave: (name) => {
-            setPlayerName(state, name);
-            render("map", true);
-          },
-          onCancel: () => {}
-        });
+      worldId,
+      onBackToWorlds: () => {
+        window.location.hash = "#worlds";
       },
-      onOpenLevel: () => {
-        // For now: always show intro when clicking a level
+      onOpenLevel: (levelId) => {
+        state.nav = state.nav || {};
+        state.nav.worldId = worldId;
+        state.nav.levelId = levelId;
+        saveState(state);
         window.location.hash = "#intro";
       }
     });
 
-    screen.route = "map";
+    screen.route = "levels";
     currentScreen = screen;
     return;
   }
 
-  // Optional placeholder route (in case your router produces it)
-  if (route === "practice") {
-    // If you don’t have practice UI yet, keep it simple.
-    const placeholder = document.createElement("div");
-    placeholder.style.padding = "20px";
-    placeholder.innerHTML = `
-      <div style="font-weight:900;font-size:24px;">Practice</div>
-      <div style="margin-top:10px;">(Coming next)</div>
-      <button class="btn primary" style="margin-top:14px;" type="button">Back</button>
-    `;
-    placeholder.querySelector("button").addEventListener("click", () => {
-      window.location.hash = "#map";
-    });
-    wrapper.appendChild(placeholder);
+  if (route === "intro") {
+    // Minimal intro screen: content later becomes level-specific
+    const worldId = state?.nav?.worldId || "w1";
+    const levelId = state?.nav?.levelId || "l1";
 
-    currentScreen = { route: "practice", unmount: () => {} };
+    const screen = mountChatIntro({
+      container: wrapper,
+      title: "Drum School",
+      subtitle: `${worldLabel(worldId)} • ${levelLabel(levelId)}`,
+      professorName: "Professor Octo",
+      professorAvatarSrc: "./assets/img/professor_octo.png",
+      teacherName: "Teacher",
+      teacherAvatarSrc: "./assets/img/drumteacher_01.png",
+      script: [
+        { from: "professor", text: "Welkom terug bij de Drum School!" },
+        { from: "teacher", text: "In dit level oefenen we een ritme. Rustig aan, jij kan dit." },
+        { from: "teacher", text: "Klik straks op Practice om te beginnen." }
+      ],
+      autoAdvanceMs: 5000,
+      onDone: () => {
+        // For now, go back to levels (practice screen comes later)
+        window.location.hash = "#levels";
+      },
+      onSkip: () => {
+        window.location.hash = "#levels";
+      }
+    });
+
+    screen.route = "intro";
+    currentScreen = screen;
     return;
   }
 
-  // Fallback route
+  // -------- FALLBACK --------
   window.location.hash = "#worlds";
+}
+
+function worldLabel(worldId) {
+  if (worldId === "w1") return "Wereld 1";
+  if (worldId === "w2") return "Wereld 2";
+  if (worldId === "w3") return "Wereld 3";
+  if (worldId === "w4") return "Wereld 4";
+  return "Wereld";
+}
+
+function levelLabel(levelId) {
+  if (levelId === "l1") return "Level 1";
+  if (levelId === "l2") return "Level 2";
+  if (levelId === "l3") return "Level 3";
+  if (levelId === "l4") return "Level 4";
+  return "Level";
 }
 
 boot();
