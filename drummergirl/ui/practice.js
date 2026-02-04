@@ -1,296 +1,32 @@
 // practice.js
-// Drum exercise screen (isolated from prototype index.html)
+// Drum exercise screen
 
-export function mountPractice({ container }) {
+export function mountPractice({
+  container,
+  worldName = "Wereld",
+  levelName = "Level",
+  onExit = null // optional callback
+}) {
+  // Remove #intro in address bar while practicing
+  setHash("#practice");
+
   const root = document.createElement("div");
   root.className = "practiceScreen";
   container.appendChild(root);
 
-  // Scoped styles so it works even if global CSS doesn't include these yet
-  const styleEl = document.createElement("style");
-  styleEl.textContent = `
-    .practiceScreen{
-      width: 100%;
-      min-height: 100vh;
-      padding: 18px;
-      box-sizing: border-box;
-      display: grid;
-      place-items: center;
-    }
-    .practiceApp{
-      width: min(1200px, 94vw);
-      display: grid;
-      gap: 18px;
-      padding: 18px 6px 28px;
-      box-sizing: border-box;
-    }
-    .practicePanel{
-      border: 4px solid rgba(20,20,24,0.95);
-      border-radius: 18px;
-      background: rgba(255,255,255,0.70);
-      box-shadow: 0 10px 0 rgba(0,0,0,0.10);
-      padding: 14px;
-      display: grid;
-      gap: 12px;
-    }
-    .practiceRow{
-      display: grid;
-      grid-template-columns: 56px 120px 1fr 56px;
-      gap: 12px;
-      align-items: center;
-    }
-    .practiceIcon{
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      background: rgba(0,0,0,0.06);
-      display: grid;
-      place-items: center;
-      font-size: 26px;
-      user-select: none;
-    }
-    .practiceLabel{
-      font-weight: 900;
-      line-height: 1.05;
-    }
-    .practiceLabel .small{
-      display:block;
-      font-size: 14px;
-      opacity: 0.8;
-      margin-bottom: 4px;
-    }
-    .practiceLabel .value{
-      display:block;
-      font-size: 22px;
-    }
-    .practiceMuteBtn{
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      border: 4px solid rgba(20,20,24,0.95);
-      background: rgba(255,255,255,0.75);
-      box-shadow: 0 10px 0 rgba(0,0,0,0.10);
-      cursor: pointer;
-      display: grid;
-      place-items: center;
-      font-size: 20px;
-      padding: 0;
-    }
-    .practiceMuteBtn:active{
-      transform: translateY(2px);
-      box-shadow: 0 6px 0 rgba(0,0,0,0.10);
-    }
-    .practiceMuteBtn.isMuted{
-      opacity: 0.75;
-    }
-
-    .practiceActions{
-      display:flex;
-      gap: 10px;
-      justify-content: flex-end;
-      padding-top: 6px;
-    }
-    .practiceActions .btn{
-      min-width: 120px;
-    }
-
-    .practiceStage{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-    .practiceSeqWrap{
-      display:grid;
-      grid-template-columns: 1fr auto;
-      gap: 14px;
-      align-items: start;
-    }
-
-    .practiceLeftStack{
-      display:grid;
-      grid-template-rows: 180px auto;
-      gap: 10px;
-    }
-
-    .practiceSequencer{
-      position:relative;
-      width:100%;
-      height: 180px;
-      background: rgba(255,255,255,0.85);
-      border: 4px solid rgba(20,20,24,0.95);
-      border-radius: 18px;
-      box-shadow: 0 10px 0 rgba(0,0,0,0.10);
-      overflow:hidden;
-    }
-
-    .practiceLine{
-      position:absolute;
-      left: 5%;
-      right: 5%;
-      top: 50%;
-      height: 8px;
-      transform: translateY(-50%);
-      background: rgba(20,20,24,0.10);
-      border-radius: 999px;
-    }
-
-    .practiceStep{
-      position:absolute;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      border-radius: 999px;
-    }
-
-    .practiceStep.inactive{
-      width: 18px;
-      height: 18px;
-      background: rgba(20,20,24,0.18);
-    }
-
-    .practiceStep.active{
-      width: 44px;
-      height: 44px;
-      border: 3px solid rgba(255,255,255,0.95);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.12);
-    }
-
-    .practiceStep.handR{ background: #ff3b30; }
-    .practiceStep.handL{ background: #3a6bff; }
-
-    .practiceStep.pop{ animation: practicePop 170ms ease-out; }
-    @keyframes practicePop{
-      0%{ transform: translate(-50%, -50%) scale(1); }
-      60%{ transform: translate(-50%, -50%) scale(1.35); }
-      100%{ transform: translate(-50%, -50%) scale(1); }
-    }
-
-    .practiceStep.current{
-      box-shadow:
-        0 0 0 6px rgba(0,0,0,0.10),
-        0 14px 26px rgba(0,0,0,0.10);
-    }
-    .practiceStep.inactive.current{
-      box-shadow: 0 0 0 6px rgba(0,0,0,0.10);
-    }
-
-    .practiceMultiplierWrap{
-      position: relative;
-      width: 140px;
-      height: 180px;
-      display:grid;
-      place-items:center;
-      align-self:start;
-    }
-
-    .practiceMultiplier{
-      width: 140px;
-      height: 180px;
-      border-radius: 18px;
-      background: linear-gradient(135deg, #ff7a18, #ff2d95, #7b61ff);
-      color:#fff;
-      display:grid;
-      place-items:center;
-      box-shadow: 0 10px 0 rgba(0,0,0,0.10);
-      overflow:hidden;
-      border: 4px solid rgba(20,20,24,0.95);
-    }
-    .practiceMultiplier::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.22), transparent 45%);
-      pointer-events:none;
-    }
-
-    .practiceMultiplier span{
-      font-size: 48px;
-      font-weight: 950;
-      letter-spacing: 1px;
-      text-shadow: 0 10px 22px rgba(0,0,0,0.20);
-    }
-
-    .practiceMultiplier.sparklePulse{
-      animation: practicePulse 450ms ease-out;
-    }
-    @keyframes practicePulse{
-      0%{ transform: scale(1); }
-      35%{ transform: scale(1.05); }
-      100%{ transform: scale(1); }
-    }
-
-    .practiceSparkleLayer{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      overflow:visible;
-    }
-
-    .practiceSpark{
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform: translate(-50%,-50%);
-      font-size: 22px;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.22));
-      animation: practiceFly 900ms ease-out forwards;
-      opacity: 0;
-    }
-
-    @keyframes practiceFly{
-      0%   { opacity:0; transform: translate(-50%,-50%) scale(0.85); }
-      10%  { opacity:1; }
-      100% { opacity:0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.25); }
-    }
-
-    .practiceHandRow{
-      width: 100%;
-      display:grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 10px;
-      justify-items:center;
-      align-items:start;
-      padding-top: 4px;
-    }
-
-    .practiceHandCell{
-      min-height: 76px;
-      display:grid;
-      gap: 6px;
-      justify-items:center;
-      align-content:start;
-      font-weight: 900;
-      font-size: 22px;
-    }
-
-    .practiceHandCell .handIcon{
-      font-size: 30px;
-      line-height:1;
-    }
-
-    .practiceHandCell.R{ color: #ff3b30; }
-    .practiceHandCell.L{ color: #3a6bff; }
-
-    .practiceHandRow.hidden{
-      display:none !important;
-    }
-
-    input[type="range"]{
-      width:100%;
-      height: 22px;
-      accent-color: rgba(20,20,24,0.85);
-    }
-
-    @media (max-width: 980px){
-      .practiceSeqWrap{ grid-template-columns: 1fr; }
-      .practiceMultiplierWrap{ width: 100%; height: auto; }
-      .practiceMultiplier{ width: 100%; height: 120px; }
-    }
-  `;
-  document.head.appendChild(styleEl);
-
-  // UI
   root.innerHTML = `
     <div class="practiceApp">
+      <div class="practiceHeader">
+        <div class="practiceHeaderCenter">
+          <h1 class="practiceWorldTitle">${escapeHtml(worldName)}</h1>
+          <p class="practiceLevelTitle">${escapeHtml(levelName)}</p>
+        </div>
+
+        <div class="practiceStopWrap">
+          <button class="btn ghost" type="button" data-stop>Stoppen</button>
+        </div>
+      </div>
+
       <div class="practicePanel">
         <div class="practiceRow">
           <div class="practiceIcon">🎵</div>
@@ -347,6 +83,8 @@ export function mountPractice({ container }) {
       </div>
     </div>
   `;
+
+  const stopPracticeBtn = root.querySelector("[data-stop]");
 
   const STEPS = 8;
 
@@ -797,14 +535,36 @@ export function mountPractice({ container }) {
   const onResize = () => buildSequencer();
   window.addEventListener("resize", onResize);
 
+  // Stoppen button
+  stopPracticeBtn.addEventListener("click", () => {
+    exitToLevels();
+  });
+
   // Init
   updateMuteButton(metroMuteBtn, metronomeMuted);
   updateMuteButton(hitsMuteBtn, hitsMuted);
   setHandsVisible(false);
 
-  // Build after it is in DOM
   buildSequencer();
   requestAnimationFrame(buildSequencer);
+
+  function exitToLevels() {
+    stop();
+
+    // Update URL so #intro is gone and we land back at levels
+    setHash("#levels");
+
+    if (typeof onExit === "function") {
+      onExit();
+      return;
+    }
+
+    // Fallback: broadcast an event that your app can listen to
+    window.dispatchEvent(new CustomEvent("ds:navigate", { detail: { to: "levels" } }));
+
+    // If you have a hash router, this is usually enough.
+    // Otherwise, your app code should catch ds:navigate and show the levels screen.
+  }
 
   function unmount() {
     stop();
@@ -814,7 +574,6 @@ export function mountPractice({ container }) {
       if (audioCtx && audioCtx.state !== "closed") audioCtx.close();
     } catch {}
 
-    styleEl.remove();
     root.remove();
   }
 
@@ -822,3 +581,22 @@ export function mountPractice({ container }) {
 }
 
 export default mountPractice;
+
+function setHash(hash) {
+  try {
+    const url = new URL(window.location.href);
+    url.hash = hash || "";
+    history.replaceState({}, "", url.toString());
+  } catch {
+    // ignore
+  }
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
