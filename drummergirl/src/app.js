@@ -10,7 +10,8 @@ import { openNameModal } from "../ui/nameModal.js";
 
 // NEW: lesson loader + lesson screen
 import { loadLesson } from "./drummergirl/levels/loadLesson.js";
-import { mountPractice } from "../ui/practice/practice.js";
+import { mountPractice } from "../ui/practice.js";
+
 
 const appRoot = document.getElementById("appRoot");
 
