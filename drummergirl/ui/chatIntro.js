@@ -7,7 +7,7 @@ export function mountChatIntro({
   professorName = "Professor",
   professorAvatarSrc = "",
   script = [],
-  autoAdvanceMs = 0, // ignored now (manual only)
+  autoAdvanceMs = 0, // ignored (manual only)
   onDone = () => {},
   onSkip = () => {}
 }) {
@@ -33,6 +33,16 @@ export function mountChatIntro({
 
             <div class="introBubble">
               <div class="introBubbleText" id="introBubbleText"></div>
+
+              <div class="introActions">
+                <button class="btn primary introStartBtn" type="button" data-start>
+                  Level Starten
+                </button>
+
+                <button class="btn ghost introNextBtn" type="button" data-next>
+                  Volgende
+                </button>
+              </div>
             </div>
 
             ${
@@ -43,30 +53,20 @@ export function mountChatIntro({
                 : ""
             }
           </div>
-
-          <div class="introFooterRow">
-            <button class="introSkipInline" type="button" data-skip>
-              Uitleg overslaan <span class="introSkipArrow" aria-hidden="true">↪</span>
-            </button>
-
-            <button class="introNextInline" type="button" data-next>
-              Volgende <span class="introNextArrow" aria-hidden="true">→</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>
   `;
 
   const bubbleTextEl = root.querySelector("#introBubbleText");
-  const skipBtn = root.querySelector("[data-skip]");
+  const startBtn = root.querySelector("[data-start]");
   const nextBtn = root.querySelector("[data-next]");
 
   renderLine();
 
-  skipBtn?.addEventListener("click", (e) => {
+  startBtn?.addEventListener("click", async (e) => {
     e.stopPropagation();
-    onSkip();
+    await startPracticeLevel();
   });
 
   nextBtn?.addEventListener("click", (e) => {
@@ -74,7 +74,7 @@ export function mountChatIntro({
     advanceOrDone();
   });
 
-  // Tap anywhere to advance (except when clicking buttons)
+  // Tap anywhere to advance (except buttons)
   root.addEventListener("click", () => {
     advanceOrDone();
   });
@@ -100,6 +100,50 @@ export function mountChatIntro({
     renderLine();
   }
 
+  async function startPracticeLevel() {
+    // 1) Prefer a global hook if you already have one
+    if (typeof window.startPractice === "function") {
+      unmount();
+      window.startPractice({ container });
+      return;
+    }
+    if (window.dsApp && typeof window.dsApp.startPractice === "function") {
+      unmount();
+      window.dsApp.startPractice({ container });
+      return;
+    }
+
+    // 2) Try dynamic import of practice.js (common project structure: /ui/chatIntro.js -> ../practice.js)
+    try {
+      const mod = await import("../practice.js");
+
+      const fn =
+        mod.mountPractice ||
+        mod.startPractice ||
+        mod.initPractice ||
+        mod.mountPracticeScreen ||
+        mod.default;
+
+      if (typeof fn === "function") {
+        unmount();
+        // Support both patterns: fn(container) or fn({container})
+        try {
+          fn({ container });
+        } catch {
+          fn(container);
+        }
+        return;
+      }
+    } catch (err) {
+      // ignore and fall through
+    }
+
+    // 3) Fallback: you can customize this if you have routing
+    // If your app uses hash routing, set something like: location.hash = "#practice"
+    // Otherwise, just call onDone and let the app flow continue.
+    onDone();
+  }
+
   function unmount() {
     root.remove();
   }
@@ -112,6 +156,6 @@ function escapeHtml(s) {
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
+   dinChatIntroText.replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
