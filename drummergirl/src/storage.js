@@ -1,17 +1,12 @@
 // src/storage.js
 
-// One stable key, so you can refactor freely without breaking saves
 const STORAGE_KEY = "ds_state_v1";
-
-// If you previously used another key (e.g. "drumSchoolState"), we can migrate it.
 const LEGACY_KEYS = ["drumSchoolState", "drummergirlState", "ds_state"];
 
-/**
- * Load state from localStorage.
- * - Creates defaults if missing
- * - Migrates from legacy keys if found
- * - Ensures shape is always complete (so UI never crashes)
- */
+/* -------------------------
+   Public API
+------------------------- */
+
 export function loadState() {
   const migrated = tryMigrateLegacy();
   if (migrated) return ensureStateShape(migrated);
@@ -22,26 +17,26 @@ export function loadState() {
   try {
     const parsed = JSON.parse(raw);
     return ensureStateShape(parsed);
-  } catch (e) {
-    // Corrupt storage: reset
+  } catch {
     return ensureStateShape(createDefaultState());
   }
 }
 
-/**
- * Save state to localStorage.
- */
 export function saveState(state) {
   const shaped = ensureStateShape(state);
   safeSet(STORAGE_KEY, JSON.stringify(shaped));
 }
 
-/**
- * Backwards-friendly getters (some UI files may import these)
- * Keep these stable to avoid white screens.
- */
+/* --- getters (compat) --- */
+
 export function getStars(state) {
   return clamp0(Number(state?.progress?.stars || 0));
+}
+
+export function getTotalStars(state) {
+  // In our current model, totalStars == progress.stars
+  // Keep this export because older screens may rely on it.
+  return getStars(state);
 }
 
 export function getTicks(state) {
@@ -60,9 +55,8 @@ export function getPlayerAvatarSrc(state) {
   return String(state?.player?.avatarSrc || "./assets/img/avatars/ds_avatar_rockbunny.png");
 }
 
-/**
- * Update player's name and persist.
- */
+/* --- setters --- */
+
 export function setPlayerName(state, name) {
   const shaped = ensureStateShape(state);
   shaped.player.name = String(name || "").trim();
@@ -70,9 +64,6 @@ export function setPlayerName(state, name) {
   return shaped;
 }
 
-/**
- * Update avatar and persist.
- */
 export function setPlayerAvatar(state, avatarSrc) {
   const shaped = ensureStateShape(state);
   shaped.player.avatarSrc = String(avatarSrc || "").trim();
@@ -80,9 +71,6 @@ export function setPlayerAvatar(state, avatarSrc) {
   return shaped;
 }
 
-/**
- * Add progress (ticks/stars/grooves)
- */
 export function addProgress(state, { stars = 0, ticks = 0, grooves = 0 } = {}) {
   const shaped = ensureStateShape(state);
   shaped.progress.stars = clamp0(shaped.progress.stars + Number(stars || 0));
@@ -92,10 +80,6 @@ export function addProgress(state, { stars = 0, ticks = 0, grooves = 0 } = {}) {
   return shaped;
 }
 
-/**
- * Unlock items
- * type: "avatars" | "drums" | "teachers" | "music" | "worlds"
- */
 export function unlock(state, type, id) {
   const shaped = ensureStateShape(state);
   if (!shaped.unlocks[type]) shaped.unlocks[type] = {};
@@ -171,16 +155,13 @@ function ensureStateShape(input) {
     }
   };
 
-  // sanitize numeric fields
   out.progress.stars = clamp0(Number(out.progress.stars || 0));
   out.progress.ticks = clamp0(Number(out.progress.ticks || 0));
   out.progress.grooves = clamp0(Number(out.progress.grooves || 0));
 
-  // sanitize strings
   out.player.name = String(out.player.name || "");
   out.player.avatarSrc = String(out.player.avatarSrc || base.player.avatarSrc);
 
-  // ensure required nested objects exist
   if (!out.unlocks.avatars) out.unlocks.avatars = { ...base.unlocks.avatars };
   if (!out.unlocks.drums) out.unlocks.drums = {};
   if (!out.unlocks.teachers) out.unlocks.teachers = {};
@@ -199,7 +180,7 @@ function clamp0(n) {
 function safeGet(key) {
   try {
     return localStorage.getItem(key);
-  } catch (_) {
+  } catch {
     return null;
   }
 }
@@ -207,13 +188,12 @@ function safeGet(key) {
 function safeSet(key, val) {
   try {
     localStorage.setItem(key, val);
-  } catch (_) {
-    // ignore quota / private mode issues
+  } catch {
+    // ignore
   }
 }
 
 function tryMigrateLegacy() {
-  // If new key already exists, no migration needed
   const existing = safeGet(STORAGE_KEY);
   if (existing) return null;
 
@@ -225,10 +205,9 @@ function tryMigrateLegacy() {
       const parsed = JSON.parse(raw);
       safeSet(STORAGE_KEY, JSON.stringify(parsed));
       return parsed;
-    } catch (_) {
-      // ignore corrupt legacy
+    } catch {
+      // ignore
     }
   }
-
   return null;
 }
