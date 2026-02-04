@@ -115,7 +115,7 @@ export function mountChatIntro({
 
     // 2) Try dynamic import of practice.js (common project structure: /ui/chatIntro.js -> ../practice.js)
     try {
-      const mod = await import("../practice.js");
+      const mod = await import("../ui/practice.js");
 
       const fn =
         mod.mountPractice ||
