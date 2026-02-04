@@ -24,11 +24,21 @@ export function mountLevels({
   });
 
   const worldTitle = getWorldTitle(worldId);
+  const worldPrefix = getWorldPrefix(worldId); // "W1", "W2", etc.
+
+  // For now we show 4 levels per world (matches your UI).
+  // Later we can read this from data/worlds.js world.levels.
+  const levels = [
+    { lessonId: `${worldPrefix}-L1`, title: "Level 1" },
+    { lessonId: `${worldPrefix}-L2`, title: "Level 2" },
+    { lessonId: `${worldPrefix}-L3`, title: "Level 3" },
+    { lessonId: `${worldPrefix}-L4`, title: "Level 4" }
+  ];
 
   mainHost.innerHTML = `
     <div class="dsWorldSelect">
       <div class="dsWorldHeader">
-        <div class="dsWorldH1">${worldTitle}</div>
+        <div class="dsWorldH1">${escapeHtml(worldTitle)}</div>
         <div class="dsWorldH2">Kies een level</div>
       </div>
 
@@ -37,10 +47,7 @@ export function mountLevels({
       </button>
 
       <div class="dsWorldGrid">
-        ${renderLevelTile("l1", "Level 1")}
-        ${renderLevelTile("l2", "Level 2")}
-        ${renderLevelTile("l3", "Level 3")}
-        ${renderLevelTile("l4", "Level 4")}
+        ${levels.map(l => renderLevelTile(l.lessonId, l.title)).join("")}
       </div>
     </div>
   `;
@@ -51,8 +58,8 @@ export function mountLevels({
 
   mainHost.querySelectorAll("[data-level]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const levelId = btn.getAttribute("data-level");
-      onOpenLevel(levelId);
+      const lessonId = btn.getAttribute("data-level"); // now "W1-L1"
+      onOpenLevel(lessonId);
     });
   });
 
@@ -67,23 +74,42 @@ export function mountLevels({
 /* helpers */
 
 function getWorldTitle(worldId) {
-  if (worldId === "w1") return "Wereld 1";
-  if (worldId === "w2") return "Wereld 2";
-  if (worldId === "w3") return "Wereld 3";
-  if (worldId === "w4") return "Wereld 4";
+  // match your /data/worlds.js ids
+  if (worldId === "world1") return "Wereld 1";
+  if (worldId === "world2") return "Wereld 2";
+  if (worldId === "world3") return "Wereld 3";
+  if (worldId === "world4") return "Wereld 4";
+  if (worldId === "world5") return "Wereld 5";
   return "Wereld";
 }
 
-function renderLevelTile(id, title) {
+function getWorldPrefix(worldId) {
+  // "world1" -> "W1"
+  const n = Number(String(worldId).replace("world", ""));
+  if (Number.isFinite(n) && n > 0) return `W${n}`;
+  return "W1";
+}
+
+function renderLevelTile(lessonId, title) {
   return `
     <button
       type="button"
       class="dsWorldTile"
-      data-level="${id}"
+      data-level="${escapeHtml(lessonId)}"
     >
       <div class="dsWorldTileTop">
-        <div class="dsWorldNum">${title}</div>
+        <div class="dsWorldNum">${escapeHtml(title)}</div>
       </div>
+      <div class="dsWorldSub">${escapeHtml(lessonId)}</div>
     </button>
   `;
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
