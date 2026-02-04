@@ -37,6 +37,30 @@ export function saveState(state) {
 }
 
 /**
+ * Backwards-friendly getters (some UI files may import these)
+ * Keep these stable to avoid white screens.
+ */
+export function getStars(state) {
+  return clamp0(Number(state?.progress?.stars || 0));
+}
+
+export function getTicks(state) {
+  return clamp0(Number(state?.progress?.ticks || 0));
+}
+
+export function getGrooves(state) {
+  return clamp0(Number(state?.progress?.grooves || 0));
+}
+
+export function getPlayerName(state) {
+  return String(state?.player?.name || "").trim();
+}
+
+export function getPlayerAvatarSrc(state) {
+  return String(state?.player?.avatarSrc || "./assets/img/avatars/ds_avatar_rockbunny.png");
+}
+
+/**
  * Update player's name and persist.
  */
 export function setPlayerName(state, name) {
@@ -47,7 +71,7 @@ export function setPlayerName(state, name) {
 }
 
 /**
- * Optional helper: update avatar and persist
+ * Update avatar and persist.
  */
 export function setPlayerAvatar(state, avatarSrc) {
   const shaped = ensureStateShape(state);
@@ -57,7 +81,7 @@ export function setPlayerAvatar(state, avatarSrc) {
 }
 
 /**
- * Optional helper: add progress (ticks/stars/grooves)
+ * Add progress (ticks/stars/grooves)
  */
 export function addProgress(state, { stars = 0, ticks = 0, grooves = 0 } = {}) {
   const shaped = ensureStateShape(state);
@@ -69,7 +93,7 @@ export function addProgress(state, { stars = 0, ticks = 0, grooves = 0 } = {}) {
 }
 
 /**
- * Optional helper: unlock items
+ * Unlock items
  * type: "avatars" | "drums" | "teachers" | "music" | "worlds"
  */
 export function unlock(state, type, id) {
@@ -89,7 +113,6 @@ function createDefaultState() {
     version: 1,
     player: {
       name: "",
-      // default avatar (you uploaded these)
       avatarSrc: "./assets/img/avatars/ds_avatar_rockbunny.png"
     },
     progress: {
@@ -111,7 +134,6 @@ function createDefaultState() {
         w3: true
       }
     },
-    // Your current navigation context if you want it later
     nav: {
       worldId: "w1",
       levelId: null
@@ -123,7 +145,6 @@ function ensureStateShape(input) {
   const base = createDefaultState();
   const s = (input && typeof input === "object") ? input : {};
 
-  // shallow merge top-level
   const out = {
     ...base,
     ...s,
@@ -202,7 +223,6 @@ function tryMigrateLegacy() {
 
     try {
       const parsed = JSON.parse(raw);
-      // Write into new key
       safeSet(STORAGE_KEY, JSON.stringify(parsed));
       return parsed;
     } catch (_) {
