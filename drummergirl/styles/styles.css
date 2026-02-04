@@ -525,3 +525,172 @@ input[type="text"]:focus,
 .hidden {
   display: none !important;
 }
+
+/* =========================
+   Intro / Chat Screen
+   ========================= */
+
+.introScreen {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.introStage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+.introTopBar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 6px 2px 14px 2px;
+}
+
+.introTitle {
+  font-family: var(--font-heading, "Chewy", system-ui);
+  font-size: 18px;
+}
+
+.introSubtitle {
+  font-family: var(--font-body, "Delius", cursive);
+  font-size: 14px;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+.introCenter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.introCard {
+  width: min(980px, 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.introBubbleWrap {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  box-sizing: border-box;
+}
+
+.introNameTag {
+  position: absolute;
+  top: -18px;
+  left: 22px;
+  background: #ffffff;
+  border: 3px solid rgba(0,0,0,0.85);
+  border-radius: 14px;
+  padding: 6px 12px;
+  font-family: var(--font-heading, "Chewy", system-ui);
+  font-size: 16px;
+  z-index: 3;
+}
+
+.introBubble {
+  width: min(720px, 92vw);
+  background: #f6e6b6;
+  border: 4px solid rgba(0,0,0,0.85);
+  border-radius: 20px;
+  padding: 22px 22px 16px 22px;
+  box-sizing: border-box;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+  position: relative;
+}
+
+.introBubbleText {
+  font-family: var(--font-body, "Delius", cursive);
+  font-size: clamp(18px, 2.2vw, 28px);
+  line-height: 1.25;
+  padding-right: 140px; /* ruimte voor avatar overlap op desktop */
+}
+
+.introControls {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.introBtn,
+.introBtnPrimary {
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-family: var(--font-heading, "Chewy", system-ui);
+  font-size: 16px;
+}
+
+.introHint {
+  margin-top: 10px;
+  font-family: var(--font-body, "Delius", cursive);
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.introAvatar {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(320px, 36vw);
+  height: auto;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.introSkip {
+  align-self: flex-end;
+  background: transparent;
+  border: none;
+  padding: 6px 8px;
+  font-family: var(--font-body, "Delius", cursive);
+  font-size: 16px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.introSkipArrow {
+  margin-left: 6px;
+  font-size: 20px;
+}
+
+/* Mobile layout fixes */
+@media (max-width: 720px) {
+  .introBubble {
+    padding: 18px 16px 14px 16px;
+  }
+
+  .introBubbleText {
+    padding-right: 0; /* avatar gaat onder of kleiner */
+  }
+
+  .introAvatar {
+    position: static;
+    transform: none;
+    width: min(280px, 70vw);
+    margin: 14px auto 0 auto;
+    display: block;
+  }
+
+  .introNameTag {
+    left: 12px;
+  }
+
+  .introSkip {
+    align-self: center;
+  }
+}
