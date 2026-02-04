@@ -18,7 +18,6 @@ export function mountChatIntro({
   root.className = "introScreen";
   container.appendChild(root);
 
-  // Background wrapper (uses your global gradient/background)
   root.innerHTML = `
     <div class="introStage">
       <div class="introTopBar">
@@ -30,18 +29,23 @@ export function mountChatIntro({
 
       <div class="introCenter">
         <div class="introCard">
-          <div class="introBubbleWrap">
-            <div class="introNameTag">${escapeHtml(professorName)}</div>
 
-            <div class="introBubble">
-              <div class="introBubbleText" id="introBubbleText"></div>
+          <div class="introContentRow">
+            <div class="introBubbleCol">
+              <div class="introNameTag">${escapeHtml(professorName)}</div>
 
-              <div class="introControls">
-                <button class="btn introBtn" type="button" data-next>Next</button>
-                <button class="btn introBtnPrimary" type="button" data-start>Let’s Drum! 🥁</button>
+              <div class="introBubble">
+                <div class="introBubbleText" id="introBubbleText"></div>
               </div>
 
-              <div class="introHint">Tip: tik op het scherm om door te gaan</div>
+              <div class="introFooterRow">
+                <button class="introSkipInline" type="button" data-skip>
+                  Overslaan
+                  <span class="introSkipArrow" aria-hidden="true">↪</span>
+                </button>
+
+                <div class="introTapHint">Klik ergens op het scherm om door te gaan</div>
+              </div>
             </div>
 
             ${
@@ -53,80 +57,65 @@ export function mountChatIntro({
             }
           </div>
 
-          <button class="introSkip" type="button" data-skip>
-            Uitleg overslaan
-            <span class="introSkipArrow">↪</span>
-          </button>
         </div>
       </div>
     </div>
   `;
 
   const bubbleTextEl = root.querySelector("#introBubbleText");
-  const nextBtn = root.querySelector("[data-next]");
-  const startBtn = root.querySelector("[data-start]");
   const skipBtn = root.querySelector("[data-skip]");
 
-  // Render first line
   renderLine();
 
-  // Interactions
-  nextBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    nextLine();
-  });
-
-  startBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    cleanupTimers();
-    onDone();
-  });
-
-  skipBtn.addEventListener("click", (e) => {
+  skipBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
     cleanupTimers();
     onSkip();
   });
 
-  // Tap anywhere to advance (except when clicking buttons)
+  // Tap anywhere to advance (except when clicking skip)
   root.addEventListener("click", () => {
-    nextLine();
+    advanceOrDone(false);
   });
 
   // Optional auto-advance every N ms
   if (autoAdvanceMs && autoAdvanceMs > 0) {
     timer = setInterval(() => {
-      nextLine(true);
+      advanceOrDone(true);
     }, autoAdvanceMs);
   }
 
   function renderLine() {
-    const line = script[index]?.text || "";
-    bubbleTextEl.textContent = line;
-
-    // Disable "Next" if last line
-    const isLast = index >= script.length - 1;
-    nextBtn.disabled = isLast;
-
-    // If there is no script, avoid weird empty state
     if (!script.length) {
       bubbleTextEl.textContent = "Welkom! (Script is leeg)";
-      nextBtn.disabled = true;
+      return;
     }
+
+    const line = script[index]?.text || "";
+    bubbleTextEl.textContent = line;
   }
 
-  function nextLine(fromAuto = false) {
+  function advanceOrDone(fromAuto = false) {
     if (!script.length) return;
 
-    // If last line: do nothing on Next, but tapping could still do nothing
-    if (index >= script.length - 1) {
-      // On auto we stop to avoid infinite tries
-      if (fromAuto) cleanupTimers();
+    const isLast = index >= script.length - 1;
+
+    // Als we op de laatste regel zitten, dan is een tik "klaar"
+    if (isLast) {
+      cleanupTimers();
+      onDone();
       return;
     }
 
     index += 1;
     renderLine();
+
+    // Als auto-advance net de laatste regel bereikt heeft, laat die dan zien
+    // en rond af bij de volgende tick, of door user tap
+    if (fromAuto && index >= script.length - 1) {
+      // niets extra, user kan nog lezen. Wil je dat hij meteen afsluit:
+      // cleanupTimers(); onDone();
+    }
   }
 
   function cleanupTimers() {
