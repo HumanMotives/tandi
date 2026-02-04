@@ -1,482 +1,269 @@
-/* Base screens */
-.screen {
-  width: min(1280px, 96vw);
-  margin: 0 auto;
-  padding: 18px 10px;
+/* styles/styles.css
+   Drum School – Base Styles (single source of truth)
+   Goal: consistency + functional UI (no extra fancy per-screen styling)
+*/
+
+/* ---------------------------
+   0) Reset + base
+---------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-.dots {
-  background:
-    radial-gradient(circle at 12px 12px, rgba(0,0,0,0.06) 2px, transparent 2.5px) 0 0 / 18px 18px,
-    linear-gradient(180deg, #d9c2ff 0%, #f3e6ff 100%);
-  border-radius: 24px;
+html,
+body {
+  height: 100%;
 }
 
-/* Shared layout with sidebar */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: rgba(20, 20, 24, 0.95);
+
+  /* Global background = splash vibe */
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(240, 230, 255, 0.92) 40%,
+    rgba(210, 190, 255, 0.88) 100%
+  );
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* Root mount */
+#appRoot {
+  min-height: 100%;
+}
+
+/* App wrapper */
+.app {
+  min-height: 100vh;
+  padding: 18px;
+}
+
+/* ---------------------------
+   1) Consistent Layout Helpers
+---------------------------- */
+.layout,
+.dsShell,
 .worldLayout {
+  /* Use ONE consistent layout class. If old screens still use dsShell/worldLayout,
+     this keeps them looking sane without per-screen hacks. */
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 280px 1fr;
   gap: 18px;
   align-items: start;
-}
-
-.sidePanel {
-  background: linear-gradient(180deg, #ffcaa0 0%, #ffd9d9 100%);
-  border-radius: 28px;
-  border: 5px solid rgba(20,20,24,0.95);
-  box-shadow: 0 14px 0 rgba(0,0,0,0.12), 0 24px 40px rgba(0,0,0,0.10);
-  padding: 16px;
-  position: sticky;
-  top: 14px;
-}
-
-.sideLogo {
-  font-weight: 1000;
-  line-height: 0.9;
-  font-size: 44px;
-  letter-spacing: -1px;
-  color: #ff4d8d;
-  text-shadow: 4px 4px 0 rgba(20,20,24,0.95);
-  transform: rotate(-2deg);
-  margin-bottom: 12px;
-}
-
-.sideAvatarCard {
-  height: 260px;
-  border-radius: 22px;
-  border: 4px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.55);
-  box-shadow: 0 12px 0 rgba(0,0,0,0.12);
-  overflow: hidden;
-}
-
-.sideHeroImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.sideName {
-  margin-top: 12px;
-  font-weight: 1000;
-  font-size: 30px;
-  color: #ff4d8d;
-  text-shadow: 2px 2px 0 rgba(20,20,24,0.95);
-}
-
-.sideStats {
-  margin-top: 14px;
-  display: grid;
-  gap: 10px;
-}
-
-.statRow {
-  display: grid;
-  grid-template-columns: 34px 1fr auto;
-  gap: 10px;
-  align-items: center;
-  border-radius: 18px;
-  border: 4px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.65);
-  box-shadow: 0 12px 0 rgba(0,0,0,0.12);
-  padding: 10px 12px;
-  font-weight: 900;
-}
-
-.statIcon { font-size: 22px; }
-.statLabel { opacity: 0.8; }
-.statValue { font-size: 18px; }
-
-.sideBottomIcons {
-  margin-top: 14px;
-  display: flex;
-  gap: 10px;
-}
-
-.iconBtn {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  border: 4px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.85);
-  box-shadow: 0 10px 0 rgba(0,0,0,0.12);
-  cursor: pointer;
-  font-size: 22px;
-}
-
-/* World ring layout */
-.worldMain {
-  min-height: 680px;
-  display: grid;
-  place-items: center;
-}
-
-ds_avatar_rockbunny.png
-ds_avatar_lion.png
-
-/* quick positions (works fine for MVP) */
-.worldNode:nth-child(1) { left: 60px; top: 70px; }
-.worldNode:nth-child(2) { right: 60px; top: 70px; }
-.worldNode:nth-child(3) { right: 90px; bottom: 120px; }
-.worldNode:nth-child(4) { left: 90px; bottom: 120px; }
-.worldNode:nth-child(5) { left: 50%; top: 50%; transform: translate(-50%,-50%); }
-
-.worldNode.locked { opacity: 0.5; cursor: not-allowed; }
-.worldNodeImgWrap { position: relative; }
-.worldNodeImgWrap img { width: 100%; height: 100%; object-fit: cover; }
-.worldNodeFallback {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-weight: 1000;
-  font-size: 64px;
-  color: rgba(20,20,24,0.35);
-}
-.worldNodeText {
-  padding: 10px 12px;
-  text-align: left;
-}
-.worldNodeSmall { font-weight: 900; opacity: 0.75; }
-.worldNodeBig { font-weight: 1000; font-size: 22px; }
-
-/* Practice */
-.practiceHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.practiceTitle {
-  font-weight: 1000;
-  font-size: 28px;
-  color: #ff4d8d;
-  text-shadow: 3px 3px 0 rgba(20,20,24,0.95);
-}
-
-.practiceBtns { display: flex; gap: 10px; }
-
-.btn {
-  border: 4px solid rgba(20,20,24,0.95);
-  border-radius: 18px;
-  padding: 10px 14px;
-  font-weight: 1000;
-  cursor: pointer;
-  box-shadow: 0 12px 0 rgba(0,0,0,0.12);
-  background: rgba(255,255,255,0.85);
-}
-.btn:active { transform: translateY(2px); }
-.btn.green { background: linear-gradient(180deg, #54f08b 0%, #2ad46f 100%); }
-.btn.orange { background: linear-gradient(180deg, #ffb14a 0%, #ff7a2e 100%); }
-.btn.ghost { background: rgba(255,255,255,0.85); }
-
-.practiceBody {
-  display: grid;
-  place-items: center;
-  min-height: 520px;
-}
-.practiceCard {
-  width: min(920px, 96vw);
-  border-radius: 26px;
-  border: 5px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.65);
-  box-shadow: 0 14px 0 rgba(0,0,0,0.12), 0 24px 40px rgba(0,0,0,0.10);
-  padding: 18px;
-}
-
-/* Overlay */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.35);
-  display: grid;
-  place-items: center;
-  z-index: 999;
-}
-
-.overlayCard {
-  width: min(520px, 92vw);
-  border-radius: 28px;
-  border: 6px solid rgba(20,20,24,0.95);
-  background: linear-gradient(180deg, #ffe5a6 0%, #ffd4f3 100%);
-  box-shadow: 0 16px 0 rgba(0,0,0,0.16), 0 30px 60px rgba(0,0,0,0.14);
-  padding: 18px;
-  text-align: center;
-}
-
-.overlayTitle {
-  font-weight: 1100;
-  font-size: 42px;
-  color: #ff4d8d;
-  text-shadow: 4px 4px 0 rgba(20,20,24,0.95);
-}
-
-.overlaySub {
-  margin-top: 6px;
-  font-weight: 900;
-  opacity: 0.8;
-}
-
-.overlayStars {
-  margin-top: 16px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.starPick {
-  width: 54px;
-  height: 54px;
-  border-radius: 18px;
-  border: 4px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.85);
-  box-shadow: 0 10px 0 rgba(0,0,0,0.12);
-  cursor: pointer;
-  font-size: 28px;
-  color: #6a64ff;
-}
-
-.overlayBtns {
-  margin-top: 16px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
+  min-height: calc(100vh - 36px);
 }
 
 @media (max-width: 900px) {
-  .worldLayout { grid-template-columns: 1fr; }
-  .sidePanel { position: relative; top: 0; }
-  .worldNode { width: 190px; height: 190px; }
+  .layout,
+  .dsShell,
+  .worldLayout {
+    grid-template-columns: 1fr;
+  }
 }
 
-/* Sidebar player avatar (instead of hero image) */
-.sideAvatarImg {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 10px;
-}
-
-/* Name row with edit icon */
-.sideNameRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.sideNameEdit {
-  width: 46px;
-  height: 46px;
-  border-radius: 16px;
-  border: 4px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.85);
-  box-shadow: 0 10px 0 rgba(0,0,0,0.12);
-  cursor: pointer;
-  font-size: 18px;
-}
-
-/* Map main */
+/* Main area should not hug edges */
+main,
+.dsShellMain,
+.worldMain,
 .mapMain {
-  min-height: 680px;
+  min-height: 60vh;
 }
 
-.mapHeader {
-  margin-bottom: 14px;
+/* ---------------------------
+   2) Consistent “Card / Frame”
+   Use .frame for panels and .card for blocks
+---------------------------- */
+.frame,
+.card,
+.dsModalCard,
+.sidebar,
+.sidePanel {
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.70);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
 }
 
-.mapHeaderTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+/* In case older code wraps in .screen */
+.screen {
+  width: 100%;
 }
 
-.mapWorldSmall {
-  font-weight: 900;
-  opacity: 0.75;
-}
-
-.mapWorldTitle {
-  margin-top: 6px;
-  font-weight: 1100;
-  font-size: 44px;
-  color: #ff4d8d;
-  text-shadow: 4px 4px 0 rgba(20,20,24,0.95);
-}
-
-/* Level grid like your mockup */
-.levelGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  align-items: stretch;
-}
-
-.levelTile {
-  border-radius: 26px;
-  border: 5px solid rgba(20,20,24,0.95);
-  background: linear-gradient(180deg, #ffd1a6 0%, #ffbdde 100%);
-  box-shadow: 0 14px 0 rgba(0,0,0,0.12), 0 24px 40px rgba(0,0,0,0.10);
-  cursor: pointer;
-  padding: 0;
-  text-align: left;
-  overflow: hidden;
-  min-height: 170px;
-}
-
-.levelTile.unlocked {
-  background: linear-gradient(180deg, #ffe06a 0%, #ffbe7a 100%);
-}
-
-.levelTile:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.levelTileInner {
+/* ---------------------------
+   3) Sidebar (minimal MVP)
+---------------------------- */
+.sidebar,
+.dsSidebar,
+.sidePanel {
   padding: 14px;
 }
 
-.levelTileTop {
+.sidebar-inner,
+.dsSidebarInner {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.levelLabel {
-  font-weight: 1000;
-  font-size: 22px;
-}
-
-.levelLock {
-  font-size: 22px;
-}
-
-.levelTitle {
-  margin-top: 8px;
-  font-weight: 900;
-  font-size: 18px;
-  line-height: 1.2;
-  min-height: 56px;
-}
-
-.levelStars {
-  margin-top: 10px;
-  display: flex;
-  gap: 6px;
-}
-
-.star {
-  font-size: 22px;
-  line-height: 1;
-  text-shadow: 2px 2px 0 rgba(20,20,24,0.35);
-}
-
-.star.on { color: #6a64ff; }
-.star.off { color: rgba(106,100,255,0.25); }
-
-.levelEmpty {
-  padding: 18px;
-  font-weight: 900;
-  opacity: 0.8;
-}
-
-@media (max-width: 1100px) {
-  .levelGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-@media (max-width: 600px) {
-  .levelGrid { grid-template-columns: 1fr; }
-}
-
-.sideLogoWrap {
-  width: 100%;
-  display: grid;
-  place-items: center;
-  padding: 10px 6px 6px;
-}
-
+.sidebar-logo img,
+.dsSidebarLogo,
 .sideLogoImg {
   width: 100%;
-  max-width: 220px;
   height: auto;
-  display: block;
-  filter: drop-shadow(4px 4px 0 rgba(20,20,24,0.85));
 }
 
-.splashScreen {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.95) 0%, rgba(240,230,255,0.92) 40%, rgba(210,190,255,0.88) 100%);
+/* Player block */
+.sidebar-player,
+.dsPlayerCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.sidebar-avatar img,
+.dsPlayerAvatar,
+.sideAvatarImg {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  border-radius: 16px;
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+}
+
+.sidebar-name,
+.dsPlayerName,
+.sideName {
+  font-weight: 900;
+  font-size: 20px;
+  text-align: center;
+}
+
+/* Hide optional / future sidebar sections by default (so MVP stays clean) */
+.dsStatList,
+.dsSidebarButtons,
+.sideStats,
+.sideBottomIcons,
+.sideNameRow,
+.sideNameEdit {
+  display: none !important;
+}
+
+/* ---------------------------
+   4) Consistent Buttons
+---------------------------- */
+.btn,
+button {
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 900;
+  line-height: 1;
+}
+
+button:hover,
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+button:active,
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.10);
+}
+
+button:disabled,
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Variants (minimal) */
+.btn.primary {
+  background: rgba(255, 224, 106, 0.85);
+}
+
+.btn.ghost {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+/* Icon buttons (kept consistent) */
+.iconBtn,
+.dsIconBtn {
+  width: 52px;
+  height: 52px;
+  padding: 0;
   display: grid;
   place-items: center;
 }
 
-.splashInner {
-  width: min(560px, 92vw);
-  text-align: center;
-  padding: 22px 18px;
-}
-
-.splashLogo {
-  width: min(420px, 84vw);
-  height: auto;
-  display: block;
-  margin: 0 auto 18px;
-  filter: drop-shadow(6px 6px 0 rgba(20,20,24,0.85));
-}
-
-.splashBar {
+/* ---------------------------
+   5) Inputs (modal + forms)
+---------------------------- */
+input[type="text"],
+.modalInput,
+.dsInput {
   width: 100%;
-  height: 18px;
-  border-radius: 999px;
-  border: 4px solid rgba(20,20,24,0.92);
-  background: rgba(255,255,255,0.65);
-  overflow: hidden;
-  box-shadow: 0 12px 0 rgba(0,0,0,0.12);
-}
-
-.splashBarFill {
-  width: 0%;
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #ff4d8d 0%, #ffbe3b 25%, #6a64ff 55%, #3dd6a6 85%, #ff4d8d 100%);
-}
-
-.splashHint {
-  margin-top: 14px;
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.08);
+  padding: 12px 14px;
   font-weight: 900;
-  opacity: 0.75;
+  outline: none;
 }
 
-.modalOverlay {
+input[type="text"]:focus,
+.modalInput:focus,
+.dsInput:focus {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* ---------------------------
+   6) Modal (Name modal + Backpack later)
+---------------------------- */
+.modalOverlay,
+.dsModalOverlay {
   position: fixed;
   inset: 0;
-  z-index: 10000;
-  background: rgba(20,20,24,0.45);
   display: grid;
   place-items: center;
   padding: 18px;
+  background: rgba(20, 20, 24, 0.45);
+  z-index: 9999;
 }
 
-.modalCard {
+.modalCard,
+.dsModalCard {
   width: min(520px, 92vw);
-  border-radius: 26px;
-  border: 5px solid rgba(20,20,24,0.95);
-  background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,230,250,0.90) 100%);
-  box-shadow: 0 16px 0 rgba(0,0,0,0.14), 0 30px 60px rgba(0,0,0,0.18);
-  padding: 18px 18px 16px;
+  padding: 16px;
 }
 
 .modalTitle {
-  font-weight: 1100;
-  font-size: 28px;
-  text-shadow: 2px 2px 0 rgba(20,20,24,0.18);
+  font-weight: 1000;
+  font-size: 24px;
 }
 
 .modalSub {
@@ -485,420 +272,203 @@ ds_avatar_lion.png
   opacity: 0.75;
 }
 
-.modalInput {
-  margin-top: 14px;
-  width: 100%;
-  font-size: 22px;
-  font-weight: 900;
-  padding: 14px 14px;
-  border-radius: 18px;
-  border: 4px solid rgba(20,20,24,0.92);
-  outline: none;
-  background: rgba(255,255,255,0.92);
-  box-shadow: 0 10px 0 rgba(0,0,0,0.10);
-}
-
 .modalActions {
   margin-top: 14px;
   display: flex;
-  gap: 12px;
   justify-content: flex-end;
+  gap: 10px;
 }
 
-.introScreen {
-  width: 100%;
-  min-height: 78vh;
-  padding: 18px;
-  background: radial-gradient(circle at 30% 15%, rgba(255,255,255,0.85) 0%, rgba(235,225,255,0.88) 38%, rgba(210,190,255,0.92) 100%);
-  border-radius: 26px;
-  position: relative;
+/* ---------------------------
+   7) Splash Screen (keep consistent with global background)
+---------------------------- */
+.splashScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: grid;
+  place-items: center;
 
-  /* dot raster vibe */
-  background-image:
-    radial-gradient(rgba(60,40,120,0.10) 1px, transparent 1px),
-    radial-gradient(rgba(60,40,120,0.06) 1px, transparent 1px);
-  background-size: 18px 18px, 18px 18px;
-  background-position: 0 0, 9px 9px;
+  /* Same gradient as body */
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(240, 230, 255, 0.92) 40%,
+    rgba(210, 190, 255, 0.88) 100%
+  );
+}
+
+.splashInner {
+  width: min(560px, 92vw);
+  text-align: center;
+  padding: 18px;
+}
+
+.splashLogo {
+  width: min(420px, 84vw);
+  margin: 0 auto 14px;
+}
+
+.splashBar {
+  width: 100%;
+  height: 18px;
+  border-radius: 999px;
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  background: rgba(255, 255, 255, 0.65);
+  overflow: hidden;
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+}
+
+.splashBarFill {
+  width: 0%;
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(20, 20, 24, 0.25);
+}
+
+.splashHint {
+  margin-top: 12px;
+  font-weight: 900;
+  opacity: 0.75;
+}
+
+/* ---------------------------
+   8) World grid + tiles (functional, consistent)
+---------------------------- */
+.dsWorldSelect,
+.worldSelectMain {
+  width: 100%;
+}
+
+.dsWorldHeader,
+.worldHeader,
+.mapHeader {
+  margin-bottom: 14px;
+}
+
+.dsWorldH1,
+.worldHeaderBig,
+.mapWorldTitle {
+  font-weight: 1100;
+  font-size: 28px;
+  margin: 0;
+}
+
+.dsWorldH2,
+.worldHeaderSmall,
+.mapWorldSmall {
+  font-weight: 900;
+  opacity: 0.75;
+  margin-top: 6px;
+}
+
+.dsWorldGrid,
+.worldGrid,
+.levelGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 1100px) {
+  .dsWorldGrid,
+  .worldGrid,
+  .levelGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dsWorldTile,
+.worldTile,
+.levelTile {
+  width: 100%;
+  text-align: left;
+  padding: 14px;
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.70);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+}
+
+.dsWorldTileTop,
+.worldTileTop,
+.levelTileTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.dsWorldNum,
+.worldNum,
+.levelLabel {
+  font-weight: 1100;
+  font-size: 20px;
+}
+
+.dsWorldName,
+.worldTileBig,
+.levelTitle {
+  font-weight: 1000;
+  white-space: pre-line; /* supports \n in world names */
+}
+
+.dsWorldSub,
+.worldTileReq {
+  margin-top: 8px;
+  font-weight: 900;
+  opacity: 0.75;
+  font-size: 14px;
+}
+
+.dsWorldTile.locked,
+.worldTile.locked,
+.levelTile.locked {
+  opacity: 0.55;
+}
+
+/* Stars row (if present) */
+.levelStars .star {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+/* ---------------------------
+   9) Intro / Chat screen (functional defaults)
+   (No comic look here; we’re keeping it minimal for now)
+---------------------------- */
+.introScreen {
+  padding: 14px;
 }
 
 .introTop {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 10px;
   margin-bottom: 12px;
 }
 
-.introTitle {
-  font-weight: 1000;
-  opacity: 0.9;
-}
-
-.introSub {
-  font-weight: 900;
-  opacity: 0.65;
-  margin-left: 8px;
-}
-
 .introStage {
-  width: 100%;
   display: grid;
   place-items: center;
-  gap: 14px;
-  padding: 10px 0 0;
-}
-
-.introCharacterWrap {
-  width: min(520px, 90vw);
-  display: grid;
-  place-items: center;
+  gap: 12px;
 }
 
 .introCharacter {
-  width: min(520px, 90vw);
+  max-width: 520px;
   height: auto;
-  display: block;
-  filter: drop-shadow(10px 10px 0 rgba(20,20,24,0.35));
 }
 
 .introBubble {
   width: min(760px, 92vw);
-  border-radius: 26px;
-  border: 5px solid rgba(20,20,24,0.95);
-  background: rgba(255, 246, 214, 0.92);
-  box-shadow: 0 16px 0 rgba(0,0,0,0.12), 0 30px 60px rgba(0,0,0,0.14);
-  padding: 14px 16px 12px;
-
-  /* speech bubble tail */
-  position: relative;
-}
-
-.introBubble::before {
-  content: "";
-  position: absolute;
-  top: -14px;
-  left: 48%;
-  width: 28px;
-  height: 28px;
-  background: rgba(255, 246, 214, 0.92);
-  border-left: 5px solid rgba(20,20,24,0.95);
-  border-top: 5px solid rgba(20,20,24,0.95);
-  transform: rotate(45deg);
-}
-
-.introBubbleName {
-  font-weight: 1100;
-  font-size: 18px;
-  opacity: 0.85;
-  margin-bottom: 8px;
-}
-
-.introBubbleText {
-  font-size: 28px;
-  line-height: 1.15;
-  font-weight: 900;
-
-  /* comic vibe */
-  font-family: "Comic Sans MS", "Comic Neue", system-ui, -apple-system, Segoe UI, Arial;
-}
-
-.introBubbleActions {
-  margin-top: 14px;
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
-.introHint {
-  margin-top: 10px;
-  font-weight: 900;
-  opacity: 0.7;
-}
-
-/* Shell layout */
-.dsShell {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 28px;
-  align-items: start;
-  padding: 18px;
-}
-
-@media (max-width: 980px) {
-  .dsShell {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-}
-
-.dsShellSidebar {
-  position: sticky;
-  top: 12px;
-}
-
-.dsShellMain {
-  min-height: 70vh;
-}
-
-/* Sidebar */
-.dsSidebar {
-  border-radius: 26px;
-  border: 5px solid rgba(20,20,24,0.95);
-  background: linear-gradient(180deg, rgba(255,230,220,0.95) 0%, rgba(255,210,230,0.92) 100%);
-  box-shadow: 0 16px 0 rgba(0,0,0,0.12), 0 30px 60px rgba(0,0,0,0.12);
-  overflow: hidden;
-}
-
-.dsSidebarInner {
-  padding: 16px 14px 14px;
-}
-
-.dsSidebarLogoWrap {
-  display: grid;
-  place-items: center;
-  padding: 6px 6px 10px;
-}
-
-.dsSidebarLogo {
-  width: 100%;
-  max-width: 220px;
-  height: auto;
-  display: block;
-  filter: drop-shadow(6px 6px 0 rgba(20,20,24,0.75));
-}
-
-.dsPlayerCard {
-  margin-top: 6px;
-  display: grid;
-  grid-template-columns: 96px 1fr;
-  gap: 12px;
-  align-items: center;
-}
-
-.dsPlayerAvatarBtn {
-  appearance: none;
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-}
-
-.dsPlayerAvatar {
-  width: 96px;
-  height: 96px;
-  object-fit: contain;
-  display: block;
-  border-radius: 22px;
-  border: 4px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.55);
-  box-shadow: 0 10px 0 rgba(0,0,0,0.10);
-}
-
-.dsPlayerNameRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.dsPlayerName {
-  font-weight: 1100;
-  font-size: 30px;
-  letter-spacing: 0.5px;
-  text-shadow: 2px 2px 0 rgba(20,20,24,0.15);
-}
-
-.dsNameEditBtn {
-  font-weight: 1100;
-  font-size: 16px;
-  padding: 8px 10px;
-  border-radius: 14px;
-  border: 4px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.55);
-  cursor: pointer;
-  box-shadow: 0 10px 0 rgba(0,0,0,0.10);
-}
-
-.dsStatList {
-  margin-top: 14px;
-  display: grid;
-  gap: 12px;
-}
-
-.dsStatRow {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 14px;
-  border-radius: 18px;
-  border: 4px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.65);
-  box-shadow: 0 12px 0 rgba(0,0,0,0.10);
-}
-
-.dsStatLeft {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 1000;
-}
-
-.dsStatEmoji {
-  font-size: 20px;
-}
-
-.dsStatLabel {
-  font-size: 18px;
-}
-
-.dsStatValue {
-  font-weight: 1100;
-  font-size: 18px;
-}
-
-.dsSidebarButtons {
-  margin-top: 14px;
-  display: flex;
-  gap: 12px;
-}
-
-.dsIconBtn {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  border: 4px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.65);
-  cursor: pointer;
-  box-shadow: 0 12px 0 rgba(0,0,0,0.10);
-  font-size: 20px;
-}
-
-/* Backpack modal */
-.dsModalOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 11000;
-  background: rgba(20,20,24,0.45);
-  display: grid;
-  place-items: center;
-  padding: 18px;
-}
-
-.dsModalCard {
-  width: min(980px, 94vw);
-  border-radius: 26px;
-  border: 5px solid rgba(20,20,24,0.95);
-  background: radial-gradient(circle at 30% 15%, rgba(255,255,255,0.90) 0%, rgba(235,225,255,0.92) 40%, rgba(210,190,255,0.94) 100%);
-  box-shadow: 0 16px 0 rgba(0,0,0,0.14), 0 30px 60px rgba(0,0,0,0.18);
-  overflow: hidden;
-
-  background-image:
-    radial-gradient(rgba(60,40,120,0.10) 1px, transparent 1px),
-    radial-gradient(rgba(60,40,120,0.06) 1px, transparent 1px);
-  background-size: 18px 18px, 18px 18px;
-  background-position: 0 0, 9px 9px;
-}
-
-.dsBackpackHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 14px 10px;
-}
-
-.dsBackpackTitle {
-  font-weight: 1100;
-  font-size: 28px;
-}
-
-.dsBackpackTabs {
-  display: flex;
-  gap: 10px;
-  padding: 0 14px 12px;
-  flex-wrap: wrap;
-}
-
-.dsTabBtn {
-  padding: 10px 14px;
-  border-radius: 16px;
-  border: 4px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.60);
-  cursor: pointer;
-  font-weight: 1000;
-}
-
-.dsTabBtn.active {
-  background: rgba(255,220,120,0.85);
-}
-
-.dsBackpackBody {
   padding: 14px;
 }
 
-.dsBackpackGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+/* ---------------------------
+   10) Utility
+---------------------------- */
+.hidden {
+  display: none !important;
 }
-
-@media (max-width: 860px) {
-  .dsBackpackGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-.dsItemTile {
-  width: 100%;
-  text-align: left;
-  border-radius: 18px;
-  border: 4px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.60);
-  cursor: pointer;
-  box-shadow: 0 12px 0 rgba(0,0,0,0.10);
-  padding: 12px;
-}
-
-.dsItemTile.locked {
-  opacity: 0.55;
-  cursor: default;
-}
-
-.dsItemThumbWrap {
-  position: relative;
-  border-radius: 14px;
-  border: 3px solid rgba(20,20,24,0.85);
-  background: rgba(255,255,255,0.55);
-  height: 120px;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-}
-
-.dsItemThumb {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.dsItemThumbPh {
-  font-weight: 1100;
-  font-size: 34px;
-  opacity: 0.55;
-}
-
-.dsItemLock {
-  position: absolute;
-  right: 10px;
-  bottom: 8px;
-  font-size: 18px;
-}
-
-.dsItemName {
-  margin-top: 10px;
-  font-weight: 1100;
-}
-
-.dsItemTile.flash {
-  transform: translateY(2px);
-}
-
-
