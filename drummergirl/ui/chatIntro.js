@@ -7,12 +7,11 @@ export function mountChatIntro({
   professorName = "Professor",
   professorAvatarSrc = "",
   script = [],
-  autoAdvanceMs = 0, // 0 = no auto
+  autoAdvanceMs = 0, // ignored now (manual only)
   onDone = () => {},
   onSkip = () => {}
 }) {
   let index = 0;
-  let timer = null;
 
   const root = document.createElement("div");
   root.className = "introScreen";
@@ -65,70 +64,43 @@ export function mountChatIntro({
 
   renderLine();
 
-  // Buttons
   skipBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
-    cleanupTimers();
     onSkip();
   });
 
   nextBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
-    advanceOrDone(false);
+    advanceOrDone();
   });
 
   // Tap anywhere to advance (except when clicking buttons)
   root.addEventListener("click", () => {
-    advanceOrDone(false);
+    advanceOrDone();
   });
-
-  // Optional auto-advance every N ms
-  if (autoAdvanceMs && autoAdvanceMs > 0) {
-    timer = setInterval(() => {
-      advanceOrDone(true);
-    }, autoAdvanceMs);
-  }
 
   function renderLine() {
     if (!script.length) {
       bubbleTextEl.textContent = "Welkom! (Script is leeg)";
       return;
     }
-
-    const line = script[index]?.text || "";
-    bubbleTextEl.textContent = line;
-
-    // Laat "Volgende" altijd staan. Op laatste regel werkt het als "klaar".
-    // (Geen extra tekst, jij wilde specifiek "Volgende".)
+    bubbleTextEl.textContent = script[index]?.text || "";
   }
 
-  function advanceOrDone(fromAuto = false) {
+  function advanceOrDone() {
     if (!script.length) return;
 
     const isLast = index >= script.length - 1;
-
     if (isLast) {
-      cleanupTimers();
       onDone();
       return;
     }
 
     index += 1;
     renderLine();
-
-    if (fromAuto && index >= script.length - 1) {
-      // Laat de laatste regel even staan om te lezen.
-      // Volgende tik of auto-tick rondt af.
-    }
-  }
-
-  function cleanupTimers() {
-    if (timer) clearInterval(timer);
-    timer = null;
   }
 
   function unmount() {
-    cleanupTimers();
     root.remove();
   }
 
