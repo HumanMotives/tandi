@@ -1,6 +1,6 @@
 // ui/map.js
 import { getWorld } from "../data/levels.js";
-import { isLevelUnlocked, getStars, setCurrentLevel, saveState, getTotalStars } from "../src/storage.js";
+//import { isLevelUnlocked, getStars, setCurrentLevel, saveState, getTotalStars } from "../src/storage.js";
 
 export function mountMap({ container, state, onEditName, onOpenLevel } = {}) {
   const root = document.createElement("div");
