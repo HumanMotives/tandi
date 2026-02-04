@@ -5,10 +5,10 @@ export function mountPractice({
   container,
   worldName = "Wereld",
   levelName = "Level",
-  onExit = null // optional callback
+  onExit = null,       // should navigate back to levels
+  onEnter = null       // optional: called once when practice mounts (set route)
 }) {
-  // Remove #intro in address bar while practicing
-  setHash("#practice");
+  if (typeof onEnter === "function") onEnter();
 
   const root = document.createElement("div");
   root.className = "practiceScreen";
@@ -351,15 +351,9 @@ export function mountPractice({
   let countInActive = false;
   let countInTimeouts = [];
 
-  function beatMs() {
-    return 60000 / bpm;
-  }
-  function barMs() {
-    return beatMs() * 4;
-  }
-  function stepDurMs() {
-    return barMs() / STEPS;
-  }
+  function beatMs() { return 60000 / bpm; }
+  function barMs() { return beatMs() * 4; }
+  function stepDurMs() { return barMs() / STEPS; }
 
   function updateBarText() {
     barText.textContent = `X${barCount}`;
@@ -405,9 +399,7 @@ export function mountPractice({
     grooveStartPerf = start + 4 * ms;
 
     const doneDelay = Math.max(0, grooveStartPerf - performance.now());
-    const doneId = setTimeout(() => {
-      countInActive = false;
-    }, doneDelay);
+    const doneId = setTimeout(() => { countInActive = false; }, doneDelay);
     countInTimeouts.push(doneId);
   }
 
@@ -448,14 +440,11 @@ export function mountPractice({
         if (sc > 0 && sc % STEPS === 0) {
           barCount += 1;
           updateBarText();
-
           barStartFlip = !barStartFlip;
-
           if (barCount % 8 === 0) sparkleBurst();
         }
 
         if (sc === 0) continue;
-
         triggerStep(stepIndex);
       }
       lastStepCount = stepCount;
@@ -464,9 +453,7 @@ export function mountPractice({
     rafId = requestAnimationFrame(frame);
   }
 
-  function setBpm(newBpm) {
-    bpm = newBpm;
-  }
+  function setBpm(newBpm) { bpm = newBpm; }
 
   async function play() {
     if (isPlaying || countInActive) return;
@@ -498,7 +485,7 @@ export function mountPractice({
     resetPlaybackState();
   }
 
-  // Wire UI
+  // UI wiring
   bpmValue.textContent = bpmSlider.value;
   hitsValue.textContent = hitsSlider.value;
 
@@ -535,7 +522,6 @@ export function mountPractice({
   const onResize = () => buildSequencer();
   window.addEventListener("resize", onResize);
 
-  // Stoppen button
   stopPracticeBtn.addEventListener("click", () => {
     exitToLevels();
   });
@@ -551,19 +537,14 @@ export function mountPractice({
   function exitToLevels() {
     stop();
 
-    // Update URL so #intro is gone and we land back at levels
-    setHash("#levels");
-
+    // Preferred: your app handles navigation
     if (typeof onExit === "function") {
       onExit();
       return;
     }
 
-    // Fallback: broadcast an event that your app can listen to
-    window.dispatchEvent(new CustomEvent("ds:navigate", { detail: { to: "levels" } }));
-
-    // If you have a hash router, this is usually enough.
-    // Otherwise, your app code should catch ds:navigate and show the levels screen.
+    // Fallback: hash route to "levels" (update if your actual route name differs)
+    window.location.hash = "#levels";
   }
 
   function unmount() {
@@ -581,16 +562,6 @@ export function mountPractice({
 }
 
 export default mountPractice;
-
-function setHash(hash) {
-  try {
-    const url = new URL(window.location.href);
-    url.hash = hash || "";
-    history.replaceState({}, "", url.toString());
-  } catch {
-    // ignore
-  }
-}
 
 function escapeHtml(s) {
   return String(s)
