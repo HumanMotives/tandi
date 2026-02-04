@@ -1,95 +1,111 @@
 // ui/worldSelect.js
-import { WORLDS } from "../data/worlds.js";
-import { getTotalStars, setCurrentWorld, saveState } from "../src/storage.js";
+import { mountShell } from "./shell.js";
+import { openBackpack } from "./backpack.js";
 
-export function mountWorldSelect({ container, state, onGoWorld } = {}) {
-  const root = document.createElement("div");
-  root.className = "screen worldSelect";
+/**
+ * World Select screen
+ * - Uses shared Shell + Sidebar (single source of truth)
+ * - Click player avatar => Backpack overlay
+ * - Shows worlds as a clean grid (locked/unlocked)
+ */
+export function mountWorldSelect({
+  container,
+  state,
+  onGoWorld = () => {},
+  onEditName = () => {}
+}) {
+  const shell = mountShell({
+    container,
+    state,
+    onEditName,
+    onOpenBackpack: () => {
+      openBackpack({
+        state,
+        onClose: () => shell.updateSidebar()
+      });
+    },
+    onOpenSettings: () => {},
+    onToggleAudio: () => {},
+    onOpenInfo: () => {}
+  });
 
-  const totalStars = getTotalStars(state);
-  const playerName = ((state.player?.name || "Lotty Girl").trim() || "Lotty Girl");
-  const avatarFile = (state.player?.avatarFile || "ds_avatar_rockbunny.png").trim();
-  const avatarSrc = `./assets/img/avatars/${avatarFile}`;
+  const main = document.createElement("div");
+  main.className = "dsWorldSelect";
 
-  root.innerHTML = `
-    <div class="worldLayout">
-      <aside class="sidePanel">
-      <div class="sideLogoWrap">
-  <img class="sideLogoImg" src="./assets/img/logo.png" alt="Drum School" onerror="this.style.display='none'">
-</div>
-
-        <div class="sideName">${escapeHtml(playerName)}</div>
-
-        <div class="sideStats">
-          <div class="statRow"><span class="statIcon">⭐</span><span class="statLabel">Stars</span><span class="statValue">${totalStars}</span></div>
-          <div class="statRow"><span class="statIcon">✨</span><span class="statLabel">Ticks</span><span class="statValue">${formatNumber(state.currency.ticks)}</span></div>
-          <div class="statRow"><span class="statIcon">🥁</span><span class="statLabel">Grooves</span><span class="statValue">${formatNumber(state.stats.grooves)}</span></div>
-        </div>
-
-        <div class="sideBottomIcons">
-          <button class="iconBtn" title="Settings">⚙️</button>
-          <button class="iconBtn" title="Volume">🔊</button>
-          <button class="iconBtn" title="Help">ℹ️</button>
-        </div>
-      </aside>
-
-      <main class="worldMain">
-        <div class="worldHeader">
-          <div class="worldHeaderSmall">Kies een wereld</div>
-          <div class="worldHeaderBig">Waar gaan we vandaag heen?</div>
-        </div>
-
-        <div class="worldGrid" id="worldGrid"></div>
-      </main>
+  const header = document.createElement("div");
+  header.className = "dsWorldHeader";
+  header.innerHTML = `
+    <div class="dsWorldHeaderInner">
+      <div class="dsWorldH1">Kies een wereld</div>
+      <div class="dsWorldH2">Waar gaan we vandaag heen?</div>
     </div>
   `;
 
-  const grid = root.querySelector("#worldGrid");
+  const grid = document.createElement("div");
+  grid.className = "dsWorldGrid";
 
-  WORLDS.forEach((w, i) => {
-    const unlocked = totalStars >= (w.requiredStarsToUnlock || 0);
+  const worlds = getWorlds();
+  const stars = Number(state?.progress?.stars || 0);
 
-    const tile = document.createElement("button");
-    tile.type = "button";
-    tile.className = `worldTile ${unlocked ? "unlocked" : "locked"}`;
+  grid.innerHTML = worlds
+    .map((w) => renderWorldTile(w, stars))
+    .join("");
 
-    tile.innerHTML = `
-      <div class="worldTileImg">
-        <img src="${escapeAttr(w.thumb)}" alt="" onerror="this.style.display='none'">
-        <div class="worldTileFallback">${i + 1}</div>
-        ${unlocked ? "" : `<div class="worldTileLock">🔒</div>`}
-      </div>
-
-      <div class="worldTileText">
-        <div class="worldTileSmall">${escapeHtml(w.titleSmall)}</div>
-        <div class="worldTileBig">${escapeHtml(w.titleBig)}</div>
-        <div class="worldTileReq">${unlocked ? "Unlocked" : `Need ${w.requiredStarsToUnlock} stars`}</div>
-      </div>
-    `;
-
-    if (!unlocked) tile.disabled = true;
-
-    tile.addEventListener("click", () => {
-      if (!unlocked) return;
-      setCurrentWorld(state, w.id);
-      saveState(state);
-      if (typeof onGoWorld === "function") onGoWorld(w.id);
+  grid.querySelectorAll("[data-world]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const worldId = btn.getAttribute("data-world");
+      const locked = btn.getAttribute("data-locked") === "1";
+      if (locked) return;
+      onGoWorld(worldId);
     });
-
-    grid.appendChild(tile);
   });
 
-  container.appendChild(root);
+  main.appendChild(header);
+  main.appendChild(grid);
+
+  shell.setMain(main);
 
   function unmount() {
-    root.remove();
+    shell.unmount();
   }
 
   return { unmount };
 }
 
-function formatNumber(n) {
-  try { return Number(n).toLocaleString("nl-NL"); } catch { return String(n); }
+function renderWorldTile(world, stars) {
+  const locked = stars < world.requiredStars;
+  const subtitle = locked
+    ? `Need ${world.requiredStars} stars`
+    : "Unlocked";
+
+  // Keep text simple for now. You can swap in PNG graphics later.
+  return `
+    <button
+      class="dsWorldTile ${locked ? "locked" : ""}"
+      type="button"
+      data-world="${escapeAttr(world.id)}"
+      data-locked="${locked ? "1" : "0"}"
+      aria-disabled="${locked ? "true" : "false"}"
+      title="${escapeAttr(world.name)}"
+    >
+      <div class="dsWorldTileTop">
+        <div class="dsWorldNum">${escapeHtml(world.num)}</div>
+        <div class="dsWorldLock">${locked ? "🔒" : ""}</div>
+      </div>
+      <div class="dsWorldName">${escapeHtml(world.name)}</div>
+      <div class="dsWorldSub">${escapeHtml(subtitle)}</div>
+    </button>
+  `;
+}
+
+function getWorlds() {
+  return [
+    { id: "w1", num: "1", name: "Wereld 1\nEerste Stapjes", requiredStars: 0 },
+    { id: "w2", num: "2", name: "Wereld 2\nVoel de Vibe", requiredStars: 0 },
+    { id: "w3", num: "3", name: "Wereld 3\nGroovy", requiredStars: 0 },
+    { id: "w4", num: "4", name: "Wereld 4\nShowtime", requiredStars: 24 },
+    { id: "w5", num: "5", name: "Wereld 5\nGalaxy Star", requiredStars: 36 }
+  ];
 }
 
 function escapeHtml(str) {
