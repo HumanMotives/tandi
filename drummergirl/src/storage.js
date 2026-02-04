@@ -1,121 +1,214 @@
 // src/storage.js
-const KEY = "drummergirl_state_v2";
 
+// One stable key, so you can refactor freely without breaking saves
+const STORAGE_KEY = "ds_state_v1";
+
+// If you previously used another key (e.g. "drumSchoolState"), we can migrate it.
+const LEGACY_KEYS = ["drumSchoolState", "drummergirlState", "ds_state"];
+
+/**
+ * Load state from localStorage.
+ * - Creates defaults if missing
+ * - Migrates from legacy keys if found
+ * - Ensures shape is always complete (so UI never crashes)
+ */
 export function loadState() {
+  const migrated = tryMigrateLegacy();
+  if (migrated) return ensureStateShape(migrated);
+
+  const raw = safeGet(STORAGE_KEY);
+  if (!raw) return ensureStateShape(createDefaultState());
+
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return defaultState();
     const parsed = JSON.parse(raw);
-    return normalizeState(parsed);
-  } catch {
-    return defaultState();
+    return ensureStateShape(parsed);
+  } catch (e) {
+    // Corrupt storage: reset
+    return ensureStateShape(createDefaultState());
   }
 }
 
+/**
+ * Save state to localStorage.
+ */
 export function saveState(state) {
-  localStorage.setItem(KEY, JSON.stringify(state));
+  const shaped = ensureStateShape(state);
+  safeSet(STORAGE_KEY, JSON.stringify(shaped));
 }
 
+/**
+ * Update player's name and persist.
+ */
 export function setPlayerName(state, name) {
-  state.player.name = String(name || "").trim();
-  saveState(state);
+  const shaped = ensureStateShape(state);
+  shaped.player.name = String(name || "").trim();
+  saveState(shaped);
+  return shaped;
 }
 
-export function setPlayerAvatar(state, avatarFile) {
-  state.player.avatarFile = String(avatarFile || "").trim();
-  saveState(state);
+/**
+ * Optional helper: update avatar and persist
+ */
+export function setPlayerAvatar(state, avatarSrc) {
+  const shaped = ensureStateShape(state);
+  shaped.player.avatarSrc = String(avatarSrc || "").trim();
+  saveState(shaped);
+  return shaped;
 }
 
-export function setCurrentWorld(state, worldId) {
-  state.nav.currentWorld = worldId;
-  saveState(state);
+/**
+ * Optional helper: add progress (ticks/stars/grooves)
+ */
+export function addProgress(state, { stars = 0, ticks = 0, grooves = 0 } = {}) {
+  const shaped = ensureStateShape(state);
+  shaped.progress.stars = clamp0(shaped.progress.stars + Number(stars || 0));
+  shaped.progress.ticks = clamp0(shaped.progress.ticks + Number(ticks || 0));
+  shaped.progress.grooves = clamp0(shaped.progress.grooves + Number(grooves || 0));
+  saveState(shaped);
+  return shaped;
 }
 
-export function setCurrentLevel(state, levelId) {
-  state.nav.currentLevel = levelId;
-  saveState(state);
+/**
+ * Optional helper: unlock items
+ * type: "avatars" | "drums" | "teachers" | "music" | "worlds"
+ */
+export function unlock(state, type, id) {
+  const shaped = ensureStateShape(state);
+  if (!shaped.unlocks[type]) shaped.unlocks[type] = {};
+  shaped.unlocks[type][id] = true;
+  saveState(shaped);
+  return shaped;
 }
 
-export function getStars(state, levelId) {
-  return Number(state.progress.stars[levelId] || 0);
-}
+/* -------------------------
+   Internal helpers
+------------------------- */
 
-export function setStars(state, levelId, stars0to5) {
-  const s = clampInt(stars0to5, 0, 5);
-  state.progress.stars[levelId] = s;
-  saveState(state);
-}
-
-export function getTotalStars(state) {
-  return Object.values(state.progress.stars).reduce((a, b) => a + (Number(b) || 0), 0);
-}
-
-export function isLevelUnlocked(state, worldLevels, levelId) {
-  // linear unlock inside a world:
-  // first level unlocked
-  // next unlocked if previous has >= 1 star
-  const idx = worldLevels.findIndex((l) => l.id === levelId);
-  if (idx <= 0) return true;
-  const prevId = worldLevels[idx - 1].id;
-  return getStars(state, prevId) >= 1;
-}
-
-export function addTicks(state, amount) {
-  state.currency.ticks = clampInt(state.currency.ticks + Number(amount || 0), 0, 999999999);
-  saveState(state);
-}
-
-export function addGrooves(state, amount) {
-  state.stats.grooves = clampInt(state.stats.grooves + Number(amount || 0), 0, 999999999);
-  saveState(state);
-}
-
-function defaultState() {
+function createDefaultState() {
   return {
+    version: 1,
     player: {
       name: "",
-      avatarFile: "ds_avatar_rockbunny.png"
+      // default avatar (you uploaded these)
+      avatarSrc: "./assets/img/avatars/ds_avatar_rockbunny.png"
     },
-    avatar: { teacherId: "drumteacher_01" },
-    currency: { ticks: 13255 },
-    stats: { grooves: 35 },
-    progress: { stars: { "w1-l1": 4 } },
-    nav: { currentWorld: "world1", currentLevel: "w1-l1" },
-    settings: { muted: false }
+    progress: {
+      stars: 0,
+      ticks: 0,
+      grooves: 0
+    },
+    unlocks: {
+      avatars: {
+        rockbunny: true,
+        lion: true
+      },
+      drums: {},
+      teachers: {},
+      music: {},
+      worlds: {
+        w1: true,
+        w2: true,
+        w3: true
+      }
+    },
+    // Your current navigation context if you want it later
+    nav: {
+      worldId: "w1",
+      levelId: null
+    }
   };
 }
 
-function normalizeState(s) {
-  const state = (s && typeof s === "object") ? s : defaultState();
+function ensureStateShape(input) {
+  const base = createDefaultState();
+  const s = (input && typeof input === "object") ? input : {};
 
-  if (!state.player) state.player = { name: "", avatarFile: "ds_avatar_rockbunny.png" };
-  if (!state.avatar) state.avatar = { teacherId: "drumteacher_01" };
-  if (!state.currency) state.currency = { ticks: 0 };
-  if (!state.stats) state.stats = { grooves: 0 };
-  if (!state.progress) state.progress = { stars: {} };
-  if (!state.progress.stars) state.progress.stars = {};
-  if (!state.nav) state.nav = { currentWorld: "world1", currentLevel: "w1-l1" };
-  if (!state.settings) state.settings = { muted: false };
+  // shallow merge top-level
+  const out = {
+    ...base,
+    ...s,
+    player: {
+      ...base.player,
+      ...(s.player || {})
+    },
+    progress: {
+      ...base.progress,
+      ...(s.progress || {})
+    },
+    unlocks: {
+      ...base.unlocks,
+      ...(s.unlocks || {}),
+      avatars: { ...base.unlocks.avatars, ...(s.unlocks?.avatars || {}) },
+      drums: { ...(s.unlocks?.drums || {}) },
+      teachers: { ...(s.unlocks?.teachers || {}) },
+      music: { ...(s.unlocks?.music || {}) },
+      worlds: { ...base.unlocks.worlds, ...(s.unlocks?.worlds || {}) }
+    },
+    nav: {
+      ...base.nav,
+      ...(s.nav || {})
+    }
+  };
 
-  if (typeof state.player.name !== "string") state.player.name = "";
-  if (typeof state.player.avatarFile !== "string" || !state.player.avatarFile.trim()) {
-    state.player.avatarFile = "ds_avatar_rockbunny.png";
-  }
+  // sanitize numeric fields
+  out.progress.stars = clamp0(Number(out.progress.stars || 0));
+  out.progress.ticks = clamp0(Number(out.progress.ticks || 0));
+  out.progress.grooves = clamp0(Number(out.progress.grooves || 0));
 
-  if (typeof state.avatar.teacherId !== "string") state.avatar.teacherId = "drumteacher_01";
+  // sanitize strings
+  out.player.name = String(out.player.name || "");
+  out.player.avatarSrc = String(out.player.avatarSrc || base.player.avatarSrc);
 
-  state.currency.ticks = clampInt(state.currency.ticks ?? 0, 0, 999999999);
-  state.stats.grooves = clampInt(state.stats.grooves ?? 0, 0, 999999999);
+  // ensure required nested objects exist
+  if (!out.unlocks.avatars) out.unlocks.avatars = { ...base.unlocks.avatars };
+  if (!out.unlocks.drums) out.unlocks.drums = {};
+  if (!out.unlocks.teachers) out.unlocks.teachers = {};
+  if (!out.unlocks.music) out.unlocks.music = {};
+  if (!out.unlocks.worlds) out.unlocks.worlds = { ...base.unlocks.worlds };
 
-  if (typeof state.nav.currentWorld !== "string") state.nav.currentWorld = "world1";
-  if (typeof state.nav.currentLevel !== "string") state.nav.currentLevel = "w1-l1";
-  if (typeof state.settings.muted !== "boolean") state.settings.muted = false;
-
-  return state;
+  return out;
 }
 
-function clampInt(n, min, max) {
-  const x = Math.floor(Number(n));
-  if (!Number.isFinite(x)) return min;
-  return Math.max(min, Math.min(max, x));
+function clamp0(n) {
+  const x = Number(n);
+  if (!Number.isFinite(x)) return 0;
+  return Math.max(0, x);
+}
+
+function safeGet(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch (_) {
+    return null;
+  }
+}
+
+function safeSet(key, val) {
+  try {
+    localStorage.setItem(key, val);
+  } catch (_) {
+    // ignore quota / private mode issues
+  }
+}
+
+function tryMigrateLegacy() {
+  // If new key already exists, no migration needed
+  const existing = safeGet(STORAGE_KEY);
+  if (existing) return null;
+
+  for (const k of LEGACY_KEYS) {
+    const raw = safeGet(k);
+    if (!raw) continue;
+
+    try {
+      const parsed = JSON.parse(raw);
+      // Write into new key
+      safeSet(STORAGE_KEY, JSON.stringify(parsed));
+      return parsed;
+    } catch (_) {
+      // ignore corrupt legacy
+    }
+  }
+
+  return null;
 }
