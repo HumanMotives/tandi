@@ -1,147 +1,152 @@
 // ui/chatIntro.js
+
 export function mountChatIntro({
   container,
   title = "Drum School",
   subtitle = "",
-  professorName = "Professor Octo",
-  professorAvatarSrc = "./assets/img/professor_octo.png",
-  teacherName = "Teacher",
-  teacherAvatarSrc = "./assets/img/drumteacher_01.png",
+  professorName = "Professor",
+  professorAvatarSrc = "",
   script = [],
-  autoAdvanceMs = 5000,
-  onDone,
-  onSkip
-} = {}) {
-  const root = document.createElement("div");
-  root.className = "introScreen";
-
-  // Convert to internal script items with speaker resolution
-  const lines = (script || []).map((s) => {
-    const from = (s.from || "professor").toLowerCase();
-    const isProf = from === "professor";
-    return {
-      from,
-      speakerName: isProf ? professorName : teacherName,
-      avatarSrc: isProf ? professorAvatarSrc : teacherAvatarSrc,
-      text: String(s.text || "")
-    };
-  });
-
+  autoAdvanceMs = 0, // 0 = no auto
+  onDone = () => {},
+  onSkip = () => {}
+}) {
   let index = 0;
   let timer = null;
 
-  root.innerHTML = `
-    <div class="introTop">
-      <div class="introTitle">${escapeHtml(title)} <span class="introSub">${escapeHtml(subtitle)}</span></div>
-      <button class="btn ghost introSkip" type="button">Skip</button>
-    </div>
+  const root = document.createElement("div");
+  root.className = "introScreen";
+  container.appendChild(root);
 
-    <div class="introStage" id="introStage">
-      <div class="introCharacterWrap">
-        <img class="introCharacter" id="introCharacter" src="${escapeAttr(professorAvatarSrc)}" alt="">
+  // Background wrapper (uses your global gradient/background)
+  root.innerHTML = `
+    <div class="introStage">
+      <div class="introTopBar">
+        <div class="introTopText">
+          <div class="introTitle">${escapeHtml(title)}</div>
+          ${subtitle ? `<div class="introSubtitle">${escapeHtml(subtitle)}</div>` : ""}
+        </div>
       </div>
 
-      <div class="introBubble">
-        <div class="introBubbleName" id="introName">${escapeHtml(professorName)}</div>
-        <div class="introBubbleText" id="introText"></div>
+      <div class="introCenter">
+        <div class="introCard">
+          <div class="introBubbleWrap">
+            <div class="introNameTag">${escapeHtml(professorName)}</div>
 
-        <div class="introBubbleActions">
-          <button class="btn primary" type="button" id="introNext">Next</button>
-          <button class="btn ghost" type="button" id="introLets">Let's Drum! 🥁</button>
+            <div class="introBubble">
+              <div class="introBubbleText" id="introBubbleText"></div>
+
+              <div class="introControls">
+                <button class="btn introBtn" type="button" data-next>Next</button>
+                <button class="btn introBtnPrimary" type="button" data-start>Let’s Drum! 🥁</button>
+              </div>
+
+              <div class="introHint">Tip: tik op het scherm om door te gaan</div>
+            </div>
+
+            ${
+              professorAvatarSrc
+                ? `<img class="introAvatar" src="${professorAvatarSrc}" alt="${escapeHtml(
+                    professorName
+                  )}" />`
+                : ""
+            }
+          </div>
+
+          <button class="introSkip" type="button" data-skip>
+            Uitleg overslaan
+            <span class="introSkipArrow">↪</span>
+          </button>
         </div>
-
-        <div class="introHint">Tip: tik op het scherm om door te gaan</div>
       </div>
     </div>
   `;
 
-  container.appendChild(root);
+  const bubbleTextEl = root.querySelector("#introBubbleText");
+  const nextBtn = root.querySelector("[data-next]");
+  const startBtn = root.querySelector("[data-start]");
+  const skipBtn = root.querySelector("[data-skip]");
 
-  const elChar = root.querySelector("#introCharacter");
-  const elName = root.querySelector("#introName");
-  const elText = root.querySelector("#introText");
-  const stage = root.querySelector("#introStage");
+  // Render first line
+  renderLine();
 
-  function renderLine(i) {
-    const line = lines[i];
-    if (!line) return;
+  // Interactions
+  nextBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    nextLine();
+  });
 
-    elChar.src = line.avatarSrc;
-    elName.textContent = line.speakerName;
+  startBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    cleanupTimers();
+    onDone();
+  });
 
-    // Typewriter-like but instant (fast + not laggy)
-    elText.textContent = line.text;
+  skipBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    cleanupTimers();
+    onSkip();
+  });
 
-    clearTimer();
-    timer = setTimeout(() => {
-      goNext();
+  // Tap anywhere to advance (except when clicking buttons)
+  root.addEventListener("click", () => {
+    nextLine();
+  });
+
+  // Optional auto-advance every N ms
+  if (autoAdvanceMs && autoAdvanceMs > 0) {
+    timer = setInterval(() => {
+      nextLine(true);
     }, autoAdvanceMs);
   }
 
-  function clearTimer() {
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
+  function renderLine() {
+    const line = script[index]?.text || "";
+    bubbleTextEl.textContent = line;
+
+    // Disable "Next" if last line
+    const isLast = index >= script.length - 1;
+    nextBtn.disabled = isLast;
+
+    // If there is no script, avoid weird empty state
+    if (!script.length) {
+      bubbleTextEl.textContent = "Welkom! (Script is leeg)";
+      nextBtn.disabled = true;
     }
   }
 
-  function goNext() {
-    index++;
-    if (index >= lines.length) {
-      clearTimer();
-      if (typeof onDone === "function") onDone();
+  function nextLine(fromAuto = false) {
+    if (!script.length) return;
+
+    // If last line: do nothing on Next, but tapping could still do nothing
+    if (index >= script.length - 1) {
+      // On auto we stop to avoid infinite tries
+      if (fromAuto) cleanupTimers();
       return;
     }
-    renderLine(index);
+
+    index += 1;
+    renderLine();
   }
 
-  function goDoneNow() {
-    clearTimer();
-    if (typeof onDone === "function") onDone();
-  }
-
-  root.querySelector(".introSkip").addEventListener("click", () => {
-    clearTimer();
-    if (typeof onSkip === "function") onSkip();
-    if (typeof onDone === "function") onDone();
-  });
-
-  root.querySelector("#introNext").addEventListener("click", goNext);
-  root.querySelector("#introLets").addEventListener("click", goDoneNow);
-
-  // Tap/click stage to advance
-  stage.addEventListener("click", (e) => {
-    // avoid double-advance when clicking buttons
-    const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
-    if (tag === "button") return;
-    goNext();
-  });
-
-  // Start
-  if (lines.length > 0) {
-    renderLine(0);
-  } else {
-    elText.textContent = "Welkom!";
-    clearTimer();
+  function cleanupTimers() {
+    if (timer) clearInterval(timer);
+    timer = null;
   }
 
   function unmount() {
-    clearTimer();
+    cleanupTimers();
     root.remove();
   }
 
   return { unmount };
 }
 
-function escapeHtml(str) {
-  return String(str ?? "")
+function escapeHtml(s) {
+  return String(s)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-}
-
-function escapeAttr(str) {
-  return escapeHtml(str);
 }
