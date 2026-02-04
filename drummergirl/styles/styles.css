@@ -25,6 +25,38 @@ body {
   font-family: var(--font-heading);
 }
 
+.dsWorldH1,
+.worldHeaderBig,
+.mapWorldTitle,
+.pageTitle,
+.sectionTitle {
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+}
+
+h1,
+h2,
+.sidebar-name,
+.dsPlayerName,
+.worldTileBig,
+.levelTitle {
+  font-family: var(--font-heading);
+}
+
+.introBubble,
+.chatBubble,
+.speech,
+.dialogText {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+button,
+.btn {
+  font-family: var(--font-heading);
+  letter-spacing: 0.3px;
+}
 
 
 *,
