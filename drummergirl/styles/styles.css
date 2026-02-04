@@ -594,19 +594,23 @@ input[type="text"]:focus,
   transform: translateY(-50%);
   width: min(340px, 38vw);
   height: auto;
-  z-index: 2;
+  z-index: 2;               /* lager dan footer */
   pointer-events: none;
 }
+
 
 /* Footer row under bubble aligned RIGHT: "Uitleg overslaan" + "Volgende" */
 .introFooterRow {
   width: min(980px, 96vw);
-  margin-left: auto;
+  margin-left: 0;            /* links */
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start; /* links onder ballon */
   align-items: center;
   gap: 18px;
   padding: 0 6px;
+
+  position: relative;
+  z-index: 5;                /* boven Octo */
 }
 
 /* Inline link-style buttons */
