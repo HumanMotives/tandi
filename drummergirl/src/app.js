@@ -9,7 +9,7 @@ import { mountChatIntro } from "../ui/chatIntro.js";
 import { openNameModal } from "../ui/nameModal.js";
 
 // NEW: lesson loader + lesson screen
-import { loadLesson } from "./drummergirl/levels/loadLesson.js";
+import { loadLesson } from "../levels/loadLesson.js";
 import { mountPractice } from "../ui/practice.js";
 
 
