@@ -1,0 +1,124 @@
+/* styles/lesson/lessonPractice.css */
+
+.lessonPracticeScreen{
+  width: 100%;
+  min-height: 100vh;
+}
+
+.lpApp{
+  width: min(1100px, 96vw);
+  margin: 0 auto;
+  padding: 18px;
+  box-sizing: border-box;
+  display: grid;
+  gap: 14px;
+}
+
+.lpHeader{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.lpHeaderCenter{
+  text-align: center;
+}
+
+.lpWorldTitle{
+  margin: 0;
+  font-size: 26px;
+}
+
+.lpLevelTitle{
+  margin: 6px 0 0 0;
+  font-weight: 900;
+  opacity: 0.8;
+}
+
+.lpPanel{
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.70);
+  box-shadow: 0 10px 0 rgba(0,0,0,0.10);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.lpRow{
+  display: grid;
+  grid-template-columns: 56px 1fr minmax(120px, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.lpIcon{
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  background: rgba(255,255,255,0.65);
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+}
+
+.lpLabel .small{
+  display:block;
+  font-weight: 900;
+  opacity: 0.75;
+  font-size: 14px;
+}
+
+.lpLabel .value{
+  display:block;
+  font-weight: 1000;
+  font-size: 20px;
+}
+
+.lpMuteBtn{
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.75);
+  box-shadow: 0 10px 0 rgba(0,0,0,0.10);
+  width: 56px;
+  height: 52px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.lpMuteBtn.isMuted{
+  opacity: 0.75;
+}
+
+.lpTiny{
+  font-weight: 900;
+  opacity: 0.75;
+  padding-left: 8px;
+}
+
+.lpActions{
+  display:flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.lpStage{
+  padding: 6px 0 18px;
+}
+
+@media (max-width: 720px){
+  .lpRow{
+    grid-template-columns: 56px 1fr;
+    grid-auto-rows: auto;
+  }
+  .lpRow input[type="range"]{
+    grid-column: 1 / -1;
+  }
+  .lpActions{
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+}
