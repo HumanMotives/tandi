@@ -182,14 +182,14 @@ function render(route, force = false) {
       try {
         const lesson = await loadLesson(levelId);
 
-        const screen = mountPractice({
+        const screen = mountLessonPractice({
           container: wrapper,
           worldName: worldTitleFromId(worldId),
           levelName: lesson.title || levelId,
           onExit: () => {
             window.location.hash = "#levels";
           },
-          // later: pass lesson.ui + lesson.pattern into mountPractice/mountLesson
+          // later: pass lesson.ui + lesson.pattern into mountLessonPractice/mountLesson
           lesson
         });
 
