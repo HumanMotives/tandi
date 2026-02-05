@@ -1,20 +1,26 @@
 {
-  "id": "jungle-1",
-  "worldId": "jungle",
+  "id": "W1-L1",
+  "worldId": "W1",
   "title": "Klap mee in de maat",
   "intro": [
     {
-      "text": "Tutorial tekst 1"
+      "text": "Hoi wat leuk dat je er bent. Welkom!"
     },
     {
-      "text": "Uitleg tekst 2"
+      "text": "Drummen is ritme. Kun jij al tot vier tellen?"
     },
     {
-      "text": "Uitleg tekst 3"
+      "text": "Elke maat bestaat uit vier tellen..."
+    },
+    {
+      "text": "Klap met je handen elke tel mee in de maat"
+    },
+    {
+      "text": "Ben je er klaar voor?"
     }
   ],
   "ui": {
-    "showMetronome": false,
+    "showMetronome": true,
     "showBpm": false,
     "showHits": false,
     "showHands": false,
@@ -23,7 +29,7 @@
   "transport": {
     "bpm": 90,
     "bars": 4,
-    "stepsPerBar": 8,
+    "stepsPerBar": 4,
     "timeSig": "4/4"
   },
   "pattern": {
@@ -31,49 +37,57 @@
       {
         "hits": [
           0,
+          1,
           2,
-          4,
-          6
-        ],
-        "hands": [
-          "",
-          "",
-          "",
-          ""
-        ]
-      },
-      {
-        "hits": [
           3
         ],
         "hands": [
-          ""
+          "R",
+          "L",
+          "R",
+          "L"
         ]
       },
       {
         "hits": [
+          0,
+          1,
           2,
-          3,
-          4
+          3
         ],
         "hands": [
-          "",
-          "",
-          ""
+          "R",
+          "L",
+          "R",
+          "L"
         ]
       },
       {
         "hits": [
+          0,
+          1,
           2,
-          3,
-          5,
-          6
+          3
         ],
         "hands": [
-          "",
-          "",
-          "",
-          ""
+          "R",
+          "L",
+          "R",
+          "L"
+        ]
+      },
+      {
+        "hits": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "hands": [
+          "R",
+          "L",
+          "R",
+          "L"
         ]
       }
     ]
