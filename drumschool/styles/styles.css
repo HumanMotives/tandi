@@ -11,20 +11,71 @@
 
 /* =========================
    Typography System
-   ========================= */
+========================= */
 
-/* Big titles / worlds / page titles */
 :root {
   --font-display: "Rubik Dirt", system-ui;
   --font-heading: "Chewy", system-ui;
   --font-body: "Delius", cursive;
 }
 
-/* Default text */
-body {
-  font-family: var(--font-heading);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: rgba(20, 20, 24, 0.95);
+
+  /* Default UI font */
+  font-family: var(--font-heading);
+
+  /* TEMP: Background for whole app */
+  background-image: url("../assets/img/backgrounds/ds_background_ijsrock.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  /* fallback color while loading */
+  background-color: #f7f4ff;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* Root mount */
+#appRoot {
+  min-height: 100%;
+}
+
+/* App wrapper */
+.app {
+  min-height: 100vh;
+  padding: 18px;
+}
+
+/* =========================
+   Typography usage
+========================= */
+
+/* Big titles / worlds / page titles */
 .dsWorldH1,
 .worldHeaderBig,
 .mapWorldTitle,
@@ -58,69 +109,12 @@ button,
   letter-spacing: 0.3px;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color: rgba(20, 20, 24, 0.95);
-
-  /* TEMP: Jungle background for whole app */
-  background-image: url("../assets/img/backgrounds/ds_background_ijsrock.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-
-  /* fallback color while loading */
-  background-color: #f7f4ff;
-}
-
-
-  /* fallback color while loading */
-  background-color: #f7f4ff;
-}
-
-img {
-  max-width: 100%;
-  display: block;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-/* Root mount */
-#appRoot {
-  min-height: 100%;
-}
-
-/* App wrapper */
-.app {
-  min-height: 100vh;
-  padding: 18px;
-}
-
 /* ---------------------------
    1) Consistent Layout Helpers
 ---------------------------- */
 .layout,
 .dsShell,
 .worldLayout {
-  /* Use ONE consistent layout class. If old screens still use dsShell/worldLayout,
-     this keeps them looking sane without per-screen hacks. */
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 18px;
@@ -146,7 +140,6 @@ main,
 
 /* ---------------------------
    2) Consistent “Card / Frame”
-   Use .frame for panels and .card for blocks
 ---------------------------- */
 .frame,
 .card,
@@ -259,7 +252,7 @@ button:disabled,
   transform: none;
 }
 
-/* Variants (minimal) */
+/* Variants */
 .btn.primary {
   background: rgba(255, 224, 106, 0.85);
 }
@@ -268,7 +261,7 @@ button:disabled,
   background: rgba(255, 255, 255, 0.55);
 }
 
-/* Icon buttons (kept consistent) */
+/* Icon buttons */
 .iconBtn,
 .dsIconBtn {
   width: 52px;
@@ -339,7 +332,7 @@ input[type="text"]:focus,
 }
 
 /* ---------------------------
-   7) Splash Screen (keep consistent with global background)
+   7) Splash Screen
 ---------------------------- */
 .splashScreen {
   position: fixed;
@@ -347,14 +340,8 @@ input[type="text"]:focus,
   z-index: 9998;
   display: grid;
   place-items: center;
-
-  /* Same gradient as body */
-  background: radial-gradient(
-    circle at 30% 20%,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(240, 230, 255, 0.92) 40%,
-    rgba(210, 190, 255, 0.88) 100%
-  );
+  background: rgba(255, 255, 255, 0.80);
+  backdrop-filter: blur(3px);
 }
 
 .splashInner {
@@ -392,7 +379,7 @@ input[type="text"]:focus,
 }
 
 /* ---------------------------
-   8) World grid + tiles (functional, consistent)
+   8) World grid + tiles
 ---------------------------- */
 .dsWorldSelect,
 .worldSelectMain {
@@ -470,7 +457,7 @@ input[type="text"]:focus,
 .worldTileBig,
 .levelTitle {
   font-weight: 1000;
-  white-space: pre-line; /* supports \n in world names */
+  white-space: pre-line;
 }
 
 .dsWorldSub,
@@ -487,14 +474,8 @@ input[type="text"]:focus,
   opacity: 0.55;
 }
 
-/* Stars row (if present) */
-.levelStars .star {
-  font-size: 18px;
-  font-weight: 900;
-}
-
 /* ---------------------------
-   9) Intro / Chat screen (overlap style as requested)
+   9) Intro / Chat screen
 ---------------------------- */
 
 .introScreen {
@@ -508,7 +489,6 @@ input[type="text"]:focus,
   display: flex;
   flex-direction: column;
   padding: 18px;
-  box-sizing: border-box;
 }
 
 .introTopBar {
@@ -519,12 +499,11 @@ input[type="text"]:focus,
 }
 
 .introTitle {
-  font-family: var(--font-heading, "Chewy", system-ui);
   font-size: 18px;
 }
 
 .introSubtitle {
-  font-family: var(--font-body, "Delius", cursive);
+  font-family: var(--font-body);
   font-size: 14px;
   opacity: 0.9;
   margin-top: 2px;
@@ -541,19 +520,22 @@ input[type="text"]:focus,
 .introCard {
   width: min(1180px, 100%);
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
-/* Wrap where bubble + avatar overlap */
 .introBubbleWrap {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 24px;
+  position: relative;
 }
-/* Name tag */
+
+.introBubbleBlock {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
 .introNameTag {
   position: absolute;
   top: -18px;
@@ -562,141 +544,64 @@ input[type="text"]:focus,
   border: 3px solid rgba(0, 0, 0, 0.85);
   border-radius: 14px;
   padding: 6px 12px;
-  font-family: var(--font-heading, "Chewy", system-ui);
   font-size: 16px;
   z-index: 3;
 }
 
-/* Bubble should extend under the avatar on the right */
 .introBubble {
-  width: min(640px, 88vw); /* was ~720/760 */
+  width: min(640px, 88vw);
   background: #f6e6b6;
   border: 4px solid rgba(0, 0, 0, 0.85);
   border-radius: 20px;
-  padding: 22px 22px 18px 22px;
-  box-sizing: border-box;
+  padding: 22px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
-  position: relative;
-  margin: 0 auto;
 }
 
-/* Text should stop earlier on the right so it never goes behind Octo */
 .introBubbleText {
-  font-family: var(--font-body, "Delius", cursive);
+  font-family: var(--font-body);
   font-size: clamp(18px, 2.2vw, 28px);
   line-height: 1.25;
-
-  /* This is the key: reserve space for the overlapping avatar */
-  padding-right: clamp(220px, 28vw, 420px);
 }
 
-/* Avatar overlaps on the right, and sits a bit more to the right */
+.introControlsBelow {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+}
+
 .introAvatar {
-  position: absolute;
-  right: -22px;
-  top: 50%;
-  transform: translateY(-50%);
   width: min(340px, 38vw);
   height: auto;
-  z-index: 2;               /* lager dan footer */
   pointer-events: none;
 }
 
-
-/* Footer row under bubble aligned RIGHT: "Uitleg overslaan" + "Volgende" */
-.introFooterRow {
-  width: min(980px, 96vw);
-  margin-left: 0;            /* links */
-  display: flex;
-  justify-content: flex-start; /* links onder ballon */
-  align-items: center;
-  gap: 18px;
-  padding: 0 6px;
-
-  position: relative;
-  z-index: 5;                /* boven Octo */
-}
-
-/* Inline link-style buttons */
-.introSkipInline,
-.introNextInline {
-  background: transparent;
-  border: none;
-  padding: 6px 6px;
-  cursor: pointer;
-  font-family: var(--font-body, "Delius", cursive);
-  font-size: 16px;
-  text-decoration: underline;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.introSkipInline:hover,
-.introNextInline:hover {
-  opacity: 0.9;
-}
-
-.introSkipInline:active,
-.introNextInline:active {
-  transform: translateY(1px);
-}
-
-.introSkipArrow {
-  margin-left: 2px;
-  font-size: 20px;
-}
-
-.introNextArrow {
-  margin-left: 2px;
-  font-size: 18px;
-}
-
-/* Backward-compat: old class not used by new JS */
-.introSkip {
-  align-self: flex-end;
-  background: transparent;
-  border: none;
-  padding: 6px 8px;
-  font-family: var(--font-body, "Delius", cursive);
-  font-size: 16px;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-/* Mobile layout fixes */
 @media (max-width: 720px) {
   .introStage {
     padding: 14px;
   }
 
-  .introBubble {
-    padding: 18px 16px 14px 16px;
-    width: min(760px, 92vw);
-  }
-
-  .introBubbleText {
-    padding-right: 0; /* on mobile: no overlap padding */
-  }
-
-  .introAvatar {
-    position: static;
-    transform: none;
-    width: min(280px, 70vw);
-    margin: 14px auto 0 auto;
-    display: block;
+  .introBubbleWrap {
+    flex-direction: column;
+    gap: 14px;
   }
 
   .introNameTag {
     left: 12px;
   }
 
-  .introFooterRow {
-    width: min(760px, 92vw);
-    margin-left: 0;
+  .introBubble {
+    width: min(640px, 92vw);
+    padding: 18px 16px;
+  }
+
+  .introControlsBelow {
     justify-content: center;
-    gap: 14px;
-    padding: 0;
+    flex-wrap: wrap;
+  }
+
+  .introAvatar {
+    width: min(280px, 70vw);
   }
 }
 
