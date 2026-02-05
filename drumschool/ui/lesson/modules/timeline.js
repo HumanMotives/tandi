@@ -1,27 +1,29 @@
-// ui/lesson/components/timeline.js
+// ui/lesson/modules/timeline.js
 import { getStepsPerBar, getBars, normalizeHits } from "../lessonConfig.js";
 
-export function mountTimeline({
-  container,
-  lesson,
-  onReady = () => {}
-}) {
+/**
+ * createTimeline()
+ * Expected by lessonPractice.js
+ * Returns an object with:
+ * - el: root element
+ * - stepsPerBar
+ * - setCurrent(stepIndex, barIndex) (optional highlight hook)
+ * - destroy()
+ */
+export function createTimeline({ lesson }) {
   const stepsPerBar = getStepsPerBar(lesson);
   const bars = getBars(lesson);
 
-  const root = document.createElement("div");
-  root.className = "dsTimeline";
-  container.appendChild(root);
+  const el = document.createElement("div");
+  el.className = "dsTimeline";
 
-  // Build UI
-  root.innerHTML = `
+  el.innerHTML = `
     <div class="dsBars">
       ${bars.map((_, idx) => renderBarShell(idx + 1)).join("")}
     </div>
   `;
 
-  // Fill each bar with dots based on stepsPerBar + active notes
-  const barEls = Array.from(root.querySelectorAll("[data-bar]"));
+  const barEls = Array.from(el.querySelectorAll("[data-bar]"));
 
   barEls.forEach((barEl, barIndex) => {
     const barData = bars[barIndex] || {};
@@ -33,16 +35,35 @@ export function mountTimeline({
       [];
 
     const hits = normalizeHits(hitsRaw, stepsPerBar);
-    barEl.querySelector(".dsDots").innerHTML = renderDots(hits);
+
+    const dotsEl = barEl.querySelector(".dsDots");
+    dotsEl.innerHTML = renderDots(hits);
+
+    // store references for highlighting
+    barEl._dotEls = Array.from(dotsEl.querySelectorAll(".dsDot"));
   });
 
-  onReady({ stepsPerBar });
+  function setCurrent(stepIndex, barIndex) {
+    // Clear previous highlights
+    barEls.forEach((b) => {
+      const dots = b._dotEls || [];
+      dots.forEach((d) => d.classList.remove("isCurrent"));
+    });
 
-  function unmount() {
-    root.remove();
+    // Apply current highlight if valid
+    const b = barEls[barIndex];
+    if (!b) return;
+
+    const dots = b._dotEls || [];
+    const d = dots[stepIndex];
+    if (d) d.classList.add("isCurrent");
   }
 
-  return { unmount, stepsPerBar };
+  function destroy() {
+    el.remove();
+  }
+
+  return { el, stepsPerBar, setCurrent, destroy };
 }
 
 function renderBarShell(labelNum) {
@@ -58,10 +79,7 @@ function renderBarShell(labelNum) {
 }
 
 function renderDots(hits) {
-  // Each entry is exactly one grid position.
   return hits
-    .map((isOn) => {
-      return `<div class="dsDot ${isOn ? "isOn" : "isOff"}"></div>`;
-    })
+    .map((isOn) => `<div class="dsDot ${isOn ? "isOn" : "isOff"}"></div>`)
     .join("");
 }
