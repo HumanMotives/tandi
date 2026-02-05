@@ -3,17 +3,17 @@ export async function loadLesson(lessonKey) {
   const key = String(lessonKey || "").trim();
   if (!key) throw new Error("Missing lessonKey");
 
-  const url = `/levels/${encodeURIComponent(key)}.json`;
+  // Works for:
+  // - http://localhost:.../drumschool/
+  // - https://humanmotives.org/drumschool/
+  // and also if you ever deploy at domain root.
+  const base = new URL("./", window.location.href); // directory of current page
+  const url = new URL(`levels/${encodeURIComponent(key)}.json`, base).toString();
 
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
-    const msg = `Lesson JSON niet gevonden: ${url} (${res.status})`;
-    const err = new Error(msg);
-    err.status = res.status;
-    err.url = url;
-    throw err;
+    throw new Error(`Lesson JSON niet gevonden: ${url} (${res.status})`);
   }
 
-  const data = await res.json();
-  return data;
+  return await res.json();
 }
