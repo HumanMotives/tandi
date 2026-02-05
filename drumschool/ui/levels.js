@@ -1,6 +1,5 @@
 // ui/levels.js
 import { mountSidebar } from "./sidebar.js";
-import { WORLDS } from "../data/worlds.js";
 
 export function mountLevels({
   container,
@@ -24,11 +23,7 @@ export function mountLevels({
     state
   });
 
-  const world = WORLDS.find((w) => w.id === worldId) || WORLDS[0];
-  const worldTitle = world ? `${world.titleSmall} • ${world.titleBig}` : getWorldTitle(worldId);
-  const levels = Array.isArray(world?.levels) && world.levels.length
-    ? world.levels
-    : fallbackLevelsForWorld(worldId);
+  const worldTitle = getWorldTitle(worldId);
 
   mainHost.innerHTML = `
     <div class="dsWorldSelect">
@@ -42,7 +37,10 @@ export function mountLevels({
       </button>
 
       <div class="dsWorldGrid">
-        ${levels.map(l => renderLevelTile(l.lessonId || l.id, l.title || (l.id || "Level"))).join("")}
+        ${renderLevelTile("L1", "Level 1")}
+        ${renderLevelTile("L2", "Level 2")}
+        ${renderLevelTile("L3", "Level 3")}
+        ${renderLevelTile("L4", "Level 4")}
       </div>
     </div>
   `;
@@ -53,8 +51,10 @@ export function mountLevels({
 
   mainHost.querySelectorAll("[data-level]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const lessonId = btn.getAttribute("data-level"); // now "W1-L1"
-      onOpenLevel(lessonId);
+      const levelCode = btn.getAttribute("data-level"); // "L1"
+      const worldCode = normalizeWorldCode(worldId);    // "W1"
+      const lessonKey = `${worldCode}-${levelCode}`;    // "W1-L1"
+      onOpenLevel(lessonKey);
     });
   });
 
@@ -69,43 +69,28 @@ export function mountLevels({
 /* helpers */
 
 function getWorldTitle(worldId) {
-  // match your /data/worlds.js ids
-  if (worldId === "w1") return "Wereld 1";
-  if (worldId === "w2") return "Wereld 2";
-  if (worldId === "w3") return "Wereld 3";
-  if (worldId === "w4") return "Wereld 4";
-  if (worldId === "w5") return "Wereld 5";
+  if (worldId === "w1" || worldId === "W1") return "Wereld 1";
+  if (worldId === "w2" || worldId === "W2") return "Wereld 2";
+  if (worldId === "w3" || worldId === "W3") return "Wereld 3";
+  if (worldId === "w4" || worldId === "W4") return "Wereld 4";
+  if (worldId === "w5" || worldId === "W5") return "Wereld 5";
   return "Wereld";
 }
 
-function fallbackLevelsForWorld(worldId) {
-  const worldPrefix = getWorldPrefix(worldId);
-  return [
-    { lessonId: `${worldPrefix}-L1`, title: "Level 1" },
-    { lessonId: `${worldPrefix}-L2`, title: "Level 2" },
-    { lessonId: `${worldPrefix}-L3`, title: "Level 3" },
-    { lessonId: `${worldPrefix}-L4`, title: "Level 4" }
-  ];
-}
-
-function getWorldPrefix(worldId) {
-  // "w1" -> "W1"
-  const n = Number(String(worldId || "").replace("w", ""));
-  if (Number.isFinite(n) && n > 0) return `W${n}`;
+function normalizeWorldCode(worldId) {
+  const s = String(worldId || "").trim();
+  const m = s.match(/w(\d+)/i);
+  if (m) return `W${m[1]}`;
+  if (/^W\d+$/i.test(s)) return s.toUpperCase();
   return "W1";
 }
 
-function renderLevelTile(lessonId, title) {
+function renderLevelTile(levelCode, title) {
   return `
-    <button
-      type="button"
-      class="dsWorldTile"
-      data-level="${escapeHtml(lessonId)}"
-    >
+    <button type="button" class="dsWorldTile" data-level="${levelCode}">
       <div class="dsWorldTileTop">
         <div class="dsWorldNum">${escapeHtml(title)}</div>
       </div>
-      <div class="dsWorldSub">${escapeHtml(lessonId)}</div>
     </button>
   `;
 }
