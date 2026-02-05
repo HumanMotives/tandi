@@ -10,8 +10,7 @@ import { openNameModal } from "../ui/nameModal.js";
 
 // NEW: lesson loader + lesson screen
 import { loadLesson } from "../levels/loadLesson.js";
-import { mountPractice } from "../ui/practice.js";
-
+import { mountLessonPractice } from "../ui/lesson/lessonPractice.js";
 
 const appRoot = document.getElementById("appRoot");
 
