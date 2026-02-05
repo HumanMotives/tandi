@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Drummer Girl Lesson Editor</title>
+
+  <!-- Gebruik je bestaande site styles als je wilt -->
+  <link rel="stylesheet" href="/styles/styles.css" />
+
+  <style>
+    /* Editor layout, minimaal en compatibel met je bestaande btn/card stijl */
+    .leWrap{
+      width: min(1200px, 94vw);
+      margin: 0 auto;
+      padding: 18px;
+      box-sizing: border-box;
+      display: grid;
+      gap: 14px;
+    }
+
+    .leGrid{
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px){
+      .leGrid{ grid-template-columns: 1fr; }
+    }
+
+    .leCard{
+      border: 4px solid rgba(20,20,24,0.95);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.70);
+      box-shadow: 0 10px 0 rgba(0,0,0,0.10);
+      padding: 14px;
+    }
+
+    .leTitle{
+      font-family: var(--font-display, system-ui);
+      font-size: 22px;
+      margin: 0 0 10px 0;
+    }
+
+    .leRow{
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .leRow label{
+      font-weight: 900;
+      opacity: 0.9;
+    }
+
+    .leInput, .leSelect, .leTextarea{
+      width: 100%;
+      border: 4px solid rgba(20,20,24,0.95);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 10px 0 rgba(0,0,0,0.08);
+      padding: 10px 12px;
+      font-weight: 900;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .leTextarea{
+      min-height: 44px;
+      resize: vertical;
+    }
+
+    .leChecks{
+      display: grid;
+      gap: 8px;
+      margin: 8px 0 0 0;
+    }
+
+    .leCheck{
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-weight: 900;
+    }
+
+    .leCheck input{
+      width: 18px;
+      height: 18px;
+    }
+
+    .leActions{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      justify-content: flex-end;
+    }
+
+    /* Pattern editor */
+    .peHeader{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .barTabs{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .barTab{
+      border: 4px solid rgba(20,20,24,0.95);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.75);
+      box-shadow: 0 10px 0 rgba(0,0,0,0.10);
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 900;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .barTab.isActive{
+      background: rgba(255,224,106,0.85);
+    }
+
+    .stepGrid{
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .stepCell{
+      border: 4px solid rgba(20,20,24,0.95);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.75);
+      box-shadow: 0 10px 0 rgba(0,0,0,0.10);
+      padding: 10px 8px;
+      cursor: pointer;
+      user-select: none;
+      display: grid;
+      gap: 6px;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .stepDot{
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(20,20,24,0.18);
+    }
+
+    .stepCell.isHit .stepDot{
+      background: rgba(20,20,24,0.90);
+    }
+
+    .handPicker{
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .handBtn{
+      border: 3px solid rgba(20,20,24,0.95);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.75);
+      padding: 6px 10px;
+      cursor: pointer;
+      font-weight: 900;
+      line-height: 1;
+      font-size: 14px;
+    }
+
+    .handBtn.isActive{
+      background: rgba(240,230,255,0.92);
+    }
+
+    .leJsonBox{
+      width: 100%;
+      border: 4px solid rgba(20,20,24,0.95);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.90);
+      padding: 12px;
+      box-sizing: border-box;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      min-height: 220px;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    .leSmall{
+      font-weight: 900;
+      opacity: 0.75;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="leWrap">
+    <div class="leCard">
+      <div class="leTitle">Lesson Editor</div>
+      <div class="leSmall">
+        Maak lessen zonder code: vink UI aan/uit, vul intro teksten, klik je pattern. Export JSON en plak in je level data.
+      </div>
+    </div>
+
+    <div class="leGrid">
+      <!-- Left: settings -->
+      <div class="leCard">
+        <div class="leTitle">Instellingen</div>
+
+        <div class="leRow">
+          <label>Lesson ID</label>
+          <input id="lessonId" class="leInput" value="jungle-1" />
+        </div>
+
+        <div class="leRow">
+          <label>World ID</label>
+          <input id="worldId" class="leInput" value="jungle" />
+        </div>
+
+        <div class="leRow">
+          <label>Titel</label>
+          <input id="title" class="leInput" value="Klap mee in de maat" />
+        </div>
+
+        <div class="leRow">
+          <label>BPM</label>
+          <input id="bpm" class="leInput" type="number" min="40" max="220" value="90" />
+        </div>
+
+        <div class="leRow">
+          <label>Bars</label>
+          <input id="bars" class="leInput" type="number" min="1" max="64" value="4" />
+        </div>
+
+        <div class="leRow">
+          <label>Steps/Bar</label>
+          <select id="stepsPerBar" class="leSelect" disabled>
+            <option value="8" selected>8 (vast)</option>
+          </select>
+        </div>
+
+        <div class="leTitle" style="margin-top:14px;">UI opties</div>
+        <div class="leChecks">
+          <div class="leCheck"><input type="checkbox" id="uiMetronome" /> <span>Metronoom (click)</span></div>
+          <div class="leCheck"><input type="checkbox" id="uiBpm" /> <span>BPM slider</span></div>
+          <div class="leCheck"><input type="checkbox" id="uiHits" /> <span>Hits slider (practice)</span></div>
+          <div class="leCheck"><input type="checkbox" id="uiHands" /> <span>Hands rij</span></div>
+          <div class="leCheck"><input type="checkbox" id="uiPlayStop" checked /> <span>Play/Stop</span></div>
+        </div>
+
+        <div class="leTitle" style="margin-top:14px;">Intro teksten (max 5)</div>
+        <textarea id="t1" class="leTextarea" placeholder="Intro regel 1"></textarea>
+        <textarea id="t2" class="leTextarea" placeholder="Intro regel 2"></textarea>
+        <textarea id="t3" class="leTextarea" placeholder="Intro regel 3"></textarea>
+        <textarea id="t4" class="leTextarea" placeholder="Intro regel 4"></textarea>
+        <textarea id="t5" class="leTextarea" placeholder="Intro regel 5"></textarea>
+
+        <div class="leActions">
+          <button class="btn ghost" id="btnNew" type="button">Nieuw</button>
+          <button class="btn" id="btnSave" type="button">Opslaan</button>
+          <button class="btn" id="btnLoad" type="button">Laden</button>
+          <button class="btn primary" id="btnExport" type="button">Export JSON</button>
+        </div>
+      </div>
+
+      <!-- Right: pattern + json -->
+      <div class="leCard">
+        <div class="leTitle">Partituur</div>
+
+        <div class="peHeader">
+          <div class="barTabs" id="barTabs"></div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+            <button class="btn" id="btnFillQuarter" type="button">Vul 1-2-3-4</button>
+            <button class="btn ghost" id="btnClearBar" type="button">Wis bar</button>
+          </div>
+        </div>
+
+        <div class="leSmall">
+          Klik op een step om hit aan/uit te zetten. Kies hand (R/L/geen) per step.
+        </div>
+
+        <div class="stepGrid" id="stepGrid"></div>
+
+        <div class="leTitle" style="margin-top:14px;">JSON preview</div>
+        <div class="leSmall">Gebruik Export JSON om te kopiëren of te downloaden.</div>
+        <div class="leJsonBox" id="jsonBox"></div>
+
+        <div class="leActions">
+          <button class="btn" id="btnCopy" type="button">Kopieer</button>
+          <button class="btn" id="btnDownload" type="button">Download</button>
+          <button class="btn ghost" id="btnImport" type="button">Import</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const STORAGE_KEY = "drummergirl.lessonEditor.v1";
+
+  // State
+  let state = makeDefaultState();
+
+  // Elements
+  const el = {
+    lessonId: byId("lessonId"),
+    worldId: byId("worldId"),
+    title: byId("title"),
+    bpm: byId("bpm"),
+    bars: byId("bars"),
+    stepsPerBar: byId("stepsPerBar"),
+
+    uiMetronome: byId("uiMetronome"),
+    uiBpm: byId("uiBpm"),
+    uiHits: byId("uiHits"),
+    uiHands: byId("uiHands"),
+    uiPlayStop: byId("uiPlayStop"),
+
+    t1: byId("t1"),
+    t2: byId("t2"),
+    t3: byId("t3"),
+    t4: byId("t4"),
+    t5: byId("t5"),
+
+    barTabs: byId("barTabs"),
+    stepGrid: byId("stepGrid"),
+    jsonBox: byId("jsonBox"),
+
+    btnNew: byId("btnNew"),
+    btnSave: byId("btnSave"),
+    btnLoad: byId("btnLoad"),
+    btnExport: byId("btnExport"),
+    btnCopy: byId("btnCopy"),
+    btnDownload: byId("btnDownload"),
+    btnImport: byId("btnImport"),
+
+    btnFillQuarter: byId("btnFillQuarter"),
+    btnClearBar: byId("btnClearBar"),
+  };
+
+  // Init
+  hydrateFormFromState();
+  ensurePatternSize();
+  renderBarTabs();
+  renderStepGrid();
+  renderJson();
+
+  // Events: inputs -> state
+  const bind = (node, handler) => node.addEventListener("input", handler);
+  bind(el.lessonId, () => { state.lessonId = el.lessonId.value.trim(); renderJson(); });
+  bind(el.worldId, () => { state.worldId = el.worldId.value.trim(); renderJson(); });
+  bind(el.title, () => { state.title = el.title.value; renderJson(); });
+  bind(el.bpm, () => { state.bpm = clampInt(el.bpm.value, 40, 220); el.bpm.value = state.bpm; renderJson(); });
+
+  bind(el.bars, () => {
+    state.bars = clampInt(el.bars.value, 1, 64);
+    el.bars.value = state.bars;
+    ensurePatternSize();
+    renderBarTabs();
+    renderStepGrid();
+    renderJson();
+  });
+
+  const bindCheck = (node, key) => node.addEventListener("change", () => {
+    state.ui[key] = !!node.checked;
+    renderJson();
+  });
+
+  bindCheck(el.uiMetronome, "showMetronome");
+  bindCheck(el.uiBpm, "showBpm");
+  bindCheck(el.uiHits, "showHits");
+  bindCheck(el.uiHands, "showHands");
+  bindCheck(el.uiPlayStop, "showPlayStop");
+
+  [el.t1, el.t2, el.t3, el.t4, el.t5].forEach((t) => {
+    t.addEventListener("input", () => {
+      state.tutorial = [
+        el.t1.value, el.t2.value, el.t3.value, el.t4.value, el.t5.value
+      ];
+      renderJson();
+    });
+  });
+
+  // Actions
+  el.btnNew.addEventListener("click", () => {
+    state = makeDefaultState();
+    hydrateFormFromState();
+    ensurePatternSize();
+    renderBarTabs();
+    renderStepGrid();
+    renderJson();
+  });
+
+  el.btnSave.addEventListener("click", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    toast("Opgeslagen in localStorage.");
+  });
+
+  el.btnLoad.addEventListener("click", () => {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) { toast("Geen opgeslagen editor data gevonden."); return; }
+    try{
+      state = JSON.parse(raw);
+      state = normalizeState(state);
+      hydrateFormFromState();
+      ensurePatternSize();
+      renderBarTabs();
+      renderStepGrid();
+      renderJson();
+      toast("Geladen.");
+    }catch{
+      toast("Kon opgeslagen data niet laden.");
+    }
+  });
+
+  el.btnExport.addEventListener("click", () => {
+    renderJson(true);
+    toast("JSON is up-to-date. Kopieer of download.");
+  });
+
+  el.btnCopy.addEventListener("click", async () => {
+    const json = JSON.stringify(buildLessonConfig(), null, 2);
+    try{
+      await navigator.clipboard.writeText(json);
+      toast("Gekopieerd naar klembord.");
+    }catch{
+      toast("Kopiëren lukte niet. Selecteer en kopieer handmatig.");
+    }
+  });
+
+  el.btnDownload.addEventListener("click", () => {
+    const json = JSON.stringify(buildLessonConfig(), null, 2);
+    const name = (state.lessonId || "lesson").replaceAll(" ", "-");
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  el.btnImport.addEventListener("click", () => {
+    const pasted = prompt("Plak hier een lesson JSON (export):");
+    if (!pasted) return;
+    try{
+      const obj = JSON.parse(pasted);
+      state = stateFromLessonConfig(obj);
+      state = normalizeState(state);
+      hydrateFormFromState();
+      ensurePatternSize();
+      renderBarTabs();
+      renderStepGrid();
+      renderJson();
+      toast("Import gelukt.");
+    }catch{
+      toast("Import mislukt. JSON niet geldig.");
+    }
+  });
+
+  el.btnFillQuarter.addEventListener("click", () => {
+    const b = state.activeBar;
+    clearBar(b);
+    // Quarter notes on 8-step grid: 0,2,4,6
+    [0,2,4,6].forEach(i => setHit(b, i, true));
+    autoHandsAlternate(b);
+    renderStepGrid();
+    renderJson();
+  });
+
+  el.btnClearBar.addEventListener("click", () => {
+    clearBar(state.activeBar);
+    renderStepGrid();
+    renderJson();
+  });
+
+  // Rendering
+  function renderBarTabs(){
+    el.barTabs.innerHTML = "";
+    for (let i=0;i<state.bars;i++){
+      const btn = document.createElement("div");
+      btn.className = "barTab" + (i === state.activeBar ? " isActive" : "");
+      btn.textContent = `Bar ${i+1}`;
+      btn.addEventListener("click", () => {
+        state.activeBar = i;
+        renderBarTabs();
+        renderStepGrid();
+      });
+      el.barTabs.appendChild(btn);
+    }
+  }
+
+  function renderStepGrid(){
+    el.stepGrid.innerHTML = "";
+    const b = state.activeBar;
+
+    for (let s=0; s<8; s++){
+      const cell = document.createElement("div");
+      const isHit = !!state.pattern[b].hits[s];
+      cell.className = "stepCell" + (isHit ? " isHit" : "");
+
+      const dot = document.createElement("div");
+      dot.className = "stepDot";
+
+      const label = document.createElement("div");
+      label.style.fontWeight = "900";
+      label.style.opacity = "0.85";
+      label.textContent = `Step ${s+1}`;
+
+      const handWrap = document.createElement("div");
+      handWrap.className = "handPicker";
+
+      const hand = state.pattern[b].hands[s] || "";
+
+      const makeHandBtn = (val, text) => {
+        const hb = document.createElement("button");
+        hb.type = "button";
+        hb.className = "handBtn" + (hand === val ? " isActive" : "");
+        hb.textContent = text;
+        hb.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (!state.pattern[b].hits[s]) {
+            // hand zonder hit is verwarrend, dus we zetten hit aan
+            setHit(b, s, true);
+          }
+          setHand(b, s, val);
+          renderStepGrid();
+          renderJson();
+        });
+        return hb;
+      };
+
+      const hbNone = makeHandBtn("", "Geen");
+      const hbR = makeHandBtn("R", "R");
+      const hbL = makeHandBtn("L", "L");
+
+      handWrap.appendChild(hbNone);
+      handWrap.appendChild(hbR);
+      handWrap.appendChild(hbL);
+
+      cell.appendChild(dot);
+      cell.appendChild(label);
+      cell.appendChild(handWrap);
+
+      cell.addEventListener("click", () => {
+        const next = !state.pattern[b].hits[s];
+        setHit(b, s, next);
+        if (!next) setHand(b, s, "");
+        renderStepGrid();
+        renderJson();
+      });
+
+      el.stepGrid.appendChild(cell);
+    }
+  }
+
+  function renderJson(force){
+    const json = JSON.stringify(buildLessonConfig(), null, 2);
+    el.jsonBox.textContent = json;
+    if (force) el.jsonBox.scrollTop = 0;
+  }
+
+  // Build config the game will use
+  function buildLessonConfig(){
+    const intro = (state.tutorial || [])
+      .map(s => String(s || "").trim())
+      .filter(Boolean)
+      .map(text => ({ text }));
+
+    // Pattern per bar: hits = [indices], hands = [R/L/"" aligned to hits]
+    const bars = state.pattern.slice(0, state.bars).map((bar) => {
+      const hits = [];
+      const hands = [];
+      for (let i=0;i<8;i++){
+        if (bar.hits[i]) {
+          hits.push(i);
+          hands.push(bar.hands[i] || "");
+        }
+      }
+      return { hits, hands };
+    });
+
+    return {
+      id: state.lessonId || "lesson",
+      worldId: state.worldId || "world",
+      title: state.title || "Lesson",
+      intro,
+      ui: { ...state.ui },
+      transport: {
+        bpm: Number(state.bpm) || 90,
+        bars: Number(state.bars) || 4,
+        stepsPerBar: 8,
+        timeSig: "4/4"
+      },
+      pattern: { bars }
+    };
+  }
+
+  // Helpers: state management
+  function makeDefaultState(){
+    return normalizeState({
+      lessonId: "jungle-1",
+      worldId: "jungle",
+      title: "Klap mee in de maat",
+      bpm: 90,
+      bars: 4,
+      activeBar: 0,
+      ui: {
+        showMetronome: false,
+        showBpm: false,
+        showHits: false,
+        showHands: false,
+        showPlayStop: true
+      },
+      tutorial: ["", "", "", "", ""],
+      pattern: []
+    });
+  }
+
+  function normalizeState(s){
+    const out = {
+      lessonId: String(s.lessonId || "lesson"),
+      worldId: String(s.worldId || "world"),
+      title: String(s.title || "Lesson"),
+      bpm: clampInt(s.bpm ?? 90, 40, 220),
+      bars: clampInt(s.bars ?? 4, 1, 64),
+      activeBar: clampInt(s.activeBar ?? 0, 0, 63),
+      ui: {
+        showMetronome: !!(s.ui && s.ui.showMetronome),
+        showBpm: !!(s.ui && s.ui.showBpm),
+        showHits: !!(s.ui && s.ui.showHits),
+        showHands: !!(s.ui && s.ui.showHands),
+        showPlayStop: s.ui ? !!s.ui.showPlayStop : true
+      },
+      tutorial: Array.isArray(s.tutorial) ? s.tutorial.slice(0,5) : ["","","","",""],
+      pattern: Array.isArray(s.pattern) ? s.pattern : []
+    };
+
+    while (out.tutorial.length < 5) out.tutorial.push("");
+
+    if (out.activeBar >= out.bars) out.activeBar = out.bars - 1;
+    if (out.activeBar < 0) out.activeBar = 0;
+
+    return out;
+  }
+
+  function ensurePatternSize(){
+    // pattern is array of bars, each bar has hits[8] and hands[8]
+    while (state.pattern.length < state.bars) {
+      state.pattern.push(makeEmptyBar());
+    }
+    if (state.pattern.length > state.bars) {
+      state.pattern = state.pattern.slice(0, state.bars);
+    }
+    if (state.activeBar >= state.bars) state.activeBar = state.bars - 1;
+  }
+
+  function makeEmptyBar(){
+    return {
+      hits: new Array(8).fill(false),
+      hands: new Array(8).fill("")
+    };
+  }
+
+  function setHit(barIndex, stepIndex, on){
+    state.pattern[barIndex].hits[stepIndex] = !!on;
+    if (!on) state.pattern[barIndex].hands[stepIndex] = "";
+  }
+
+  function setHand(barIndex, stepIndex, val){
+    state.pattern[barIndex].hands[stepIndex] = val === "R" || val === "L" ? val : "";
+  }
+
+  function clearBar(barIndex){
+    state.pattern[barIndex] = makeEmptyBar();
+  }
+
+  function autoHandsAlternate(barIndex){
+    // Assign alternating R/L only on active hits
+    let next = "R";
+    for (let i=0;i<8;i++){
+      if (state.pattern[barIndex].hits[i]) {
+        state.pattern[barIndex].hands[i] = next;
+        next = next === "R" ? "L" : "R";
+      } else {
+        state.pattern[barIndex].hands[i] = "";
+      }
+    }
+  }
+
+  function hydrateFormFromState(){
+    el.lessonId.value = state.lessonId;
+    el.worldId.value = state.worldId;
+    el.title.value = state.title;
+    el.bpm.value = state.bpm;
+    el.bars.value = state.bars;
+
+    el.uiMetronome.checked = state.ui.showMetronome;
+    el.uiBpm.checked = state.ui.showBpm;
+    el.uiHits.checked = state.ui.showHits;
+    el.uiHands.checked = state.ui.showHands;
+    el.uiPlayStop.checked = state.ui.showPlayStop;
+
+    el.t1.value = state.tutorial[0] || "";
+    el.t2.value = state.tutorial[1] || "";
+    el.t3.value = state.tutorial[2] || "";
+    el.t4.value = state.tutorial[3] || "";
+    el.t5.value = state.tutorial[4] || "";
+  }
+
+  function stateFromLessonConfig(cfg){
+    const out = makeDefaultState();
+
+    out.lessonId = String(cfg.id || "lesson");
+    out.worldId = String(cfg.worldId || "world");
+    out.title = String(cfg.title || "Lesson");
+
+    out.bpm = clampInt(cfg.transport?.bpm ?? 90, 40, 220);
+    out.bars = clampInt(cfg.transport?.bars ?? 4, 1, 64);
+
+    out.ui = {
+      showMetronome: !!cfg.ui?.showMetronome,
+      showBpm: !!cfg.ui?.showBpm,
+      showHits: !!cfg.ui?.showHits,
+      showHands: !!cfg.ui?.showHands,
+      showPlayStop: cfg.ui ? !!cfg.ui.showPlayStop : true
+    };
+
+    const introTexts = Array.isArray(cfg.intro) ? cfg.intro.map(x => x?.text || "") : [];
+    out.tutorial = [introTexts[0]||"", introTexts[1]||"", introTexts[2]||"", introTexts[3]||"", introTexts[4]||""];
+
+    out.pattern = [];
+    for (let b=0; b<out.bars; b++){
+      out.pattern.push(makeEmptyBar());
+    }
+
+    const bars = cfg.pattern?.bars || [];
+    for (let b=0; b<Math.min(out.bars, bars.length); b++){
+      const hits = Array.isArray(bars[b].hits) ? bars[b].hits : [];
+      const hands = Array.isArray(bars[b].hands) ? bars[b].hands : [];
+      hits.forEach((stepIndex, idx) => {
+        if (stepIndex >=0 && stepIndex < 8) {
+          out.pattern[b].hits[stepIndex] = true;
+          const h = hands[idx] || "";
+          out.pattern[b].hands[stepIndex] = (h === "R" || h === "L") ? h : "";
+        }
+      });
+    }
+
+    out.activeBar = 0;
+    return out;
+  }
+
+  function byId(id){ return document.getElementById(id); }
+  function clampInt(v, min, max){
+    const n = Math.round(Number(v));
+    if (!Number.isFinite(n)) return min;
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function toast(msg){
+    console.log("[LessonEditor]", msg);
+    alert(msg);
+  }
+</script>
+</body>
+</html>
