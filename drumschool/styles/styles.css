@@ -1,1 +1,704 @@
+/* styles/styles.css
+   Drum School – Base Styles (single source of truth)
+   Goal: consistency + functional UI (no extra fancy per-screen styling)
+*/
 
+/* ---------------------------
+   0) Reset + base
+---------------------------- */
+
+@import url("https://fonts.googleapis.com/css2?family=Chewy&family=Delius&family=Rubik+Dirt&display=swap");
+
+/* =========================
+   Typography System
+   ========================= */
+
+/* Big titles / worlds / page titles */
+:root {
+  --font-display: "Rubik Dirt", system-ui;
+  --font-heading: "Chewy", system-ui;
+  --font-body: "Delius", cursive;
+}
+
+/* Default text */
+body {
+  font-family: var(--font-heading);
+}
+
+.dsWorldH1,
+.worldHeaderBig,
+.mapWorldTitle,
+.pageTitle,
+.sectionTitle {
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+}
+
+h1,
+h2,
+.sidebar-name,
+.dsPlayerName,
+.worldTileBig,
+.levelTitle {
+  font-family: var(--font-heading);
+}
+
+.introBubble,
+.chatBubble,
+.speech,
+.dialogText {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+button,
+.btn {
+  font-family: var(--font-heading);
+  letter-spacing: 0.3px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: rgba(20, 20, 24, 0.95);
+
+  /* Global background = splash vibe */
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(240, 230, 255, 0.92) 40%,
+    rgba(210, 190, 255, 0.88) 100%
+  );
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* Root mount */
+#appRoot {
+  min-height: 100%;
+}
+
+/* App wrapper */
+.app {
+  min-height: 100vh;
+  padding: 18px;
+}
+
+/* ---------------------------
+   1) Consistent Layout Helpers
+---------------------------- */
+.layout,
+.dsShell,
+.worldLayout {
+  /* Use ONE consistent layout class. If old screens still use dsShell/worldLayout,
+     this keeps them looking sane without per-screen hacks. */
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+  align-items: start;
+  min-height: calc(100vh - 36px);
+}
+
+@media (max-width: 900px) {
+  .layout,
+  .dsShell,
+  .worldLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Main area should not hug edges */
+main,
+.dsShellMain,
+.worldMain,
+.mapMain {
+  min-height: 60vh;
+}
+
+/* ---------------------------
+   2) Consistent “Card / Frame”
+   Use .frame for panels and .card for blocks
+---------------------------- */
+.frame,
+.card,
+.dsModalCard,
+.sidebar,
+.sidePanel {
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.70);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+}
+
+/* In case older code wraps in .screen */
+.screen {
+  width: 100%;
+}
+
+/* ---------------------------
+   3) Sidebar (minimal MVP)
+---------------------------- */
+.sidebar,
+.dsSidebar,
+.sidePanel {
+  padding: 14px;
+}
+
+.sidebar-inner,
+.dsSidebarInner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar-logo img,
+.dsSidebarLogo,
+.sideLogoImg {
+  width: 100%;
+  height: auto;
+}
+
+/* Player block */
+.sidebar-player,
+.dsPlayerCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.sidebar-avatar img,
+.dsPlayerAvatar,
+.sideAvatarImg {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  border-radius: 16px;
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+}
+
+.sidebar-name,
+.dsPlayerName,
+.sideName {
+  font-weight: 900;
+  font-size: 20px;
+  text-align: center;
+}
+
+/* Hide optional / future sidebar sections by default (so MVP stays clean) */
+.dsStatList,
+.dsSidebarButtons,
+.sideStats,
+.sideBottomIcons,
+.sideNameRow,
+.sideNameEdit {
+  display: none !important;
+}
+
+/* ---------------------------
+   4) Consistent Buttons
+---------------------------- */
+.btn,
+button {
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 900;
+  line-height: 1;
+}
+
+button:hover,
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+button:active,
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.10);
+}
+
+button:disabled,
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Variants (minimal) */
+.btn.primary {
+  background: rgba(255, 224, 106, 0.85);
+}
+
+.btn.ghost {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+/* Icon buttons (kept consistent) */
+.iconBtn,
+.dsIconBtn {
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* ---------------------------
+   5) Inputs (modal + forms)
+---------------------------- */
+input[type="text"],
+.modalInput,
+.dsInput {
+  width: 100%;
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.08);
+  padding: 12px 14px;
+  font-weight: 900;
+  outline: none;
+}
+
+input[type="text"]:focus,
+.modalInput:focus,
+.dsInput:focus {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* ---------------------------
+   6) Modal (Name modal + Backpack later)
+---------------------------- */
+.modalOverlay,
+.dsModalOverlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(20, 20, 24, 0.45);
+  z-index: 9999;
+}
+
+.modalCard,
+.dsModalCard {
+  width: min(520px, 92vw);
+  padding: 16px;
+}
+
+.modalTitle {
+  font-weight: 1000;
+  font-size: 24px;
+}
+
+.modalSub {
+  margin-top: 6px;
+  font-weight: 900;
+  opacity: 0.75;
+}
+
+.modalActions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ---------------------------
+   7) Splash Screen (keep consistent with global background)
+---------------------------- */
+.splashScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: grid;
+  place-items: center;
+
+  /* Same gradient as body */
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(240, 230, 255, 0.92) 40%,
+    rgba(210, 190, 255, 0.88) 100%
+  );
+}
+
+.splashInner {
+  width: min(560px, 92vw);
+  text-align: center;
+  padding: 18px;
+}
+
+.splashLogo {
+  width: min(420px, 84vw);
+  margin: 0 auto 14px;
+}
+
+.splashBar {
+  width: 100%;
+  height: 18px;
+  border-radius: 999px;
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  background: rgba(255, 255, 255, 0.65);
+  overflow: hidden;
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+}
+
+.splashBarFill {
+  width: 0%;
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(20, 20, 24, 0.25);
+}
+
+.splashHint {
+  margin-top: 12px;
+  font-weight: 900;
+  opacity: 0.75;
+}
+
+/* ---------------------------
+   8) World grid + tiles (functional, consistent)
+---------------------------- */
+.dsWorldSelect,
+.worldSelectMain {
+  width: 100%;
+}
+
+.dsWorldHeader,
+.worldHeader,
+.mapHeader {
+  margin-bottom: 14px;
+}
+
+.dsWorldH1,
+.worldHeaderBig,
+.mapWorldTitle {
+  font-weight: 1100;
+  font-size: 28px;
+  margin: 0;
+}
+
+.dsWorldH2,
+.worldHeaderSmall,
+.mapWorldSmall {
+  font-weight: 900;
+  opacity: 0.75;
+  margin-top: 6px;
+}
+
+.dsWorldGrid,
+.worldGrid,
+.levelGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 1100px) {
+  .dsWorldGrid,
+  .worldGrid,
+  .levelGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dsWorldTile,
+.worldTile,
+.levelTile {
+  width: 100%;
+  text-align: left;
+  padding: 14px;
+  border: 4px solid rgba(20, 20, 24, 0.95);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.70);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+}
+
+.dsWorldTileTop,
+.worldTileTop,
+.levelTileTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.dsWorldNum,
+.worldNum,
+.levelLabel {
+  font-weight: 1100;
+  font-size: 20px;
+}
+
+.dsWorldName,
+.worldTileBig,
+.levelTitle {
+  font-weight: 1000;
+  white-space: pre-line; /* supports \n in world names */
+}
+
+.dsWorldSub,
+.worldTileReq {
+  margin-top: 8px;
+  font-weight: 900;
+  opacity: 0.75;
+  font-size: 14px;
+}
+
+.dsWorldTile.locked,
+.worldTile.locked,
+.levelTile.locked {
+  opacity: 0.55;
+}
+
+/* Stars row (if present) */
+.levelStars .star {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+/* ---------------------------
+   9) Intro / Chat screen (overlap style as requested)
+---------------------------- */
+
+.introScreen {
+  width: 100%;
+  min-height: 100vh;
+  padding: 14px;
+}
+
+.introStage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+.introTopBar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 6px 2px 14px 2px;
+}
+
+.introTitle {
+  font-family: var(--font-heading, "Chewy", system-ui);
+  font-size: 18px;
+}
+
+.introSubtitle {
+  font-family: var(--font-body, "Delius", cursive);
+  font-size: 14px;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+.introCenter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.introCard {
+  width: min(1180px, 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Wrap where bubble + avatar overlap */
+.introBubbleWrap {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px 8px;
+  box-sizing: border-box;
+}
+
+/* Name tag */
+.introNameTag {
+  position: absolute;
+  top: -18px;
+  left: 22px;
+  background: #ffffff;
+  border: 3px solid rgba(0, 0, 0, 0.85);
+  border-radius: 14px;
+  padding: 6px 12px;
+  font-family: var(--font-heading, "Chewy", system-ui);
+  font-size: 16px;
+  z-index: 3;
+}
+
+/* Bubble should extend under the avatar on the right */
+.introBubble {
+  width: min(980px, 96vw);
+  background: #f6e6b6;
+  border: 4px solid rgba(0, 0, 0, 0.85);
+  border-radius: 20px;
+  padding: 22px 22px 18px 22px;
+  box-sizing: border-box;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  position: relative;
+}
+
+/* Text should stop earlier on the right so it never goes behind Octo */
+.introBubbleText {
+  font-family: var(--font-body, "Delius", cursive);
+  font-size: clamp(18px, 2.2vw, 28px);
+  line-height: 1.25;
+
+  /* This is the key: reserve space for the overlapping avatar */
+  padding-right: clamp(220px, 28vw, 420px);
+}
+
+/* Avatar overlaps on the right, and sits a bit more to the right */
+.introAvatar {
+  position: absolute;
+  right: -22px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(340px, 38vw);
+  height: auto;
+  z-index: 2;               /* lager dan footer */
+  pointer-events: none;
+}
+
+
+/* Footer row under bubble aligned RIGHT: "Uitleg overslaan" + "Volgende" */
+.introFooterRow {
+  width: min(980px, 96vw);
+  margin-left: 0;            /* links */
+  display: flex;
+  justify-content: flex-start; /* links onder ballon */
+  align-items: center;
+  gap: 18px;
+  padding: 0 6px;
+
+  position: relative;
+  z-index: 5;                /* boven Octo */
+}
+
+/* Inline link-style buttons */
+.introSkipInline,
+.introNextInline {
+  background: transparent;
+  border: none;
+  padding: 6px 6px;
+  cursor: pointer;
+  font-family: var(--font-body, "Delius", cursive);
+  font-size: 16px;
+  text-decoration: underline;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.introSkipInline:hover,
+.introNextInline:hover {
+  opacity: 0.9;
+}
+
+.introSkipInline:active,
+.introNextInline:active {
+  transform: translateY(1px);
+}
+
+.introSkipArrow {
+  margin-left: 2px;
+  font-size: 20px;
+}
+
+.introNextArrow {
+  margin-left: 2px;
+  font-size: 18px;
+}
+
+/* Backward-compat: old class not used by new JS */
+.introSkip {
+  align-self: flex-end;
+  background: transparent;
+  border: none;
+  padding: 6px 8px;
+  font-family: var(--font-body, "Delius", cursive);
+  font-size: 16px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Mobile layout fixes */
+@media (max-width: 720px) {
+  .introStage {
+    padding: 14px;
+  }
+
+  .introBubble {
+    padding: 18px 16px 14px 16px;
+    width: min(760px, 92vw);
+  }
+
+  .introBubbleText {
+    padding-right: 0; /* on mobile: no overlap padding */
+  }
+
+  .introAvatar {
+    position: static;
+    transform: none;
+    width: min(280px, 70vw);
+    margin: 14px auto 0 auto;
+    display: block;
+  }
+
+  .introNameTag {
+    left: 12px;
+  }
+
+  .introFooterRow {
+    width: min(760px, 92vw);
+    margin-left: 0;
+    justify-content: center;
+    gap: 14px;
+    padding: 0;
+  }
+}
+
+/* ---------------------------
+   10) Utility
+---------------------------- */
+.hidden {
+  display: none !important;
+}
