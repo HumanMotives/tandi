@@ -3,13 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Drummer Girl Lesson Editor</title>
+  <title>Drum School Lesson Editor</title>
 
-  <!-- Gebruik je bestaande site styles als je wilt -->
+  <!-- Hergebruik je bestaande knoppen/fonts indien gewenst -->
   <link rel="stylesheet" href="/styles/styles.css" />
 
   <style>
-    /* Editor layout, minimaal en compatibel met je bestaande btn/card stijl */
     .leWrap{
       width: min(1200px, 94vw);
       margin: 0 auto;
@@ -21,7 +20,7 @@
 
     .leGrid{
       display: grid;
-      grid-template-columns: 420px 1fr;
+      grid-template-columns: 440px 1fr;
       gap: 14px;
       align-items: start;
     }
@@ -46,7 +45,7 @@
 
     .leRow{
       display: grid;
-      grid-template-columns: 140px 1fr;
+      grid-template-columns: 160px 1fr;
       gap: 10px;
       align-items: center;
       margin-bottom: 10px;
@@ -72,6 +71,7 @@
     .leTextarea{
       min-height: 44px;
       resize: vertical;
+      font-weight: 800;
     }
 
     .leChecks{
@@ -134,8 +134,9 @@
     }
 
     .stepGrid{
+      --cols: 8;
       display: grid;
-      grid-template-columns: repeat(8, 1fr);
+      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
       gap: 10px;
       margin-top: 10px;
     }
@@ -197,15 +198,23 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size: 12px;
       line-height: 1.4;
-      min-height: 220px;
+      min-height: 260px;
       white-space: pre;
       overflow: auto;
     }
 
-    .leSmall{
-      font-weight: 900;
-      opacity: 0.75;
-      font-size: 13px;
+    .miniNote{
+      font-size: 12px;
+      opacity: 0.8;
+      font-weight: 800;
+      margin-top: 6px;
+    }
+
+    .btnRowLeft{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
     }
   </style>
 </head>
@@ -213,118 +222,125 @@
 <body>
   <div class="leWrap">
     <div class="leCard">
-      <div class="leTitle">Lesson Editor</div>
-      <div class="leSmall">
-        Maak lessen zonder code: vink UI aan/uit, vul intro teksten, klik je pattern. Export JSON en plak in je level data.
+      <h1 class="leTitle">Lesson Editor (JSON generator)</h1>
+      <div class="miniNote">
+        Tip: zet <b>Stappen per maat</b> op <b>4</b> voor je eerste lessen. Dan is elk stipje een metronoom-tik.
       </div>
     </div>
 
     <div class="leGrid">
-      <!-- Left: settings -->
+      <!-- LEFT: Form -->
       <div class="leCard">
-        <div class="leTitle">Instellingen</div>
+        <h2 class="leTitle">Basis</h2>
 
         <div class="leRow">
-          <label>Lesson ID</label>
-          <input id="lessonId" class="leInput" value="jungle-1" />
+          <label for="leLessonId">Lesson ID</label>
+          <input id="leLessonId" class="leInput" placeholder="W1-L1" />
         </div>
 
         <div class="leRow">
-          <label>World ID</label>
-          <input id="worldId" class="leInput" value="jungle" />
+          <label for="leWorldId">World ID</label>
+          <input id="leWorldId" class="leInput" placeholder="W1" />
         </div>
 
         <div class="leRow">
-          <label>Titel</label>
-          <input id="title" class="leInput" value="Klap mee in de maat" />
+          <label for="leTitle">Titel</label>
+          <input id="leTitle" class="leInput" placeholder="Klap mee in de maat" />
         </div>
 
         <div class="leRow">
-          <label>BPM</label>
-          <input id="bpm" class="leInput" type="number" min="40" max="220" value="90" />
+          <label for="leBpm">BPM</label>
+          <input id="leBpm" class="leInput" type="number" min="40" max="220" />
         </div>
 
         <div class="leRow">
-          <label>Bars</label>
-          <input id="bars" class="leInput" type="number" min="1" max="64" value="4" />
+          <label for="leBars">Aantal bars</label>
+          <input id="leBars" class="leInput" type="number" min="1" max="64" />
         </div>
 
         <div class="leRow">
-          <label>Steps/Bar</label>
-          <select id="stepsPerBar" class="leSelect" disabled>
-            <option value="8" selected>8 (vast)</option>
+          <label for="leStepsPerBar">Stappen/maat</label>
+          <select id="leStepsPerBar" class="leSelect">
+            <option value="4">4 (quarter grid)</option>
+            <option value="8">8 (eighth grid)</option>
+            <option value="16">16 (sixteenth grid)</option>
           </select>
         </div>
 
-        <div class="leTitle" style="margin-top:14px;">UI opties</div>
+        <h2 class="leTitle" style="margin-top:14px;">UI opties</h2>
         <div class="leChecks">
-          <div class="leCheck"><input type="checkbox" id="uiMetronome" /> <span>Metronoom (click)</span></div>
-          <div class="leCheck"><input type="checkbox" id="uiBpm" /> <span>BPM slider</span></div>
-          <div class="leCheck"><input type="checkbox" id="uiHits" /> <span>Hits slider (practice)</span></div>
-          <div class="leCheck"><input type="checkbox" id="uiHands" /> <span>Hands rij</span></div>
-          <div class="leCheck"><input type="checkbox" id="uiPlayStop" checked /> <span>Play/Stop</span></div>
+          <label class="leCheck"><input type="checkbox" id="uiMetronome" /> Metronoom toggle</label>
+          <label class="leCheck"><input type="checkbox" id="uiBpm" /> BPM slider</label>
+          <label class="leCheck"><input type="checkbox" id="uiHits" /> Hits slider</label>
+          <label class="leCheck"><input type="checkbox" id="uiHands" /> Hands UI</label>
+          <label class="leCheck"><input type="checkbox" id="uiPlayStop" /> Start/Stop knoppen</label>
         </div>
 
-        <div class="leTitle" style="margin-top:14px;">Intro teksten (max 5)</div>
-        <textarea id="t1" class="leTextarea" placeholder="Intro regel 1"></textarea>
-        <textarea id="t2" class="leTextarea" placeholder="Intro regel 2"></textarea>
-        <textarea id="t3" class="leTextarea" placeholder="Intro regel 3"></textarea>
-        <textarea id="t4" class="leTextarea" placeholder="Intro regel 4"></textarea>
-        <textarea id="t5" class="leTextarea" placeholder="Intro regel 5"></textarea>
+        <h2 class="leTitle" style="margin-top:14px;">Tutorial teksten (leeg = skip)</h2>
+        <div class="leRow">
+          <label for="t1">Tekst 1</label>
+          <textarea id="t1" class="leTextarea" placeholder="..."></textarea>
+        </div>
+        <div class="leRow">
+          <label for="t2">Tekst 2</label>
+          <textarea id="t2" class="leTextarea" placeholder="..."></textarea>
+        </div>
+        <div class="leRow">
+          <label for="t3">Tekst 3</label>
+          <textarea id="t3" class="leTextarea" placeholder="..."></textarea>
+        </div>
+        <div class="leRow">
+          <label for="t4">Tekst 4</label>
+          <textarea id="t4" class="leTextarea" placeholder="..."></textarea>
+        </div>
+        <div class="leRow" style="margin-bottom:0;">
+          <label for="t5">Tekst 5</label>
+          <textarea id="t5" class="leTextarea" placeholder="..."></textarea>
+        </div>
 
         <div class="leActions">
-          <button class="btn ghost" id="btnNew" type="button">Nieuw</button>
-          <button class="btn" id="btnSave" type="button">Opslaan</button>
-          <button class="btn" id="btnLoad" type="button">Laden</button>
-          <button class="btn primary" id="btnExport" type="button">Export JSON</button>
+          <button class="btn ghost" type="button" id="btnNew">Nieuw</button>
+          <button class="btn ghost" type="button" id="btnSave">Opslaan (local)</button>
+          <button class="btn ghost" type="button" id="btnLoad">Laden (local)</button>
+          <button class="btn ghost" type="button" id="btnImport">Import JSON</button>
         </div>
       </div>
 
-      <!-- Right: pattern + json -->
+      <!-- RIGHT: Pattern + JSON -->
       <div class="leCard">
-        <div class="leTitle">Partituur</div>
-
         <div class="peHeader">
-          <div class="barTabs" id="barTabs"></div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
-            <button class="btn" id="btnFillQuarter" type="button">Vul 1-2-3-4</button>
-            <button class="btn ghost" id="btnClearBar" type="button">Wis bar</button>
+          <div class="btnRowLeft">
+            <h2 class="leTitle" style="margin:0;">Pattern</h2>
+            <button class="btn ghost" type="button" id="btnFillQuarter">Vul kwartnoten</button>
+            <button class="btn ghost" type="button" id="btnClearBar">Wis bar</button>
+          </div>
+
+          <div class="leActions" style="margin:0;">
+            <button class="btn ghost" type="button" id="btnExport">Refresh JSON</button>
+            <button class="btn ghost" type="button" id="btnCopy">Kopieer</button>
+            <button class="btn primary" type="button" id="btnDownload">Download .json</button>
           </div>
         </div>
 
-        <div class="leSmall">
-          Klik op een step om hit aan/uit te zetten. Kies hand (R/L/geen) per step.
-        </div>
-
+        <div class="barTabs" id="barTabs"></div>
         <div class="stepGrid" id="stepGrid"></div>
 
-        <div class="leTitle" style="margin-top:14px;">JSON preview</div>
-        <div class="leSmall">Gebruik Export JSON om te kopiëren of te downloaden.</div>
+        <h2 class="leTitle" style="margin-top:14px;">Export JSON</h2>
         <div class="leJsonBox" id="jsonBox"></div>
-
-        <div class="leActions">
-          <button class="btn" id="btnCopy" type="button">Kopieer</button>
-          <button class="btn" id="btnDownload" type="button">Download</button>
-          <button class="btn ghost" id="btnImport" type="button">Import</button>
-        </div>
       </div>
     </div>
   </div>
 
 <script>
-  const STORAGE_KEY = "drummergirl.lessonEditor.v1";
+  const STORAGE_KEY = "dsLessonEditor.v2";
 
-  // State
-  let state = makeDefaultState();
-
-  // Elements
   const el = {
-    lessonId: byId("lessonId"),
-    worldId: byId("worldId"),
-    title: byId("title"),
-    bpm: byId("bpm"),
-    bars: byId("bars"),
-    stepsPerBar: byId("stepsPerBar"),
+    lessonId: byId("leLessonId"),
+    worldId: byId("leWorldId"),
+    title: byId("leTitle"),
+    bpm: byId("leBpm"),
+    bars: byId("leBars"),
+    stepsPerBar: byId("leStepsPerBar"),
 
     uiMetronome: byId("uiMetronome"),
     uiBpm: byId("uiBpm"),
@@ -338,64 +354,83 @@
     t4: byId("t4"),
     t5: byId("t5"),
 
-    barTabs: byId("barTabs"),
-    stepGrid: byId("stepGrid"),
-    jsonBox: byId("jsonBox"),
-
     btnNew: byId("btnNew"),
     btnSave: byId("btnSave"),
     btnLoad: byId("btnLoad"),
-    btnExport: byId("btnExport"),
-    btnCopy: byId("btnCopy"),
-    btnDownload: byId("btnDownload"),
     btnImport: byId("btnImport"),
 
     btnFillQuarter: byId("btnFillQuarter"),
     btnClearBar: byId("btnClearBar"),
+
+    btnExport: byId("btnExport"),
+    btnCopy: byId("btnCopy"),
+    btnDownload: byId("btnDownload"),
+
+    barTabs: byId("barTabs"),
+    stepGrid: byId("stepGrid"),
+    jsonBox: byId("jsonBox")
   };
 
-  // Init
+  let state = loadInitialState();
+
   hydrateFormFromState();
   ensurePatternSize();
   renderBarTabs();
   renderStepGrid();
   renderJson();
 
-  // Events: inputs -> state
-  const bind = (node, handler) => node.addEventListener("input", handler);
-  bind(el.lessonId, () => { state.lessonId = el.lessonId.value.trim(); renderJson(); });
-  bind(el.worldId, () => { state.worldId = el.worldId.value.trim(); renderJson(); });
-  bind(el.title, () => { state.title = el.title.value; renderJson(); });
-  bind(el.bpm, () => { state.bpm = clampInt(el.bpm.value, 40, 220); el.bpm.value = state.bpm; renderJson(); });
+  // Form wiring
+  [
+    el.lessonId, el.worldId, el.title, el.bpm, el.bars
+  ].forEach(inp => inp.addEventListener("input", onFormChange));
 
-  bind(el.bars, () => {
-    state.bars = clampInt(el.bars.value, 1, 64);
-    el.bars.value = state.bars;
+  el.stepsPerBar.addEventListener("change", () => {
+    state.stepsPerBar = clampInt(el.stepsPerBar.value, 4, 16);
+    if (![4,8,16].includes(state.stepsPerBar)) state.stepsPerBar = 4;
+
+    // Rebuild all bars with new size (keep what we can)
+    remapPatternToSteps(state.stepsPerBar);
     ensurePatternSize();
     renderBarTabs();
     renderStepGrid();
     renderJson();
   });
 
-  const bindCheck = (node, key) => node.addEventListener("change", () => {
-    state.ui[key] = !!node.checked;
+  [
+    el.uiMetronome, el.uiBpm, el.uiHits, el.uiHands, el.uiPlayStop
+  ].forEach(chk => chk.addEventListener("change", onFormChange));
+
+  [el.t1, el.t2, el.t3, el.t4, el.t5].forEach(t => t.addEventListener("input", onFormChange));
+
+  function onFormChange(){
+    state.lessonId = String(el.lessonId.value || "").trim();
+    state.worldId = String(el.worldId.value || "").trim();
+    state.title = String(el.title.value || "").trim();
+
+    state.bpm = clampInt(el.bpm.value, 40, 220);
+    state.bars = clampInt(el.bars.value, 1, 64);
+
+    state.ui.showMetronome = !!el.uiMetronome.checked;
+    state.ui.showBpm = !!el.uiBpm.checked;
+    state.ui.showHits = !!el.uiHits.checked;
+    state.ui.showHands = !!el.uiHands.checked;
+    state.ui.showPlayStop = !!el.uiPlayStop.checked;
+
+    state.tutorial = [
+      el.t1.value || "",
+      el.t2.value || "",
+      el.t3.value || "",
+      el.t4.value || "",
+      el.t5.value || ""
+    ];
+
+    ensurePatternSize();
+    if (state.activeBar >= state.bars) state.activeBar = state.bars - 1;
+
+    renderBarTabs();
+    renderStepGrid();
     renderJson();
-  });
-
-  bindCheck(el.uiMetronome, "showMetronome");
-  bindCheck(el.uiBpm, "showBpm");
-  bindCheck(el.uiHits, "showHits");
-  bindCheck(el.uiHands, "showHands");
-  bindCheck(el.uiPlayStop, "showPlayStop");
-
-  [el.t1, el.t2, el.t3, el.t4, el.t5].forEach((t) => {
-    t.addEventListener("input", () => {
-      state.tutorial = [
-        el.t1.value, el.t2.value, el.t3.value, el.t4.value, el.t5.value
-      ];
-      renderJson();
-    });
-  });
+  }
 
   // Actions
   el.btnNew.addEventListener("click", () => {
@@ -431,7 +466,7 @@
 
   el.btnExport.addEventListener("click", () => {
     renderJson(true);
-    toast("JSON is up-to-date. Kopieer of download.");
+    toast("JSON is up-to-date.");
   });
 
   el.btnCopy.addEventListener("click", async () => {
@@ -479,9 +514,16 @@
   el.btnFillQuarter.addEventListener("click", () => {
     const b = state.activeBar;
     clearBar(b);
-    // Quarter notes on 8-step grid: 0,2,4,6
-    [0,2,4,6].forEach(i => setHit(b, i, true));
+
+    const spb = state.stepsPerBar;
+    const idxs =
+      spb === 4 ? [0,1,2,3] :
+      spb === 8 ? [0,2,4,6] :
+      [0,4,8,12];
+
+    idxs.forEach(i => setHit(b, i, true));
     autoHandsAlternate(b);
+
     renderStepGrid();
     renderJson();
   });
@@ -509,10 +551,13 @@
   }
 
   function renderStepGrid(){
-    el.stepGrid.innerHTML = "";
     const b = state.activeBar;
+    const spb = state.stepsPerBar;
 
-    for (let s=0; s<8; s++){
+    el.stepGrid.style.setProperty("--cols", String(spb));
+    el.stepGrid.innerHTML = "";
+
+    for (let s=0; s<spb; s++){
       const cell = document.createElement("div");
       const isHit = !!state.pattern[b].hits[s];
       cell.className = "stepCell" + (isHit ? " isHit" : "");
@@ -523,7 +568,7 @@
       const label = document.createElement("div");
       label.style.fontWeight = "900";
       label.style.opacity = "0.85";
-      label.textContent = `Step ${s+1}`;
+      label.textContent = `${s+1}`;
 
       const handWrap = document.createElement("div");
       handWrap.className = "handPicker";
@@ -538,7 +583,6 @@
         hb.addEventListener("click", (e) => {
           e.stopPropagation();
           if (!state.pattern[b].hits[s]) {
-            // hand zonder hit is verwarrend, dus we zetten hit aan
             setHit(b, s, true);
           }
           setHand(b, s, val);
@@ -548,13 +592,9 @@
         return hb;
       };
 
-      const hbNone = makeHandBtn("", "Geen");
-      const hbR = makeHandBtn("R", "R");
-      const hbL = makeHandBtn("L", "L");
-
-      handWrap.appendChild(hbNone);
-      handWrap.appendChild(hbR);
-      handWrap.appendChild(hbL);
+      handWrap.appendChild(makeHandBtn("", "Geen"));
+      handWrap.appendChild(makeHandBtn("R", "R"));
+      handWrap.appendChild(makeHandBtn("L", "L"));
 
       cell.appendChild(dot);
       cell.appendChild(label);
@@ -585,11 +625,13 @@
       .filter(Boolean)
       .map(text => ({ text }));
 
+    const spb = state.stepsPerBar;
+
     // Pattern per bar: hits = [indices], hands = [R/L/"" aligned to hits]
     const bars = state.pattern.slice(0, state.bars).map((bar) => {
       const hits = [];
       const hands = [];
-      for (let i=0;i<8;i++){
+      for (let i=0;i<spb;i++){
         if (bar.hits[i]) {
           hits.push(i);
           hands.push(bar.hands[i] || "");
@@ -598,30 +640,33 @@
       return { hits, hands };
     });
 
+    const timeSig = `${spb}/${spb}`;
+
     return {
-      id: state.lessonId || "lesson",
-      worldId: state.worldId || "world",
+      id: state.lessonId || "W1-L1",
+      worldId: state.worldId || "W1",
       title: state.title || "Lesson",
       intro,
       ui: { ...state.ui },
       transport: {
         bpm: Number(state.bpm) || 90,
         bars: Number(state.bars) || 4,
-        stepsPerBar: 8,
-        timeSig: "4/4"
+        stepsPerBar: spb,
+        timeSig
       },
       pattern: { bars }
     };
   }
 
-  // Helpers: state management
+  // State
   function makeDefaultState(){
     return normalizeState({
-      lessonId: "jungle-1",
-      worldId: "jungle",
+      lessonId: "W1-L1",
+      worldId: "W1",
       title: "Klap mee in de maat",
       bpm: 90,
       bars: 4,
+      stepsPerBar: 4,
       activeBar: 0,
       ui: {
         showMetronome: false,
@@ -636,12 +681,16 @@
   }
 
   function normalizeState(s){
+    let spb = clampInt(s.stepsPerBar ?? 4, 4, 16);
+    if (![4,8,16].includes(spb)) spb = 4;
+
     const out = {
-      lessonId: String(s.lessonId || "lesson"),
-      worldId: String(s.worldId || "world"),
+      lessonId: String(s.lessonId || "W1-L1"),
+      worldId: String(s.worldId || "W1"),
       title: String(s.title || "Lesson"),
       bpm: clampInt(s.bpm ?? 90, 40, 220),
       bars: clampInt(s.bars ?? 4, 1, 64),
+      stepsPerBar: spb,
       activeBar: clampInt(s.activeBar ?? 0, 0, 63),
       ui: {
         showMetronome: !!(s.ui && s.ui.showMetronome),
@@ -662,21 +711,82 @@
     return out;
   }
 
+  function remapPatternToSteps(nextSpb){
+    // Best-effort: als je van 8->4 gaat, keep hits op 0,2,4,6 => map naar 0,1,2,3
+    // als je van 4->8 gaat, dup naar 0,2,4,6
+    // als je naar 16 gaat, map naar 0,4,8,12
+    const prevSpb = state.stepsPerBar;
+
+    const mapIndex = (i) => {
+      // from prevSpb to nextSpb
+      if (prevSpb === nextSpb) return i;
+
+      // Normalize to quarter positions 0..3 then expand
+      const toQuarterPos = () => {
+        if (prevSpb === 4) return i;                         // 0..3
+        if (prevSpb === 8) return Math.round(i / 2);         // 0..7 -> 0..3 approx
+        return Math.round(i / 4);                            // 0..15 -> 0..3 approx
+      };
+
+      const q = clampInt(toQuarterPos(), 0, 3);
+
+      if (nextSpb === 4) return q;
+      if (nextSpb === 8) return q * 2;
+      return q * 4;
+    };
+
+    const newPattern = [];
+    for (let b=0; b<state.pattern.length; b++){
+      const oldBar = state.pattern[b] || { hits: [], hands: [] };
+      const nb = makeEmptyBar(nextSpb);
+
+      for (let i=0; i<prevSpb; i++){
+        if (oldBar.hits[i]) {
+          const ni = mapIndex(i);
+          nb.hits[ni] = true;
+          const h = oldBar.hands[i] || "";
+          nb.hands[ni] = (h === "R" || h === "L") ? h : "";
+        }
+      }
+      newPattern.push(nb);
+    }
+    state.pattern = newPattern;
+  }
+
   function ensurePatternSize(){
-    // pattern is array of bars, each bar has hits[8] and hands[8]
     while (state.pattern.length < state.bars) {
-      state.pattern.push(makeEmptyBar());
+      state.pattern.push(makeEmptyBar(state.stepsPerBar));
     }
     if (state.pattern.length > state.bars) {
       state.pattern = state.pattern.slice(0, state.bars);
     }
+
+    // Ensure each bar matches stepsPerBar length
+    for (let b=0; b<state.pattern.length; b++){
+      const bar = state.pattern[b];
+      if (!bar || !Array.isArray(bar.hits) || !Array.isArray(bar.hands)) {
+        state.pattern[b] = makeEmptyBar(state.stepsPerBar);
+        continue;
+      }
+      if (bar.hits.length !== state.stepsPerBar || bar.hands.length !== state.stepsPerBar){
+        // rebuild bar but keep overlapping indices
+        const rebuilt = makeEmptyBar(state.stepsPerBar);
+        const n = Math.min(bar.hits.length, rebuilt.hits.length);
+        for (let i=0;i<n;i++){
+          rebuilt.hits[i] = !!bar.hits[i];
+          rebuilt.hands[i] = (bar.hands[i] === "R" || bar.hands[i] === "L") ? bar.hands[i] : "";
+        }
+        state.pattern[b] = rebuilt;
+      }
+    }
+
     if (state.activeBar >= state.bars) state.activeBar = state.bars - 1;
   }
 
-  function makeEmptyBar(){
+  function makeEmptyBar(spb){
     return {
-      hits: new Array(8).fill(false),
-      hands: new Array(8).fill("")
+      hits: new Array(spb).fill(false),
+      hands: new Array(spb).fill("")
     };
   }
 
@@ -690,13 +800,12 @@
   }
 
   function clearBar(barIndex){
-    state.pattern[barIndex] = makeEmptyBar();
+    state.pattern[barIndex] = makeEmptyBar(state.stepsPerBar);
   }
 
   function autoHandsAlternate(barIndex){
-    // Assign alternating R/L only on active hits
     let next = "R";
-    for (let i=0;i<8;i++){
+    for (let i=0;i<state.stepsPerBar;i++){
       if (state.pattern[barIndex].hits[i]) {
         state.pattern[barIndex].hands[i] = next;
         next = next === "R" ? "L" : "R";
@@ -712,6 +821,7 @@
     el.title.value = state.title;
     el.bpm.value = state.bpm;
     el.bars.value = state.bars;
+    el.stepsPerBar.value = String(state.stepsPerBar);
 
     el.uiMetronome.checked = state.ui.showMetronome;
     el.uiBpm.checked = state.ui.showBpm;
@@ -729,9 +839,12 @@
   function stateFromLessonConfig(cfg){
     const out = makeDefaultState();
 
-    out.lessonId = String(cfg.id || "lesson");
-    out.worldId = String(cfg.worldId || "world");
+    out.lessonId = String(cfg.id || "W1-L1");
+    out.worldId = String(cfg.worldId || "W1");
     out.title = String(cfg.title || "Lesson");
+
+    const spb = clampInt(cfg.transport?.stepsPerBar ?? 4, 4, 16);
+    out.stepsPerBar = [4,8,16].includes(spb) ? spb : 4;
 
     out.bpm = clampInt(cfg.transport?.bpm ?? 90, 40, 220);
     out.bars = clampInt(cfg.transport?.bars ?? 4, 1, 64);
@@ -749,7 +862,7 @@
 
     out.pattern = [];
     for (let b=0; b<out.bars; b++){
-      out.pattern.push(makeEmptyBar());
+      out.pattern.push(makeEmptyBar(out.stepsPerBar));
     }
 
     const bars = cfg.pattern?.bars || [];
@@ -757,7 +870,7 @@
       const hits = Array.isArray(bars[b].hits) ? bars[b].hits : [];
       const hands = Array.isArray(bars[b].hands) ? bars[b].hands : [];
       hits.forEach((stepIndex, idx) => {
-        if (stepIndex >=0 && stepIndex < 8) {
+        if (stepIndex >=0 && stepIndex < out.stepsPerBar) {
           out.pattern[b].hits[stepIndex] = true;
           const h = hands[idx] || "";
           out.pattern[b].hands[stepIndex] = (h === "R" || h === "L") ? h : "";
@@ -767,6 +880,17 @@
 
     out.activeBar = 0;
     return out;
+  }
+
+  function loadInitialState(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return makeDefaultState();
+    try{
+      const s = JSON.parse(raw);
+      return normalizeState(s);
+    }catch{
+      return makeDefaultState();
+    }
   }
 
   function byId(id){ return document.getElementById(id); }
