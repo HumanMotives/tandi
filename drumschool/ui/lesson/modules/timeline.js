@@ -1,99 +1,67 @@
-// ui/lesson/modules/timeline.js
+// ui/lesson/components/timeline.js
+import { getStepsPerBar, getBars, normalizeHits } from "../lessonConfig.js";
 
-export function createTimeline({
+export function mountTimeline({
   container,
-  stepsPerBar = 8,
-  bars = 4,
-  patternBars = [] // array length bars: { hits:Set<number> }
+  lesson,
+  onReady = () => {}
 }) {
+  const stepsPerBar = getStepsPerBar(lesson);
+  const bars = getBars(lesson);
+
   const root = document.createElement("div");
-  root.className = "tlRoot";
+  root.className = "dsTimeline";
   container.appendChild(root);
 
-  // Build DOM
-  const barEls = [];
-  const stepEls = []; // [bar][step] => element
+  // Build UI
+  root.innerHTML = `
+    <div class="dsBars">
+      ${bars.map((_, idx) => renderBarShell(idx + 1)).join("")}
+    </div>
+  `;
 
-  for (let b = 0; b < bars; b++) {
-    const bar = document.createElement("div");
-    bar.className = "tlBar";
+  // Fill each bar with dots based on stepsPerBar + active notes
+  const barEls = Array.from(root.querySelectorAll("[data-bar]"));
 
-    const label = document.createElement("div");
-    label.className = "tlBarLabel";
-    label.textContent = `Bar ${b + 1}`;
+  barEls.forEach((barEl, barIndex) => {
+    const barData = bars[barIndex] || {};
+    const hitsRaw =
+      barData.hits ||
+      barData.steps ||
+      barData.pattern ||
+      barData.notes ||
+      [];
 
-    const track = document.createElement("div");
-    track.className = "tlTrack";
+    const hits = normalizeHits(hitsRaw, stepsPerBar);
+    barEl.querySelector(".dsDots").innerHTML = renderDots(hits);
+  });
 
-    const line = document.createElement("div");
-    line.className = "tlLine";
-    track.appendChild(line);
+  onReady({ stepsPerBar });
 
-    const stepRow = [];
-    for (let s = 0; s < stepsPerBar; s++) {
-      const dot = document.createElement("div");
-      dot.className = "tlStep";
-
-      const isHit = !!patternBars[b]?.hits?.has(s);
-      dot.classList.toggle("isHit", isHit);
-
-      // position by CSS grid, no absolute math needed
-      track.appendChild(dot);
-      stepRow.push(dot);
-    }
-
-    bar.appendChild(label);
-    bar.appendChild(track);
-
-    root.appendChild(bar);
-    barEls.push(bar);
-    stepEls.push(stepRow);
-  }
-
-  let current = { bar: -1, step: -1 };
-
-  function setPlayhead(barIndex, stepIndex) {
-    // clear old
-    if (current.bar >= 0 && current.step >= 0) {
-      const prev = stepEls[current.bar]?.[current.step];
-      if (prev) prev.classList.remove("isCurrent");
-    }
-
-    current = { bar: barIndex, step: stepIndex };
-
-    const next = stepEls[barIndex]?.[stepIndex];
-    if (next) next.classList.add("isCurrent");
-  }
-
-  function resetPlayhead() {
-    if (current.bar >= 0 && current.step >= 0) {
-      const prev = stepEls[current.bar]?.[current.step];
-      if (prev) prev.classList.remove("isCurrent");
-    }
-    current = { bar: -1, step: -1 };
-  }
-
-  function isHit(barIndex, stepIndex) {
-    return !!patternBars[barIndex]?.hits?.has(stepIndex);
-  }
-
-  function pulseStep(barIndex, stepIndex) {
-    const el = stepEls[barIndex]?.[stepIndex];
-    if (!el) return;
-    el.classList.remove("isPulse");
-    void el.offsetWidth;
-    el.classList.add("isPulse");
-  }
-
-  function destroy() {
+  function unmount() {
     root.remove();
   }
 
-  return {
-    setPlayhead,
-    resetPlayhead,
-    isHit,
-    pulseStep,
-    destroy
-  };
+  return { unmount, stepsPerBar };
+}
+
+function renderBarShell(labelNum) {
+  return `
+    <div class="dsBar" data-bar>
+      <div class="dsBarLabel">Bar ${labelNum}</div>
+      <div class="dsTrack">
+        <div class="dsTrackLine"></div>
+        <div class="dsDots"></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderDots(hits) {
+  // Each entry is exactly one grid position.
+  return hits
+    .map((isOn) => {
+      return `<div class="dsDot ${isOn ? "isOn" : "isOff"}"></div>`;
+    })
+    .join("");
 }
