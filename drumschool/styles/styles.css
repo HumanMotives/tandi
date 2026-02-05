@@ -548,15 +548,11 @@ input[type="text"]:focus,
 
 /* Wrap where bubble + avatar overlap */
 .introBubbleWrap {
-  width: 100%;
-  position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  padding: 12px 8px;
-  box-sizing: border-box;
+  justify-content: center;
+  gap: 24px;
 }
-
 /* Name tag */
 .introNameTag {
   position: absolute;
@@ -573,7 +569,7 @@ input[type="text"]:focus,
 
 /* Bubble should extend under the avatar on the right */
 .introBubble {
-  width: min(980px, 96vw);
+  width: min(640px, 88vw); /* was ~720/760 */
   background: #f6e6b6;
   border: 4px solid rgba(0, 0, 0, 0.85);
   border-radius: 20px;
@@ -581,6 +577,7 @@ input[type="text"]:focus,
   box-sizing: border-box;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
   position: relative;
+  margin: 0 auto;
 }
 
 /* Text should stop earlier on the right so it never goes behind Octo */
