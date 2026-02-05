@@ -1,0 +1,81 @@
+{
+  "id": "jungle-1",
+  "worldId": "jungle",
+  "title": "Klap mee in de maat",
+  "intro": [
+    {
+      "text": "Tutorial tekst 1"
+    },
+    {
+      "text": "Uitleg tekst 2"
+    },
+    {
+      "text": "Uitleg tekst 3"
+    }
+  ],
+  "ui": {
+    "showMetronome": false,
+    "showBpm": false,
+    "showHits": false,
+    "showHands": false,
+    "showPlayStop": true
+  },
+  "transport": {
+    "bpm": 90,
+    "bars": 4,
+    "stepsPerBar": 8,
+    "timeSig": "4/4"
+  },
+  "pattern": {
+    "bars": [
+      {
+        "hits": [
+          0,
+          2,
+          4,
+          6
+        ],
+        "hands": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "hits": [
+          3
+        ],
+        "hands": [
+          ""
+        ]
+      },
+      {
+        "hits": [
+          2,
+          3,
+          4
+        ],
+        "hands": [
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "hits": [
+          2,
+          3,
+          5,
+          6
+        ],
+        "hands": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      }
+    ]
+  }
+}
