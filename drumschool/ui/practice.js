@@ -1,12 +1,13 @@
 // practice.js
-// Drum exercise screen
+// Drum exercise screen (JSON-configurable per level)
 
 export function mountPractice({
   container,
   worldName = "Wereld",
   levelName = "Level",
-  onExit = null,       // should navigate back to levels
-  onEnter = null       // optional: called once when practice mounts (set route)
+  lesson = null,        // <-- pass full lesson JSON here (optional)
+  onExit = null,        // should navigate back to levels
+  onEnter = null        // optional: called once when practice mounts (set route)
 }) {
   if (typeof onEnter === "function") onEnter();
 
@@ -27,8 +28,8 @@ export function mountPractice({
         </div>
       </div>
 
-      <div class="practicePanel">
-        <div class="practiceRow">
+      <div class="practicePanel" data-panel>
+        <div class="practiceRow" data-row="bpm">
           <div class="practiceIcon">🎵</div>
           <div class="practiceLabel">
             <span class="small">BPM:</span>
@@ -38,7 +39,7 @@ export function mountPractice({
           <button id="metroMuteBtn" class="practiceMuteBtn" title="Mute metronome">🔊</button>
         </div>
 
-        <div class="practiceRow">
+        <div class="practiceRow" data-row="hits">
           <div class="practiceIcon">🥁</div>
           <div class="practiceLabel">
             <span class="small">HITS:</span>
@@ -48,7 +49,7 @@ export function mountPractice({
           <button id="hitsMuteBtn" class="practiceMuteBtn" title="Mute hits">🔊</button>
         </div>
 
-        <div class="practiceRow" style="opacity:0.9;">
+        <div class="practiceRow" data-row="hands" style="opacity:0.9;">
           <div class="practiceIcon">✋</div>
           <div class="practiceLabel">
             <span class="small">HANDS:</span>
@@ -58,7 +59,7 @@ export function mountPractice({
           <button id="handsToggleBtn" class="practiceMuteBtn" title="Toggle hands row">👀</button>
         </div>
 
-        <div class="practiceActions">
+        <div class="practiceActions" data-actions>
           <button id="playBtn" class="btn primary" type="button">Play</button>
           <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
         </div>
@@ -109,6 +110,10 @@ export function mountPractice({
 
   const handsToggleBtn = root.querySelector("#handsToggleBtn");
   const handsStrength = root.querySelector("#handsStrength");
+
+  const rowBpm = root.querySelector('[data-row="bpm"]');
+  const rowHits = root.querySelector('[data-row="hits"]');
+  const rowHands = root.querySelector('[data-row="hands"]');
 
   // Audio created lazily (mobile friendly)
   let audioCtx = null;
@@ -219,6 +224,12 @@ export function mountPractice({
   let currentHands = new Array(STEPS).fill(null);
   let currentStepIndex = -1;
 
+  // NEW: lesson-driven override options
+  let forcedPattern = null; // array of 0/1 length STEPS
+  let barsTarget = 0;       // 0 = infinite
+  let bpmLocked = false;
+  let hitsLocked = false;
+
   function setCurrentStep(i) {
     if (currentStepIndex >= 0 && stepEls[currentStepIndex]) {
       stepEls[currentStepIndex].classList.remove("current");
@@ -246,8 +257,13 @@ export function mountPractice({
 
     stepEls = [];
 
-    const pulses = Number(hitsSlider.value);
-    currentHits = euclidean(STEPS, pulses);
+    if (Array.isArray(forcedPattern) && forcedPattern.length) {
+      currentHits = normalizePattern(forcedPattern, STEPS);
+    } else {
+      const pulses = Number(hitsSlider.value);
+      currentHits = euclidean(STEPS, pulses);
+    }
+
     currentHands = handsAlternateFromR(currentHits);
 
     const width = sequencer.clientWidth;
@@ -356,7 +372,8 @@ export function mountPractice({
   function stepDurMs() { return barMs() / STEPS; }
 
   function updateBarText() {
-    barText.textContent = `X${barCount}`;
+    if (barsTarget > 0) barText.textContent = `${barCount}/${barsTarget}`;
+    else barText.textContent = `X${barCount}`;
   }
 
   function resetPlaybackState() {
@@ -441,7 +458,14 @@ export function mountPractice({
           barCount += 1;
           updateBarText();
           barStartFlip = !barStartFlip;
+
           if (barCount % 8 === 0) sparkleBurst();
+
+          // NEW: auto-stop after N bars
+          if (barsTarget > 0 && barCount >= barsTarget) {
+            stop();
+            return;
+          }
         }
 
         if (sc === 0) continue;
@@ -485,17 +509,100 @@ export function mountPractice({
     resetPlaybackState();
   }
 
+  // Lesson application (JSON -> UI & behavior)
+  function applyLessonConfig(lessonObj) {
+    const cfg = lessonObj && (lessonObj.practice || lessonObj.lesson || lessonObj);
+    if (!cfg) return;
+
+    // pattern
+    if (Array.isArray(cfg.pattern)) {
+      forcedPattern = normalizePattern(cfg.pattern, STEPS);
+      hitsLocked = true;
+      hitsSlider.disabled = true;
+    } else {
+      forcedPattern = null;
+      hitsLocked = false;
+      hitsSlider.disabled = false;
+    }
+
+    // bpm
+    if (typeof cfg.bpm === "number") {
+      const v = clamp(Math.round(cfg.bpm), 50, 200);
+      bpmSlider.value = String(v);
+      bpmValue.textContent = String(v);
+      setBpm(v);
+
+      bpmLocked = !!cfg.lockBpm;
+      bpmSlider.disabled = bpmLocked;
+    } else {
+      bpmLocked = !!cfg.lockBpm;
+      bpmSlider.disabled = bpmLocked;
+    }
+
+    // pulses (only if no forced pattern)
+    if (!forcedPattern && typeof cfg.pulses === "number") {
+      const p = clamp(Math.round(cfg.pulses), 1, STEPS);
+      hitsSlider.value = String(p);
+      hitsValue.textContent = String(p);
+    }
+
+    // bars
+    if (typeof cfg.bars === "number") {
+      barsTarget = Math.max(0, Math.floor(cfg.bars));
+    } else {
+      barsTarget = 0;
+    }
+
+    // UI toggles
+    const show = cfg.show || cfg.ui || {};
+
+    // default is visible if not specified
+    setRowVisible(rowBpm, show.bpm);
+    setRowVisible(rowHits, show.hits);
+    setRowVisible(rowHands, show.hands);
+
+    if (typeof show.metronomeMute === "boolean") {
+      metroMuteBtn.style.display = show.metronomeMute ? "" : "none";
+    }
+    if (typeof show.hitsMute === "boolean") {
+      hitsMuteBtn.style.display = show.hitsMute ? "" : "none";
+    }
+    if (typeof show.playStop === "boolean") {
+      const actions = root.querySelector("[data-actions]");
+      if (actions) actions.style.display = show.playStop ? "" : "none";
+    }
+
+    // hands default
+    if (typeof show.handsVisible === "boolean") {
+      setHandsVisible(show.handsVisible);
+    } else {
+      setHandsVisible(false);
+    }
+
+    // rebuild visuals
+    buildSequencer();
+    requestAnimationFrame(buildSequencer);
+  }
+
+  function setRowVisible(rowEl, flag) {
+    if (!rowEl) return;
+    if (typeof flag !== "boolean") return; // don't change if unspecified
+    rowEl.style.display = flag ? "" : "none";
+  }
+
   // UI wiring
   bpmValue.textContent = bpmSlider.value;
   hitsValue.textContent = hitsSlider.value;
 
   bpmSlider.addEventListener("input", (e) => {
+    if (bpmLocked) return;
     const val = Number(e.target.value);
     bpmValue.textContent = String(val);
     setBpm(val);
   });
 
   hitsSlider.addEventListener("input", (e) => {
+    if (hitsLocked) return;
     hitsValue.textContent = e.target.value;
     buildSequencer();
   });
@@ -531,19 +638,20 @@ export function mountPractice({
   updateMuteButton(hitsMuteBtn, hitsMuted);
   setHandsVisible(false);
 
+  // Apply lesson config (if provided)
+  if (lesson) applyLessonConfig(lesson);
+
   buildSequencer();
   requestAnimationFrame(buildSequencer);
 
   function exitToLevels() {
     stop();
 
-    // Preferred: your app handles navigation
     if (typeof onExit === "function") {
       onExit();
       return;
     }
 
-    // Fallback: hash route to "levels" (update if your actual route name differs)
     window.location.hash = "#levels";
   }
 
@@ -562,6 +670,19 @@ export function mountPractice({
 }
 
 export default mountPractice;
+
+function normalizePattern(arr, steps) {
+  const out = new Array(steps).fill(0);
+  for (let i = 0; i < steps; i++) {
+    const v = arr[i] ?? 0;
+    out[i] = v ? 1 : 0;
+  }
+  return out;
+}
+
+function clamp(n, a, b) {
+  return Math.max(a, Math.min(b, n));
+}
 
 function escapeHtml(s) {
   return String(s)
