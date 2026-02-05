@@ -7,7 +7,7 @@ export function mountChatIntro({
   professorName = "Professor",
   professorAvatarSrc = "",
   script = [],
-  autoAdvanceMs = 0, // ignored (manual only)
+  autoAdvanceMs = 0, // bewust genegeerd: alleen handmatig
   onDone = () => {},
   onSkip = () => {}
 }) {
@@ -29,17 +29,28 @@ export function mountChatIntro({
       <div class="introCenter">
         <div class="introCard">
           <div class="introBubbleWrap">
-            <div class="introNameTag">${escapeHtml(professorName)}</div>
 
-            <div class="introBubble">
-              <div class="introBubbleText" id="introBubbleText"></div>
+            <div class="introBubbleBlock">
+              <div class="introNameTag">${escapeHtml(professorName)}</div>
 
-              <div class="introActions">
-                <button class="btn primary introStartBtn" type="button" data-start>
+              <div class="introBubble">
+                <div class="introBubbleText" id="introBubbleText"></div>
+              </div>
+
+              <div class="introControlsBelow">
+                <button
+                  class="btn primary"
+                  type="button"
+                  data-start
+                >
                   Level Starten
                 </button>
 
-                <button class="btn ghost introNextBtn" type="button" data-next>
+                <button
+                  class="btn ghost"
+                  type="button"
+                  data-next
+                >
                   Volgende
                 </button>
               </div>
@@ -47,11 +58,14 @@ export function mountChatIntro({
 
             ${
               professorAvatarSrc
-                ? `<img class="introAvatar" src="${professorAvatarSrc}" alt="${escapeHtml(
-                    professorName
-                  )}" />`
+                ? `<img
+                    class="introAvatar"
+                    src="${professorAvatarSrc}"
+                    alt="${escapeHtml(professorName)}"
+                  />`
                 : ""
             }
+
           </div>
         </div>
       </div>
@@ -63,85 +77,37 @@ export function mountChatIntro({
   const nextBtn = root.querySelector("[data-next]");
 
   renderLine();
+  updateButtons();
 
-  startBtn?.addEventListener("click", async (e) => {
+  startBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    await startPracticeLevel();
+    onDone();
   });
 
-  nextBtn?.addEventListener("click", (e) => {
+  nextBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    advanceOrDone();
-  });
-
-  // Tap anywhere to advance (except buttons)
-  root.addEventListener("click", () => {
-    advanceOrDone();
+    next();
   });
 
   function renderLine() {
     if (!script.length) {
-      bubbleTextEl.textContent = "Welkom! (Script is leeg)";
+      bubbleTextEl.textContent = "Welkom!";
       return;
     }
     bubbleTextEl.textContent = script[index]?.text || "";
   }
 
-  function advanceOrDone() {
-    if (!script.length) return;
-
+  function updateButtons() {
     const isLast = index >= script.length - 1;
-    if (isLast) {
-      onDone();
-      return;
-    }
-
-    index += 1;
-    renderLine();
+    nextBtn.style.display = isLast ? "none" : "inline-flex";
+    startBtn.style.display = isLast ? "inline-flex" : "none";
   }
 
-  async function startPracticeLevel() {
-    // 1) Prefer a global hook if you already have one
-    if (typeof window.startPractice === "function") {
-      unmount();
-      window.startPractice({ container });
-      return;
-    }
-    if (window.dsApp && typeof window.dsApp.startPractice === "function") {
-      unmount();
-      window.dsApp.startPractice({ container });
-      return;
-    }
-
-    // 2) Try dynamic import of practice.js (common project structure: /ui/chatIntro.js -> ../practice.js)
-    try {
-      const mod = await import("../ui/practice.js");
-
-      const fn =
-        mod.mountPractice ||
-        mod.startPractice ||
-        mod.initPractice ||
-        mod.mountPracticeScreen ||
-        mod.default;
-
-      if (typeof fn === "function") {
-        unmount();
-        // Support both patterns: fn(container) or fn({container})
-        try {
-          fn({ container });
-        } catch {
-          fn(container);
-        }
-        return;
-      }
-    } catch (err) {
-      // ignore and fall through
-    }
-
-    // 3) Fallback: you can customize this if you have routing
-    // If your app uses hash routing, set something like: location.hash = "#practice"
-    // Otherwise, just call onDone and let the app flow continue.
-    onDone();
+  function next() {
+    if (index >= script.length - 1) return;
+    index += 1;
+    renderLine();
+    updateButtons();
   }
 
   function unmount() {
