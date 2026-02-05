@@ -1,85 +1,93 @@
 // ui/lesson/modules/timeline.js
-import { getStepsPerBar, getBars, normalizeHits } from "../lessonConfig.js";
 
-/**
- * createTimeline()
- * Expected by lessonPractice.js
- * Returns an object with:
- * - el: root element
- * - stepsPerBar
- * - setCurrent(stepIndex, barIndex) (optional highlight hook)
- * - destroy()
- */
-export function createTimeline({ lesson }) {
-  const stepsPerBar = getStepsPerBar(lesson);
-  const bars = getBars(lesson);
+export function createTimeline({
+  container,
+  stepsPerBar,
+  bars,
+  patternBars = []
+}) {
+  if (!container) {
+    throw new Error("createTimeline: container ontbreekt");
+  }
 
-  const el = document.createElement("div");
-  el.className = "dsTimeline";
+  const root = document.createElement("div");
+  root.className = "timeline";
+  container.appendChild(root);
 
-  el.innerHTML = `
-    <div class="dsBars">
-      ${bars.map((_, idx) => renderBarShell(idx + 1)).join("")}
-    </div>
-  `;
+  const stepEls = []; // [bar][step]
 
-  const barEls = Array.from(el.querySelectorAll("[data-bar]"));
+  // Build DOM
+  for (let b = 0; b < bars; b++) {
+    const barEl = document.createElement("div");
+    barEl.className = "timelineBar";
 
-  barEls.forEach((barEl, barIndex) => {
-    const barData = bars[barIndex] || {};
-    const hitsRaw =
-      barData.hits ||
-      barData.steps ||
-      barData.pattern ||
-      barData.notes ||
-      [];
+    stepEls[b] = [];
 
-    const hits = normalizeHits(hitsRaw, stepsPerBar);
+    for (let s = 0; s < stepsPerBar; s++) {
+      const step = document.createElement("div");
+      step.className = "timelineStep";
 
-    const dotsEl = barEl.querySelector(".dsDots");
-    dotsEl.innerHTML = renderDots(hits);
+      if (patternBars[b]?.hits?.has(s)) {
+        step.classList.add("isHit");
+      } else {
+        step.classList.add("isEmpty");
+      }
 
-    // store references for highlighting
-    barEl._dotEls = Array.from(dotsEl.querySelectorAll(".dsDot"));
-  });
+      barEl.appendChild(step);
+      stepEls[b][s] = step;
+    }
 
-  function setCurrent(stepIndex, barIndex) {
-    // Clear previous highlights
-    barEls.forEach((b) => {
-      const dots = b._dotEls || [];
-      dots.forEach((d) => d.classList.remove("isCurrent"));
-    });
+    root.appendChild(barEl);
+  }
 
-    // Apply current highlight if valid
-    const b = barEls[barIndex];
-    if (!b) return;
+  let current = { bar: -1, step: -1 };
 
-    const dots = b._dotEls || [];
-    const d = dots[stepIndex];
-    if (d) d.classList.add("isCurrent");
+  function clearCurrent() {
+    if (
+      current.bar >= 0 &&
+      stepEls[current.bar]?.[current.step]
+    ) {
+      stepEls[current.bar][current.step].classList.remove("isCurrent");
+    }
+  }
+
+  function setPlayhead(barIndex, stepIndex) {
+    clearCurrent();
+
+    const step = stepEls[barIndex]?.[stepIndex];
+    if (!step) return;
+
+    step.classList.add("isCurrent");
+    current = { bar: barIndex, step: stepIndex };
+  }
+
+  function resetPlayhead() {
+    clearCurrent();
+    current = { bar: -1, step: -1 };
+  }
+
+  function isHit(barIndex, stepIndex) {
+    return patternBars[barIndex]?.hits?.has(stepIndex) === true;
+  }
+
+  function pulseStep(barIndex, stepIndex) {
+    const step = stepEls[barIndex]?.[stepIndex];
+    if (!step) return;
+
+    step.classList.remove("pulse");
+    void step.offsetWidth;
+    step.classList.add("pulse");
   }
 
   function destroy() {
-    el.remove();
+    root.remove();
   }
 
-  return { el, stepsPerBar, setCurrent, destroy };
-}
-
-function renderBarShell(labelNum) {
-  return `
-    <div class="dsBar" data-bar>
-      <div class="dsBarLabel">Bar ${labelNum}</div>
-      <div class="dsTrack">
-        <div class="dsTrackLine"></div>
-        <div class="dsDots"></div>
-      </div>
-    </div>
-  `;
-}
-
-function renderDots(hits) {
-  return hits
-    .map((isOn) => `<div class="dsDot ${isOn ? "isOn" : "isOff"}"></div>`)
-    .join("");
+  return {
+    setPlayhead,
+    resetPlayhead,
+    isHit,
+    pulseStep,
+    destroy
+  };
 }
