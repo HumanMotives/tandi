@@ -1,16 +1,15 @@
 // ui/lesson/modules/transport.js
+
 export function createTransport({
   bpm = 90,
-  stepsPerBar = 4,     // 4, 8, 16...
-  beatsPerBar = 4,     // usually 4 for 4/4
-  bars = 1,
+  stepsPerBar = 4,     // 4 = kwartnoten, 8 = 8sten, 16 = 16den
+  bars = 4,
   onStep = () => {},
   onDone = () => {}
 }) {
-  let _bpm = Number(bpm) || 90;
-  let _stepsPerBar = Math.max(1, Math.round(Number(stepsPerBar) || 4));
-  let _beatsPerBar = Math.max(1, Math.round(Number(beatsPerBar) || 4));
-  let _bars = Math.max(1, Math.round(Number(bars) || 1));
+  let _bpm = bpm;
+  let _stepsPerBar = stepsPerBar;
+  let _bars = bars;
 
   let isPlaying = false;
   let rafId = null;
@@ -19,11 +18,11 @@ export function createTransport({
   let lastStep = -1;
 
   function beatMs() {
-    return 60000 / _bpm;
+    return 60000 / _bpm; // kwartnoot
   }
 
   function barMs() {
-    return beatMs() * _beatsPerBar;
+    return beatMs() * 4; // 4/4 basis
   }
 
   function stepMs() {
@@ -33,8 +32,10 @@ export function createTransport({
   function start() {
     if (isPlaying) return;
     isPlaying = true;
+
     startPerf = performance.now();
     lastStep = -1;
+
     rafId = requestAnimationFrame(frame);
   }
 
@@ -52,8 +53,8 @@ export function createTransport({
 
     const elapsed = t - startPerf;
     const sMs = stepMs();
-    const stepCount = Math.floor(elapsed / sMs);
 
+    const stepCount = Math.floor(elapsed / sMs);
     if (stepCount > lastStep) {
       for (let sc = lastStep + 1; sc <= stepCount; sc++) {
         const totalSteps = _bars * _stepsPerBar;
@@ -70,8 +71,7 @@ export function createTransport({
           barIndex,
           stepIndex,
           globalStepIndex: sc,
-          stepsPerBar: _stepsPerBar,
-          beatsPerBar: _beatsPerBar
+          stepsPerBar: _stepsPerBar
         });
       }
       lastStep = stepCount;
@@ -81,11 +81,9 @@ export function createTransport({
   }
 
   function setBpm(nextBpm) {
-    const n = Math.max(30, Math.min(260, Math.round(Number(nextBpm) || _bpm)));
-    _bpm = n;
-
-    // simplest stable behavior for now: restart if playing
+    _bpm = Number(nextBpm) || _bpm;
     if (isPlaying) {
+      // simpel en stabiel: restart
       stop();
       start();
     }
