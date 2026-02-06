@@ -26,53 +26,48 @@ export function createMetronome({ enabled = true } = {}) {
     return _enabled;
   }
 
-  // ✅ Central truth: what counts as a quarter note depends on stepsPerBar.
-  // - 4  steps => every step is a quarter
-  // - 8  steps => every 2 steps is a quarter (0,2,4,6)
-  // - 16 steps => every 4 steps is a quarter (0,4,8,12)
+  // What counts as a quarter depends on stepsPerBar:
+  // - 4 steps => every step is quarter
+  // - 8 steps => 0,2,4,6
+  // - 16 steps => 0,4,8,12
   function isQuarterStep(stepIndex, stepsPerBar) {
     const spb = Math.max(1, Number(stepsPerBar) || 4);
     const i = Math.max(0, Number(stepIndex) || 0);
 
     if (spb <= 4) return true;
 
-    // If spb is divisible by 4, quarters are evenly spaced.
     if (spb % 4 === 0) {
-      const quarterStride = spb / 4;
-      return i % quarterStride === 0;
+      const stride = spb / 4;
+      return i % stride === 0;
     }
 
-    // Fallback for odd grids: approximate 4 quarters over the bar.
-    // (Keeps it usable if you ever do 6/8 etc.)
+    // odd grids fallback (keeps usable for future 6/8 etc)
     const t = (i / spb) * 4;
     return Math.abs(t - Math.round(t)) < 0.0001;
   }
 
   /**
    * tick()
-   * Preferred call signature from transport:
-   * tick({ stepIndex, stepsPerBar, isBarStart })
-   *
-   * Backward compatible:
-   * tick({ isBarStart, isQuarter })
+   * Preferred: tick({ stepIndex, stepsPerBar, isBarStart, force })
+   * Legacy:    tick({ isQuarter, isBarStart, force })
    */
-  function tick({ isBarStart = false, isQuarter = false, force = false } = {}) {
-  if (!_enabled && !force) return;
-  if (!isQuarter) return;
-  ...
-}
+  function tick({
+    isBarStart = false,
+    isQuarter = null,      // if boolean => legacy
+    stepIndex = null,      // if provided => compute quarter from grid
+    stepsPerBar = 4,
+    force = false
+  } = {}) {
+    if (!_enabled && !force) return;
 
-
-    // ✅ Determine quarter-ness
     let quarter = false;
 
     if (typeof isQuarter === "boolean") {
-      // old behavior
       quarter = isQuarter;
     } else if (stepIndex !== null && stepIndex !== undefined) {
       quarter = isQuarterStep(stepIndex, stepsPerBar);
     } else {
-      // safest default: tick (so beginners hear something)
+      // safest default: tick (beginner friendly)
       quarter = true;
     }
 
@@ -95,7 +90,7 @@ export function createMetronome({ enabled = true } = {}) {
     osc.frequency.value = freq;
 
     const now = c.currentTime;
-    const peak = isBarStart ? 0.2 : 0.08;
+    const peak = isBarStart ? 0.20 : 0.08;
     const dur = isBarStart ? 0.055 : 0.045;
 
     gain.gain.setValueAtTime(0.0001, now);
@@ -109,7 +104,7 @@ export function createMetronome({ enabled = true } = {}) {
     osc.stop(now + dur + 0.02);
   }
 
-  // Optional: tiny hit blip (so kids horen een "drum hit" cue)
+  // Optional: tiny hit blip (cue for "drum hit")
   function hitBlip() {
     const c = ensureCtx();
     const osc = c.createOscillator();
