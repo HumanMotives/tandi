@@ -5,13 +5,9 @@ import { createTimeline } from "./modules/timeline.js";
 
 export function mountLessonPractice({
   container,
-  lesson,
+  lesson,                 // REQUIRED: lesson JSON from /levels/Wx-Ly.json
   worldName = "Wereld",
-  levelName = "Les",
-  // optional, for sidebar
-  playerName = "Speler",
-  playerAvatarSrc = "./assets/img/avatar_default.png",
-  stats = { stars: 0, streak: 0, badges: 0 },
+  levelName = "Level",
   onExit = () => {}
 }) {
   if (!lesson || typeof lesson !== "object") {
@@ -21,145 +17,97 @@ export function mountLessonPractice({
   const cfg = normalizeLessonConfig(lesson);
 
   const root = document.createElement("div");
-  root.className = "lessonV1";
+  root.className = "lessonPracticeScreen";
   container.appendChild(root);
 
-  // If there is an old loader element still in the DOM, hide it
-  try {
-    const oldLoader = document.querySelector("[data-lesson-loader]");
-    if (oldLoader) oldLoader.remove();
-  } catch {}
-
   root.innerHTML = `
-    <div class="lessonGrid">
-      <!-- SIDEBAR -->
-      <aside class="lessonSidebar">
-        <div class="lessonSidebarCard">
-          <div class="lessonPlayer">
-            <img class="lessonPlayerAvatar" src="${escapeHtml(playerAvatarSrc)}" alt="Avatar" />
-            <div class="lessonPlayerName">${escapeHtml(playerName)}</div>
-          </div>
-
-          <div class="lessonStats">
-            <div class="lessonStatRow">
-              <span class="lessonStatIcon">⭐</span>
-              <span class="lessonStatLabel">Stars</span>
-              <span class="lessonStatValue">${Number(stats.stars) || 0}</span>
-            </div>
-            <div class="lessonStatRow">
-              <span class="lessonStatIcon">🔥</span>
-              <span class="lessonStatLabel">Streak</span>
-              <span class="lessonStatValue">${Number(stats.streak) || 0}</span>
-            </div>
-            <div class="lessonStatRow">
-              <span class="lessonStatIcon">🏅</span>
-              <span class="lessonStatLabel">Badges</span>
-              <span class="lessonStatValue">${Number(stats.badges) || 0}</span>
-            </div>
-          </div>
-
-          <div class="lessonSidebarHint">
-            (v1 sidebar placeholder)
-          </div>
+    <div class="lpApp">
+      <div class="lpHeader">
+        <div class="lpHeaderCenter">
+          <h1 class="lpWorldTitle">${escapeHtml(worldName)}</h1>
+          <p class="lpLevelTitle">${escapeHtml(levelName)}</p>
         </div>
-      </aside>
 
-      <!-- MAIN -->
-      <main class="lessonMain">
-        <!-- TOP BAR -->
-        <div class="lessonTopBar">
-          <button class="btn ghost" type="button" data-exit>Stoppen</button>
+        <div class="lpHeaderRight">
+          <button class="btn ghost" type="button" data-stop>Stoppen</button>
+        </div>
+      </div>
 
-          <div class="lessonTopTitle">
-            <div class="lessonTopWorld">${escapeHtml(worldName)}</div>
-            <div class="lessonTopLevel">${escapeHtml(levelName)}</div>
+      <div class="lpPanel" data-panel>
+        <div class="lpRow" data-row="metronome">
+          <div class="lpIcon">⏱️</div>
+          <div class="lpLabel">
+            <span class="small">Metronoom</span>
+            <span class="value" id="metroState">Aan</span>
+          </div>
+          <div class="lpSpacer"></div>
+          <button id="metroToggleBtn" class="lpMuteBtn" type="button" title="Metronoom aan/uit">🔊</button>
+        </div>
+
+        <div class="lpRow" data-row="bpm">
+          <div class="lpIcon">🎵</div>
+          <div class="lpLabel">
+            <span class="small">BPM</span>
+            <span class="value" id="bpmValue">${String(cfg.transport.bpm)}</span>
+          </div>
+          <input id="bpmSlider" type="range" min="40" max="220" value="${String(cfg.transport.bpm)}" />
+          <div class="lpTiny">${escapeHtml(cfg.transport.timeSig)}</div>
+        </div>
+
+        <div class="lpRow" data-row="playstop">
+          <div class="lpIcon">▶️</div>
+          <div class="lpLabel">
+            <span class="small">Les</span>
+            <span class="value" id="barReadout">0/${String(cfg.transport.bars)}</span>
           </div>
 
-          <div class="lessonTopActions">
-            <button class="btn primary" type="button" data-practice>Oefenen</button>
-            <button class="btn" type="button" data-stopplay disabled>Stop</button>
-            <button class="btn ghost" type="button" data-showtime>Showtime!</button>
+          <div class="lpActions">
+            <button id="playBtn" class="btn primary" type="button">Oefenen</button>
+            <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
           </div>
         </div>
 
-        <!-- LES CARD -->
-        <div class="lessonCard">
-          <div class="lessonCardLeft">
-            <div class="lessonCardTitle">
-              <div class="lessonCardWorld">${escapeHtml(worldName)}</div>
-              <div class="lessonCardLesson">${escapeHtml(levelName)}</div>
-            </div>
-          </div>
-
-          <div class="lessonCardMid">
-            <div class="lessonProgress">
-              <div class="lessonProgressLabel">Les</div>
-              <div class="lessonProgressValue" id="barReadout">0/${cfg.transport.bars}</div>
-            </div>
-
-            <div class="lessonBpm">
-              <div class="lessonBpmLabel">BPM</div>
-              <div class="lessonBpmValue" id="bpmValue">${cfg.transport.bpm}</div>
-              <input id="bpmSlider" type="range" min="40" max="220" value="${cfg.transport.bpm}" />
-            </div>
-          </div>
-
-          <div class="lessonCardRight">
-            <button class="btn ghost lessonToggleBtn" type="button" id="infoToggle">
-              Info: <span id="infoState">Aan</span>
-            </button>
-            <button class="btn ghost lessonToggleBtn" type="button" id="metroToggle">
-              Metronoom: <span id="metroState">Aan</span>
-            </button>
-            <button class="btn ghost lessonToggleBtn" type="button" id="noteToggle">
-              Noten: <span id="noteState">Aan</span>
-            </button>
-            <button class="btn ghost lessonToggleBtn" type="button" id="loopToggle">
-              Loop: <span id="loopState">Uit</span>
-            </button>
+        <div class="lpRow lpRowStatus" data-row="status" style="display:none;">
+          <div class="lpIcon">💡</div>
+          <div class="lpLabel">
+            <span class="small">Status</span>
+            <span class="value" id="statusText">Klaar maken...</span>
           </div>
         </div>
+      </div>
 
-        <!-- STAGE -->
-        <div class="lessonStage">
-          <div class="lessonArrow" id="barArrow" aria-hidden="true">➜</div>
-          <div id="timelineHost"></div>
-        </div>
-
-        <!-- HELP -->
-        <div class="lessonHelp" id="helpBox">
-          <div class="lessonHelpInner">${escapeHtml(cfg.helpText)}</div>
-        </div>
-      </main>
+      <div class="lpStage">
+        <div id="timelineHost"></div>
+      </div>
     </div>
   `;
 
-  const btnExit = root.querySelector("[data-exit]");
-  const btnPractice = root.querySelector("[data-practice]");
-  const btnStopPlay = root.querySelector("[data-stopplay]");
-  const btnShowtime = root.querySelector("[data-showtime]");
+  // Elements
+  const exitBtn = root.querySelector("[data-stop]");
+  const rowMetronome = root.querySelector('[data-row="metronome"]');
+  const rowBpm = root.querySelector('[data-row="bpm"]');
+  const rowPlayStop = root.querySelector('[data-row="playstop"]');
+  const rowStatus = root.querySelector('[data-row="status"]');
 
   const bpmSlider = root.querySelector("#bpmSlider");
   const bpmValue = root.querySelector("#bpmValue");
-  const barReadout = root.querySelector("#barReadout");
 
-  const infoToggle = root.querySelector("#infoToggle");
-  const infoState = root.querySelector("#infoState");
-  const helpBox = root.querySelector("#helpBox");
+  const playBtn = root.querySelector("#playBtn");
+  const stopPlayBtn = root.querySelector("#stopBtn");
 
-  const metroToggle = root.querySelector("#metroToggle");
+  const metroToggleBtn = root.querySelector("#metroToggleBtn");
   const metroState = root.querySelector("#metroState");
 
-  const noteToggle = root.querySelector("#noteToggle");
-  const noteState = root.querySelector("#noteState");
-
-  const loopToggle = root.querySelector("#loopToggle");
-  const loopState = root.querySelector("#loopState");
-
-  const barArrow = root.querySelector("#barArrow");
+  const barReadout = root.querySelector("#barReadout");
+  const statusText = root.querySelector("#statusText");
   const timelineHost = root.querySelector("#timelineHost");
 
-  // Modules
+  // Apply UI flags from lesson
+  setVisible(rowMetronome, cfg.ui.showMetronome);
+  setVisible(rowBpm, cfg.ui.showBpm);
+  setVisible(rowPlayStop, cfg.ui.showPlayStop);
+
+  // Timeline
   const timeline = createTimeline({
     container: timelineHost,
     stepsPerBar: cfg.transport.stepsPerBar,
@@ -167,71 +115,98 @@ export function mountLessonPractice({
     patternBars: cfg.patternBars
   });
 
-  const metronome = createMetronome({ enabled: cfg.ui.metronomeOn });
-  let notesOn = cfg.ui.notesOn;
-  let infoOn = cfg.ui.infoOn;
-  let loopOn = cfg.ui.loopOn;
+  // Metronome
+  const metronome = createMetronome({
+    enabled: cfg.ui.showMetronome ? true : false
+  });
+  syncMetronomeUI();
 
+  // State
+  let isRunning = false;
+
+  // Transport
   const transport = createTransport({
     bpm: cfg.transport.bpm,
     stepsPerBar: cfg.transport.stepsPerBar,
     bars: cfg.transport.bars,
-    onStep: ({ barIndex, stepIndex, stepsPerBar }) => {
-      timeline.setPlayhead(barIndex, stepIndex);
 
-      // Arrow jumps per active bar (simple v1)
-      moveBarArrowToBar(barIndex);
+    // NEW: always do a 1-bar count-in (4 clicks in 4/4)
+    countInBars: 1,
 
-      // Quarter tick depends on grid
-      const quarterEvery = Math.max(1, Math.round(stepsPerBar / 4)); // 4->1, 8->2, 16->4
-      const isQuarter = (stepIndex % quarterEvery) === 0;
+    onStep: ({ barIndex, stepIndex, globalStepIndex, phase }) => {
+      const inCountIn = phase === "countin";
 
-      metronome.tick({
-        isBarStart: stepIndex === 0,
-        isQuarter
-      });
+      // During count-in: show status, keep bar readout at 0/X
+      if (inCountIn) {
+        showStatus(true, "Klaar maken...");
 
-      if (timeline.isHit(barIndex, stepIndex)) {
-        timeline.pulseStep(barIndex, stepIndex);
-        if (notesOn) metronome.hitBlip();
-      }
+        barReadout.textContent = `0/${String(cfg.transport.bars)}`;
 
-      const shownBar = Math.min(cfg.transport.bars, barIndex + 1);
-      barReadout.textContent = `${shownBar}/${cfg.transport.bars}`;
-    },
-    onDone: () => {
-      if (loopOn) {
-        // restart clean
-        stopPlayback(false);
-        startPlayback();
+        // Forced metronome tick even if toggle off
+        forcedMetronomeTick({
+          isBarStart: stepIndex === 0,
+          stepIndex,
+          stepsPerBar: cfg.transport.stepsPerBar
+        });
+
+        // Optional: no playhead movement during count-in
+        // (kids focus on clapping the count-in)
         return;
       }
+
+      // Once playing: hide status, update playhead + hits
+      showStatus(false);
+
+      // Update moving playhead
+      if (typeof timeline.setPlayhead === "function") {
+        timeline.setPlayhead(barIndex, stepIndex);
+      } else if (typeof timeline.setActiveStep === "function") {
+        timeline.setActiveStep(barIndex, stepIndex);
+      }
+
+      // Metronome (only if enabled toggle is ON)
+      if (metronome.getEnabled()) {
+        metronome.tick({
+          isBarStart: stepIndex === 0,
+          isQuarter: isQuarterStep(stepIndex, cfg.transport.stepsPerBar)
+        });
+      }
+
+      // Hit sound + pulse on hit
+      if (cfg.ui.showNotes && timelineIsHit(timeline, barIndex, stepIndex)) {
+        metronome.hitBlip?.();
+        timelinePulse(timeline, barIndex, stepIndex);
+      }
+
+      // Readout: show current bar progress 1..bars
+      const shownBar = Math.min(cfg.transport.bars, barIndex + 1);
+      barReadout.textContent = `${shownBar}/${String(cfg.transport.bars)}`;
+    },
+
+    onDone: () => {
       stopPlayback();
     }
   });
 
-  // Init UI states
-  applyInfoUI();
-  syncMetroUI();
-  syncNoteUI();
-  syncLoopUI();
-
-  // Events
-  btnExit.addEventListener("click", () => {
+  // UI handlers
+  exitBtn.addEventListener("click", () => {
     cleanup();
     onExit();
   });
 
-  btnPractice.addEventListener("click", async () => {
+  playBtn.addEventListener("click", async () => {
     await metronome.ensureStarted();
     startPlayback();
   });
 
-  btnStopPlay.addEventListener("click", () => stopPlayback());
+  stopPlayBtn.addEventListener("click", () => {
+    stopPlayback();
+  });
 
-  btnShowtime.addEventListener("click", () => {
-    // v1: only UI placeholder
-    alert("Showtime komt later (exam / unlock logic).");
+  metroToggleBtn.addEventListener("click", async () => {
+    await metronome.ensureStarted();
+    metronome.setEnabled(!metronome.getEnabled());
+    syncMetronomeUI();
   });
 
   bpmSlider.addEventListener("input", (e) => {
@@ -240,89 +215,70 @@ export function mountLessonPractice({
     transport.setBpm(v);
   });
 
-  infoToggle.addEventListener("click", () => {
-    infoOn = !infoOn;
-    applyInfoUI();
-  });
-
-  metroToggle.addEventListener("click", async () => {
-    await metronome.ensureStarted();
-    metronome.setEnabled(!metronome.getEnabled());
-    syncMetroUI();
-  });
-
-  noteToggle.addEventListener("click", () => {
-    notesOn = !notesOn;
-    syncNoteUI();
-  });
-
-  loopToggle.addEventListener("click", () => {
-    loopOn = !loopOn;
-    syncLoopUI();
-  });
-
   function startPlayback() {
-    btnPractice.disabled = true;
-    btnStopPlay.disabled = false;
-    barReadout.textContent = `0/${cfg.transport.bars}`;
-    timeline.resetPlayhead();
-    moveBarArrowToBar(0);
+    if (isRunning) return;
+    isRunning = true;
+
+    playBtn.disabled = true;
+    stopPlayBtn.disabled = false;
+
+    barReadout.textContent = `0/${String(cfg.transport.bars)}`;
+
+    // reset timeline visuals
+    timelineReset(timeline);
+
+    showStatus(true, "Klaar maken...");
     transport.start();
   }
 
-  function stopPlayback(reset = true) {
+  function stopPlayback() {
+    if (!isRunning) return;
+    isRunning = false;
+
     transport.stop();
-    btnPractice.disabled = false;
-    btnStopPlay.disabled = true;
+    playBtn.disabled = false;
+    stopPlayBtn.disabled = true;
 
-    if (reset) {
-      timeline.resetPlayhead();
-      barReadout.textContent = `0/${cfg.transport.bars}`;
-      moveBarArrowToBar(0);
-    }
+    // reset visuals
+    timelineReset(timeline);
+
+    showStatus(false);
+    barReadout.textContent = `0/${String(cfg.transport.bars)}`;
   }
 
-  function applyInfoUI() {
-    infoState.textContent = infoOn ? "Aan" : "Uit";
-    helpBox.style.display = infoOn ? "" : "none";
-    infoToggle.classList.toggle("isMuted", !infoOn);
+  function forcedMetronomeTick({ isBarStart, stepIndex, stepsPerBar }) {
+    const wasEnabled = metronome.getEnabled();
+
+    // Force metronome ON for this one tick
+    if (!wasEnabled) metronome.setEnabled(true);
+
+    metronome.tick({
+      isBarStart,
+      isQuarter: isQuarterStep(stepIndex, stepsPerBar)
+    });
+
+    // Restore original enabled state
+    if (!wasEnabled) metronome.setEnabled(false);
   }
 
-  function syncMetroUI() {
+  function showStatus(visible, text = "") {
+    if (!rowStatus) return;
+    rowStatus.style.display = visible ? "" : "none";
+    if (visible && statusText) statusText.textContent = text || "Klaar maken...";
+  }
+
+  function syncMetronomeUI() {
     const on = metronome.getEnabled();
+    metroToggleBtn.textContent = on ? "🔊" : "🔇";
     metroState.textContent = on ? "Aan" : "Uit";
-    metroToggle.classList.toggle("isMuted", !on);
-  }
-
-  function syncNoteUI() {
-    noteState.textContent = notesOn ? "Aan" : "Uit";
-    noteToggle.classList.toggle("isMuted", !notesOn);
-  }
-
-  function syncLoopUI() {
-    loopState.textContent = loopOn ? "Aan" : "Uit";
-    loopToggle.classList.toggle("isMuted", !loopOn);
-  }
-
-  function moveBarArrowToBar(barIndex) {
-    // place arrow next to the active bar element
-    const barEls = root.querySelectorAll(".tlBar");
-    const barEl = barEls[barIndex];
-    if (!barEl) return;
-
-    const r = barEl.getBoundingClientRect();
-    const host = root.querySelector(".lessonStage").getBoundingClientRect();
-
-    // arrow absolute inside stage
-    const top = (r.top - host.top) + (r.height / 2) - 12; // 12 = half arrow height-ish
-    barArrow.style.top = `${Math.max(0, top)}px`;
+    metroToggleBtn.classList.toggle("isMuted", !on);
   }
 
   function cleanup() {
-    stopPlayback();
-    transport.destroy();
-    timeline.destroy();
-    metronome.destroy();
+    try { stopPlayback(); } catch {}
+    try { transport.destroy(); } catch {}
+    try { timeline.destroy?.(); } catch {}
+    try { metronome.destroy(); } catch {}
     root.remove();
   }
 
@@ -333,15 +289,17 @@ export function mountLessonPractice({
   return { unmount };
 }
 
-/* helpers */
+/* ---------------- helpers ---------------- */
 
 function normalizeLessonConfig(lesson) {
   const ui = lesson.ui || {};
   const transport = lesson.transport || {};
 
-  const stepsPerBar = clampInt(transport.stepsPerBar ?? 4, 1, 32);
+  // Editor format: stepsPerBar could be 4 / 8 / 16 etc
+  const stepsPerBar = clampInt(transport.stepsPerBar ?? 4, 1, 64);
   const bars = clampInt(transport.bars ?? 4, 1, 64);
   const bpm = clampInt(transport.bpm ?? 90, 40, 220);
+  const timeSig = String(transport.timeSig || "4/4");
 
   const patternBarsRaw = lesson.pattern?.bars || [];
   const patternBars = [];
@@ -350,31 +308,68 @@ function normalizeLessonConfig(lesson) {
     const barObj = patternBarsRaw[b] || { hits: [] };
     const hitsArr = Array.isArray(barObj.hits) ? barObj.hits : [];
     const hitSet = new Set();
-
     hitsArr.forEach((i) => {
       const n = Number(i);
       if (Number.isFinite(n) && n >= 0 && n < stepsPerBar) hitSet.add(n);
     });
-
     patternBars.push({ hits: hitSet });
   }
 
-  const helpText =
-    typeof lesson.helpText === "string" && lesson.helpText.trim()
-      ? lesson.helpText
-      : "Druk op Oefenen om te starten.";
-
   return {
     ui: {
-      metronomeOn: ui.showMetronome !== false,
-      notesOn: ui.showNotes !== false,
-      infoOn: ui.showInfo !== false,
-      loopOn: !!ui.loop
+      showMetronome: ui.showMetronome !== false, // default true
+      showBpm: ui.showBpm !== false,             // default true
+      showPlayStop: ui.showPlayStop !== false,   // default true
+      showNotes: ui.showNotes !== false          // default true
     },
-    transport: { bpm, bars, stepsPerBar },
-    patternBars,
-    helpText
+    transport: { bpm, bars, stepsPerBar, timeSig },
+    patternBars
   };
+}
+
+function isQuarterStep(stepIndex, stepsPerBar) {
+  // For beginner lessons:
+  // - stepsPerBar=4: every step is a quarter
+  // - stepsPerBar=8: quarters are 0,2,4,6
+  // - stepsPerBar=16: quarters are 0,4,8,12
+  if (stepsPerBar <= 4) return true;
+
+  const q = stepsPerBar / 4;
+  if (!Number.isFinite(q) || q <= 0) return false;
+  return stepIndex % q === 0;
+}
+
+function timelineReset(timeline) {
+  if (!timeline) return;
+  if (typeof timeline.resetPlayhead === "function") {
+    timeline.resetPlayhead();
+    return;
+  }
+  if (typeof timeline.reset === "function") {
+    timeline.reset();
+    return;
+  }
+  if (typeof timeline.setPlayhead === "function") {
+    timeline.setPlayhead(0, -1);
+  }
+}
+
+function timelineIsHit(timeline, barIndex, stepIndex) {
+  if (!timeline) return false;
+  if (typeof timeline.isHit === "function") return !!timeline.isHit(barIndex, stepIndex);
+  if (typeof timeline.hasHit === "function") return !!timeline.hasHit(barIndex, stepIndex);
+  return false;
+}
+
+function timelinePulse(timeline, barIndex, stepIndex) {
+  if (!timeline) return;
+  if (typeof timeline.pulseStep === "function") timeline.pulseStep(barIndex, stepIndex);
+  else if (typeof timeline.pulseHit === "function") timeline.pulseHit(barIndex, stepIndex);
+}
+
+function setVisible(el, flag) {
+  if (!el) return;
+  el.style.display = flag ? "" : "none";
 }
 
 function clampInt(v, min, max) {
