@@ -26,7 +26,7 @@ body{
   font-family: var(--font-heading);
 
   /* TEMP: Jungle background for whole app */
-  background-image: url("../assets/img/backgrounds/ds_background_jungle.png");
+  background-image: url("../assets/img/backgrounds/ds_background_jungle_.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
