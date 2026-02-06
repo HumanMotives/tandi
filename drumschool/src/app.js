@@ -22,16 +22,14 @@ let currentScreen = null;
 async function boot() {
   const splash = mountSplash({
     logoSrc: "./assets/img/logo.png",
-    durationMs: 4500
+    durationMs: 2500
   });
   await splash.waitDone();
   splash.destroy();
 
   if (!window.location.hash) window.location.hash = "#worlds";
 
-  router.onChange((route) => {
-    render(route);
-  });
+  router.onChange((route) => render(route));
 
   if (!(state.player?.name || "").trim()) {
     openNameModal({
@@ -49,7 +47,7 @@ async function boot() {
 }
 
 function clearScreen() {
-  if (currentScreen?.unmount) currentScreen.unmount();
+  try { currentScreen?.unmount?.(); } catch {}
   currentScreen = null;
   appRoot.innerHTML = "";
 }
@@ -63,15 +61,13 @@ function render(route, force = false) {
   wrapper.className = "app";
   appRoot.appendChild(wrapper);
 
-  // -------- ROUTES --------
-
   if (route === "worlds") {
     const screen = mountWorldSelect({
       container: wrapper,
       state,
       onGoWorld: (worldId) => {
         state.nav = state.nav || {};
-        state.nav.worldId = worldId; // keep as "w1" etc
+        state.nav.worldId = worldId; // expects "W1", "W2", ...
         saveState(state);
         window.location.hash = "#levels";
       },
@@ -94,20 +90,17 @@ function render(route, force = false) {
   }
 
   if (route === "levels") {
-    const worldId = state?.nav?.worldId || "w1";
+    const worldId = state?.nav?.worldId || "W1";
 
     const screen = mountLevels({
       container: wrapper,
       state,
       worldId,
-      onBackToWorlds: () => {
-        window.location.hash = "#worlds";
-      },
+      onBackToWorlds: () => (window.location.hash = "#worlds"),
       onOpenLevel: (lessonKey) => {
-        // lessonKey is now "W1-L1"
         state.nav = state.nav || {};
         state.nav.worldId = worldId;
-        state.nav.lessonKey = lessonKey;
+        state.nav.lessonKey = lessonKey; // "W1-L1"
         saveState(state);
         window.location.hash = "#intro";
       }
@@ -150,7 +143,7 @@ function render(route, force = false) {
   window.location.hash = "#worlds";
 }
 
-/* ---- Helpers that load JSON ---- */
+/* ---- Screens that load lesson JSON ---- */
 
 function mountLessonIntro({ container, lessonKey, onStartLesson, onBackToLevels }) {
   const root = document.createElement("div");
@@ -167,7 +160,7 @@ function mountLessonIntro({ container, lessonKey, onStartLesson, onBackToLevels 
       if (!alive) return;
 
       const title = "Drum School";
-      const subtitle = `${lesson.worldId || ""} • ${lesson.title || lesson.id || lessonKey}`.trim();
+      const subtitle = `${String(lessonKey)}`;
 
       const introLines = Array.isArray(lesson.intro) ? lesson.intro : [];
       const script = introLines
@@ -222,10 +215,15 @@ function mountLessonScreen({ container, lessonKey, onExit }) {
       const lesson = await loadLesson(lessonKey);
       if (!alive) return;
 
-      // mountLessonPractice is jouw nieuwe practice in componenten
+      // Use lesson title if present
+      const worldName = String(lesson?.meta?.worldName || lesson?.worldName || "Wereld");
+      const levelName = String(lesson?.meta?.levelName || lesson?.title || lessonKey);
+
       inner = mountLessonPractice({
         container: root,
         lesson,
+        worldName,
+        levelName,
         onExit
       });
     } catch (err) {
