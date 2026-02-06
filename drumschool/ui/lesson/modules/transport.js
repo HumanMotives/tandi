@@ -2,14 +2,16 @@
 
 export function createTransport({
   bpm = 90,
-  stepsPerBar = 4,     // 4 = kwartnoten, 8 = 8sten, 16 = 16den
+  stepsPerBar = 4,
   bars = 4,
+  countInBars = 1, // ALWAYS count-in (default 1 bar = 4 beats)
   onStep = () => {},
   onDone = () => {}
 }) {
   let _bpm = bpm;
   let _stepsPerBar = stepsPerBar;
   let _bars = bars;
+  let _countInBars = countInBars;
 
   let isPlaying = false;
   let rafId = null;
@@ -18,15 +20,23 @@ export function createTransport({
   let lastStep = -1;
 
   function beatMs() {
-    return 60000 / _bpm; // kwartnoot
+    return 60000 / _bpm;
   }
 
   function barMs() {
-    return beatMs() * 4; // 4/4 basis
+    return beatMs() * 4; // 4/4 fixed for now
   }
 
   function stepMs() {
     return barMs() / _stepsPerBar;
+  }
+
+  function totalStepsMain() {
+    return _bars * _stepsPerBar;
+  }
+
+  function totalStepsCountIn() {
+    return Math.max(0, _countInBars) * _stepsPerBar;
   }
 
   function start() {
@@ -53,27 +63,49 @@ export function createTransport({
 
     const elapsed = t - startPerf;
     const sMs = stepMs();
-
     const stepCount = Math.floor(elapsed / sMs);
+
     if (stepCount > lastStep) {
       for (let sc = lastStep + 1; sc <= stepCount; sc++) {
-        const totalSteps = _bars * _stepsPerBar;
-        if (sc >= totalSteps) {
+        const countInSteps = totalStepsCountIn();
+        const mainSteps = totalStepsMain();
+
+        // Phase: count-in first
+        if (sc < countInSteps) {
+          const barIndex = Math.floor(sc / _stepsPerBar);
+          const stepIndex = sc % _stepsPerBar;
+
+          onStep({
+            phase: "countin",
+            barIndex,
+            stepIndex,
+            stepsPerBar: _stepsPerBar,
+            globalStepIndex: sc
+          });
+          continue;
+        }
+
+        // Main lesson after count-in
+        const mainIndex = sc - countInSteps;
+
+        if (mainIndex >= mainSteps) {
           stop();
           onDone();
           return;
         }
 
-        const barIndex = Math.floor(sc / _stepsPerBar);
-        const stepIndex = sc % _stepsPerBar;
+        const barIndex = Math.floor(mainIndex / _stepsPerBar);
+        const stepIndex = mainIndex % _stepsPerBar;
 
         onStep({
+          phase: "lesson",
           barIndex,
           stepIndex,
-          globalStepIndex: sc,
-          stepsPerBar: _stepsPerBar
+          stepsPerBar: _stepsPerBar,
+          globalStepIndex: mainIndex
         });
       }
+
       lastStep = stepCount;
     }
 
@@ -81,11 +113,11 @@ export function createTransport({
   }
 
   function setBpm(nextBpm) {
-    _bpm = Number(nextBpm) || _bpm;
+    _bpm = nextBpm;
     if (isPlaying) {
-      // simpel en stabiel: restart
+      const wasPlaying = isPlaying;
       stop();
-      start();
+      if (wasPlaying) start();
     }
   }
 
