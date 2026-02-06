@@ -1,104 +1,110 @@
 // ui/lesson/modules/timeline.js
+
 export function createTimeline({
   container,
-  stepsPerBar = 4,
-  bars = 1,
-  patternBars = [] // [{hits:Set<number>}, ...] length = bars
+  stepsPerBar,
+  bars,
+  patternBars = []
 }) {
-  if (!container) throw new Error("createTimeline: container ontbreekt");
+  if (!container) {
+    throw new Error("createTimeline: container ontbreekt");
+  }
 
   const root = document.createElement("div");
-  root.className = "tlRoot";
+  root.className = "timeline";
   container.appendChild(root);
 
-  const safeBars = Math.max(1, Number(bars) || 1);
-  const safeSteps = Math.max(1, Number(stepsPerBar) || 4);
+  const stepEls = []; // [bar][step]
+  const barEls = [];
 
-  // Build structure
-  root.innerHTML = `
-    <div class="tlBars">
-      ${Array.from({ length: safeBars })
-        .map((_, b) => renderBar(b))
-        .join("")}
-    </div>
-  `;
+  // Build DOM
+  for (let b = 0; b < bars; b++) {
+    const barEl = document.createElement("div");
+    barEl.className = "timelineBar";
 
-  function renderBar(barIndex) {
-    return `
-      <div class="tlBar" data-bar="${barIndex}">
-        <div class="tlLine"></div>
-        ${Array.from({ length: safeSteps })
-          .map((_, s) => `<div class="tlStep tlInactive" data-step="${s}" style="left:${(s / safeSteps) * 100}%"></div>`)
-          .join("")}
-      </div>
-    `;
-  }
+    // IMPORTANT: match grid to the lesson (4, 8, 16, ...)
+    // (CSS provides default grid; this overrides it per lesson)
+    barEl.style.gridTemplateColumns = `repeat(${stepsPerBar}, minmax(0, 1fr))`;
 
-  const barEls = Array.from(root.querySelectorAll(".tlBar"));
+    // Arrow indicator that jumps to the currently active bar
+    const arrowEl = document.createElement("div");
+    arrowEl.className = "timelineArrow";
+    arrowEl.setAttribute("aria-hidden", "true");
+    barEl.appendChild(arrowEl);
 
-  // Apply hits
-  for (let b = 0; b < safeBars; b++) {
-    const hits = patternBars?.[b]?.hits;
-    if (!hits || !(hits instanceof Set)) continue;
-    const barEl = barEls[b];
-    if (!barEl) continue;
+    stepEls[b] = [];
 
-    hits.forEach((stepIndex) => {
-      const s = Number(stepIndex);
-      if (!Number.isFinite(s)) return;
-      if (s < 0 || s >= safeSteps) return;
+    for (let s = 0; s < stepsPerBar; s++) {
+      const step = document.createElement("div");
+      step.className = "timelineStep";
 
-      const stepEl = barEl.querySelector(`.tlStep[data-step="${s}"]`);
-      if (stepEl) {
-        stepEl.classList.remove("tlInactive");
-        stepEl.classList.add("tlActive");
+      if (patternBars[b]?.hits?.has(s)) {
+        step.classList.add("isHit");
+      } else {
+        step.classList.add("isEmpty");
       }
-    });
-  }
 
-  let current = { barIndex: -1, stepIndex: -1 };
-
-  function setPlayhead(barIndex, stepIndex) {
-    // remove previous
-    if (current.barIndex >= 0) {
-      const prevBar = barEls[current.barIndex];
-      const prevStep = prevBar?.querySelector(`.tlStep[data-step="${current.stepIndex}"]`);
-      prevStep?.classList.remove("tlCurrent");
+      barEl.appendChild(step);
+      stepEls[b][s] = step;
     }
 
-    current = { barIndex, stepIndex };
-    const barEl = barEls[barIndex];
-    const stepEl = barEl?.querySelector(`.tlStep[data-step="${stepIndex}"]`);
-    stepEl?.classList.add("tlCurrent");
+    root.appendChild(barEl);
+    barEls[b] = barEl;
+  }
+
+  let current = { bar: -1, step: -1 };
+
+  function clearCurrent() {
+    if (
+      current.bar >= 0 &&
+      stepEls[current.bar]?.[current.step]
+    ) {
+      stepEls[current.bar][current.step].classList.remove("isCurrent");
+    }
+  }
+
+  function setPlayhead(barIndex, stepIndex) {
+    clearCurrent();
+
+    // Mark active bar (for arrow indicator)
+    for (let b = 0; b < barEls.length; b++) {
+      barEls[b]?.classList.toggle("isActiveBar", b === barIndex);
+    }
+
+    const step = stepEls[barIndex]?.[stepIndex];
+    if (!step) return;
+
+    step.classList.add("isCurrent");
+    current = { bar: barIndex, step: stepIndex };
   }
 
   function resetPlayhead() {
-    if (current.barIndex >= 0) {
-      const prevBar = barEls[current.barIndex];
-      const prevStep = prevBar?.querySelector(`.tlStep[data-step="${current.stepIndex}"]`);
-      prevStep?.classList.remove("tlCurrent");
+    clearCurrent();
+    for (let b = 0; b < barEls.length; b++) {
+      barEls[b]?.classList.remove("isActiveBar");
     }
-    current = { barIndex: -1, stepIndex: -1 };
+    current = { bar: -1, step: -1 };
   }
 
   function isHit(barIndex, stepIndex) {
-    const hits = patternBars?.[barIndex]?.hits;
-    if (!(hits instanceof Set)) return false;
-    return hits.has(stepIndex);
+    return patternBars[barIndex]?.hits?.has(stepIndex) === true;
   }
 
   function pulseStep(barIndex, stepIndex) {
-    const barEl = barEls[barIndex];
-    const stepEl = barEl?.querySelector(`.tlStep[data-step="${stepIndex}"]`);
-    if (!stepEl) return;
+    const step = stepEls[barIndex]?.[stepIndex];
+    if (!step) return;
 
-    stepEl.classList.remove("tlPop");
-    void stepEl.offsetWidth;
-    stepEl.classList.add("tlPop");
+    step.classList.remove("pulse");
+    void step.offsetWidth;
+    step.classList.add("pulse");
   }
 
   function destroy() {
     root.remove();
+  }
+
+  function getBarEl(index) {
+    return barEls[index] || null;
   }
 
   return {
@@ -106,6 +112,7 @@ export function createTimeline({
     resetPlayhead,
     isHit,
     pulseStep,
+    getBarEl,
     destroy
   };
 }
