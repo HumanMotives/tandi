@@ -4,7 +4,7 @@ export function createTimeline({
   container,
   stepsPerBar = 4,
   bars = 4,
-  patternBars = [] // [{ hits:Set<number> }, ...]
+  patternBars = []
 }) {
   if (!container) throw new Error("createTimeline: container ontbreekt.");
 
@@ -43,9 +43,7 @@ export function createTimeline({
       for (let i = 0; i < _stepsPerBar; i++) {
         const dot = document.createElement("div");
         dot.className = "tlDot";
-
-        const x = normX(i);
-        dot.style.left = `${x * 100}%`;
+        dot.style.left = `${normX(i) * 100}%`;
 
         if (hits.has(i)) dot.classList.add("isHit");
 
@@ -80,8 +78,7 @@ export function createTimeline({
     const ph = barEl.querySelector(".tlPlayhead");
     if (!ph) return;
 
-    const x = normX(stepIndex);
-    ph.style.left = `${x * 100}%`;
+    ph.style.left = `${normX(stepIndex) * 100}%`;
   }
 
   function resetPlayhead() {
