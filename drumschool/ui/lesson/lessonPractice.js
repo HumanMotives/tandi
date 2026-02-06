@@ -5,7 +5,7 @@ import { createTimeline } from "./modules/timeline.js";
 
 export function mountLessonPractice({
   container,
-  lesson,                 // REQUIRED: lesson JSON
+  lesson,
   worldName = "Wereld",
   levelName = "Level",
   onExit = () => {}
@@ -41,16 +41,16 @@ export function mountLessonPractice({
             <span class="value" id="metroState">Aan</span>
           </div>
           <div class="lpSpacer"></div>
-          <button id="metroToggleBtn" class="lpMuteBtn">🔊</button>
+          <button id="metroToggleBtn" class="lpMuteBtn" type="button" title="Metronoom aan/uit">🔊</button>
         </div>
 
         <div class="lpRow" data-row="bpm">
           <div class="lpIcon">🎵</div>
           <div class="lpLabel">
             <span class="small">BPM</span>
-            <span class="value" id="bpmValue">${cfg.transport.bpm}</span>
+            <span class="value" id="bpmValue">${String(cfg.transport.bpm)}</span>
           </div>
-          <input id="bpmSlider" type="range" min="40" max="220" value="${cfg.transport.bpm}" />
+          <input id="bpmSlider" type="range" min="40" max="220" value="${String(cfg.transport.bpm)}" />
           <div class="lpTiny">${escapeHtml(cfg.transport.timeSig)}</div>
         </div>
 
@@ -58,11 +58,11 @@ export function mountLessonPractice({
           <div class="lpIcon">▶️</div>
           <div class="lpLabel">
             <span class="small">Les</span>
-            <span class="value" id="barReadout">0/${cfg.transport.bars}</span>
+            <span class="value" id="barReadout">0/${String(cfg.transport.bars)}</span>
           </div>
           <div class="lpActions">
-            <button id="playBtn" class="btn primary">Start</button>
-            <button id="stopBtn" class="btn" disabled>Stop</button>
+            <button id="playBtn" class="btn primary" type="button">Start</button>
+            <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
           </div>
         </div>
       </div>
@@ -74,16 +74,26 @@ export function mountLessonPractice({
   `;
 
   const stopBtn = root.querySelector("[data-stop]");
+  const rowMetronome = root.querySelector('[data-row="metronome"]');
+  const rowBpm = root.querySelector('[data-row="bpm"]');
+  const rowPlayStop = root.querySelector('[data-row="playstop"]');
+
   const bpmSlider = root.querySelector("#bpmSlider");
   const bpmValue = root.querySelector("#bpmValue");
+
   const playBtn = root.querySelector("#playBtn");
   const stopPlayBtn = root.querySelector("#stopBtn");
+
   const metroToggleBtn = root.querySelector("#metroToggleBtn");
   const metroState = root.querySelector("#metroState");
+
   const barReadout = root.querySelector("#barReadout");
   const timelineHost = root.querySelector("#timelineHost");
 
-  // Timeline
+  setVisible(rowMetronome, cfg.ui.showMetronome);
+  setVisible(rowBpm, cfg.ui.showBpm);
+  setVisible(rowPlayStop, cfg.ui.showPlayStop);
+
   const timeline = createTimeline({
     container: timelineHost,
     stepsPerBar: cfg.transport.stepsPerBar,
@@ -91,28 +101,32 @@ export function mountLessonPractice({
     patternBars: cfg.patternBars
   });
 
-  // Metronome
-  const metronome = createMetronome({ enabled: cfg.ui.showMetronome });
+  const metronome = createMetronome({
+    enabled: cfg.ui.showMetronome ? true : false
+  });
   syncMetronomeUI();
 
-  // Transport
+  // For 4/4: beatsPerBar = 4.
+  // If stepsPerBar = 4 => tick every step.
+  // If stepsPerBar = 8 => tick every 2 steps.
+  // If stepsPerBar = 16 => tick every 4 steps.
+  function isBeatStep(stepIndex) {
+    const stride = Math.max(1, Math.round(cfg.transport.stepsPerBar / cfg.transport.beatsPerBar));
+    return stepIndex % stride === 0;
+  }
+
   const transport = createTransport({
     bpm: cfg.transport.bpm,
     stepsPerBar: cfg.transport.stepsPerBar,
+    beatsPerBar: cfg.transport.beatsPerBar,
     bars: cfg.transport.bars,
-    onStep: ({ barIndex, stepIndex, stepsPerBar, isBarStart }) => {
+    onStep: ({ barIndex, stepIndex }) => {
       timeline.setPlayhead(barIndex, stepIndex);
 
-      // 🔑 Correct metronome logic
       if (cfg.ui.showMetronome) {
-        const quarterStride = stepsPerBar / 4;
-        const isQuarter =
-          Number.isInteger(quarterStride) &&
-          stepIndex % quarterStride === 0;
-
         metronome.tick({
-          isBarStart,
-          isQuarter
+          isBarStart: stepIndex === 0,
+          isQuarter: isBeatStep(stepIndex) // "beat tick" for kids
         });
       }
 
@@ -121,9 +135,10 @@ export function mountLessonPractice({
         timeline.pulseStep(barIndex, stepIndex);
       }
 
-      barReadout.textContent = `${Math.min(cfg.transport.bars, barIndex + 1)}/${cfg.transport.bars}`;
+      const shownBar = Math.min(cfg.transport.bars, barIndex + 1);
+      barReadout.textContent = `${shownBar}/${String(cfg.transport.bars)}`;
     },
-    onDone: stopPlayback
+    onDone: () => stopPlayback()
   });
 
   stopBtn.addEventListener("click", () => {
@@ -136,7 +151,7 @@ export function mountLessonPractice({
     startPlayback();
   });
 
-  stopPlayBtn.addEventListener("click", stopPlayback);
+  stopPlayBtn.addEventListener("click", () => stopPlayback());
 
   metroToggleBtn.addEventListener("click", async () => {
     await metronome.ensureStarted();
@@ -146,14 +161,15 @@ export function mountLessonPractice({
 
   bpmSlider.addEventListener("input", (e) => {
     const v = clampInt(e.target.value, 40, 220);
-    bpmValue.textContent = v;
+    bpmValue.textContent = String(v);
     transport.setBpm(v);
   });
 
   function startPlayback() {
     playBtn.disabled = true;
     stopPlayBtn.disabled = false;
-    barReadout.textContent = `0/${cfg.transport.bars}`;
+
+    barReadout.textContent = `0/${String(cfg.transport.bars)}`;
     timeline.resetPlayhead();
     transport.start();
   }
@@ -162,14 +178,16 @@ export function mountLessonPractice({
     transport.stop();
     playBtn.disabled = false;
     stopPlayBtn.disabled = true;
+
     timeline.resetPlayhead();
-    barReadout.textContent = `0/${cfg.transport.bars}`;
+    barReadout.textContent = `0/${String(cfg.transport.bars)}`;
   }
 
   function syncMetronomeUI() {
     const on = metronome.getEnabled();
     metroToggleBtn.textContent = on ? "🔊" : "🔇";
     metroState.textContent = on ? "Aan" : "Uit";
+    metroToggleBtn.classList.toggle("isMuted", !on);
   }
 
   function cleanup() {
@@ -180,29 +198,40 @@ export function mountLessonPractice({
     root.remove();
   }
 
-  return { unmount: cleanup };
+  function unmount() {
+    cleanup();
+  }
+
+  return { unmount };
 }
 
-/* ---------- helpers ---------- */
+/* ---------------- helpers ---------------- */
 
 function normalizeLessonConfig(lesson) {
   const ui = lesson.ui || {};
   const transport = lesson.transport || {};
 
-  const stepsPerBar = clampInt(transport.stepsPerBar ?? 4, 1, 32);
+  const timeSig = String(transport.timeSig || "4/4");
+  const beatsPerBar = parseTimeSigBeats(timeSig);
+
+  const stepsPerBar = clampInt(transport.stepsPerBar ?? beatsPerBar, 1, 64);
   const bars = clampInt(transport.bars ?? 1, 1, 64);
   const bpm = clampInt(transport.bpm ?? 90, 40, 220);
-  const timeSig = String(transport.timeSig || "4/4");
 
+  const patternBarsRaw = lesson.pattern?.bars || [];
   const patternBars = [];
-  const rawBars = lesson.pattern?.bars || [];
 
   for (let b = 0; b < bars; b++) {
-    const hits = new Set();
-    (rawBars[b]?.hits || []).forEach(i => {
-      if (i >= 0 && i < stepsPerBar) hits.add(i);
+    const barObj = patternBarsRaw[b] || { hits: [] };
+    const hitsArr = Array.isArray(barObj.hits) ? barObj.hits : [];
+    const hitSet = new Set();
+
+    hitsArr.forEach((i) => {
+      const n = Number(i);
+      if (Number.isFinite(n) && n >= 0 && n < stepsPerBar) hitSet.add(n);
     });
-    patternBars.push({ hits });
+
+    patternBars.push({ hits: hitSet });
   }
 
   return {
@@ -211,14 +240,27 @@ function normalizeLessonConfig(lesson) {
       showBpm: ui.showBpm !== false,
       showPlayStop: ui.showPlayStop !== false
     },
-    transport: { bpm, bars, stepsPerBar, timeSig },
+    transport: { bpm, bars, stepsPerBar, beatsPerBar, timeSig },
     patternBars
   };
 }
 
+function parseTimeSigBeats(timeSig) {
+  const m = String(timeSig || "").match(/^(\d+)\s*\/\s*(\d+)$/);
+  if (!m) return 4;
+  const top = Number(m[1]);
+  return Number.isFinite(top) && top > 0 ? top : 4;
+}
+
+function setVisible(el, flag) {
+  if (!el) return;
+  el.style.display = flag ? "" : "none";
+}
+
 function clampInt(v, min, max) {
   const n = Math.round(Number(v));
-  return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : min;
+  if (!Number.isFinite(n)) return min;
+  return Math.max(min, Math.min(max, n));
 }
 
 function escapeHtml(s) {
