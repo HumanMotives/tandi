@@ -45,9 +45,7 @@ export function mountLevels({
     </div>
   `;
 
-  mainHost.querySelector("[data-back]").addEventListener("click", () => {
-    onBackToWorlds();
-  });
+  mainHost.querySelector("[data-back]")?.addEventListener("click", onBackToWorlds);
 
   mainHost.querySelectorAll("[data-level]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -69,19 +67,20 @@ export function mountLevels({
 /* helpers */
 
 function getWorldTitle(worldId) {
-  if (worldId === "w1" || worldId === "W1") return "Wereld 1";
-  if (worldId === "w2" || worldId === "W2") return "Wereld 2";
-  if (worldId === "w3" || worldId === "W3") return "Wereld 3";
-  if (worldId === "w4" || worldId === "W4") return "Wereld 4";
-  if (worldId === "w5" || worldId === "W5") return "Wereld 5";
+  const w = normalizeWorldCode(worldId);
+  if (w === "W1") return "Wereld 1";
+  if (w === "W2") return "Wereld 2";
+  if (w === "W3") return "Wereld 3";
+  if (w === "W4") return "Wereld 4";
+  if (w === "W5") return "Wereld 5";
   return "Wereld";
 }
 
 function normalizeWorldCode(worldId) {
   const s = String(worldId || "").trim();
-  const m = s.match(/w(\d+)/i);
-  if (m) return `W${m[1]}`;
   if (/^W\d+$/i.test(s)) return s.toUpperCase();
+  const m = s.match(/(\d+)/);
+  if (m) return `W${m[1]}`;
   return "W1";
 }
 
