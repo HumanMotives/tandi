@@ -289,3 +289,24 @@
   box-shadow: 0 0 0 4px rgba(255,215,0,0.25);
   pointer-events: none;
 }
+
+/* global moving playhead */
+.tlPlayheadGlobal {
+  position: absolute;
+  width: 4px;
+  border-radius: 999px;
+  background: rgba(255, 215, 0, 0.95);
+  transform: translateX(-50%);
+  box-shadow: 0 0 0 4px rgba(255,215,0,0.25);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* tlRoot must be relative for overlay */
+.tlRoot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
