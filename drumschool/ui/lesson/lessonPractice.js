@@ -1,4 +1,8 @@
 // ui/lesson/lessonPractice.js
+
+console.log("LESSON PRACTICE VERSION: sidebar+toggles expected", new Date().toISOString());
+
+
 import { createMetronome } from "./modules/metronome.js";
 import { createTransport } from "./modules/transport.js";
 import { createTimeline } from "./modules/timeline.js";
