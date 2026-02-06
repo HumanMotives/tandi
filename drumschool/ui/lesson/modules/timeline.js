@@ -15,13 +15,21 @@ export function createTimeline({
   root.className = "tlRoot";
   container.appendChild(root);
 
+  // One global playhead (overlay)
+  const playhead = document.createElement("div");
+  playhead.className = "tlPlayheadGlobal";
+  root.appendChild(playhead);
+
   function normX(i) {
     if (_stepsPerBar <= 1) return 0;
     return i / (_stepsPerBar - 1);
   }
 
   function render() {
+    // Keep playhead node, clear the rest
+    const keep = playhead;
     root.innerHTML = "";
+    root.appendChild(keep);
 
     for (let b = 0; b < _bars; b++) {
       const bar = document.createElement("div");
@@ -44,21 +52,16 @@ export function createTimeline({
         const dot = document.createElement("div");
         dot.className = "tlDot";
         dot.style.left = `${normX(i) * 100}%`;
-
         if (hits.has(i)) dot.classList.add("isHit");
-
         lane.appendChild(dot);
       }
-
-      const playhead = document.createElement("div");
-      playhead.className = "tlPlayhead";
-      playhead.style.left = "0%";
-      lane.appendChild(playhead);
 
       bar.appendChild(label);
       bar.appendChild(lane);
       root.appendChild(bar);
     }
+
+    resetPlayhead();
   }
 
   function isHit(barIndex, stepIndex) {
@@ -75,15 +78,31 @@ export function createTimeline({
     const barEl = barsEls[barIndex];
     if (!barEl) return;
 
-    const ph = barEl.querySelector(".tlPlayhead");
-    if (!ph) return;
+    const lane = barEl.querySelector(".tlLane");
+    if (!lane) return;
 
-    ph.style.left = `${normX(stepIndex) * 100}%`;
+    const laneRect = lane.getBoundingClientRect();
+    const rootRect = root.getBoundingClientRect();
+
+    const xPct = normX(stepIndex);
+    const xPx = xPct * laneRect.width;
+
+    // place playhead inside root overlay coordinates
+    const left = (laneRect.left - rootRect.left) + xPx;
+    const top = (laneRect.top - rootRect.top);
+
+    playhead.style.display = "block";
+    playhead.style.left = `${left}px`;
+    playhead.style.top = `${top}px`;
+    playhead.style.height = `${laneRect.height}px`;
   }
 
   function resetPlayhead() {
-    root.querySelectorAll(".tlPlayhead").forEach((ph) => (ph.style.left = "0%"));
     root.querySelectorAll(".tlBar").forEach((b) => b.classList.remove("isActive"));
+    playhead.style.display = "none";
+    playhead.style.left = "0px";
+    playhead.style.top = "0px";
+    playhead.style.height = "0px";
   }
 
   function pulseStep(barIndex, stepIndex) {
