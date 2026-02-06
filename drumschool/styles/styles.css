@@ -1,120 +1,73 @@
-/* styles/styles.css
-   Drum School – Base Styles (single source of truth)
-   Goal: consistency + functional UI (no extra fancy per-screen styling)
-*/
-
-/* ---------------------------
-   0) Reset + base
----------------------------- */
+/* styles/styles.css */
 
 @import url("https://fonts.googleapis.com/css2?family=Chewy&family=Delius&family=Rubik+Dirt&display=swap");
 
-/* =========================
-   Typography System
-========================= */
-
-:root {
+:root{
   --font-display: "Rubik Dirt", system-ui;
   --font-heading: "Chewy", system-ui;
   --font-body: "Delius", cursive;
+
+  --ink: rgba(20, 20, 24, 0.95);
+  --frame: rgba(255, 255, 255, 0.70);
+  --border: rgba(20, 20, 24, 0.95);
+  --shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
 }
 
 *,
 *::before,
-*::after {
-  box-sizing: border-box;
-}
+*::after { box-sizing: border-box; }
 
-html,
-body {
-  height: 100%;
-}
+html, body { height: 100%; }
 
-body {
+body{
   margin: 0;
-  color: rgba(20, 20, 24, 0.95);
+  color: var(--ink);
 
-  /* Default UI font */
   font-family: var(--font-heading);
 
-  /* TEMP: Background for whole app */
-  background-image: url("../assets/img/backgrounds/ds_achtergrond_galaxyrock.png");
+  /* TEMP: Jungle background for whole app */
+  background-image: url("../assets/img/backgrounds/ds_background_jungle.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-
-  /* fallback color while loading */
   background-color: #f7f4ff;
 }
 
-img {
-  max-width: 100%;
-  display: block;
-}
+img{ max-width: 100%; display:block; }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
+button, input, select, textarea{ font: inherit; }
 
-/* Root mount */
-#appRoot {
-  min-height: 100%;
-}
+#appRoot{ min-height: 100%; }
 
-/* App wrapper */
-.app {
+.app{
   min-height: 100vh;
   padding: 18px;
 }
 
-/* =========================
-   Typography usage
-========================= */
-
-/* Big titles / worlds / page titles */
-.dsWorldH1,
-.worldHeaderBig,
-.mapWorldTitle,
-.pageTitle,
-.sectionTitle {
+/* Typography */
+.dsWorldH1, .worldHeaderBig, .mapWorldTitle, .pageTitle, .sectionTitle{
   font-family: var(--font-display);
   letter-spacing: 0.5px;
 }
 
-h1,
-h2,
-.sidebar-name,
-.dsPlayerName,
-.worldTileBig,
-.levelTitle {
+h1,h2,.sidebar-name,.dsPlayerName,.worldTileBig,.levelTitle{
   font-family: var(--font-heading);
 }
 
-.introBubble,
-.chatBubble,
-.speech,
-.dialogText {
+.introBubble, .chatBubble, .speech, .dialogText{
   font-family: var(--font-body);
   font-size: 18px;
   line-height: 1.4;
 }
 
-button,
-.btn {
+button, .btn{
   font-family: var(--font-heading);
   letter-spacing: 0.3px;
 }
 
-/* ---------------------------
-   1) Consistent Layout Helpers
----------------------------- */
-.layout,
-.dsShell,
-.worldLayout {
+/* Layout helpers */
+.layout, .dsShell, .worldLayout{
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 18px;
@@ -122,492 +75,290 @@ button,
   min-height: calc(100vh - 36px);
 }
 
-@media (max-width: 900px) {
-  .layout,
-  .dsShell,
-  .worldLayout {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 900px){
+  .layout, .dsShell, .worldLayout{ grid-template-columns: 1fr; }
 }
 
-/* Main area should not hug edges */
-main,
-.dsShellMain,
-.worldMain,
-.mapMain {
-  min-height: 60vh;
-}
+main, .dsShellMain, .worldMain, .mapMain{ min-height: 60vh; }
 
-/* ---------------------------
-   2) Consistent “Card / Frame”
----------------------------- */
-.frame,
-.card,
-.dsModalCard,
-.sidebar,
-.sidePanel {
-  border: 4px solid rgba(20, 20, 24, 0.95);
+/* Frame/Card */
+.frame, .card, .dsModalCard, .sidebar, .sidePanel{
+  border: 4px solid var(--border);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.70);
-  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+  background: var(--frame);
+  box-shadow: var(--shadow);
 }
 
-/* In case older code wraps in .screen */
-.screen {
-  width: 100%;
-}
+.screen{ width:100%; }
 
-/* ---------------------------
-   3) Sidebar (minimal MVP)
----------------------------- */
-.sidebar,
-.dsSidebar,
-.sidePanel {
-  padding: 14px;
-}
+/* Sidebar */
+.sidebar, .dsSidebar, .sidePanel{ padding: 14px; }
 
-.sidebar-inner,
-.dsSidebarInner {
-  display: flex;
+.sidebar-inner, .dsSidebarInner{
+  display:flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.sidebar-logo img,
-.dsSidebarLogo,
-.sideLogoImg {
-  width: 100%;
-  height: auto;
-}
+.sidebar-logo img, .dsSidebarLogo, .sideLogoImg{ width:100%; height:auto; }
 
-/* Player block */
-.sidebar-player,
-.dsPlayerCard {
-  display: flex;
+.sidebar-player, .dsPlayerCard{
+  display:flex;
   flex-direction: column;
   gap: 10px;
   align-items: center;
 }
 
-.sidebar-avatar img,
-.dsPlayerAvatar,
-.sideAvatarImg {
+.sidebar-avatar img, .dsPlayerAvatar, .sideAvatarImg{
   width: 96px;
   height: 96px;
   object-fit: contain;
   border-radius: 16px;
-  border: 4px solid rgba(20, 20, 24, 0.95);
-  background: rgba(255, 255, 255, 0.65);
-  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+  border: 4px solid var(--border);
+  background: rgba(255,255,255,0.65);
+  box-shadow: var(--shadow);
 }
 
-.sidebar-name,
-.dsPlayerName,
-.sideName {
+.sidebar-name, .dsPlayerName, .sideName{
   font-weight: 900;
   font-size: 20px;
   text-align: center;
 }
 
-/* Hide optional / future sidebar sections by default (so MVP stays clean) */
-.dsStatList,
-.dsSidebarButtons,
-.sideStats,
-.sideBottomIcons,
-.sideNameRow,
-.sideNameEdit {
-  display: none !important;
+/* Hide future sidebar blocks (MVP) */
+.dsStatList, .dsSidebarButtons, .sideStats, .sideBottomIcons, .sideNameRow, .sideNameEdit{
+  display:none !important;
 }
 
-/* ---------------------------
-   4) Consistent Buttons
----------------------------- */
-.btn,
-button {
-  border: 4px solid rgba(20, 20, 24, 0.95);
+/* Buttons */
+.btn, button{
+  border: 4px solid var(--border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.75);
-  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+  background: rgba(255,255,255,0.75);
+  box-shadow: var(--shadow);
   padding: 10px 14px;
-  cursor: pointer;
+  cursor:pointer;
   font-weight: 900;
   line-height: 1;
 }
 
-button:hover,
-.btn:hover {
-  transform: translateY(-1px);
-}
+button:hover, .btn:hover{ transform: translateY(-1px); }
 
-button:active,
-.btn:active {
+button:active, .btn:active{
   transform: translateY(2px);
-  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.10);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.10);
 }
 
-button:disabled,
-.btn:disabled {
+button:disabled, .btn:disabled{
   opacity: 0.55;
-  cursor: not-allowed;
-  transform: none;
+  cursor:not-allowed;
+  transform:none;
 }
 
-/* Variants */
-.btn.primary {
-  background: rgba(255, 224, 106, 0.85);
-}
+.btn.primary{ background: rgba(255,224,106,0.85); }
+.btn.ghost{ background: rgba(255,255,255,0.55); }
 
-.btn.ghost {
-  background: rgba(255, 255, 255, 0.55);
-}
-
-/* Icon buttons */
-.iconBtn,
-.dsIconBtn {
+.iconBtn, .dsIconBtn{
   width: 52px;
   height: 52px;
   padding: 0;
-  display: grid;
-  place-items: center;
+  display:grid;
+  place-items:center;
 }
 
-/* ---------------------------
-   5) Inputs (modal + forms)
----------------------------- */
-input[type="text"],
-.modalInput,
-.dsInput {
-  width: 100%;
-  border: 4px solid rgba(20, 20, 24, 0.95);
+/* Inputs */
+input[type="text"], .modalInput, .dsInput{
+  width:100%;
+  border: 4px solid var(--border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.08);
+  background: rgba(255,255,255,0.85);
+  box-shadow: 0 10px 0 rgba(0,0,0,0.08);
   padding: 12px 14px;
   font-weight: 900;
-  outline: none;
+  outline:none;
 }
 
-input[type="text"]:focus,
-.modalInput:focus,
-.dsInput:focus {
-  background: rgba(255, 255, 255, 0.95);
+input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
+  background: rgba(255,255,255,0.95);
 }
 
-/* ---------------------------
-   6) Modal (Name modal + Backpack later)
----------------------------- */
-.modalOverlay,
-.dsModalOverlay {
+/* Modal */
+.modalOverlay, .dsModalOverlay{
   position: fixed;
   inset: 0;
-  display: grid;
-  place-items: center;
+  display:grid;
+  place-items:center;
   padding: 18px;
-  background: rgba(20, 20, 24, 0.45);
+  background: rgba(20,20,24,0.45);
   z-index: 9999;
 }
 
-.modalCard,
-.dsModalCard {
+.modalCard, .dsModalCard{
   width: min(520px, 92vw);
   padding: 16px;
 }
 
-.modalTitle {
-  font-weight: 1000;
-  font-size: 24px;
-}
+.modalTitle{ font-weight: 1000; font-size: 24px; }
+.modalSub{ margin-top:6px; font-weight:900; opacity:0.75; }
+.modalActions{ margin-top:14px; display:flex; justify-content:flex-end; gap:10px; }
 
-.modalSub {
-  margin-top: 6px;
-  font-weight: 900;
-  opacity: 0.75;
-}
+/* World grid */
+.dsWorldHeader{ margin-bottom: 14px; }
 
-.modalActions {
-  margin-top: 14px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-/* ---------------------------
-   7) Splash Screen
----------------------------- */
-.splashScreen {
-  position: fixed;
-  inset: 0;
-  z-index: 9998;
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.80);
-  backdrop-filter: blur(3px);
-}
-
-.splashInner {
-  width: min(560px, 92vw);
-  text-align: center;
-  padding: 18px;
-}
-
-.splashLogo {
-  width: min(420px, 84vw);
-  margin: 0 auto 14px;
-}
-
-.splashBar {
-  width: 100%;
-  height: 18px;
-  border-radius: 999px;
-  border: 4px solid rgba(20, 20, 24, 0.95);
-  background: rgba(255, 255, 255, 0.65);
-  overflow: hidden;
-  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
-}
-
-.splashBarFill {
-  width: 0%;
-  height: 100%;
-  border-radius: 999px;
-  background: rgba(20, 20, 24, 0.25);
-}
-
-.splashHint {
-  margin-top: 12px;
-  font-weight: 900;
-  opacity: 0.75;
-}
-
-/* ---------------------------
-   8) World grid + tiles
----------------------------- */
-.dsWorldSelect,
-.worldSelectMain {
-  width: 100%;
-}
-
-.dsWorldHeader,
-.worldHeader,
-.mapHeader {
-  margin-bottom: 14px;
-}
-
-.dsWorldH1,
-.worldHeaderBig,
-.mapWorldTitle {
+.dsWorldH1{
   font-weight: 1100;
   font-size: 28px;
   margin: 0;
 }
 
-.dsWorldH2,
-.worldHeaderSmall,
-.mapWorldSmall {
+.dsWorldH2{
   font-weight: 900;
   opacity: 0.75;
   margin-top: 6px;
 }
 
-.dsWorldGrid,
-.worldGrid,
-.levelGrid {
-  display: grid;
+.dsWorldGrid{
+  display:grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
+  margin-top: 14px;
 }
 
-@media (max-width: 1100px) {
-  .dsWorldGrid,
-  .worldGrid,
-  .levelGrid {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 1100px){
+  .dsWorldGrid{ grid-template-columns: 1fr; }
 }
 
-.dsWorldTile,
-.worldTile,
-.levelTile {
-  width: 100%;
-  text-align: left;
+.dsWorldTile{
+  width:100%;
+  text-align:left;
   padding: 14px;
-  border: 4px solid rgba(20, 20, 24, 0.95);
+  border: 4px solid var(--border);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.70);
-  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.10);
+  background: var(--frame);
+  box-shadow: var(--shadow);
 }
 
-.dsWorldTileTop,
-.worldTileTop,
-.levelTileTop {
-  display: flex;
+.dsWorldTileTop{
+  display:flex;
   justify-content: space-between;
-  align-items: center;
+  align-items:center;
   gap: 10px;
   margin-bottom: 8px;
 }
 
-.dsWorldNum,
-.worldNum,
-.levelLabel {
+.dsWorldNum{
   font-weight: 1100;
   font-size: 20px;
 }
 
-.dsWorldName,
-.worldTileBig,
-.levelTitle {
-  font-weight: 1000;
-  white-space: pre-line;
-}
-
-.dsWorldSub,
-.worldTileReq {
-  margin-top: 8px;
-  font-weight: 900;
-  opacity: 0.75;
-  font-size: 14px;
-}
-
-.dsWorldTile.locked,
-.worldTile.locked,
-.levelTile.locked {
-  opacity: 0.55;
-}
-
-/* ---------------------------
-   9) Intro / Chat screen
----------------------------- */
-
-.introScreen {
+/* Intro layout (jouw huidige look) */
+.introScreen{
   width: 100%;
   min-height: 100vh;
   padding: 14px;
 }
 
-.introStage {
+.introStage{
   min-height: 100vh;
-  display: flex;
+  display:flex;
   flex-direction: column;
   padding: 18px;
 }
 
-.introTopBar {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+.introTopBar{
+  display:flex;
+  justify-content:flex-start;
+  align-items:flex-start;
   padding: 6px 2px 14px 2px;
 }
 
-.introTitle {
-  font-size: 18px;
-}
-
-.introSubtitle {
+.introTitle{ font-size: 18px; }
+.introSubtitle{
   font-family: var(--font-body);
   font-size: 14px;
   opacity: 0.9;
   margin-top: 2px;
 }
 
-.introCenter {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+.introCenter{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
-.introCard {
+.introCard{
   width: min(1180px, 100%);
   position: relative;
 }
 
-.introBubbleWrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.introBubbleWrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
   gap: 24px;
-  position: relative;
 }
 
-.introBubbleBlock {
+.introBubbleBlock{
   position: relative;
-  display: flex;
-  flex-direction: column;
+  width: min(640px, 88vw);
 }
 
-.introNameTag {
-  position: absolute;
+.introNameTag{
+  position:absolute;
   top: -18px;
   left: 22px;
-  background: #ffffff;
-  border: 3px solid rgba(0, 0, 0, 0.85);
+  background:#fff;
+  border: 3px solid rgba(0,0,0,0.85);
   border-radius: 14px;
   padding: 6px 12px;
   font-size: 16px;
   z-index: 3;
 }
 
-.introBubble {
-  width: min(640px, 88vw);
-  background: #f6e6b6;
-  border: 4px solid rgba(0, 0, 0, 0.85);
+.introBubble{
+  background:#f6e6b6;
+  border: 4px solid rgba(0,0,0,0.85);
   border-radius: 20px;
-  padding: 22px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  padding: 22px 22px 18px 22px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
 }
 
-.introBubbleText {
+.introBubbleText{
   font-family: var(--font-body);
   font-size: clamp(18px, 2.2vw, 28px);
   line-height: 1.25;
+  padding-right: clamp(160px, 22vw, 340px);
 }
 
-.introControlsBelow {
-  margin-top: 12px;
-  display: flex;
-  gap: 12px;
-  justify-content: flex-start;
-}
-
-.introAvatar {
+.introAvatar{
+  position:absolute;
+  right: -22px;
+  top: 50%;
+  transform: translateY(-50%);
   width: min(340px, 38vw);
-  height: auto;
-  pointer-events: none;
+  pointer-events:none;
 }
 
-@media (max-width: 720px) {
-  .introStage {
-    padding: 14px;
-  }
+.introControlsBelow{
+  margin-top: 12px;
+  display:flex;
+  gap: 10px;
+  justify-content:flex-start;
+}
 
-  .introBubbleWrap {
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .introNameTag {
-    left: 12px;
-  }
-
-  .introBubble {
-    width: min(640px, 92vw);
-    padding: 18px 16px;
-  }
-
-  .introControlsBelow {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .introAvatar {
+@media (max-width: 720px){
+  .introStage{ padding: 14px; }
+  .introBubbleText{ padding-right: 0; }
+  .introAvatar{
+    position: static;
+    transform:none;
     width: min(280px, 70vw);
+    margin: 14px auto 0 auto;
+    display:block;
   }
+  .introControlsBelow{ justify-content:center; }
 }
 
-/* ---------------------------
-   10) Utility
----------------------------- */
-.hidden {
-  display: none !important;
-}
+/* Utility */
+.hidden{ display:none !important; }
