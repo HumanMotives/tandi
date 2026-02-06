@@ -1,7 +1,7 @@
-/* lessonStyles.css */
-/* Practice / Lesson screen styles (extracted from practice.js) */
+/* styles/lessonStyles.css */
 
-.practiceScreen{
+/* Lesson practice screen */
+.lessonPracticeScreen{
   width: 100%;
   min-height: 100vh;
   padding: 18px;
@@ -10,7 +10,7 @@
   place-items: start center;
 }
 
-.practiceApp{
+.lpApp{
   width: min(1200px, 94vw);
   display: grid;
   gap: 14px;
@@ -18,39 +18,36 @@
   box-sizing: border-box;
 }
 
-/* Top header: world + level + stop */
-.practiceHeader{
+.lpHeader{
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 12px;
-  margin-bottom: 6px;
 }
 
-.practiceHeaderCenter{
+.lpHeaderCenter{
   grid-column: 1 / -1;
   text-align: center;
 }
 
-.practiceWorldTitle{
+.lpWorldTitle{
+  margin: 0;
   font-weight: 1000;
   font-size: 22px;
-  margin: 0;
 }
 
-.practiceLevelTitle{
+.lpLevelTitle{
+  margin: 4px 0 0 0;
   font-weight: 900;
   opacity: 0.8;
-  margin: 4px 0 0 0;
   font-size: 16px;
 }
 
-/* Stop button aligned right on larger screens */
-.practiceStopWrap{
+.lpHeaderRight{
   justify-self: end;
 }
 
-.practicePanel{
+.lpPanel{
   border: 4px solid rgba(20,20,24,0.95);
   border-radius: 18px;
   background: rgba(255,255,255,0.70);
@@ -60,273 +57,150 @@
   gap: 12px;
 }
 
-.practiceRow{
+.lpRow{
   display: grid;
-  grid-template-columns: 56px 120px 1fr 56px;
+  grid-template-columns: 56px 140px 1fr auto;
   gap: 12px;
   align-items: center;
 }
 
-.practiceIcon{
+.lpIcon{
   width: 52px;
   height: 52px;
   border-radius: 14px;
   background: rgba(0,0,0,0.06);
   display: grid;
   place-items: center;
-  font-size: 26px;
+  font-size: 24px;
   user-select: none;
 }
 
-.practiceLabel{
+.lpLabel{
   font-weight: 900;
   line-height: 1.05;
 }
 
-.practiceLabel .small{
+.lpLabel .small{
   display:block;
   font-size: 14px;
   opacity: 0.8;
   margin-bottom: 4px;
 }
 
-.practiceLabel .value{
+.lpLabel .value{
   display:block;
-  font-size: 22px;
+  font-size: 20px;
 }
 
-.practiceMuteBtn{
+.lpSpacer{ height: 1px; }
+
+.lpMuteBtn{
   width: 52px;
   height: 52px;
+  padding: 0;
   border-radius: 16px;
-  border: 4px solid rgba(20,20,24,0.95);
-  background: rgba(255,255,255,0.75);
-  box-shadow: 0 10px 0 rgba(0,0,0,0.10);
-  cursor: pointer;
+  font-size: 20px;
   display: grid;
   place-items: center;
-  font-size: 20px;
-  padding: 0;
 }
 
-.practiceMuteBtn:active{
-  transform: translateY(2px);
-  box-shadow: 0 6px 0 rgba(0,0,0,0.10);
-}
+.lpMuteBtn.isMuted{ opacity: 0.75; }
 
-.practiceMuteBtn.isMuted{
+.lpTiny{
+  font-weight: 900;
   opacity: 0.75;
+  padding-left: 8px;
+  white-space: nowrap;
 }
 
-.practiceActions{
+.lpActions{
   display:flex;
   gap: 10px;
   justify-content: flex-end;
-  padding-top: 6px;
+  flex-wrap: wrap;
 }
 
-.practiceActions .btn{
-  min-width: 120px;
+.lpStage{
+  display: grid;
+  place-items: start center;
 }
 
-.practiceStage{
-  display:grid;
-  grid-template-columns: 1fr;
+/* Timeline */
+.tlRoot{
+  width: min(980px, 94vw);
+  display: grid;
   gap: 12px;
 }
 
-.practiceSeqWrap{
-  display:grid;
-  grid-template-columns: 1fr auto;
+.tlBars{
+  display: grid;
   gap: 14px;
-  align-items: start;
 }
 
-.practiceLeftStack{
-  display:grid;
-  grid-template-rows: 180px auto;
-  gap: 10px;
-}
-
-.practiceSequencer{
-  position:relative;
-  width:100%;
-  height: 180px;
-  background: rgba(255,255,255,0.85);
+.tlBar{
+  position: relative;
+  height: 90px;
   border: 4px solid rgba(20,20,24,0.95);
   border-radius: 18px;
+  background: rgba(255,255,255,0.70);
   box-shadow: 0 10px 0 rgba(0,0,0,0.10);
-  overflow:hidden;
+  overflow: hidden;
 }
 
-.practiceLine{
+.tlLine{
   position:absolute;
   left: 5%;
   right: 5%;
   top: 50%;
   height: 8px;
   transform: translateY(-50%);
-  background: rgba(20,20,24,0.10);
+  background: rgba(0,0,0,0.10);
   border-radius: 999px;
 }
 
-.practiceStep{
+.tlStep{
   position:absolute;
   top: 50%;
   transform: translate(-50%, -50%);
   border-radius: 999px;
 }
 
-.practiceStep.inactive{
-  width: 18px;
-  height: 18px;
-  background: rgba(20,20,24,0.18);
+.tlInactive{
+  width: 16px;
+  height: 16px;
+  background: rgba(0,0,0,0.18);
 }
 
-.practiceStep.active{
-  width: 44px;
-  height: 44px;
-  border: 3px solid rgba(255,255,255,0.95);
-  box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+.tlActive{
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 224, 106, 0.95);
+  border: 3px solid #fff;
+  box-shadow: 0 10px 18px rgba(0,0,0,0.12);
 }
 
-.practiceStep.handR{ background: #ff3b30; }
-.practiceStep.handL{ background: #3a6bff; }
-
-.practiceStep.pop{ animation: practicePop 170ms ease-out; }
-@keyframes practicePop{
-  0%{ transform: translate(-50%, -50%) scale(1); }
-  60%{ transform: translate(-50%, -50%) scale(1.35); }
-  100%{ transform: translate(-50%, -50%) scale(1); }
-}
-
-.practiceStep.current{
+.tlCurrent{
   box-shadow:
     0 0 0 6px rgba(0,0,0,0.10),
     0 14px 26px rgba(0,0,0,0.10);
 }
-.practiceStep.inactive.current{
-  box-shadow: 0 0 0 6px rgba(0,0,0,0.10);
+
+.tlPop{
+  animation: tlPop 170ms ease-out;
 }
 
-.practiceMultiplierWrap{
-  position: relative;
-  width: 140px;
-  height: 180px;
-  display:grid;
-  place-items:center;
-  align-self:start;
-}
-
-.practiceMultiplier{
-  width: 140px;
-  height: 180px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #ff7a18, #ff2d95, #7b61ff);
-  color:#fff;
-  display:grid;
-  place-items:center;
-  box-shadow: 0 10px 0 rgba(0,0,0,0.10);
-  overflow:hidden;
-  border: 4px solid rgba(20,20,24,0.95);
-}
-.practiceMultiplier::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.22), transparent 45%);
-  pointer-events:none;
-}
-
-.practiceMultiplier span{
-  font-size: 48px;
-  font-weight: 950;
-  letter-spacing: 1px;
-  text-shadow: 0 10px 22px rgba(0,0,0,0.20);
-}
-
-.practiceMultiplier.sparklePulse{
-  animation: practicePulse 450ms ease-out;
-}
-@keyframes practicePulse{
-  0%{ transform: scale(1); }
-  35%{ transform: scale(1.05); }
-  100%{ transform: scale(1); }
-}
-
-.practiceSparkleLayer{
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  overflow:visible;
-}
-
-.practiceSpark{
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform: translate(-50%,-50%);
-  font-size: 22px;
-  filter: drop-shadow(0 10px 18px rgba(0,0,0,0.22));
-  animation: practiceFly 900ms ease-out forwards;
-  opacity: 0;
-}
-
-@keyframes practiceFly{
-  0%   { opacity:0; transform: translate(-50%,-50%) scale(0.85); }
-  10%  { opacity:1; }
-  100% { opacity:0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.25); }
-}
-
-.practiceHandRow{
-  width: 100%;
-  display:grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 10px;
-  justify-items:center;
-  align-items:start;
-  padding-top: 4px;
-}
-
-.practiceHandCell{
-  min-height: 76px;
-  display:grid;
-  gap: 6px;
-  justify-items:center;
-  align-content:start;
-  font-weight: 900;
-  font-size: 22px;
-}
-
-.practiceHandCell .handIcon{
-  font-size: 30px;
-  line-height:1;
-}
-
-.practiceHandCell.R{ color: #ff3b30; }
-.practiceHandCell.L{ color: #3a6bff; }
-
-.practiceHandRow.hidden{
-  display:none !important;
-}
-
-input[type="range"]{
-  width:100%;
-  height: 22px;
-  accent-color: rgba(20,20,24,0.85);
-}
-
-@media (max-width: 980px){
-  .practiceSeqWrap{ grid-template-columns: 1fr; }
-  .practiceMultiplierWrap{ width: 100%; height: auto; }
-  .practiceMultiplier{ width: 100%; height: 120px; }
+@keyframes tlPop{
+  0%{ transform: translate(-50%, -50%) scale(1); }
+  60%{ transform: translate(-50%, -50%) scale(1.25); }
+  100%{ transform: translate(-50%, -50%) scale(1); }
 }
 
 @media (max-width: 720px){
-  .practiceHeader{
-    grid-template-columns: 1fr;
+  .lpRow{
+    grid-template-columns: 56px 1fr;
+    grid-auto-rows: auto;
   }
-  .practiceStopWrap{
-    justify-self: center;
-  }
+  .lpRow input[type="range"]{ grid-column: 1 / -1; }
+  .lpTiny{ display:none; }
+  .lpActions{ grid-column: 1 / -1; justify-content:center; }
 }
