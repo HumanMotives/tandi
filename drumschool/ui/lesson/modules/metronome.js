@@ -56,13 +56,12 @@ export function createMetronome({ enabled = true } = {}) {
    * Backward compatible:
    * tick({ isBarStart, isQuarter })
    */
-  function tick({
-    isBarStart = false,
-    isQuarter = null,
-    stepIndex = null,
-    stepsPerBar = 4
-  } = {}) {
-    if (!_enabled) return;
+  function tick({ isBarStart = false, isQuarter = false, force = false } = {}) {
+  if (!_enabled && !force) return;
+  if (!isQuarter) return;
+  ...
+}
+
 
     // ✅ Determine quarter-ness
     let quarter = false;
