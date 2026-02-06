@@ -2,117 +2,118 @@
 
 export function createTimeline({
   container,
-  stepsPerBar,
-  bars,
-  patternBars = []
+  stepsPerBar = 4,
+  bars = 4,
+  patternBars = [] // [{ hits:Set<number> }, ...]
 }) {
-  if (!container) {
-    throw new Error("createTimeline: container ontbreekt");
-  }
+  if (!container) throw new Error("createTimeline: container ontbreekt.");
+
+  let _stepsPerBar = stepsPerBar;
+  let _bars = bars;
 
   const root = document.createElement("div");
-  root.className = "timeline";
+  root.className = "tlRoot";
   container.appendChild(root);
 
-  const stepEls = []; // [bar][step]
-  const barEls = [];
+  function normX(i) {
+    if (_stepsPerBar <= 1) return 0;
+    return i / (_stepsPerBar - 1);
+  }
 
-  // Build DOM
-  for (let b = 0; b < bars; b++) {
-    const barEl = document.createElement("div");
-    barEl.className = "timelineBar";
+  function render() {
+    root.innerHTML = "";
 
-    // IMPORTANT: match grid to the lesson (4, 8, 16, ...)
-    // (CSS provides default grid; this overrides it per lesson)
-    barEl.style.gridTemplateColumns = `repeat(${stepsPerBar}, minmax(0, 1fr))`;
+    for (let b = 0; b < _bars; b++) {
+      const bar = document.createElement("div");
+      bar.className = "tlBar";
 
-    // Arrow indicator that jumps to the currently active bar
-    const arrowEl = document.createElement("div");
-    arrowEl.className = "timelineArrow";
-    arrowEl.setAttribute("aria-hidden", "true");
-    barEl.appendChild(arrowEl);
+      const label = document.createElement("div");
+      label.className = "tlBarLabel";
+      label.textContent = `Bar ${b + 1}`;
 
-    stepEls[b] = [];
+      const lane = document.createElement("div");
+      lane.className = "tlLane";
 
-    for (let s = 0; s < stepsPerBar; s++) {
-      const step = document.createElement("div");
-      step.className = "timelineStep";
+      const line = document.createElement("div");
+      line.className = "tlLine";
+      lane.appendChild(line);
 
-      if (patternBars[b]?.hits?.has(s)) {
-        step.classList.add("isHit");
-      } else {
-        step.classList.add("isEmpty");
+      const hits = patternBars[b]?.hits || new Set();
+
+      for (let i = 0; i < _stepsPerBar; i++) {
+        const dot = document.createElement("div");
+        dot.className = "tlDot";
+
+        const x = normX(i);
+        dot.style.left = `${x * 100}%`;
+
+        if (hits.has(i)) dot.classList.add("isHit");
+
+        lane.appendChild(dot);
       }
 
-      barEl.appendChild(step);
-      stepEls[b][s] = step;
+      const playhead = document.createElement("div");
+      playhead.className = "tlPlayhead";
+      playhead.style.left = "0%";
+      lane.appendChild(playhead);
+
+      bar.appendChild(label);
+      bar.appendChild(lane);
+      root.appendChild(bar);
     }
-
-    root.appendChild(barEl);
-    barEls[b] = barEl;
-  }
-
-  let current = { bar: -1, step: -1 };
-
-  function clearCurrent() {
-    if (
-      current.bar >= 0 &&
-      stepEls[current.bar]?.[current.step]
-    ) {
-      stepEls[current.bar][current.step].classList.remove("isCurrent");
-    }
-  }
-
-  function setPlayhead(barIndex, stepIndex) {
-    clearCurrent();
-
-    // Mark active bar (for arrow indicator)
-    for (let b = 0; b < barEls.length; b++) {
-      barEls[b]?.classList.toggle("isActiveBar", b === barIndex);
-    }
-
-    const step = stepEls[barIndex]?.[stepIndex];
-    if (!step) return;
-
-    step.classList.add("isCurrent");
-    current = { bar: barIndex, step: stepIndex };
-  }
-
-  function resetPlayhead() {
-    clearCurrent();
-    for (let b = 0; b < barEls.length; b++) {
-      barEls[b]?.classList.remove("isActiveBar");
-    }
-    current = { bar: -1, step: -1 };
   }
 
   function isHit(barIndex, stepIndex) {
-    return patternBars[barIndex]?.hits?.has(stepIndex) === true;
+    const hits = patternBars?.[barIndex]?.hits;
+    return !!hits && hits.has(stepIndex);
+  }
+
+  function setPlayhead(barIndex, stepIndex) {
+    const barsEls = root.querySelectorAll(".tlBar");
+    barsEls.forEach((barEl, idx) => {
+      barEl.classList.toggle("isActive", idx === barIndex);
+    });
+
+    const barEl = barsEls[barIndex];
+    if (!barEl) return;
+
+    const ph = barEl.querySelector(".tlPlayhead");
+    if (!ph) return;
+
+    const x = normX(stepIndex);
+    ph.style.left = `${x * 100}%`;
+  }
+
+  function resetPlayhead() {
+    root.querySelectorAll(".tlPlayhead").forEach((ph) => (ph.style.left = "0%"));
+    root.querySelectorAll(".tlBar").forEach((b) => b.classList.remove("isActive"));
   }
 
   function pulseStep(barIndex, stepIndex) {
-    const step = stepEls[barIndex]?.[stepIndex];
-    if (!step) return;
+    const barEls = root.querySelectorAll(".tlBar");
+    const barEl = barEls[barIndex];
+    if (!barEl) return;
 
-    step.classList.remove("pulse");
-    void step.offsetWidth;
-    step.classList.add("pulse");
+    const dots = barEl.querySelectorAll(".tlDot");
+    const dot = dots[stepIndex];
+    if (!dot) return;
+
+    dot.classList.remove("pulse");
+    void dot.offsetWidth;
+    dot.classList.add("pulse");
   }
 
   function destroy() {
     root.remove();
   }
 
-  function getBarEl(index) {
-    return barEls[index] || null;
-  }
+  render();
 
   return {
     setPlayhead,
     resetPlayhead,
-    isHit,
     pulseStep,
-    getBarEl,
+    isHit,
     destroy
   };
 }
