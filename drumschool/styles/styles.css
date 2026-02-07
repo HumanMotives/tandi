@@ -515,3 +515,42 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
   animation: polkaDrift var(--dot-speed, 120s) linear infinite;
 }
 
+/* Polka overlay that sits ABOVE a background (gradient/image) but BELOW content */
+.hasPolkaDots {
+  position: relative;
+}
+
+.hasPolkaDots::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;          /* boven background */
+  pointer-events: none;
+
+  --dot-color: rgba(255, 255, 255, 0.22);
+  --dot-size: 3px;
+  --dot-gap: 28px;
+  --dot-opacity: 0.35;
+
+  background-image:
+    radial-gradient(circle, var(--dot-color) var(--dot-size), transparent calc(var(--dot-size) + 1px));
+  background-size: var(--dot-gap) var(--dot-gap);
+  background-position: 0 0;
+  opacity: var(--dot-opacity);
+}
+
+.hasPolkaDots > * {
+  position: relative;
+  z-index: 2;          /* content boven dots */
+}
+
+/* Optional drift */
+@keyframes polkaDrift {
+  from { background-position: 0 0; }
+  to   { background-position: 160px 160px; }
+}
+
+.hasPolkaDots.isAnimated::before {
+  animation: polkaDrift var(--dot-speed, 160s) linear infinite;
+}
+
