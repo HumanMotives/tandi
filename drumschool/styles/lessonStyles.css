@@ -757,32 +757,69 @@
 .dsDottedDivider--spaced{
   margin-top: 12px;
 }
-/* Countdown overlay */
-.dsCountOverlay{
+
+/* =========================================================
+   COUNTDOWN OVERLAY (CLEAN + CONSISTENT)
+   - Single source of truth for countdown overlay styling
+   - Supports BOTH element names your codebase has used:
+       .dsCountOverlay  (new)
+       .lpCountdownOverlay (legacy)
+   - Supports BOTH visibility class spellings:
+       .isVisible (camel)
+       .is-visible (kebab)
+   - Auto-hides visually after the count finishes (CSS animation)
+   - Color is controlled via --count-color (defaults to teal/green)
+   ========================================================= */
+
+:root{
+  --count-color: #3BC6A4; /* change to #3BB6F0 for blue */
+}
+
+/* Base style (hidden by default) */
+.dsCountOverlay,
+.lpCountdownOverlay{
   position: fixed;
   inset: 0;
   display: grid;
   place-items: center;
+  z-index: 9999;
+  pointer-events: none;
 
   font-family: var(--font-display);
-  font-size: clamp(96px, 18vw, 180px);
+  font-size: clamp(96px, 18vw, 220px);
   line-height: 1;
 
-  /* set your desired color here */
-  color: var(--count-color, #3BC6A4);
+  /* Force non-white (overrides legacy white) */
+  color: var(--count-color) !important;
 
   text-shadow:
-    0 6px 0 rgba(0,0,0,0.18),
-    0 14px 30px rgba(0,0,0,0.12);
+    0 8px 0 rgba(0,0,0,0.35),
+    0 18px 34px rgba(0,0,0,0.18);
 
   opacity: 0;
   transform: scale(0.98);
   transition: opacity 180ms ease, transform 180ms ease;
-  pointer-events: none;
-  z-index: 9999;
+
+  /* ensure it doesn't "stick" visually */
+  visibility: hidden;
 }
 
-.dsCountOverlay.isVisible{
+/* Visible state (show, then fade away automatically) */
+.dsCountOverlay.isVisible,
+.dsCountOverlay.is-visible,
+.lpCountdownOverlay.isVisible,
+.lpCountdownOverlay.is-visible{
   opacity: 1;
   transform: scale(1);
+  visibility: visible;
+
+  /* Auto-hide visually even if JS forgets to remove the class */
+  animation: dsCountAutoHide 1.25s ease forwards;
 }
+
+@keyframes dsCountAutoHide{
+  0%   { opacity: 1; transform: scale(1); visibility: visible; }
+  70%  { opacity: 1; transform: scale(1); visibility: visible; }
+  100% { opacity: 0; transform: scale(0.98); visibility: hidden; }
+}
+
