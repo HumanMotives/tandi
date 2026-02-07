@@ -451,20 +451,28 @@
   background: rgba(20, 20, 24, 0.12);
 }
 
-/* Base dot = NIET actief */
+/* dots (NIET actief) */
 .tlDot{
-  width: 28px;
-  height: 28px;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
   background: rgba(0,0,0,0.18);
   border: 3px solid rgba(0,0,0,0.35);
-  border-radius: 999px;
-  transform: translate(-50%, -50%);
+  box-shadow: none;
 }
 
+/* dots (ACTIEF) */
 .tlDot.isHit{
-  background: rgba(20, 20, 24, 0.95);
-  border: 4px solid rgba(255,255,255,0.85);
+  width: 46px;
+  height: 46px;
+  background: rgba(200, 175, 255, 0.95);
+  border: 4px solid rgba(0,0,0,0.92);
 }
+
 
 
 .tlDot.pulse {
