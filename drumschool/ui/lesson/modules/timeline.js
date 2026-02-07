@@ -22,7 +22,11 @@ export function createTimeline({
 
   function normX(i) {
     if (_stepsPerBar <= 1) return 0;
-    return i / (_stepsPerBar - 1);
+    // Inset the first/last dots slightly so they don't sit on the extreme edges
+    // (visual only, keeps timing grid identical).
+    const t = i / (_stepsPerBar - 1);
+    const inset = 0.06; // 6% padding on both sides
+    return inset + t * (1 - inset * 2);
   }
 
   function render() {
