@@ -128,7 +128,7 @@ export function mountLessonPractice({
             </button>
 
             <button class="lpCircleToggle lpCircleToggleLoop" type="button" data-toggle="loop" aria-pressed="${cfg.ui.loop ? "true" : "false"}" title="Loop">
-              Loop
+              <img src="/drumschool/assets/img/icons/ds_icon_loop.png" alt="" draggable="false"/>
             </button>
           </div>
         </section>
