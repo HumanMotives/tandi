@@ -4,12 +4,15 @@ import { openBackpack } from "./backpack.js";
 import { WORLDS } from "../data/worlds.js";
 
 /**
- * World Select screen
- * - Uses shared Shell + Sidebar (single source of truth)
- * - Click player avatar => Backpack overlay
- * - Worlds as circle image tiles + overlay icons
- * - World title/description are loaded from W?-L1.json
+ * World Select screen (DRUM SCHOOL)
+ * - Keeps existing Shell + Sidebar flow
+ * - Renders worlds as circle images with overlay play/lock icon that sits ON TOP of the circle edge
+ * - Locked worlds are truly not clickable (disabled + no listeners)
+ * - World title + description are loaded from W?-L1.json (worldTitle/worldDescription)
+ * - Hosted under /drumschool, so all asset/json fetch paths include BASE_PREFIX
  */
+const BASE_PREFIX = "/drumschool";
+
 export function mountWorldSelect({
   container,
   state,
@@ -51,7 +54,7 @@ export function mountWorldSelect({
 
   grid.innerHTML = worlds.map((w) => renderWorldTile(w, stars)).join("");
 
-  // Click handling (locked truly inert)
+  // Only attach interaction to unlocked tiles
   grid.querySelectorAll("[data-world]").forEach((btn) => {
     const locked = btn.getAttribute("data-locked") === "1";
     if (locked) return;
@@ -72,10 +75,9 @@ export function mountWorldSelect({
 
   main.appendChild(header);
   main.appendChild(grid);
-
   shell.setMain(main);
 
-  // Load world title/description from the first lesson JSON per world
+  // Hydrate titles/descriptions from JSON (non-blocking)
   hydrateWorldTextFromJson(worlds, grid);
 
   function unmount() {
@@ -85,27 +87,26 @@ export function mountWorldSelect({
   return { unmount };
 }
 
-/**
- * IMPORTANT:
- * Your site is hosted under /drumschool/, so absolute paths like "/assets/..."
- * will 404 on humanmotives.org. Use BASE_PREFIX to include the subfolder.
- */
-const BASE_PREFIX = "/drumschool";
-
 function renderWorldTile(world, stars) {
   const locked = stars < Number(world.requiredStarsToUnlock || 0);
-
   const worldNum = worldNumberFromId(world.id); // "1".."6"
   const bg = worldBackgroundByNumber(worldNum);
+
   const icon = locked
     ? `${BASE_PREFIX}/assets/img/icons/ds_icon_lock.png`
     : `${BASE_PREFIX}/assets/img/icons/ds_icon_play.png`;
 
-  // Initial fallback text until JSON arrives
-  const fallbackTitle = world.titleSmall && world.titleBig
-    ? `${world.titleSmall} ${world.titleBig}`.trim()
-    : `Wereld ${worldNum}`;
+  const fallbackTitle =
+    world.titleSmall && world.titleBig
+      ? `${world.titleSmall} ${world.titleBig}`.trim()
+      : `Wereld ${worldNum}`;
 
+  const titleAttr = escapeAttr(fallbackTitle);
+
+  // Key idea for "icon above circle":
+  // - Circle itself keeps overflow:hidden (so image is clipped)
+  // - Icon is NOT inside the overflow:hidden element.
+  //   It's a sibling placed in a wrapper with position:relative.
   return `
     <button
       class="dsWorldTile ${locked ? "locked" : ""}"
@@ -114,11 +115,24 @@ function renderWorldTile(world, stars) {
       data-locked="${locked ? "1" : "0"}"
       ${locked ? "disabled" : ""}
       aria-disabled="${locked ? "true" : "false"}"
-      title="${escapeAttr(fallbackTitle)}"
+      title="${titleAttr}"
     >
-      <div class="dsWorldCircle">
-        <img class="dsWorldCircleImg" src="${escapeAttr(bg)}" alt="" draggable="false" />
-        <img class="dsWorldOverlayIcon ${locked ? "lock" : "play"}" src="${escapeAttr(icon)}" alt="" draggable="false" />
+      <div class="dsWorldCircleWrap">
+        <div class="dsWorldCircle">
+          <img
+            class="dsWorldCircleImg"
+            src="${escapeAttr(bg)}"
+            alt=""
+            draggable="false"
+          />
+        </div>
+
+        <img
+          class="dsWorldOverlayIcon ${locked ? "lock" : "play"}"
+          src="${escapeAttr(icon)}"
+          alt=""
+          draggable="false"
+        />
       </div>
 
       <div class="dsWorldMeta">
@@ -131,6 +145,10 @@ function renderWorldTile(world, stars) {
   `;
 }
 
+/**
+ * Loads W?-L1.json and fills the title/desc blocks if worldTitle/worldDescription exist.
+ * Tries common folders to match your project history.
+ */
 async function hydrateWorldTextFromJson(worlds, gridEl) {
   for (const world of worlds) {
     const n = worldNumberFromId(world.id);
@@ -150,12 +168,16 @@ async function hydrateWorldTextFromJson(worlds, gridEl) {
     const desc = safeText(json.worldDescription);
 
     if (title) {
-      const titleEl = gridEl.querySelector(`[data-world-title="${cssAttr(world.id)}"]`);
+      const titleEl = gridEl.querySelector(
+        `[data-world-title="${cssAttr(world.id)}"]`
+      );
       if (titleEl) titleEl.textContent = title;
     }
 
     if (desc) {
-      const descEl = gridEl.querySelector(`[data-world-desc="${cssAttr(world.id)}"]`);
+      const descEl = gridEl.querySelector(
+        `[data-world-desc="${cssAttr(world.id)}"]`
+      );
       if (descEl) {
         descEl.innerHTML = desc
           .split("\n")
@@ -182,13 +204,20 @@ async function fetchFirstJson(paths) {
 function worldBackgroundByNumber(n) {
   const base = `${BASE_PREFIX}/assets/img/backgrounds`;
   switch (String(n)) {
-    case "1": return `${base}/ds_background_junglerock.png`;
-    case "2": return `${base}/ds_achtergrond_seajam.png`;
-    case "3": return `${base}/ds_achtergrond_desertjam.png`;
-    case "4": return `${base}/ds_achtergrond_ritmefabriek.png`;
-    case "5": return `${base}/ds_background_highschoolrock.png`;
-    case "6": return `${base}/ds_achtergrond_galaxyrock.png`;
-    default:  return `${base}/ds_background_junglerock.png`;
+    case "1":
+      return `${base}/ds_background_junglerock.png`;
+    case "2":
+      return `${base}/ds_achtergrond_seajam.png`;
+    case "3":
+      return `${base}/ds_achtergrond_desertjam.png`;
+    case "4":
+      return `${base}/ds_achtergrond_ritmefabriek.png`;
+    case "5":
+      return `${base}/ds_background_highschoolrock.png`;
+    case "6":
+      return `${base}/ds_achtergrond_galaxyrock.png`;
+    default:
+      return `${base}/ds_background_junglerock.png`;
   }
 }
 
@@ -203,6 +232,7 @@ function safeText(v) {
 }
 
 function cssAttr(str) {
+  // world ids are simple (w1..w6). keep it safe anyway.
   return String(str ?? "").replaceAll('"', '\\"');
 }
 
@@ -218,3 +248,4 @@ function escapeHtml(str) {
 function escapeAttr(str) {
   return escapeHtml(str);
 }
+
