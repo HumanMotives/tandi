@@ -35,7 +35,8 @@ export function mountWorldSelect({
   });
 
   const main = document.createElement("div");
-  main.className = "dsWorldSelect";
+  main.className = "dsWorldSelect hasPolkaDots";
+
 
   const header = document.createElement("div");
   header.className = "dsWorldHeader";
