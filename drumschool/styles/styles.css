@@ -242,6 +242,13 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
   }
 }
 
+.dsWorldCircleWrap{
+  position: relative;
+  width: 270px;
+  height: 270px;
+  margin: 0 auto;
+}
+
 /* Tile button: remove global button look ONLY here */
 .dsWorldTile{
   width:100%;
@@ -266,15 +273,14 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
 /* Circle image */
 .dsWorldCircle{
   position: relative;
-  width: 270px;
-  height: 270px;
+  width: 100%;
+  height: 100%;
   border-radius: 999px;
   overflow: hidden;
 
   border: 4px solid rgba(0,0,0,0.90);
   box-shadow: 0 10px 0 rgba(0,0,0,0.12);
   background: rgba(255,255,255,0.35);
-  margin: 0 auto;
 }
 
 .dsWorldCircleImg{
@@ -285,18 +291,16 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
   user-select: none;
 }
 
-/* Overlay icon on top of circle */
+/* icon is nu buiten de clip, dus kan bovenop uitsteken */
 .dsWorldOverlayIcon{
   position: absolute;
-  right: 10px;
-  bottom: 10px;
+  right: -6px;   /* iets buiten de cirkel */
+  bottom: -6px;  /* iets buiten de cirkel */
   width: 78px;
   height: 78px;
-  z-index: 10;
+  z-index: 20;
   pointer-events: none;
   user-select: none;
-  transform: scale(1);
-  transition: transform 140ms ease;
 }
 
 /* Play hover pop (only when unlocked) */
