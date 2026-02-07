@@ -37,7 +37,7 @@ export function createTimeline({
 
       const label = document.createElement("div");
       label.className = "tlBarLabel";
-      label.textContent = `Bar ${b + 1}`;
+      label.textContent = String(b + 1);
 
       const lane = document.createElement("div");
       lane.className = "tlLane";
