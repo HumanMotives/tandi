@@ -97,23 +97,13 @@ export function mountLessonPractice({
         <!-- Lesson header above timeline -->
         <section class="lpLessonHeader lpLessonHeaderMock" aria-label="Lesson header">
 
-          <div class="lpLessonMeta">
-            <div class="lpWorld">${escapeHtml(worldName)}</div>
-            <div class="lpLevel">${escapeHtml(levelName)}</div>
-          </div>
-
-          <!-- Keep readout for existing logic; hidden via CSS in mock style -->
-          <div class="lpBarsReadout lpBarsReadoutHidden" aria-hidden="true">
-            <span class="lpBarsNow" id="barReadout">0</span>
-            <span class="lpBarsSep">/</span>
-            <span class="lpBarsTotal">${escapeHtml(String(cfg.transport.bars))}</span>
-            <span class="lpBarsLabel">bars</span>
-          </div>
-
-          <div class="lpHeaderActions">
+          <div class="lpHeaderLeft">
             <button class="lpCoinBtn" type="button" data-practice title="Oefenen">
               <img class="lpCoinImg" src="/drumschool/assets/img/icons/ds_icon_play.png" alt="" draggable="false"/>
             </button>
+          </div>
+
+          <div class="lpHeaderRight">
 
             <button class="lpCircleToggle" type="button" data-toggle="info" aria-pressed="true" title="Info">
               <img src="/drumschool/assets/img/icons/ds_icon_info.png" alt="" draggable="false"/>
@@ -127,10 +117,20 @@ export function mountLessonPractice({
               <img src="/drumschool/assets/img/icons/ds_icon_sound.png" alt="" draggable="false"/>
             </button>
 
-            <button class="lpCircleToggle lpCircleToggleLoop" type="button" data-toggle="loop" aria-pressed="${cfg.ui.loop ? "true" : "false"}" title="Loop">
+            <button class="lpCircleToggle" type="button" data-toggle="loop" aria-pressed="${cfg.ui.loop ? "true" : "false"}" title="Loop">
               <img src="/drumschool/assets/img/icons/ds_icon_loop.png" alt="" draggable="false"/>
             </button>
+
           </div>
+
+          <!-- Keep readout for existing logic; hidden via CSS in mock style -->
+          <div class="lpBarsReadout lpBarsReadoutHidden" aria-hidden="true">
+            <span class="lpBarsNow" id="barReadout">0</span>
+            <span class="lpBarsSep">/</span>
+            <span class="lpBarsTotal">${escapeHtml(String(cfg.transport.bars))}</span>
+            <span class="lpBarsLabel">bars</span>
+          </div>
+
         </section>
 
         <!-- Controls panel (keep BPM + metronome quick toggle for v1) -->
@@ -169,6 +169,15 @@ export function mountLessonPractice({
 
       </main>
     </div>`;
+
+
+  // Center countdown overlay (for metronome count-in)
+  const countdownOverlay = document.createElement("div");
+  countdownOverlay.className = "lpCountdownOverlay";
+  countdownOverlay.style.display = "none";
+  countdownOverlay.setAttribute("aria-hidden", "true");
+  root.appendChild(countdownOverlay);
+
 
   // Elements
   const exitBtn = root.querySelector("[data-stop]");
@@ -220,7 +229,9 @@ export function mountLessonPractice({
       const inCountIn = phase === "countin";
 
       if (inCountIn) {
-        showStatus(true, "Klaar maken...");
+        hideCountdown();
+      showStatus(false);
+        showCountdown(stepIndex + 1);
         barReadout.textContent = "0";
 
         forcedMetronomeTick({
@@ -344,7 +355,8 @@ export function mountLessonPractice({
     isRunning = true;
 
     syncPracticeButton();
-    showStatus(true, "Klaar maken...");
+    hideCountdown();
+    showStatus(false);
 
     // reset visuals
     timelineReset(timeline);
@@ -354,6 +366,7 @@ export function mountLessonPractice({
   }
 
   function stopPlayback(resetVisuals = true) {
+    hideCountdown();
     if (!isRunning) return;
     isRunning = false;
 
@@ -381,10 +394,23 @@ export function mountLessonPractice({
     if (!wasEnabled) metronome.setEnabled(false);
   }
 
+  function showCountdown(n) {
+    if (!countdownOverlay) return;
+    countdownOverlay.textContent = String(n);
+    countdownOverlay.style.display = "grid";
+  }
+
+  function hideCountdown() {
+    if (!countdownOverlay) return;
+    countdownOverlay.textContent = "";
+    countdownOverlay.style.display = "none";
+  }
+
   function showStatus(visible, text = "") {
+    // Status row is no longer used in v2 mock UI (kept for safety)
     if (!rowStatus) return;
-    rowStatus.style.display = visible ? "" : "none";
-    if (visible && statusText) statusText.textContent = text || "Klaar maken...";
+    rowStatus.style.display = "none";
+    if (visible && statusText) statusText.textContent = text || "";
   }
 
   function cleanup() {
