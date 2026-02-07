@@ -222,10 +222,11 @@ function worldBackgroundByNumber(n) {
 }
 
 function worldNumberFromId(worldId) {
-  // "w1" -> "1"
-  const n = Number(String(worldId || "").replace("w", ""));
-  return Number.isFinite(n) && n > 0 ? String(n) : "?";
+  // "W1" / "w1" -> "1"
+  const m = String(worldId || "").match(/\d+/);
+  return m ? m[0] : "?";
 }
+
 
 function safeText(v) {
   return typeof v === "string" ? v : "";
