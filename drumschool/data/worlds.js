@@ -6,10 +6,6 @@ export const WORLDS = [
     titleBig: "Eerste Stapjes",
     thumb: "./assets/img/world_1.png",
     requiredStarsToUnlock: 0
-      levels: [
-      { id: "W1-L1", requiredStarsToUnlock: 0 },
-      { id: "W1-L2", requiredStarsToUnlock: 0 },
-    ]
   },
   {
     id: "W2",
