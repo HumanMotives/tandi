@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "./worldSelect.css";
 
 const IMG_BASE = "/assets/img/backgrounds";
 const ICON_BASE = "/assets/img/icons";
@@ -33,7 +32,7 @@ const WORLDS = [
     id: 4,
     key: "W4",
     img: `${IMG_BASE}/ds_achtergrond_ritmefabriek.png`,
-    lessonJson: "/levels/W4-L1.json`,
+    lessonJson: "/levels/W4-L1.json",
     locked: true,
     href: "/lesson/W4-L1",
   },
@@ -60,32 +59,32 @@ export default function WorldSelect() {
 
   useEffect(() => {
     async function loadMeta() {
-      const result = {};
+      const out = {};
 
       for (const world of WORLDS) {
         try {
           const res = await fetch(world.lessonJson);
           const json = await res.json();
 
-          result[world.key] = {
+          out[world.key] = {
             title: json.worldTitle || `Wereld ${world.id}`,
             description: json.worldDescription || "",
           };
         } catch {
-          result[world.key] = {
+          out[world.key] = {
             title: `Wereld ${world.id}`,
             description: "",
           };
         }
       }
 
-      setMeta(result);
+      setMeta(out);
     }
 
     loadMeta();
   }, []);
 
-  function onWorldClick(world) {
+  function handleClick(world) {
     if (world.locked) return;
     window.location.href = world.href;
   }
@@ -102,8 +101,7 @@ export default function WorldSelect() {
             <div key={world.key} className="dsWorldCard">
               <div
                 className={`dsWorldCircle ${world.locked ? "locked" : ""}`}
-                onClick={() => onWorldClick(world)}
-                role={!world.locked ? "button" : undefined}
+                onClick={() => handleClick(world)}
               >
                 <img
                   src={world.img}
