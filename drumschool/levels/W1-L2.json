@@ -1,0 +1,63 @@
+{
+  "id": "W1-L2",
+  "worldId": "W1",
+  "title": "Klap alleen de noten",
+  "intro": [],
+  "ui": {
+    "showMetronome": true,
+    "showBpm": false,
+    "showHits": false,
+    "showHands": false,
+    "showPlayStop": true
+  },
+  "transport": {
+    "bpm": 90,
+    "bars": 4,
+    "stepsPerBar": 4,
+    "timeSig": "4/4"
+  },
+  "pattern": {
+    "bars": [
+      {
+        "hits": [
+          0,
+          2
+        ],
+        "hands": [
+          "",
+          ""
+        ]
+      },
+      {
+        "hits": [
+          0,
+          2
+        ],
+        "hands": [
+          "",
+          ""
+        ]
+      },
+      {
+        "hits": [
+          0,
+          2
+        ],
+        "hands": [
+          "",
+          ""
+        ]
+      },
+      {
+        "hits": [
+          0,
+          2
+        ],
+        "hands": [
+          "",
+          ""
+        ]
+      }
+    ]
+  }
+}
