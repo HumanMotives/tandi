@@ -757,7 +757,6 @@
 .dsDottedDivider--spaced{
   margin-top: 12px;
 }
-
 /* Countdown overlay */
 .dsCountOverlay{
   position: fixed;
@@ -769,8 +768,8 @@
   font-size: clamp(96px, 18vw, 180px);
   line-height: 1;
 
-  /* default blue-green; override per screen if desired */
-  color: var(--count-color, rgba(70, 190, 120, 0.98));
+  /* set your desired color here */
+  color: var(--count-color, #3BC6A4);
 
   text-shadow:
     0 6px 0 rgba(0,0,0,0.18),
