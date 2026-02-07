@@ -35,4 +35,12 @@ export const WORLDS = [
     thumb: "./assets/img/world_5.png",
     requiredStarsToUnlock: 36
   }
+  ,{
+    id: "W6",
+    titleSmall: "Wereld 6",
+    titleBig: "",
+    thumb: "./assets/img/world_6.png",
+    requiredStarsToUnlock: 48
+  }
+
 ];
