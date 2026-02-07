@@ -85,16 +85,21 @@ export function mountWorldSelect({
   return { unmount };
 }
 
+/**
+ * IMPORTANT:
+ * Your site is hosted under /drumschool/, so absolute paths like "/assets/..."
+ * will 404 on humanmotives.org. Use BASE_PREFIX to include the subfolder.
+ */
+const BASE_PREFIX = "/drumschool";
+
 function renderWorldTile(world, stars) {
   const locked = stars < Number(world.requiredStarsToUnlock || 0);
 
   const worldNum = worldNumberFromId(world.id); // "1".."6"
-  const wKey = `W${worldNum}`;
-
   const bg = worldBackgroundByNumber(worldNum);
   const icon = locked
-    ? "/assets/img/icons/ds_icon_lock.png"
-    : "/assets/img/icons/ds_icon_play.png";
+    ? `${BASE_PREFIX}/assets/img/icons/ds_icon_lock.png`
+    : `${BASE_PREFIX}/assets/img/icons/ds_icon_play.png`;
 
   // Initial fallback text until JSON arrives
   const fallbackTitle = world.titleSmall && world.titleBig
@@ -133,9 +138,9 @@ async function hydrateWorldTextFromJson(worlds, gridEl) {
 
     const wKey = `W${n}`;
     const candidates = [
-      `/lesson/${wKey}-L1.json`,
-      `/lessons/${wKey}-L1.json`,
-      `/levels/${wKey}-L1.json`
+      `${BASE_PREFIX}/lesson/${wKey}-L1.json`,
+      `${BASE_PREFIX}/lessons/${wKey}-L1.json`,
+      `${BASE_PREFIX}/levels/${wKey}-L1.json`
     ];
 
     const json = await fetchFirstJson(candidates);
@@ -144,7 +149,6 @@ async function hydrateWorldTextFromJson(worlds, gridEl) {
     const title = safeText(json.worldTitle);
     const desc = safeText(json.worldDescription);
 
-    // Only update if present
     if (title) {
       const titleEl = gridEl.querySelector(`[data-world-title="${cssAttr(world.id)}"]`);
       if (titleEl) titleEl.textContent = title;
@@ -176,14 +180,15 @@ async function fetchFirstJson(paths) {
 }
 
 function worldBackgroundByNumber(n) {
+  const base = `${BASE_PREFIX}/assets/img/backgrounds`;
   switch (String(n)) {
-    case "1": return "/assets/img/backgrounds/ds_background_junglerock.png";
-    case "2": return "/assets/img/backgrounds/ds_achtergrond_seajam.png";
-    case "3": return "/assets/img/backgrounds/ds_achtergrond_desertjam.png";
-    case "4": return "/assets/img/backgrounds/ds_achtergrond_ritmefabriek.png";
-    case "5": return "/assets/img/backgrounds/ds_background_highschoolrock.png";
-    case "6": return "/assets/img/backgrounds/ds_achtergrond_galaxyrock.png";
-    default:  return "/assets/img/backgrounds/ds_background_junglerock.png";
+    case "1": return `${base}/ds_background_junglerock.png`;
+    case "2": return `${base}/ds_achtergrond_seajam.png`;
+    case "3": return `${base}/ds_achtergrond_desertjam.png`;
+    case "4": return `${base}/ds_achtergrond_ritmefabriek.png`;
+    case "5": return `${base}/ds_background_highschoolrock.png`;
+    case "6": return `${base}/ds_achtergrond_galaxyrock.png`;
+    default:  return `${base}/ds_background_junglerock.png`;
   }
 }
 
@@ -198,7 +203,6 @@ function safeText(v) {
 }
 
 function cssAttr(str) {
-  // world ids are simple (w1..w6). keep it safe anyway.
   return String(str ?? "").replaceAll('"', '\\"');
 }
 
