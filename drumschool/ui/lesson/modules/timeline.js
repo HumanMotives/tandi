@@ -25,7 +25,7 @@ export function createTimeline({
     // Inset the first/last dots slightly so they don't sit on the extreme edges
     // (visual only, keeps timing grid identical).
     const t = i / (_stepsPerBar - 1);
-    const inset = 0.06; // 6% padding on both sides
+    const inset = 0.09; // 9% padding on both sides // 6% padding on both sides
     return inset + t * (1 - inset * 2);
   }
 
