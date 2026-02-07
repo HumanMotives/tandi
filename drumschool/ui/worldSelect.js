@@ -1,220 +1,143 @@
-// ui/worldSelect.js
-import { mountShell } from "./shell.js";
-import { openBackpack } from "./backpack.js";
-import { WORLDS } from "../data/worlds.js";
-import { loadLesson } from "../levels/loadLesson.js";
+import React, { useEffect, useState } from "react";
+import "./worldSelect.css";
 
-/**
- * World Select screen
- * - Uses shared Shell + Sidebar (single source of truth)
- * - Click player avatar => Backpack overlay
- * - Shows worlds as a clean grid (locked/unlocked)
- */
-export function mountWorldSelect({
-  container,
-  state,
-  onGoWorld = () => {},
-  onEditName = () => {}
-}) {
-  const shell = mountShell({
-    container,
-    state,
-    onEditName,
-    onOpenBackpack: () => {
-      openBackpack({
-        state,
-        onClose: () => shell.updateSidebar()
-      });
-    },
-    onOpenSettings: () => {},
-    onToggleAudio: () => {},
-    onOpenInfo: () => {}
-  });
+const IMG_BASE = "/assets/img/backgrounds";
+const ICON_BASE = "/assets/img/icons";
 
-  const main = document.createElement("div");
-  main.className = "dsWorldSelect";
+const WORLDS = [
+  {
+    id: 1,
+    key: "W1",
+    img: `${IMG_BASE}/ds_background_junglerock.png`,
+    lessonJson: "/levels/W1-L1.json",
+    locked: false,
+    href: "/lesson/W1-L1",
+  },
+  {
+    id: 2,
+    key: "W2",
+    img: `${IMG_BASE}/ds_achtergrond_seajam.png`,
+    lessonJson: "/levels/W2-L1.json",
+    locked: true,
+    href: "/lesson/W2-L1",
+  },
+  {
+    id: 3,
+    key: "W3",
+    img: `${IMG_BASE}/ds_achtergrond_desertjam.png`,
+    lessonJson: "/levels/W3-L1.json",
+    locked: true,
+    href: "/lesson/W3-L1",
+  },
+  {
+    id: 4,
+    key: "W4",
+    img: `${IMG_BASE}/ds_achtergrond_ritmefabriek.png`,
+    lessonJson: "/levels/W4-L1.json`,
+    locked: true,
+    href: "/lesson/W4-L1",
+  },
+  {
+    id: 5,
+    key: "W5",
+    img: `${IMG_BASE}/ds_background_highschoolrock.png`,
+    lessonJson: "/levels/W5-L1.json",
+    locked: true,
+    href: "/lesson/W5-L1",
+  },
+  {
+    id: 6,
+    key: "W6",
+    img: `${IMG_BASE}/ds_achtergrond_galaxyrock.png`,
+    lessonJson: "/levels/W6-L1.json",
+    locked: true,
+    href: "/lesson/W6-L1",
+  },
+];
 
-  const header = document.createElement("div");
-  header.className = "dsWorldsHeader";
-  header.innerHTML = `
-    <div class="dsWorldsHeaderInner">
-      <div class="dsWorldsTitle">DRUM WERELDEN</div>
-    </div>
-  `;
+export default function WorldSelect() {
+  const [meta, setMeta] = useState({});
 
-  const grid = document.createElement("div");
-  grid.className = "dsWorldsGrid";
+  useEffect(() => {
+    async function loadMeta() {
+      const result = {};
 
-  const worlds = WORLDS;
-  const stars = Number(state?.progress?.stars || 0);
-
-  // Build tiles as DOM so we can update title/description from lesson JSON.
-  const tiles = worlds.map((w) => {
-    const tile = renderWorldTile(w, stars);
-    tile.addEventListener("click", () => {
-      const locked = tile.getAttribute("data-locked") === "1";
-      if (locked) return;
-      onGoWorld(w.id);
-    });
-    return tile;
-  });
-
-  tiles.forEach((t) => grid.appendChild(t));
-
-  // Load world title + description from the world’s first lesson file: W?-L1.json
-  // If a lesson file is missing, we keep the fallback text.
-  (async () => {
-    await Promise.all(
-      worlds.map(async (w) => {
+      for (const world of WORLDS) {
         try {
-          const lessonKey = `${String(w.id)}-L1`;
-          const lesson = await loadLesson(lessonKey);
+          const res = await fetch(world.lessonJson);
+          const json = await res.json();
 
-          const title = String(
-            lesson?.worldTitle ||
-              lesson?.wereldTitel ||
-              lesson?.title ||
-              ""
-          ).trim();
-
-          const desc = String(
-            lesson?.worldDescription ||
-              lesson?.wereldOmschrijving ||
-              lesson?.description ||
-              ""
-          ).trim();
-
-          const tile = grid.querySelector(`[data-world="${escapeAttr(w.id)}"]`);
-          if (!tile) return;
-
-          const nameEl = tile.querySelector("[data-world-name]");
-          const descEl = tile.querySelector("[data-world-desc]");
-
-          if (nameEl && title) nameEl.textContent = title;
-          if (descEl && desc) {
-            descEl.innerHTML = "";
-            desc.split("\n").forEach((line) => {
-              const div = document.createElement("div");
-              div.textContent = line;
-              descEl.appendChild(div);
-            });
-          }
+          result[world.key] = {
+            title: json.worldTitle || `Wereld ${world.id}`,
+            description: json.worldDescription || "",
+          };
         } catch {
-          // keep fallback
+          result[world.key] = {
+            title: `Wereld ${world.id}`,
+            description: "",
+          };
         }
-      })
-    );
-  })();
+      }
 
-  main.appendChild(header);
-  main.appendChild(grid);
+      setMeta(result);
+    }
 
-  shell.setMain(main);
+    loadMeta();
+  }, []);
 
-  function unmount() {
-    shell.unmount();
+  function onWorldClick(world) {
+    if (world.locked) return;
+    window.location.href = world.href;
   }
 
-  return { unmount };
-}
+  return (
+    <div className="dsWorlds">
+      <h1 className="dsWorldsHeader">DRUM WERELDEN</h1>
 
-function renderWorldTile(world, stars) {
-  const locked = stars < Number(world.requiredStarsToUnlock || 0);
+      <div className="dsWorldGrid">
+        {WORLDS.map((world) => {
+          const m = meta[world.key] || {};
 
-  const imgSrc = worldBackgroundFromId(world.id);
-  const playSrc = "./assets/img/icons/ds_icon_play.png";
-  const lockSrc = "./assets/img/icons/ds_icon_lock.png";
+          return (
+            <div key={world.key} className="dsWorldCard">
+              <div
+                className={`dsWorldCircle ${world.locked ? "locked" : ""}`}
+                onClick={() => onWorldClick(world)}
+                role={!world.locked ? "button" : undefined}
+              >
+                <img
+                  src={world.img}
+                  alt={m.title}
+                  className="dsWorldImage"
+                  draggable="false"
+                />
 
-  const card = document.createElement("div");
-  card.className = "dsWorldsCard";
+                <img
+                  src={
+                    world.locked
+                      ? `${ICON_BASE}/ds_icon_lock.png`
+                      : `${ICON_BASE}/ds_icon_play.png`
+                  }
+                  className={`dsWorldIcon ${
+                    world.locked ? "lock" : "play"
+                  }`}
+                  alt=""
+                  draggable="false"
+                />
+              </div>
 
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "dsWorldsCircleBtn";
-  btn.setAttribute("data-world", world.id);
-  btn.setAttribute("data-locked", locked ? "1" : "0");
-  btn.setAttribute("aria-disabled", locked ? "true" : "false");
-  btn.disabled = false; // we still handle click to prevent navigation
-
-  const circle = document.createElement("div");
-  circle.className = `dsWorldsCircle ${locked ? "locked" : ""}`;
-
-  const img = document.createElement("img");
-  img.className = "dsWorldsCircleImg";
-  img.src = imgSrc;
-  img.alt = "";
-  img.draggable = false;
-
-  const icon = document.createElement("img");
-  icon.className = `dsWorldsIcon ${locked ? "dsWorldsIconLock" : "dsWorldsIconPlay"}`;
-  icon.src = locked ? lockSrc : playSrc;
-  icon.alt = locked ? "Locked" : "Play";
-  icon.draggable = false;
-
-  circle.appendChild(img);
-  circle.appendChild(icon);
-  btn.appendChild(circle);
-
-  const text = document.createElement("div");
-  text.className = "dsWorldsText";
-
-  const name = document.createElement("div");
-  name.className = "dsWorldsName";
-  name.setAttribute("data-world-name", "1");
-  name.textContent = fallbackWorldTitle(world.id);
-
-  const desc = document.createElement("div");
-  desc.className = "dsWorldsDesc";
-  desc.setAttribute("data-world-desc", "1");
-  // fallback empty; gets filled from lesson JSON when available
-
-  text.appendChild(name);
-  text.appendChild(desc);
-
-  card.appendChild(btn);
-  card.appendChild(text);
-
-  return card;
-}
-
-function worldBackgroundFromId(worldId) {
-  const id = String(worldId || "").toUpperCase();
-  if (id === "W1") return "./assets/img/backgrounds/ds_background_junglerock.png";
-  if (id === "W2") return "./assets/img/backgrounds/ds_achtergrond_seajam.png";
-  if (id === "W3") return "./assets/img/backgrounds/ds_achtergrond_desertjam.png";
-  if (id === "W4") return "./assets/img/backgrounds/ds_achtergrond_ritmefabriek.png";
-  if (id === "W5") return "./assets/img/backgrounds/ds_background_highschoolrock.png";
-  if (id === "W6") return "./assets/img/backgrounds/ds_achtergrond_galaxyrock.png";
-  return "./assets/img/backgrounds/ds_background_junglerock.png";
-}
-
-function fallbackWorldTitle(worldId) {
-  const n = worldNumberFromId(worldId);
-  // Fallback only (overwritten by lesson JSON when present)
-  if (n === "1") return "Wereld 1 - Jungle";
-  if (n === "2") return "Wereld 2 - Oceaan";
-  if (n === "3") return "Wereld 3 - Woestijn";
-  if (n === "4") return "Wereld 4";
-  if (n === "5") return "Wereld 5";
-  if (n === "6") return "Wereld 6";
-  return `Wereld ${n}`;
-}
-
-function worldNumberFromId(worldId) {
-  // "w1" -> "1"
-  const n = Number(String(worldId || "").replace("w", ""));
-  return Number.isFinite(n) && n > 0 ? String(n) : "?";
-}
-
-function escapeHtml(str) {
-  return String(str ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function escapeAttr(str) {
-  return escapeHtml(str);
+              <div className="dsWorldText">
+                <div className="dsWorldTitle">{m.title}</div>
+                <div className="dsWorldDesc">
+                  {(m.description || "").split("\n").map((l, i) => (
+                    <div key={i}>{l}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
