@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 const IMG_BASE = "/assets/img/backgrounds";
 const ICON_BASE = "/assets/img/icons";
@@ -54,16 +54,19 @@ const WORLDS = [
   },
 ];
 
-export default function WorldSelect() {
-  const [meta, setMeta] = useState({});
+function WorldSelect() {
+  const [meta, setMeta] = React.useState({});
 
-  useEffect(() => {
+  React.useEffect(() => {
+    let cancelled = false;
+
     async function loadMeta() {
       const out = {};
 
       for (const world of WORLDS) {
         try {
-          const res = await fetch(world.lessonJson);
+          const res = await fetch(world.lessonJson, { cache: "no-store" });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const json = await res.json();
 
           out[world.key] = {
@@ -78,10 +81,13 @@ export default function WorldSelect() {
         }
       }
 
-      setMeta(out);
+      if (!cancelled) setMeta(out);
     }
 
     loadMeta();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   function handleClick(world) {
@@ -89,53 +95,84 @@ export default function WorldSelect() {
     window.location.href = world.href;
   }
 
-  return (
-    <div className="dsWorlds">
-      <h1 className="dsWorldsHeader">DRUM WERELDEN</h1>
+  const h = React.createElement;
 
-      <div className="dsWorldGrid">
-        {WORLDS.map((world) => {
-          const m = meta[world.key] || {};
+  return h(
+    "div",
+    { className: "dsWorlds" },
+    h("h1", { className: "dsWorldsHeader" }, "DRUM WERELDEN"),
 
-          return (
-            <div key={world.key} className="dsWorldCard">
-              <div
-                className={`dsWorldCircle ${world.locked ? "locked" : ""}`}
-                onClick={() => handleClick(world)}
-              >
-                <img
-                  src={world.img}
-                  alt={m.title}
-                  className="dsWorldImage"
-                  draggable="false"
-                />
+    h(
+      "div",
+      { className: "dsWorldGrid" },
+      WORLDS.map((world) => {
+        const m = meta[world.key] || {};
+        const title = m.title || `Wereld ${world.id}`;
+        const description = m.description || "";
 
-                <img
-                  src={
-                    world.locked
-                      ? `${ICON_BASE}/ds_icon_lock.png`
-                      : `${ICON_BASE}/ds_icon_play.png`
-                  }
-                  className={`dsWorldIcon ${
-                    world.locked ? "lock" : "play"
-                  }`}
-                  alt=""
-                  draggable="false"
-                />
-              </div>
+        const circleClass =
+          "dsWorldCircle" + (world.locked ? " locked" : "");
 
-              <div className="dsWorldText">
-                <div className="dsWorldTitle">{m.title}</div>
-                <div className="dsWorldDesc">
-                  {(m.description || "").split("\n").map((l, i) => (
-                    <div key={i}>{l}</div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+        // Locked: geen onClick, geen role=button
+        const circleProps = world.locked
+          ? { className: circleClass }
+          : {
+              className: circleClass,
+              role: "button",
+              tabIndex: 0,
+              onClick: () => handleClick(world),
+              onKeyDown: (e) => {
+                if (e.key === "Enter" || e.key === " ") handleClick(world);
+              },
+            };
+
+        const iconSrc = world.locked
+          ? `${ICON_BASE}/ds_icon_lock.png`
+          : `${ICON_BASE}/ds_icon_play.png`;
+
+        const iconClass =
+          "dsWorldIcon " + (world.locked ? "lock" : "play");
+
+        return h(
+          "div",
+          { key: world.key, className: "dsWorldCard" },
+
+          h(
+            "div",
+            circleProps,
+            h("img", {
+              src: world.img,
+              alt: title,
+              className: "dsWorldImage",
+              draggable: "false",
+            }),
+            h("img", {
+              src: iconSrc,
+              alt: "",
+              className: iconClass,
+              draggable: "false",
+            })
+          ),
+
+          h(
+            "div",
+            { className: "dsWorldText" },
+            h("div", { className: "dsWorldTitle" }, title),
+
+            h(
+              "div",
+              { className: "dsWorldDesc" },
+              description
+                ? description.split("\n").map((line, idx) =>
+                    h("div", { key: idx }, line)
+                  )
+                : null
+            )
+          )
+        );
+      })
+    )
   );
 }
+
+export default WorldSelect;
