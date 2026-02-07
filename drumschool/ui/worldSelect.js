@@ -1,4 +1,4 @@
-import React from "react";
+const React = window.React;
 
 const IMG_BASE = "/assets/img/backgrounds";
 const ICON_BASE = "/assets/img/icons";
@@ -55,9 +55,13 @@ const WORLDS = [
 ];
 
 function WorldSelect() {
-  const [meta, setMeta] = React.useState({});
+  const h = React.createElement;
+  const useState = React.useState;
+  const useEffect = React.useEffect;
 
-  React.useEffect(() => {
+  const [meta, setMeta] = useState({});
+
+  useEffect(() => {
     let cancelled = false;
 
     async function loadMeta() {
@@ -66,7 +70,7 @@ function WorldSelect() {
       for (const world of WORLDS) {
         try {
           const res = await fetch(world.lessonJson, { cache: "no-store" });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (!res.ok) throw new Error();
           const json = await res.json();
 
           out[world.key] = {
@@ -95,11 +99,10 @@ function WorldSelect() {
     window.location.href = world.href;
   }
 
-  const h = React.createElement;
-
   return h(
     "div",
     { className: "dsWorlds" },
+
     h("h1", { className: "dsWorldsHeader" }, "DRUM WERELDEN"),
 
     h(
@@ -113,7 +116,6 @@ function WorldSelect() {
         const circleClass =
           "dsWorldCircle" + (world.locked ? " locked" : "");
 
-        // Locked: geen onClick, geen role=button
         const circleProps = world.locked
           ? { className: circleClass }
           : {
@@ -158,13 +160,12 @@ function WorldSelect() {
             "div",
             { className: "dsWorldText" },
             h("div", { className: "dsWorldTitle" }, title),
-
             h(
               "div",
               { className: "dsWorldDesc" },
               description
-                ? description.split("\n").map((line, idx) =>
-                    h("div", { key: idx }, line)
+                ? description.split("\n").map((line, i) =>
+                    h("div", { key: i }, line)
                   )
                 : null
             )
@@ -175,4 +176,4 @@ function WorldSelect() {
   );
 }
 
-export default WorldSelect;
+window.WorldSelect = WorldSelect;
