@@ -1,0 +1,130 @@
+/* styles/buttons_overrides.css
+   Drop-in overrides for global buttons to match DRUM SCHOOL pill style.
+   Include AFTER styles/styles.css (or paste at the end of styles/styles.css).
+*/
+
+/* Button design tokens (override per screen or per button) */
+:root{
+  --btn-fill: #FFC21A;        /* default fill (yellow) */
+  --btn-rim:  #C27A00;        /* darker "3D" rim/shadow */
+  --btn-outline: rgba(0,0,0,0.92);
+  --btn-text: #FFFFFF;
+  --btn-radius: 999px;
+  --btn-height: 64px;
+  --btn-pad-x: 30px;
+  --btn-shadow-y: 10px;
+  --btn-shadow-y-pressed: 5px;
+}
+
+/* Default: ALL buttons + .btn become pill buttons */
+button,
+.btn{
+  font-family: var(--font-display);
+  letter-spacing: 0.4px;
+  color: var(--btn-text);
+
+  border: 4px solid var(--btn-outline);
+  border-radius: var(--btn-radius);
+
+  background: var(--btn-fill);
+  box-shadow: 0 var(--btn-shadow-y) 0 var(--btn-rim);
+
+  padding: 0 var(--btn-pad-x);
+  min-height: var(--btn-height);
+  line-height: 1;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  text-decoration: none;
+  cursor: pointer;
+
+  /* subtle top highlight */
+  background-image:
+    linear-gradient(to bottom, rgba(255,255,255,0.18), rgba(255,255,255,0.00));
+  background-blend-mode: overlay;
+
+  transform: translateY(0);
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}
+
+/* Hover/active */
+button:hover,
+.btn:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
+button:active,
+.btn:active{
+  transform: translateY(6px);
+  box-shadow: 0 var(--btn-shadow-y-pressed) 0 var(--btn-rim);
+  filter: brightness(0.98);
+}
+
+/* Disabled */
+button:disabled,
+.btn:disabled{
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 var(--btn-shadow-y) 0 rgba(0,0,0,0.12);
+}
+
+/* Color variants (use on any button) */
+.btn--green{ --btn-fill:#BFE31A; --btn-rim:#2E5A0A; }
+.btn--yellow{ --btn-fill:#FFC21A; --btn-rim:#C27A00; }
+.btn--red{ --btn-fill:#FF5E63; --btn-rim:#1F3B2A; } /* dark rim like mockup */
+
+/* Optional: icon "coin" that overlaps the left side.
+   Use markup:
+   <button class="btn btn--green btnWithCoin">
+     <span class="btnCoin"><img src="..."></span>
+     <span class="btnLabel">Oefenen</span>
+   </button>
+*/
+.btnWithCoin{
+  position: relative;
+  padding-left: calc(var(--btn-pad-x) + 34px);
+}
+
+.btnWithCoin .btnCoin{
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  transform: translateY(calc(-50% - 2px));
+  width: 58px;
+  height: 58px;
+  border-radius: 999px;
+  border: 4px solid var(--btn-outline);
+  background: #F7B100;
+  box-shadow: 0 10px 0 #B36D00;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.btnWithCoin .btnCoin img{
+  width: 70%;
+  height: 70%;
+  object-fit: contain;
+  display: block;
+}
+
+.btnWithCoin .btnLabel{
+  display: inline-block;
+}
+
+/* Keep small square icon buttons from turning into huge pills if you use .iconBtn/.dsIconBtn */
+.iconBtn, .dsIconBtn{
+  width: 52px;
+  height: 52px;
+  min-height: 52px;
+  padding: 0;
+  border-radius: 16px;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.12);
+  background-image: none;
+}
