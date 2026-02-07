@@ -1,7 +1,6 @@
 // ui/lesson/lessonPractice.js
 
-console.log("LESSON PRACTICE VERSION: sidebar+toggles expected", new Date().toISOString());
-
+console.log("LESSON PRACTICE VERSION: sidebar+toggles restored", new Date().toISOString());
 
 import { createMetronome } from "./modules/metronome.js";
 import { createTransport } from "./modules/transport.js";
@@ -9,10 +8,12 @@ import { createTimeline } from "./modules/timeline.js";
 
 export function mountLessonPractice({
   container,
-  lesson,                 // REQUIRED: lesson JSON from /levels/Wx-Ly.json
+  lesson, // REQUIRED: lesson JSON from /levels/Wx-Ly.json
   worldName = "Wereld",
   levelName = "Level",
-  onExit = () => {}
+  onExit = () => {},
+  // Optional (if you later pass state/player):
+  player = null
 }) {
   if (!lesson || typeof lesson !== "object") {
     throw new Error("mountLessonPractice: lesson ontbreekt of is ongeldig.");
@@ -24,92 +25,168 @@ export function mountLessonPractice({
   root.className = "lessonPracticeScreen";
   container.appendChild(root);
 
+  // Basic “player” placeholders (safe if null)
+  const playerName = (player?.name || "").trim() || "Speler";
+  const playerAvatar =
+    player?.avatarSrc ||
+    "./assets/img/avatar_placeholder.png"; // fallback (you can replace later)
+
+  // Info text: prefer lesson.infoText, else editor fields if present
+  const infoText =
+    String(lesson.infoText || lesson.info || lesson.description || "").trim() ||
+    "Tip: luister naar de metronoom en klap/tik mee op de bolletjes.";
+
   root.innerHTML = `
-    <div class="lpApp">
-      <div class="lpHeader">
-        <div class="lpHeaderCenter">
-          <h1 class="lpWorldTitle">${escapeHtml(worldName)}</h1>
-          <p class="lpLevelTitle">${escapeHtml(levelName)}</p>
-        </div>
+    <div class="lpLayout">
 
-        <div class="lpHeaderRight">
-          <button class="btn ghost" type="button" data-stop>Stoppen</button>
-        </div>
-      </div>
-
-      <div class="lpPanel" data-panel>
-        <div class="lpRow" data-row="metronome">
-          <div class="lpIcon">⏱️</div>
-          <div class="lpLabel">
-            <span class="small">Metronoom</span>
-            <span class="value" id="metroState">Aan</span>
+      <!-- Sidebar -->
+      <aside class="lpSidebar" aria-label="Player sidebar">
+        <div class="lpSideCard">
+          <div class="lpSideAvatarWrap">
+            <img class="lpSideAvatar" src="${escapeHtml(playerAvatar)}" alt="Avatar" />
           </div>
-          <div class="lpSpacer"></div>
-          <button id="metroToggleBtn" class="lpMuteBtn" type="button" title="Metronoom aan/uit">🔊</button>
-        </div>
+          <div class="lpSideName">${escapeHtml(playerName)}</div>
 
-        <div class="lpRow" data-row="bpm">
-          <div class="lpIcon">🎵</div>
-          <div class="lpLabel">
-            <span class="small">BPM</span>
-            <span class="value" id="bpmValue">${String(cfg.transport.bpm)}</span>
-          </div>
-          <input id="bpmSlider" type="range" min="40" max="220" value="${String(cfg.transport.bpm)}" />
-          <div class="lpTiny">${escapeHtml(cfg.transport.timeSig)}</div>
-        </div>
-
-        <div class="lpRow" data-row="playstop">
-          <div class="lpIcon">▶️</div>
-          <div class="lpLabel">
-            <span class="small">Les</span>
-            <span class="value" id="barReadout">0/${String(cfg.transport.bars)}</span>
+          <div class="lpSideStats">
+            <div class="lpStat">
+              <div class="lpStatLabel">Stars</div>
+              <div class="lpStatValue">${escapeHtml(String(player?.stars ?? "0"))}</div>
+            </div>
+            <div class="lpStat">
+              <div class="lpStatLabel">Streak</div>
+              <div class="lpStatValue">${escapeHtml(String(player?.streak ?? "0"))}</div>
+            </div>
+            <div class="lpStat">
+              <div class="lpStatLabel">Rank</div>
+              <div class="lpStatValue">${escapeHtml(String(player?.rank ?? "-"))}</div>
+            </div>
           </div>
 
-          <div class="lpActions">
-            <button id="playBtn" class="btn primary" type="button">Oefenen</button>
-            <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
+          <div class="lpSideAchievements" aria-label="Achievements (placeholder)">
+            <div class="lpAchTitle">Achievements</div>
+            <div class="lpAchRow">
+              <span class="lpAchDot"></span>
+              <span class="lpAchDot"></span>
+              <span class="lpAchDot"></span>
+              <span class="lpAchDot"></span>
+              <span class="lpAchDot"></span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="lpMain">
+
+        <!-- Top bar -->
+        <div class="lpTopBar">
+          <div class="lpTopLeft">
+            <button class="btn ghost lpTopBtn" type="button" data-stop>
+              Stoppen
+            </button>
+          </div>
+
+          <div class="lpTopCenter">
+            <div class="lpTopTitle">${escapeHtml(worldName)} • ${escapeHtml(levelName)}</div>
+          </div>
+
+          <div class="lpTopRight">
+            <button class="btn primary lpTopBtn" type="button" data-practice>
+              Oefenen
+            </button>
+            <button class="btn lpTopBtn" type="button" data-showtime disabled title="(v1) Examen komt later">
+              Showtime
+            </button>
           </div>
         </div>
 
-        <div class="lpRow lpRowStatus" data-row="status" style="display:none;">
-          <div class="lpIcon">💡</div>
-          <div class="lpLabel">
-            <span class="small">Status</span>
-            <span class="value" id="statusText">Klaar maken...</span>
+        <!-- Lesson header above timeline -->
+        <section class="lpLessonHeader" aria-label="Lesson header">
+          <div class="lpLessonMeta">
+            <div class="lpWorld">${escapeHtml(worldName)}</div>
+            <div class="lpLevel">${escapeHtml(levelName)}</div>
           </div>
-        </div>
-      </div>
 
-      <div class="lpStage">
-        <div id="timelineHost"></div>
-      </div>
+          <div class="lpBarsReadout">
+            <span class="lpBarsNow" id="barReadout">0</span>
+            <span class="lpBarsSep">/</span>
+            <span class="lpBarsTotal">${escapeHtml(String(cfg.transport.bars))}</span>
+            <span class="lpBarsLabel">bars</span>
+          </div>
+
+          <div class="lpHeaderToggles">
+            <button class="lpIconToggle" type="button" data-toggle="info" aria-pressed="true" title="Info">
+              Info
+            </button>
+            <button class="lpIconToggle" type="button" data-toggle="metro" aria-pressed="${cfg.ui.showMetronome ? "true" : "false"}" title="Metronoom">
+              Metronoom
+            </button>
+            <button class="lpIconToggle" type="button" data-toggle="notes" aria-pressed="${cfg.ui.showNotes ? "true" : "false"}" title="Noten geluid">
+              Noten
+            </button>
+            <button class="lpIconToggle" type="button" data-toggle="loop" aria-pressed="${cfg.ui.loop ? "true" : "false"}" title="Loop">
+              Loop
+            </button>
+          </div>
+        </section>
+
+        <!-- Controls panel (keep BPM + metronome quick toggle for v1) -->
+        <section class="lpPanel" data-panel>
+          <div class="lpRow" data-row="bpm">
+            <div class="lpIcon">🎵</div>
+            <div class="lpLabel">
+              <span class="small">BPM</span>
+              <span class="value" id="bpmValue">${String(cfg.transport.bpm)}</span>
+            </div>
+            <input id="bpmSlider" type="range" min="40" max="220" value="${String(cfg.transport.bpm)}" />
+            <div class="lpTiny">${escapeHtml(cfg.transport.timeSig)}</div>
+          </div>
+
+          <div class="lpRow lpRowStatus" data-row="status" style="display:none;">
+            <div class="lpIcon">💡</div>
+            <div class="lpLabel">
+              <span class="small">Status</span>
+              <span class="value" id="statusText">Klaar maken...</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Timeline -->
+        <section class="lpStage" aria-label="Timeline stage">
+          <div id="timelineHost"></div>
+        </section>
+
+        <!-- Info panel -->
+        <section class="lpInfoPanel" data-info-panel>
+          <div class="lpInfoInner">
+            <div class="lpInfoTitle">Uitleg</div>
+            <div class="lpInfoText">${escapeHtml(infoText)}</div>
+          </div>
+        </section>
+
+      </main>
     </div>
   `;
 
   // Elements
   const exitBtn = root.querySelector("[data-stop]");
-  const rowMetronome = root.querySelector('[data-row="metronome"]');
-  const rowBpm = root.querySelector('[data-row="bpm"]');
-  const rowPlayStop = root.querySelector('[data-row="playstop"]');
-  const rowStatus = root.querySelector('[data-row="status"]');
+  const practiceTopBtn = root.querySelector("[data-practice]");
+  const showtimeBtn = root.querySelector("[data-showtime]");
 
   const bpmSlider = root.querySelector("#bpmSlider");
   const bpmValue = root.querySelector("#bpmValue");
 
-  const playBtn = root.querySelector("#playBtn");
-  const stopPlayBtn = root.querySelector("#stopBtn");
-
-  const metroToggleBtn = root.querySelector("#metroToggleBtn");
-  const metroState = root.querySelector("#metroState");
-
   const barReadout = root.querySelector("#barReadout");
+  const rowStatus = root.querySelector('[data-row="status"]');
   const statusText = root.querySelector("#statusText");
+
   const timelineHost = root.querySelector("#timelineHost");
 
-  // Apply UI flags from lesson
-  setVisible(rowMetronome, cfg.ui.showMetronome);
-  setVisible(rowBpm, cfg.ui.showBpm);
-  setVisible(rowPlayStop, cfg.ui.showPlayStop);
+  const infoPanel = root.querySelector("[data-info-panel]");
+  const toggleInfoBtn = root.querySelector('[data-toggle="info"]');
+  const toggleMetroBtn = root.querySelector('[data-toggle="metro"]');
+  const toggleNotesBtn = root.querySelector('[data-toggle="notes"]');
+  const toggleLoopBtn = root.querySelector('[data-toggle="loop"]');
 
   // Timeline
   const timeline = createTimeline({
@@ -123,52 +200,52 @@ export function mountLessonPractice({
   const metronome = createMetronome({
     enabled: cfg.ui.showMetronome ? true : false
   });
-  syncMetronomeUI();
 
   // State
   let isRunning = false;
+  let uiInfoVisible = true;
+  let uiNotesEnabled = cfg.ui.showNotes;
+  let uiLoopEnabled = cfg.ui.loop;
 
   // Transport
   const transport = createTransport({
     bpm: cfg.transport.bpm,
     stepsPerBar: cfg.transport.stepsPerBar,
     bars: cfg.transport.bars,
-
-    // NEW: always do a 1-bar count-in (4 clicks in 4/4)
     countInBars: 1,
 
     onStep: ({ barIndex, stepIndex, globalStepIndex, phase }) => {
       const inCountIn = phase === "countin";
 
-      // During count-in: show status, keep bar readout at 0/X
       if (inCountIn) {
         showStatus(true, "Klaar maken...");
+        barReadout.textContent = "0";
 
-        barReadout.textContent = `0/${String(cfg.transport.bars)}`;
-
-        // Forced metronome tick even if toggle off
         forcedMetronomeTick({
           isBarStart: stepIndex === 0,
           stepIndex,
           stepsPerBar: cfg.transport.stepsPerBar
         });
 
-        // Optional: no playhead movement during count-in
-        // (kids focus on clapping the count-in)
+        // During count-in we keep visuals calm
         return;
       }
 
-      // Once playing: hide status, update playhead + hits
       showStatus(false);
 
-      // Update moving playhead
-      if (typeof timeline.setPlayhead === "function") {
+      // Single moving playhead preference:
+      // If timeline supports a global playhead, use it.
+      if (typeof timeline.setGlobalPlayhead === "function") {
+        timeline.setGlobalPlayhead(globalStepIndex);
+      } else if (typeof timeline.setGlobalStep === "function") {
+        timeline.setGlobalStep(globalStepIndex);
+      } else if (typeof timeline.setPlayhead === "function") {
         timeline.setPlayhead(barIndex, stepIndex);
       } else if (typeof timeline.setActiveStep === "function") {
         timeline.setActiveStep(barIndex, stepIndex);
       }
 
-      // Metronome (only if enabled toggle is ON)
+      // Metronome tick only if enabled
       if (metronome.getEnabled()) {
         metronome.tick({
           isBarStart: stepIndex === 0,
@@ -176,84 +253,119 @@ export function mountLessonPractice({
         });
       }
 
-      // Hit sound + pulse on hit
-      if (cfg.ui.showNotes && timelineIsHit(timeline, barIndex, stepIndex)) {
+      // Hit sound + pulse on hit (if enabled)
+      if (uiNotesEnabled && timelineIsHit(timeline, barIndex, stepIndex)) {
         metronome.hitBlip?.();
         timelinePulse(timeline, barIndex, stepIndex);
       }
 
-      // Readout: show current bar progress 1..bars
       const shownBar = Math.min(cfg.transport.bars, barIndex + 1);
-      barReadout.textContent = `${shownBar}/${String(cfg.transport.bars)}`;
+      barReadout.textContent = String(shownBar);
     },
 
     onDone: () => {
+      if (uiLoopEnabled) {
+        stopPlayback(false);
+        startPlayback();
+        return;
+      }
       stopPlayback();
     }
   });
 
-  // UI handlers
+  // Top bar actions
   exitBtn.addEventListener("click", () => {
     cleanup();
     onExit();
   });
 
-  playBtn.addEventListener("click", async () => {
+  practiceTopBtn.addEventListener("click", async () => {
     await metronome.ensureStarted();
-    startPlayback();
+    if (!isRunning) startPlayback();
+    else stopPlayback();
   });
 
-  stopPlayBtn.addEventListener("click", () => {
-    stopPlayback();
+  showtimeBtn.addEventListener("click", () => {
+    // v1 placeholder: later you’ll do “exam” flow + unlock next level
+    // leaving disabled for now
   });
 
-  metroToggleBtn.addEventListener("click", async () => {
+  // Toggles
+  toggleInfoBtn.addEventListener("click", () => {
+    uiInfoVisible = !uiInfoVisible;
+    setPressed(toggleInfoBtn, uiInfoVisible);
+    infoPanel.style.display = uiInfoVisible ? "" : "none";
+  });
+
+  toggleMetroBtn.addEventListener("click", async () => {
     await metronome.ensureStarted();
     metronome.setEnabled(!metronome.getEnabled());
-    syncMetronomeUI();
+    setPressed(toggleMetroBtn, metronome.getEnabled());
   });
 
+  toggleNotesBtn.addEventListener("click", () => {
+    uiNotesEnabled = !uiNotesEnabled;
+    setPressed(toggleNotesBtn, uiNotesEnabled);
+  });
+
+  toggleLoopBtn.addEventListener("click", () => {
+    uiLoopEnabled = !uiLoopEnabled;
+    setPressed(toggleLoopBtn, uiLoopEnabled);
+  });
+
+  // BPM
   bpmSlider.addEventListener("input", (e) => {
     const v = clampInt(e.target.value, 40, 220);
     bpmValue.textContent = String(v);
     transport.setBpm(v);
   });
 
+  // Init UI state
+  setPressed(toggleInfoBtn, uiInfoVisible);
+  infoPanel.style.display = uiInfoVisible ? "" : "none";
+  setPressed(toggleMetroBtn, metronome.getEnabled());
+  setPressed(toggleNotesBtn, uiNotesEnabled);
+  setPressed(toggleLoopBtn, uiLoopEnabled);
+
+  // Start/stop label on top practice button
+  syncPracticeButton();
+
+  function syncPracticeButton() {
+    practiceTopBtn.textContent = isRunning ? "Stop" : "Oefenen";
+  }
+
   function startPlayback() {
     if (isRunning) return;
     isRunning = true;
 
-    playBtn.disabled = true;
-    stopPlayBtn.disabled = false;
-
-    barReadout.textContent = `0/${String(cfg.transport.bars)}`;
-
-    // reset timeline visuals
-    timelineReset(timeline);
-
+    syncPracticeButton();
     showStatus(true, "Klaar maken...");
+
+    // reset visuals
+    timelineReset(timeline);
+    barReadout.textContent = "0";
+
     transport.start();
   }
 
-  function stopPlayback() {
+  function stopPlayback(resetVisuals = true) {
     if (!isRunning) return;
     isRunning = false;
 
     transport.stop();
-    playBtn.disabled = false;
-    stopPlayBtn.disabled = true;
+    syncPracticeButton();
 
-    // reset visuals
-    timelineReset(timeline);
+    if (resetVisuals) {
+      timelineReset(timeline);
+      barReadout.textContent = "0";
+    }
 
     showStatus(false);
-    barReadout.textContent = `0/${String(cfg.transport.bars)}`;
   }
 
   function forcedMetronomeTick({ isBarStart, stepIndex, stepsPerBar }) {
     const wasEnabled = metronome.getEnabled();
 
-    // Force metronome ON for this one tick
     if (!wasEnabled) metronome.setEnabled(true);
 
     metronome.tick({
@@ -261,7 +373,6 @@ export function mountLessonPractice({
       isQuarter: isQuarterStep(stepIndex, stepsPerBar)
     });
 
-    // Restore original enabled state
     if (!wasEnabled) metronome.setEnabled(false);
   }
 
@@ -271,15 +382,12 @@ export function mountLessonPractice({
     if (visible && statusText) statusText.textContent = text || "Klaar maken...";
   }
 
-  function syncMetronomeUI() {
-    const on = metronome.getEnabled();
-    metroToggleBtn.textContent = on ? "🔊" : "🔇";
-    metroState.textContent = on ? "Aan" : "Uit";
-    metroToggleBtn.classList.toggle("isMuted", !on);
-  }
-
   function cleanup() {
-    try { stopPlayback(); } catch {}
+    try {
+      // stop without re-resetting twice
+      if (isRunning) stopPlayback(true);
+    } catch {}
+
     try { transport.destroy(); } catch {}
     try { timeline.destroy?.(); } catch {}
     try { metronome.destroy(); } catch {}
@@ -299,7 +407,6 @@ function normalizeLessonConfig(lesson) {
   const ui = lesson.ui || {};
   const transport = lesson.transport || {};
 
-  // Editor format: stepsPerBar could be 4 / 8 / 16 etc
   const stepsPerBar = clampInt(transport.stepsPerBar ?? 4, 1, 64);
   const bars = clampInt(transport.bars ?? 4, 1, 64);
   const bpm = clampInt(transport.bpm ?? 90, 40, 220);
@@ -321,10 +428,10 @@ function normalizeLessonConfig(lesson) {
 
   return {
     ui: {
-      showMetronome: ui.showMetronome !== false, // default true
-      showBpm: ui.showBpm !== false,             // default true
-      showPlayStop: ui.showPlayStop !== false,   // default true
-      showNotes: ui.showNotes !== false          // default true
+      showMetronome: ui.showMetronome !== false,
+      showBpm: ui.showBpm !== false,
+      showNotes: ui.showNotes !== false,
+      loop: !!ui.loop
     },
     transport: { bpm, bars, stepsPerBar, timeSig },
     patternBars
@@ -332,10 +439,10 @@ function normalizeLessonConfig(lesson) {
 }
 
 function isQuarterStep(stepIndex, stepsPerBar) {
-  // For beginner lessons:
-  // - stepsPerBar=4: every step is a quarter
-  // - stepsPerBar=8: quarters are 0,2,4,6
-  // - stepsPerBar=16: quarters are 0,4,8,12
+  // Beginner friendly:
+  // stepsPerBar=4  => every step is a quarter
+  // stepsPerBar=8  => 0,2,4,6
+  // stepsPerBar=16 => 0,4,8,12
   if (stepsPerBar <= 4) return true;
 
   const q = stepsPerBar / 4;
@@ -345,6 +452,7 @@ function isQuarterStep(stepIndex, stepsPerBar) {
 
 function timelineReset(timeline) {
   if (!timeline) return;
+
   if (typeof timeline.resetPlayhead === "function") {
     timeline.resetPlayhead();
     return;
@@ -353,8 +461,12 @@ function timelineReset(timeline) {
     timeline.reset();
     return;
   }
+
+  // Fallback: set playhead “nowhere”
   if (typeof timeline.setPlayhead === "function") {
     timeline.setPlayhead(0, -1);
+  } else if (typeof timeline.setActiveStep === "function") {
+    timeline.setActiveStep(0, -1);
   }
 }
 
@@ -371,9 +483,10 @@ function timelinePulse(timeline, barIndex, stepIndex) {
   else if (typeof timeline.pulseHit === "function") timeline.pulseHit(barIndex, stepIndex);
 }
 
-function setVisible(el, flag) {
-  if (!el) return;
-  el.style.display = flag ? "" : "none";
+function setPressed(btn, pressed) {
+  if (!btn) return;
+  btn.setAttribute("aria-pressed", pressed ? "true" : "false");
+  btn.classList.toggle("isOn", !!pressed);
 }
 
 function clampInt(v, min, max) {
