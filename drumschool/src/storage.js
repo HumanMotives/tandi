@@ -98,6 +98,10 @@ export function setLevelStars(state, levelId, stars0to5) {
  * - each next level unlocked if previous level has >= 1 star
  */
 export function isLevelUnlocked(state, worldLevels, levelId) {
+  // DEV: unlock all levels in World 1 so you can build/test freely in the editor.
+  // Only affects ids like "W1-Lx".
+  const _id = String(levelId || "").trim().toUpperCase();
+  if (_id.startsWith("W1-")) return true;
   const levels = Array.isArray(worldLevels) ? worldLevels : [];
   const id = String(levelId || "").trim();
   if (!id) return true;
