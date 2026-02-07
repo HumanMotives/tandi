@@ -451,16 +451,14 @@
   background: rgba(20, 20, 24, 0.12);
 }
 
-/* visible dots */
-.tlDot {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 18px;
-  height: 18px;
+/* Base dot = NIET actief */
+.tlDot{
+  width: 28px;
+  height: 28px;
+  background: rgba(0,0,0,0.18);
+  border: 3px solid rgba(0,0,0,0.35);
   border-radius: 999px;
-  background: rgba(120, 120, 120, 0.35);
-  border: 3px solid rgba(20, 20, 24, 0.25);
+  transform: translate(-50%, -50%);
 }
 
 .tlDot.isHit{
