@@ -6,6 +6,13 @@
   display: none !important;
 }
 
+/* Also hide the legacy splash/progress bar if it ever remains visible */
+.splashScreen,
+.splashBar,
+.splashBarFill {
+  display: none !important;
+}
+
 /* ---------------------------
    Layout shell (NEW lp* + legacy lesson*)
 ---------------------------- */
