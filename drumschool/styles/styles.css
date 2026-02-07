@@ -22,7 +22,6 @@ html, body { height: 100%; }
 body{
   margin: 0;
   color: var(--ink);
-
   font-family: var(--font-heading);
 
   /* TEMP: Jungle background for whole app */
@@ -130,7 +129,7 @@ main, .dsShellMain, .worldMain, .mapMain{ min-height: 60vh; }
   display:none !important;
 }
 
-/* Buttons */
+/* Buttons (global) */
 .btn, button{
   border: 4px solid var(--border);
   border-radius: 16px;
@@ -202,7 +201,13 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
 .modalSub{ margin-top:6px; font-weight:900; opacity:0.75; }
 .modalActions{ margin-top:14px; display:flex; justify-content:flex-end; gap:10px; }
 
-/* World grid */
+/* ----------------------------
+   WORLD SELECT (current situation)
+   DOM structure from ui/worldSelect.js:
+   .dsWorldSelect -> header + .dsWorldGrid -> button.dsWorldTile
+   inside: .dsWorldCircle (img + overlay icon) + .dsWorldMeta (title/desc)
+---------------------------- */
+
 .dsWorldHeader{ margin-bottom: 14px; }
 
 .dsWorldH1{
@@ -217,73 +222,49 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
   margin-top: 6px;
 }
 
+/* Grid: 3 columns desktop, 2 tablet, 1 mobile */
 .dsWorldGrid{
   display:grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 14px;
-}
-
-@media (max-width: 1100px){
-  .dsWorldGrid{ grid-template-columns: 1fr; }
-}
-
-.dsWorldTile{
-  width:100%;
-  text-align:left;
-  padding: 14px;
-  border: 4px solid var(--border);
-  border-radius: 18px;
-  background: var(--frame);
-  box-shadow: var(--shadow);
-}
-
-.dsWorldTileTop{
-  display:flex;
-  justify-content: space-between;
-  align-items:center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.dsWorldNum{
-  font-weight: 1100;
-  font-size: 20px;
-}
-
-/* World select screen (mockup style) */
-.dsWorldsHeader{ margin-bottom: 18px; }
-
-.dsWorldsTitle{
-  margin: 0;
-  font-weight: 1100;
-  font-size: 44px;
-  letter-spacing: 0.5px;
-  color: #111;
-}
-
-.dsWorldsGrid{
-  display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 40px 44px;
+  gap: 30px 34px;
   margin-top: 18px;
   align-items: start;
 }
 
-.dsWorldsCard{
-  display:grid;
-  justify-items: center;
-  gap: 14px;
+@media (max-width: 1050px){
+  .dsWorldGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-.dsWorldsCircleBtn{
+@media (max-width: 680px){
+  .dsWorldGrid{
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+}
+
+/* Tile button: remove global button look ONLY here */
+.dsWorldTile{
+  width:100%;
   border: 0;
-  padding: 0;
   background: transparent;
-  cursor: pointer;
+  box-shadow: none;
+  padding: 0;
+  text-align: center;
 }
 
-.dsWorldsCircle{
+.dsWorldTile:hover,
+.dsWorldTile:active{
+  transform: none;
+  box-shadow: none;
+}
+
+/* Locked tiles: no hover feeling */
+.dsWorldTile.locked{
+  cursor: default;
+}
+
+/* Circle image */
+.dsWorldCircle{
   position: relative;
   width: 270px;
   height: 270px;
@@ -293,9 +274,10 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
   border: 4px solid rgba(0,0,0,0.90);
   box-shadow: 0 10px 0 rgba(0,0,0,0.12);
   background: rgba(255,255,255,0.35);
+  margin: 0 auto;
 }
 
-.dsWorldsCircleImg{
+.dsWorldCircleImg{
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -303,57 +285,58 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
   user-select: none;
 }
 
-.dsWorldsIcon{
+/* Overlay icon on top of circle */
+.dsWorldOverlayIcon{
   position: absolute;
   right: 10px;
   bottom: 10px;
   width: 78px;
   height: 78px;
+  z-index: 10;
+  pointer-events: none;
   user-select: none;
-}
-
-.dsWorldsIconPlay{
   transform: scale(1);
   transition: transform 140ms ease;
 }
 
-.dsWorldsCircleBtn:hover .dsWorldsIconPlay{
+/* Play hover pop (only when unlocked) */
+.dsWorldTile:not(.locked):hover .dsWorldOverlayIcon.play{
   transform: scale(1.08);
 }
 
-.dsWorldsCircleBtn:active .dsWorldsIconPlay{
-  transform: scale(0.98);
+.dsWorldTile:not(.locked):active .dsWorldOverlayIcon.play{
+  transform: scale(0.96);
 }
 
-.dsWorldsText{
+/* Text under circle */
+.dsWorldMeta{
   text-align: center;
   max-width: 340px;
+  margin: 12px auto 0 auto;
 }
 
-.dsWorldsName{
+.dsWorldTitleLine{
   font-size: 34px;
   font-weight: 1100;
   color: #111;
   margin-bottom: 6px;
+  line-height: 1.05;
 }
 
-.dsWorldsDesc{
+.dsWorldDesc{
   font-size: 24px;
   line-height: 1.25;
   color: #111;
 }
 
 @media (max-width: 1050px){
-  .dsWorldsGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .dsWorldsCircle{ width: 250px; height: 250px; }
+  .dsWorldCircle{ width: 250px; height: 250px; }
 }
 
 @media (max-width: 680px){
-  .dsWorldsTitle{ font-size: 34px; }
-  .dsWorldsGrid{ grid-template-columns: 1fr; gap: 26px; }
-  .dsWorldsCircle{ width: 240px; height: 240px; }
-  .dsWorldsName{ font-size: 30px; }
-  .dsWorldsDesc{ font-size: 22px; }
+  .dsWorldTitleLine{ font-size: 30px; }
+  .dsWorldDesc{ font-size: 22px; }
+  .dsWorldCircle{ width: 240px; height: 240px; }
 }
 
 /* Intro layout (jouw huidige look) */
@@ -467,48 +450,3 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
 
 /* Utility */
 .hidden{ display:none !important; }
-
-.dsWorldCircle {
-  position: relative;
-  width: 270px;
-  height: 270px;
-  border-radius: 50%;
-  overflow: hidden;
-
-  border: 4px solid rgba(0, 0, 0, 0.9);
-  box-shadow: none;
-  cursor: pointer;
-}
-
-.dsWorldCircle.locked {
-  cursor: default;
-}
-
-.dsWorldImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.dsWorldIcon {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  width: 76px;
-  height: 76px;
-  z-index: 10; /* expliciet bovenop */
-  pointer-events: none;
-}
-
-.dsWorldIcon.play {
-  transition: transform 0.15s ease;
-}
-
-.dsWorldCircle:not(.locked):hover .dsWorldIcon.play {
-  transform: scale(1.08);
-}
-
-.dsWorldCircle:not(.locked):active .dsWorldIcon.play {
-  transform: scale(0.96);
-}
