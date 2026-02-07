@@ -734,3 +734,56 @@
   color: rgba(255,255,255,0.98);
   text-shadow: 0 8px 0 rgba(0,0,0,0.40);
 }
+
+/* More aggressive loader hiding (in case it has its own class/id) */
+#lessonLoader,
+#lessonLoaderBar,
+.lessonLoader,
+.lessonLoaderBar,
+[data-lesson-loader],
+[data-loader],
+.dsLessonLoader,
+.dsLessonLoaderBar{
+  display:none !important;
+}
+
+/* Also hide any element that is explicitly the top banner row */
+.dsLessonPractice .lessonLoadingBanner,
+.dsLessonPractice .dsLoadingBanner{
+  display:none !important;
+}
+
+/* Extra spacing under top buttons before dotted line */
+.dsDottedDivider--spaced{
+  margin-top: 12px;
+}
+
+/* Countdown overlay */
+.dsCountOverlay{
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+
+  font-family: var(--font-display);
+  font-size: clamp(96px, 18vw, 180px);
+  line-height: 1;
+
+  /* default blue-green; override per screen if desired */
+  color: var(--count-color, rgba(70, 190, 120, 0.98));
+
+  text-shadow:
+    0 6px 0 rgba(0,0,0,0.18),
+    0 14px 30px rgba(0,0,0,0.12);
+
+  opacity: 0;
+  transform: scale(0.98);
+  transition: opacity 180ms ease, transform 180ms ease;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.dsCountOverlay.isVisible{
+  opacity: 1;
+  transform: scale(1);
+}
