@@ -36,8 +36,7 @@ export function mountLessonPractice({
     String(lesson.infoText || lesson.info || lesson.description || "").trim() ||
     "Tip: luister naar de metronoom en klap/tik mee op de bolletjes.";
 
-  root.innerHTML = `
-    <div class="lpLayout">
+  root.innerHTML = `    <div class="lpLayout">
 
       <!-- Sidebar -->
       <aside class="lpSidebar" aria-label="Player sidebar">
@@ -79,52 +78,56 @@ export function mountLessonPractice({
       <main class="lpMain">
 
         <!-- Top bar -->
-        <div class="lpTopBar">
+        <div class="lpTopBar lpTopBarMock">
           <div class="lpTopLeft">
-            <button class="btn ghost lpTopBtn" type="button" data-stop>
-              Stoppen
+            <button class="btn btn--yellow lpTopBtn" type="button" data-stop>
+              Stop de les
             </button>
-          </div>
-
-          <div class="lpTopCenter">
-            <div class="lpTopTitle">${escapeHtml(worldName)} • ${escapeHtml(levelName)}</div>
           </div>
 
           <div class="lpTopRight">
-            <button class="btn primary lpTopBtn" type="button" data-practice>
-              Oefenen
-            </button>
-            <button class="btn lpTopBtn" type="button" data-showtime disabled title="(v1) Examen komt later">
-              Showtime
+            <button class="btn btn--red lpTopBtn" type="button" data-showtime disabled title="(v1) Examen komt later">
+              Showtime!
             </button>
           </div>
         </div>
 
+        <div class="lpDottedDivider" aria-hidden="true"></div>
+
         <!-- Lesson header above timeline -->
-        <section class="lpLessonHeader" aria-label="Lesson header">
+        <section class="lpLessonHeader lpLessonHeaderMock" aria-label="Lesson header">
+
           <div class="lpLessonMeta">
             <div class="lpWorld">${escapeHtml(worldName)}</div>
             <div class="lpLevel">${escapeHtml(levelName)}</div>
           </div>
 
-          <div class="lpBarsReadout">
+          <!-- Keep readout for existing logic; hidden via CSS in mock style -->
+          <div class="lpBarsReadout lpBarsReadoutHidden" aria-hidden="true">
             <span class="lpBarsNow" id="barReadout">0</span>
             <span class="lpBarsSep">/</span>
             <span class="lpBarsTotal">${escapeHtml(String(cfg.transport.bars))}</span>
             <span class="lpBarsLabel">bars</span>
           </div>
 
-          <div class="lpHeaderToggles">
-            <button class="lpIconToggle" type="button" data-toggle="info" aria-pressed="true" title="Info">
-              Info
+          <div class="lpHeaderActions">
+            <button class="lpCoinBtn" type="button" data-practice title="Oefenen">
+              <img class="lpCoinImg" src="/drumschool/assets/img/icons/ds_icon_play.png" alt="" draggable="false"/>
             </button>
-            <button class="lpIconToggle" type="button" data-toggle="metro" aria-pressed="${cfg.ui.showMetronome ? "true" : "false"}" title="Metronoom">
-              Metronoom
+
+            <button class="lpCircleToggle" type="button" data-toggle="info" aria-pressed="true" title="Info">
+              <img src="/drumschool/assets/img/icons/ds_icon_info.png" alt="" draggable="false"/>
             </button>
-            <button class="lpIconToggle" type="button" data-toggle="notes" aria-pressed="${cfg.ui.showNotes ? "true" : "false"}" title="Noten geluid">
-              Noten
+
+            <button class="lpCircleToggle" type="button" data-toggle="notes" aria-pressed="${cfg.ui.showNotes ? "true" : "false"}" title="Noten geluid">
+              <img src="/drumschool/assets/img/icons/ds_icon_musicnote.png" alt="" draggable="false"/>
             </button>
-            <button class="lpIconToggle" type="button" data-toggle="loop" aria-pressed="${cfg.ui.loop ? "true" : "false"}" title="Loop">
+
+            <button class="lpCircleToggle" type="button" data-toggle="metro" aria-pressed="${cfg.ui.showMetronome ? "true" : "false"}" title="Geluid / Metronoom">
+              <img src="/drumschool/assets/img/icons/ds_icon_sound.png" alt="" draggable="false"/>
+            </button>
+
+            <button class="lpCircleToggle lpCircleToggleLoop" type="button" data-toggle="loop" aria-pressed="${cfg.ui.loop ? "true" : "false"}" title="Loop">
               Loop
             </button>
           </div>
@@ -165,8 +168,7 @@ export function mountLessonPractice({
         </section>
 
       </main>
-    </div>
-  `;
+    </div>`;
 
   // Elements
   const exitBtn = root.querySelector("[data-stop]");
@@ -331,7 +333,10 @@ export function mountLessonPractice({
   syncPracticeButton();
 
   function syncPracticeButton() {
-    practiceTopBtn.textContent = isRunning ? "Stop" : "Oefenen";
+    // Visual-only: coin button keeps icon, just update label/pressed state
+    practiceTopBtn.setAttribute("aria-pressed", isRunning ? "true" : "false");
+    practiceTopBtn.setAttribute("title", isRunning ? "Stoppen" : "Oefenen");
+    practiceTopBtn.classList.toggle("isRunning", !!isRunning);
   }
 
   function startPlayback() {
