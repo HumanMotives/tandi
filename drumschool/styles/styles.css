@@ -467,3 +467,48 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
 
 /* Utility */
 .hidden{ display:none !important; }
+
+.dsWorldCircle {
+  position: relative;
+  width: 270px;
+  height: 270px;
+  border-radius: 50%;
+  overflow: hidden;
+
+  border: 4px solid rgba(0, 0, 0, 0.9);
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.dsWorldCircle.locked {
+  cursor: default;
+}
+
+.dsWorldImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.dsWorldIcon {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 76px;
+  height: 76px;
+  z-index: 10; /* expliciet bovenop */
+  pointer-events: none;
+}
+
+.dsWorldIcon.play {
+  transition: transform 0.15s ease;
+}
+
+.dsWorldCircle:not(.locked):hover .dsWorldIcon.play {
+  transform: scale(1.08);
+}
+
+.dsWorldCircle:not(.locked):active .dsWorldIcon.play {
+  transform: scale(0.96);
+}
