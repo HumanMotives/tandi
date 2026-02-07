@@ -1,179 +1,216 @@
-const React = window.React;
+// ui/worldSelect.js
+import { mountShell } from "./shell.js";
+import { openBackpack } from "./backpack.js";
+import { WORLDS } from "../data/worlds.js";
 
-const IMG_BASE = "/assets/img/backgrounds";
-const ICON_BASE = "/assets/img/icons";
+/**
+ * World Select screen
+ * - Uses shared Shell + Sidebar (single source of truth)
+ * - Click player avatar => Backpack overlay
+ * - Worlds as circle image tiles + overlay icons
+ * - World title/description are loaded from W?-L1.json
+ */
+export function mountWorldSelect({
+  container,
+  state,
+  onGoWorld = () => {},
+  onEditName = () => {}
+}) {
+  const shell = mountShell({
+    container,
+    state,
+    onEditName,
+    onOpenBackpack: () => {
+      openBackpack({
+        state,
+        onClose: () => shell.updateSidebar()
+      });
+    },
+    onOpenSettings: () => {},
+    onToggleAudio: () => {},
+    onOpenInfo: () => {}
+  });
 
-const WORLDS = [
-  {
-    id: 1,
-    key: "W1",
-    img: `${IMG_BASE}/ds_background_junglerock.png`,
-    lessonJson: "/levels/W1-L1.json",
-    locked: false,
-    href: "/lesson/W1-L1",
-  },
-  {
-    id: 2,
-    key: "W2",
-    img: `${IMG_BASE}/ds_achtergrond_seajam.png`,
-    lessonJson: "/levels/W2-L1.json",
-    locked: true,
-    href: "/lesson/W2-L1",
-  },
-  {
-    id: 3,
-    key: "W3",
-    img: `${IMG_BASE}/ds_achtergrond_desertjam.png`,
-    lessonJson: "/levels/W3-L1.json",
-    locked: true,
-    href: "/lesson/W3-L1",
-  },
-  {
-    id: 4,
-    key: "W4",
-    img: `${IMG_BASE}/ds_achtergrond_ritmefabriek.png`,
-    lessonJson: "/levels/W4-L1.json",
-    locked: true,
-    href: "/lesson/W4-L1",
-  },
-  {
-    id: 5,
-    key: "W5",
-    img: `${IMG_BASE}/ds_background_highschoolrock.png`,
-    lessonJson: "/levels/W5-L1.json",
-    locked: true,
-    href: "/lesson/W5-L1",
-  },
-  {
-    id: 6,
-    key: "W6",
-    img: `${IMG_BASE}/ds_achtergrond_galaxyrock.png`,
-    lessonJson: "/levels/W6-L1.json",
-    locked: true,
-    href: "/lesson/W6-L1",
-  },
-];
+  const main = document.createElement("div");
+  main.className = "dsWorldSelect";
 
-function WorldSelect() {
-  const h = React.createElement;
-  const useState = React.useState;
-  const useEffect = React.useEffect;
+  const header = document.createElement("div");
+  header.className = "dsWorldHeader";
+  header.innerHTML = `
+    <div class="dsWorldHeaderInner">
+      <div class="dsWorldH1">Kies een wereld</div>
+      <div class="dsWorldH2">Waar gaan we vandaag heen?</div>
+    </div>
+  `;
 
-  const [meta, setMeta] = useState({});
+  const grid = document.createElement("div");
+  grid.className = "dsWorldGrid";
 
-  useEffect(() => {
-    let cancelled = false;
+  const worlds = WORLDS;
+  const stars = Number(state?.progress?.stars || 0);
 
-    async function loadMeta() {
-      const out = {};
+  grid.innerHTML = worlds.map((w) => renderWorldTile(w, stars)).join("");
 
-      for (const world of WORLDS) {
-        try {
-          const res = await fetch(world.lessonJson, { cache: "no-store" });
-          if (!res.ok) throw new Error();
-          const json = await res.json();
+  // Click handling (locked truly inert)
+  grid.querySelectorAll("[data-world]").forEach((btn) => {
+    const locked = btn.getAttribute("data-locked") === "1";
+    if (locked) return;
 
-          out[world.key] = {
-            title: json.worldTitle || `Wereld ${world.id}`,
-            description: json.worldDescription || "",
-          };
-        } catch {
-          out[world.key] = {
-            title: `Wereld ${world.id}`,
-            description: "",
-          };
-        }
+    btn.addEventListener("click", () => {
+      const worldId = btn.getAttribute("data-world");
+      onGoWorld(worldId);
+    });
+
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        const worldId = btn.getAttribute("data-world");
+        onGoWorld(worldId);
       }
+    });
+  });
 
-      if (!cancelled) setMeta(out);
-    }
+  main.appendChild(header);
+  main.appendChild(grid);
 
-    loadMeta();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  shell.setMain(main);
 
-  function handleClick(world) {
-    if (world.locked) return;
-    window.location.href = world.href;
+  // Load world title/description from the first lesson JSON per world
+  hydrateWorldTextFromJson(worlds, grid);
+
+  function unmount() {
+    shell.unmount();
   }
 
-  return h(
-    "div",
-    { className: "dsWorlds" },
-
-    h("h1", { className: "dsWorldsHeader" }, "DRUM WERELDEN"),
-
-    h(
-      "div",
-      { className: "dsWorldGrid" },
-      WORLDS.map((world) => {
-        const m = meta[world.key] || {};
-        const title = m.title || `Wereld ${world.id}`;
-        const description = m.description || "";
-
-        const circleClass =
-          "dsWorldCircle" + (world.locked ? " locked" : "");
-
-        const circleProps = world.locked
-          ? { className: circleClass }
-          : {
-              className: circleClass,
-              role: "button",
-              tabIndex: 0,
-              onClick: () => handleClick(world),
-              onKeyDown: (e) => {
-                if (e.key === "Enter" || e.key === " ") handleClick(world);
-              },
-            };
-
-        const iconSrc = world.locked
-          ? `${ICON_BASE}/ds_icon_lock.png`
-          : `${ICON_BASE}/ds_icon_play.png`;
-
-        const iconClass =
-          "dsWorldIcon " + (world.locked ? "lock" : "play");
-
-        return h(
-          "div",
-          { key: world.key, className: "dsWorldCard" },
-
-          h(
-            "div",
-            circleProps,
-            h("img", {
-              src: world.img,
-              alt: title,
-              className: "dsWorldImage",
-              draggable: "false",
-            }),
-            h("img", {
-              src: iconSrc,
-              alt: "",
-              className: iconClass,
-              draggable: "false",
-            })
-          ),
-
-          h(
-            "div",
-            { className: "dsWorldText" },
-            h("div", { className: "dsWorldTitle" }, title),
-            h(
-              "div",
-              { className: "dsWorldDesc" },
-              description
-                ? description.split("\n").map((line, i) =>
-                    h("div", { key: i }, line)
-                  )
-                : null
-            )
-          )
-        );
-      })
-    )
-  );
+  return { unmount };
 }
 
-window.WorldSelect = WorldSelect;
+function renderWorldTile(world, stars) {
+  const locked = stars < Number(world.requiredStarsToUnlock || 0);
+
+  const worldNum = worldNumberFromId(world.id); // "1".."6"
+  const wKey = `W${worldNum}`;
+
+  const bg = worldBackgroundByNumber(worldNum);
+  const icon = locked
+    ? "/assets/img/icons/ds_icon_lock.png"
+    : "/assets/img/icons/ds_icon_play.png";
+
+  // Initial fallback text until JSON arrives
+  const fallbackTitle = world.titleSmall && world.titleBig
+    ? `${world.titleSmall} ${world.titleBig}`.trim()
+    : `Wereld ${worldNum}`;
+
+  return `
+    <button
+      class="dsWorldTile ${locked ? "locked" : ""}"
+      type="button"
+      data-world="${escapeAttr(world.id)}"
+      data-locked="${locked ? "1" : "0"}"
+      ${locked ? "disabled" : ""}
+      aria-disabled="${locked ? "true" : "false"}"
+      title="${escapeAttr(fallbackTitle)}"
+    >
+      <div class="dsWorldCircle">
+        <img class="dsWorldCircleImg" src="${escapeAttr(bg)}" alt="" draggable="false" />
+        <img class="dsWorldOverlayIcon ${locked ? "lock" : "play"}" src="${escapeAttr(icon)}" alt="" draggable="false" />
+      </div>
+
+      <div class="dsWorldMeta">
+        <div class="dsWorldTitleLine" data-world-title="${escapeAttr(world.id)}">
+          ${escapeHtml(fallbackTitle)}
+        </div>
+        <div class="dsWorldDesc" data-world-desc="${escapeAttr(world.id)}"></div>
+      </div>
+    </button>
+  `;
+}
+
+async function hydrateWorldTextFromJson(worlds, gridEl) {
+  for (const world of worlds) {
+    const n = worldNumberFromId(world.id);
+    if (n === "?") continue;
+
+    const wKey = `W${n}`;
+    const candidates = [
+      `/lesson/${wKey}-L1.json`,
+      `/lessons/${wKey}-L1.json`,
+      `/levels/${wKey}-L1.json`
+    ];
+
+    const json = await fetchFirstJson(candidates);
+    if (!json) continue;
+
+    const title = safeText(json.worldTitle);
+    const desc = safeText(json.worldDescription);
+
+    // Only update if present
+    if (title) {
+      const titleEl = gridEl.querySelector(`[data-world-title="${cssAttr(world.id)}"]`);
+      if (titleEl) titleEl.textContent = title;
+    }
+
+    if (desc) {
+      const descEl = gridEl.querySelector(`[data-world-desc="${cssAttr(world.id)}"]`);
+      if (descEl) {
+        descEl.innerHTML = desc
+          .split("\n")
+          .map((line) => `<div>${escapeHtml(line)}</div>`)
+          .join("");
+      }
+    }
+  }
+}
+
+async function fetchFirstJson(paths) {
+  for (const p of paths) {
+    try {
+      const res = await fetch(p, { cache: "no-store" });
+      if (!res.ok) continue;
+      return await res.json();
+    } catch {
+      // try next
+    }
+  }
+  return null;
+}
+
+function worldBackgroundByNumber(n) {
+  switch (String(n)) {
+    case "1": return "/assets/img/backgrounds/ds_background_junglerock.png";
+    case "2": return "/assets/img/backgrounds/ds_achtergrond_seajam.png";
+    case "3": return "/assets/img/backgrounds/ds_achtergrond_desertjam.png";
+    case "4": return "/assets/img/backgrounds/ds_achtergrond_ritmefabriek.png";
+    case "5": return "/assets/img/backgrounds/ds_background_highschoolrock.png";
+    case "6": return "/assets/img/backgrounds/ds_achtergrond_galaxyrock.png";
+    default:  return "/assets/img/backgrounds/ds_background_junglerock.png";
+  }
+}
+
+function worldNumberFromId(worldId) {
+  // "w1" -> "1"
+  const n = Number(String(worldId || "").replace("w", ""));
+  return Number.isFinite(n) && n > 0 ? String(n) : "?";
+}
+
+function safeText(v) {
+  return typeof v === "string" ? v : "";
+}
+
+function cssAttr(str) {
+  // world ids are simple (w1..w6). keep it safe anyway.
+  return String(str ?? "").replaceAll('"', '\\"');
+}
+
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function escapeAttr(str) {
+  return escapeHtml(str);
+}
