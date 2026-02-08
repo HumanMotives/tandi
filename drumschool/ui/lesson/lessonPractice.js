@@ -228,9 +228,15 @@ export function mountLessonPractice({
     onStep: ({ barIndex, stepIndex, globalStepIndex, phase }) => {
       const inCountIn = phase === "countin";
 
-      if (inCountIn) {
+      // IMPORTANT:
+      // - During count-in: show 1..stepsPerBar
+      // - As soon as we leave count-in: immediately hide the overlay
+      if (!inCountIn) {
         hideCountdown();
-      showStatus(false);
+      }
+
+      if (inCountIn) {
+        showStatus(false);
         showCountdown(stepIndex + 1);
         barReadout.textContent = "0";
 
