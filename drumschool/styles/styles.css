@@ -2,9 +2,6 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Chewy&family=Delius&family=Rubik+Dirt&display=swap");
 
-
-
-
 :root{
   --font-display: "Rubik Dirt", system-ui;
   --font-heading: "Chewy", system-ui;
@@ -25,6 +22,7 @@ html, body { height: 100%; }
 body{
   margin: 0;
   color: var(--ink);
+
   font-family: var(--font-heading);
 
   /* TEMP: Jungle background for whole app */
@@ -132,7 +130,7 @@ main, .dsShellMain, .worldMain, .mapMain{ min-height: 60vh; }
   display:none !important;
 }
 
-/* Buttons (global) */
+/* Buttons */
 .btn, button{
   border: 4px solid var(--border);
   border-radius: 16px;
@@ -142,6 +140,7 @@ main, .dsShellMain, .worldMain, .mapMain{ min-height: 60vh; }
   cursor:pointer;
   font-weight: 900;
   line-height: 1;
+  color: var(--ink);
 }
 
 button:hover, .btn:hover{ transform: translateY(-1px); }
@@ -204,13 +203,7 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
 .modalSub{ margin-top:6px; font-weight:900; opacity:0.75; }
 .modalActions{ margin-top:14px; display:flex; justify-content:flex-end; gap:10px; }
 
-/* ----------------------------
-   WORLD SELECT (current situation)
-   DOM structure from ui/worldSelect.js:
-   .dsWorldSelect -> header + .dsWorldGrid -> button.dsWorldTile
-   inside: .dsWorldCircle (img + overlay icon) + .dsWorldMeta (title/desc)
----------------------------- */
-
+/* World grid */
 .dsWorldHeader{ margin-bottom: 14px; }
 
 .dsWorldH1{
@@ -225,59 +218,77 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
   margin-top: 6px;
 }
 
-/* Grid: 3 columns desktop, 2 tablet, 1 mobile */
 .dsWorldGrid{
   display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+@media (max-width: 1100px){
+  .dsWorldGrid{ grid-template-columns: 1fr; }
+}
+
+.dsWorldTile{
+  width:100%;
+  text-align:left;
+  padding: 14px;
+  border: 4px solid var(--border);
+  border-radius: 18px;
+  background: var(--frame);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+}
+
+.dsWorldTileTop{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.dsWorldNum{
+  font-weight: 1100;
+  font-size: 20px;
+}
+
+/* World select screen (mockup style) */
+.dsWorldsHeader{ margin-bottom: 18px; }
+
+.dsWorldsTitle{
+  margin: 0;
+  font-weight: 1100;
+  font-size: 44px;
+  letter-spacing: 0.5px;
+  color: #111;
+}
+
+.dsWorldsGrid{
+  display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 30px 34px;
+  gap: 40px 44px;
   margin-top: 18px;
   align-items: start;
 }
 
-@media (max-width: 1050px){
-  .dsWorldGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dsWorldsCard{
+  display:grid;
+  justify-items: center;
+  gap: 14px;
 }
 
-@media (max-width: 680px){
-  .dsWorldGrid{
-    grid-template-columns: 1fr;
-    gap: 22px;
-  }
+.dsWorldsCircleBtn{
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
-.dsWorldCircleWrap{
+.dsWorldsCircle{
   position: relative;
   width: 270px;
   height: 270px;
-  margin: 0 auto;
-}
-
-/* Tile button: remove global button look ONLY here */
-.dsWorldTile{
-  width:100%;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  padding: 0;
-  text-align: center;
-}
-
-.dsWorldTile:hover,
-.dsWorldTile:active{
-  transform: none;
-  box-shadow: none;
-}
-
-/* Locked tiles: no hover feeling */
-.dsWorldTile.locked{
-  cursor: default;
-}
-
-/* Circle image */
-.dsWorldCircle{
-  position: relative;
-  width: 100%;
-  height: 100%;
   border-radius: 999px;
   overflow: hidden;
 
@@ -286,7 +297,7 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
   background: rgba(255,255,255,0.35);
 }
 
-.dsWorldCircleImg{
+.dsWorldsCircleImg{
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -294,400 +305,75 @@ input[type="text"]:focus, .modalInput:focus, .dsInput:focus{
   user-select: none;
 }
 
-/* icon is nu buiten de clip, dus kan bovenop uitsteken */
-.dsWorldOverlayIcon{
+.dsWorldsIcon{
   position: absolute;
-  right: -6px;   /* iets buiten de cirkel */
-  bottom: -6px;  /* iets buiten de cirkel */
+  right: 10px;
+  bottom: 10px;
   width: 78px;
   height: 78px;
-  z-index: 20;
-  pointer-events: none;
   user-select: none;
 }
 
-/* Play hover pop (only when unlocked) */
-.dsWorldTile:not(.locked):hover .dsWorldOverlayIcon.play{
+.dsWorldsIconPlay{
+  transform: scale(1);
+  transition: transform 140ms ease;
+}
+
+.dsWorldsCircleBtn:hover .dsWorldsIconPlay{
   transform: scale(1.08);
 }
 
-.dsWorldTile:not(.locked):active .dsWorldOverlayIcon.play{
-  transform: scale(0.96);
+.dsWorldsCircleBtn:active .dsWorldsIconPlay{
+  transform: scale(0.98);
 }
 
-/* Text under circle */
-.dsWorldMeta{
+.dsWorldsText{
   text-align: center;
   max-width: 340px;
-  margin: 12px auto 0 auto;
 }
 
-.dsWorldTitleLine{
+.dsWorldsName{
   font-size: 34px;
   font-weight: 1100;
   color: #111;
   margin-bottom: 6px;
-  line-height: 1.05;
 }
 
-.dsWorldDesc{
+.dsWorldsDesc{
   font-size: 24px;
   line-height: 1.25;
   color: #111;
 }
 
 @media (max-width: 1050px){
-  .dsWorldCircle{ width: 250px; height: 250px; }
+  .dsWorldsGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dsWorldsCircle{ width: 250px; height: 250px; }
 }
 
 @media (max-width: 680px){
-  .dsWorldTitleLine{ font-size: 30px; }
-  .dsWorldDesc{ font-size: 22px; }
-  .dsWorldCircle{ width: 240px; height: 240px; }
-}
-
-
-*/
-
-/* Lessons screen wrapper */
-.dsLevelSelectScreen{
-  width: 100%;
-}
-
-/* Top row with back button */
-.dsLevelTopRow{
-  display:flex;
-  justify-content:flex-start;
-  margin-bottom: 10px;
-}
-
-/* Back button (scoped) */
-.dsBackBtn{
-  border: 4px solid rgba(20,20,24,0.95);
-  border-radius: 999px;
-  background: rgba(255, 208, 64, 0.95);
-  box-shadow: 0 10px 0 rgba(0,0,0,0.12);
-  padding: 12px 26px;
-  cursor: pointer;
-  font-weight: 900;
-  line-height: 1;
-}
-
-/* Header row: title left, counts right */
-.dsLevelHeaderRow{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-end;
-  gap: 16px;
-}
-
-.dsLessonCount{
-  text-align:right;
-  font-weight: 900;
-}
-
-.dsLessonCountLabel{
-  font-size: 22px;
-}
-
-.dsLessonCountValue{
-  font-size: 28px;
-}
-
-/* Dotted divider line */
-.dsDottedDivider{
-  border-bottom: 4px dotted rgba(0,0,0,0.6);
-  margin: 14px 0 22px 0;
-}
-
-/* Lessons grid */
-.dsLessonGrid{
-  display:grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 26px;
-  align-items: start;
-}
-
-@media (max-width: 1100px){
-  .dsLessonGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-@media (max-width: 680px){
-  .dsLessonGrid{ grid-template-columns: 1fr; }
-}
-
-/* Lesson tiles: rectangular, rounded corners */
-.dsLessonTile{
-  position: relative;
-  width: 100%;
-  text-align: left;
-  padding: 20px;
-  border: 4px solid rgba(255, 90, 90, 0.95);
-  border-radius: 28px;
-  background: rgba(255, 210, 140, 0.85);
-  box-shadow: 0 10px 0 rgba(0,0,0,0.12);
-}
-
-/* prevent global button hover transform only for these tiles */
-.dsLessonTile:hover,
-.dsLessonTile:active{
-  transform: none;
-}
-
-.dsLessonTile.locked{
-  cursor: default;
-}
-
-.dsLessonTileInner{
-  padding-right: 76px; /* room for icon */
-}
-
-.dsLessonTitle{
-  font-size: 28px;
-  font-weight: 900;
-  margin-bottom: 6px;
-}
-
-.dsLessonDesc{
-  font-size: 22px;
-  line-height: 1.25;
-  min-height: 56px;
-}
-
-/* Stars can stay (simple) */
-.dsLessonStars{
-  margin-top: 10px;
-  font-size: 22px;
-  letter-spacing: 2px;
-}
-
-/* Icon overlay: sits on top edge (not clipped) */
-.dsLessonIcon{
-  position:absolute;
-  right: -12px;
-  bottom: -12px;
-  width: 74px;
-  height: 74px;
-  z-index: 10;
-  pointer-events:none;
-}
-
-.dsLessonTile:not(.locked):hover .dsLessonIcon.play{
-  transform: scale(1.08);
-  transition: transform 140ms ease;
-}
-
-.dsLessonTile:not(.locked):active .dsLessonIcon.play{
-  transform: scale(0.96);
-}
-
-
-
-/* Intro layout (jouw huidige look) */
-.introScreen{
-  width: 100%;
-  min-height: 100vh;
-  padding: 14px;
-}
-
-.introStage{
-  min-height: 100vh;
-  display:flex;
-  flex-direction: column;
-  padding: 18px;
-}
-
-.introTopBar{
-  display:flex;
-  justify-content:flex-start;
-  align-items:flex-start;
-  padding: 6px 2px 14px 2px;
-}
-
-.introTitle{ font-size: 18px; }
-.introSubtitle{
-  font-family: var(--font-body);
-  font-size: 14px;
-  opacity: 0.9;
-  margin-top: 2px;
-}
-
-.introCenter{
-  flex:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.introCard{
-  width: min(1180px, 100%);
-  position: relative;
-}
-
-.introBubbleWrap{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap: 24px;
-}
-
-.introBubbleBlock{
-  position: relative;
-  width: min(640px, 88vw);
-}
-
-.introNameTag{
-  position:absolute;
-  top: -18px;
-  left: 22px;
-  background:#fff;
-  border: 3px solid rgba(0,0,0,0.85);
-  border-radius: 14px;
-  padding: 6px 12px;
-  font-size: 16px;
-  z-index: 3;
-}
-
-.introBubble{
-  background:#f6e6b6;
-  border: 4px solid rgba(0,0,0,0.85);
-  border-radius: 20px;
-  padding: 22px 22px 18px 22px;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
-}
-
-.introBubbleText{
-  font-family: var(--font-body);
-  font-size: clamp(18px, 2.2vw, 28px);
-  line-height: 1.25;
-  padding-right: clamp(160px, 22vw, 340px);
-}
-
-.introAvatar{
-  position:absolute;
-  right: -22px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(340px, 38vw);
-  pointer-events:none;
-}
-
-.introControlsBelow{
-  margin-top: 12px;
-  display:flex;
-  gap: 10px;
-  justify-content:flex-start;
-}
-
-@media (max-width: 720px){
-  .introStage{ padding: 14px; }
-  .introBubbleText{ padding-right: 0; }
-  .introAvatar{
-    position: static;
-    transform:none;
-    width: min(280px, 70vw);
-    margin: 14px auto 0 auto;
-    display:block;
-  }
-  .introControlsBelow{ justify-content:center; }
+  .dsWorldsTitle{ font-size: 34px; }
+  .dsWorldsGrid{ grid-template-columns: 1fr; gap: 26px; }
+  .dsWorldsCircle{ width: 240px; height: 240px; }
+  .dsWorldsName{ font-size: 30px; }
+  .dsWorldsDesc{ font-size: 22px; }
 }
 
 /* Utility */
 .hidden{ display:none !important; }
 
-/* =====================================================
-   POLKA DOT OVERLAY SYSTEM
-   - Enable per screen with .hasPolkaDots
-   - Customize via CSS variables on the screen container
-===================================================== */
-
-.hasPolkaDots {
-  position: relative;
+/* -----------------------------------------
+   FIX: Level tiles should NOT inherit the
+   global (pill) button white text color.
+   - Works even if tiles still reuse .btn
+   - Scoped via [data-level] used on level tiles
+------------------------------------------ */
+button[data-level]{
+  color: var(--ink) !important;
 }
 
-.hasPolkaDots::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-
-  pointer-events: none;
-
-  /* Defaults (kunnen per scherm overschreven worden) */
-  --dot-color: rgba(255, 255, 255, 0.35);
-  --dot-size: 3px;
-  --dot-gap: 26px;
-  --dot-opacity: 0.35;
-
-  background-image:
-    radial-gradient(
-      circle,
-      var(--dot-color) var(--dot-size),
-      transparent calc(var(--dot-size) + 1px)
-    );
-
-  background-size: var(--dot-gap) var(--dot-gap);
-  background-position: 0 0;
-
-  opacity: var(--dot-opacity);
+button[data-level] .dsWorldNum,
+button[data-level] .dsLevelTitle,
+button[data-level] .dsLevelName,
+button[data-level] .dsLevelDesc{
+  color: var(--ink) !important;
 }
-
-/* Zorg dat inhoud boven de overlay ligt */
-.hasPolkaDots > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Optional subtle drift animation */
-@keyframes polkaDrift {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: 120px 120px;
-  }
-}
-
-.hasPolkaDots.isAnimated::before {
-  animation: polkaDrift var(--dot-speed, 120s) linear infinite;
-}
-
-/* Polka overlay that sits ABOVE a background (gradient/image) but BELOW content */
-.hasPolkaDots {
-  position: relative;
-}
-
-.hasPolkaDots::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;          /* boven background */
-  pointer-events: none;
-
-  --dot-color: rgba(255, 255, 255, 0.22);
-  --dot-size: 3px;
-  --dot-gap: 28px;
-  --dot-opacity: 0.35;
-
-  background-image:
-    radial-gradient(circle, var(--dot-color) var(--dot-size), transparent calc(var(--dot-size) + 1px));
-  background-size: var(--dot-gap) var(--dot-gap);
-  background-position: 0 0;
-  opacity: var(--dot-opacity);
-}
-
-.hasPolkaDots > * {
-  position: relative;
-  z-index: 2;          /* content boven dots */
-}
-
-/* Optional drift */
-@keyframes polkaDrift {
-  from { background-position: 0 0; }
-  to   { background-position: 160px 160px; }
-}
-
-.hasPolkaDots.isAnimated::before {
-  animation: polkaDrift var(--dot-speed, 160s) linear infinite;
-}
-
