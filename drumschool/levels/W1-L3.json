@@ -1,0 +1,80 @@
+{
+  "id": "W1-L3",
+  "worldId": "W1",
+  "title": "Je eerste figuur",
+  "intro": [
+    {
+      "text": "In deze les gaan we elke maat want anders spelen"
+    },
+    {
+      "text": "Kijk dus goed naar de noten op de tijdlijn"
+    },
+    {
+      "text": "Klap of tik ze mee in het tempo van de maat"
+    },
+    {
+      "text": "Jij kunt dit!"
+    }
+  ],
+  "ui": {
+    "showMetronome": true,
+    "showBpm": false,
+    "showHits": false,
+    "showHands": false,
+    "showPlayStop": true
+  },
+  "transport": {
+    "bpm": 90,
+    "bars": 4,
+    "stepsPerBar": 4,
+    "timeSig": "4/4"
+  },
+  "pattern": {
+    "bars": [
+      {
+        "hits": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "hands": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "hits": [
+          0,
+          1,
+          2
+        ],
+        "hands": [
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "hits": [
+          0,
+          1
+        ],
+        "hands": [
+          "",
+          ""
+        ]
+      },
+      {
+        "hits": [
+          0
+        ],
+        "hands": [
+          ""
+        ]
+      }
+    ]
+  }
+}
