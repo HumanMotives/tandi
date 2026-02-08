@@ -1,0 +1,82 @@
+{
+  "id": "W1-L4",
+  "worldId": "W1",
+  "title": "Goed nadenken!",
+  "intro": [
+    {
+      "text": "Klaar voor wat moeilijkers?"
+    },
+    {
+      "text": "Probeer de noten in elke maat na te spelen"
+    },
+    {
+      "text": "Je kunt het tempo sneller of langzamer zetten"
+    },
+    {
+      "text": "Oefen eerst langzaam, dan sneller"
+    }
+  ],
+  "ui": {
+    "showMetronome": true,
+    "showBpm": false,
+    "showHits": false,
+    "showHands": false,
+    "showPlayStop": true
+  },
+  "transport": {
+    "bpm": 90,
+    "bars": 4,
+    "stepsPerBar": 4,
+    "timeSig": "4/4"
+  },
+  "pattern": {
+    "bars": [
+      {
+        "hits": [
+          1,
+          2
+        ],
+        "hands": [
+          "",
+          ""
+        ]
+      },
+      {
+        "hits": [
+          1,
+          2
+        ],
+        "hands": [
+          "",
+          ""
+        ]
+      },
+      {
+        "hits": [
+          1,
+          2,
+          3
+        ],
+        "hands": [
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "hits": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "hands": [
+          "",
+          "",
+          "",
+          ""
+        ]
+      }
+    ]
+  }
+}
