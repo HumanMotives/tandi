@@ -1,8 +1,24 @@
 {
   "id": "W1-L2",
   "worldId": "W1",
-  "title": "Klap alleen de noten",
-  "intro": [],
+  "title": "Goed nadenken!",
+  "intro": [
+    {
+      "text": "In deze les spelen we niet alle noten..."
+    },
+    {
+      "text": "Klap of tik alleen de blauwe noten"
+    },
+    {
+      "text": "Bij de kleine grijze stippen hou je rust"
+    },
+    {
+      "text": "Tel in je hoofd wel 1,2,3,4 door"
+    },
+    {
+      "text": "Success!"
+    }
+  ],
   "ui": {
     "showMetronome": true,
     "showBpm": false,
