@@ -47,28 +47,21 @@ export function mountChatIntro({
 
   root.innerHTML = `
     <div class="introStage">
-
-      <div class="introTopBar" style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
-        <div class="introTopText">
-          ${title ? `<div class="introTitle">${escapeHtml(title)}</div>` : ""}
-          ${subtitle ? `<div class="introSubtitle">${escapeHtml(subtitle)}</div>` : ""}
-        </div>
-
-        <div style="display:flex; gap:10px;">
-          <button class="btn ghost" type="button" data-skip>Overslaan</button>
-        </div>
-      </div>
-
       <div class="introCenter">
         <div class="introCard">
           <div class="introBubbleWrap" style="align-items:flex-start;">
 
-            <div class="introBubbleBlock" style="width:min(720px, 92vw);">
+            <div class="introBubbleBlock introStack" style="width:min(720px, 92vw);">
+
+              <div class="introMeta">
+                ${title ? `<div class="introTitle">${escapeHtml(title)}</div>` : ""}
+                ${subtitle ? `<div class="introSubtitle">${escapeHtml(subtitle)}</div>` : ""}
+              </div>
 
               ${
                 imgSrc
-                  ? `<div class="introImageWrap" style="width:100%; display:flex; justify-content:center; margin: 0 0 14px 0;">
-                       <img class="introLessonImage" src="${escapeHtml(imgSrc)}" alt="" draggable="false" style="width:100%; max-width:720px; height:auto; border-radius:18px; border:4px solid rgba(0,0,0,0.85); box-shadow: 0 10px 0 rgba(0,0,0,0.10); background: rgba(255,255,255,0.65);" />
+                  ? `<div class="introImageWrap">
+                       <img class="introLessonImage" src="${escapeHtml(imgSrc)}" alt="" draggable="false" />
                      </div>`
                   : ""
               }
@@ -77,9 +70,13 @@ export function mountChatIntro({
                 <div class="introBubbleText" id="introBubbleText"></div>
               </div>
 
-              <div class="introControlsBelow" style="justify-content:center;">
-                <button class="btn primary" type="button" data-start>Start</button>
-                <button class="btn ghost" type="button" data-next>Volgende</button>
+              <div class="introActions">
+                <button class="introSkipLink" type="button" data-skip>Overslaan</button>
+
+                <div class="introActionsRight">
+                  <button class="btn primary" type="button" data-start>Start</button>
+                  <button class="btn primary" type="button" data-next>Volgende</button>
+                </div>
               </div>
 
             </div>
