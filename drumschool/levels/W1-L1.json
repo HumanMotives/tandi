@@ -3,27 +3,13 @@
   "worldId": "W1",
   "title": "Klap mee in de maat",
   "intro": [
-    {
-      "text": "Hoi wat leuk dat je er bent. Welkom!"
-    },
-    {
-      "text": "Drummen is ritme. Kun jij al tot vier tellen?"
-    },
-    {
-      "text": "Elke maat bestaat uit vier tellen..."
-    },
-    {
-      "text": "Klap met je handen elke tel mee in de maat"
-    },
-    {
-      "text": "Ben je er klaar voor?"
-    }
+    { "text": "Hoi wat leuk dat je er bent. Welkom!" },
+    { "text": "Drummen is ritme. Kun jij al tot vier tellen?" },
+    { "text": "Elke maat bestaat uit vier tellen..." },
+    { "text": "Klap met je handen elke tel mee in de maat" },
+    { "text": "Ben je er klaar voor?" }
   ],
-
-  "introImage": "/drumschool/assets/img/intro/W1-L1_01.png"
-
-  }
-  
+  "introImage": "/drumschool/assets/img/intro/W1-L1_01.png",
   "ui": {
     "showMetronome": true,
     "showBpm": false,
@@ -39,62 +25,10 @@
   },
   "pattern": {
     "bars": [
-      {
-        "hits": [
-          0,
-          1,
-          2,
-          3
-        ],
-        "hands": [
-          "R",
-          "L",
-          "R",
-          "L"
-        ]
-      },
-      {
-        "hits": [
-          0,
-          1,
-          2,
-          3
-        ],
-        "hands": [
-          "R",
-          "L",
-          "R",
-          "L"
-        ]
-      },
-      {
-        "hits": [
-          0,
-          1,
-          2,
-          3
-        ],
-        "hands": [
-          "R",
-          "L",
-          "R",
-          "L"
-        ]
-      },
-      {
-        "hits": [
-          0,
-          1,
-          2,
-          3
-        ],
-        "hands": [
-          "R",
-          "L",
-          "R",
-          "L"
-        ]
-      }
+      { "hits": [0, 1, 2, 3], "hands": ["R", "L", "R", "L"] },
+      { "hits": [0, 1, 2, 3], "hands": ["R", "L", "R", "L"] },
+      { "hits": [0, 1, 2, 3], "hands": ["R", "L", "R", "L"] },
+      { "hits": [0, 1, 2, 3], "hands": ["R", "L", "R", "L"] }
     ]
   },
   "worldTitle": "Wereld 1 - Jungle",
