@@ -1,159 +1,161 @@
 // ui/chatIntro.js
 
+/**
+ * Intro / tutorial chat (visual-only screen)
+ *
+ * Requirements (Feb 2026):
+ * - One image per lesson (lesson JSON: `introImage`), optional.
+ * - Small context line (world + level) above image.
+ * - Speech bubble with text (from lesson JSON `intro`).
+ * - Buttons: "Overslaan" -> go directly to lesson (same as done), "Volgende" / "Start".
+ * - No professor/teacher avatar.
+ * - Centered layout, mobile stacks naturally.
+ */
+
 export function mountChatIntro({
   container,
-  title = "Wereld",
-  subtitle = "",
-  professorName = "Professor", // compatibility: not used visually
-  professorAvatarSrc = "",      // used as hero image
+
+  // Context
+  title = "", // e.g. "Wereld 1 - Jungle"
+  subtitle = "", // e.g. "Klap mee in de maat"
+
+  // Single image for the lesson intro
+  introImage = "", // preferred
+  // Backward compatibility (older callers)
+  professorAvatarSrc = "",
+
+  // Script lines: supports array of strings OR array of {text}
   script = [],
-  autoAdvanceMs = 0,             // ignored: manual only
+
+  autoAdvanceMs = 0, // intentionally ignored (manual only)
   onDone = () => {},
   onSkip = () => {}
 }) {
-  if (!container) throw new Error("mountChatIntro: container ontbreekt.");
+  void autoAdvanceMs;
 
-  // Prevent a hard-to-kill "Lesson laden…" placeholder from staying visible
-  // above the intro (introduced by some mounts). Clearing here is safe because
-  // this screen fully owns the container while mounted.
-  container.innerHTML = "";
-
-  const lines = Array.isArray(script)
-    ? script
-        .map((l) => {
-          if (l == null) return "";
-          if (typeof l === "string") return l;
-          if (typeof l === "object") {
-            return String(l.text || l.msg || l.message || l.line || "");
-          }
-          return String(l);
-        })
-        .map((s) => String(s).trim())
-        .filter(Boolean)
-    : [];
-
-  if (lines.length === 0) {
-    lines.push("Klaar? Klik op Start.");
-  }
-
-  let idx = 0;
+  let index = 0;
 
   const root = document.createElement("div");
   root.className = "introScreen";
+
+  // Hard reset the container to avoid any legacy "Lesson laden" banners lingering
+  // (visual only, does not affect logic elsewhere)
+  container.innerHTML = "";
   container.appendChild(root);
 
-  const worldLine = String(title || "").trim();
-  const levelLine = String(subtitle || "").trim();
-
-  // Use professorAvatarSrc as the hero image to avoid changing callers
-  const heroSrc = String(professorAvatarSrc || "").trim();
+  const imgSrc = String(introImage || professorAvatarSrc || "").trim();
 
   root.innerHTML = `
-    <div class="introStage" style="display:flex;align-items:center;justify-content:center;">
-      <div class="introCard" style="width:min(980px,100%);">
+    <div class="introStage">
 
-        <div style="display:flex;flex-direction:column;gap:14px;align-items:center;">
+      <div class="introTopBar" style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <div class="introTopText">
+          ${title ? `<div class="introTitle">${escapeHtml(title)}</div>` : ""}
+          ${subtitle ? `<div class="introSubtitle">${escapeHtml(subtitle)}</div>` : ""}
+        </div>
 
-          <div style="width:100%;text-align:left;max-width:980px;">
-            <div style="font-family:var(--font-heading);font-weight:900;font-size:16px;opacity:0.9;">
-              ${escapeHtml(worldLine)}${levelLine ? ` · ${escapeHtml(levelLine)}` : ""}
-            </div>
-          </div>
-
-          ${heroSrc ? `
-            <div style="width:min(920px,100%);">
-              <div style="border:4px solid rgba(255,90,90,0.95);border-radius:28px;background:rgba(255,255,255,0.12);padding:0;overflow:hidden;">
-                <img src="${escapeAttr(heroSrc)}" alt="" style="width:100%;height:auto;display:block;" draggable="false" />
-              </div>
-            </div>
-          ` : ""}
-
-          <div style="width:min(920px,100%);position:relative;">
-            <div class="introBubble" style="background:rgba(255,255,255,0.92);border:4px solid rgba(0,0,0,0.92);border-radius:26px;box-shadow:none;padding:22px 22px 18px 22px;">
-              <div class="introBubbleText" data-chat-line style="font-family:var(--font-body);font-size:clamp(18px,2.2vw,30px);line-height:1.25;padding-right:92px;">
-                ${escapeHtml(lines[0])}
-              </div>
-            </div>
-
-            <button type="button" data-next
-              style="position:absolute;right:-12px;top:50%;transform:translateY(-50%);width:72px;height:72px;border-radius:999px;border:4px solid rgba(0,0,0,0.85);background:rgba(85,190,245,0.95);box-shadow:0 10px 0 rgba(0,0,0,0.18);display:grid;place-items:center;cursor:pointer;">
-              <span aria-hidden="true" style="font-family:var(--font-display);font-size:34px;color:rgba(0,0,0,0.85);">→</span>
-              <span class="hidden">Volgende</span>
-            </button>
-          </div>
-
-          <div style="width:min(920px,100%);display:flex;justify-content:center;gap:10px;">
-            <button type="button" class="btn" data-skip style="min-width:140px;">Overslaan</button>
-          </div>
-
+        <div style="display:flex; gap:10px;">
+          <button class="btn ghost" type="button" data-skip>Overslaan</button>
         </div>
       </div>
+
+      <div class="introCenter">
+        <div class="introCard">
+          <div class="introBubbleWrap" style="align-items:flex-start;">
+
+            <div class="introBubbleBlock" style="width:min(720px, 92vw);">
+
+              ${
+                imgSrc
+                  ? `<div class="introImageWrap" style="width:100%; display:flex; justify-content:center; margin: 0 0 14px 0;">
+                       <img class="introLessonImage" src="${escapeHtml(imgSrc)}" alt="" draggable="false" style="width:100%; max-width:720px; height:auto; border-radius:18px; border:4px solid rgba(0,0,0,0.85); box-shadow: 0 10px 0 rgba(0,0,0,0.10); background: rgba(255,255,255,0.65);" />
+                     </div>`
+                  : ""
+              }
+
+              <div class="introBubble">
+                <div class="introBubbleText" id="introBubbleText"></div>
+              </div>
+
+              <div class="introControlsBelow" style="justify-content:center;">
+                <button class="btn primary" type="button" data-start>Start</button>
+                <button class="btn ghost" type="button" data-next>Volgende</button>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
     </div>
   `;
 
-  const lineEl = root.querySelector("[data-chat-line]");
+  const bubbleTextEl = root.querySelector("#introBubbleText");
+  const startBtn = root.querySelector("[data-start]");
   const nextBtn = root.querySelector("[data-next]");
   const skipBtn = root.querySelector("[data-skip]");
 
-  function setLine(n) {
-    if (!lineEl) return;
-    lineEl.textContent = lines[n] || "";
+  renderLine();
+  updateButtons();
+
+  startBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    onDone();
+  });
+
+  nextBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    next();
+  });
+
+  skipBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    // Requirement: Overslaan should go directly into the lesson (same as done)
+    try { onSkip(); } catch {}
+    onDone();
+  });
+
+  function getLineText(line) {
+    if (typeof line === "string") return line;
+    if (line && typeof line === "object") return String(line.text || "");
+    return "";
   }
 
-  function goNext() {
-    if (idx < lines.length - 1) {
-      idx += 1;
-      setLine(idx);
+  function renderLine() {
+    if (!Array.isArray(script) || script.length === 0) {
+      bubbleTextEl.textContent = "Welkom!";
       return;
     }
-    cleanup();
-    onDone();
+    bubbleTextEl.textContent = getLineText(script[index]) || "";
   }
 
-  function skip() {
-    cleanup();
-    // Skip should behave like "done": go straight into the lesson.
-    // (The app can still decide what "done" means.)
-    onDone();
+  function updateButtons() {
+    const hasScript = Array.isArray(script) && script.length > 0;
+    const isLast = !hasScript || index >= script.length - 1;
+    nextBtn.style.display = isLast ? "none" : "inline-flex";
+    startBtn.style.display = isLast ? "inline-flex" : "none";
   }
 
-  if (nextBtn) nextBtn.addEventListener("click", goNext);
-  if (skipBtn) skipBtn.addEventListener("click", skip);
-
-  function onKey(e) {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      goNext();
-    }
-    if (e.key === "Escape") {
-      e.preventDefault();
-      skip();
-    }
-  }
-
-  window.addEventListener("keydown", onKey);
-
-  function cleanup() {
-    window.removeEventListener("keydown", onKey);
-    try { root.remove(); } catch {}
+  function next() {
+    if (!Array.isArray(script) || index >= script.length - 1) return;
+    index += 1;
+    renderLine();
+    updateButtons();
   }
 
   function unmount() {
-    cleanup();
+    root.remove();
   }
 
   return { unmount };
 }
 
-function escapeHtml(str) {
-  return String(str ?? "")
+function escapeHtml(s) {
+  return String(s ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-}
-
-function escapeAttr(str) {
-  return escapeHtml(str);
 }
