@@ -13,6 +13,11 @@ export function mountChatIntro({
 }) {
   if (!container) throw new Error("mountChatIntro: container ontbreekt.");
 
+  // Prevent a hard-to-kill "Lesson laden…" placeholder from staying visible
+  // above the intro (introduced by some mounts). Clearing here is safe because
+  // this screen fully owns the container while mounted.
+  container.innerHTML = "";
+
   const lines = Array.isArray(script)
     ? script
         .map((l) => {
@@ -107,7 +112,9 @@ export function mountChatIntro({
 
   function skip() {
     cleanup();
-    onSkip();
+    // Skip should behave like "done": go straight into the lesson.
+    // (The app can still decide what "done" means.)
+    onDone();
   }
 
   if (nextBtn) nextBtn.addEventListener("click", goNext);
