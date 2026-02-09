@@ -19,6 +19,9 @@
       "text": "Ben je er klaar voor?"
     }
   ],
+
+  "introImage": "/drumschool/assets/img/intro/W1-L1_01.png"
+  
   "ui": {
     "showMetronome": true,
     "showBpm": false,
