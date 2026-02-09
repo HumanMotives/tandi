@@ -159,24 +159,27 @@ function mountLessonIntro({ container, lessonKey, onStartLesson, onBackToLevels 
       const lesson = await loadLesson(lessonKey);
       if (!alive) return;
 
-      const title = "Drum School";
-      const subtitle = `${String(lessonKey)}`;
+      // Context above the intro image
+      const title = String(lesson?.worldTitle || lesson?.meta?.worldName || lesson?.worldName || "").trim();
+      const subtitle = String(lesson?.meta?.levelName || lesson?.title || "").trim() || String(lessonKey);
 
+      // Support intro as array of strings OR array of {text}
       const introLines = Array.isArray(lesson.intro) ? lesson.intro : [];
       const script = introLines
-        .map((x) => ({ from: "professor", text: String(x?.text || "").trim() }))
+        .map((x) => (typeof x === "string" ? { text: x } : x))
+        .map((x) => ({ text: String(x?.text || "").trim() }))
         .filter((x) => x.text);
 
       inner = mountChatIntro({
         container: root,
         title,
         subtitle,
-        professorName: "Professor Octo",
-        professorAvatarSrc: "./assets/img/professor_octo.png",
-        script: script.length ? script : [{ from: "professor", text: "Geen intro tekst gevonden." }],
+        introImage: String(lesson?.introImage || "").trim(),
+        script: script.length ? script : [{ text: "Geen intro tekst gevonden." }],
         autoAdvanceMs: 0,
         onDone: () => onStartLesson(),
-        onSkip: () => onBackToLevels()
+        // Requirement: Overslaan should go directly into the lesson (not back to levels)
+        onSkip: () => onStartLesson()
       });
     } catch (err) {
       if (!alive) return;
