@@ -1,10 +1,10 @@
 import { clamp } from './state.js';
 
 const CAMS = [
-  { id: 'A', name: 'A', label: 'Hall North' },
+  { id: 'A', name: 'A', label: 'West Hall' },
   { id: 'B', name: 'B', label: 'Dining' },
   { id: 'C', name: 'C', label: 'Storage' },
-  { id: 'D', name: 'D', label: 'Hall South' },
+  { id: 'D', name: 'D', label: 'East Hall' },
   { id: 'E', name: 'E', label: 'Vent Junction' },
   { id: 'F', name: 'F', label: 'Service Bay' },
 ];
@@ -222,13 +222,41 @@ export function createUI(){
 
     // place entities if present on this cam
     const entities = (ai && ai.getEntitiesOnCam) ? ai.getEntitiesOnCam(state, camId) : [];
+    let anyNear = false;
+
     entities.forEach((ent) => {
       const div = document.createElement('div');
       div.className = `entity ${ent.kind}`;
+
+      // Position
       div.style.left = ent.x + '%';
       div.style.top = ent.y + '%';
+
+      // Depth cues based on Y (top = far, bottom = near)
+      const y01 = Math.max(0, Math.min(1, ent.y / 80)); // normalize
+      const scale = 0.85 + y01 * 0.35;                  // 0.85..1.20
+      const blur = (1 - y01) * 1.8;                     // far = blurrier
+      const shadowY = y01 * 16;                         // near = heavier shadow drop
+      const shadowBlur = y01 * 26;
+
+      div.style.setProperty('--scale', String(scale));
+      div.style.setProperty('--blur', blur.toFixed(2) + 'px');
+      div.style.setProperty('--shadowY', shadowY.toFixed(1) + 'px');
+      div.style.setProperty('--shadowBlur', shadowBlur.toFixed(1) + 'px');
+
+      // Danger state when very close (near the bottom of the frame)
+      const isNear = ent.y >= 60;
+      if (isNear) {
+        anyNear = true;
+        div.classList.add('danger');
+      }
+
       scene.appendChild(div);
     });
+
+    // Camera zoom + danger vignette when something is close on this cam
+    el.camFrame.classList.toggle('zoomNear', anyNear);
+    el.camFrame.classList.toggle('dangerVignette', anyNear);
 
     el.camScene.appendChild(scene);
   }

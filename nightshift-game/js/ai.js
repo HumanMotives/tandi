@@ -239,7 +239,9 @@ export function createAI(){
         // deterministic-ish placement per cam+enemy
         const seed = (camId.charCodeAt(0) * 17 + m.kind.charCodeAt(0) * 7) % 1000;
         let x = 18 + (seed % 60);
-        let y = 18 + ((seed * 3) % 55);
+        // Depth based on route progress (top = far, bottom = close)
+        const progressRatio = m.enemy.idx / (m.enemy.route.length - 1);
+        let y = 15 + progressRatio * 65;
 
         // if at office entry, push closer to bottom so it feels like hallway proximity
         if (rawNode === 'OFFICE_LEFT') { x = 20; y = 58; }
