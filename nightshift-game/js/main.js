@@ -271,9 +271,10 @@ function tick(dt){
 
   // Update office threat silhouettes
   if (s.mode === 'office') {
-    app.ui.setThreat('left', s.office.threats.left.active);
-    app.ui.setThreat('right', s.office.threats.right.active);
-    app.ui.setThreat('vent', s.office.threats.vent.active);
+    const kinds = app.ai.getOfficeThreatKinds ? app.ai.getOfficeThreatKinds(s) : { left: null, right: null, vent: null };
+    app.ui.setThreat('left', s.office.threats.left.active, kinds.left);
+    app.ui.setThreat('right', s.office.threats.right.active, kinds.right);
+    app.ui.setThreat('vent', s.office.threats.vent.active, kinds.vent);
   }
 
 

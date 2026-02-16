@@ -143,10 +143,20 @@ export function createUI(){
   }
 
 
-  function setThreat(which, active){
-    if (which === 'left') el.hallLeft.classList.toggle('hidden', !active);
-    if (which === 'right') el.hallRight.classList.toggle('hidden', !active);
-    if (which === 'vent') el.ventThreat.classList.toggle('hidden', !active);
+  function setThreat(which, active, kind = null){
+    const node =
+      which === 'left' ? el.hallLeft :
+      which === 'right' ? el.hallRight :
+      el.ventThreat;
+
+    node.classList.toggle('hidden', !active);
+
+    // Only Warden uses the head asset in the hallway (left threat)
+    if (which === 'left') {
+      node.classList.toggle('wardenHead', active && kind === 'warden');
+    } else {
+      node.classList.remove('wardenHead');
+    }
   }
 
   function updateThreatLighting(state){
@@ -227,6 +237,16 @@ export function createUI(){
     entities.forEach((ent) => {
       const div = document.createElement('div');
       div.className = `entity ${ent.kind}`;
+
+      // Warden uses a real image (animatronic head) instead of the placeholder shape
+      if (ent.kind === 'warden') {
+        div.classList.add('hasImg');
+        const img = document.createElement('img');
+        img.className = 'entityImg';
+        img.alt = 'Warden';
+        img.src = './assets/img/warden.png';
+        div.appendChild(img);
+      }
 
       // Position
       div.style.left = ent.x + '%';

@@ -268,11 +268,24 @@ export function createAI(){
     return false;
   }
 
+  function getOfficeThreatKinds(state){
+    const wPos = enemies.warden.route[enemies.warden.idx];
+    const gPos = enemies.glint.route[enemies.glint.idx];
+    const sPos = enemies.whisper.route[enemies.whisper.idx];
+
+    return {
+      left: (state.office.threats.left.active && wPos === 'OFFICE_LEFT') ? 'warden' : null,
+      right: (state.office.threats.right.active && gPos === 'OFFICE_RIGHT') ? 'glint' : null,
+      vent: (state.office.threats.vent.active && sPos === 'OFFICE_VENT') ? 'whisper' : null,
+    };
+  }
+
   return {
     reset,
     update,
     checkLoss,
     getEntitiesOnCam,
     getSignalJammed,
+    getOfficeThreatKinds,
   };
 }
