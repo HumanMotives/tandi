@@ -36,6 +36,17 @@ function bindUI(){
     ui.setSettingsFromMenu();
     app.audio.setEnabled(ui.getSetting('audio'));
     ui.showScreen('office');
+    // Ensure scans work immediately and start clean
+    app.state.office.scan.left = false;
+    app.state.office.scan.right = false;
+    app.state.office.threats.left.active = false;
+    app.state.office.threats.right.active = false;
+    app.state.office.threats.vent.active = false;
+    ui.setScan('left', false);
+    ui.setScan('right', false);
+    ui.setThreat('left', false);
+    ui.setThreat('right', false);
+    ui.setThreat('vent', false);
     ui.logAlert('Systems online.');
     app.audio.playBoot();
   });
@@ -124,6 +135,11 @@ function setMode(mode){
 
   app.state.mode = mode;
   if (mode === 'office') {
+    // Release scans when returning to office
+    app.state.office.scan.left = false;
+    app.state.office.scan.right = false;
+    app.ui.setScan('left', false);
+    app.ui.setScan('right', false);
     app.ui.showScreen('office');
     app.audio.playClick();
   }
@@ -253,6 +269,14 @@ function tick(dt){
     if (ev.type === 'sound') app.audio.playSting(ev.kind);
   }
 
+  // Update office threat silhouettes
+  if (s.mode === 'office') {
+    app.ui.setThreat('left', s.office.threats.left.active);
+    app.ui.setThreat('right', s.office.threats.right.active);
+    app.ui.setThreat('vent', s.office.threats.vent.active);
+  }
+
+
   // If in cams, update feed visuals
   if (s.mode === 'cams') {
     app.ui.setCamera(s.camera.current, s, app.ai);
@@ -280,12 +304,18 @@ function computeUsage(s){
 
 function gameOver(){
   app.state.mode = 'gameover';
+  app.ui.setThreat('left', false);
+  app.ui.setThreat('right', false);
+  app.ui.setThreat('vent', false);
   app.ui.showScreen('gameover');
   app.audio.playJumpscare();
 }
 
 function winNight(){
   app.state.mode = 'win';
+  app.ui.setThreat('left', false);
+  app.ui.setThreat('right', false);
+  app.ui.setThreat('vent', false);
   app.ui.showScreen('win');
   app.audio.playWin();
 

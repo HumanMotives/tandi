@@ -46,6 +46,10 @@ export function createUI(){
     scanRight: document.getElementById('scanRight'),
     vent: document.getElementById('vent'),
 
+    hallLeft: document.getElementById('hallLeft'),
+    hallRight: document.getElementById('hallRight'),
+    ventThreat: document.getElementById('ventThreat'),
+
     alertLog: document.getElementById('alertLog'),
 
     mapGrid: document.getElementById('mapGrid'),
@@ -103,6 +107,9 @@ export function createUI(){
       b.style.background = (i < bars) ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.03)';
       b.style.borderColor = (i < bars) ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.12)';
     });
+
+    // threat lighting follows scan state
+    if (state && state.office) updateThreatLighting(state);
   }
 
   function formatTime(state){
@@ -133,6 +140,26 @@ export function createUI(){
 
   function setVentSealed(isSealed){
     el.vent.classList.toggle('isSealed', !!isSealed);
+  }
+
+
+  function setThreat(which, active){
+    if (which === 'left') el.hallLeft.classList.toggle('hidden', !active);
+    if (which === 'right') el.hallRight.classList.toggle('hidden', !active);
+    if (which === 'vent') el.ventThreat.classList.toggle('hidden', !active);
+  }
+
+  function updateThreatLighting(state){
+    // Make threats pop when the correct scan is held
+    const leftLit = state.office.scan.left;
+    const rightLit = state.office.scan.right;
+
+    el.hallLeft.classList.toggle('isLit', leftLit && !el.hallLeft.classList.contains('hidden'));
+    el.hallRight.classList.toggle('isLit', rightLit && !el.hallRight.classList.contains('hidden'));
+
+    // Vent threat lit by either scan (simple)
+    const ventLit = (leftLit || rightLit);
+    el.ventThreat.classList.toggle('isLit', ventLit && !el.ventThreat.classList.contains('hidden'));
   }
 
   function logAlert(text){
@@ -240,13 +267,30 @@ export function createUI(){
   el.btnDoorL.addEventListener('click', () => handlers.toggleDoor && handlers.toggleDoor('left'));
   el.btnDoorR.addEventListener('click', () => handlers.toggleDoor && handlers.toggleDoor('right'));
 
-  el.btnScanL.addEventListener('mousedown', () => handlers.scan && handlers.scan('left', true));
-  el.btnScanL.addEventListener('mouseup', () => handlers.scan && handlers.scan('left', false));
-  el.btnScanL.addEventListener('mouseleave', () => handlers.scan && handlers.scan('left', false));
+  // Scan buttons: pointer events with capture so they work immediately and reliably
+  el.btnScanL.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    el.btnScanL.setPointerCapture?.(e.pointerId);
+    handlers.scan && handlers.scan('left', true);
+  });
+  el.btnScanL.addEventListener('pointerup', (e) => {
+    e.preventDefault();
+    handlers.scan && handlers.scan('left', false);
+  });
+  el.btnScanL.addEventListener('pointercancel', () => handlers.scan && handlers.scan('left', false));
+  el.btnScanL.addEventListener('pointerleave', () => handlers.scan && handlers.scan('left', false));
 
-  el.btnScanR.addEventListener('mousedown', () => handlers.scan && handlers.scan('right', true));
-  el.btnScanR.addEventListener('mouseup', () => handlers.scan && handlers.scan('right', false));
-  el.btnScanR.addEventListener('mouseleave', () => handlers.scan && handlers.scan('right', false));
+  el.btnScanR.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    el.btnScanR.setPointerCapture?.(e.pointerId);
+    handlers.scan && handlers.scan('right', true);
+  });
+  el.btnScanR.addEventListener('pointerup', (e) => {
+    e.preventDefault();
+    handlers.scan && handlers.scan('right', false);
+  });
+  el.btnScanR.addEventListener('pointercancel', () => handlers.scan && handlers.scan('right', false));
+  el.btnScanR.addEventListener('pointerleave', () => handlers.scan && handlers.scan('right', false));
 
   el.btnVent.addEventListener('click', () => handlers.ventSeal && handlers.ventSeal());
 
@@ -273,6 +317,7 @@ export function createUI(){
     setDoor,
     setScan,
     setVentSealed,
+    setThreat,
     logAlert,
     setCamera,
     refreshBest,
