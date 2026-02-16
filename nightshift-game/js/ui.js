@@ -38,9 +38,7 @@ export function createUI(){
     btnDoorR: document.getElementById('btnDoorR'),
     btnScanL: document.getElementById('btnScanL'),
     btnScanR: document.getElementById('btnScanR'),
-    btnVent: document.getElementById('btnVent'),
-
-    doorLeft: document.getElementById('doorLeft'),
+doorLeft: document.getElementById('doorLeft'),
     doorRight: document.getElementById('doorRight'),
     scanLeft: document.getElementById('scanLeft'),
     scanRight: document.getElementById('scanRight'),
@@ -76,7 +74,7 @@ export function createUI(){
     setMode: null,
     toggleDoor: null,
     scan: null,
-    ventSeal: null,
+    /* vent removed */: null,
     selectCam: null,
     anyKeyGameOver: null,
   };
@@ -339,9 +337,6 @@ export function createUI(){
   });
   el.btnScanR.addEventListener('pointercancel', () => handlers.scan && handlers.scan('right', false));
   el.btnScanR.addEventListener('pointerleave', () => handlers.scan && handlers.scan('right', false));
-
-  el.btnVent.addEventListener('click', () => handlers.ventSeal && handlers.ventSeal());
-
   el.btnResume.addEventListener('click', () => handlers.resume && handlers.resume());
   el.btnQuit.addEventListener('click', () => handlers.quit && handlers.quit());
 
@@ -381,7 +376,7 @@ export function createUI(){
     onSetMode: (fn) => handlers.setMode = fn,
     onToggleDoor: (fn) => handlers.toggleDoor = fn,
     onScan: (fn) => handlers.scan = fn,
-    onVentSeal: (fn) => handlers.ventSeal = fn,
+    onVentSeal: (fn) => handlers./* vent removed */ = fn,
     onSelectCam: (fn) => handlers.selectCam = fn,
     onAnyKeyGameOver: (fn) => handlers.anyKeyGameOver = fn,
 
