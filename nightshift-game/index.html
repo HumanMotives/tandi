@@ -1,1 +1,239 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Night Shift: Prototype</title>
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <div id="app" class="app">
+    <!-- Top HUD -->
+    <header class="hud">
+      <div class="hudLeft">
+        <div class="brand">
+          <span class="brandDot"></span>
+          <span class="brandTitle">Night Shift</span>
+          <span class="brandSub">prototype</span>
+        </div>
+        <div class="hudStat">
+          <div class="label">Time</div>
+          <div id="hudTime" class="value">12:00 AM</div>
+        </div>
+        <div class="hudStat">
+          <div class="label">Power</div>
+          <div class="value"><span id="hudPower">100</span>%</div>
+        </div>
+        <div class="hudStat">
+          <div class="label">Usage</div>
+          <div id="hudUsage" class="usageBars" aria-label="usage meter">
+            <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+          </div>
+        </div>
+      </div>
 
+      <div class="hudRight">
+        <button id="btnCams" class="btn btnGhost" type="button">Cameras</button>
+        <button id="btnOffice" class="btn btnGhost" type="button">Office</button>
+        <button id="btnPause" class="btn btnGhost" type="button">Pause</button>
+      </div>
+    </header>
+
+    <!-- Main stage -->
+    <main class="stage">
+      <!-- MENU -->
+      <section id="screenMenu" class="screen screenMenu" aria-label="menu">
+        <div class="menuCard">
+          <h1 class="title">Night Shift</h1>
+          <p class="subtitle">Overleef tot 06:00. Beheer energie. Check camera's. Hou ze buiten.</p>
+
+          <div class="menuGrid">
+            <div class="menuPanel">
+              <h2>Play</h2>
+              <p class="muted">Start een nacht. Dit is een speelbare basis die je later kunt uitbreiden met betere art en meer mechanics.</p>
+              <button id="btnStart" class="btn btnPrimary" type="button">Start Night</button>
+              <div class="row">
+                <label class="inline">
+                  <span>Night</span>
+                  <select id="selectNight" class="select">
+                    <option value="1" selected>1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="menuPanel">
+              <h2>Controls</h2>
+              <ul class="list">
+                <li><b>1</b> Left door</li>
+                <li><b>2</b> Right door</li>
+                <li><b>Q</b> Left light/scan</li>
+                <li><b>E</b> Right light/scan</li>
+                <li><b>V</b> Vent seal</li>
+                <li><b>Tab</b> Toggle cameras</li>
+                <li><b>Esc</b> Pause</li>
+              </ul>
+            </div>
+
+            <div class="menuPanel">
+              <h2>Settings</h2>
+              <label class="inline">
+                <input id="chkAudio" type="checkbox" checked />
+                <span>Enable placeholder audio</span>
+              </label>
+              <label class="inline">
+                <input id="chkFlicker" type="checkbox" checked />
+                <span>Camera flicker</span>
+              </label>
+              <p class="muted small">Geen externe assets of copyrighted audio. Alles is placeholder.</p>
+            </div>
+          </div>
+
+          <div class="footerNote">
+            <span id="bestInfo" class="muted small"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- OFFICE -->
+      <section id="screenOffice" class="screen screenOffice hidden" aria-label="office">
+        <div class="officeWrap">
+          <div class="officeView" id="officeView" aria-label="office view">
+            <div class="officeVignette"></div>
+
+            <div class="door doorLeft" id="doorLeft">
+              <div class="doorLabel">LEFT</div>
+              <div class="doorPanel"></div>
+              <div class="doorEdge"></div>
+            </div>
+
+            <div class="door doorRight" id="doorRight">
+              <div class="doorLabel">RIGHT</div>
+              <div class="doorPanel"></div>
+              <div class="doorEdge"></div>
+            </div>
+
+            <div class="vent" id="vent">
+              <div class="ventLabel">VENT</div>
+              <div class="ventGrate"></div>
+            </div>
+
+            <div class="officeCenter">
+              <div class="desk"></div>
+              <div class="crtGlow"></div>
+              <div class="hint">Tab: Cameras • 1/2: Doors • Q/E: Scan • V: Vent</div>
+            </div>
+
+            <div id="scanLeft" class="scanCone scanLeft hidden"></div>
+            <div id="scanRight" class="scanCone scanRight hidden"></div>
+          </div>
+
+          <aside class="officeControls">
+            <div class="controlCard">
+              <h3>Office</h3>
+              <div class="controlRow">
+                <button id="btnDoorL" class="btn btnSecondary" type="button">Left Door</button>
+                <button id="btnScanL" class="btn btnGhost" type="button">Scan L</button>
+              </div>
+              <div class="controlRow">
+                <button id="btnDoorR" class="btn btnSecondary" type="button">Right Door</button>
+                <button id="btnScanR" class="btn btnGhost" type="button">Scan R</button>
+              </div>
+              <div class="controlRow">
+                <button id="btnVent" class="btn btnSecondary" type="button">Vent Seal</button>
+                <button id="btnCams2" class="btn btnPrimary" type="button">Open Cameras</button>
+              </div>
+              <div class="divider"></div>
+              <div class="miniLog">
+                <div class="miniTitle">Alerts</div>
+                <div id="alertLog" class="miniText">…</div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- CAMERAS -->
+      <section id="screenCams" class="screen screenCams hidden" aria-label="cameras">
+        <div class="camsWrap">
+          <div class="camFeed" id="camFeed" aria-label="camera feed">
+            <div class="camHeader">
+              <div class="camTitle">CAM <span id="camName">A</span></div>
+              <div class="camMeta">
+                <span class="pill" id="camSignal">SIGNAL OK</span>
+                <span class="pill">REC</span>
+              </div>
+            </div>
+
+            <div class="camFrame" id="camFrame">
+              <div class="camNoise"></div>
+              <div class="camScene" id="camScene">
+                <!-- JS injects placeholder scene -->
+              </div>
+              <div class="camFooter">
+                <div class="muted small">Click nodes on the map. Tab returns to Office.</div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="camMap">
+            <div class="mapCard">
+              <div class="mapTitle">Camera Map</div>
+              <div id="mapGrid" class="mapGrid" role="navigation" aria-label="camera map"></div>
+              <div class="divider"></div>
+              <div class="mapHints">
+                <div class="hintRow"><span class="dot dotA"></span><span>Warden</span></div>
+                <div class="hintRow"><span class="dot dotB"></span><span>Glint</span></div>
+                <div class="hintRow"><span class="dot dotC"></span><span>Whisper</span></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- PAUSE -->
+      <section id="screenPause" class="screen screenOverlay hidden" aria-label="pause">
+        <div class="overlayCard">
+          <h2>Paused</h2>
+          <p class="muted">Esc to resume.</p>
+          <div class="controlRow">
+            <button id="btnResume" class="btn btnPrimary" type="button">Resume</button>
+            <button id="btnQuit" class="btn btnSecondary" type="button">Quit to Menu</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- JUMPSCARE / GAMEOVER -->
+      <section id="screenGameOver" class="screen screenOverlay hidden" aria-label="game over">
+        <div class="jumpscare" id="jumpscare">
+          <div class="jumpscareFace"></div>
+          <div class="jumpscareText">
+            <div class="big">CAUGHT</div>
+            <div class="small muted">Press any key…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- WIN -->
+      <section id="screenWin" class="screen screenOverlay hidden" aria-label="win">
+        <div class="overlayCard">
+          <h2>06:00 AM</h2>
+          <p class="muted">You made it through the night.</p>
+          <div class="controlRow">
+            <button id="btnNextNight" class="btn btnPrimary" type="button">Next Night</button>
+            <button id="btnWinMenu" class="btn btnSecondary" type="button">Menu</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span class="muted small">Vanilla HTML/CSS/JS • no external assets • GitHub + Netlify friendly</span>
+    </footer>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
