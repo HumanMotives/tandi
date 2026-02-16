@@ -41,12 +41,10 @@ function bindUI(){
     app.state.office.scan.right = false;
     app.state.office.threats.left.active = false;
     app.state.office.threats.right.active = false;
-    app.state.office.threats.vent.active = false;
     ui.setScan('left', false);
     ui.setScan('right', false);
     ui.setThreat('left', false);
     ui.setThreat('right', false);
-    ui.setThreat('vent', false);
     ui.logAlert('Systems online.');
     app.audio.playBoot();
   });
@@ -185,8 +183,8 @@ function setScan(side, isDown){
 
 function toggleVentSeal(){
   if (app.state.mode !== 'office') return;
-  app.state.office.ventSealed = !app.state.office.ventSealed;
-  app.ui.setVentSealed(app.state.office.ventSealed);
+  app.state.office./*ventRemoved*/false = !app.state.office./*ventRemoved*/false;
+  app.ui.setVentSealed(app.state.office./*ventRemoved*/false);
   app.audio.playClick();
 }
 
@@ -251,7 +249,7 @@ function tick(dt){
     s.office.doors.right.closed = false;
     s.office.scan.left = false;
     s.office.scan.right = false;
-    s.office.ventSealed = false;
+    s.office./*ventRemoved*/false = false;
     app.ui.setDoor('left', false);
     app.ui.setDoor('right', false);
     app.ui.setScan('left', false);
@@ -271,10 +269,9 @@ function tick(dt){
 
   // Update office threat silhouettes
   if (s.mode === 'office') {
-    const kinds = app.ai.getOfficeThreatKinds ? app.ai.getOfficeThreatKinds(s) : { left: null, right: null, vent: null };
+    const kinds = app.ai.getOfficeThreatKinds ? app.ai.getOfficeThreatKinds(s) : { left: null, right: null };
     app.ui.setThreat('left', s.office.threats.left.active, kinds.left);
     app.ui.setThreat('right', s.office.threats.right.active, kinds.right);
-    app.ui.setThreat('vent', s.office.threats.vent.active, kinds.vent);
   }
 
 
@@ -298,7 +295,7 @@ function computeUsage(s){
   if (s.office.doors.left.closed) bars += 1;
   if (s.office.doors.right.closed) bars += 1;
   if (s.office.scan.left || s.office.scan.right) bars += 1;
-  if (s.office.ventSealed) bars += 1;
+  if (s.office./*ventRemoved*/false) bars += 1;
 
   return clamp(bars, 1, 5);
 }
@@ -307,7 +304,6 @@ function gameOver(){
   app.state.mode = 'gameover';
   app.ui.setThreat('left', false);
   app.ui.setThreat('right', false);
-  app.ui.setThreat('vent', false);
   app.ui.showScreen('gameover');
   app.audio.playJumpscare();
 }
@@ -316,7 +312,6 @@ function winNight(){
   app.state.mode = 'win';
   app.ui.setThreat('left', false);
   app.ui.setThreat('right', false);
-  app.ui.setThreat('vent', false);
   app.ui.showScreen('win');
   app.audio.playWin();
 

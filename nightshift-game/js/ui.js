@@ -5,8 +5,7 @@ const CAMS = [
   { id: 'B', name: 'B', label: 'Dining' },
   { id: 'C', name: 'C', label: 'Storage' },
   { id: 'D', name: 'D', label: 'East Hall' },
-  { id: 'E', name: 'E', label: 'Vent Junction' },
-  { id: 'F', name: 'F', label: 'Service Bay' },
+    { id: 'F', name: 'F', label: 'Service Bay' },
 ];
 
 export function createUI(){
@@ -38,17 +37,14 @@ export function createUI(){
     btnDoorR: document.getElementById('btnDoorR'),
     btnScanL: document.getElementById('btnScanL'),
     btnScanR: document.getElementById('btnScanR'),
-    btnVent: document.getElementById('btnVent'),
 
     doorLeft: document.getElementById('doorLeft'),
     doorRight: document.getElementById('doorRight'),
     scanLeft: document.getElementById('scanLeft'),
     scanRight: document.getElementById('scanRight'),
-    vent: document.getElementById('vent'),
 
     hallLeft: document.getElementById('hallLeft'),
     hallRight: document.getElementById('hallRight'),
-    ventThreat: document.getElementById('ventThreat'),
 
     alertLog: document.getElementById('alertLog'),
 
@@ -138,24 +134,22 @@ export function createUI(){
     node.classList.toggle('active', !!active);
   }
 
-  function setVentSealed(isSealed){
-    el.vent.classList.toggle('isSealed', !!isSealed);
-  }
-
 
   function setThreat(which, active, kind = null){
-    const node =
-      which === 'left' ? el.hallLeft :
-      which === 'right' ? el.hallRight :
-      el.ventThreat;
-
+    const node = which === 'left' ? el.hallLeft : el.hallRight;
     node.classList.toggle('hidden', !active);
 
-    // Only Warden uses the head asset in the hallway (left threat)
+    // Hallway head assets
     if (which === 'left') {
       node.classList.toggle('wardenHead', active && kind === 'warden');
     } else {
       node.classList.remove('wardenHead');
+    }
+
+    if (which === 'right') {
+      node.classList.toggle('glintHead', active && kind === 'glint');
+    } else {
+      node.classList.remove('glintHead');
     }
   }
 
@@ -166,9 +160,6 @@ export function createUI(){
 
     el.hallLeft.classList.toggle('isLit', leftLit && !el.hallLeft.classList.contains('hidden'));
     el.hallRight.classList.toggle('isLit', rightLit && !el.hallRight.classList.contains('hidden'));
-
-    // Vent threat lit by either scan (simple)
-    const ventLit = (leftLit || rightLit);
     el.ventThreat.classList.toggle('isLit', ventLit && !el.ventThreat.classList.contains('hidden'));
   }
 
@@ -271,6 +262,16 @@ export function createUI(){
         div.classList.add('danger');
       }
 
+      // Glint uses a real image (blue giraffe animatronic head)
+      if (ent.kind === 'glint') {
+        div.classList.add('hasImg');
+        const img = document.createElement('img');
+        img.className = 'entityImg';
+        img.alt = 'Glint';
+        img.src = './assets/img/glint.png';
+        div.appendChild(img);
+      }
+
       scene.appendChild(div);
     });
 
@@ -340,14 +341,6 @@ export function createUI(){
   el.btnScanR.addEventListener('pointercancel', () => handlers.scan && handlers.scan('right', false));
   el.btnScanR.addEventListener('pointerleave', () => handlers.scan && handlers.scan('right', false));
 
-  el.btnVent.addEventListener('click', () => handlers.ventSeal && handlers.ventSeal());
-
-  el.btnResume.addEventListener('click', () => handlers.resume && handlers.resume());
-  el.btnQuit.addEventListener('click', () => handlers.quit && handlers.quit());
-
-  el.btnNextNight.addEventListener('click', () => handlers.nextNight && handlers.nextNight());
-  el.btnWinMenu.addEventListener('click', () => handlers.quit && handlers.quit());
-
   // game over any key
   window.addEventListener('keydown', () => {
     if (!handlers.anyKeyGameOver) return;
@@ -364,7 +357,6 @@ export function createUI(){
     updateHUD,
     setDoor,
     setScan,
-    setVentSealed,
     setThreat,
     logAlert,
     setCamera,

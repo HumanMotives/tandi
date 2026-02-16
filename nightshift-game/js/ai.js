@@ -51,11 +51,11 @@ export function createAI(){
   function reset(state){
     enemies.warden.idx = 0;
     enemies.glint.idx = 0;
-    enemies.whisper.idx = 0;
+    null.idx = 0;
 
     enemies.warden.moveCooldown = 6;
     enemies.glint.moveCooldown = 8;
-    enemies.whisper.moveCooldown = 10;
+    null.moveCooldown = 10;
 
     enemies.glint.camAggro = 0;
   }
@@ -75,7 +75,6 @@ export function createAI(){
     // Update each enemy movement
     stepEnemy(state, enemies.warden, dt, events);
     stepEnemy(state, enemies.glint, dt, events);
-    stepEnemy(state, enemies.whisper, dt, events);
 
 
     // Sync threat windows (give player time to react and show silhouettes)
@@ -122,112 +121,6 @@ export function createAI(){
   function mapLabel(node){
     if (node === 'OFFICE_LEFT') return 'Left Door';
     if (node === 'OFFICE_RIGHT') return 'Right Door';
-    if (node === 'OFFICE_VENT') return 'Vent';
-    return `CAM ${node}`;
-  }
-
-
-  function syncThreatWindows(state, dt, events){
-    // Decrement timers
-    for (const k of ['left','right','vent']) {
-      const t = state.office.threats[k];
-      if (t.active) t.timer = Math.max(0, t.timer - dt);
-    }
-
-    const wPos = enemies.warden.route[enemies.warden.idx];
-    const gPos = enemies.glint.route[enemies.glint.idx];
-    const sPos = enemies.whisper.route[enemies.whisper.idx];
-
-    // Warden triggers left entry threat
-    if (wPos === 'OFFICE_LEFT' && !state.office.threats.left.active) {
-      state.office.threats.left.active = true;
-      state.office.threats.left.timer = 3.0;
-      events.push({ type: 'alert', text: 'A shape blocks the left hall.' });
-      events.push({ type: 'sound', kind: 'scrape' });
-    }
-
-    // Glint triggers right entry threat
-    if (gPos === 'OFFICE_RIGHT' && !state.office.threats.right.active) {
-      state.office.threats.right.active = true;
-      state.office.threats.right.timer = 3.0;
-      events.push({ type: 'alert', text: 'A reflection stirs on the right.' });
-      events.push({ type: 'sound', kind: 'scrape' });
-    }
-
-    // Whisper triggers vent threat
-    if (sPos === 'OFFICE_VENT' && !state.office.threats.vent.active) {
-      state.office.threats.vent.active = true;
-      state.office.threats.vent.timer = 3.2;
-      events.push({ type: 'alert', text: 'Air pressure drops near the vent.' });
-      events.push({ type: 'sound', kind: 'scrape' });
-    }
-
-    // If player successfully blocks, push enemy back and clear threat
-    if (state.office.threats.left.active && state.office.doors.left.closed && !state.power.out) {
-      // push Warden back
-      enemies.warden.idx = Math.max(1, enemies.warden.idx - 1);
-      enemies.warden.moveCooldown = 8;
-      state.office.threats.left.active = false;
-      state.office.threats.left.timer = 0;
-      events.push({ type: 'alert', text: 'Left hall clears.' });
-    }
-
-    if (state.office.threats.right.active && state.office.doors.right.closed && !state.power.out) {
-      enemies.glint.idx = Math.max(1, enemies.glint.idx - 1);
-      enemies.glint.moveCooldown = 9;
-      state.office.threats.right.active = false;
-      state.office.threats.right.timer = 0;
-      events.push({ type: 'alert', text: 'Right side quiets down.' });
-    }
-
-    if (state.office.threats.vent.active && state.office.ventSealed && !state.power.out) {
-      enemies.whisper.idx = Math.max(1, enemies.whisper.idx - 1);
-      enemies.whisper.moveCooldown = 10;
-      state.office.threats.vent.active = false;
-      state.office.threats.vent.timer = 0;
-      events.push({ type: 'alert', text: 'Vent pressure normalizes.' });
-    }
-  }
-
-  function checkLoss(state){
-    // If power is out, threats are lethal immediately when enemy is at entry
-    const wPos = enemies.warden.route[enemies.warden.idx];
-    const gPos = enemies.glint.route[enemies.glint.idx];
-    const sPos = enemies.whisper.route[enemies.whisper.idx];
-
-    if (state.power.out) {
-      if (wPos === 'OFFICE_LEFT') return true;
-      if (gPos === 'OFFICE_RIGHT') return true;
-      if (sPos === 'OFFICE_VENT') return true;
-    }
-
-    // Threat windows: if timer runs out and entry not blocked, player loses
-    const tL = state.office.threats.left;
-    const tR = state.office.threats.right;
-    const tV = state.office.threats.vent;
-
-    if (tL.active && tL.timer <= 0 && !state.office.doors.left.closed) return true;
-    if (tR.active && tR.timer <= 0 && !state.office.doors.right.closed) return true;
-    if (tV.active && tV.timer <= 0 && !state.office.ventSealed) return true;
-
-    return false;
-  }
-
-  function getEntitiesOnCam(state, camId){
-    // Show enemies on cameras based on their current node.
-    // If they are at office entries, map them to the closest camera so you can still see them.
-    const ents = [];
-    const mappings = [
-      { enemy: enemies.warden, kind: 'warden' },
-      { enemy: enemies.glint, kind: 'glint' },
-      { enemy: enemies.whisper, kind: 'whisper' },
-    ];
-
-    const mapOfficeNodeToCam = (node) => {
-      if (node === 'OFFICE_LEFT') return 'D';   // hall south
-      if (node === 'OFFICE_RIGHT') return 'D';  // hall south
-      if (node === 'OFFICE_VENT') return 'E';   // vent junction
-      if (node === 'VENT') return 'E';
       return node;
     };
 
@@ -246,7 +139,6 @@ export function createAI(){
         // if at office entry, push closer to bottom so it feels like hallway proximity
         if (rawNode === 'OFFICE_LEFT') { x = 20; y = 58; }
         if (rawNode === 'OFFICE_RIGHT') { x = 70; y = 58; }
-        if (rawNode === 'OFFICE_VENT') { x = 46; y = 54; }
 
         ents.push({ kind: m.kind, x, y });
       }
@@ -257,7 +149,6 @@ export function createAI(){
 
   function getSignalJammed(state, camId){
     // if Whisper is at E or VENT, add chance of weak signal
-    const sPos = enemies.whisper.route[enemies.whisper.idx];
     if (sPos === 'E' || sPos === 'VENT') {
       return Math.random() < 0.28;
     }
@@ -271,12 +162,10 @@ export function createAI(){
   function getOfficeThreatKinds(state){
     const wPos = enemies.warden.route[enemies.warden.idx];
     const gPos = enemies.glint.route[enemies.glint.idx];
-    const sPos = enemies.whisper.route[enemies.whisper.idx];
 
     return {
       left: (state.office.threats.left.active && wPos === 'OFFICE_LEFT') ? 'warden' : null,
       right: (state.office.threats.right.active && gPos === 'OFFICE_RIGHT') ? 'glint' : null,
-      vent: (state.office.threats.vent.active && sPos === 'OFFICE_VENT') ? 'whisper' : null,
     };
   }
 
