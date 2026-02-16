@@ -36,11 +36,13 @@ export function createInitialState(opts = {}){
         left: false,
         right: false,
       },
+      
 
       // Threat windows: when an enemy reaches an entry, the player gets a short reaction window
       threats: {
         left: { active: false, timer: 0 },
         right: { active: false, timer: 0 },
+        // vent removed { active: false, timer: 0 },
       },
     },
 
