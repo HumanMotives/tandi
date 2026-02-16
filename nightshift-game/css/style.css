@@ -840,3 +840,51 @@ b{ font-weight: 800; }
     radial-gradient(closest-side at 50% 40%, rgba(255,255,255,0.20), transparent 70%),
     radial-gradient(closest-side at 50% 80%, rgba(255,210,110,0.18), rgba(0,0,0,0.78));
 }
+
+
+/* Camera depth cues */
+.entity{
+  transform: translateZ(0) scale(var(--scale, 1));
+  filter: blur(var(--blur, 0px)) saturate(1.0);
+  box-shadow:
+    0 calc(14px + var(--shadowY, 0px)) calc(40px + var(--shadowBlur, 0px)) rgba(0,0,0,0.55),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+  transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.entity.danger{
+  border-color: rgba(255,64,64,0.35) !important;
+  background:
+    radial-gradient(closest-side at 50% 30%, rgba(255,255,255,0.16), transparent 70%),
+    radial-gradient(closest-side at 50% 70%, rgba(255,64,64,0.18), rgba(0,0,0,0.78));
+}
+
+.entity.danger::before{
+  background: rgba(255,64,64,0.18);
+  box-shadow: 0 0 0 4px rgba(255,64,64,0.08);
+}
+
+/* Camera "zoom" effect when something is close */
+.camFrame.zoomNear .camNoise{ opacity: 0.32; }
+.camFrame.zoomNear .camScene{
+  transform: scale(1.02);
+  transition: transform 160ms ease;
+}
+.camFrame .camScene{ transform: scale(1.0); transition: transform 220ms ease; }
+
+/* Danger vignette overlay */
+.camFrame::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background: radial-gradient(circle at 50% 55%, transparent 40%, rgba(0,0,0,0.55) 78%);
+  opacity: 0.55;
+}
+
+.camFrame.dangerVignette::after{
+  background:
+    radial-gradient(circle at 50% 55%, transparent 35%, rgba(0,0,0,0.60) 78%),
+    radial-gradient(700px 420px at 50% 70%, rgba(255,64,64,0.18), transparent 65%);
+  opacity: 0.85;
+}
