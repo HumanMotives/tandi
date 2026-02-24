@@ -1,86 +1,86 @@
 
 body{
-  margin:0;
-  font-family:system-ui, sans-serif;
-  background:#111;
-  color:#fff;
+margin:0;
+font-family:system-ui;
+background:#111;
+color:#fff;
 }
 
 header{
-  padding:14px 20px;
-  border-bottom:1px solid #222;
-  letter-spacing:2px;
-  font-weight:700;
-  font-size:12px;
+padding:16px;
+border-bottom:1px solid #222;
+letter-spacing:2px;
+font-size:12px;
 }
 
-.layout{
-  display:flex;
-  gap:30px;
-  padding:20px;
+.wrap{
+display:flex;
+gap:40px;
+padding:20px;
 }
 
 .controls{
-  width:420px;
+width:420px;
 }
 
 textarea{
-  width:100%;
-  height:120px;
-  background:#000;
-  color:#fff;
-  border:1px solid #333;
-  padding:10px;
+width:100%;
+height:120px;
+background:#000;
+color:#fff;
+border:1px solid #333;
+padding:10px;
 }
 
 .row{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
+display:flex;
+gap:10px;
+margin-top:10px;
 }
 
 label{
-  font-size:12px;
-  display:flex;
-  flex-direction:column;
-  flex:1;
+display:flex;
+flex-direction:column;
+font-size:12px;
+flex:1;
 }
 
-input, select{
-  margin-top:4px;
-  padding:6px;
-  background:#000;
-  color:#fff;
-  border:1px solid #333;
+input,select{
+margin-top:4px;
+padding:6px;
+background:#000;
+color:#fff;
+border:1px solid #333;
 }
 
 button{
-  margin-top:12px;
-  padding:10px;
-  background:#000;
-  color:#fff;
-  border:1px solid #444;
-  cursor:pointer;
+margin-top:12px;
+padding:10px;
+background:#000;
+color:#fff;
+border:1px solid #444;
+cursor:pointer;
 }
 
-.previewArea{
-  flex:1;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+.preview{
+flex:1;
+display:flex;
+justify-content:center;
+align-items:center;
 }
 
-.phoneFrame{
-  width:360px;
-  height:640px;
-  background:#222;
-  border-radius:30px;
-  padding:20px;
-  box-shadow:0 0 40px rgba(0,0,0,0.6);
+.phone{
+width:360px;
+height:640px;
+border-radius:28px;
+background:#222;
+padding:18px;
+box-shadow:0 0 40px rgba(0,0,0,0.7);
 }
 
 canvas{
-  width:100%;
-  height:100%;
-  background:black;
+width:100%;
+height:100%;
+display:block;
+background:black;
 }
