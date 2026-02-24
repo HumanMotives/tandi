@@ -1,110 +1,77 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>VOID KULTUR • Type Engine</title>
-  <link rel="stylesheet" href="./style.css" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>VOID KULTUR • Type Engine v2</title>
+<link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <header class="top">
-    <div class="brand">
-      <div class="dot"></div>
-      <div class="title">VOID KULTUR • TYPE ENGINE</div>
+
+<header>
+  <div class="brand">VOID KULTUR • TYPE ENGINE v2</div>
+</header>
+
+<main class="layout">
+
+  <section class="controls">
+    <h3>WORDS</h3>
+    <textarea id="words">SPECTERS
+RITUAL_
+AGAIN</textarea>
+
+    <div class="row">
+      <label>Seconds per word
+        <input id="secPerWord" type="number" step="0.1" value="0.8" />
+      </label>
+      <label>Total duration (sec)
+        <input id="totalSec" type="number" value="12" />
+      </label>
     </div>
-    <div class="hint">Fast cryptic typography reels generator (preview + record)</div>
-  </header>
 
-  <main class="grid">
-    <section class="panel">
-      <h2>Words / Lines</h2>
-      <textarea id="words" spellcheck="false">RITUAL_
-AGAIN
-FOLD
-STAY
-UNSEEN
-PHASE II
-STATIC REMAINS</textarea>
+    <div class="row">
+      <label>Letter animation
+        <select id="letterMode">
+          <option value="none">None</option>
+          <option value="sequential" selected>Sequential</option>
+        </select>
+      </label>
+      <label>Layout
+        <select id="layoutMode">
+          <option value="center" selected>Center</option>
+          <option value="vertical">Vertical stack</option>
+          <option value="horizontal">Horizontal spread</option>
+        </select>
+      </label>
+    </div>
 
-      <div class="row">
-        <label>
-          Seconds per word
-          <input id="secPerWord" type="number" min="0.2" step="0.1" value="0.55" />
-        </label>
-        <label>
-          Total seconds (record)
-          <input id="totalSec" type="number" min="1" step="1" value="12" />
-        </label>
-      </div>
+    <div class="row">
+      <label>Size scale
+        <input id="sizeScale" type="range" min="40" max="140" value="100" />
+      </label>
+      <label>Background
+        <select id="bgMode">
+          <option value="black" selected>Black</option>
+          <option value="white">White</option>
+        </select>
+      </label>
+    </div>
 
-      <div class="row">
-        <label>
-          FPS (record)
-          <input id="fps" type="number" min="24" step="1" value="60" />
-        </label>
-        <label>
-          Resolution
-          <select id="res">
-            <option value="1080x1920" selected>1080×1920 (Reels/TikTok)</option>
-            <option value="720x1280">720×1280</option>
-            <option value="2160x3840">2160×3840 (4K vertical)</option>
-          </select>
-        </label>
-      </div>
+    <button id="previewBtn">Preview</button>
+    <button id="stopBtn">Stop</button>
+    <button id="recordBtn">Record + Download</button>
 
-      <div class="row">
-        <label>
-          Font
-          <select id="font">
-            <option value="system" selected>System Bold (fast)</option>
-            <option value="condensed">Condensed</option>
-            <option value="mono">Mono</option>
-          </select>
-        </label>
-        <label>
-          Style
-          <select id="style">
-            <option value="blackred" selected>Black / Grey / Red</option>
-            <option value="whitevoid">White Void</option>
-            <option value="inverted">Inverted</option>
-          </select>
-        </label>
-      </div>
+    <div id="status">Idle</div>
+  </section>
 
-      <div class="row">
-        <label>
-          Glitch intensity
-          <input id="glitch" type="range" min="0" max="100" value="45" />
-        </label>
-        <label>
-          Jitter
-          <input id="jitter" type="range" min="0" max="100" value="35" />
-        </label>
-      </div>
+  <section class="previewArea">
+    <div class="phoneFrame">
+      <canvas id="canvas"></canvas>
+    </div>
+  </section>
 
-      <div class="row buttons">
-        <button id="btnPreview" class="primary">Start preview</button>
-        <button id="btnStop">Stop</button>
-        <button id="btnRecord" class="danger">Record + download</button>
-      </div>
+</main>
 
-      <div class="small">
-        Output downloads as <b>.webm</b> (best browser support). Convert to MP4 with ffmpeg if needed.
-      </div>
-
-      <div id="status" class="status">Idle</div>
-    </section>
-
-    <section class="stage">
-      <canvas id="c"></canvas>
-      <div class="stageHint">Tip: if preview stutters, lower resolution to 720×1280.</div>
-    </section>
-  </main>
-
-  <footer class="foot">
-    <div>Made for rapid VOID KULTUR editorial loops.</div>
-  </footer>
-
-  <script type="module" src="./app.js"></script>
+<script type="module" src="./app.js"></script>
 </body>
 </html>
