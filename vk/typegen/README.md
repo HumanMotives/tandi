@@ -1,34 +1,25 @@
-# VOID KULTUR • Type Engine
+# VOID KULTUR • Type Engine v5 (Alpha)
 
-A tiny web tool to generate fast cryptic typographic loops (vertical reels) with **preview + one-click recording**.
+This version adds **transparent background export** so you get *only the letters* in the video.
 
-## What it does
-- Type words/lines (one per line)
-- Generates bold editorial typography animation on a canvas
-- Lets you **record** and download a video (WebM) via the browser
-
-## Run locally
-Any static server works:
-
-### Option A: VS Code Live Server
-Open the folder and run Live Server on `index.html`.
-
-### Option B: Python
+## Run
+Use any static server:
+- VS Code Live Server, or
 ```bash
 python3 -m http.server 8080
 ```
-Then open `http://localhost:8080/voidkultur-type-engine/`
 
-## Export format
-Browsers reliably record to **WebM**.
+## Transparent export notes
+- Set **Background → Transparent (alpha)**
+- Click **Record**
+- Output is **WebM** (VP8/VP9). In most Chromium browsers, this can carry alpha.
 
-### Convert to MP4 (recommended)
-If you need MP4 for some workflows, convert with ffmpeg:
+### Convert to .mov with alpha (recommended)
+If your editor needs a .mov with transparency, convert WebM → ProRes 4444:
 
 ```bash
-ffmpeg -i input.webm -c:v libx264 -pix_fmt yuv420p -movflags +faststart output.mp4
+ffmpeg -i input.webm -c:v prores_ks -profile:v 4 -pix_fmt yuva444p10le output.mov
 ```
 
-## Notes
-- 1080×1920 @ 60fps is a lot. If preview stutters, use 720×1280.
-- If you want: a "preset pack" that matches your exact VK typography grid and spacing, we can lock those rules in.
+## MP4 warning
+MP4 (H.264/H.265) typically does **not** support an alpha channel for this workflow.

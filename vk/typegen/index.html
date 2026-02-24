@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>VOID KULTUR • Type Engine v4</title>
+<title>VOID KULTUR • Type Engine v5 (Alpha)</title>
 <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
-<header>VOID KULTUR • TYPE ENGINE v4</header>
+<header>VOID KULTUR • TYPE ENGINE v5 (ALPHA)</header>
 
 <main class="wrap">
 
@@ -56,6 +56,7 @@ AGAIN</textarea>
 <div class="row">
 <label>Background
 <select id="bgMode">
+<option value="transparent" selected>Transparent (alpha)</option>
 <option value="black">Black</option>
 <option value="white">White</option>
 </select>
@@ -63,7 +64,7 @@ AGAIN</textarea>
 
 <label>Font Color
 <select id="fontPreset">
-<option value="white">White</option>
+<option value="white" selected>White</option>
 <option value="black">Black</option>
 <option value="red">Red</option>
 <option value="custom">Custom</option>
@@ -75,23 +76,29 @@ AGAIN</textarea>
 <label>Custom Color
 <input id="fontColor" type="color" value="#ffffff"/>
 </label>
+<label>FPS (record)
+<input id="fps" type="number" min="24" max="120" value="60"/>
+</label>
 </div>
 
 <button id="previewBtn">Preview</button>
 <button id="stopBtn">Stop</button>
-<button id="recordBtn">Record</button>
+<button id="recordBtn">Record (WebM w/ alpha)</button>
 
 <div id="status">Idle</div>
 
 <div class="note">
-Export is <b>WebM</b>. Convert to MP4 with ffmpeg if needed.
+<b>Transparent export:</b> WebM (VP8/VP9) can carry alpha in most Chromium browsers. MP4 generally cannot.<br/>
+If your editor dislikes WebM alpha, convert to ProRes 4444 (see README).
 </div>
 
 </section>
 
 <section class="preview">
 <div class="phone">
+<div class="checker">
 <canvas id="canvas"></canvas>
+</div>
 </div>
 </section>
 
