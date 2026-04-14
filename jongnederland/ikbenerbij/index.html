@@ -9,17 +9,20 @@
       --bg: #f6f3ec;
       --card: #ffffff;
       --text: #17324d;
-      --muted: #5d7083;
-      --green: #14a05a;
-      --green-dark: #0b7d45;
-      --blue: #1260c9;
-      --blue-dark: #0d4b9b;
-      --border: rgba(23, 50, 77, 0.08);
-      --shadow: 0 10px 30px rgba(23, 50, 77, 0.08);
+      --muted: #6f7f8f;
+      --green: #15a457;
+      --green-dark: #0d7a40;
+      --green-soft: #e8f6ee;
+      --blue: #1462c8;
+      --blue-dark: #0d4d9e;
+      --blue-soft: #eaf2fd;
+      --orange: #ff8c2f;
+      --orange-soft: #fff1e6;
+      --line: rgba(23, 50, 77, 0.1);
+      --shadow: 0 12px 28px rgba(23, 50, 77, 0.08);
       --radius: 22px;
       --radius-sm: 14px;
-      --badge: #ff8c2f;
-      --danger: #e64b4b;
+      --btn-shadow: 0 10px 22px rgba(21, 164, 87, 0.22);
     }
 
     * {
@@ -33,40 +36,55 @@
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background:
-        radial-gradient(circle at 20% 20%, rgba(18, 96, 201, 0.035) 0 2px, transparent 2px 100%),
-        radial-gradient(circle at 80% 30%, rgba(20, 160, 90, 0.03) 0 2px, transparent 2px 100%),
-        var(--bg);
-      background-size: 36px 36px, 42px 42px, auto;
       color: var(--text);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(20, 98, 200, 0.03) 0 2px, transparent 2px 100%),
+        radial-gradient(circle at 78% 28%, rgba(21, 164, 87, 0.03) 0 2px, transparent 2px 100%),
+        var(--bg);
+      background-size: 34px 34px, 44px 44px, auto;
     }
 
     .page {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 28px 16px 64px;
+      padding: 18px 14px 60px;
     }
 
     .hero {
       text-align: center;
-      margin-bottom: 28px;
+      margin: 0 auto 28px;
+      padding: 18px 0 0;
+      max-width: 920px;
+    }
+
+    .logo-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .logo {
+      width: min(340px, 72vw);
+      height: auto;
+      display: block;
     }
 
     .eyebrow {
-      display: inline-block;
-      padding: 8px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 15px;
       border-radius: 999px;
-      background: rgba(18, 96, 201, 0.08);
+      background: rgba(20, 98, 200, 0.08);
       color: var(--blue-dark);
-      font-size: 0.9rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
+      font-size: 0.92rem;
+      font-weight: 800;
       margin-bottom: 14px;
     }
 
     h1 {
       margin: 0 0 10px;
-      font-size: clamp(2rem, 6vw, 3.6rem);
+      font-size: clamp(2rem, 6vw, 3.8rem);
       line-height: 1;
       color: var(--blue);
     }
@@ -76,33 +94,31 @@
       max-width: 760px;
       color: var(--muted);
       font-size: clamp(1rem, 2.2vw, 1.1rem);
-      line-height: 1.5;
-    }
-
-    .topbar {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-      margin: 28px 0 24px;
+      line-height: 1.55;
     }
 
     .summary-card {
       background: var(--card);
-      border: 1px solid var(--border);
+      border: 1px solid rgba(23, 50, 77, 0.08);
+      border-radius: 24px;
       box-shadow: var(--shadow);
-      border-radius: var(--radius);
-      padding: 18px 18px;
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-top {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       gap: 16px;
       flex-wrap: wrap;
     }
 
     .summary-left {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      display: grid;
+      gap: 8px;
     }
 
     .summary-label {
@@ -112,16 +128,16 @@
     }
 
     .summary-total {
-      font-size: clamp(1.8rem, 5vw, 2.6rem);
-      font-weight: 800;
-      color: var(--green-dark);
+      font-size: clamp(2rem, 5vw, 3rem);
       line-height: 1;
+      font-weight: 900;
+      color: var(--green-dark);
     }
 
     .summary-note {
       color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.4;
+      font-size: 0.92rem;
+      line-height: 1.45;
     }
 
     .legend {
@@ -142,45 +158,47 @@
       font-weight: 700;
     }
 
-    .dot {
+    .legend-dot {
       width: 10px;
       height: 10px;
-      border-radius: 999px;
+      border-radius: 50%;
       display: inline-block;
       flex-shrink: 0;
     }
 
-    .dot.green {
+    .legend-dot.green {
       background: var(--green);
     }
 
-    .dot.blue {
+    .legend-dot.blue {
       background: var(--blue);
     }
 
     .grid {
-      column-count: 1;
-      column-gap: 18px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
     }
 
     .card {
-      display: inline-block;
-      width: 100%;
-      margin: 0 0 18px;
       background: var(--card);
-      border: 1px solid var(--border);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
       overflow: hidden;
-      break-inside: avoid;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(23, 50, 77, 0.08);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
     }
 
     .card-header {
-      padding: 14px 16px;
       color: #fff;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
       font-weight: 800;
-      font-size: 1rem;
-      letter-spacing: 0.01em;
     }
 
     .theme-green .card-header {
@@ -191,42 +209,74 @@
       background: var(--blue);
     }
 
-    .card-body {
-      padding: 16px;
+    .header-period {
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
     }
 
-    .card-top {
+    .type-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.84rem;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 7px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .type-pill .type-icon {
+      font-size: 0.95rem;
+      line-height: 1;
+    }
+
+    .card-image {
+      width: 100%;
+      aspect-ratio: 16 / 7.5;
+      object-fit: cover;
+      display: block;
+      background: #dde6ef;
+    }
+
+    .card-body {
+      padding: 16px 16px 14px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card-main {
+      display: grid;
+      gap: 8px;
+    }
+
+    .title-row {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
-
-    .title-wrap {
-      min-width: 0;
-      flex: 1;
+      gap: 10px;
     }
 
     .event-title {
       margin: 0;
-      font-size: 1.3rem;
+      font-size: 1.1rem;
       line-height: 1.2;
       color: var(--text);
     }
 
     .popular-badge {
       display: none;
-      flex-shrink: 0;
       align-items: center;
       gap: 6px;
-      padding: 8px 10px;
+      padding: 7px 10px;
       border-radius: 999px;
-      background: rgba(255, 140, 47, 0.12);
-      color: #c86714;
+      background: var(--orange-soft);
+      color: #d56d18;
       font-size: 0.85rem;
       font-weight: 800;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .popular-badge.visible {
@@ -234,7 +284,7 @@
     }
 
     .event-desc {
-      margin: 0 0 14px;
+      margin: 0;
       color: var(--muted);
       font-size: 0.98rem;
       line-height: 1.5;
@@ -243,76 +293,89 @@
     .meta {
       display: grid;
       gap: 10px;
-      margin-bottom: 18px;
+      padding-top: 2px;
     }
 
-    .meta-row {
+    .meta-item {
       display: grid;
-      grid-template-columns: 22px 1fr;
+      grid-template-columns: 18px 1fr;
       gap: 10px;
       align-items: start;
-      color: var(--text);
-      font-size: 0.97rem;
     }
 
     .meta-icon {
-      font-size: 1rem;
+      font-size: 0.95rem;
       line-height: 1.3;
+      opacity: 0.95;
+    }
+
+    .meta-content {
+      display: grid;
+      gap: 2px;
     }
 
     .meta-label {
       color: var(--muted);
-      display: block;
-      font-size: 0.86rem;
-      margin-bottom: 2px;
+      font-size: 0.84rem;
+      line-height: 1.1;
     }
 
     .meta-value {
-      font-weight: 700;
+      color: var(--text);
+      font-size: 1.02rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .divider {
+      border-top: 2px dotted rgba(23, 50, 77, 0.18);
+      margin-top: 2px;
     }
 
     .card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1fr auto;
       gap: 12px;
-      flex-wrap: wrap;
+      align-items: center;
     }
 
-    .interest {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
+    .interest-block {
+      display: grid;
+      gap: 4px;
+    }
+
+    .interest-label {
       color: var(--muted);
-      font-size: 0.95rem;
+      font-size: 0.86rem;
       font-weight: 700;
     }
 
     .interest-count {
       color: var(--green-dark);
-      font-size: 1.05rem;
-      font-weight: 800;
+      font-size: 1.55rem;
+      line-height: 1;
+      font-weight: 900;
     }
 
     .like-btn {
       appearance: none;
       border: none;
       border-radius: 999px;
-      padding: 12px 16px;
-      background: rgba(20, 160, 90, 0.1);
+      padding: 13px 18px;
+      background: #dfeee6;
       color: var(--green-dark);
-      font-size: 0.96rem;
-      font-weight: 800;
+      font-size: 1rem;
+      font-weight: 900;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 10px;
       transition: transform 0.12s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      white-space: nowrap;
     }
 
     .like-btn:hover {
       transform: translateY(-1px);
-      background: rgba(20, 160, 90, 0.16);
     }
 
     .like-btn:active {
@@ -322,11 +385,11 @@
     .like-btn.liked {
       background: var(--green);
       color: #fff;
-      box-shadow: 0 10px 22px rgba(20, 160, 90, 0.22);
+      box-shadow: var(--btn-shadow);
     }
 
     .heart {
-      font-size: 1.05rem;
+      font-size: 1rem;
       line-height: 1;
     }
 
@@ -338,23 +401,43 @@
       line-height: 1.5;
     }
 
-    @media (min-width: 680px) {
+    @media (min-width: 700px) {
       .page {
-        padding: 38px 22px 72px;
+        padding: 22px 18px 70px;
       }
 
-      .topbar {
-        grid-template-columns: 1fr;
+      .summary-card {
+        padding: 20px 22px;
       }
 
       .grid {
-        column-count: 2;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
-    @media (min-width: 1024px) {
+    @media (min-width: 1080px) {
       .grid {
-        column-count: 3;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .card-footer {
+        grid-template-columns: 1fr;
+      }
+
+      .like-btn {
+        justify-content: center;
+        width: 100%;
+      }
+
+      .title-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .card-header {
+        flex-wrap: wrap;
       }
     }
 
@@ -372,27 +455,30 @@
 <body>
   <main class="page">
     <section class="hero">
+      <div class="logo-wrap">
+        <img class="logo" src="./Jong Nederland Logo.svg" alt="Jong Nederland logo" />
+      </div>
+
       <div class="eyebrow">Demo RSVP interessepeiling</div>
       <h1>Jong Nederland Landelijke Activiteiten 2026-2027</h1>
       <p class="subtitle">
-        Klik op <strong>Ik ben erbij</strong> om aan te geven dat je interesse hebt.
-        Dit is een demo om vooraf inzicht te krijgen in belangstelling voordat de echte ticketverkoop start.
+        Klik op <strong>Ik ben erbij</strong> om alvast interesse te tonen. Deze demo helpt om vooraf beter in te schatten hoeveel belangstelling er is, nog voordat de echte ticketverkoop start.
       </p>
     </section>
 
-    <section class="topbar">
-      <div class="summary-card">
+    <section class="summary-card">
+      <div class="summary-top">
         <div class="summary-left">
-          <div class="summary-label">Totaal aantal interesse-kliks</div>
+          <div class="summary-label">Totaal aantal geïnteresseerden</div>
           <div class="summary-total" id="totalInterested">0</div>
           <div class="summary-note">
-            Deze demo bewaart likes lokaal op je eigen apparaat.
+            Likes worden in deze demo lokaal opgeslagen op je eigen apparaat.
           </div>
         </div>
 
         <div class="legend">
-          <div class="legend-pill"><span class="dot green"></span> Opleiding / kader</div>
-          <div class="legend-pill"><span class="dot blue"></span> Activiteit / evenement</div>
+          <div class="legend-pill"><span class="legend-dot green"></span> Cursus / training</div>
+          <div class="legend-pill"><span class="legend-dot blue"></span> Evenement / activiteit</div>
         </div>
       </div>
     </section>
@@ -408,147 +494,205 @@
     const events = [
       {
         id: "kadershow-2026",
-        category: "sep 2026",
+        period: "sep 2026",
         theme: "green",
+        type: "evenement",
+        typeLabel: "Evenement",
+        typeIcon: "🎪",
         title: "Kadershow",
         description: "Ontmoet andere kaderleden en trap samen het nieuwe seizoen af.",
         date: "25 t/m 27 sep 2026",
         location: "Heeswijk-Dinther",
+        image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80",
         initialCount: 7
       },
       {
         id: "toernooi-halloween-2026",
-        category: "okt 2026",
-        theme: "green",
+        period: "okt 2026",
+        theme: "blue",
+        type: "evenement",
+        typeLabel: "Activiteit",
+        typeIcon: "🏕️",
         title: "Landelijk Toernooi: Halloween editie",
         description: "Een landelijke spelactiviteit vol actie, competitie en gezelligheid.",
         date: "23 t/m 25 okt 2026",
         location: "Liessel",
+        image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1200&q=80",
         initialCount: 12
       },
       {
         id: "sinterklaas-2026",
-        category: "nov 2026",
+        period: "nov 2026",
         theme: "blue",
+        type: "activiteit",
+        typeLabel: "Activiteit",
+        typeIcon: "🎉",
         title: "Sinterklaasactiviteit",
         description: "Een gezellige landelijke activiteit voor mini- en maxioren.",
         date: "28 nov 2026",
         location: "Locatie volgt",
+        image: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1200&q=80",
         initialCount: 5
       },
       {
         id: "financien-2026",
-        category: "dec 2026",
-        theme: "blue",
+        period: "dec 2026",
+        theme: "green",
+        type: "info",
+        typeLabel: "Infosessie",
+        typeIcon: "📘",
         title: "Financiën",
         description: "Praktische sessie over financiën voor kader en penningmeesters.",
         date: "9 dec 2026",
         location: "Hybride",
+        image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80",
         initialCount: 3
       },
       {
         id: "knikkerbaanchallenge-2027",
-        category: "jan 2027",
+        period: "jan 2027",
         theme: "blue",
+        type: "activiteit",
+        typeLabel: "Challenge",
+        typeIcon: "🎯",
         title: "Knikkerbaallenge",
         description: "Bouw en speel lokaal mee met deze creatieve challengeweek.",
         date: "11 t/m 17 jan 2027",
         location: "Eigen omgeving",
+        image: "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=1200&q=80",
         initialCount: 8
       },
       {
         id: "ehbo-voor-kids-2027",
-        category: "jan 2027",
+        period: "jan 2027",
         theme: "green",
+        type: "cursus",
+        typeLabel: "Cursus",
+        typeIcon: "🩹",
         title: "EHBO voor kids",
         description: "Laagdrempelige training om kinderen spelenderwijs EHBO te leren.",
         date: "23 jan 2027",
         location: "Hybride",
+        image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=1200&q=80",
         initialCount: 4
       },
       {
         id: "ticket-to-ride-2027",
-        category: "feb 2027",
-        theme: "green",
+        period: "feb 2027",
+        theme: "blue",
+        type: "evenement",
+        typeLabel: "Evenement",
+        typeIcon: "🚂",
         title: "Ticket to Ride",
         description: "Een leuke landelijke activiteit voor junioren, senioren en 16+.",
         date: "13 feb 2027",
         location: "Locatie volgt",
+        image: "https://images.unsplash.com/photo-1517167685284-96a27681ad75?auto=format&fit=crop&w=1200&q=80",
         initialCount: 9
       },
       {
         id: "marketing-communicatie-2027",
-        category: "feb 2027",
+        period: "feb 2027",
         theme: "green",
+        type: "info",
+        typeLabel: "Infosessie",
+        typeIcon: "💬",
         title: "Marketing & Communicatie",
         description: "Handige sessie met tips om je afdeling sterker zichtbaar te maken.",
         date: "22 feb 2027",
         location: "Hybride",
+        image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80",
         initialCount: 6
       },
       {
         id: "vrijwilligersdag-2027",
-        category: "mrt 2027",
+        period: "mrt 2027",
         theme: "green",
+        type: "evenement",
+        typeLabel: "Evenement",
+        typeIcon: "🤝",
         title: "Landelijke Vrijwilligersdag",
         description: "Een inspirerende dag vol ontmoeting, uitwisseling en waardering.",
         date: "6 en 7 mrt 2027",
         location: "Locatie volgt",
+        image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80",
         initialCount: 11
       },
       {
         id: "werven-motiveren-2027",
-        category: "mrt 2027",
+        period: "mrt 2027",
         theme: "green",
+        type: "webinar",
+        typeLabel: "Webinar",
+        typeIcon: "💻",
         title: "Werven en motiveren vrijwilligers",
         description: "Praktische inzichten om vrijwilligers te vinden, binden en activeren.",
         date: "24 mrt 2027",
         location: "Hybride",
+        image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
         initialCount: 2
       },
       {
         id: "festival-back2basic-2027",
-        category: "apr 2027",
-        theme: "green",
+        period: "apr 2027",
+        theme: "blue",
+        type: "evenement",
+        typeLabel: "Evenement",
+        typeIcon: "🎪",
         title: "Festival Back2Basic",
         description: "Een landelijke festivaldag voor alle jeugdleden met spel en beleving.",
         date: "10 apr 2027",
         location: "Midden van het land",
+        image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=1200&q=80",
         initialCount: 14
       },
       {
         id: "waar-ligt-de-grens-2027",
-        category: "mei 2027",
+        period: "mei 2027",
         theme: "green",
+        type: "cursus",
+        typeLabel: "Training",
+        typeIcon: "🧭",
         title: "Waar ligt de grens?",
         description: "Training over sociale veiligheid, grenzen en omgaan met lastige situaties.",
         date: "13 mei 2027",
         location: "Hybride",
+        image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80",
         initialCount: 4
       },
       {
         id: "ledenadministratie-2027",
-        category: "sep 2027",
-        theme: "blue",
+        period: "sep 2027",
+        theme: "green",
+        type: "info",
+        typeLabel: "Infosessie",
+        typeIcon: "🗂️",
         title: "Ledenadministratie",
         description: "Handige uitleg en ondersteuning voor secretarissen en kaderleden.",
         date: "7 sep 2027",
         location: "Hybride",
+        image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
         initialCount: 3
       },
       {
         id: "landelijk-toernooi-2027",
-        category: "okt 2027",
+        period: "okt 2027",
         theme: "blue",
+        type: "evenement",
+        typeLabel: "Evenement",
+        typeIcon: "🏆",
         title: "Landelijk Toernooi",
         description: "De landelijke toernooieditie voor junioren, senioren en 16+.",
         date: "24 t/m 26 okt 2027",
         location: "Locatie volgt",
+        image: "https://images.unsplash.com/photo-1526232761682-d26e03ac148e?auto=format&fit=crop&w=1200&q=80",
         initialCount: 10
       }
     ];
 
-    const STORAGE_KEY = "jn-activiteiten-liked-events-v1";
+    const STORAGE_KEY = "jn-activiteiten-liked-events-v2";
+    const POPULAR_THRESHOLD = 10;
+
     const grid = document.getElementById("eventsGrid");
     const totalInterestedEl = document.getElementById("totalInterested");
 
@@ -574,7 +718,7 @@
     }
 
     function isPopular(eventItem, likedState) {
-      return getDisplayCount(eventItem, likedState) >= 10;
+      return getDisplayCount(eventItem, likedState) >= POPULAR_THRESHOLD;
     }
 
     function createEventCard(eventItem, likedState) {
@@ -587,41 +731,50 @@
       card.setAttribute("data-event-id", eventItem.id);
 
       card.innerHTML = `
-        <div class="card-header">${eventItem.category}</div>
+        <div class="card-header">
+          <div class="header-period">${eventItem.period}</div>
+          <div class="type-pill">
+            <span class="type-icon">${eventItem.typeIcon}</span>
+            <span>${eventItem.typeLabel}</span>
+          </div>
+        </div>
+
+        <img class="card-image" src="${eventItem.image}" alt="${eventItem.title}" loading="lazy" />
+
         <div class="card-body">
-          <div class="card-top">
-            <div class="title-wrap">
+          <div class="card-main">
+            <div class="title-row">
               <h2 class="event-title">${eventItem.title}</h2>
+              <div class="popular-badge ${popular ? "visible" : ""}" data-role="popular-badge">🔥 Populair</div>
             </div>
-            <div class="popular-badge ${popular ? "visible" : ""}" data-role="popular-badge">
-              🔥 Populair
-            </div>
+
+            <p class="event-desc">${eventItem.description}</p>
           </div>
 
-          <p class="event-desc">${eventItem.description}</p>
-
           <div class="meta">
-            <div class="meta-row">
-              <div class="meta-icon">📅</div>
-              <div>
-                <span class="meta-label">Datum</span>
+            <div class="meta-item">
+              <div class="meta-icon">🗓️</div>
+              <div class="meta-content">
+                <div class="meta-label">Datum</div>
                 <div class="meta-value">${eventItem.date}</div>
               </div>
             </div>
 
-            <div class="meta-row">
+            <div class="meta-item">
               <div class="meta-icon">📍</div>
-              <div>
-                <span class="meta-label">Locatie</span>
+              <div class="meta-content">
+                <div class="meta-label">Locatie</div>
                 <div class="meta-value">${eventItem.location}</div>
               </div>
             </div>
           </div>
 
+          <div class="divider"></div>
+
           <div class="card-footer">
-            <div class="interest">
-              <span>Geïnteresseerd:</span>
-              <span class="interest-count" data-role="count">${displayCount}</span>
+            <div class="interest-block">
+              <div class="interest-label">Geïnteresseerd</div>
+              <div class="interest-count" data-role="count">${displayCount}</div>
             </div>
 
             <button
@@ -641,17 +794,13 @@
       return card;
     }
 
-    function renderEvents() {
+    function updateTotalInterested() {
       const likedState = getLikedState();
-      grid.innerHTML = "";
+      const total = events.reduce((sum, eventItem) => {
+        return sum + getDisplayCount(eventItem, likedState);
+      }, 0);
 
-      events.forEach((eventItem) => {
-        const card = createEventCard(eventItem, likedState);
-        grid.appendChild(card);
-      });
-
-      updateTotalInterested();
-      attachButtonEvents();
+      totalInterestedEl.textContent = total;
     }
 
     function updateCard(eventId) {
@@ -682,15 +831,6 @@
       updateTotalInterested();
     }
 
-    function updateTotalInterested() {
-      const likedState = getLikedState();
-      const total = events.reduce((sum, eventItem) => {
-        return sum + getDisplayCount(eventItem, likedState);
-      }, 0);
-
-      totalInterestedEl.textContent = total;
-    }
-
     function toggleLike(eventId) {
       const likedState = getLikedState();
 
@@ -713,6 +853,18 @@
           toggleLike(eventId);
         });
       });
+    }
+
+    function renderEvents() {
+      const likedState = getLikedState();
+      grid.innerHTML = "";
+
+      events.forEach((eventItem) => {
+        grid.appendChild(createEventCard(eventItem, likedState));
+      });
+
+      updateTotalInterested();
+      attachButtonEvents();
     }
 
     renderEvents();
