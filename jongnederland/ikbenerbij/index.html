@@ -104,7 +104,7 @@
       box-shadow: var(--shadow);
       padding: 18px;
       display: grid;
-      gap: 16px;
+      gap: 18px;
       margin-bottom: 24px;
     }
 
@@ -172,6 +172,35 @@
 
     .legend-dot.blue {
       background: var(--blue);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-btn {
+      appearance: none;
+      border: 1px solid rgba(23, 50, 77, 0.08);
+      background: #fff;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 800;
+      border-radius: 999px;
+      padding: 11px 15px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.12s ease, border-color 0.2s ease;
+    }
+
+    .filter-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .filter-btn.active {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
     }
 
     .grid {
@@ -393,6 +422,21 @@
       line-height: 1;
     }
 
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 28px 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(23, 50, 77, 0.08);
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .empty-state.visible {
+      display: block;
+    }
+
     .footer-note {
       margin-top: 22px;
       text-align: center;
@@ -446,7 +490,8 @@
         scroll-behavior: auto;
       }
 
-      .like-btn {
+      .like-btn,
+      .filter-btn {
         transition: none;
       }
     }
@@ -481,9 +526,19 @@
           <div class="legend-pill"><span class="legend-dot blue"></span> Evenement / activiteit</div>
         </div>
       </div>
+
+      <div class="filters" id="filters">
+        <button class="filter-btn active" type="button" data-filter="all">Alles</button>
+        <button class="filter-btn" type="button" data-filter="evenement">Evenementen</button>
+        <button class="filter-btn" type="button" data-filter="activiteit">Activiteiten</button>
+        <button class="filter-btn" type="button" data-filter="cursus">Cursussen</button>
+        <button class="filter-btn" type="button" data-filter="info">Infosessies</button>
+        <button class="filter-btn" type="button" data-filter="webinar">Webinars</button>
+      </div>
     </section>
 
     <section class="grid" id="eventsGrid"></section>
+    <div class="empty-state" id="emptyState">Geen activiteiten gevonden binnen dit filter.</div>
 
     <p class="footer-note">
       Demo MVP voor interessepeiling. Later uitbreidbaar met Supabase of koppeling aan WordPress.
@@ -503,21 +558,21 @@
         description: "Ontmoet andere kaderleden en trap samen het nieuwe seizoen af.",
         date: "25 t/m 27 sep 2026",
         location: "Heeswijk-Dinther",
-        image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/kadershow.jpg",
         initialCount: 7
       },
       {
         id: "toernooi-halloween-2026",
         period: "okt 2026",
         theme: "blue",
-        type: "evenement",
+        type: "activiteit",
         typeLabel: "Activiteit",
         typeIcon: "🏕️",
         title: "Landelijk Toernooi: Halloween editie",
         description: "Een landelijke spelactiviteit vol actie, competitie en gezelligheid.",
         date: "23 t/m 25 okt 2026",
         location: "Liessel",
-        image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/halloween-toernooi.jpg",
         initialCount: 12
       },
       {
@@ -531,7 +586,7 @@
         description: "Een gezellige landelijke activiteit voor mini- en maxioren.",
         date: "28 nov 2026",
         location: "Locatie volgt",
-        image: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/sinterklaas.jpg",
         initialCount: 5
       },
       {
@@ -545,7 +600,7 @@
         description: "Praktische sessie over financiën voor kader en penningmeesters.",
         date: "9 dec 2026",
         location: "Hybride",
-        image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/financien.jpg",
         initialCount: 3
       },
       {
@@ -559,7 +614,7 @@
         description: "Bouw en speel lokaal mee met deze creatieve challengeweek.",
         date: "11 t/m 17 jan 2027",
         location: "Eigen omgeving",
-        image: "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/knikkerbaallenge.jpg",
         initialCount: 8
       },
       {
@@ -573,7 +628,7 @@
         description: "Laagdrempelige training om kinderen spelenderwijs EHBO te leren.",
         date: "23 jan 2027",
         location: "Hybride",
-        image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/ehbo-voor-kids.jpg",
         initialCount: 4
       },
       {
@@ -587,7 +642,7 @@
         description: "Een leuke landelijke activiteit voor junioren, senioren en 16+.",
         date: "13 feb 2027",
         location: "Locatie volgt",
-        image: "https://images.unsplash.com/photo-1517167685284-96a27681ad75?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/ticket-to-ride.jpg",
         initialCount: 9
       },
       {
@@ -601,7 +656,7 @@
         description: "Handige sessie met tips om je afdeling sterker zichtbaar te maken.",
         date: "22 feb 2027",
         location: "Hybride",
-        image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/marketing-communicatie.jpg",
         initialCount: 6
       },
       {
@@ -615,7 +670,7 @@
         description: "Een inspirerende dag vol ontmoeting, uitwisseling en waardering.",
         date: "6 en 7 mrt 2027",
         location: "Locatie volgt",
-        image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/vrijwilligersdag.jpg",
         initialCount: 11
       },
       {
@@ -629,7 +684,7 @@
         description: "Praktische inzichten om vrijwilligers te vinden, binden en activeren.",
         date: "24 mrt 2027",
         location: "Hybride",
-        image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/werven-vrijwilligers.jpg",
         initialCount: 2
       },
       {
@@ -643,7 +698,7 @@
         description: "Een landelijke festivaldag voor alle jeugdleden met spel en beleving.",
         date: "10 apr 2027",
         location: "Midden van het land",
-        image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/festival-back2basic.jpg",
         initialCount: 14
       },
       {
@@ -657,7 +712,7 @@
         description: "Training over sociale veiligheid, grenzen en omgaan met lastige situaties.",
         date: "13 mei 2027",
         location: "Hybride",
-        image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/waar-ligt-de-grens.jpg",
         initialCount: 4
       },
       {
@@ -671,7 +726,7 @@
         description: "Handige uitleg en ondersteuning voor secretarissen en kaderleden.",
         date: "7 sep 2027",
         location: "Hybride",
-        image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/ledenadministratie.jpg",
         initialCount: 3
       },
       {
@@ -685,16 +740,20 @@
         description: "De landelijke toernooieditie voor junioren, senioren en 16+.",
         date: "24 t/m 26 okt 2027",
         location: "Locatie volgt",
-        image: "https://images.unsplash.com/photo-1526232761682-d26e03ac148e?auto=format&fit=crop&w=1200&q=80",
+        image: "./images/landelijk-toernooi.jpg",
         initialCount: 10
       }
     ];
 
-    const STORAGE_KEY = "jn-activiteiten-liked-events-v2";
+    const STORAGE_KEY = "jn-activiteiten-liked-events-v3";
     const POPULAR_THRESHOLD = 10;
+
+    let activeFilter = "all";
 
     const grid = document.getElementById("eventsGrid");
     const totalInterestedEl = document.getElementById("totalInterested");
+    const filtersEl = document.getElementById("filters");
+    const emptyStateEl = document.getElementById("emptyState");
 
     function getLikedState() {
       try {
@@ -719,6 +778,11 @@
 
     function isPopular(eventItem, likedState) {
       return getDisplayCount(eventItem, likedState) >= POPULAR_THRESHOLD;
+    }
+
+    function getFilteredEvents() {
+      if (activeFilter === "all") return events;
+      return events.filter((eventItem) => eventItem.type === activeFilter);
     }
 
     function createEventCard(eventItem, likedState) {
@@ -809,7 +873,10 @@
       if (!eventItem) return;
 
       const card = grid.querySelector(`[data-event-id="${eventId}"]`);
-      if (!card) return;
+      if (!card) {
+        updateTotalInterested();
+        return;
+      }
 
       const liked = isLiked(eventId, likedState);
       const count = getDisplayCount(eventItem, likedState);
@@ -855,18 +922,47 @@
       });
     }
 
+    function updateEmptyState() {
+      const filteredEvents = getFilteredEvents();
+      emptyStateEl.classList.toggle("visible", filteredEvents.length === 0);
+    }
+
     function renderEvents() {
       const likedState = getLikedState();
+      const filteredEvents = getFilteredEvents();
+
       grid.innerHTML = "";
 
-      events.forEach((eventItem) => {
+      filteredEvents.forEach((eventItem) => {
         grid.appendChild(createEventCard(eventItem, likedState));
       });
 
       updateTotalInterested();
+      updateEmptyState();
       attachButtonEvents();
     }
 
+    function setActiveFilter(filterValue) {
+      activeFilter = filterValue;
+
+      const buttons = filtersEl.querySelectorAll(".filter-btn");
+      buttons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.filter === filterValue);
+      });
+
+      renderEvents();
+    }
+
+    function attachFilterEvents() {
+      const buttons = filtersEl.querySelectorAll(".filter-btn");
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          setActiveFilter(button.dataset.filter);
+        });
+      });
+    }
+
+    attachFilterEvents();
     renderEvents();
   </script>
 </body>
