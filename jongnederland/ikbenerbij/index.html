@@ -1,1 +1,721 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jong Nederland Landelijke Activiteiten 2026-2027</title>
+  <style>
+    :root {
+      --bg: #f6f3ec;
+      --card: #ffffff;
+      --text: #17324d;
+      --muted: #5d7083;
+      --green: #14a05a;
+      --green-dark: #0b7d45;
+      --blue: #1260c9;
+      --blue-dark: #0d4b9b;
+      --border: rgba(23, 50, 77, 0.08);
+      --shadow: 0 10px 30px rgba(23, 50, 77, 0.08);
+      --radius: 22px;
+      --radius-sm: 14px;
+      --badge: #ff8c2f;
+      --danger: #e64b4b;
+    }
 
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(18, 96, 201, 0.035) 0 2px, transparent 2px 100%),
+        radial-gradient(circle at 80% 30%, rgba(20, 160, 90, 0.03) 0 2px, transparent 2px 100%),
+        var(--bg);
+      background-size: 36px 36px, 42px 42px, auto;
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 16px 64px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(18, 96, 201, 0.08);
+      color: var(--blue-dark);
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 6vw, 3.6rem);
+      line-height: 1;
+      color: var(--blue);
+    }
+
+    .subtitle {
+      margin: 0 auto;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: clamp(1rem, 2.2vw, 1.1rem);
+      line-height: 1.5;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin: 28px 0 24px;
+    }
+
+    .summary-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 18px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .summary-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .summary-total {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 800;
+      color: var(--green-dark);
+      line-height: 1;
+    }
+
+    .summary-note {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .legend-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(23, 50, 77, 0.05);
+      color: var(--text);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .dot.green {
+      background: var(--green);
+    }
+
+    .dot.blue {
+      background: var(--blue);
+    }
+
+    .grid {
+      column-count: 1;
+      column-gap: 18px;
+    }
+
+    .card {
+      display: inline-block;
+      width: 100%;
+      margin: 0 0 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      break-inside: avoid;
+    }
+
+    .card-header {
+      padding: 14px 16px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: 0.01em;
+    }
+
+    .theme-green .card-header {
+      background: var(--green);
+    }
+
+    .theme-blue .card-header {
+      background: var(--blue);
+    }
+
+    .card-body {
+      padding: 16px;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .title-wrap {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .event-title {
+      margin: 0;
+      font-size: 1.3rem;
+      line-height: 1.2;
+      color: var(--text);
+    }
+
+    .popular-badge {
+      display: none;
+      flex-shrink: 0;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255, 140, 47, 0.12);
+      color: #c86714;
+      font-size: 0.85rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .popular-badge.visible {
+      display: inline-flex;
+    }
+
+    .event-desc {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.5;
+    }
+
+    .meta {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: var(--text);
+      font-size: 0.97rem;
+    }
+
+    .meta-icon {
+      font-size: 1rem;
+      line-height: 1.3;
+    }
+
+    .meta-label {
+      color: var(--muted);
+      display: block;
+      font-size: 0.86rem;
+      margin-bottom: 2px;
+    }
+
+    .meta-value {
+      font-weight: 700;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .interest {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .interest-count {
+      color: var(--green-dark);
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .like-btn {
+      appearance: none;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 16px;
+      background: rgba(20, 160, 90, 0.1);
+      color: var(--green-dark);
+      font-size: 0.96rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform 0.12s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .like-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(20, 160, 90, 0.16);
+    }
+
+    .like-btn:active {
+      transform: translateY(0);
+    }
+
+    .like-btn.liked {
+      background: var(--green);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(20, 160, 90, 0.22);
+    }
+
+    .heart {
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    .footer-note {
+      margin-top: 22px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    @media (min-width: 680px) {
+      .page {
+        padding: 38px 22px 72px;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .grid {
+        column-count: 2;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .grid {
+        column-count: 3;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .like-btn {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Demo RSVP interessepeiling</div>
+      <h1>Jong Nederland Landelijke Activiteiten 2026-2027</h1>
+      <p class="subtitle">
+        Klik op <strong>Ik ben erbij</strong> om aan te geven dat je interesse hebt.
+        Dit is een demo om vooraf inzicht te krijgen in belangstelling voordat de echte ticketverkoop start.
+      </p>
+    </section>
+
+    <section class="topbar">
+      <div class="summary-card">
+        <div class="summary-left">
+          <div class="summary-label">Totaal aantal interesse-kliks</div>
+          <div class="summary-total" id="totalInterested">0</div>
+          <div class="summary-note">
+            Deze demo bewaart likes lokaal op je eigen apparaat.
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-pill"><span class="dot green"></span> Opleiding / kader</div>
+          <div class="legend-pill"><span class="dot blue"></span> Activiteit / evenement</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid" id="eventsGrid"></section>
+
+    <p class="footer-note">
+      Demo MVP voor interessepeiling. Later uitbreidbaar met Supabase of koppeling aan WordPress.
+    </p>
+  </main>
+
+  <script>
+    const events = [
+      {
+        id: "kadershow-2026",
+        category: "sep 2026",
+        theme: "green",
+        title: "Kadershow",
+        description: "Ontmoet andere kaderleden en trap samen het nieuwe seizoen af.",
+        date: "25 t/m 27 sep 2026",
+        location: "Heeswijk-Dinther",
+        initialCount: 7
+      },
+      {
+        id: "toernooi-halloween-2026",
+        category: "okt 2026",
+        theme: "green",
+        title: "Landelijk Toernooi: Halloween editie",
+        description: "Een landelijke spelactiviteit vol actie, competitie en gezelligheid.",
+        date: "23 t/m 25 okt 2026",
+        location: "Liessel",
+        initialCount: 12
+      },
+      {
+        id: "sinterklaas-2026",
+        category: "nov 2026",
+        theme: "blue",
+        title: "Sinterklaasactiviteit",
+        description: "Een gezellige landelijke activiteit voor mini- en maxioren.",
+        date: "28 nov 2026",
+        location: "Locatie volgt",
+        initialCount: 5
+      },
+      {
+        id: "financien-2026",
+        category: "dec 2026",
+        theme: "blue",
+        title: "Financiën",
+        description: "Praktische sessie over financiën voor kader en penningmeesters.",
+        date: "9 dec 2026",
+        location: "Hybride",
+        initialCount: 3
+      },
+      {
+        id: "knikkerbaanchallenge-2027",
+        category: "jan 2027",
+        theme: "blue",
+        title: "Knikkerbaallenge",
+        description: "Bouw en speel lokaal mee met deze creatieve challengeweek.",
+        date: "11 t/m 17 jan 2027",
+        location: "Eigen omgeving",
+        initialCount: 8
+      },
+      {
+        id: "ehbo-voor-kids-2027",
+        category: "jan 2027",
+        theme: "green",
+        title: "EHBO voor kids",
+        description: "Laagdrempelige training om kinderen spelenderwijs EHBO te leren.",
+        date: "23 jan 2027",
+        location: "Hybride",
+        initialCount: 4
+      },
+      {
+        id: "ticket-to-ride-2027",
+        category: "feb 2027",
+        theme: "green",
+        title: "Ticket to Ride",
+        description: "Een leuke landelijke activiteit voor junioren, senioren en 16+.",
+        date: "13 feb 2027",
+        location: "Locatie volgt",
+        initialCount: 9
+      },
+      {
+        id: "marketing-communicatie-2027",
+        category: "feb 2027",
+        theme: "green",
+        title: "Marketing & Communicatie",
+        description: "Handige sessie met tips om je afdeling sterker zichtbaar te maken.",
+        date: "22 feb 2027",
+        location: "Hybride",
+        initialCount: 6
+      },
+      {
+        id: "vrijwilligersdag-2027",
+        category: "mrt 2027",
+        theme: "green",
+        title: "Landelijke Vrijwilligersdag",
+        description: "Een inspirerende dag vol ontmoeting, uitwisseling en waardering.",
+        date: "6 en 7 mrt 2027",
+        location: "Locatie volgt",
+        initialCount: 11
+      },
+      {
+        id: "werven-motiveren-2027",
+        category: "mrt 2027",
+        theme: "green",
+        title: "Werven en motiveren vrijwilligers",
+        description: "Praktische inzichten om vrijwilligers te vinden, binden en activeren.",
+        date: "24 mrt 2027",
+        location: "Hybride",
+        initialCount: 2
+      },
+      {
+        id: "festival-back2basic-2027",
+        category: "apr 2027",
+        theme: "green",
+        title: "Festival Back2Basic",
+        description: "Een landelijke festivaldag voor alle jeugdleden met spel en beleving.",
+        date: "10 apr 2027",
+        location: "Midden van het land",
+        initialCount: 14
+      },
+      {
+        id: "waar-ligt-de-grens-2027",
+        category: "mei 2027",
+        theme: "green",
+        title: "Waar ligt de grens?",
+        description: "Training over sociale veiligheid, grenzen en omgaan met lastige situaties.",
+        date: "13 mei 2027",
+        location: "Hybride",
+        initialCount: 4
+      },
+      {
+        id: "ledenadministratie-2027",
+        category: "sep 2027",
+        theme: "blue",
+        title: "Ledenadministratie",
+        description: "Handige uitleg en ondersteuning voor secretarissen en kaderleden.",
+        date: "7 sep 2027",
+        location: "Hybride",
+        initialCount: 3
+      },
+      {
+        id: "landelijk-toernooi-2027",
+        category: "okt 2027",
+        theme: "blue",
+        title: "Landelijk Toernooi",
+        description: "De landelijke toernooieditie voor junioren, senioren en 16+.",
+        date: "24 t/m 26 okt 2027",
+        location: "Locatie volgt",
+        initialCount: 10
+      }
+    ];
+
+    const STORAGE_KEY = "jn-activiteiten-liked-events-v1";
+    const grid = document.getElementById("eventsGrid");
+    const totalInterestedEl = document.getElementById("totalInterested");
+
+    function getLikedState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveLikedState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function isLiked(eventId, likedState) {
+      return Boolean(likedState[eventId]);
+    }
+
+    function getDisplayCount(eventItem, likedState) {
+      return eventItem.initialCount + (isLiked(eventItem.id, likedState) ? 1 : 0);
+    }
+
+    function isPopular(eventItem, likedState) {
+      return getDisplayCount(eventItem, likedState) >= 10;
+    }
+
+    function createEventCard(eventItem, likedState) {
+      const liked = isLiked(eventItem.id, likedState);
+      const displayCount = getDisplayCount(eventItem, likedState);
+      const popular = isPopular(eventItem, likedState);
+
+      const card = document.createElement("article");
+      card.className = `card theme-${eventItem.theme}`;
+      card.setAttribute("data-event-id", eventItem.id);
+
+      card.innerHTML = `
+        <div class="card-header">${eventItem.category}</div>
+        <div class="card-body">
+          <div class="card-top">
+            <div class="title-wrap">
+              <h2 class="event-title">${eventItem.title}</h2>
+            </div>
+            <div class="popular-badge ${popular ? "visible" : ""}" data-role="popular-badge">
+              🔥 Populair
+            </div>
+          </div>
+
+          <p class="event-desc">${eventItem.description}</p>
+
+          <div class="meta">
+            <div class="meta-row">
+              <div class="meta-icon">📅</div>
+              <div>
+                <span class="meta-label">Datum</span>
+                <div class="meta-value">${eventItem.date}</div>
+              </div>
+            </div>
+
+            <div class="meta-row">
+              <div class="meta-icon">📍</div>
+              <div>
+                <span class="meta-label">Locatie</span>
+                <div class="meta-value">${eventItem.location}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="interest">
+              <span>Geïnteresseerd:</span>
+              <span class="interest-count" data-role="count">${displayCount}</span>
+            </div>
+
+            <button
+              class="like-btn ${liked ? "liked" : ""}"
+              type="button"
+              aria-pressed="${liked ? "true" : "false"}"
+              data-role="like-btn"
+              data-event-id="${eventItem.id}"
+            >
+              <span class="heart">${liked ? "❤️" : "🤍"}</span>
+              <span class="btn-label">${liked ? "Je bent erbij" : "Ik ben erbij"}</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      return card;
+    }
+
+    function renderEvents() {
+      const likedState = getLikedState();
+      grid.innerHTML = "";
+
+      events.forEach((eventItem) => {
+        const card = createEventCard(eventItem, likedState);
+        grid.appendChild(card);
+      });
+
+      updateTotalInterested();
+      attachButtonEvents();
+    }
+
+    function updateCard(eventId) {
+      const likedState = getLikedState();
+      const eventItem = events.find((item) => item.id === eventId);
+      if (!eventItem) return;
+
+      const card = grid.querySelector(`[data-event-id="${eventId}"]`);
+      if (!card) return;
+
+      const liked = isLiked(eventId, likedState);
+      const count = getDisplayCount(eventItem, likedState);
+      const popular = isPopular(eventItem, likedState);
+
+      const countEl = card.querySelector('[data-role="count"]');
+      const button = card.querySelector('[data-role="like-btn"]');
+      const heart = button.querySelector(".heart");
+      const label = button.querySelector(".btn-label");
+      const badge = card.querySelector('[data-role="popular-badge"]');
+
+      countEl.textContent = count;
+      button.classList.toggle("liked", liked);
+      button.setAttribute("aria-pressed", liked ? "true" : "false");
+      heart.textContent = liked ? "❤️" : "🤍";
+      label.textContent = liked ? "Je bent erbij" : "Ik ben erbij";
+      badge.classList.toggle("visible", popular);
+
+      updateTotalInterested();
+    }
+
+    function updateTotalInterested() {
+      const likedState = getLikedState();
+      const total = events.reduce((sum, eventItem) => {
+        return sum + getDisplayCount(eventItem, likedState);
+      }, 0);
+
+      totalInterestedEl.textContent = total;
+    }
+
+    function toggleLike(eventId) {
+      const likedState = getLikedState();
+
+      if (likedState[eventId]) {
+        delete likedState[eventId];
+      } else {
+        likedState[eventId] = true;
+      }
+
+      saveLikedState(likedState);
+      updateCard(eventId);
+    }
+
+    function attachButtonEvents() {
+      const buttons = grid.querySelectorAll('[data-role="like-btn"]');
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const eventId = button.getAttribute("data-event-id");
+          toggleLike(eventId);
+        });
+      });
+    }
+
+    renderEvents();
+  </script>
+</body>
+</html>
