@@ -18,7 +18,6 @@
       --orange: #f28b32;
       --shadow: 0 16px 36px rgba(23, 37, 48, 0.08);
       --radius: 24px;
-      --featured-overlay: linear-gradient(to top, rgba(20, 25, 31, 0.72), rgba(20, 25, 31, 0.16));
     }
 
     * {
@@ -159,59 +158,60 @@
     }
 
     .featured-card {
-      position: relative;
-      min-height: 360px;
+      background: var(--card);
       border-radius: 28px;
       overflow: hidden;
       box-shadow: var(--shadow);
-      background: #ddd;
       border: 1px solid rgba(29, 43, 54, 0.08);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .featured-image-wrap {
+      position: relative;
+      background: #ececec;
     }
 
     .featured-image {
-      position: absolute;
-      inset: 0;
       width: 100%;
-      height: 100%;
+      aspect-ratio: 16 / 7;
       object-fit: cover;
+      display: block;
       background: #ddd;
     }
 
-    .featured-overlay {
-      position: absolute;
-      inset: 0;
-      background: var(--featured-overlay);
-    }
-
-    .featured-content {
-      position: relative;
-      z-index: 1;
-      height: 100%;
-      display: flex;
-      align-items: flex-end;
-      padding: 26px;
-    }
-
-    .featured-inner {
-      width: 100%;
-      color: #fff;
+    .featured-body {
+      background: #fff;
+      padding: 22px;
       display: grid;
-      gap: 14px;
+      gap: 16px;
     }
 
-    .featured-title-row {
+    .featured-top {
+      display: grid;
+      gap: 10px;
+    }
+
+    .featured-badge-row {
       display: flex;
-      justify-content: space-between;
       align-items: flex-start;
-      gap: 12px;
-      flex-wrap: wrap;
+      justify-content: flex-start;
+      min-height: 40px;
     }
 
     .featured-title {
       margin: 0;
-      font-size: clamp(2rem, 5vw, 3rem);
-      line-height: 0.98;
-      max-width: 760px;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      line-height: 1.02;
+      color: var(--text);
+    }
+
+    .featured-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.55;
     }
 
     .popular-badge {
@@ -232,54 +232,43 @@
       display: inline-flex;
     }
 
-    .featured-desc {
-      margin: 0;
-      max-width: 760px;
-      color: rgba(255, 255, 255, 0.92);
-      font-size: 1rem;
-      line-height: 1.55;
-    }
-
     .featured-meta {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
-      max-width: 680px;
     }
 
     .featured-meta-item {
       display: grid;
-      gap: 3px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.13);
-      backdrop-filter: blur(2px);
+      gap: 4px;
     }
 
     .featured-meta-label {
-      color: rgba(255, 255, 255, 0.78);
+      color: var(--muted);
       font-size: 0.82rem;
       font-weight: 700;
+      letter-spacing: 0.01em;
     }
 
     .featured-meta-value {
-      color: #fff;
-      font-size: 1.03rem;
+      color: var(--text);
+      font-size: 1rem;
       font-weight: 800;
-      line-height: 1.25;
+      line-height: 1.28;
+    }
+
+    .featured-divider {
+      border-top: 1px solid var(--line);
     }
 
     .featured-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 16px;
-      flex-wrap: wrap;
+      display: grid;
+      gap: 12px;
     }
 
     .featured-stats {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, auto));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
     }
 
@@ -288,20 +277,22 @@
     }
 
     .featured-stat {
+      background: rgba(29, 43, 54, 0.035);
+      border-radius: 16px;
+      padding: 12px;
       display: grid;
-      gap: 3px;
-      min-width: 120px;
+      gap: 4px;
     }
 
     .featured-stat-label {
-      color: rgba(255, 255, 255, 0.78);
+      color: var(--muted);
       font-size: 0.82rem;
       font-weight: 700;
     }
 
     .featured-stat-value {
-      color: #fff;
-      font-size: 1.6rem;
+      color: var(--green-dark);
+      font-size: 1.45rem;
       line-height: 1;
       font-weight: 900;
     }
@@ -568,21 +559,10 @@
     }
 
     @media (max-width: 640px) {
-      .featured-card {
-        min-height: 420px;
-      }
-
-      .featured-content {
-        padding: 20px;
-      }
-
-      .featured-title {
-        font-size: 2rem;
-      }
-
       .featured-meta,
       .meta-grid,
-      .stats-grid {
+      .stats-grid,
+      .featured-stats {
         grid-template-columns: 1fr;
       }
 
@@ -597,6 +577,14 @@
 
       .count-select {
         width: 100%;
+      }
+
+      .featured-body {
+        padding: 18px;
+      }
+
+      .featured-title {
+        font-size: 1.8rem;
       }
     }
 
@@ -674,7 +662,7 @@
         description: "Meerdaags evenement waar vrijwilligers individueel boeken en je de opkomst wilt inschatten.",
         date: "25 t/m 27 sep 2026",
         location: "Heeswijk-Dinther",
-        image: "./images/kamp.jpg",
+        image: "./images/zomer.jpg",
         initialParticipants: 18
       },
       {
@@ -688,7 +676,7 @@
         description: "Online sessie voor vrijwilligers en bestuur over actuele wet- en regelgeving.",
         date: "12 nov 2026",
         location: "Online",
-        image: "./images/webinar.jpg",
+        image: "./images/zomer.jpg",
         initialParticipants: 6
       },
       {
@@ -702,7 +690,7 @@
         description: "Afdelingen melden zich aan voor een groep. Verwachte groepsgrootte is belangrijk voor planning.",
         date: "24 t/m 26 okt 2027",
         location: "Locatie volgt",
-        image: "./images/vlag.jpg",
+        image: "./images/zomer.jpg",
         initialGroups: 6,
         initialParticipants: 121
       },
@@ -711,13 +699,13 @@
         featured: false,
         period: "feb 2027",
         responseMode: "individual",
-        typeLabel: "Webinar",
+        typeLabel: "Infosessie",
         typeIcon: "💬",
         title: "Marketing & Communicatie",
         description: "Praktische sessie voor vrijwilligers die met communicatie binnen de afdeling bezig zijn.",
         date: "22 feb 2027",
         location: "Hybride",
-        image: "./images/bomenklimmen.jpg",
+        image: "./images/zomer.jpg",
         initialParticipants: 9
       },
       {
@@ -731,7 +719,7 @@
         description: "Laagdrempelige activiteit waarbij een afdeling met een groep kinderen kan deelnemen.",
         date: "23 jan 2027",
         location: "Hybride",
-        image: "./images/ehbo.jpg",
+        image: "./images/zomer.jpg",
         initialGroups: 3,
         initialParticipants: 36
       },
@@ -739,19 +727,19 @@
         id: "jaaroverzicht-item",
         featured: false,
         period: "doorlopend",
-        responseMode: "individual",
+        responseMode: "info",
         typeLabel: "Kalenderitem",
         typeIcon: "🗓️",
-        title: "Landelijke Meetup - Regio Twente",
+        title: "Jaarkalender overzicht",
         description: "Een informatief kalenderitem zonder interactie.",
         date: "Seizoen 2026-2027",
         location: "Landelijk",
-        image: "./images/bellenblazen.jpg",
+        image: "./images/zomer.jpg",
         initialParticipants: 0
       }
     ];
 
-    const STORAGE_KEY = "jn-response-model-v3-working";
+    const STORAGE_KEY = "jn-response-model-v4-featured-white";
     const POPULAR_THRESHOLD = 25;
     const GROUP_OPTIONS = [10, 15, 20, 25, 30, 40, 50];
 
@@ -847,7 +835,7 @@
                 <div class="featured-stat-value" data-role="groups">${getExpectedGroups(eventItem, state)}</div>
               </div>
               <div class="featured-stat">
-                <div class="featured-stat-label">Deelnemers</div>
+                <div class="featured-stat-label">Verwachte deelnemers</div>
                 <div class="featured-stat-value" data-role="participants">${expectedParticipants}</div>
               </div>
             </div>
@@ -858,7 +846,7 @@
           return `
             <div class="featured-stats single">
               <div class="featured-stat">
-                <div class="featured-stat-label">Deelnemers</div>
+                <div class="featured-stat-label">Verwachte deelnemers</div>
                 <div class="featured-stat-value" data-role="participants">${expectedParticipants}</div>
               </div>
             </div>
@@ -958,33 +946,36 @@
       article.setAttribute("data-event-id", eventItem.id);
 
       article.innerHTML = `
-        <img class="featured-image" src="${eventItem.image}" alt="${eventItem.title}" loading="lazy" />
-        <div class="featured-overlay"></div>
+        <div class="featured-image-wrap">
+          <img class="featured-image" src="${eventItem.image}" alt="${eventItem.title}" loading="lazy" />
+        </div>
 
-        <div class="featured-content">
-          <div class="featured-inner">
-            <div class="featured-title-row">
-              <h2 class="featured-title">${eventItem.title}</h2>
+        <div class="featured-body">
+          <div class="featured-top">
+            <div class="featured-badge-row">
               <div class="popular-badge ${popular ? "visible" : ""}" data-role="popular-badge">🔥 Populair</div>
             </div>
 
+            <h2 class="featured-title">${eventItem.title}</h2>
             <p class="featured-desc">${eventItem.description}</p>
+          </div>
 
-            <div class="featured-meta">
-              <div class="featured-meta-item">
-                <div class="featured-meta-label">Datum</div>
-                <div class="featured-meta-value">${eventItem.date}</div>
-              </div>
-              <div class="featured-meta-item">
-                <div class="featured-meta-label">Locatie</div>
-                <div class="featured-meta-value">${eventItem.location}</div>
-              </div>
+          <div class="featured-meta">
+            <div class="featured-meta-item">
+              <div class="featured-meta-label">Datum</div>
+              <div class="featured-meta-value">${eventItem.date}</div>
             </div>
+            <div class="featured-meta-item">
+              <div class="featured-meta-label">Locatie</div>
+              <div class="featured-meta-value">${eventItem.location}</div>
+            </div>
+          </div>
 
-            <div class="featured-footer">
-              ${createStatsMarkup(eventItem, state, true)}
-              ${createResponseMarkup(eventItem, state)}
-            </div>
+          ${eventItem.responseMode !== "info" ? '<div class="featured-divider"></div>' : ""}
+
+          <div class="featured-footer">
+            ${createStatsMarkup(eventItem, state, true)}
+            ${createResponseMarkup(eventItem, state)}
           </div>
         </div>
       `;
