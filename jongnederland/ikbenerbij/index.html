@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jong Nederland Activiteiten</title>
-
+  <title>Jong Nederland Landelijke Activiteiten 2026-2027</title>
   <style>
     :root {
       --bg: #f5f1e7;
@@ -12,75 +11,201 @@
       --text: #1d2b36;
       --muted: #73808c;
       --line: rgba(29, 43, 54, 0.1);
+      --line-strong: rgba(29, 43, 54, 0.16);
       --green: #15a457;
       --green-dark: #0d7a40;
       --blue: #1462c8;
+      --orange: #f28b32;
       --shadow: 0 16px 36px rgba(23, 37, 48, 0.08);
       --radius: 24px;
+      --radius-sm: 16px;
+      --chip-bg: rgba(29, 43, 54, 0.06);
+      --featured-overlay: linear-gradient(to top, rgba(20, 25, 31, 0.72), rgba(20, 25, 31, 0.16));
+      --placeholder:
+        linear-gradient(135deg, #ececec 0%, #e3e3e3 100%);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
       color: var(--text);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(20, 98, 200, 0.02) 0 2px, transparent 2px 100%),
+        radial-gradient(circle at 78% 28%, rgba(21, 164, 87, 0.02) 0 2px, transparent 2px 100%),
+        var(--bg);
+      background-size: 34px 34px, 44px 44px, auto;
     }
 
     .page {
       max-width: 1320px;
       margin: 0 auto;
-      padding: 20px 14px 60px;
+      padding: 18px 14px 64px;
+    }
+
+    .hero {
+      text-align: center;
+      margin: 0 auto 28px;
+      padding: 14px 0 0;
+      max-width: 980px;
     }
 
     .logo-wrap {
       display: flex;
       justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .logo {
-      width: min(300px, 70vw);
+      width: min(340px, 72vw);
+      height: auto;
+      display: block;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 15px;
+      border-radius: 999px;
+      background: rgba(20, 98, 200, 0.08);
+      color: #0f4c9d;
+      font-size: 0.92rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.1rem, 6vw, 4rem);
+      line-height: 1;
+      color: #145bb5;
+    }
+
+    .subtitle {
+      margin: 0 auto;
+      max-width: 780px;
+      color: var(--muted);
+      font-size: clamp(1rem, 2.2vw, 1.08rem);
+      line-height: 1.55;
     }
 
     .summary-card {
-      background: white;
-      border-radius: 20px;
-      padding: 20px;
+      background: var(--card);
+      border: 1px solid rgba(29, 43, 54, 0.08);
+      border-radius: 24px;
       box-shadow: var(--shadow);
-      margin-bottom: 24px;
+      padding: 18px;
+      display: grid;
+      gap: 18px;
+      margin-bottom: 26px;
+    }
+
+    .summary-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .summary-left {
+      display: grid;
+      gap: 7px;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 700;
     }
 
     .summary-total {
-      font-size: 2.5rem;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1;
       font-weight: 900;
       color: var(--green-dark);
     }
 
-    .filters {
-      margin-top: 12px;
+    .summary-note {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .legend {
       display: flex;
-      gap: 10px;
       flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .legend-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(29, 43, 54, 0.05);
+      color: var(--text);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .legend-dot.green {
+      background: var(--green);
+    }
+
+    .legend-dot.blue {
+      background: var(--blue);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .filter-btn {
+      appearance: none;
+      border: 1px solid rgba(29, 43, 54, 0.08);
+      background: #fff;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 800;
       border-radius: 999px;
-      padding: 10px 14px;
-      border: 1px solid #ddd;
-      background: white;
-      font-weight: bold;
+      padding: 11px 15px;
       cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.12s ease, border-color 0.2s ease;
+    }
+
+    .filter-btn:hover {
+      transform: translateY(-1px);
     }
 
     .filter-btn.active {
-      background: var(--blue);
-      color: white;
+      background: #145bb5;
+      color: #fff;
+      border-color: #145bb5;
     }
 
     .featured-grid {
       display: grid;
+      grid-template-columns: 1fr;
       gap: 18px;
       margin-bottom: 20px;
     }
@@ -88,267 +213,1090 @@
     .featured-card {
       position: relative;
       min-height: 360px;
-      border-radius: 24px;
+      border-radius: 28px;
       overflow: hidden;
       box-shadow: var(--shadow);
+      background: #ddd;
+      border: 1px solid rgba(29, 43, 54, 0.08);
     }
 
-    .featured-card img {
+    .featured-image {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      position: absolute;
+      background: #ddd;
     }
 
     .featured-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0.1));
+      background: var(--featured-overlay);
     }
 
     .featured-content {
       position: relative;
-      padding: 24px;
+      z-index: 1;
       height: 100%;
       display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      color: white;
+      align-items: flex-end;
+      padding: 26px;
+    }
+
+    .featured-inner {
+      width: 100%;
+      color: #fff;
+      display: grid;
+      gap: 14px;
+    }
+
+    .featured-topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .featured-period {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(2px);
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .featured-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(2px);
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .featured-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     .featured-title {
-      font-size: 2rem;
       margin: 0;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 0.98;
+      max-width: 760px;
+    }
+
+    .popular-badge {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(255, 243, 229, 0.95);
+      color: #d86d16;
+      font-size: 0.86rem;
+      font-weight: 800;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .popular-badge.visible {
+      display: inline-flex;
+    }
+
+    .featured-desc {
+      margin: 0;
+      max-width: 760px;
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .featured-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 680px;
+    }
+
+    .featured-meta-item {
+      display: grid;
+      gap: 3px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.13);
+      backdrop-filter: blur(2px);
+    }
+
+    .featured-meta-label {
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .featured-meta-value {
+      color: #fff;
+      font-size: 1.03rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .featured-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .featured-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, auto));
+      gap: 10px;
+    }
+
+    .featured-stats.single {
+      grid-template-columns: 1fr;
+    }
+
+    .featured-stat {
+      display: grid;
+      gap: 3px;
+      min-width: 120px;
+    }
+
+    .featured-stat-label {
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .featured-stat-value {
+      color: #fff;
+      font-size: 1.6rem;
+      line-height: 1;
+      font-weight: 900;
     }
 
     .cards-grid {
       display: grid;
+      grid-template-columns: 1fr;
       gap: 18px;
     }
 
     .card {
-      background: white;
-      border-radius: 20px;
+      background: var(--card);
+      border-radius: var(--radius);
       overflow: hidden;
       box-shadow: var(--shadow);
+      border: 1px solid rgba(29, 43, 54, 0.08);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
     }
 
-    .card img {
+    .card-image-wrap {
+      position: relative;
+      background: #ececec;
+    }
+
+    .card-image {
       width: 100%;
-      aspect-ratio: 16/8;
+      aspect-ratio: 16 / 8.5;
       object-fit: cover;
+      display: block;
+      background: #e7e7e7;
+    }
+
+    .card-type-chip {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--text);
+      font-size: 0.84rem;
+      font-weight: 800;
+      box-shadow: 0 10px 20px rgba(23, 37, 48, 0.08);
     }
 
     .card-body {
       padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card-top {
+      display: grid;
+      gap: 8px;
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .event-title {
-      font-size: 1.1rem;
-      margin: 0 0 6px;
+      margin: 0;
+      font-size: 1.18rem;
+      line-height: 1.2;
+      color: var(--text);
+    }
+
+    .event-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.52;
     }
 
     .meta-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      padding-top: 4px;
+    }
+
+    .meta-item {
+      display: grid;
+      gap: 4px;
     }
 
     .meta-label {
-      font-size: 0.8rem;
       color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
     }
 
     .meta-value {
-      font-weight: bold;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1.28;
+    }
+
+    .divider {
+      border-top: 1px solid var(--line);
+    }
+
+    .stats-row {
+      display: grid;
+      gap: 10px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stats-grid.single {
+      grid-template-columns: 1fr;
+    }
+
+    .stat-box {
+      background: rgba(29, 43, 54, 0.035);
+      border-radius: 16px;
+      padding: 12px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .stat-value {
+      color: var(--green-dark);
+      font-size: 1.45rem;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .response-panel {
+      display: grid;
+      gap: 10px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
     }
 
     .action-btn {
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: 999px;
+      appearance: none;
       border: none;
+      border-radius: 999px;
+      padding: 13px 18px;
       background: #e2efe8;
       color: var(--green-dark);
-      font-weight: bold;
+      font-size: 0.98rem;
+      font-weight: 900;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform 0.12s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
     }
 
     .action-btn.active {
       background: var(--green);
-      color: white;
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(21, 164, 87, 0.22);
+    }
+
+    .count-picker-inline {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .count-picker-inline.visible {
+      display: flex;
+    }
+
+    .count-picker-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
     }
 
     .count-select {
-      margin-top: 8px;
-      padding: 10px;
-      border-radius: 10px;
-      width: 100%;
+      appearance: none;
+      border: 1px solid rgba(29, 43, 54, 0.14);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.94rem;
+      font-weight: 800;
+      color: var(--text);
+      background: #fff;
+      min-width: 92px;
     }
 
-    @media(min-width: 768px) {
-      .featured-grid.two {
-        grid-template-columns: 1fr 1fr;
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 28px 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(29, 43, 54, 0.08);
+      color: var(--muted);
+      font-weight: 700;
+      margin-top: 12px;
+    }
+
+    .empty-state.visible {
+      display: block;
+    }
+
+    .footer-note {
+      margin-top: 22px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    @media (min-width: 760px) {
+      .page {
+        padding: 22px 18px 70px;
+      }
+
+      .summary-card {
+        padding: 20px 22px;
+      }
+
+      .featured-grid.two-col {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .cards-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1120px) {
+      .cards-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .featured-card {
+        min-height: 420px;
+      }
+
+      .featured-content {
+        padding: 20px;
+      }
+
+      .featured-title {
+        font-size: 2rem;
+      }
+
+      .featured-meta,
+      .meta-grid,
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .count-picker-inline {
+        width: 100%;
+      }
+
+      .count-select {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .action-btn,
+      .filter-btn {
+        transition: none;
       }
     }
   </style>
 </head>
-
 <body>
   <main class="page">
-
-    <div class="logo-wrap">
-      <img class="logo" src="./Jong Nederland Logo.svg" />
-    </div>
-
-    <div class="summary-card">
-      <div>Totaal verwachte deelnemers</div>
-      <div class="summary-total" id="total">0</div>
-
-      <div class="filters">
-        <button class="filter-btn active" data-filter="all">Alles</button>
-        <button class="filter-btn" data-filter="individual">Individueel</button>
-        <button class="filter-btn" data-filter="group">Groep</button>
+    <section class="hero">
+      <div class="logo-wrap">
+        <img class="logo" src="./Jong Nederland Logo.svg" alt="Jong Nederland logo" />
       </div>
-    </div>
 
-    <section id="featured" class="featured-grid"></section>
-    <section id="grid" class="cards-grid"></section>
+      <div class="eyebrow">Demo voorinschatting deelname</div>
+      <h1>Jong Nederland Landelijke Activiteiten 2026-2027</h1>
+      <p class="subtitle">
+        Een visueel en interactief overzicht van landelijke activiteiten. Bij individuele activiteiten geldt 1 reactie als 1 deelnemer. Bij groepsactiviteiten kan een afdeling een verwacht aantal doorgeven.
+      </p>
+    </section>
 
+    <section class="summary-card">
+      <div class="summary-top">
+        <div class="summary-left">
+          <div class="summary-label">Totaal verwachte deelnemers</div>
+          <div class="summary-total" id="totalExpected">0</div>
+          <div class="summary-note">
+            In deze demo worden keuzes lokaal opgeslagen op je eigen apparaat.
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-pill"><span class="legend-dot green"></span> Individueel</div>
+          <div class="legend-pill"><span class="legend-dot blue"></span> Groep</div>
+        </div>
+      </div>
+
+      <div class="filters" id="filters">
+        <button class="filter-btn active" type="button" data-filter="all">Alles</button>
+        <button class="filter-btn" type="button" data-filter="individual">Individueel</button>
+        <button class="filter-btn" type="button" data-filter="group">Groep</button>
+        <button class="filter-btn" type="button" data-filter="info">Info only</button>
+      </div>
+    </section>
+
+    <section class="featured-grid" id="featuredGrid"></section>
+
+    <section class="cards-grid" id="eventsGrid"></section>
+    <div class="empty-state" id="emptyState">Geen activiteiten gevonden binnen dit filter.</div>
+
+    <p class="footer-note">
+      Demo MVP voor interessepeiling en voorinschatting deelname. Later uitbreidbaar met Supabase of WordPress-koppeling.
+    </p>
   </main>
 
   <script>
-    const GROUP_OPTIONS = [10,20,25,30,40,50];
+    const PLACEHOLDER_IMAGE =
+      "data:image/svg+xml;utf8," +
+      encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+          <defs>
+            <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0%" stop-color="#ececec"/>
+              <stop offset="100%" stop-color="#e1e1e1"/>
+            </linearGradient>
+          </defs>
+          <rect width="1600" height="900" fill="url(#g)"/>
+          <circle cx="1260" cy="210" r="120" fill="#d8d8d8"/>
+          <rect x="160" y="640" width="1280" height="120" rx="26" fill="#d8d8d8"/>
+          <rect x="160" y="170" width="520" height="44" rx="20" fill="#d4d4d4"/>
+          <rect x="160" y="240" width="760" height="30" rx="15" fill="#d7d7d7"/>
+          <rect x="160" y="290" width="600" height="30" rx="15" fill="#dcdcdc"/>
+          <path d="M180 610 L520 360 L760 540 L980 410 L1260 610 Z" fill="#cfcfcf"/>
+        </svg>
+      `);
 
     const events = [
       {
-        id:"festival",
-        featured:true,
-        type:"group",
-        title:"Festival Back2Basic",
-        date:"10 apr 2027",
-        location:"BillyBird",
-        image:"./images/zomer.jpg",
-        base:80
+        id: "festival-back2basic-2027",
+        featured: true,
+        period: "apr 2027",
+        responseMode: "group",
+        typeLabel: "Jeugdactiviteit",
+        typeIcon: "🎉",
+        title: "Festival Back2Basic",
+        description: "Een grote landelijke activiteit waarbij afdelingen met groepen jeugdleden deelnemen. Ideaal om extra prominent bovenaan te tonen.",
+        date: "10 apr 2027",
+        location: "BillyBird / Midden van het land",
+        image: "",
+        initialGroups: 4,
+        initialParticipants: 82
       },
       {
-        id:"kader",
-        featured:true,
-        type:"individual",
-        title:"Kaderschouw",
-        date:"25-27 sep 2026",
-        location:"Heeswijk",
-        image:"./images/zomer.jpg",
-        base:20
+        id: "kaderschouw-2026",
+        featured: true,
+        period: "sep 2026",
+        responseMode: "individual",
+        typeLabel: "Evenement",
+        typeIcon: "🎪",
+        title: "Kaderschouw",
+        description: "Meerdaags evenement waar vrijwilligers individueel boeken en je de opkomst goed wilt kunnen inschatten.",
+        date: "25 t/m 27 sep 2026",
+        location: "Heeswijk-Dinther",
+        image: "",
+        initialParticipants: 18
       },
       {
-        id:"webinar",
-        type:"individual",
-        title:"Webinar wetgeving",
-        date:"12 nov 2026",
-        location:"Online",
-        image:"./images/zomer.jpg",
-        base:6
+        id: "wetgeving-webinar",
+        featured: false,
+        period: "nov 2026",
+        responseMode: "individual",
+        typeLabel: "Webinar",
+        typeIcon: "💻",
+        title: "Webinar wet- en regelgeving",
+        description: "Online sessie voor vrijwilligers en bestuur over actuele wet- en regelgeving.",
+        date: "12 nov 2026",
+        location: "Online",
+        image: "",
+        initialParticipants: 6
       },
       {
-        id:"toernooi",
-        type:"group",
-        title:"Landelijk Toernooi",
-        date:"24-26 okt",
-        location:"TBD",
-        image:"./images/zomer.jpg",
-        base:120
+        id: "landelijk-toernooi-2027",
+        featured: false,
+        period: "okt 2027",
+        responseMode: "group",
+        typeLabel: "Groepsactiviteit",
+        typeIcon: "🏆",
+        title: "Landelijk Toernooi",
+        description: "Afdelingen melden zich aan voor een groep. Verwachte groepsgrootte is belangrijk voor planning.",
+        date: "24 t/m 26 okt 2027",
+        location: "Locatie volgt",
+        image: "",
+        initialGroups: 6,
+        initialParticipants: 121
+      },
+      {
+        id: "marketing-com-2027",
+        featured: false,
+        period: "feb 2027",
+        responseMode: "individual",
+        typeLabel: "Infosessie",
+        typeIcon: "💬",
+        title: "Marketing & Communicatie",
+        description: "Praktische sessie voor vrijwilligers die met communicatie binnen de afdeling bezig zijn.",
+        date: "22 feb 2027",
+        location: "Hybride",
+        image: "",
+        initialParticipants: 9
+      },
+      {
+        id: "ehbo-voor-kids-2027",
+        featured: false,
+        period: "jan 2027",
+        responseMode: "group",
+        typeLabel: "Cursus",
+        typeIcon: "🩹",
+        title: "EHBO voor kids",
+        description: "Laagdrempelige activiteit waarbij een afdeling met een groep kinderen kan deelnemen.",
+        date: "23 jan 2027",
+        location: "Hybride",
+        image: "",
+        initialGroups: 3,
+        initialParticipants: 36
+      },
+      {
+        id: "jaaroverzicht-item",
+        featured: false,
+        period: "doorlopend",
+        responseMode: "info",
+        typeLabel: "Kalenderitem",
+        typeIcon: "🗓️",
+        title: "Jaarkalender overzicht",
+        description: "Een informatief kalenderitem zonder interactie.",
+        date: "Seizoen 2026-2027",
+        location: "Landelijk",
+        image: "",
+        initialParticipants: 0
       }
     ];
 
-    const state = {};
+    const STORAGE_KEY = "jn-response-model-v2-clean";
+    const POPULAR_THRESHOLD = 25;
+    const GROUP_OPTIONS = [10, 15, 20, 25, 30, 40, 50];
+    let activeFilter = "all";
 
-    function getTotal(){
-      let sum = 0;
-      events.forEach(e=>{
-        if(e.type==="individual"){
-          sum += e.base + (state[e.id]?.on?1:0);
-        } else {
-          sum += e.base + (state[e.id]?.count||0);
-        }
-      });
-      document.getElementById("total").innerText = sum;
+    const featuredGrid = document.getElementById("featuredGrid");
+    const grid = document.getElementById("eventsGrid");
+    const totalExpectedEl = document.getElementById("totalExpected");
+    const filtersEl = document.getElementById("filters");
+    const emptyStateEl = document.getElementById("emptyState");
+
+    function getState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (error) {
+        return {};
+      }
     }
 
-    function toggle(id){
-      state[id] = state[id] || {};
-      state[id].on = !state[id].on;
-      render();
+    function saveState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
-    function setCount(id,val){
-      state[id] = state[id] || {};
-      state[id].count = parseInt(val);
-      state[id].on = true;
-      render();
+    function ensureEventState(eventId, state) {
+      if (!state[eventId]) {
+        state[eventId] = {};
+      }
+      return state[eventId];
     }
 
-    function render(){
-      const f = document.getElementById("featured");
-      const g = document.getElementById("grid");
+    function getSafeImage(image) {
+      return image && image.trim() ? image : PLACEHOLDER_IMAGE;
+    }
 
-      f.innerHTML="";
-      g.innerHTML="";
+    function getFilteredEvents() {
+      if (activeFilter === "all") return events;
+      return events.filter((eventItem) => eventItem.responseMode === activeFilter);
+    }
 
-      events.forEach(e=>{
-        if(e.featured){
-          f.innerHTML += `
-          <div class="featured-card">
-            <img src="${e.image}">
-            <div class="featured-overlay"></div>
-            <div class="featured-content">
-              <h2 class="featured-title">${e.title}</h2>
-              <button class="action-btn ${state[e.id]?.on?"active":""}" onclick="toggle('${e.id}')">
-                ${e.type==="group"?"Wij komen":"Ik ben erbij"}
-              </button>
-            </div>
-          </div>`;
-        } else {
-          g.innerHTML += `
-          <div class="card">
-            <img src="${e.image}">
-            <div class="card-body">
-              <h3 class="event-title">${e.title}</h3>
+    function getVisibleFeaturedEvents() {
+      return getFilteredEvents().filter((eventItem) => eventItem.featured);
+    }
 
-              <div class="meta-grid">
-                <div>
-                  <div class="meta-label">Datum</div>
-                  <div class="meta-value">${e.date}</div>
-                </div>
-                <div>
-                  <div class="meta-label">Locatie</div>
-                  <div class="meta-value">${e.location}</div>
-                </div>
+    function getVisibleRegularEvents() {
+      return getFilteredEvents().filter((eventItem) => !eventItem.featured);
+    }
+
+    function getIndividualSelected(eventItem, state) {
+      return Boolean(state[eventItem.id]?.selected);
+    }
+
+    function getGroupSelected(eventItem, state) {
+      return Boolean(state[eventItem.id]?.selected);
+    }
+
+    function getGroupCount(eventItem, state) {
+      return state[eventItem.id]?.count || GROUP_OPTIONS[0];
+    }
+
+    function getExpectedParticipants(eventItem, state) {
+      if (eventItem.responseMode === "individual") {
+        return eventItem.initialParticipants + (getIndividualSelected(eventItem, state) ? 1 : 0);
+      }
+
+      if (eventItem.responseMode === "group") {
+        return eventItem.initialParticipants + (getGroupSelected(eventItem, state) ? getGroupCount(eventItem, state) : 0);
+      }
+
+      return eventItem.initialParticipants || 0;
+    }
+
+    function getExpectedGroups(eventItem, state) {
+      if (eventItem.responseMode !== "group") return null;
+      return eventItem.initialGroups + (getGroupSelected(eventItem, state) ? 1 : 0);
+    }
+
+    function isPopular(eventItem, state) {
+      return getExpectedParticipants(eventItem, state) >= POPULAR_THRESHOLD;
+    }
+
+    function createGroupOptionsMarkup(selectedCount) {
+      return GROUP_OPTIONS.map((value) => {
+        const selected = value === selectedCount ? "selected" : "";
+        return `<option value="${value}" ${selected}>${value}</option>`;
+      }).join("");
+    }
+
+    function createStatsMarkup(eventItem, state, featured = false) {
+      const expectedParticipants = getExpectedParticipants(eventItem, state);
+
+      if (featured) {
+        if (eventItem.responseMode === "group") {
+          return `
+            <div class="featured-stats">
+              <div class="featured-stat">
+                <div class="featured-stat-label">Afdelingen</div>
+                <div class="featured-stat-value" data-role="groups">${getExpectedGroups(eventItem, state)}</div>
               </div>
-
-              <button class="action-btn ${state[e.id]?.on?"active":""}" onclick="toggle('${e.id}')">
-                ${e.type==="group"?"Wij komen":"Ik ben erbij"}
-              </button>
-
-              ${e.type==="group" && state[e.id]?.on ? `
-                <select class="count-select" onchange="setCount('${e.id}',this.value)">
-                  ${GROUP_OPTIONS.map(v=>`<option>${v}</option>`).join("")}
-                </select>
-              `:""}
+              <div class="featured-stat">
+                <div class="featured-stat-label">Deelnemers</div>
+                <div class="featured-stat-value" data-role="participants">${expectedParticipants}</div>
+              </div>
             </div>
-          </div>`;
+          `;
         }
-      });
 
-      getTotal();
+        if (eventItem.responseMode === "individual") {
+          return `
+            <div class="featured-stats single">
+              <div class="featured-stat">
+                <div class="featured-stat-label">Deelnemers</div>
+                <div class="featured-stat-value" data-role="participants">${expectedParticipants}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        return "";
+      }
+
+      if (eventItem.responseMode === "individual") {
+        return `
+          <div class="stats-grid single">
+            <div class="stat-box">
+              <div class="stat-label">Verwachte deelnemers</div>
+              <div class="stat-value" data-role="participants">${expectedParticipants}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (eventItem.responseMode === "group") {
+        return `
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-label">Afdelingen</div>
+              <div class="stat-value" data-role="groups">${getExpectedGroups(eventItem, state)}</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Verwachte deelnemers</div>
+              <div class="stat-value" data-role="participants">${expectedParticipants}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      return "";
     }
 
-    render();
+    function createResponseMarkup(eventItem, state) {
+      if (eventItem.responseMode === "individual") {
+        const selected = getIndividualSelected(eventItem, state);
+        return `
+          <div class="response-panel">
+            <div class="action-row">
+              <button
+                class="action-btn ${selected ? "active" : ""}"
+                type="button"
+                data-role="individual-btn"
+                data-event-id="${eventItem.id}"
+                aria-pressed="${selected ? "true" : "false"}"
+              >
+                <span>${selected ? "✅" : "🤍"}</span>
+                <span>${selected ? "Je bent erbij" : "Ik ben erbij"}</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      if (eventItem.responseMode === "group") {
+        const selected = getGroupSelected(eventItem, state);
+        const count = getGroupCount(eventItem, state);
+
+        return `
+          <div class="response-panel">
+            <div class="action-row">
+              <button
+                class="action-btn ${selected ? "active" : ""}"
+                type="button"
+                data-role="group-btn"
+                data-event-id="${eventItem.id}"
+                aria-pressed="${selected ? "true" : "false"}"
+              >
+                <span>${selected ? "✅" : "👥"}</span>
+                <span>Wij komen waarschijnlijk</span>
+              </button>
+
+              <div class="count-picker-inline ${selected ? "visible" : ""}" data-role="group-picker">
+                <span class="count-picker-label">Aantal:</span>
+                <select class="count-select" data-role="group-count" data-event-id="${eventItem.id}">
+                  ${createGroupOptionsMarkup(count)}
+                </select>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      return "";
+    }
+
+    function createFeaturedCard(eventItem, state) {
+      const popular = isPopular(eventItem, state);
+      const article = document.createElement("article");
+      article.className = "featured-card";
+      article.setAttribute("data-event-id", eventItem.id);
+
+      article.innerHTML = `
+        <img class="featured-image" src="${getSafeImage(eventItem.image)}" alt="${eventItem.title}" loading="lazy" />
+        <div class="featured-overlay"></div>
+
+        <div class="featured-content">
+          <div class="featured-inner">
+            <div class="featured-topline">
+              <div class="featured-period">${eventItem.period}</div>
+              <div class="featured-type">
+                <span>${eventItem.typeIcon}</span>
+                <span>${eventItem.typeLabel}</span>
+              </div>
+            </div>
+
+            <div class="featured-title-row">
+              <h2 class="featured-title">${eventItem.title}</h2>
+              <div class="popular-badge ${popular ? "visible" : ""}" data-role="popular-badge">🔥 Populair</div>
+            </div>
+
+            <p class="featured-desc">${eventItem.description}</p>
+
+            <div class="featured-meta">
+              <div class="featured-meta-item">
+                <div class="featured-meta-label">Datum</div>
+                <div class="featured-meta-value">${eventItem.date}</div>
+              </div>
+              <div class="featured-meta-item">
+                <div class="featured-meta-label">Locatie</div>
+                <div class="featured-meta-value">${eventItem.location}</div>
+              </div>
+            </div>
+
+            <div class="featured-footer">
+              ${createStatsMarkup(eventItem, state, true)}
+              ${createResponseMarkup(eventItem, state)}
+            </div>
+          </div>
+        </div>
+      `;
+
+      return article;
+    }
+
+    function createRegularCard(eventItem, state) {
+      const popular = isPopular(eventItem, state);
+      const article = document.createElement("article");
+      article.className = "card";
+      article.setAttribute("data-event-id", eventItem.id);
+
+      article.innerHTML = `
+        <div class="card-image-wrap">
+          <img class="card-image" src="${getSafeImage(eventItem.image)}" alt="${eventItem.title}" loading="lazy" />
+          <div class="card-type-chip">
+            <span>${eventItem.typeIcon}</span>
+            <span>${eventItem.typeLabel}</span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="card-top">
+            <div class="card-title-row">
+              <h3 class="event-title">${eventItem.title}</h3>
+              <div class="popular-badge ${popular ? "visible" : ""}" data-role="popular-badge">🔥 Populair</div>
+            </div>
+
+            <p class="event-desc">${eventItem.description}</p>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div class="meta-label">Datum</div>
+              <div class="meta-value">${eventItem.date}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Locatie</div>
+              <div class="meta-value">${eventItem.location}</div>
+            </div>
+          </div>
+
+          ${eventItem.responseMode !== "info" ? '<div class="divider"></div>' : ""}
+
+          <div class="stats-row">
+            ${createStatsMarkup(eventItem, state, false)}
+            ${createResponseMarkup(eventItem, state)}
+          </div>
+        </div>
+      `;
+
+      return article;
+    }
+
+    function updateTotalExpected() {
+      const state = getState();
+      const total = events.reduce((sum, eventItem) => {
+        return sum + getExpectedParticipants(eventItem, state);
+      }, 0);
+
+      totalExpectedEl.textContent = total;
+    }
+
+    function updateEmptyState() {
+      const totalVisible = getVisibleFeaturedEvents().length + getVisibleRegularEvents().length;
+      emptyStateEl.classList.toggle("visible", totalVisible === 0);
+    }
+
+    function renderEvents() {
+      const state = getState();
+      const featuredEvents = getVisibleFeaturedEvents();
+      const regularEvents = getVisibleRegularEvents();
+
+      featuredGrid.innerHTML = "";
+      grid.innerHTML = "";
+
+      featuredGrid.classList.toggle("two-col", featuredEvents.length === 2);
+
+      featuredEvents.forEach((eventItem) => {
+        featuredGrid.appendChild(createFeaturedCard(eventItem, state));
+      });
+
+      regularEvents.forEach((eventItem) => {
+        grid.appendChild(createRegularCard(eventItem, state));
+      });
+
+      updateTotalExpected();
+      updateEmptyState();
+      attachCardEvents();
+    }
+
+    function updateSingleEvent(eventId) {
+      const state = getState();
+      const eventItem = events.find((item) => item.id === eventId);
+      if (!eventItem) return;
+
+      const featuredCard = featuredGrid.querySelector(`[data-event-id="${eventId}"]`);
+      const regularCard = grid.querySelector(`[data-event-id="${eventId}"]`);
+
+      if (featuredCard) {
+        const newNode = createFeaturedCard(eventItem, state);
+        featuredCard.replaceWith(newNode);
+      }
+
+      if (regularCard) {
+        const newNode = createRegularCard(eventItem, state);
+        regularCard.replaceWith(newNode);
+      }
+
+      updateTotalExpected();
+      attachCardEvents();
+    }
+
+    function toggleIndividual(eventId) {
+      const state = getState();
+      const eventState = ensureEventState(eventId, state);
+      eventState.selected = !eventState.selected;
+      saveState(state);
+      updateSingleEvent(eventId);
+    }
+
+    function toggleGroup(eventId) {
+      const state = getState();
+      const eventState = ensureEventState(eventId, state);
+
+      if (!eventState.count) {
+        eventState.count = GROUP_OPTIONS[0];
+      }
+
+      eventState.selected = !eventState.selected;
+      saveState(state);
+      updateSingleEvent(eventId);
+    }
+
+    function setGroupCount(eventId, value) {
+      const state = getState();
+      const eventState = ensureEventState(eventId, state);
+      eventState.count = Number(value);
+      eventState.selected = true;
+      saveState(state);
+      updateSingleEvent(eventId);
+    }
+
+    function attachCardEvents() {
+      const individualButtons = document.querySelectorAll('[data-role="individual-btn"]');
+      individualButtons.forEach((button) => {
+        button.onclick = () => toggleIndividual(button.dataset.eventId);
+      });
+
+      const groupButtons = document.querySelectorAll('[data-role="group-btn"]');
+      groupButtons.forEach((button) => {
+        button.onclick = () => toggleGroup(button.dataset.eventId);
+      });
+
+      const groupCountSelects = document.querySelectorAll('[data-role="group-count"]');
+      groupCountSelects.forEach((select) => {
+        select.onchange = () => setGroupCount(select.dataset.eventId, select.value);
+      });
+    }
+
+    function setActiveFilter(filterValue) {
+      activeFilter = filterValue;
+
+      const buttons = filtersEl.querySelectorAll(".filter-btn");
+      buttons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.filter === filterValue);
+      });
+
+      renderEvents();
+    }
+
+    function attachFilterEvents() {
+      const buttons = filtersEl.querySelectorAll(".filter-btn");
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          setActiveFilter(button.dataset.filter);
+        });
+      });
+    }
+
+    attachFilterEvents();
+    renderEvents();
   </script>
 </body>
 </html>
