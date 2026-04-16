@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jong Nederland Landelijke Activiteiten 2026-2027</title>
+  <title>Jong Nederland Activiteiten</title>
+
   <style>
     :root {
       --bg: #f5f1e7;
@@ -11,18 +12,13 @@
       --text: #1d2b36;
       --muted: #73808c;
       --line: rgba(29, 43, 54, 0.1);
-      --line-strong: rgba(29, 43, 54, 0.16);
       --green: #15a457;
       --green-dark: #0d7a40;
       --blue: #1462c8;
       --orange: #f28b32;
       --shadow: 0 16px 36px rgba(23, 37, 48, 0.08);
       --radius: 24px;
-      --radius-sm: 16px;
-      --chip-bg: rgba(29, 43, 54, 0.06);
       --featured-overlay: linear-gradient(to top, rgba(20, 25, 31, 0.72), rgba(20, 25, 31, 0.16));
-      --placeholder:
-        linear-gradient(135deg, #ececec 0%, #e3e3e3 100%);
     }
 
     * {
@@ -69,34 +65,6 @@
       display: block;
     }
 
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 15px;
-      border-radius: 999px;
-      background: rgba(20, 98, 200, 0.08);
-      color: #0f4c9d;
-      font-size: 0.92rem;
-      font-weight: 800;
-      margin-bottom: 14px;
-    }
-
-    h1 {
-      margin: 0 0 10px;
-      font-size: clamp(2.1rem, 6vw, 4rem);
-      line-height: 1;
-      color: #145bb5;
-    }
-
-    .subtitle {
-      margin: 0 auto;
-      max-width: 780px;
-      color: var(--muted);
-      font-size: clamp(1rem, 2.2vw, 1.08rem);
-      line-height: 1.55;
-    }
-
     .summary-card {
       background: var(--card);
       border: 1px solid rgba(29, 43, 54, 0.08);
@@ -114,30 +82,6 @@
       align-items: center;
       gap: 16px;
       flex-wrap: wrap;
-    }
-
-    .summary-left {
-      display: grid;
-      gap: 7px;
-    }
-
-    .summary-label {
-      color: var(--muted);
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    .summary-total {
-      font-size: clamp(2rem, 5vw, 3rem);
-      line-height: 1;
-      font-weight: 900;
-      color: var(--green-dark);
-    }
-
-    .summary-note {
-      color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.4;
     }
 
     .legend {
@@ -210,6 +154,10 @@
       margin-bottom: 20px;
     }
 
+    .featured-grid.two-col {
+      grid-template-columns: 1fr;
+    }
+
     .featured-card {
       position: relative;
       min-height: 360px;
@@ -249,38 +197,6 @@
       color: #fff;
       display: grid;
       gap: 14px;
-    }
-
-    .featured-topline {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .featured-period {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 12px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.14);
-      backdrop-filter: blur(2px);
-      font-size: 0.9rem;
-      font-weight: 800;
-    }
-
-    .featured-type {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 12px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.14);
-      backdrop-filter: blur(2px);
-      font-size: 0.9rem;
-      font-weight: 800;
     }
 
     .featured-title-row {
@@ -729,28 +645,8 @@
       Demo MVP voor interessepeiling en voorinschatting deelname. Later uitbreidbaar met Supabase of WordPress-koppeling.
     </p>
   </main>
-</body>
-  <script>
-    const PLACEHOLDER_IMAGE =
-      "data:image/svg+xml;utf8," +
-      encodeURIComponent(`
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
-          <defs>
-            <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
-              <stop offset="0%" stop-color="#ececec"/>
-              <stop offset="100%" stop-color="#e1e1e1"/>
-            </linearGradient>
-          </defs>
-          <rect width="1600" height="900" fill="url(#g)"/>
-          <circle cx="1260" cy="210" r="120" fill="#d8d8d8"/>
-          <rect x="160" y="640" width="1280" height="120" rx="26" fill="#d8d8d8"/>
-          <rect x="160" y="170" width="520" height="44" rx="20" fill="#d4d4d4"/>
-          <rect x="160" y="240" width="760" height="30" rx="15" fill="#d7d7d7"/>
-          <rect x="160" y="290" width="600" height="30" rx="15" fill="#dcdcdc"/>
-          <path d="M180 610 L520 360 L760 540 L980 410 L1260 610 Z" fill="#cfcfcf"/>
-        </svg>
-      `);
 
+  <script>
     const events = [
       {
         id: "festival-back2basic-2027",
@@ -760,7 +656,7 @@
         typeLabel: "Jeugdactiviteit",
         typeIcon: "🎉",
         title: "Festival Back2Basic",
-        description: "Een grote landelijke activiteit waarbij afdelingen met groepen jeugdleden deelnemen. Ideaal om extra prominent bovenaan te tonen.",
+        description: "Een grote landelijke activiteit waarbij afdelingen met groepen jeugdleden deelnemen.",
         date: "10 apr 2027",
         location: "BillyBird / Midden van het land",
         image: "./images/zomer.jpg",
@@ -775,10 +671,10 @@
         typeLabel: "Evenement",
         typeIcon: "🎪",
         title: "Kaderschouw",
-        description: "Meerdaags evenement waar vrijwilligers individueel boeken en je de opkomst goed wilt kunnen inschatten.",
+        description: "Meerdaags evenement waar vrijwilligers individueel boeken en je de opkomst wilt inschatten.",
         date: "25 t/m 27 sep 2026",
         location: "Heeswijk-Dinther",
-        image: "./images/kamp.jpg",
+        image: "./images/zomer.jpg",
         initialParticipants: 18
       },
       {
@@ -792,7 +688,7 @@
         description: "Online sessie voor vrijwilligers en bestuur over actuele wet- en regelgeving.",
         date: "12 nov 2026",
         location: "Online",
-        image: "./images/webinar.jpg",
+        image: "./images/zomer.jpg",
         initialParticipants: 6
       },
       {
@@ -821,7 +717,7 @@
         description: "Praktische sessie voor vrijwilligers die met communicatie binnen de afdeling bezig zijn.",
         date: "22 feb 2027",
         location: "Hybride",
-        image: "./images/webinar.jpg",
+        image: "./images/zomer.jpg",
         initialParticipants: 9
       },
       {
@@ -835,7 +731,7 @@
         description: "Laagdrempelige activiteit waarbij een afdeling met een groep kinderen kan deelnemen.",
         date: "23 jan 2027",
         location: "Hybride",
-        image: "./images/ehbo.jpg",
+        image: "./images/zomer.jpg",
         initialGroups: 3,
         initialParticipants: 36
       },
@@ -850,19 +746,19 @@
         description: "Een informatief kalenderitem zonder interactie.",
         date: "Seizoen 2026-2027",
         location: "Landelijk",
-        image: "./images/bellenblaas.jpg",
+        image: "./images/zomer.jpg",
         initialParticipants: 0
       }
     ];
 
-    const STORAGE_KEY = "jn-response-model-v2-clean";
+    const STORAGE_KEY = "jn-response-model-v3-working";
     const POPULAR_THRESHOLD = 25;
     const GROUP_OPTIONS = [10, 15, 20, 25, 30, 40, 50];
+
     let activeFilter = "all";
 
     const featuredGrid = document.getElementById("featuredGrid");
-    const grid = document.getElementById("eventsGrid");
-    const totalExpectedEl = document.getElementById("totalExpected");
+    const eventsGrid = document.getElementById("eventsGrid");
     const filtersEl = document.getElementById("filters");
     const emptyStateEl = document.getElementById("emptyState");
 
@@ -884,10 +780,6 @@
         state[eventId] = {};
       }
       return state[eventId];
-    }
-
-    function getSafeImage(image) {
-      return image && image.trim() ? image : PLACEHOLDER_IMAGE;
     }
 
     function getFilteredEvents() {
@@ -1060,24 +952,17 @@
 
     function createFeaturedCard(eventItem, state) {
       const popular = isPopular(eventItem, state);
+
       const article = document.createElement("article");
       article.className = "featured-card";
       article.setAttribute("data-event-id", eventItem.id);
 
       article.innerHTML = `
-        <img class="featured-image" src="${getSafeImage(eventItem.image)}" alt="${eventItem.title}" loading="lazy" />
+        <img class="featured-image" src="${eventItem.image}" alt="${eventItem.title}" loading="lazy" />
         <div class="featured-overlay"></div>
 
         <div class="featured-content">
           <div class="featured-inner">
-            <div class="featured-topline">
-              <div class="featured-period">${eventItem.period}</div>
-              <div class="featured-type">
-                <span>${eventItem.typeIcon}</span>
-                <span>${eventItem.typeLabel}</span>
-              </div>
-            </div>
-
             <div class="featured-title-row">
               <h2 class="featured-title">${eventItem.title}</h2>
               <div class="popular-badge ${popular ? "visible" : ""}" data-role="popular-badge">🔥 Populair</div>
@@ -1109,13 +994,14 @@
 
     function createRegularCard(eventItem, state) {
       const popular = isPopular(eventItem, state);
+
       const article = document.createElement("article");
       article.className = "card";
       article.setAttribute("data-event-id", eventItem.id);
 
       article.innerHTML = `
         <div class="card-image-wrap">
-          <img class="card-image" src="${getSafeImage(eventItem.image)}" alt="${eventItem.title}" loading="lazy" />
+          <img class="card-image" src="${eventItem.image}" alt="${eventItem.title}" loading="lazy" />
           <div class="card-type-chip">
             <span>${eventItem.typeIcon}</span>
             <span>${eventItem.typeLabel}</span>
@@ -1155,15 +1041,6 @@
       return article;
     }
 
-    function updateTotalExpected() {
-      const state = getState();
-      const total = events.reduce((sum, eventItem) => {
-        return sum + getExpectedParticipants(eventItem, state);
-      }, 0);
-
-      totalExpectedEl.textContent = total;
-    }
-
     function updateEmptyState() {
       const totalVisible = getVisibleFeaturedEvents().length + getVisibleRegularEvents().length;
       emptyStateEl.classList.toggle("visible", totalVisible === 0);
@@ -1175,7 +1052,7 @@
       const regularEvents = getVisibleRegularEvents();
 
       featuredGrid.innerHTML = "";
-      grid.innerHTML = "";
+      eventsGrid.innerHTML = "";
 
       featuredGrid.classList.toggle("two-col", featuredEvents.length === 2);
 
@@ -1184,10 +1061,9 @@
       });
 
       regularEvents.forEach((eventItem) => {
-        grid.appendChild(createRegularCard(eventItem, state));
+        eventsGrid.appendChild(createRegularCard(eventItem, state));
       });
 
-      updateTotalExpected();
       updateEmptyState();
       attachCardEvents();
     }
@@ -1198,7 +1074,7 @@
       if (!eventItem) return;
 
       const featuredCard = featuredGrid.querySelector(`[data-event-id="${eventId}"]`);
-      const regularCard = grid.querySelector(`[data-event-id="${eventId}"]`);
+      const regularCard = eventsGrid.querySelector(`[data-event-id="${eventId}"]`);
 
       if (featuredCard) {
         const newNode = createFeaturedCard(eventItem, state);
@@ -1210,7 +1086,6 @@
         regularCard.replaceWith(newNode);
       }
 
-      updateTotalExpected();
       attachCardEvents();
     }
 
