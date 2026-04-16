@@ -21,8 +21,8 @@
       --line: rgba(23, 50, 77, 0.1);
       --shadow: 0 12px 28px rgba(23, 50, 77, 0.08);
       --radius: 22px;
-      --radius-sm: 14px;
       --btn-shadow: 0 10px 22px rgba(21, 164, 87, 0.22);
+      --chip-bg: rgba(23, 50, 77, 0.05);
     }
 
     * {
@@ -54,7 +54,7 @@
       text-align: center;
       margin: 0 auto 28px;
       padding: 18px 0 0;
-      max-width: 920px;
+      max-width: 960px;
     }
 
     .logo-wrap {
@@ -84,14 +84,14 @@
 
     h1 {
       margin: 0 0 10px;
-      font-size: clamp(2rem, 6vw, 3.8rem);
+      font-size: clamp(2rem, 6vw, 3.7rem);
       line-height: 1;
       color: var(--blue);
     }
 
     .subtitle {
       margin: 0 auto;
-      max-width: 760px;
+      max-width: 780px;
       color: var(--muted);
       font-size: clamp(1rem, 2.2vw, 1.1rem);
       line-height: 1.55;
@@ -289,7 +289,7 @@
 
     .event-title {
       margin: 0;
-      font-size: 1.1rem;
+      font-size: 1.12rem;
       line-height: 1.2;
       color: var(--text);
     }
@@ -361,32 +361,54 @@
       margin-top: 2px;
     }
 
-    .card-footer {
+    .stats-row {
       display: grid;
-      grid-template-columns: 1fr auto;
       gap: 12px;
-      align-items: center;
     }
 
-    .interest-block {
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stats-grid.single {
+      grid-template-columns: 1fr;
+    }
+
+    .stat-box {
+      background: rgba(23, 50, 77, 0.035);
+      border-radius: 16px;
+      padding: 12px 12px;
       display: grid;
       gap: 4px;
     }
 
-    .interest-label {
+    .stat-label {
       color: var(--muted);
-      font-size: 0.86rem;
+      font-size: 0.82rem;
       font-weight: 700;
     }
 
-    .interest-count {
+    .stat-value {
       color: var(--green-dark);
-      font-size: 1.55rem;
+      font-size: 1.45rem;
       line-height: 1;
       font-weight: 900;
     }
 
-    .like-btn {
+    .response-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
       appearance: none;
       border: none;
       border-radius: 999px;
@@ -403,23 +425,78 @@
       white-space: nowrap;
     }
 
-    .like-btn:hover {
+    .action-btn:hover {
       transform: translateY(-1px);
     }
 
-    .like-btn:active {
+    .action-btn:active {
       transform: translateY(0);
     }
 
-    .like-btn.liked {
+    .action-btn.active {
       background: var(--green);
       color: #fff;
       box-shadow: var(--btn-shadow);
     }
 
-    .heart {
-      font-size: 1rem;
-      line-height: 1;
+    .action-btn.secondary {
+      background: rgba(23, 50, 77, 0.06);
+      color: var(--text);
+      box-shadow: none;
+    }
+
+    .action-btn.secondary:hover {
+      background: rgba(23, 50, 77, 0.1);
+    }
+
+    .count-picker {
+      display: none;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(20, 164, 87, 0.06);
+      border: 1px solid rgba(20, 164, 87, 0.12);
+    }
+
+    .count-picker.visible {
+      display: flex;
+    }
+
+    .count-label {
+      color: var(--text);
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
+    .count-select {
+      appearance: none;
+      border: 1px solid rgba(23, 50, 77, 0.14);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text);
+      background: #fff;
+      min-width: 110px;
+    }
+
+    .inline-note {
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+
+    .info-only-box {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(20, 98, 200, 0.06);
+      border: 1px solid rgba(20, 98, 200, 0.1);
+      color: var(--blue-dark);
+      font-size: 0.92rem;
+      font-weight: 700;
+      line-height: 1.45;
     }
 
     .empty-state {
@@ -466,15 +543,6 @@
     }
 
     @media (max-width: 520px) {
-      .card-footer {
-        grid-template-columns: 1fr;
-      }
-
-      .like-btn {
-        justify-content: center;
-        width: 100%;
-      }
-
       .title-row {
         flex-direction: column;
         align-items: flex-start;
@@ -483,6 +551,19 @@
       .card-header {
         flex-wrap: wrap;
       }
+
+      .btn-row {
+        flex-direction: column;
+      }
+
+      .action-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -490,7 +571,7 @@
         scroll-behavior: auto;
       }
 
-      .like-btn,
+      .action-btn,
       .filter-btn {
         transition: none;
       }
@@ -504,36 +585,34 @@
         <img class="logo" src="./Jong Nederland Logo.svg" alt="Jong Nederland logo" />
       </div>
 
-      <div class="eyebrow">Demo RSVP interessepeiling</div>
+      <div class="eyebrow">Demo voorinschatting deelname</div>
       <h1>Jong Nederland Landelijke Activiteiten 2026-2027</h1>
       <p class="subtitle">
-        Klik op <strong>Ik ben erbij</strong> om alvast interesse te tonen. Deze demo helpt om vooraf beter in te schatten hoeveel belangstelling er is, nog voordat de echte ticketverkoop start.
+        Deze demo laat zien hoe je per activiteit een passend type respons kunt gebruiken. Bij individuele activiteiten telt 1 reactie als 1 deelnemer. Bij groepsactiviteiten kan een afdeling een verwachte groepsgrootte doorgeven.
       </p>
     </section>
 
     <section class="summary-card">
       <div class="summary-top">
         <div class="summary-left">
-          <div class="summary-label">Totaal aantal geïnteresseerden</div>
-          <div class="summary-total" id="totalInterested">0</div>
+          <div class="summary-label">Totaal verwachte deelnemers</div>
+          <div class="summary-total" id="totalExpected">0</div>
           <div class="summary-note">
-            Likes worden in deze demo lokaal opgeslagen op je eigen apparaat.
+            In deze demo worden keuzes lokaal opgeslagen op je eigen apparaat.
           </div>
         </div>
 
         <div class="legend">
-          <div class="legend-pill"><span class="legend-dot green"></span> Cursus / training</div>
-          <div class="legend-pill"><span class="legend-dot blue"></span> Evenement / activiteit</div>
+          <div class="legend-pill"><span class="legend-dot green"></span> Individueel</div>
+          <div class="legend-pill"><span class="legend-dot blue"></span> Groepsactiviteit</div>
         </div>
       </div>
 
       <div class="filters" id="filters">
         <button class="filter-btn active" type="button" data-filter="all">Alles</button>
-        <button class="filter-btn" type="button" data-filter="evenement">Evenementen</button>
-        <button class="filter-btn" type="button" data-filter="activiteit">Activiteiten</button>
-        <button class="filter-btn" type="button" data-filter="cursus">Cursussen</button>
-        <button class="filter-btn" type="button" data-filter="info">Infosessies</button>
-        <button class="filter-btn" type="button" data-filter="webinar">Webinars</button>
+        <button class="filter-btn" type="button" data-filter="individual">Individueel</button>
+        <button class="filter-btn" type="button" data-filter="group">Groep</button>
+        <button class="filter-btn" type="button" data-filter="info">Info only</button>
       </div>
     </section>
 
@@ -541,221 +620,111 @@
     <div class="empty-state" id="emptyState">Geen activiteiten gevonden binnen dit filter.</div>
 
     <p class="footer-note">
-      Demo MVP voor interessepeiling. Later uitbreidbaar met Supabase of koppeling aan WordPress.
+      Demo MVP voor interessepeiling en voorinschatting deelname. Later uitbreidbaar met Supabase of WordPress-koppeling.
     </p>
   </main>
 
   <script>
     const events = [
       {
-        id: "kadershow-2026",
-        period: "sep 2026",
-        theme: "green",
-        type: "evenement",
-        typeLabel: "Evenement",
-        typeIcon: "🎪",
-        title: "Kadershow",
-        description: "Ontmoet andere kaderleden en trap samen het nieuwe seizoen af.",
-        date: "25 t/m 27 sep 2026",
-        location: "Heeswijk-Dinther",
-        image: "./images/bomenklimmen.jpg",
-        initialCount: 7
-      },
-      {
-        id: "toernooi-halloween-2026",
-        period: "okt 2026",
-        theme: "blue",
-        type: "activiteit",
-        typeLabel: "Activiteit",
-        typeIcon: "🏕️",
-        title: "Landelijk Toernooi: Halloween editie",
-        description: "Een landelijke spelactiviteit vol actie, competitie en gezelligheid.",
-        date: "23 t/m 25 okt 2026",
-        location: "Liessel",
-        image: "./images/halloween.jpg",
-        initialCount: 12
-      },
-      {
-        id: "sinterklaas-2026",
+        id: "wetgeving-webinar",
         period: "nov 2026",
-        theme: "blue",
-        type: "activiteit",
-        typeLabel: "Activiteit",
-        typeIcon: "🎉",
-        title: "Sinterklaasactiviteit",
-        description: "Een gezellige landelijke activiteit voor mini- en maxioren.",
-        date: "28 nov 2026",
-        location: "Locatie volgt",
-        image: "./images/sinterklaas.jpg",
-        initialCount: 5
-      },
-      {
-        id: "financien-2026",
-        period: "dec 2026",
         theme: "green",
-        type: "info",
-        typeLabel: "Infosessie",
-        typeIcon: "📘",
-        title: "Financiën",
-        description: "Praktische sessie over financiën voor kader en penningmeesters.",
-        date: "9 dec 2026",
-        location: "Hybride",
-        image: "./images/webinar.jpg",
-        initialCount: 3
-      },
-      {
-        id: "knikkerbaanchallenge-2027",
-        period: "jan 2027",
-        theme: "blue",
-        type: "activiteit",
-        typeLabel: "Challenge",
-        typeIcon: "🎯",
-        title: "Knikkerbaallenge",
-        description: "Bouw en speel lokaal mee met deze creatieve challengeweek.",
-        date: "11 t/m 17 jan 2027",
-        location: "Eigen omgeving",
-        image: "./images/zomer.jpg",
-        initialCount: 8
-      },
-      {
-        id: "ehbo-voor-kids-2027",
-        period: "jan 2027",
-        theme: "green",
-        type: "cursus",
-        typeLabel: "Cursus",
-        typeIcon: "🩹",
-        title: "EHBO voor kids",
-        description: "Laagdrempelige training om kinderen spelenderwijs EHBO te leren.",
-        date: "23 jan 2027",
-        location: "Hybride",
-        image: "./images/ehbo.jpg",
-        initialCount: 4
-      },
-      {
-        id: "ticket-to-ride-2027",
-        period: "feb 2027",
-        theme: "blue",
-        type: "evenement",
-        typeLabel: "Evenement",
-        typeIcon: "🚂",
-        title: "Ticket to Ride",
-        description: "Een leuke landelijke activiteit voor junioren, senioren en 16+.",
-        date: "13 feb 2027",
-        location: "Locatie volgt",
-        image: "./images/bellenblazen.jpg",
-        initialCount: 9
-      },
-      {
-        id: "marketing-communicatie-2027",
-        period: "feb 2027",
-        theme: "green",
-        type: "info",
-        typeLabel: "Infosessie",
-        typeIcon: "💬",
-        title: "Marketing & Communicatie",
-        description: "Handige sessie met tips om je afdeling sterker zichtbaar te maken.",
-        date: "22 feb 2027",
-        location: "Hybride",
-        image: "./images/webinar.jpg",
-        initialCount: 6
-      },
-      {
-        id: "vrijwilligersdag-2027",
-        period: "mrt 2027",
-        theme: "green",
-        type: "evenement",
-        typeLabel: "Evenement",
-        typeIcon: "🤝",
-        title: "Landelijke Vrijwilligersdag",
-        description: "Een inspirerende dag vol ontmoeting, uitwisseling en waardering.",
-        date: "6 en 7 mrt 2027",
-        location: "Locatie volgt",
-        image: "./images/kamp.jpg",
-        initialCount: 11
-      },
-      {
-        id: "werven-motiveren-2027",
-        period: "mrt 2027",
-        theme: "green",
-        type: "webinar",
+        responseMode: "individual",
         typeLabel: "Webinar",
         typeIcon: "💻",
-        title: "Werven en motiveren vrijwilligers",
-        description: "Praktische inzichten om vrijwilligers te vinden, binden en activeren.",
-        date: "24 mrt 2027",
-        location: "Hybride",
-        image: "./images/webinar.jpg",
-        initialCount: 2
+        title: "Webinar wet- en regelgeving",
+        description: "Online sessie voor vrijwilligers en bestuur over actuele wet- en regelgeving.",
+        date: "12 nov 2026",
+        location: "Online",
+        image: "./images/wetgeving-webinar.jpg",
+        initialParticipants: 6
+      },
+      {
+        id: "kaderschouw-2026",
+        period: "sep 2026",
+        theme: "green",
+        responseMode: "individual",
+        typeLabel: "Evenement",
+        typeIcon: "🎪",
+        title: "Kaderschouw",
+        description: "Meerdaags evenement waar vrijwilligers individueel aan deelnemen en op naam boeken.",
+        date: "25 t/m 27 sep 2026",
+        location: "Heeswijk-Dinther",
+        image: "./images/kaderschouw.jpg",
+        initialParticipants: 18
       },
       {
         id: "festival-back2basic-2027",
         period: "apr 2027",
         theme: "blue",
-        type: "evenement",
-        typeLabel: "Evenement",
-        typeIcon: "🎪",
+        responseMode: "group",
+        typeLabel: "Jeugdactiviteit",
+        typeIcon: "🎉",
         title: "Festival Back2Basic",
-        description: "Een landelijke festivaldag voor alle jeugdleden met spel en beleving.",
+        description: "Afdelingen kunnen met een groep jeugdleden deelnemen. Hier wil je verwachte aantallen zien.",
         date: "10 apr 2027",
-        location: "Midden van het land",
-        image: "./images/kamp.jpg",
-        initialCount: 14
-      },
-      {
-        id: "waar-ligt-de-grens-2027",
-        period: "mei 2027",
-        theme: "green",
-        type: "cursus",
-        typeLabel: "Training",
-        typeIcon: "🧭",
-        title: "Waar ligt de grens?",
-        description: "Training over sociale veiligheid, grenzen en omgaan met lastige situaties.",
-        date: "13 mei 2027",
-        location: "Hybride",
-        image: "./images/webinar.jpg",
-        initialCount: 4
-      },
-      {
-        id: "ledenadministratie-2027",
-        period: "sep 2027",
-        theme: "green",
-        type: "info",
-        typeLabel: "Infosessie",
-        typeIcon: "🗂️",
-        title: "Ledenadministratie",
-        description: "Handige uitleg en ondersteuning voor secretarissen en kaderleden.",
-        date: "7 sep 2027",
-        location: "Hybride",
-        image: "./images/webinar.jpg",
-        initialCount: 3
+        location: "BillyBird / Midden van het land",
+        image: "./images/festival-back2basic.jpg",
+        initialGroups: 4,
+        initialParticipants: 82
       },
       {
         id: "landelijk-toernooi-2027",
         period: "okt 2027",
         theme: "blue",
-        type: "evenement",
-        typeLabel: "Evenement",
+        responseMode: "group",
+        typeLabel: "Groepsactiviteit",
         typeIcon: "🏆",
         title: "Landelijk Toernooi",
-        description: "De landelijke toernooieditie voor junioren, senioren en 16+.",
+        description: "Afdelingen melden zich aan voor een groep. Verwachte groepsgrootte is belangrijk voor planning.",
         date: "24 t/m 26 okt 2027",
         location: "Locatie volgt",
-        image: "./images/vlag.jpg",
-        initialCount: 10
+        image: "./images/landelijk-toernooi.jpg",
+        initialGroups: 6,
+        initialParticipants: 121
+      },
+      {
+        id: "marketing-com-2027",
+        period: "feb 2027",
+        theme: "green",
+        responseMode: "individual",
+        typeLabel: "Infosessie",
+        typeIcon: "💬",
+        title: "Marketing & Communicatie",
+        description: "Praktische sessie voor vrijwilligers die met communicatie binnen de afdeling bezig zijn.",
+        date: "22 feb 2027",
+        location: "Hybride",
+        image: "./images/marketing-communicatie.jpg",
+        initialParticipants: 9
+      },
+      {
+        id: "jaaroverzicht-item",
+        period: "doorlopend",
+        theme: "blue",
+        responseMode: "info",
+        typeLabel: "Kalenderitem",
+        typeIcon: "🗓️",
+        title: "Jaarkalender overzicht",
+        description: "Sommige onderdelen zijn vooral informatief en hoeven geen responsknop te hebben.",
+        date: "Seizoen 2026-2027",
+        location: "Landelijk",
+        image: "./images/jaarkalender.jpg",
+        initialParticipants: 0
       }
     ];
 
-    const STORAGE_KEY = "jn-activiteiten-liked-events-v3";
-    const POPULAR_THRESHOLD = 10;
-
+    const STORAGE_KEY = "jn-response-model-v1";
+    const POPULAR_THRESHOLD = 25;
+    const GROUP_OPTIONS = [10, 15, 20, 25, 30, 40, 50];
     let activeFilter = "all";
 
     const grid = document.getElementById("eventsGrid");
-    const totalInterestedEl = document.getElementById("totalInterested");
+    const totalExpectedEl = document.getElementById("totalExpected");
     const filtersEl = document.getElementById("filters");
     const emptyStateEl = document.getElementById("emptyState");
 
-    function getLikedState() {
+    function getState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         return raw ? JSON.parse(raw) : {};
@@ -764,31 +733,174 @@
       }
     }
 
-    function saveLikedState(state) {
+    function saveState(state) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
-    function isLiked(eventId, likedState) {
-      return Boolean(likedState[eventId]);
-    }
-
-    function getDisplayCount(eventItem, likedState) {
-      return eventItem.initialCount + (isLiked(eventItem.id, likedState) ? 1 : 0);
-    }
-
-    function isPopular(eventItem, likedState) {
-      return getDisplayCount(eventItem, likedState) >= POPULAR_THRESHOLD;
+    function ensureEventState(eventId, state) {
+      if (!state[eventId]) {
+        state[eventId] = {};
+      }
+      return state[eventId];
     }
 
     function getFilteredEvents() {
       if (activeFilter === "all") return events;
-      return events.filter((eventItem) => eventItem.type === activeFilter);
+      return events.filter((eventItem) => eventItem.responseMode === activeFilter);
     }
 
-    function createEventCard(eventItem, likedState) {
-      const liked = isLiked(eventItem.id, likedState);
-      const displayCount = getDisplayCount(eventItem, likedState);
-      const popular = isPopular(eventItem, likedState);
+    function getIndividualSelected(eventItem, state) {
+      return Boolean(state[eventItem.id]?.selected);
+    }
+
+    function getGroupSelected(eventItem, state) {
+      return Boolean(state[eventItem.id]?.selected);
+    }
+
+    function getGroupCount(eventItem, state) {
+      return state[eventItem.id]?.count || GROUP_OPTIONS[0];
+    }
+
+    function getExpectedParticipants(eventItem, state) {
+      if (eventItem.responseMode === "individual") {
+        return eventItem.initialParticipants + (getIndividualSelected(eventItem, state) ? 1 : 0);
+      }
+
+      if (eventItem.responseMode === "group") {
+        return eventItem.initialParticipants + (getGroupSelected(eventItem, state) ? getGroupCount(eventItem, state) : 0);
+      }
+
+      return eventItem.initialParticipants || 0;
+    }
+
+    function getExpectedGroups(eventItem, state) {
+      if (eventItem.responseMode !== "group") return null;
+      return eventItem.initialGroups + (getGroupSelected(eventItem, state) ? 1 : 0);
+    }
+
+    function isPopular(eventItem, state) {
+      return getExpectedParticipants(eventItem, state) >= POPULAR_THRESHOLD;
+    }
+
+    function createGroupOptionsMarkup(selectedCount) {
+      return GROUP_OPTIONS.map((value) => {
+        const selected = value === selectedCount ? "selected" : "";
+        return `<option value="${value}" ${selected}>${value}</option>`;
+      }).join("");
+    }
+
+    function createStatsMarkup(eventItem, state) {
+      const expectedParticipants = getExpectedParticipants(eventItem, state);
+
+      if (eventItem.responseMode === "individual") {
+        return `
+          <div class="stats-grid single">
+            <div class="stat-box">
+              <div class="stat-label">Verwachte deelnemers</div>
+              <div class="stat-value" data-role="participants">${expectedParticipants}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (eventItem.responseMode === "group") {
+        return `
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-label">Afdelingen / reacties</div>
+              <div class="stat-value" data-role="groups">${getExpectedGroups(eventItem, state)}</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Verwachte deelnemers</div>
+              <div class="stat-value" data-role="participants">${expectedParticipants}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="stats-grid single">
+          <div class="stat-box">
+            <div class="stat-label">Type</div>
+            <div class="stat-value" style="font-size:1.1rem;">Info only</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function createResponseMarkup(eventItem, state) {
+      if (eventItem.responseMode === "individual") {
+        const selected = getIndividualSelected(eventItem, state);
+        return `
+          <div class="response-panel">
+            <div class="btn-row">
+              <button
+                class="action-btn ${selected ? "active" : ""}"
+                type="button"
+                data-role="individual-btn"
+                data-event-id="${eventItem.id}"
+                aria-pressed="${selected ? "true" : "false"}"
+              >
+                <span>${selected ? "✅" : "🤍"}</span>
+                <span>${selected ? "Je bent erbij" : "Ik ben erbij"}</span>
+              </button>
+            </div>
+            <div class="inline-note">
+              Voor dit type activiteit telt 1 reactie als 1 verwachte deelnemer.
+            </div>
+          </div>
+        `;
+      }
+
+      if (eventItem.responseMode === "group") {
+        const selected = getGroupSelected(eventItem, state);
+        const count = getGroupCount(eventItem, state);
+
+        return `
+          <div class="response-panel">
+            <div class="btn-row">
+              <button
+                class="action-btn ${selected ? "active" : ""}"
+                type="button"
+                data-role="group-btn"
+                data-event-id="${eventItem.id}"
+                aria-pressed="${selected ? "true" : "false"}"
+              >
+                <span>${selected ? "✅" : "👥"}</span>
+                <span>${selected ? "Wij komen waarschijnlijk" : "Wij komen waarschijnlijk"}</span>
+              </button>
+
+              <button
+                class="action-btn secondary"
+                type="button"
+                data-role="group-reset-btn"
+                data-event-id="${eventItem.id}"
+              >
+                <span>↺</span>
+                <span>Reset</span>
+              </button>
+            </div>
+
+            <div class="count-picker ${selected ? "visible" : ""}" data-role="group-picker">
+              <label class="count-label" for="count-${eventItem.id}">Aantal verwacht:</label>
+              <select class="count-select" id="count-${eventItem.id}" data-role="group-count" data-event-id="${eventItem.id}">
+                ${createGroupOptionsMarkup(count)}
+              </select>
+              <div class="inline-note">Gebruik dit voor activiteiten waarbij een afdeling tickets of deelname voor een groep regelt.</div>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="info-only-box">
+          Dit onderdeel is alleen informatief en heeft geen responsknop nodig.
+        </div>
+      `;
+    }
+
+    function createEventCard(eventItem, state) {
+      const popular = isPopular(eventItem, state);
 
       const card = document.createElement("article");
       card.className = `card theme-${eventItem.theme}`;
@@ -835,22 +947,9 @@
 
           <div class="divider"></div>
 
-          <div class="card-footer">
-            <div class="interest-block">
-              <div class="interest-label">Geïnteresseerd</div>
-              <div class="interest-count" data-role="count">${displayCount}</div>
-            </div>
-
-            <button
-              class="like-btn ${liked ? "liked" : ""}"
-              type="button"
-              aria-pressed="${liked ? "true" : "false"}"
-              data-role="like-btn"
-              data-event-id="${eventItem.id}"
-            >
-              <span class="heart">${liked ? "❤️" : "🤍"}</span>
-              <span class="btn-label">${liked ? "Je bent erbij" : "Ik ben erbij"}</span>
-            </button>
+          <div class="stats-row">
+            ${createStatsMarkup(eventItem, state)}
+            ${createResponseMarkup(eventItem, state)}
           </div>
         </div>
       `;
@@ -858,68 +957,27 @@
       return card;
     }
 
-    function updateTotalInterested() {
-      const likedState = getLikedState();
+    function updateTotalExpected() {
+      const state = getState();
       const total = events.reduce((sum, eventItem) => {
-        return sum + getDisplayCount(eventItem, likedState);
+        return sum + getExpectedParticipants(eventItem, state);
       }, 0);
 
-      totalInterestedEl.textContent = total;
+      totalExpectedEl.textContent = total;
     }
 
-    function updateCard(eventId) {
-      const likedState = getLikedState();
-      const eventItem = events.find((item) => item.id === eventId);
-      if (!eventItem) return;
+    function renderEvents() {
+      const state = getState();
+      const filteredEvents = getFilteredEvents();
 
-      const card = grid.querySelector(`[data-event-id="${eventId}"]`);
-      if (!card) {
-        updateTotalInterested();
-        return;
-      }
-
-      const liked = isLiked(eventId, likedState);
-      const count = getDisplayCount(eventItem, likedState);
-      const popular = isPopular(eventItem, likedState);
-
-      const countEl = card.querySelector('[data-role="count"]');
-      const button = card.querySelector('[data-role="like-btn"]');
-      const heart = button.querySelector(".heart");
-      const label = button.querySelector(".btn-label");
-      const badge = card.querySelector('[data-role="popular-badge"]');
-
-      countEl.textContent = count;
-      button.classList.toggle("liked", liked);
-      button.setAttribute("aria-pressed", liked ? "true" : "false");
-      heart.textContent = liked ? "❤️" : "🤍";
-      label.textContent = liked ? "Je bent erbij" : "Ik ben erbij";
-      badge.classList.toggle("visible", popular);
-
-      updateTotalInterested();
-    }
-
-    function toggleLike(eventId) {
-      const likedState = getLikedState();
-
-      if (likedState[eventId]) {
-        delete likedState[eventId];
-      } else {
-        likedState[eventId] = true;
-      }
-
-      saveLikedState(likedState);
-      updateCard(eventId);
-    }
-
-    function attachButtonEvents() {
-      const buttons = grid.querySelectorAll('[data-role="like-btn"]');
-
-      buttons.forEach((button) => {
-        button.addEventListener("click", () => {
-          const eventId = button.getAttribute("data-event-id");
-          toggleLike(eventId);
-        });
+      grid.innerHTML = "";
+      filteredEvents.forEach((eventItem) => {
+        grid.appendChild(createEventCard(eventItem, state));
       });
+
+      updateTotalExpected();
+      updateEmptyState();
+      attachCardEvents();
     }
 
     function updateEmptyState() {
@@ -927,19 +985,98 @@
       emptyStateEl.classList.toggle("visible", filteredEvents.length === 0);
     }
 
-    function renderEvents() {
-      const likedState = getLikedState();
-      const filteredEvents = getFilteredEvents();
+    function updateCard(eventId) {
+      const state = getState();
+      const eventItem = events.find((item) => item.id === eventId);
+      if (!eventItem) return;
 
-      grid.innerHTML = "";
+      const card = grid.querySelector(`[data-event-id="${eventId}"]`);
+      if (!card) {
+        updateTotalExpected();
+        return;
+      }
 
-      filteredEvents.forEach((eventItem) => {
-        grid.appendChild(createEventCard(eventItem, likedState));
+      const newCard = createEventCard(eventItem, state);
+      card.replaceWith(newCard);
+
+      updateTotalExpected();
+      attachCardEvents();
+    }
+
+    function toggleIndividual(eventId) {
+      const state = getState();
+      const eventState = ensureEventState(eventId, state);
+
+      eventState.selected = !eventState.selected;
+
+      saveState(state);
+      updateCard(eventId);
+    }
+
+    function toggleGroup(eventId) {
+      const state = getState();
+      const eventState = ensureEventState(eventId, state);
+
+      if (!eventState.count) {
+        eventState.count = GROUP_OPTIONS[0];
+      }
+
+      eventState.selected = !eventState.selected;
+
+      saveState(state);
+      updateCard(eventId);
+    }
+
+    function resetGroup(eventId) {
+      const state = getState();
+      state[eventId] = {
+        selected: false,
+        count: GROUP_OPTIONS[0]
+      };
+
+      saveState(state);
+      updateCard(eventId);
+    }
+
+    function setGroupCount(eventId, value) {
+      const state = getState();
+      const eventState = ensureEventState(eventId, state);
+
+      eventState.count = Number(value);
+      eventState.selected = true;
+
+      saveState(state);
+      updateCard(eventId);
+    }
+
+    function attachCardEvents() {
+      const individualButtons = grid.querySelectorAll('[data-role="individual-btn"]');
+      individualButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          toggleIndividual(button.dataset.eventId);
+        });
       });
 
-      updateTotalInterested();
-      updateEmptyState();
-      attachButtonEvents();
+      const groupButtons = grid.querySelectorAll('[data-role="group-btn"]');
+      groupButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          toggleGroup(button.dataset.eventId);
+        });
+      });
+
+      const groupResetButtons = grid.querySelectorAll('[data-role="group-reset-btn"]');
+      groupResetButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          resetGroup(button.dataset.eventId);
+        });
+      });
+
+      const groupCountSelects = grid.querySelectorAll('[data-role="group-count"]');
+      groupCountSelects.forEach((select) => {
+        select.addEventListener("change", () => {
+          setGroupCount(select.dataset.eventId, select.value);
+        });
+      });
     }
 
     function setActiveFilter(filterValue) {
