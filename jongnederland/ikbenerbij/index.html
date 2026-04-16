@@ -6,23 +6,23 @@
   <title>Jong Nederland Landelijke Activiteiten 2026-2027</title>
   <style>
     :root {
-      --bg: #f6f3ec;
+      --bg: #f5f1e7;
       --card: #ffffff;
-      --text: #17324d;
-      --muted: #6f7f8f;
+      --text: #1d2b36;
+      --muted: #73808c;
+      --line: rgba(29, 43, 54, 0.1);
+      --line-strong: rgba(29, 43, 54, 0.16);
       --green: #15a457;
       --green-dark: #0d7a40;
-      --green-soft: #e8f6ee;
       --blue: #1462c8;
-      --blue-dark: #0d4d9e;
-      --blue-soft: #eaf2fd;
-      --orange: #ff8c2f;
-      --orange-soft: #fff1e6;
-      --line: rgba(23, 50, 77, 0.1);
-      --shadow: 0 12px 28px rgba(23, 50, 77, 0.08);
-      --radius: 22px;
-      --btn-shadow: 0 10px 22px rgba(21, 164, 87, 0.22);
-      --chip-bg: rgba(23, 50, 77, 0.05);
+      --orange: #f28b32;
+      --shadow: 0 16px 36px rgba(23, 37, 48, 0.08);
+      --radius: 24px;
+      --radius-sm: 16px;
+      --chip-bg: rgba(29, 43, 54, 0.06);
+      --featured-overlay: linear-gradient(to top, rgba(20, 25, 31, 0.72), rgba(20, 25, 31, 0.16));
+      --placeholder:
+        linear-gradient(135deg, #ececec 0%, #e3e3e3 100%);
     }
 
     * {
@@ -38,23 +38,23 @@
       font-family: Arial, Helvetica, sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at 20% 20%, rgba(20, 98, 200, 0.03) 0 2px, transparent 2px 100%),
-        radial-gradient(circle at 78% 28%, rgba(21, 164, 87, 0.03) 0 2px, transparent 2px 100%),
+        radial-gradient(circle at 20% 20%, rgba(20, 98, 200, 0.02) 0 2px, transparent 2px 100%),
+        radial-gradient(circle at 78% 28%, rgba(21, 164, 87, 0.02) 0 2px, transparent 2px 100%),
         var(--bg);
       background-size: 34px 34px, 44px 44px, auto;
     }
 
     .page {
-      max-width: 1280px;
+      max-width: 1320px;
       margin: 0 auto;
-      padding: 18px 14px 60px;
+      padding: 18px 14px 64px;
     }
 
     .hero {
       text-align: center;
       margin: 0 auto 28px;
-      padding: 18px 0 0;
-      max-width: 960px;
+      padding: 14px 0 0;
+      max-width: 980px;
     }
 
     .logo-wrap {
@@ -76,7 +76,7 @@
       padding: 9px 15px;
       border-radius: 999px;
       background: rgba(20, 98, 200, 0.08);
-      color: var(--blue-dark);
+      color: #0f4c9d;
       font-size: 0.92rem;
       font-weight: 800;
       margin-bottom: 14px;
@@ -84,28 +84,28 @@
 
     h1 {
       margin: 0 0 10px;
-      font-size: clamp(2rem, 6vw, 3.7rem);
+      font-size: clamp(2.1rem, 6vw, 4rem);
       line-height: 1;
-      color: var(--blue);
+      color: #145bb5;
     }
 
     .subtitle {
       margin: 0 auto;
       max-width: 780px;
       color: var(--muted);
-      font-size: clamp(1rem, 2.2vw, 1.1rem);
+      font-size: clamp(1rem, 2.2vw, 1.08rem);
       line-height: 1.55;
     }
 
     .summary-card {
       background: var(--card);
-      border: 1px solid rgba(23, 50, 77, 0.08);
+      border: 1px solid rgba(29, 43, 54, 0.08);
       border-radius: 24px;
       box-shadow: var(--shadow);
       padding: 18px;
       display: grid;
       gap: 18px;
-      margin-bottom: 24px;
+      margin-bottom: 26px;
     }
 
     .summary-top {
@@ -118,7 +118,7 @@
 
     .summary-left {
       display: grid;
-      gap: 8px;
+      gap: 7px;
     }
 
     .summary-label {
@@ -137,7 +137,7 @@
     .summary-note {
       color: var(--muted);
       font-size: 0.92rem;
-      line-height: 1.45;
+      line-height: 1.4;
     }
 
     .legend {
@@ -152,7 +152,7 @@
       gap: 8px;
       padding: 10px 14px;
       border-radius: 999px;
-      background: rgba(23, 50, 77, 0.05);
+      background: rgba(29, 43, 54, 0.05);
       color: var(--text);
       font-size: 0.92rem;
       font-weight: 700;
@@ -182,7 +182,7 @@
 
     .filter-btn {
       appearance: none;
-      border: 1px solid rgba(23, 50, 77, 0.08);
+      border: 1px solid rgba(29, 43, 54, 0.08);
       background: #fff;
       color: var(--text);
       font-size: 0.95rem;
@@ -198,12 +198,199 @@
     }
 
     .filter-btn.active {
-      background: var(--blue);
+      background: #145bb5;
       color: #fff;
-      border-color: var(--blue);
+      border-color: #145bb5;
     }
 
-    .grid {
+    .featured-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .featured-card {
+      position: relative;
+      min-height: 360px;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: #ddd;
+      border: 1px solid rgba(29, 43, 54, 0.08);
+    }
+
+    .featured-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #ddd;
+    }
+
+    .featured-overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--featured-overlay);
+    }
+
+    .featured-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      padding: 26px;
+    }
+
+    .featured-inner {
+      width: 100%;
+      color: #fff;
+      display: grid;
+      gap: 14px;
+    }
+
+    .featured-topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .featured-period {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(2px);
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .featured-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(2px);
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .featured-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .featured-title {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 0.98;
+      max-width: 760px;
+    }
+
+    .popular-badge {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(255, 243, 229, 0.95);
+      color: #d86d16;
+      font-size: 0.86rem;
+      font-weight: 800;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .popular-badge.visible {
+      display: inline-flex;
+    }
+
+    .featured-desc {
+      margin: 0;
+      max-width: 760px;
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .featured-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 680px;
+    }
+
+    .featured-meta-item {
+      display: grid;
+      gap: 3px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.13);
+      backdrop-filter: blur(2px);
+    }
+
+    .featured-meta-label {
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .featured-meta-value {
+      color: #fff;
+      font-size: 1.03rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .featured-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .featured-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, auto));
+      gap: 10px;
+    }
+
+    .featured-stats.single {
+      grid-template-columns: 1fr;
+    }
+
+    .featured-stat {
+      display: grid;
+      gap: 3px;
+      min-width: 120px;
+    }
+
+    .featured-stat-label {
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .featured-stat-value {
+      color: #fff;
+      font-size: 1.6rem;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .cards-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 18px;
@@ -214,156 +401,107 @@
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: var(--shadow);
-      border: 1px solid rgba(23, 50, 77, 0.08);
+      border: 1px solid rgba(29, 43, 54, 0.08);
       display: flex;
       flex-direction: column;
       min-width: 0;
     }
 
-    .card-header {
-      color: #fff;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      font-weight: 800;
-    }
-
-    .theme-green .card-header {
-      background: var(--green);
-    }
-
-    .theme-blue .card-header {
-      background: var(--blue);
-    }
-
-    .header-period {
-      font-size: 0.95rem;
-      letter-spacing: 0.01em;
-      white-space: nowrap;
-    }
-
-    .type-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 0.84rem;
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      padding: 7px 10px;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-
-    .type-pill .type-icon {
-      font-size: 0.95rem;
-      line-height: 1;
+    .card-image-wrap {
+      position: relative;
+      background: #ececec;
     }
 
     .card-image {
       width: 100%;
-      aspect-ratio: 16 / 7.5;
+      aspect-ratio: 16 / 8.5;
       object-fit: cover;
       display: block;
-      background: #dde6ef;
+      background: #e7e7e7;
+    }
+
+    .card-type-chip {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--text);
+      font-size: 0.84rem;
+      font-weight: 800;
+      box-shadow: 0 10px 20px rgba(23, 37, 48, 0.08);
     }
 
     .card-body {
-      padding: 16px 16px 14px;
+      padding: 16px;
       display: grid;
       gap: 14px;
     }
 
-    .card-main {
+    .card-top {
       display: grid;
       gap: 8px;
     }
 
-    .title-row {
+    .card-title-row {
       display: flex;
-      align-items: flex-start;
       justify-content: space-between;
+      align-items: flex-start;
       gap: 10px;
+      flex-wrap: wrap;
     }
 
     .event-title {
       margin: 0;
-      font-size: 1.12rem;
+      font-size: 1.18rem;
       line-height: 1.2;
       color: var(--text);
-    }
-
-    .popular-badge {
-      display: none;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      background: var(--orange-soft);
-      color: #d56d18;
-      font-size: 0.85rem;
-      font-weight: 800;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .popular-badge.visible {
-      display: inline-flex;
     }
 
     .event-desc {
       margin: 0;
       color: var(--muted);
       font-size: 0.98rem;
-      line-height: 1.5;
+      line-height: 1.52;
     }
 
-    .meta {
+    .meta-grid {
       display: grid;
-      gap: 10px;
-      padding-top: 2px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      padding-top: 4px;
     }
 
     .meta-item {
       display: grid;
-      grid-template-columns: 18px 1fr;
-      gap: 10px;
-      align-items: start;
-    }
-
-    .meta-icon {
-      font-size: 0.95rem;
-      line-height: 1.3;
-      opacity: 0.95;
-    }
-
-    .meta-content {
-      display: grid;
-      gap: 2px;
+      gap: 4px;
     }
 
     .meta-label {
       color: var(--muted);
-      font-size: 0.84rem;
-      line-height: 1.1;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
     }
 
     .meta-value {
       color: var(--text);
-      font-size: 1.02rem;
+      font-size: 1rem;
       font-weight: 800;
-      line-height: 1.25;
+      line-height: 1.28;
     }
 
     .divider {
-      border-top: 2px dotted rgba(23, 50, 77, 0.18);
-      margin-top: 2px;
+      border-top: 1px solid var(--line);
     }
 
     .stats-row {
       display: grid;
-      gap: 12px;
+      gap: 10px;
     }
 
     .stats-grid {
@@ -377,9 +515,9 @@
     }
 
     .stat-box {
-      background: rgba(23, 50, 77, 0.035);
+      background: rgba(29, 43, 54, 0.035);
       border-radius: 16px;
-      padding: 12px 12px;
+      padding: 12px;
       display: grid;
       gap: 4px;
     }
@@ -399,13 +537,14 @@
 
     .response-panel {
       display: grid;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .btn-row {
+    .action-row {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     .action-btn {
@@ -413,9 +552,9 @@
       border: none;
       border-radius: 999px;
       padding: 13px 18px;
-      background: #dfeee6;
+      background: #e2efe8;
       color: var(--green-dark);
-      font-size: 1rem;
+      font-size: 0.98rem;
       font-weight: 900;
       cursor: pointer;
       display: inline-flex;
@@ -429,74 +568,39 @@
       transform: translateY(-1px);
     }
 
-    .action-btn:active {
-      transform: translateY(0);
-    }
-
     .action-btn.active {
       background: var(--green);
       color: #fff;
-      box-shadow: var(--btn-shadow);
+      box-shadow: 0 10px 22px rgba(21, 164, 87, 0.22);
     }
 
-    .action-btn.secondary {
-      background: rgba(23, 50, 77, 0.06);
-      color: var(--text);
-      box-shadow: none;
-    }
-
-    .action-btn.secondary:hover {
-      background: rgba(23, 50, 77, 0.1);
-    }
-
-    .count-picker {
+    .count-picker-inline {
       display: none;
-      gap: 10px;
       align-items: center;
+      gap: 10px;
       flex-wrap: wrap;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(20, 164, 87, 0.06);
-      border: 1px solid rgba(20, 164, 87, 0.12);
     }
 
-    .count-picker.visible {
+    .count-picker-inline.visible {
       display: flex;
     }
 
-    .count-label {
-      color: var(--text);
-      font-size: 0.92rem;
-      font-weight: 800;
+    .count-picker-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
     }
 
     .count-select {
       appearance: none;
-      border: 1px solid rgba(23, 50, 77, 0.14);
+      border: 1px solid rgba(29, 43, 54, 0.14);
       border-radius: 12px;
       padding: 10px 12px;
-      font-size: 0.95rem;
+      font-size: 0.94rem;
       font-weight: 800;
       color: var(--text);
       background: #fff;
-      min-width: 110px;
-    }
-
-    .inline-note {
-      color: var(--muted);
-      font-size: 0.86rem;
-      line-height: 1.35;
-    }
-
-    .info-only-box {
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(20, 98, 200, 0.06);
-      border: 1px solid rgba(20, 98, 200, 0.1);
-      color: var(--blue-dark);
-      font-size: 0.92rem;
-      font-weight: 700;
-      line-height: 1.45;
+      min-width: 92px;
     }
 
     .empty-state {
@@ -505,9 +609,10 @@
       padding: 28px 18px;
       border-radius: 22px;
       background: rgba(255,255,255,0.7);
-      border: 1px solid rgba(23, 50, 77, 0.08);
+      border: 1px solid rgba(29, 43, 54, 0.08);
       color: var(--muted);
       font-weight: 700;
+      margin-top: 12px;
     }
 
     .empty-state.visible {
@@ -522,7 +627,7 @@
       line-height: 1.5;
     }
 
-    @media (min-width: 700px) {
+    @media (min-width: 760px) {
       .page {
         padding: 22px 18px 70px;
       }
@@ -531,29 +636,38 @@
         padding: 20px 22px;
       }
 
-      .grid {
+      .featured-grid.two-col {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .cards-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
-    @media (min-width: 1080px) {
-      .grid {
+    @media (min-width: 1120px) {
+      .cards-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
 
-    @media (max-width: 520px) {
-      .title-row {
-        flex-direction: column;
-        align-items: flex-start;
+    @media (max-width: 640px) {
+      .featured-card {
+        min-height: 420px;
       }
 
-      .card-header {
-        flex-wrap: wrap;
+      .featured-content {
+        padding: 20px;
       }
 
-      .btn-row {
-        flex-direction: column;
+      .featured-title {
+        font-size: 2rem;
+      }
+
+      .featured-meta,
+      .meta-grid,
+      .stats-grid {
+        grid-template-columns: 1fr;
       }
 
       .action-btn {
@@ -561,8 +675,12 @@
         justify-content: center;
       }
 
-      .stats-grid {
-        grid-template-columns: 1fr;
+      .count-picker-inline {
+        width: 100%;
+      }
+
+      .count-select {
+        width: 100%;
       }
     }
 
@@ -588,7 +706,7 @@
       <div class="eyebrow">Demo voorinschatting deelname</div>
       <h1>Jong Nederland Landelijke Activiteiten 2026-2027</h1>
       <p class="subtitle">
-        Deze demo laat zien hoe je per activiteit een passend type respons kunt gebruiken. Bij individuele activiteiten telt 1 reactie als 1 deelnemer. Bij groepsactiviteiten kan een afdeling een verwachte groepsgrootte doorgeven.
+        Een visueel en interactief overzicht van landelijke activiteiten. Bij individuele activiteiten geldt 1 reactie als 1 deelnemer. Bij groepsactiviteiten kan een afdeling een verwacht aantal doorgeven.
       </p>
     </section>
 
@@ -604,7 +722,7 @@
 
         <div class="legend">
           <div class="legend-pill"><span class="legend-dot green"></span> Individueel</div>
-          <div class="legend-pill"><span class="legend-dot blue"></span> Groepsactiviteit</div>
+          <div class="legend-pill"><span class="legend-dot blue"></span> Groep</div>
         </div>
       </div>
 
@@ -616,7 +734,9 @@
       </div>
     </section>
 
-    <section class="grid" id="eventsGrid"></section>
+    <section class="featured-grid" id="featuredGrid"></section>
+
+    <section class="cards-grid" id="eventsGrid"></section>
     <div class="empty-state" id="emptyState">Geen activiteiten gevonden binnen dit filter.</div>
 
     <p class="footer-note">
@@ -625,11 +745,60 @@
   </main>
 
   <script>
+    const PLACEHOLDER_IMAGE =
+      "data:image/svg+xml;utf8," +
+      encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+          <defs>
+            <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0%" stop-color="#ececec"/>
+              <stop offset="100%" stop-color="#e1e1e1"/>
+            </linearGradient>
+          </defs>
+          <rect width="1600" height="900" fill="url(#g)"/>
+          <circle cx="1260" cy="210" r="120" fill="#d8d8d8"/>
+          <rect x="160" y="640" width="1280" height="120" rx="26" fill="#d8d8d8"/>
+          <rect x="160" y="170" width="520" height="44" rx="20" fill="#d4d4d4"/>
+          <rect x="160" y="240" width="760" height="30" rx="15" fill="#d7d7d7"/>
+          <rect x="160" y="290" width="600" height="30" rx="15" fill="#dcdcdc"/>
+          <path d="M180 610 L520 360 L760 540 L980 410 L1260 610 Z" fill="#cfcfcf"/>
+        </svg>
+      `);
+
     const events = [
       {
+        id: "festival-back2basic-2027",
+        featured: true,
+        period: "apr 2027",
+        responseMode: "group",
+        typeLabel: "Jeugdactiviteit",
+        typeIcon: "🎉",
+        title: "Festival Back2Basic",
+        description: "Een grote landelijke activiteit waarbij afdelingen met groepen jeugdleden deelnemen. Ideaal om extra prominent bovenaan te tonen.",
+        date: "10 apr 2027",
+        location: "BillyBird / Midden van het land",
+        image: "",
+        initialGroups: 4,
+        initialParticipants: 82
+      },
+      {
+        id: "kaderschouw-2026",
+        featured: true,
+        period: "sep 2026",
+        responseMode: "individual",
+        typeLabel: "Evenement",
+        typeIcon: "🎪",
+        title: "Kaderschouw",
+        description: "Meerdaags evenement waar vrijwilligers individueel boeken en je de opkomst goed wilt kunnen inschatten.",
+        date: "25 t/m 27 sep 2026",
+        location: "Heeswijk-Dinther",
+        image: "",
+        initialParticipants: 18
+      },
+      {
         id: "wetgeving-webinar",
+        featured: false,
         period: "nov 2026",
-        theme: "green",
         responseMode: "individual",
         typeLabel: "Webinar",
         typeIcon: "💻",
@@ -637,42 +806,13 @@
         description: "Online sessie voor vrijwilligers en bestuur over actuele wet- en regelgeving.",
         date: "12 nov 2026",
         location: "Online",
-        image: "./images/wetgeving-webinar.jpg",
+        image: "",
         initialParticipants: 6
       },
       {
-        id: "kaderschouw-2026",
-        period: "sep 2026",
-        theme: "green",
-        responseMode: "individual",
-        typeLabel: "Evenement",
-        typeIcon: "🎪",
-        title: "Kaderschouw",
-        description: "Meerdaags evenement waar vrijwilligers individueel aan deelnemen en op naam boeken.",
-        date: "25 t/m 27 sep 2026",
-        location: "Heeswijk-Dinther",
-        image: "./images/kaderschouw.jpg",
-        initialParticipants: 18
-      },
-      {
-        id: "festival-back2basic-2027",
-        period: "apr 2027",
-        theme: "blue",
-        responseMode: "group",
-        typeLabel: "Jeugdactiviteit",
-        typeIcon: "🎉",
-        title: "Festival Back2Basic",
-        description: "Afdelingen kunnen met een groep jeugdleden deelnemen. Hier wil je verwachte aantallen zien.",
-        date: "10 apr 2027",
-        location: "BillyBird / Midden van het land",
-        image: "./images/festival-back2basic.jpg",
-        initialGroups: 4,
-        initialParticipants: 82
-      },
-      {
         id: "landelijk-toernooi-2027",
+        featured: false,
         period: "okt 2027",
-        theme: "blue",
         responseMode: "group",
         typeLabel: "Groepsactiviteit",
         typeIcon: "🏆",
@@ -680,14 +820,14 @@
         description: "Afdelingen melden zich aan voor een groep. Verwachte groepsgrootte is belangrijk voor planning.",
         date: "24 t/m 26 okt 2027",
         location: "Locatie volgt",
-        image: "./images/landelijk-toernooi.jpg",
+        image: "",
         initialGroups: 6,
         initialParticipants: 121
       },
       {
         id: "marketing-com-2027",
+        featured: false,
         period: "feb 2027",
-        theme: "green",
         responseMode: "individual",
         typeLabel: "Infosessie",
         typeIcon: "💬",
@@ -695,30 +835,46 @@
         description: "Praktische sessie voor vrijwilligers die met communicatie binnen de afdeling bezig zijn.",
         date: "22 feb 2027",
         location: "Hybride",
-        image: "./images/marketing-communicatie.jpg",
+        image: "",
         initialParticipants: 9
       },
       {
+        id: "ehbo-voor-kids-2027",
+        featured: false,
+        period: "jan 2027",
+        responseMode: "group",
+        typeLabel: "Cursus",
+        typeIcon: "🩹",
+        title: "EHBO voor kids",
+        description: "Laagdrempelige activiteit waarbij een afdeling met een groep kinderen kan deelnemen.",
+        date: "23 jan 2027",
+        location: "Hybride",
+        image: "",
+        initialGroups: 3,
+        initialParticipants: 36
+      },
+      {
         id: "jaaroverzicht-item",
+        featured: false,
         period: "doorlopend",
-        theme: "blue",
         responseMode: "info",
         typeLabel: "Kalenderitem",
         typeIcon: "🗓️",
         title: "Jaarkalender overzicht",
-        description: "Sommige onderdelen zijn vooral informatief en hoeven geen responsknop te hebben.",
+        description: "Een informatief kalenderitem zonder interactie.",
         date: "Seizoen 2026-2027",
         location: "Landelijk",
-        image: "./images/jaarkalender.jpg",
+        image: "",
         initialParticipants: 0
       }
     ];
 
-    const STORAGE_KEY = "jn-response-model-v1";
+    const STORAGE_KEY = "jn-response-model-v2-clean";
     const POPULAR_THRESHOLD = 25;
     const GROUP_OPTIONS = [10, 15, 20, 25, 30, 40, 50];
     let activeFilter = "all";
 
+    const featuredGrid = document.getElementById("featuredGrid");
     const grid = document.getElementById("eventsGrid");
     const totalExpectedEl = document.getElementById("totalExpected");
     const filtersEl = document.getElementById("filters");
@@ -744,9 +900,21 @@
       return state[eventId];
     }
 
+    function getSafeImage(image) {
+      return image && image.trim() ? image : PLACEHOLDER_IMAGE;
+    }
+
     function getFilteredEvents() {
       if (activeFilter === "all") return events;
       return events.filter((eventItem) => eventItem.responseMode === activeFilter);
+    }
+
+    function getVisibleFeaturedEvents() {
+      return getFilteredEvents().filter((eventItem) => eventItem.featured);
+    }
+
+    function getVisibleRegularEvents() {
+      return getFilteredEvents().filter((eventItem) => !eventItem.featured);
     }
 
     function getIndividualSelected(eventItem, state) {
@@ -789,8 +957,38 @@
       }).join("");
     }
 
-    function createStatsMarkup(eventItem, state) {
+    function createStatsMarkup(eventItem, state, featured = false) {
       const expectedParticipants = getExpectedParticipants(eventItem, state);
+
+      if (featured) {
+        if (eventItem.responseMode === "group") {
+          return `
+            <div class="featured-stats">
+              <div class="featured-stat">
+                <div class="featured-stat-label">Afdelingen</div>
+                <div class="featured-stat-value" data-role="groups">${getExpectedGroups(eventItem, state)}</div>
+              </div>
+              <div class="featured-stat">
+                <div class="featured-stat-label">Deelnemers</div>
+                <div class="featured-stat-value" data-role="participants">${expectedParticipants}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        if (eventItem.responseMode === "individual") {
+          return `
+            <div class="featured-stats single">
+              <div class="featured-stat">
+                <div class="featured-stat-label">Deelnemers</div>
+                <div class="featured-stat-value" data-role="participants">${expectedParticipants}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        return "";
+      }
 
       if (eventItem.responseMode === "individual") {
         return `
@@ -807,7 +1005,7 @@
         return `
           <div class="stats-grid">
             <div class="stat-box">
-              <div class="stat-label">Afdelingen / reacties</div>
+              <div class="stat-label">Afdelingen</div>
               <div class="stat-value" data-role="groups">${getExpectedGroups(eventItem, state)}</div>
             </div>
             <div class="stat-box">
@@ -818,14 +1016,7 @@
         `;
       }
 
-      return `
-        <div class="stats-grid single">
-          <div class="stat-box">
-            <div class="stat-label">Type</div>
-            <div class="stat-value" style="font-size:1.1rem;">Info only</div>
-          </div>
-        </div>
-      `;
+      return "";
     }
 
     function createResponseMarkup(eventItem, state) {
@@ -833,7 +1024,7 @@
         const selected = getIndividualSelected(eventItem, state);
         return `
           <div class="response-panel">
-            <div class="btn-row">
+            <div class="action-row">
               <button
                 class="action-btn ${selected ? "active" : ""}"
                 type="button"
@@ -845,9 +1036,6 @@
                 <span>${selected ? "Je bent erbij" : "Ik ben erbij"}</span>
               </button>
             </div>
-            <div class="inline-note">
-              Voor dit type activiteit telt 1 reactie als 1 verwachte deelnemer.
-            </div>
           </div>
         `;
       }
@@ -858,7 +1046,7 @@
 
         return `
           <div class="response-panel">
-            <div class="btn-row">
+            <div class="action-row">
               <button
                 class="action-btn ${selected ? "active" : ""}"
                 type="button"
@@ -867,94 +1055,118 @@
                 aria-pressed="${selected ? "true" : "false"}"
               >
                 <span>${selected ? "✅" : "👥"}</span>
-                <span>${selected ? "Wij komen waarschijnlijk" : "Wij komen waarschijnlijk"}</span>
+                <span>Wij komen waarschijnlijk</span>
               </button>
 
-              <button
-                class="action-btn secondary"
-                type="button"
-                data-role="group-reset-btn"
-                data-event-id="${eventItem.id}"
-              >
-                <span>↺</span>
-                <span>Reset</span>
-              </button>
-            </div>
-
-            <div class="count-picker ${selected ? "visible" : ""}" data-role="group-picker">
-              <label class="count-label" for="count-${eventItem.id}">Aantal verwacht:</label>
-              <select class="count-select" id="count-${eventItem.id}" data-role="group-count" data-event-id="${eventItem.id}">
-                ${createGroupOptionsMarkup(count)}
-              </select>
-              <div class="inline-note">Gebruik dit voor activiteiten waarbij een afdeling tickets of deelname voor een groep regelt.</div>
+              <div class="count-picker-inline ${selected ? "visible" : ""}" data-role="group-picker">
+                <span class="count-picker-label">Aantal:</span>
+                <select class="count-select" data-role="group-count" data-event-id="${eventItem.id}">
+                  ${createGroupOptionsMarkup(count)}
+                </select>
+              </div>
             </div>
           </div>
         `;
       }
 
-      return `
-        <div class="info-only-box">
-          Dit onderdeel is alleen informatief en heeft geen responsknop nodig.
-        </div>
-      `;
+      return "";
     }
 
-    function createEventCard(eventItem, state) {
+    function createFeaturedCard(eventItem, state) {
       const popular = isPopular(eventItem, state);
+      const article = document.createElement("article");
+      article.className = "featured-card";
+      article.setAttribute("data-event-id", eventItem.id);
 
-      const card = document.createElement("article");
-      card.className = `card theme-${eventItem.theme}`;
-      card.setAttribute("data-event-id", eventItem.id);
+      article.innerHTML = `
+        <img class="featured-image" src="${getSafeImage(eventItem.image)}" alt="${eventItem.title}" loading="lazy" />
+        <div class="featured-overlay"></div>
 
-      card.innerHTML = `
-        <div class="card-header">
-          <div class="header-period">${eventItem.period}</div>
-          <div class="type-pill">
-            <span class="type-icon">${eventItem.typeIcon}</span>
+        <div class="featured-content">
+          <div class="featured-inner">
+            <div class="featured-topline">
+              <div class="featured-period">${eventItem.period}</div>
+              <div class="featured-type">
+                <span>${eventItem.typeIcon}</span>
+                <span>${eventItem.typeLabel}</span>
+              </div>
+            </div>
+
+            <div class="featured-title-row">
+              <h2 class="featured-title">${eventItem.title}</h2>
+              <div class="popular-badge ${popular ? "visible" : ""}" data-role="popular-badge">🔥 Populair</div>
+            </div>
+
+            <p class="featured-desc">${eventItem.description}</p>
+
+            <div class="featured-meta">
+              <div class="featured-meta-item">
+                <div class="featured-meta-label">Datum</div>
+                <div class="featured-meta-value">${eventItem.date}</div>
+              </div>
+              <div class="featured-meta-item">
+                <div class="featured-meta-label">Locatie</div>
+                <div class="featured-meta-value">${eventItem.location}</div>
+              </div>
+            </div>
+
+            <div class="featured-footer">
+              ${createStatsMarkup(eventItem, state, true)}
+              ${createResponseMarkup(eventItem, state)}
+            </div>
+          </div>
+        </div>
+      `;
+
+      return article;
+    }
+
+    function createRegularCard(eventItem, state) {
+      const popular = isPopular(eventItem, state);
+      const article = document.createElement("article");
+      article.className = "card";
+      article.setAttribute("data-event-id", eventItem.id);
+
+      article.innerHTML = `
+        <div class="card-image-wrap">
+          <img class="card-image" src="${getSafeImage(eventItem.image)}" alt="${eventItem.title}" loading="lazy" />
+          <div class="card-type-chip">
+            <span>${eventItem.typeIcon}</span>
             <span>${eventItem.typeLabel}</span>
           </div>
         </div>
 
-        <img class="card-image" src="${eventItem.image}" alt="${eventItem.title}" loading="lazy" />
-
         <div class="card-body">
-          <div class="card-main">
-            <div class="title-row">
-              <h2 class="event-title">${eventItem.title}</h2>
+          <div class="card-top">
+            <div class="card-title-row">
+              <h3 class="event-title">${eventItem.title}</h3>
               <div class="popular-badge ${popular ? "visible" : ""}" data-role="popular-badge">🔥 Populair</div>
             </div>
 
             <p class="event-desc">${eventItem.description}</p>
           </div>
 
-          <div class="meta">
+          <div class="meta-grid">
             <div class="meta-item">
-              <div class="meta-icon">🗓️</div>
-              <div class="meta-content">
-                <div class="meta-label">Datum</div>
-                <div class="meta-value">${eventItem.date}</div>
-              </div>
+              <div class="meta-label">Datum</div>
+              <div class="meta-value">${eventItem.date}</div>
             </div>
-
             <div class="meta-item">
-              <div class="meta-icon">📍</div>
-              <div class="meta-content">
-                <div class="meta-label">Locatie</div>
-                <div class="meta-value">${eventItem.location}</div>
-              </div>
+              <div class="meta-label">Locatie</div>
+              <div class="meta-value">${eventItem.location}</div>
             </div>
           </div>
 
-          <div class="divider"></div>
+          ${eventItem.responseMode !== "info" ? '<div class="divider"></div>' : ""}
 
           <div class="stats-row">
-            ${createStatsMarkup(eventItem, state)}
+            ${createStatsMarkup(eventItem, state, false)}
             ${createResponseMarkup(eventItem, state)}
           </div>
         </div>
       `;
 
-      return card;
+      return article;
     }
 
     function updateTotalExpected() {
@@ -966,13 +1178,27 @@
       totalExpectedEl.textContent = total;
     }
 
+    function updateEmptyState() {
+      const totalVisible = getVisibleFeaturedEvents().length + getVisibleRegularEvents().length;
+      emptyStateEl.classList.toggle("visible", totalVisible === 0);
+    }
+
     function renderEvents() {
       const state = getState();
-      const filteredEvents = getFilteredEvents();
+      const featuredEvents = getVisibleFeaturedEvents();
+      const regularEvents = getVisibleRegularEvents();
 
+      featuredGrid.innerHTML = "";
       grid.innerHTML = "";
-      filteredEvents.forEach((eventItem) => {
-        grid.appendChild(createEventCard(eventItem, state));
+
+      featuredGrid.classList.toggle("two-col", featuredEvents.length === 2);
+
+      featuredEvents.forEach((eventItem) => {
+        featuredGrid.appendChild(createFeaturedCard(eventItem, state));
+      });
+
+      regularEvents.forEach((eventItem) => {
+        grid.appendChild(createRegularCard(eventItem, state));
       });
 
       updateTotalExpected();
@@ -980,24 +1206,23 @@
       attachCardEvents();
     }
 
-    function updateEmptyState() {
-      const filteredEvents = getFilteredEvents();
-      emptyStateEl.classList.toggle("visible", filteredEvents.length === 0);
-    }
-
-    function updateCard(eventId) {
+    function updateSingleEvent(eventId) {
       const state = getState();
       const eventItem = events.find((item) => item.id === eventId);
       if (!eventItem) return;
 
-      const card = grid.querySelector(`[data-event-id="${eventId}"]`);
-      if (!card) {
-        updateTotalExpected();
-        return;
+      const featuredCard = featuredGrid.querySelector(`[data-event-id="${eventId}"]`);
+      const regularCard = grid.querySelector(`[data-event-id="${eventId}"]`);
+
+      if (featuredCard) {
+        const newNode = createFeaturedCard(eventItem, state);
+        featuredCard.replaceWith(newNode);
       }
 
-      const newCard = createEventCard(eventItem, state);
-      card.replaceWith(newCard);
+      if (regularCard) {
+        const newNode = createRegularCard(eventItem, state);
+        regularCard.replaceWith(newNode);
+      }
 
       updateTotalExpected();
       attachCardEvents();
@@ -1006,11 +1231,9 @@
     function toggleIndividual(eventId) {
       const state = getState();
       const eventState = ensureEventState(eventId, state);
-
       eventState.selected = !eventState.selected;
-
       saveState(state);
-      updateCard(eventId);
+      updateSingleEvent(eventId);
     }
 
     function toggleGroup(eventId) {
@@ -1022,60 +1245,33 @@
       }
 
       eventState.selected = !eventState.selected;
-
       saveState(state);
-      updateCard(eventId);
-    }
-
-    function resetGroup(eventId) {
-      const state = getState();
-      state[eventId] = {
-        selected: false,
-        count: GROUP_OPTIONS[0]
-      };
-
-      saveState(state);
-      updateCard(eventId);
+      updateSingleEvent(eventId);
     }
 
     function setGroupCount(eventId, value) {
       const state = getState();
       const eventState = ensureEventState(eventId, state);
-
       eventState.count = Number(value);
       eventState.selected = true;
-
       saveState(state);
-      updateCard(eventId);
+      updateSingleEvent(eventId);
     }
 
     function attachCardEvents() {
-      const individualButtons = grid.querySelectorAll('[data-role="individual-btn"]');
+      const individualButtons = document.querySelectorAll('[data-role="individual-btn"]');
       individualButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          toggleIndividual(button.dataset.eventId);
-        });
+        button.onclick = () => toggleIndividual(button.dataset.eventId);
       });
 
-      const groupButtons = grid.querySelectorAll('[data-role="group-btn"]');
+      const groupButtons = document.querySelectorAll('[data-role="group-btn"]');
       groupButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          toggleGroup(button.dataset.eventId);
-        });
+        button.onclick = () => toggleGroup(button.dataset.eventId);
       });
 
-      const groupResetButtons = grid.querySelectorAll('[data-role="group-reset-btn"]');
-      groupResetButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          resetGroup(button.dataset.eventId);
-        });
-      });
-
-      const groupCountSelects = grid.querySelectorAll('[data-role="group-count"]');
+      const groupCountSelects = document.querySelectorAll('[data-role="group-count"]');
       groupCountSelects.forEach((select) => {
-        select.addEventListener("change", () => {
-          setGroupCount(select.dataset.eventId, select.value);
-        });
+        select.onchange = () => setGroupCount(select.dataset.eventId, select.value);
       });
     }
 
