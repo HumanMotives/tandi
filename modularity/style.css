@@ -68,4 +68,9 @@ h1 {
   line-height: 0.95;
 }
 
+.intro {
+  margin: 0 0 20px;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
 }
