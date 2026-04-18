@@ -1,49 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Random Eurorack module maker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./style.css" />
-</head>
-<body>
-  <main class="page">
-    <section class="layout">
-      <aside class="card sidebar">
-        <p class="eyebrow">Editorial Generator</p>
-        <h1>Random Eurorack module maker</h1>
-        <p class="intro">
-          A flat graphic generator inspired by ModularGrid, VCV Rack, and clean editorial hardware sketches. Every reroll creates a new fictional front panel with labels, knobs, jacks, sliders, and module branding.
-        </p>
-
-        <div class="stats">
-          <div class="stat-row">
-            <span class="label">Module</span>
-            <span class="value" id="statName">Axiom Fold</span>
-          </div>
-          <div class="stat-row">
-            <span class="label">Size</span>
-            <span class="value" id="statHp">12HP</span>
-          </div>
-          <div class="stat-row">
-            <span class="label">Seed</span>
-            <span class="value" id="statSeed">0</span>
-          </div>
-          <div class="stat-row">
-            <span class="label">Elements</span>
-            <span class="value" id="statElements">0</span>
-          </div>
-          <div class="stat-row">
-            <span class="label">Family</span>
-            <span class="value" id="statFamily">Utility</span>
-          </div>
-        </div>
-
-        <div class="button-row">
-          <button class="button-primary" id="generateButton" type="button">Generate new module</button>
           <button class="button-secondary" id="exportSvgButton" type="button">Export SVG</button>
           <button class="button-secondary" id="exportPngButton" type="button">Export PNG</button>
         </div>
@@ -62,16 +17,16 @@
 
     <section class="notes">
       <article class="note-card">
-        <h2>Style notes</h2>
-        <p>Thin linework, restrained flat colors, generous spacing, and a hardware editorial feel instead of skeuomorphic realism.</p>
+        <h2>Layout logic</h2>
+        <p>The panel is now built from grouped sections: knob clusters, shaft strips, slider banks, and jack blocks. Bigger modules intentionally get denser and more outrageous.</p>
       </article>
       <article class="note-card">
-        <h2>Rules</h2>
-        <p>The generator now picks a module family first, then applies different layout and control patterns for oscillator, filter, sequencer, utility, mixer, and modulation modules.</p>
+        <h2>Modes</h2>
+        <p>Academic keeps labels technical. Artistic introduces more evocative language like Cosmos, Unravel, Distance, Red A, and similar design-fiction naming.</p>
       </article>
       <article class="note-card">
-        <h2>Next step</h2>
-        <p>Good next move: add branded panel families, grouped sections, icon systems, and full rack generation with believable neighboring modules.</p>
+        <h2>Name coupling</h2>
+        <p>Module names now feed the label pool, so a generated name like Flux Cascade can also produce labels like Flux A, Cascade CV, Flux Left, or Cascade Out.</p>
       </article>
     </section>
   </main>
