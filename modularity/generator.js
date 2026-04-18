@@ -1,5 +1,7 @@
 const svgNs = "http://www.w3.org/2000/svg";
 
+alert("generator loaded");
+
 function generateModule() {
   const seed = Math.floor(Math.random() * 1000000);
   currentModule = createModule(seed);
