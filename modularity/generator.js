@@ -184,30 +184,36 @@ function drawSlider(parent, x, y, ink, panel) {
 function getDensityConfig(density) {
   if (density === "extreme") {
     return {
-      knobFactor: 1.35,
-      jackRows: 4,
-      jackFactor: 1.9,
+      knobFactor: 1.3,
+      jackRows: 5,
+      jackFactor: 2.1,
       sliderChance: 1,
-      shaftFactor: 1.7
+      shaftFactor: 1.7,
+      extraKnobRows: 2,
+      extraJackRows: 3
     };
   }
 
   if (density === "dense") {
     return {
       knobFactor: 1.12,
-      jackRows: 3,
-      jackFactor: 1.4,
-      sliderChance: 0.8,
-      shaftFactor: 1.35
+      jackRows: 4,
+      jackFactor: 1.6,
+      sliderChance: 0.85,
+      shaftFactor: 1.35,
+      extraKnobRows: 1,
+      extraJackRows: 2
     };
   }
 
   return {
     knobFactor: 1,
-    jackRows: 2,
+    jackRows: 3,
     jackFactor: 1,
     sliderChance: 0.45,
-    shaftFactor: 1
+    shaftFactor: 1,
+    extraKnobRows: 0,
+    extraJackRows: 1
   };
 }
 
@@ -227,15 +233,18 @@ function buildLayoutGrid(width, density) {
   const xPositions = Array.from({ length: colCount }, (_, i) => sidePadding + i * spacing);
 
   const rowYs = {
-    clusterA: 168,
-    clusterB: 252,
-    shaftA: 336,
-    sliderA: 426,
-    sliderB: 506,
-    jackA: 590,
-    jackB: 644,
-    jackC: 698,
-    jackD: 752
+    clusterA: 170,
+    clusterB: 258,
+    clusterC: 344,
+    shaftA: 430,
+    shaftB: 500,
+    sliderA: 582,
+    sliderB: 662,
+    jackA: 738,
+    jackB: 792,
+    jackC: 846,
+    jackD: 900,
+    jackE: 954
   };
 
   return { xPositions, rowYs };
@@ -249,21 +258,27 @@ function getModuleSpec(width, family, density, rand) {
 
   let largeBase = compact ? 1 : wide ? 2 : 1;
   let mediumBase = compact ? 2 : wide ? 4 : 3;
-  let shaftBase = compact ? 2 : wide ? 5 : 3;
-  let inputBase = compact ? 2 : wide ? 6 : 4;
-  let outputBase = compact ? 1 : wide ? 3 : 2;
+  let shaftBase = compact ? 2 : wide ? 6 : 4;
+  let inputBase = compact ? 2 : wide ? 8 : 5;
+  let outputBase = compact ? 1 : wide ? 4 : 2;
 
   if (family.label === "Mixer") {
-    shaftBase += 2;
+    shaftBase += 3;
     mediumBase += 1;
+    inputBase += 2;
   }
 
   if (family.label === "Sequencer") {
-    shaftBase += 2;
+    shaftBase += 3;
+    inputBase += 1;
   }
 
   if (family.label === "Filter") {
     largeBase += 1;
+  }
+
+  if (family.label === "Modulation") {
+    outputBase += 1;
   }
 
   const large = Math.max(0, Math.round(largeBase * densityConfig.knobFactor));
@@ -275,7 +290,7 @@ function getModuleSpec(width, family, density, rand) {
   let sliderRows = 0;
   if ((family.label === "Sequencer" || family.label === "Mixer") && rand() < densityConfig.sliderChance) {
     sliderRows = huge ? 2 : 1;
-  } else if (density === "extreme" && width >= 216 && rand() < 0.35) {
+  } else if (density !== "normal" && width >= 216 && rand() < 0.45) {
     sliderRows = 1;
   }
 
@@ -364,23 +379,42 @@ function getLabelBank(mode, nameWords) {
   };
 }
 
-function getSymmetricSlots(slotCount, fillCount) {
+function centeredIndices(slotCount) {
   const center = (slotCount - 1) / 2;
-  return Array.from({ length: slotCount }, (_, i) => i)
-    .sort((a, b) => Math.abs(a - center) - Math.abs(b - center))
-    .slice(0, fillCount)
-    .sort((a, b) => a - b);
+  return Array.from({ length: slotCount }, (_, i) => i).sort((a, b) => {
+    const da = Math.abs(a - center);
+    const db = Math.abs(b - center);
+    if (da !== db) return da - db;
+    return a - b;
+  });
 }
 
-function getExtremeSlots(slotCount, fillCount) {
-  return Array.from({ length: Math.min(slotCount, fillCount) }, (_, i) => i);
-}
+function chooseSpacedSlots(slotCount, fillCount, minGap, density) {
+  const order =
+    density === "extreme" && fillCount >= Math.floor(slotCount * 0.7)
+      ? Array.from({ length: slotCount }, (_, i) => i)
+      : centeredIndices(slotCount);
 
-function chooseSlots(slotCount, fillCount, density) {
-  if (density === "extreme" && fillCount >= Math.floor(slotCount * 0.65)) {
-    return getExtremeSlots(slotCount, fillCount);
+  const picked = [];
+  for (const idx of order) {
+    if (picked.length >= fillCount) break;
+    if (picked.every((p) => Math.abs(p - idx) >= minGap)) {
+      picked.push(idx);
+    }
   }
-  return getSymmetricSlots(slotCount, fillCount);
+
+  if (picked.length < fillCount) {
+    for (let relaxedGap = minGap - 1; relaxedGap >= 1 && picked.length < fillCount; relaxedGap--) {
+      for (const idx of order) {
+        if (picked.length >= fillCount) break;
+        if (!picked.includes(idx) && picked.every((p) => Math.abs(p - idx) >= relaxedGap)) {
+          picked.push(idx);
+        }
+      }
+    }
+  }
+
+  return picked.sort((a, b) => a - b);
 }
 
 function addElement(elements, occupied, xPositions, rowYs, type, colIndex, rowName, radius, label, isOutput = false) {
@@ -398,22 +432,37 @@ function addElement(elements, occupied, xPositions, rowYs, type, colIndex, rowNa
   return true;
 }
 
-function addRowGroup(elements, occupied, xPositions, rowYs, rowName, type, count, radius, labelPool, rand, density, isOutput = false) {
-  const slots = chooseSlots(xPositions.length, Math.min(count, xPositions.length), density);
+function addRowGroup(elements, occupied, xPositions, rowYs, rowName, type, count, radius, labelPool, rand, density, spacingClass, isOutput = false) {
+  const minGapByType = {
+    large: 2,
+    medium: 1,
+    shaft: 1,
+    slider: 1,
+    jack: 1
+  };
+
+  const minGap = minGapByType[spacingClass] || 1;
+  const slots = chooseSpacedSlots(xPositions.length, Math.min(count, xPositions.length), minGap, density);
+
   slots.forEach((slot) => {
     addElement(elements, occupied, xPositions, rowYs, type, slot, rowName, radius, pick(rand, labelPool), isOutput);
   });
 }
 
 function addJackBlock(elements, occupied, xPositions, rowYs, rows, totalCount, labelPool, rand, density, isOutput = false) {
-  const rowNames = ["jackA", "jackB", "jackC", "jackD"].slice(0, rows);
+  const rowNames = ["jackA", "jackB", "jackC", "jackD", "jackE"].slice(0, rows);
   let remaining = totalCount;
 
   rowNames.forEach((rowName, rowIndex) => {
     if (remaining <= 0) return;
     const rowsLeft = rowNames.length - rowIndex;
-    const countThisRow = Math.min(remaining, Math.max(1, Math.ceil(remaining / rowsLeft)), xPositions.length);
-    const slots = chooseSlots(xPositions.length, countThisRow, density);
+    const countThisRow = Math.min(
+      remaining,
+      Math.max(1, Math.ceil(remaining / rowsLeft)),
+      xPositions.length
+    );
+
+    const slots = chooseSpacedSlots(xPositions.length, countThisRow, 1, density);
 
     slots.forEach((slot) => {
       addElement(elements, occupied, xPositions, rowYs, "jack", slot, rowName, 12, pick(rand, labelPool), isOutput);
@@ -436,7 +485,7 @@ function createModule(seed) {
 
   const hp = pick(rand, hpOptions);
   const width = hp * 18;
-  const height = density === "extreme" ? 840 : 780;
+  const height = density === "extreme" ? 1040 : density === "dense" ? 980 : 900;
   const color = pick(rand, panelColors);
   const ink = pick(rand, inkColors);
   const name = `${pick(rand, wordA)} ${pick(rand, family.wordB)}`.toUpperCase();
@@ -450,24 +499,56 @@ function createModule(seed) {
   const elements = [];
   const occupied = new Set();
 
-  addRowGroup(elements, occupied, xPositions, rowYs, "clusterA", "knob-lg", spec.large, 34, labelBank.knobLarge, rand, density, false);
-  addRowGroup(elements, occupied, xPositions, rowYs, "clusterB", "knob-md", spec.medium, 22, labelBank.knobMedium, rand, density, false);
-  addRowGroup(elements, occupied, xPositions, rowYs, "shaftA", "knob-sm", spec.shaft, 12, labelBank.knobShaft, rand, density, false);
+  addRowGroup(elements, occupied, xPositions, rowYs, "clusterA", "knob-lg", spec.large, 34, labelBank.knobLarge, rand, density, "large", false);
+  addRowGroup(elements, occupied, xPositions, rowYs, "clusterB", "knob-md", spec.medium, 22, labelBank.knobMedium, rand, density, "medium", false);
+
+  if (spec.densityConfig.extraKnobRows >= 1 && width >= 216) {
+    addRowGroup(elements, occupied, xPositions, rowYs, "clusterC", "knob-md", Math.max(2, Math.floor(spec.medium * 0.75)), 22, labelBank.knobMedium, rand, density, "medium", false);
+  }
+
+  addRowGroup(elements, occupied, xPositions, rowYs, "shaftA", "knob-sm", spec.shaft, 12, labelBank.knobShaft, rand, density, "shaft", false);
+
+  if (spec.densityConfig.extraKnobRows >= 2 && width >= 288) {
+    addRowGroup(elements, occupied, xPositions, rowYs, "shaftB", "knob-sm", Math.max(3, Math.floor(spec.shaft * 0.75)), 12, labelBank.knobShaft, rand, density, "shaft", false);
+  }
 
   if (spec.sliderRows > 0) {
     const sliderChoices = [2, 4, 6, 8].filter((n) => n <= xPositions.length);
     const sliderCountA = sliderChoices.length ? pick(rand, sliderChoices) : 0;
-    addRowGroup(elements, occupied, xPositions, rowYs, "sliderA", "slider", sliderCountA, 20, labelBank.slider, rand, density, false);
+    addRowGroup(elements, occupied, xPositions, rowYs, "sliderA", "slider", sliderCountA, 20, labelBank.slider, rand, density, "slider", false);
   }
 
   if (spec.sliderRows > 1) {
     const sliderChoicesB = [2, 4, 6].filter((n) => n <= xPositions.length);
     const sliderCountB = sliderChoicesB.length ? pick(rand, sliderChoicesB) : 0;
-    addRowGroup(elements, occupied, xPositions, rowYs, "sliderB", "slider", sliderCountB, 20, labelBank.slider, rand, density, false);
+    addRowGroup(elements, occupied, xPositions, rowYs, "sliderB", "slider", sliderCountB, 20, labelBank.slider, rand, density, "slider", false);
   }
 
-  addJackBlock(elements, occupied, xPositions, rowYs, spec.densityConfig.jackRows, spec.inputs, labelBank.input, rand, density, false);
-  addJackBlock(elements, occupied, xPositions, rowYs, spec.densityConfig.jackRows, spec.outputs, labelBank.output, rand, density, true);
+  addJackBlock(
+    elements,
+    occupied,
+    xPositions,
+    rowYs,
+    spec.densityConfig.jackRows,
+    spec.inputs,
+    labelBank.input,
+    rand,
+    density,
+    false
+  );
+
+  addJackBlock(
+    elements,
+    occupied,
+    xPositions,
+    rowYs,
+    Math.max(2, spec.densityConfig.extraJackRows),
+    spec.outputs,
+    labelBank.output,
+    rand,
+    density,
+    true
+  );
 
   return {
     seed,
