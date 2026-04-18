@@ -1,491 +1,817 @@
-import React, { useMemo, useState } from "react";
-import { RefreshCcw, Download } from "lucide-react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random Eurorack Module Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f2efe8;
+      --panel-bg: #fbf8f1;
+      --stage-bg: #e9e4d8;
+      --stage-inner: #f7f3eb;
+      --ink: #111111;
+      --muted: #666666;
+      --shadow: 8px 8px 0 0 #111111;
+      --radius-xl: 28px;
+      --radius-lg: 24px;
+      --radius-pill: 999px;
+    }
 
-const panelColors = [
-  "#f4f1ea",
-  "#f7d54a",
-  "#d8d3c8",
-  "#d9e1e8",
-  "#e8ded1",
-  "#d4d7dd",
-  "#efe9df",
-];
+    * {
+      box-sizing: border-box;
+    }
 
-const inkColors = ["#111111", "#1c1c1c", "#222222"];
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Space Grotesk", "Inter", sans-serif;
+    }
 
-const fonts = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
-`;
+    body {
+      min-height: 100vh;
+    }
 
-const wordA = [
-  "Axiom",
-  "Vector",
-  "Mono",
-  "Drift",
-  "Flux",
-  "Tetra",
-  "Nova",
-  "Phase",
-  "Pulse",
-  "Orbit",
-  "Motive",
-  "Signal",
-  "Prism",
-  "Scalar",
-  "Void",
-  "Ribbon",
-  "Frame",
-  "Contour",
-  "Helio",
-  "Luma",
-];
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 32px 24px 40px;
+    }
 
-const wordB = [
-  "Fold",
-  "Shift",
-  "Field",
-  "Array",
-  "Line",
-  "Matrix",
-  "Drive",
-  "Core",
-  "Patch",
-  "Gate",
-  "Voice",
-  "Filter",
-  "Span",
-  "Trace",
-  "Dial",
-  "Atlas",
-  "Kernel",
-  "Merge",
-  "Bloom",
-  "Tone",
-];
+    .layout {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+      align-items: start;
+    }
 
-const smallLabels = [
-  "CV",
-  "IN",
-  "OUT",
-  "FM",
-  "CLK",
-  "MOD",
-  "SHAPE",
-  "TILT",
-  "RATE",
-  "DEPTH",
-  "SYNC",
-  "ENV",
-  "A",
-  "B",
-  "X",
-  "Y",
-  "SUM",
-  "ALT",
-  "SCAN",
-  "BIAS",
-  "ODD",
-  "EVN",
-  "SPAN",
-  "GAIN",
-  "MIX",
-  "LEVEL",
-  "COLOR",
-  "WIDTH",
-  "INDEX",
-  "FLOW",
-  "STEP",
-  "RISE",
-  "FALL",
-  "Q",
-  "RES",
-  "ATTN",
-];
+    .card {
+      background: var(--panel-bg);
+      border: 1px solid var(--ink);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
 
-const brandMarks = ["CV", "VX", "MØ", "IO", "MM", "XR", "NQ"];
+    .sidebar {
+      padding: 24px;
+    }
 
-function mulberry32(a) {
-  return function () {
-    let t = (a += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
 
-function pick(rand, arr) {
-  return arr[Math.floor(rand() * arr.length)];
-}
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 0.95;
+    }
 
-function range(rand, min, max) {
-  return min + rand() * (max - min);
-}
+    .intro {
+      margin: 0 0 24px;
+      font-family: "Inter", sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #444444;
+      max-width: 32ch;
+    }
 
-function int(rand, min, max) {
-  return Math.floor(range(rand, min, max + 1));
-}
+    .stats {
+      margin: 0 0 24px;
+    }
 
-function generateName(rand) {
-  const a = pick(rand, wordA);
-  const b = pick(rand, wordB);
-  return rand() > 0.58 ? `${a} ${b}` : `${a}${b}`;
-}
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-top: 1px solid var(--ink);
+      font-size: 14px;
+      font-family: "Inter", sans-serif;
+    }
 
-function shuffle(rand, arr) {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
+    .stat-row:last-child {
+      border-bottom: 1px solid var(--ink);
+    }
 
-function createModule(seed) {
-  const rand = mulberry32(seed);
+    .stat-row .label {
+      color: #555555;
+    }
 
-  const hpOptions = [6, 8, 10, 12, 14, 16, 18, 20, 24, 28];
-  const hp = pick(rand, hpOptions);
-  const width = hp * 18;
-  const height = 740;
-  const margin = 26;
-  const topPad = 106;
-  const bottomPad = 42;
-  const color = pick(rand, panelColors);
-  const ink = pick(rand, inkColors);
-  const name = generateName(rand).toUpperCase();
-  const sub = `${pick(rand, brandMarks)}-${int(rand, 1, 9)}${String.fromCharCode(65 + int(rand, 0, 25))}`;
+    .stat-row .value {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: right;
+    }
 
-  const cols = Math.max(2, Math.min(5, Math.floor(width / 86)));
-  const xPositions = Array.from({ length: cols }).map((_, i) =>
-    margin + ((width - margin * 2) / (cols - 1 || 1)) * i
-  );
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
 
-  const yRows = [];
-  let currentY = topPad;
-  while (currentY < height - bottomPad) {
-    yRows.push(currentY);
-    currentY += pick(rand, [54, 62, 68, 74, 82]);
-  }
+    button {
+      appearance: none;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius-pill);
+      padding: 14px 18px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, background-color 0.12s ease, color 0.12s ease;
+      background: transparent;
+      color: var(--ink);
+    }
 
-  const used = [];
-  const elements = [];
+    button:hover {
+      transform: translateY(-1px);
+    }
 
-  function canPlace(x, y, r) {
-    return !used.some((u) => {
-      const dx = u.x - x;
-      const dy = u.y - y;
-      return Math.sqrt(dx * dx + dy * dy) < u.r + r + 18;
-    });
-  }
+    .button-primary {
+      background: var(--ink);
+      color: white;
+    }
 
-  const largeKnobs = int(rand, 1, Math.min(5, cols + 1));
-  const mediumKnobs = int(rand, 4, 10);
-  const tinyKnobs = int(rand, 2, 8);
-  const jackCount = int(rand, 6, 18);
-  const sliderCount = width > 250 ? int(rand, 0, 4) : int(rand, 0, 2);
+    .button-secondary:hover {
+      background: var(--ink);
+      color: white;
+    }
 
-  function reserveSpots(count, radius, type) {
-    let attempts = 0;
-    while (count > 0 && attempts < 1200) {
-      attempts++;
-      const x = pick(rand, xPositions) + range(rand, -10, 10);
-      const y = pick(rand, yRows) + range(rand, -10, 10);
-      if (y < topPad + 10 || y > height - bottomPad - 20) continue;
-      if (canPlace(x, y, radius)) {
-        used.push({ x, y, r: radius });
-        elements.push({ type, x, y, radius, label: pick(rand, smallLabels) });
-        count--;
+    .stage {
+      background: var(--stage-bg);
+      border: 1px solid var(--ink);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .stage-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #555555;
+    }
+
+    .stage-inner {
+      min-height: 760px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius-lg);
+      background: var(--stage-inner);
+      padding: 24px;
+    }
+
+    .module-wrap {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #moduleSvg {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: min(100%, 560px);
+      max-height: 760px;
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .note-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--ink);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+
+    .note-card h2 {
+      margin: 0 0 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #666666;
+    }
+
+    .note-card p {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #444444;
+    }
+
+    @media (max-width: 1040px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .intro {
+        max-width: none;
       }
     }
-  }
 
-  reserveSpots(largeKnobs, 34, "knob-lg");
-  reserveSpots(mediumKnobs, 22, "knob-md");
-  reserveSpots(tinyKnobs, 14, "knob-sm");
-  reserveSpots(jackCount, 12, "jack");
+    @media (max-width: 720px) {
+      .page {
+        padding: 20px 14px 28px;
+      }
 
-  let sliderAttempts = 0;
-  while (sliderCount > 0 && sliderAttempts < 400) {
-    sliderAttempts++;
-    const x = pick(rand, xPositions);
-    const y = range(rand, topPad + 70, height - 200);
-    const r = 20;
-    if (!canPlace(x, y, r + 24)) continue;
-    used.push({ x, y, r: r + 24 });
-    elements.push({ type: "slider", x, y, radius: r, label: pick(rand, smallLabels) });
-    sliderCount--;
-  }
+      .sidebar,
+      .stage,
+      .note-card {
+        padding: 18px;
+      }
 
-  const decorative = [];
-  const decoCount = int(rand, 8, 22);
-  for (let i = 0; i < decoCount; i++) {
-    decorative.push({
-      x1: range(rand, margin + 10, width - margin - 10),
-      y1: range(rand, topPad + 10, height - bottomPad - 10),
-      x2: range(rand, margin + 10, width - margin - 10),
-      y2: range(rand, topPad + 10, height - bottomPad - 10),
-      opacity: range(rand, 0.08, 0.22),
-    });
-  }
+      .stage-inner {
+        min-height: 560px;
+        padding: 16px;
+      }
 
-  const headers = shuffle(rand, smallLabels).slice(0, int(rand, 2, 5));
+      .notes {
+        grid-template-columns: 1fr;
+      }
 
-  return {
-    seed,
-    hp,
-    width,
-    height,
-    color,
-    ink,
-    name,
-    sub,
-    elements,
-    decorative,
-    headers,
-  };
-}
+      .button-row {
+        flex-direction: column;
+      }
 
-function Label({ x, y, text, align = "middle", size = 12, weight = 600, fill = "#111" }) {
-  return (
-    <text
-      x={x}
-      y={y}
-      textAnchor={align}
-      fontSize={size}
-      fontWeight={weight}
-      fill={fill}
-      style={{ letterSpacing: "0.14em", fontFamily: "Inter, sans-serif" }}
-    >
-      {text}
-    </text>
-  );
-}
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="layout">
+      <aside class="card sidebar">
+        <p class="eyebrow">Editorial Generator</p>
+        <h1>Random Eurorack module maker</h1>
+        <p class="intro">
+          A flat graphic generator inspired by ModularGrid, VCV Rack, and clean editorial hardware sketches. Every reroll creates a new fictional front panel with labels, knobs, jacks, sliders, and module branding.
+        </p>
 
-function Knob({ x, y, radius, ink, panel }) {
-  const notchX = x + Math.cos(-Math.PI / 3) * (radius - 7);
-  const notchY = y + Math.sin(-Math.PI / 3) * (radius - 7);
-  return (
-    <g>
-      <circle cx={x} cy={y} r={radius + 2} fill="none" stroke={ink} strokeWidth="1.2" />
-      <circle cx={x} cy={y} r={radius} fill={panel} stroke={ink} strokeWidth="1.2" />
-      <circle cx={x} cy={y} r={radius * 0.55} fill="none" stroke={ink} strokeWidth="1.1" opacity="0.65" />
-      <line x1={x} y1={y} x2={notchX} y2={notchY} stroke={ink} strokeWidth="2" strokeLinecap="round" />
-      <circle cx={x} cy={y} r="2.2" fill={ink} />
-    </g>
-  );
-}
-
-function Jack({ x, y, ink, panel }) {
-  return (
-    <g>
-      <circle cx={x} cy={y} r="12" fill={panel} stroke={ink} strokeWidth="1.2" />
-      <circle cx={x} cy={y} r="6.6" fill="none" stroke={ink} strokeWidth="1.2" />
-      <circle cx={x} cy={y} r="1.7" fill={ink} />
-    </g>
-  );
-}
-
-function Slider({ x, y, ink, panel }) {
-  return (
-    <g>
-      <rect x={x - 4} y={y - 42} width="8" height="84" rx="4" fill="none" stroke={ink} strokeWidth="1.2" />
-      <rect x={x - 10} y={y - 6} width="20" height="12" rx="5" fill={panel} stroke={ink} strokeWidth="1.2" />
-      <circle cx={x} cy={y - 34} r="2" fill={ink} opacity="0.6" />
-      <circle cx={x} cy={y + 34} r="2" fill={ink} opacity="0.6" />
-    </g>
-  );
-}
-
-function ModuleSvg({ module }) {
-  return (
-    <svg
-      viewBox={`0 0 ${module.width} ${module.height}`}
-      className="h-full w-full"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect x="0" y="0" width={module.width} height={module.height} fill={module.color} stroke={module.ink} strokeWidth="2" />
-
-      <line x1="18" y1="86" x2={module.width - 18} y2="86" stroke={module.ink} strokeWidth="1.2" />
-      <line x1="18" y1={module.height - 24} x2={module.width - 18} y2={module.height - 24} stroke={module.ink} strokeWidth="1.2" />
-
-      <Label x={24} y={38} text={module.name} align="start" size={18} weight={700} fill={module.ink} />
-      <Label x={24} y={58} text={module.sub} align="start" size={10} weight={600} fill={module.ink} />
-      <Label x={module.width - 24} y={38} text={`${module.hp}HP`} align="end" size={11} weight={700} fill={module.ink} />
-
-      {module.headers.map((head, i) => (
-        <Label
-          key={head + i}
-          x={24 + i * ((module.width - 48) / Math.max(1, module.headers.length - 1))}
-          y={76}
-          text={head}
-          align={i === 0 ? "start" : i === module.headers.length - 1 ? "end" : "middle"}
-          size={9}
-          weight={600}
-          fill={module.ink}
-        />
-      ))}
-
-      {module.decorative.map((d, i) => (
-        <line
-          key={i}
-          x1={d.x1}
-          y1={d.y1}
-          x2={d.x2}
-          y2={d.y2}
-          stroke={module.ink}
-          strokeWidth="0.7"
-          opacity={d.opacity}
-        />
-      ))}
-
-      {module.elements.map((el, i) => {
-        if (el.type === "knob-lg" || el.type === "knob-md" || el.type === "knob-sm") {
-          return (
-            <g key={i}>
-              <Knob x={el.x} y={el.y} radius={el.radius} ink={module.ink} panel={module.color} />
-              <Label x={el.x} y={el.y - el.radius - 12} text={el.label} size={8.5} fill={module.ink} />
-            </g>
-          );
-        }
-        if (el.type === "jack") {
-          return (
-            <g key={i}>
-              <Label x={el.x} y={el.y - 17} text={el.label} size={8.5} fill={module.ink} />
-              <Jack x={el.x} y={el.y} ink={module.ink} panel={module.color} />
-            </g>
-          );
-        }
-        return (
-          <g key={i}>
-            <Label x={el.x} y={el.y - 54} text={el.label} size={8.5} fill={module.ink} />
-            <Slider x={el.x} y={el.y} ink={module.ink} panel={module.color} />
-          </g>
-        );
-      })}
-
-      <circle cx="12" cy="12" r="2" fill={module.ink} />
-      <circle cx={module.width - 12} cy="12" r="2" fill={module.ink} />
-      <circle cx="12" cy={module.height - 12} r="2" fill={module.ink} />
-      <circle cx={module.width - 12} cy={module.height - 12} r="2" fill={module.ink} />
-    </svg>
-  );
-}
-
-export default function EurorackModuleGenerator() {
-  const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1000000));
-  const module = useMemo(() => createModule(seed), [seed]);
-
-  const reroll = () => setSeed(Math.floor(Math.random() * 1000000));
-
-  const downloadSvg = () => {
-    const svg = document.querySelector("#module-export svg");
-    if (!svg) return;
-    const serializer = new XMLSerializer();
-    const source = serializer.serializeToString(svg);
-    const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${module.name.toLowerCase().replace(/\s+/g, "-")}.svg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  return (
-    <>
-      <style>{fonts}</style>
-      <div className="min-h-screen bg-[#f2efe8] text-[#111]" style={{ fontFamily: "Space Grotesk, Inter, sans-serif" }}>
-        <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10">
-          <div className="mb-8 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
-            <div className="rounded-[28px] border border-[#111] bg-[#fbf8f1] p-6 shadow-[8px_8px_0_0_#111]">
-              <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#555]">
-                Editorial Generator
-              </div>
-              <h1 className="mb-4 text-3xl font-bold leading-none md:text-4xl">
-                Random Eurorack module maker
-              </h1>
-              <p className="mb-6 max-w-sm text-sm leading-6 text-[#444]">
-                A flat graphic generator inspired by ModularGrid, VCV Rack, and clean editorial hardware sketches.
-                Every reroll creates a new fictional front panel with labels, knobs, jacks, sliders, and module branding.
-              </p>
-
-              <div className="mb-6 grid gap-3 text-sm">
-                <div className="flex items-center justify-between border-t border-[#111] pt-3">
-                  <span className="text-[#555]">Module</span>
-                  <span className="font-semibold tracking-[0.08em]">{module.name}</span>
-                </div>
-                <div className="flex items-center justify-between border-t border-[#111] pt-3">
-                  <span className="text-[#555]">Size</span>
-                  <span className="font-semibold">{module.hp}HP</span>
-                </div>
-                <div className="flex items-center justify-between border-t border-[#111] pt-3">
-                  <span className="text-[#555]">Seed</span>
-                  <span className="font-semibold">{seed}</span>
-                </div>
-                <div className="flex items-center justify-between border-t border-b border-[#111] py-3">
-                  <span className="text-[#555]">Elements</span>
-                  <span className="font-semibold">{module.elements.length}</span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={reroll}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#111] bg-[#111] px-4 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px]"
-                >
-                  <RefreshCcw size={16} />
-                  Generate new module
-                </button>
-                <button
-                  onClick={downloadSvg}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#111] bg-transparent px-4 py-3 text-sm font-semibold text-[#111] transition hover:bg-[#111] hover:text-white"
-                >
-                  <Download size={16} />
-                  Export SVG
-                </button>
-              </div>
-            </div>
-
-            <div className="rounded-[28px] border border-[#111] bg-[#e9e4d8] p-4 shadow-[8px_8px_0_0_#111] md:p-6">
-              <div className="mb-3 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.28em] text-[#555]">
-                <span>Generated Panel</span>
-                <span>{module.sub}</span>
-              </div>
-              <div
-                id="module-export"
-                className="flex min-h-[760px] items-center justify-center overflow-auto rounded-[24px] border border-[#111] bg-[#f7f3eb] p-6"
-              >
-                <div style={{ width: Math.min(module.width, 560), height: Math.min(module.height, 760) }}>
-                  <ModuleSvg module={module} />
-                </div>
-              </div>
-            </div>
+        <div class="stats">
+          <div class="stat-row">
+            <span class="label">Module</span>
+            <span class="value" id="statName">Axiom Fold</span>
           </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-[24px] border border-[#111] bg-[#fbf8f1] p-5">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#666]">Style notes</div>
-              <p className="text-sm leading-6 text-[#444]">
-                Thin linework, restrained flat colors, generous spacing, and a hardware-editorial feel instead of skeuomorphic realism.
-              </p>
-            </div>
-            <div className="rounded-[24px] border border-[#111] bg-[#fbf8f1] p-5">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#666]">Next step</div>
-              <p className="text-sm leading-6 text-[#444]">
-                Easy upgrade path: multi-module rack view, dark mode, cable overlays, icon systems, and fixed brand families.
-              </p>
-            </div>
-            <div className="rounded-[24px] border border-[#111] bg-[#fbf8f1] p-5">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#666]">Use case</div>
-              <p className="text-sm leading-6 text-[#444]">
-                Great for concept art, fake module lineups, visual inspiration, poster graphics, or turning synth ideas into a playful tool.
-              </p>
-            </div>
+          <div class="stat-row">
+            <span class="label">Size</span>
+            <span class="value" id="statHp">12HP</span>
+          </div>
+          <div class="stat-row">
+            <span class="label">Seed</span>
+            <span class="value" id="statSeed">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="label">Elements</span>
+            <span class="value" id="statElements">0</span>
           </div>
         </div>
-      </div>
-    </>
-  );
-}
+
+        <div class="button-row">
+          <button class="button-primary" id="generateButton" type="button">Generate new module</button>
+          <button class="button-secondary" id="exportButton" type="button">Export SVG</button>
+        </div>
+      </aside>
+
+      <section class="stage">
+        <div class="stage-top">
+          <span>Generated Panel</span>
+          <span id="stageCode">CV-1A</span>
+        </div>
+        <div class="stage-inner">
+          <div class="module-wrap" id="moduleTarget"></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="notes">
+      <article class="note-card">
+        <h2>Style notes</h2>
+        <p>Thin linework, restrained flat colors, generous spacing, and a hardware editorial feel instead of skeuomorphic realism.</p>
+      </article>
+      <article class="note-card">
+        <h2>Next step</h2>
+        <p>Easy upgrade path: full rack view, dark panels, cable overlays, icon systems, and believable oscillator or filter families.</p>
+      </article>
+      <article class="note-card">
+        <h2>Use case</h2>
+        <p>Great for concept art, fake module lineups, poster graphics, visual inspiration, or turning synth ideas into a playful generator.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const svgNs = "http://www.w3.org/2000/svg";
+
+    const panelColors = [
+      "#f4f1ea",
+      "#f7d54a",
+      "#d8d3c8",
+      "#d9e1e8",
+      "#e8ded1",
+      "#d4d7dd",
+      "#efe9df"
+    ];
+
+    const inkColors = ["#111111", "#1c1c1c", "#222222"];
+
+    const wordA = [
+      "Axiom", "Vector", "Mono", "Drift", "Flux", "Tetra", "Nova", "Phase", "Pulse", "Orbit",
+      "Motive", "Signal", "Prism", "Scalar", "Void", "Ribbon", "Frame", "Contour", "Helio", "Luma"
+    ];
+
+    const wordB = [
+      "Fold", "Shift", "Field", "Array", "Line", "Matrix", "Drive", "Core", "Patch", "Gate",
+      "Voice", "Filter", "Span", "Trace", "Dial", "Atlas", "Kernel", "Merge", "Bloom", "Tone"
+    ];
+
+    const smallLabels = [
+      "CV", "IN", "OUT", "FM", "CLK", "MOD", "SHAPE", "TILT", "RATE", "DEPTH", "SYNC", "ENV",
+      "A", "B", "X", "Y", "SUM", "ALT", "SCAN", "BIAS", "ODD", "EVN", "SPAN", "GAIN", "MIX",
+      "LEVEL", "COLOR", "WIDTH", "INDEX", "FLOW", "STEP", "RISE", "FALL", "Q", "RES", "ATTN"
+    ];
+
+    const brandMarks = ["CV", "VX", "MØ", "IO", "MM", "XR", "NQ"];
+
+    const statName = document.getElementById("statName");
+    const statHp = document.getElementById("statHp");
+    const statSeed = document.getElementById("statSeed");
+    const statElements = document.getElementById("statElements");
+    const stageCode = document.getElementById("stageCode");
+    const moduleTarget = document.getElementById("moduleTarget");
+    const generateButton = document.getElementById("generateButton");
+    const exportButton = document.getElementById("exportButton");
+
+    let currentModule = null;
+
+    function mulberry32(a) {
+      return function () {
+        let t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    function pick(rand, array) {
+      return array[Math.floor(rand() * array.length)];
+    }
+
+    function range(rand, min, max) {
+      return min + rand() * (max - min);
+    }
+
+    function int(rand, min, max) {
+      return Math.floor(range(rand, min, max + 1));
+    }
+
+    function shuffle(rand, array) {
+      const copy = array.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        const temp = copy[i];
+        copy[i] = copy[j];
+        copy[j] = temp;
+      }
+      return copy;
+    }
+
+    function generateName(rand) {
+      const a = pick(rand, wordA);
+      const b = pick(rand, wordB);
+      return rand() > 0.58 ? `${a} ${b}` : `${a}${b}`;
+    }
+
+    function createModule(seed) {
+      const rand = mulberry32(seed);
+      const hpOptions = [6, 8, 10, 12, 14, 16, 18, 20, 24, 28];
+      const hp = pick(rand, hpOptions);
+      const width = hp * 18;
+      const height = 740;
+      const margin = 26;
+      const topPad = 106;
+      const bottomPad = 42;
+      const color = pick(rand, panelColors);
+      const ink = pick(rand, inkColors);
+      const name = generateName(rand).toUpperCase();
+      const sub = `${pick(rand, brandMarks)}-${int(rand, 1, 9)}${String.fromCharCode(65 + int(rand, 0, 25))}`;
+
+      const cols = Math.max(2, Math.min(5, Math.floor(width / 86)));
+      const xPositions = Array.from({ length: cols }, function (_, i) {
+        return margin + ((width - margin * 2) / (cols - 1 || 1)) * i;
+      });
+
+      const yRows = [];
+      let currentY = topPad;
+      while (currentY < height - bottomPad) {
+        yRows.push(currentY);
+        currentY += pick(rand, [54, 62, 68, 74, 82]);
+      }
+
+      const used = [];
+      const elements = [];
+
+      function canPlace(x, y, r) {
+        return !used.some(function (u) {
+          const dx = u.x - x;
+          const dy = u.y - y;
+          return Math.sqrt(dx * dx + dy * dy) < u.r + r + 18;
+        });
+      }
+
+      function reserveSpots(count, radius, type) {
+        let attempts = 0;
+        while (count > 0 && attempts < 1200) {
+          attempts++;
+          const x = pick(rand, xPositions) + range(rand, -10, 10);
+          const y = pick(rand, yRows) + range(rand, -10, 10);
+          if (y < topPad + 10 || y > height - bottomPad - 20) continue;
+          if (canPlace(x, y, radius)) {
+            used.push({ x: x, y: y, r: radius });
+            elements.push({ type: type, x: x, y: y, radius: radius, label: pick(rand, smallLabels) });
+            count--;
+          }
+        }
+      }
+
+      const largeKnobs = int(rand, 1, Math.min(5, cols + 1));
+      const mediumKnobs = int(rand, 4, 10);
+      const tinyKnobs = int(rand, 2, 8);
+      const jackCount = int(rand, 6, 18);
+      let sliderCount = width > 250 ? int(rand, 0, 4) : int(rand, 0, 2);
+
+      reserveSpots(largeKnobs, 34, "knob-lg");
+      reserveSpots(mediumKnobs, 22, "knob-md");
+      reserveSpots(tinyKnobs, 14, "knob-sm");
+      reserveSpots(jackCount, 12, "jack");
+
+      let sliderAttempts = 0;
+      while (sliderCount > 0 && sliderAttempts < 400) {
+        sliderAttempts++;
+        const x = pick(rand, xPositions);
+        const y = range(rand, topPad + 70, height - 200);
+        const r = 20;
+        if (!canPlace(x, y, r + 24)) continue;
+        used.push({ x: x, y: y, r: r + 24 });
+        elements.push({ type: "slider", x: x, y: y, radius: r, label: pick(rand, smallLabels) });
+        sliderCount--;
+      }
+
+      const decorative = [];
+      const decoCount = int(rand, 8, 22);
+      for (let i = 0; i < decoCount; i++) {
+        decorative.push({
+          x1: range(rand, margin + 10, width - margin - 10),
+          y1: range(rand, topPad + 10, height - bottomPad - 10),
+          x2: range(rand, margin + 10, width - margin - 10),
+          y2: range(rand, topPad + 10, height - bottomPad - 10),
+          opacity: range(rand, 0.08, 0.22)
+        });
+      }
+
+      return {
+        seed: seed,
+        hp: hp,
+        width: width,
+        height: height,
+        color: color,
+        ink: ink,
+        name: name,
+        sub: sub,
+        headers: shuffle(rand, smallLabels).slice(0, int(rand, 2, 5)),
+        elements: elements,
+        decorative: decorative
+      };
+    }
+
+    function createSvgElement(tag, attributes) {
+      const el = document.createElementNS(svgNs, tag);
+      Object.keys(attributes).forEach(function (key) {
+        el.setAttribute(key, attributes[key]);
+      });
+      return el;
+    }
+
+    function addLabel(parent, x, y, text, options) {
+      const settings = Object.assign({
+        anchor: "middle",
+        size: 12,
+        weight: 600,
+        fill: "#111111"
+      }, options || {});
+
+      const label = createSvgElement("text", {
+        x: x,
+        y: y,
+        "text-anchor": settings.anchor,
+        "font-size": settings.size,
+        "font-weight": settings.weight,
+        fill: settings.fill,
+        style: "letter-spacing:0.14em;font-family:Inter, sans-serif"
+      });
+      label.textContent = text;
+      parent.appendChild(label);
+    }
+
+    function addKnob(parent, x, y, radius, ink, panel) {
+      parent.appendChild(createSvgElement("circle", {
+        cx: x,
+        cy: y,
+        r: radius + 2,
+        fill: "none",
+        stroke: ink,
+        "stroke-width": 1.2
+      }));
+
+      parent.appendChild(createSvgElement("circle", {
+        cx: x,
+        cy: y,
+        r: radius,
+        fill: panel,
+        stroke: ink,
+        "stroke-width": 1.2
+      }));
+
+      parent.appendChild(createSvgElement("circle", {
+        cx: x,
+        cy: y,
+        r: radius * 0.55,
+        fill: "none",
+        stroke: ink,
+        "stroke-width": 1.1,
+        opacity: 0.65
+      }));
+
+      const notchX = x + Math.cos(-Math.PI / 3) * (radius - 7);
+      const notchY = y + Math.sin(-Math.PI / 3) * (radius - 7);
+
+      parent.appendChild(createSvgElement("line", {
+        x1: x,
+        y1: y,
+        x2: notchX,
+        y2: notchY,
+        stroke: ink,
+        "stroke-width": 2,
+        "stroke-linecap": "round"
+      }));
+
+      parent.appendChild(createSvgElement("circle", {
+        cx: x,
+        cy: y,
+        r: 2.2,
+        fill: ink
+      }));
+    }
+
+    function addJack(parent, x, y, ink, panel) {
+      parent.appendChild(createSvgElement("circle", {
+        cx: x,
+        cy: y,
+        r: 12,
+        fill: panel,
+        stroke: ink,
+        "stroke-width": 1.2
+      }));
+
+      parent.appendChild(createSvgElement("circle", {
+        cx: x,
+        cy: y,
+        r: 6.6,
+        fill: "none",
+        stroke: ink,
+        "stroke-width": 1.2
+      }));
+
+      parent.appendChild(createSvgElement("circle", {
+        cx: x,
+        cy: y,
+        r: 1.7,
+        fill: ink
+      }));
+    }
+
+    function addSlider(parent, x, y, ink, panel) {
+      parent.appendChild(createSvgElement("rect", {
+        x: x - 4,
+        y: y - 42,
+        width: 8,
+        height: 84,
+        rx: 4,
+        fill: "none",
+        stroke: ink,
+        "stroke-width": 1.2
+      }));
+
+      parent.appendChild(createSvgElement("rect", {
+        x: x - 10,
+        y: y - 6,
+        width: 20,
+        height: 12,
+        rx: 5,
+        fill: panel,
+        stroke: ink,
+        "stroke-width": 1.2
+      }));
+
+      parent.appendChild(createSvgElement("circle", {
+        cx: x,
+        cy: y - 34,
+        r: 2,
+        fill: ink,
+        opacity: 0.6
+      }));
+
+      parent.appendChild(createSvgElement("circle", {
+        cx: x,
+        cy: y + 34,
+        r: 2,
+        fill: ink,
+        opacity: 0.6
+      }));
+    }
+
+    function renderModule(module) {
+      moduleTarget.innerHTML = "";
+
+      const svg = createSvgElement("svg", {
+        id: "moduleSvg",
+        viewBox: `0 0 ${module.width} ${module.height}`,
+        xmlns: svgNs,
+        role: "img",
+        "aria-label": `${module.name} Eurorack module illustration`
+      });
+
+      svg.appendChild(createSvgElement("rect", {
+        x: 0,
+        y: 0,
+        width: module.width,
+        height: module.height,
+        fill: module.color,
+        stroke: module.ink,
+        "stroke-width": 2
+      }));
+
+      svg.appendChild(createSvgElement("line", {
+        x1: 18,
+        y1: 86,
+        x2: module.width - 18,
+        y2: 86,
+        stroke: module.ink,
+        "stroke-width": 1.2
+      }));
+
+      svg.appendChild(createSvgElement("line", {
+        x1: 18,
+        y1: module.height - 24,
+        x2: module.width - 18,
+        y2: module.height - 24,
+        stroke: module.ink,
+        "stroke-width": 1.2
+      }));
+
+      addLabel(svg, 24, 38, module.name, {
+        anchor: "start",
+        size: 18,
+        weight: 700,
+        fill: module.ink
+      });
+
+      addLabel(svg, 24, 58, module.sub, {
+        anchor: "start",
+        size: 10,
+        weight: 600,
+        fill: module.ink
+      });
+
+      addLabel(svg, module.width - 24, 38, `${module.hp}HP`, {
+        anchor: "end",
+        size: 11,
+        weight: 700,
+        fill: module.ink
+      });
+
+      module.headers.forEach(function (head, index) {
+        const maxIndex = Math.max(1, module.headers.length - 1);
+        const x = 24 + index * ((module.width - 48) / maxIndex);
+        let anchor = "middle";
+        if (index === 0) anchor = "start";
+        if (index === module.headers.length - 1) anchor = "end";
+
+        addLabel(svg, x, 76, head, {
+          anchor: anchor,
+          size: 9,
+          weight: 600,
+          fill: module.ink
+        });
+      });
+
+      module.decorative.forEach(function (line) {
+        svg.appendChild(createSvgElement("line", {
+          x1: line.x1,
+          y1: line.y1,
+          x2: line.x2,
+          y2: line.y2,
+          stroke: module.ink,
+          "stroke-width": 0.7,
+          opacity: line.opacity
+        }));
+      });
+
+      module.elements.forEach(function (element) {
+        const group = createSvgElement("g", {});
+        if (element.type === "knob-lg" || element.type === "knob-md" || element.type === "knob-sm") {
+          addKnob(group, element.x, element.y, element.radius, module.ink, module.color);
+          addLabel(group, element.x, element.y - element.radius - 12, element.label, {
+            size: 8.5,
+            weight: 600,
+            fill: module.ink
+          });
+        } else if (element.type === "jack") {
+          addLabel(group, element.x, element.y - 17, element.label, {
+            size: 8.5,
+            weight: 600,
+            fill: module.ink
+          });
+          addJack(group, element.x, element.y, module.ink, module.color);
+        } else if (element.type === "slider") {
+          addLabel(group, element.x, element.y - 54, element.label, {
+            size: 8.5,
+            weight: 600,
+            fill: module.ink
+          });
+          addSlider(group, element.x, element.y, module.ink, module.color);
+        }
+        svg.appendChild(group);
+      });
+
+      svg.appendChild(createSvgElement("circle", { cx: 12, cy: 12, r: 2, fill: module.ink }));
+      svg.appendChild(createSvgElement("circle", { cx: module.width - 12, cy: 12, r: 2, fill: module.ink }));
+      svg.appendChild(createSvgElement("circle", { cx: 12, cy: module.height - 12, r: 2, fill: module.ink }));
+      svg.appendChild(createSvgElement("circle", { cx: module.width - 12, cy: module.height - 12, r: 2, fill: module.ink }));
+
+      moduleTarget.appendChild(svg);
+
+      statName.textContent = module.name;
+      statHp.textContent = `${module.hp}HP`;
+      statSeed.textContent = String(module.seed);
+      statElements.textContent = String(module.elements.length);
+      stageCode.textContent = module.sub;
+    }
+
+    function generateModule() {
+      const seed = Math.floor(Math.random() * 1000000);
+      currentModule = createModule(seed);
+      renderModule(currentModule);
+    }
+
+    function exportCurrentSvg() {
+      const svg = document.getElementById("moduleSvg");
+      if (!svg || !currentModule) return;
+      const serializer = new XMLSerializer();
+      const source = serializer.serializeToString(svg);
+      const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = currentModule.name.toLowerCase().replace(/\s+/g, "-") + ".svg";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    generateButton.addEventListener("click", generateModule);
+    exportButton.addEventListener("click", exportCurrentSvg);
+
+    generateModule();
+  </script>
+</body>
+</html>
