@@ -1,1 +1,54 @@
+:root {
+  color: #666666;
+}
 
+.note-card p {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #444444;
+}
+
+@media (max-width: 1040px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .intro {
+    max-width: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 20px 14px 28px;
+  }
+
+  .sidebar,
+  .stage,
+  .note-card {
+    padding: 18px;
+  }
+
+  .stage-inner {
+    min-height: 560px;
+    padding: 16px;
+  }
+
+  .module-wrap {
+    min-height: 520px;
+  }
+
+  .notes {
+    grid-template-columns: 1fr;
+  }
+
+  .button-row {
+    flex-direction: column;
+  }
+
+  button {
+    width: 100%;
+  }
+}
