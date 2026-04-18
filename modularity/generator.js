@@ -1,6 +1,16 @@
 const svgNs = "http://www.w3.org/2000/svg";
 
-const panelColors = ["#f4f1ea", "#f7d54a", "#d8d3c8", "#d9e1e8", "#e8ded1", "#d4d7dd", "#efe9df"];
+const panelColors = [
+  "#f1d54a", // warm yellow
+  "#cfe870", // lime
+  "#8fd8cf", // teal mint
+  "#b8e3d1", // pale mint
+  "#cfd8e3", // dusty blue
+  "#efd2c6", // soft coral
+  "#e8ded1", // sand
+  "#ddd4ee"  // pastel lilac
+];
+
 const inkColors = ["#111111", "#1c1c1c", "#222222"];
 const brandMarks = ["CV", "VX", "MØ", "IO", "MM", "XR", "NQ"];
 
@@ -13,50 +23,32 @@ const families = {
   oscillator: {
     label: "Oscillator",
     wordB: ["Core", "Tone", "Fold", "Field", "Voice", "Phase"],
-    headers: ["PITCH", "FM", "WAVE", "SYNC"],
-    topKnobs: { large: [1, 2], medium: [2, 4], shaft: [1, 2] },
-    bottomJacks: { inputs: [3, 5], outputs: [2, 3] },
-    sliderRows: [0, 1]
+    headers: ["PITCH", "FM", "WAVE", "SYNC"]
   },
   filter: {
     label: "Filter",
     wordB: ["Filter", "Span", "Color", "Trace", "Field", "Kernel"],
-    headers: ["FREQ", "Q", "DRIVE", "MIX"],
-    topKnobs: { large: [1, 2], medium: [3, 4], shaft: [1, 2] },
-    bottomJacks: { inputs: [3, 5], outputs: [1, 2] },
-    sliderRows: [0, 1]
+    headers: ["FREQ", "Q", "DRIVE", "MIX"]
   },
   modulation: {
     label: "Modulation",
     wordB: ["Drift", "Orbit", "Bloom", "Atlas", "Flow", "Frame"],
-    headers: ["RATE", "SHAPE", "DEPTH", "CV"],
-    topKnobs: { large: [1, 2], medium: [3, 5], shaft: [2, 4] },
-    bottomJacks: { inputs: [4, 6], outputs: [2, 4] },
-    sliderRows: [0, 1]
+    headers: ["RATE", "SHAPE", "DEPTH", "CV"]
   },
   sequencer: {
     label: "Sequencer",
     wordB: ["Step", "Array", "Matrix", "Gate", "Dial", "Span"],
-    headers: ["STEP", "CLK", "GATE", "RESET"],
-    topKnobs: { large: [0, 1], medium: [1, 3], shaft: [4, 8] },
-    bottomJacks: { inputs: [3, 5], outputs: [2, 4] },
-    sliderRows: [1, 2]
+    headers: ["STEP", "CLK", "GATE", "RESET"]
   },
   utility: {
     label: "Utility",
     wordB: ["Merge", "Patch", "Line", "Atlas", "Vector", "Field"],
-    headers: ["IN", "OUT", "CV", "MIX"],
-    topKnobs: { large: [0, 1], medium: [2, 4], shaft: [3, 6] },
-    bottomJacks: { inputs: [4, 6], outputs: [3, 5] },
-    sliderRows: [0, 1]
+    headers: ["IN", "OUT", "CV", "MIX"]
   },
   mixer: {
     label: "Mixer",
     wordB: ["Mix", "Sum", "Merge", "Span", "Field", "Matrix"],
-    headers: ["CH", "LEVEL", "PAN", "OUT"],
-    topKnobs: { large: [0, 1], medium: [2, 4], shaft: [4, 8] },
-    bottomJacks: { inputs: [5, 8], outputs: [2, 4] },
-    sliderRows: [1, 2]
+    headers: ["CH", "LEVEL", "PAN", "OUT"]
   }
 };
 
@@ -134,231 +126,128 @@ function addLabel(parent, x, y, text, options = {}) {
 
 function drawLargeKnob(parent, x, y, radius, ink, panel) {
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius + 3,
-    fill: "none",
-    stroke: ink,
-    "stroke-width": 1.4
+    cx: x, cy: y, r: radius + 3, fill: "none", stroke: ink, "stroke-width": 1.4
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius,
-    fill: panel,
-    stroke: ink,
-    "stroke-width": 1.4
+    cx: x, cy: y, r: radius, fill: panel, stroke: ink, "stroke-width": 1.4
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius * 0.62,
-    fill: panel,
-    stroke: ink,
-    "stroke-width": 1.1
+    cx: x, cy: y, r: radius * 0.62, fill: panel, stroke: ink, "stroke-width": 1.1
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius * 0.18,
-    fill: ink
+    cx: x, cy: y, r: radius * 0.18, fill: ink
   }));
 
   const notchX = x + Math.cos(-Math.PI / 3) * (radius - 9);
   const notchY = y + Math.sin(-Math.PI / 3) * (radius - 9);
 
   parent.appendChild(createSvgElement("line", {
-    x1: x,
-    y1: y,
-    x2: notchX,
-    y2: notchY,
-    stroke: ink,
-    "stroke-width": 2.2,
-    "stroke-linecap": "round"
+    x1: x, y1: y, x2: notchX, y2: notchY, stroke: ink, "stroke-width": 2.2, "stroke-linecap": "round"
   }));
 }
 
 function drawMediumKnob(parent, x, y, radius, ink, panel) {
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius + 2,
-    fill: "none",
-    stroke: ink,
-    "stroke-width": 1.2
+    cx: x, cy: y, r: radius + 2, fill: "none", stroke: ink, "stroke-width": 1.2
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius,
-    fill: panel,
-    stroke: ink,
-    "stroke-width": 1.2
+    cx: x, cy: y, r: radius, fill: panel, stroke: ink, "stroke-width": 1.2
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius * 0.52,
-    fill: "none",
-    stroke: ink,
-    "stroke-width": 1.0,
-    opacity: 0.7
+    cx: x, cy: y, r: radius * 0.52, fill: "none", stroke: ink, "stroke-width": 1.0, opacity: 0.7
   }));
 
   const notchX = x + Math.cos(-Math.PI / 3) * (radius - 6);
   const notchY = y + Math.sin(-Math.PI / 3) * (radius - 6);
 
   parent.appendChild(createSvgElement("line", {
-    x1: x,
-    y1: y,
-    x2: notchX,
-    y2: notchY,
-    stroke: ink,
-    "stroke-width": 1.8,
-    "stroke-linecap": "round"
+    x1: x, y1: y, x2: notchX, y2: notchY, stroke: ink, "stroke-width": 1.8, "stroke-linecap": "round"
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 2,
-    fill: ink
+    cx: x, cy: y, r: 2, fill: ink
   }));
 }
 
 function drawShaftKnob(parent, x, y, radius, ink) {
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius * 0.75,
-    fill: ink
+    cx: x, cy: y, r: radius * 0.78, fill: ink
   }));
 
   parent.appendChild(createSvgElement("line", {
-    x1: x,
-    y1: y,
-    x2: x,
-    y2: y - radius + 4,
-    stroke: "#ffffff",
-    "stroke-width": 1.2,
-    "stroke-linecap": "round"
+    x1: x, y1: y, x2: x, y2: y - radius + 4, stroke: "#ffffff", "stroke-width": 1.2, "stroke-linecap": "round"
   }));
 }
 
 function drawInputJack(parent, x, y, ink, panel) {
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 12,
-    fill: panel,
-    stroke: ink,
-    "stroke-width": 1.2
+    cx: x, cy: y, r: 12, fill: panel, stroke: ink, "stroke-width": 1.2
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 7,
-    fill: ink
+    cx: x, cy: y, r: 7, fill: ink
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 2.4,
-    fill: "#000000"
+    cx: x, cy: y, r: 2.4, fill: "#000000"
   }));
 }
 
 function drawOutputJack(parent, x, y, ink, panel) {
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 13.5,
-    fill: "none",
-    stroke: ink,
-    "stroke-width": 3.2
+    cx: x, cy: y, r: 13.5, fill: "none", stroke: ink, "stroke-width": 3.2
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 11,
-    fill: panel,
-    stroke: ink,
-    "stroke-width": 1.2
+    cx: x, cy: y, r: 11, fill: panel, stroke: ink, "stroke-width": 1.2
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 7,
-    fill: ink
+    cx: x, cy: y, r: 7, fill: ink
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 2.4,
-    fill: "#000000"
+    cx: x, cy: y, r: 2.4, fill: "#000000"
   }));
 }
 
 function drawSlider(parent, x, y, ink, panel) {
   parent.appendChild(createSvgElement("rect", {
-    x: x - 4,
-    y: y - 42,
-    width: 8,
-    height: 84,
-    rx: 4,
-    fill: "none",
-    stroke: ink,
-    "stroke-width": 1.2
+    x: x - 4, y: y - 42, width: 8, height: 84, rx: 4, fill: "none", stroke: ink, "stroke-width": 1.2
   }));
 
   parent.appendChild(createSvgElement("rect", {
-    x: x - 11,
-    y: y - 7,
-    width: 22,
-    height: 14,
-    rx: 5,
-    fill: panel,
-    stroke: ink,
-    "stroke-width": 1.2
+    x: x - 11, y: y - 7, width: 22, height: 14, rx: 5, fill: panel, stroke: ink, "stroke-width": 1.2
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y - 34,
-    r: 2,
-    fill: ink,
-    opacity: 0.6
+    cx: x, cy: y - 34, r: 2, fill: ink, opacity: 0.6
   }));
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y + 34,
-    r: 2,
-    fill: ink,
-    opacity: 0.6
+    cx: x, cy: y + 34, r: 2, fill: ink, opacity: 0.6
   }));
 }
 
 function buildLayoutGrid(width) {
-  const sidePadding = 34;
+  const sidePadding = width <= 144 ? 26 : 34;
   const contentWidth = width - sidePadding * 2;
-  const colSpacing = 48;
-  const rowSpacing = 66;
 
-  const cols = Math.max(2, Math.floor(contentWidth / colSpacing));
-  const actualSpacing = cols > 1 ? contentWidth / (cols - 1) : contentWidth;
+  let colCount;
+  if (width <= 108) colCount = 2;
+  else if (width <= 144) colCount = 3;
+  else if (width <= 216) colCount = 4;
+  else if (width <= 288) colCount = 5;
+  else colCount = 6;
 
-  const xPositions = Array.from({ length: cols }, (_, i) => sidePadding + i * actualSpacing);
+  const spacing = colCount > 1 ? contentWidth / (colCount - 1) : contentWidth;
+
+  const xPositions = Array.from({ length: colCount }, (_, i) => sidePadding + i * spacing);
 
   const rowYs = {
     knobTop: 168,
@@ -373,27 +262,64 @@ function buildLayoutGrid(width) {
   return { xPositions, rowYs, sidePadding };
 }
 
-function selectAlignedPositions(rand, positions, count, minGap = 1, centered = true) {
-  if (count <= 0) return [];
-
-  const indices = Array.from({ length: positions.length }, (_, i) => i);
-
-  if (centered) {
-    indices.sort((a, b) => {
-      const center = (positions.length - 1) / 2;
-      return Math.abs(a - center) - Math.abs(b - center);
-    });
+function getModuleSpec(width, family, rand) {
+  if (width <= 108) {
+    return {
+      titleSize: 11,
+      subSize: 7,
+      hpSize: 8,
+      headerCount: 2,
+      large: int(rand, 0, 1),
+      medium: int(rand, 1, 2),
+      shaft: int(rand, 1, 2),
+      inputs: int(rand, 1, 2),
+      outputs: int(rand, 1, 2),
+      sliderRows: 0
+    };
   }
 
-  const selected = [];
-
-  for (const idx of indices) {
-    if (selected.length >= count) break;
-    const ok = selected.every((s) => Math.abs(s - idx) >= minGap);
-    if (ok) selected.push(idx);
+  if (width <= 144) {
+    return {
+      titleSize: 13,
+      subSize: 8,
+      hpSize: 9,
+      headerCount: 3,
+      large: int(rand, 1, 1),
+      medium: int(rand, 1, 2),
+      shaft: int(rand, 2, 3),
+      inputs: int(rand, 2, 3),
+      outputs: int(rand, 1, 2),
+      sliderRows: family.label === "Sequencer" || family.label === "Mixer" ? 1 : 0
+    };
   }
 
-  return selected.sort((a, b) => a - b).map((i) => positions[i]);
+  return {
+    titleSize: 18,
+    subSize: 10,
+    hpSize: 11,
+    headerCount: 4,
+    large: int(rand, family.label === "Utility" || family.label === "Mixer" ? 0 : 1, 2),
+    medium: int(rand, 2, 4),
+    shaft: int(rand, 2, 5),
+    inputs: int(rand, 2, 4),
+    outputs: int(rand, 1, 3),
+    sliderRows: family.label === "Sequencer" || family.label === "Mixer" ? int(rand, 1, 2) : int(rand, 0, 1)
+  };
+}
+
+function getSymmetricSlots(slotCount, fillCount) {
+  const center = (slotCount - 1) / 2;
+  return Array.from({ length: slotCount }, (_, i) => i)
+    .sort((a, b) => Math.abs(a - center) - Math.abs(b - center))
+    .slice(0, fillCount)
+    .sort((a, b) => a - b);
+}
+
+function distributeAcrossRows(indices, rowA, rowB) {
+  return indices.map((index, i) => ({
+    index,
+    y: i % 2 === 0 ? rowA : rowB
+  }));
 }
 
 function createModule(seed) {
@@ -405,86 +331,101 @@ function createModule(seed) {
   const hp = pick(rand, hpOptions);
   const width = hp * 18;
   const height = 740;
-  const topPad = 120;
-  const bottomPad = 54;
   const color = pick(rand, panelColors);
   const ink = pick(rand, inkColors);
   const name = `${pick(rand, wordA)} ${pick(rand, family.wordB)}`.toUpperCase();
   const sub = `${pick(rand, brandMarks)}-${int(rand, 1, 9)}${String.fromCharCode(65 + int(rand, 0, 25))}`;
 
   const { xPositions, rowYs } = buildLayoutGrid(width);
+  const spec = getModuleSpec(width, family, rand);
   const elements = [];
   const occupied = new Set();
 
-  function cellKey(x, y) {
-    return `${Math.round(x)}-${Math.round(y)}`;
+  function key(colIndex, rowName) {
+    return `${colIndex}-${rowName}`;
   }
 
-  function reserve(x, y) {
-    occupied.add(cellKey(x, y));
+  function reserve(colIndex, rowName) {
+    occupied.add(key(colIndex, rowName));
   }
 
-  function isFree(x, y) {
-    return !occupied.has(cellKey(x, y));
+  function isFree(colIndex, rowName) {
+    return !occupied.has(key(colIndex, rowName));
   }
 
-  function addElement(type, x, y, radius, label, isOutput = false) {
-    if (!isFree(x, y)) return false;
-    reserve(x, y);
-    elements.push({ type, x, y, radius, label, isOutput });
+  function addElement(type, colIndex, rowName, radius, label, isOutput = false) {
+    if (!isFree(colIndex, rowName)) return false;
+    reserve(colIndex, rowName);
+    elements.push({
+      type,
+      x: xPositions[colIndex],
+      y: rowYs[rowName],
+      radius,
+      label,
+      isOutput
+    });
     return true;
   }
 
-  const largeCount = int(rand, family.topKnobs.large[0], family.topKnobs.large[1]);
-  const mediumCount = int(rand, family.topKnobs.medium[0], family.topKnobs.medium[1]);
-  const shaftCount = int(rand, family.topKnobs.shaft[0], family.topKnobs.shaft[1]);
-  const inputCount = int(rand, family.bottomJacks.inputs[0], family.bottomJacks.inputs[1]);
-  const outputCount = int(rand, family.bottomJacks.outputs[0], family.bottomJacks.outputs[1]);
-  const sliderRows = int(rand, family.sliderRows[0], family.sliderRows[1]);
-
-  const largeXs = selectAlignedPositions(rand, xPositions, largeCount, 2, true);
-  largeXs.forEach((x) => {
-    addElement("knob-lg", x, rowYs.knobTop, 34, pick(rand, labelsByRole.knobLarge));
+  const topLargeSlots = getSymmetricSlots(xPositions.length, Math.min(spec.large, xPositions.length));
+  topLargeSlots.forEach((slot) => {
+    addElement("knob-lg", slot, "knobTop", 34, pick(rand, labelsByRole.knobLarge));
   });
 
-  const mediumXs = selectAlignedPositions(rand, xPositions, mediumCount, 1, true).filter((x) => isFree(x, rowYs.knobMid));
-  mediumXs.forEach((x) => {
-    addElement("knob-md", x, rowYs.knobMid, 22, pick(rand, labelsByRole.knobMedium));
+  const remainingForMedium = Array.from({ length: xPositions.length }, (_, i) => i).filter((i) => isFree(i, "knobMid"));
+  const mediumSlots = getSymmetricSlots(remainingForMedium.length, Math.min(spec.medium, remainingForMedium.length))
+    .map((i) => remainingForMedium[i]);
+
+  mediumSlots.forEach((slot) => {
+    addElement("knob-md", slot, "knobMid", 22, pick(rand, labelsByRole.knobMedium));
   });
 
-  const shaftXs = selectAlignedPositions(rand, xPositions, shaftCount, 1, false).filter((x) => isFree(x, rowYs.shaftRow));
-  shaftXs.forEach((x) => {
-    addElement("knob-sm", x, rowYs.shaftRow, 12, pick(rand, labelsByRole.knobShaft));
+  const shaftCandidates = Array.from({ length: xPositions.length }, (_, i) => i).filter((i) => isFree(i, "shaftRow"));
+  const shaftSlots = getSymmetricSlots(shaftCandidates.length, Math.min(spec.shaft, shaftCandidates.length))
+    .map((i) => shaftCandidates[i]);
+
+  shaftSlots.forEach((slot) => {
+    addElement("knob-sm", slot, "shaftRow", 12, pick(rand, labelsByRole.knobShaft));
   });
 
-  if (sliderRows > 0) {
-    const sliderCountA = Math.min(xPositions.length, [2, 4, 4, 6, 8][int(rand, 0, 4)]);
-    const sliderXsA = selectAlignedPositions(rand, xPositions, sliderCountA, 1, true);
-    sliderXsA.forEach((x) => {
-      addElement("slider", x, rowYs.sliderRowA, 20, pick(rand, labelsByRole.slider));
+  if (spec.sliderRows > 0) {
+    const sliderChoices = [2, 4, 6, 8].filter((n) => n <= xPositions.length);
+    const sliderCountA = sliderChoices.length ? pick(rand, sliderChoices) : 0;
+    const sliderSlotsA = getSymmetricSlots(xPositions.length, sliderCountA);
+
+    sliderSlotsA.forEach((slot) => {
+      addElement("slider", slot, "sliderRowA", 20, pick(rand, labelsByRole.slider));
     });
   }
 
-  if (sliderRows > 1) {
-    const sliderCountB = Math.min(xPositions.length, [2, 4, 6, 8][int(rand, 0, 3)]);
-    const sliderXsB = selectAlignedPositions(rand, xPositions, sliderCountB, 1, true).filter((x) => isFree(x, rowYs.sliderRowB));
-    sliderXsB.forEach((x) => {
-      addElement("slider", x, rowYs.sliderRowB, 20, pick(rand, labelsByRole.slider));
+  if (spec.sliderRows > 1) {
+    const freeForSecondRow = Array.from({ length: xPositions.length }, (_, i) => i).filter((i) => isFree(i, "sliderRowB"));
+    const sliderChoicesB = [2, 4, 6].filter((n) => n <= freeForSecondRow.length);
+    const sliderCountB = sliderChoicesB.length ? pick(rand, sliderChoicesB) : 0;
+    const sliderSlotsB = getSymmetricSlots(freeForSecondRow.length, sliderCountB).map((i) => freeForSecondRow[i]);
+
+    sliderSlotsB.forEach((slot) => {
+      addElement("slider", slot, "sliderRowB", 20, pick(rand, labelsByRole.slider));
     });
   }
 
-  const jackPool = xPositions.slice();
-  const inputXs = selectAlignedPositions(rand, jackPool, inputCount, 1, false);
-  inputXs.forEach((x, i) => {
-    const y = i % 2 === 0 ? rowYs.jackRowA : rowYs.jackRowB;
-    addElement("jack", x, y, 12, pick(rand, labelsByRole.input), false);
+  const inputCount = Math.min(spec.inputs, xPositions.length * 2);
+  const inputSlots = getSymmetricSlots(xPositions.length, Math.min(Math.ceil(inputCount / 2), xPositions.length));
+  const distributedInputs = distributeAcrossRows(inputSlots.concat(inputSlots).slice(0, inputCount), "jackRowA", "jackRowB");
+
+  distributedInputs.forEach((item) => {
+    if (isFree(item.index, item.y)) {
+      addElement("jack", item.index, item.y, 12, pick(rand, labelsByRole.input), false);
+    }
   });
 
-  const outputXs = selectAlignedPositions(rand, jackPool, outputCount, 1, true);
-  outputXs.forEach((x, i) => {
-    const y = i % 2 === 0 ? rowYs.jackRowA : rowYs.jackRowB;
-    if (isFree(x, y)) {
-      addElement("jack", x, y, 12, pick(rand, labelsByRole.output), true);
+  const outputCount = Math.min(spec.outputs, xPositions.length * 2);
+  const outputSlots = getSymmetricSlots(xPositions.length, Math.min(Math.ceil(outputCount / 2), xPositions.length));
+  const distributedOutputs = distributeAcrossRows(outputSlots.concat(outputSlots).slice(0, outputCount), "jackRowA", "jackRowB");
+
+  distributedOutputs.forEach((item) => {
+    if (isFree(item.index, item.y)) {
+      addElement("jack", item.index, item.y, 12, pick(rand, labelsByRole.output), true);
     }
   });
 
@@ -499,8 +440,11 @@ function createModule(seed) {
     ink,
     name,
     sub,
-    headers: family.headers,
-    elements
+    headers: family.headers.slice(0, spec.headerCount),
+    elements,
+    titleSize: spec.titleSize,
+    subSize: spec.subSize,
+    hpSize: spec.hpSize
   };
 }
 
@@ -548,21 +492,21 @@ function renderModule(module) {
 
   addLabel(svg, 24, 38, module.name, {
     anchor: "start",
-    size: 18,
+    size: module.titleSize,
     weight: 700,
     fill: module.ink
   });
 
   addLabel(svg, 24, 58, module.sub, {
     anchor: "start",
-    size: 10,
+    size: module.subSize,
     weight: 600,
     fill: module.ink
   });
 
   addLabel(svg, module.width - 24, 38, `${module.hp}HP`, {
     anchor: "end",
-    size: 11,
+    size: module.hpSize,
     weight: 700,
     fill: module.ink
   });
@@ -576,7 +520,7 @@ function renderModule(module) {
 
     addLabel(svg, x, 78, head, {
       anchor,
-      size: 9,
+      size: module.width <= 144 ? 7 : 9,
       weight: 600,
       fill: module.ink
     });
@@ -588,27 +532,27 @@ function renderModule(module) {
     if (element.type === "knob-lg") {
       drawLargeKnob(group, element.x, element.y, element.radius, module.ink, module.color);
       addLabel(group, element.x, element.y - element.radius - 12, element.label, {
-        size: 8.5,
+        size: module.width <= 144 ? 7 : 8.5,
         weight: 600,
         fill: module.ink
       });
     } else if (element.type === "knob-md") {
       drawMediumKnob(group, element.x, element.y, element.radius, module.ink, module.color);
       addLabel(group, element.x, element.y - element.radius - 12, element.label, {
-        size: 8.5,
+        size: module.width <= 144 ? 7 : 8.5,
         weight: 600,
         fill: module.ink
       });
     } else if (element.type === "knob-sm") {
       drawShaftKnob(group, element.x, element.y, element.radius, module.ink);
       addLabel(group, element.x, element.y - element.radius - 12, element.label, {
-        size: 8.5,
+        size: module.width <= 144 ? 7 : 8.5,
         weight: 600,
         fill: module.ink
       });
     } else if (element.type === "jack") {
       addLabel(group, element.x, element.y - 18, element.label, {
-        size: 8.5,
+        size: module.width <= 144 ? 7 : 8.5,
         weight: 600,
         fill: module.ink
       });
@@ -620,7 +564,7 @@ function renderModule(module) {
       }
     } else if (element.type === "slider") {
       addLabel(group, element.x, element.y - 54, element.label, {
-        size: 8.5,
+        size: module.width <= 144 ? 7 : 8.5,
         weight: 600,
         fill: module.ink
       });
