@@ -14,37 +14,49 @@ const families = {
     label: "Oscillator",
     wordB: ["Core", "Tone", "Fold", "Field", "Voice", "Phase"],
     headers: ["PITCH", "FM", "WAVE", "SYNC"],
-    counts: { large: [1, 2], medium: [3, 5], shaft: [2, 4], inputs: [4, 7], outputs: [2, 4], sliders: [0, 1] }
+    topKnobs: { large: [1, 2], medium: [2, 4], shaft: [1, 2] },
+    bottomJacks: { inputs: [3, 5], outputs: [2, 3] },
+    sliderRows: [0, 1]
   },
   filter: {
     label: "Filter",
     wordB: ["Filter", "Span", "Color", "Trace", "Field", "Kernel"],
     headers: ["FREQ", "Q", "DRIVE", "MIX"],
-    counts: { large: [1, 2], medium: [4, 6], shaft: [1, 3], inputs: [4, 7], outputs: [1, 3], sliders: [0, 1] }
+    topKnobs: { large: [1, 2], medium: [3, 4], shaft: [1, 2] },
+    bottomJacks: { inputs: [3, 5], outputs: [1, 2] },
+    sliderRows: [0, 1]
   },
   modulation: {
     label: "Modulation",
     wordB: ["Drift", "Orbit", "Bloom", "Atlas", "Flow", "Frame"],
     headers: ["RATE", "SHAPE", "DEPTH", "CV"],
-    counts: { large: [1, 2], medium: [4, 6], shaft: [3, 5], inputs: [5, 8], outputs: [2, 4], sliders: [0, 2] }
+    topKnobs: { large: [1, 2], medium: [3, 5], shaft: [2, 4] },
+    bottomJacks: { inputs: [4, 6], outputs: [2, 4] },
+    sliderRows: [0, 1]
   },
   sequencer: {
     label: "Sequencer",
     wordB: ["Step", "Array", "Matrix", "Gate", "Dial", "Span"],
     headers: ["STEP", "CLK", "GATE", "RESET"],
-    counts: { large: [0, 1], medium: [2, 4], shaft: [6, 10], inputs: [4, 6], outputs: [2, 4], sliders: [2, 5] }
+    topKnobs: { large: [0, 1], medium: [1, 3], shaft: [4, 8] },
+    bottomJacks: { inputs: [3, 5], outputs: [2, 4] },
+    sliderRows: [1, 2]
   },
   utility: {
     label: "Utility",
     wordB: ["Merge", "Patch", "Line", "Atlas", "Vector", "Field"],
     headers: ["IN", "OUT", "CV", "MIX"],
-    counts: { large: [0, 1], medium: [3, 5], shaft: [4, 8], inputs: [5, 9], outputs: [3, 6], sliders: [0, 2] }
+    topKnobs: { large: [0, 1], medium: [2, 4], shaft: [3, 6] },
+    bottomJacks: { inputs: [4, 6], outputs: [3, 5] },
+    sliderRows: [0, 1]
   },
   mixer: {
     label: "Mixer",
     wordB: ["Mix", "Sum", "Merge", "Span", "Field", "Matrix"],
     headers: ["CH", "LEVEL", "PAN", "OUT"],
-    counts: { large: [0, 1], medium: [4, 8], shaft: [4, 8], inputs: [6, 10], outputs: [2, 4], sliders: [0, 4] }
+    topKnobs: { large: [0, 1], medium: [2, 4], shaft: [4, 8] },
+    bottomJacks: { inputs: [5, 8], outputs: [2, 4] },
+    sliderRows: [1, 2]
   }
 };
 
@@ -83,12 +95,8 @@ function pick(rand, array) {
   return array[Math.floor(rand() * array.length)];
 }
 
-function range(rand, min, max) {
-  return min + rand() * (max - min);
-}
-
 function int(rand, min, max) {
-  return Math.floor(range(rand, min, max + 1));
+  return Math.floor(min + rand() * (max - min + 1));
 }
 
 function createSvgElement(tag, attributes) {
@@ -223,20 +231,11 @@ function drawMediumKnob(parent, x, y, radius, ink, panel) {
   }));
 }
 
-function drawShaftKnob(parent, x, y, radius, ink, panel) {
+function drawShaftKnob(parent, x, y, radius, ink) {
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
-    r: radius + 1.5,
-    fill: panel,
-    stroke: ink,
-    "stroke-width": 1
-  }));
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius * 0.54,
+    r: radius * 0.75,
     fill: ink
   }));
 
@@ -244,9 +243,9 @@ function drawShaftKnob(parent, x, y, radius, ink, panel) {
     x1: x,
     y1: y,
     x2: x,
-    y2: y - radius + 5,
-    stroke: panel,
-    "stroke-width": 1.4,
+    y2: y - radius + 4,
+    stroke: "#ffffff",
+    "stroke-width": 1.2,
     "stroke-linecap": "round"
   }));
 }
@@ -350,23 +349,51 @@ function drawSlider(parent, x, y, ink, panel) {
   }));
 }
 
-function buildGrid(width, topPad, bottomPad, height) {
-  const cols = Math.max(2, Math.min(5, Math.floor(width / 86)));
+function buildLayoutGrid(width) {
   const sidePadding = 34;
-  const usableWidth = width - sidePadding * 2;
+  const contentWidth = width - sidePadding * 2;
+  const colSpacing = 48;
+  const rowSpacing = 66;
 
-  const xPositions = Array.from({ length: cols }, (_, i) => {
-    return sidePadding + (usableWidth / Math.max(1, cols - 1)) * i;
-  });
+  const cols = Math.max(2, Math.floor(contentWidth / colSpacing));
+  const actualSpacing = cols > 1 ? contentWidth / (cols - 1) : contentWidth;
 
-  const yRows = [];
-  let y = topPad;
-  while (y < height - bottomPad) {
-    yRows.push(y);
-    y += 58;
+  const xPositions = Array.from({ length: cols }, (_, i) => sidePadding + i * actualSpacing);
+
+  const rowYs = {
+    knobTop: 168,
+    knobMid: 258,
+    shaftRow: 346,
+    sliderRowA: 440,
+    sliderRowB: 520,
+    jackRowA: 590,
+    jackRowB: 662
+  };
+
+  return { xPositions, rowYs, sidePadding };
+}
+
+function selectAlignedPositions(rand, positions, count, minGap = 1, centered = true) {
+  if (count <= 0) return [];
+
+  const indices = Array.from({ length: positions.length }, (_, i) => i);
+
+  if (centered) {
+    indices.sort((a, b) => {
+      const center = (positions.length - 1) / 2;
+      return Math.abs(a - center) - Math.abs(b - center);
+    });
   }
 
-  return { xPositions, yRows, sidePadding };
+  const selected = [];
+
+  for (const idx of indices) {
+    if (selected.length >= count) break;
+    const ok = selected.every((s) => Math.abs(s - idx) >= minGap);
+    if (ok) selected.push(idx);
+  }
+
+  return selected.sort((a, b) => a - b).map((i) => positions[i]);
 }
 
 function createModule(seed) {
@@ -385,71 +412,81 @@ function createModule(seed) {
   const name = `${pick(rand, wordA)} ${pick(rand, family.wordB)}`.toUpperCase();
   const sub = `${pick(rand, brandMarks)}-${int(rand, 1, 9)}${String.fromCharCode(65 + int(rand, 0, 25))}`;
 
-  const { xPositions, yRows, sidePadding } = buildGrid(width, topPad, bottomPad, height);
+  const { xPositions, rowYs } = buildLayoutGrid(width);
   const elements = [];
-  const used = [];
+  const occupied = new Set();
 
-  function canPlace(x, y, radius, extra = 18) {
-    const left = x - radius - 6;
-    const right = x + radius + 6;
-    const top = y - radius - 18;
-    const bottom = y + radius + 12;
+  function cellKey(x, y) {
+    return `${Math.round(x)}-${Math.round(y)}`;
+  }
 
-    if (left < sidePadding - 2 || right > width - sidePadding + 2) return false;
-    if (top < topPad - 10 || bottom > height - bottomPad + 4) return false;
+  function reserve(x, y) {
+    occupied.add(cellKey(x, y));
+  }
 
-    return !used.some((u) => {
-      const dx = u.x - x;
-      const dy = u.y - y;
-      return Math.sqrt(dx * dx + dy * dy) < u.r + radius + extra;
+  function isFree(x, y) {
+    return !occupied.has(cellKey(x, y));
+  }
+
+  function addElement(type, x, y, radius, label, isOutput = false) {
+    if (!isFree(x, y)) return false;
+    reserve(x, y);
+    elements.push({ type, x, y, radius, label, isOutput });
+    return true;
+  }
+
+  const largeCount = int(rand, family.topKnobs.large[0], family.topKnobs.large[1]);
+  const mediumCount = int(rand, family.topKnobs.medium[0], family.topKnobs.medium[1]);
+  const shaftCount = int(rand, family.topKnobs.shaft[0], family.topKnobs.shaft[1]);
+  const inputCount = int(rand, family.bottomJacks.inputs[0], family.bottomJacks.inputs[1]);
+  const outputCount = int(rand, family.bottomJacks.outputs[0], family.bottomJacks.outputs[1]);
+  const sliderRows = int(rand, family.sliderRows[0], family.sliderRows[1]);
+
+  const largeXs = selectAlignedPositions(rand, xPositions, largeCount, 2, true);
+  largeXs.forEach((x) => {
+    addElement("knob-lg", x, rowYs.knobTop, 34, pick(rand, labelsByRole.knobLarge));
+  });
+
+  const mediumXs = selectAlignedPositions(rand, xPositions, mediumCount, 1, true).filter((x) => isFree(x, rowYs.knobMid));
+  mediumXs.forEach((x) => {
+    addElement("knob-md", x, rowYs.knobMid, 22, pick(rand, labelsByRole.knobMedium));
+  });
+
+  const shaftXs = selectAlignedPositions(rand, xPositions, shaftCount, 1, false).filter((x) => isFree(x, rowYs.shaftRow));
+  shaftXs.forEach((x) => {
+    addElement("knob-sm", x, rowYs.shaftRow, 12, pick(rand, labelsByRole.knobShaft));
+  });
+
+  if (sliderRows > 0) {
+    const sliderCountA = Math.min(xPositions.length, [2, 4, 4, 6, 8][int(rand, 0, 4)]);
+    const sliderXsA = selectAlignedPositions(rand, xPositions, sliderCountA, 1, true);
+    sliderXsA.forEach((x) => {
+      addElement("slider", x, rowYs.sliderRowA, 20, pick(rand, labelsByRole.slider));
     });
   }
 
-  function placeElement(type, radius, label, isOutput = false) {
-    let attempts = 0;
-    while (attempts < 1200) {
-      attempts++;
-      const x = pick(rand, xPositions) + range(rand, -7, 7);
-      const y = pick(rand, yRows) + range(rand, -7, 7);
-
-      if (!canPlace(x, y, radius)) continue;
-
-      used.push({ x, y, r: radius });
-      elements.push({ type, x, y, radius, label, isOutput });
-      return true;
-    }
-    return false;
-  }
-
-  function addBatch(type, minMax, radius, labelPool, outputRatio = 0) {
-    const count = int(rand, minMax[0], minMax[1]);
-
-    for (let i = 0; i < count; i++) {
-      const isOutput = outputRatio > 0 && rand() < outputRatio;
-      const label = pick(rand, isOutput ? labelsByRole.output : labelPool);
-      placeElement(type, radius, label, isOutput);
-    }
-  }
-
-  addBatch("knob-lg", family.counts.large, 34, labelsByRole.knobLarge);
-  addBatch("knob-md", family.counts.medium, 22, labelsByRole.knobMedium);
-  addBatch("knob-sm", family.counts.shaft, 13, labelsByRole.knobShaft);
-  addBatch("jack", family.counts.inputs, 12, labelsByRole.input, 0);
-  addBatch("jack", family.counts.outputs, 12, labelsByRole.input, 1);
-  addBatch("slider", family.counts.sliders, 20, labelsByRole.slider);
-
-  const decorative = [];
-  const decoCount = int(rand, 8, 18);
-
-  for (let i = 0; i < decoCount; i++) {
-    decorative.push({
-      x1: range(rand, sidePadding, width - sidePadding),
-      y1: range(rand, topPad + 6, height - bottomPad),
-      x2: range(rand, sidePadding, width - sidePadding),
-      y2: range(rand, topPad + 6, height - bottomPad),
-      opacity: range(rand, 0.05, 0.16)
+  if (sliderRows > 1) {
+    const sliderCountB = Math.min(xPositions.length, [2, 4, 6, 8][int(rand, 0, 3)]);
+    const sliderXsB = selectAlignedPositions(rand, xPositions, sliderCountB, 1, true).filter((x) => isFree(x, rowYs.sliderRowB));
+    sliderXsB.forEach((x) => {
+      addElement("slider", x, rowYs.sliderRowB, 20, pick(rand, labelsByRole.slider));
     });
   }
+
+  const jackPool = xPositions.slice();
+  const inputXs = selectAlignedPositions(rand, jackPool, inputCount, 1, false);
+  inputXs.forEach((x, i) => {
+    const y = i % 2 === 0 ? rowYs.jackRowA : rowYs.jackRowB;
+    addElement("jack", x, y, 12, pick(rand, labelsByRole.input), false);
+  });
+
+  const outputXs = selectAlignedPositions(rand, jackPool, outputCount, 1, true);
+  outputXs.forEach((x, i) => {
+    const y = i % 2 === 0 ? rowYs.jackRowA : rowYs.jackRowB;
+    if (isFree(x, y)) {
+      addElement("jack", x, y, 12, pick(rand, labelsByRole.output), true);
+    }
+  });
 
   return {
     seed,
@@ -463,8 +500,7 @@ function createModule(seed) {
     name,
     sub,
     headers: family.headers,
-    elements,
-    decorative
+    elements
   };
 }
 
@@ -546,18 +582,6 @@ function renderModule(module) {
     });
   });
 
-  module.decorative.forEach((line) => {
-    svg.appendChild(createSvgElement("line", {
-      x1: line.x1,
-      y1: line.y1,
-      x2: line.x2,
-      y2: line.y2,
-      stroke: module.ink,
-      "stroke-width": 0.7,
-      opacity: line.opacity
-    }));
-  });
-
   module.elements.forEach((element) => {
     const group = createSvgElement("g", {});
 
@@ -576,7 +600,7 @@ function renderModule(module) {
         fill: module.ink
       });
     } else if (element.type === "knob-sm") {
-      drawShaftKnob(group, element.x, element.y, element.radius, module.ink, module.color);
+      drawShaftKnob(group, element.x, element.y, element.radius, module.ink);
       addLabel(group, element.x, element.y - element.radius - 12, element.label, {
         size: 8.5,
         weight: 600,
@@ -686,16 +710,8 @@ function exportCurrentPng() {
   img.src = url;
 }
 
-if (generateButton) {
-  generateButton.addEventListener("click", generateModule);
-}
-
-if (exportSvgButton) {
-  exportSvgButton.addEventListener("click", exportCurrentSvg);
-}
-
-if (exportPngButton) {
-  exportPngButton.addEventListener("click", exportCurrentPng);
-}
+if (generateButton) generateButton.addEventListener("click", generateModule);
+if (exportSvgButton) exportSvgButton.addEventListener("click", exportCurrentSvg);
+if (exportPngButton) exportPngButton.addEventListener("click", exportCurrentPng);
 
 generateModule();
