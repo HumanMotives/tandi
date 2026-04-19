@@ -1,109 +1,41 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Random Eurorack Module Maker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Eurorack Layout Starter</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <main class="page">
-    <section class="layout">
-      <aside class="card sidebar">
-        <p class="eyebrow">Lane Grid Generator</p>
-        <h1>Random Eurorack module maker</h1>
-        <p class="intro">
-          Rebuilt around real Eurorack proportions, HP lanes, grouped sections, and a more recognisable VCV-inspired panel language.
-        </p>
+  <main class="app">
+    <aside class="notes">
+      <h1>Eurorack Layout Starter</h1>
+      <p>
+        Clean starting point for getting the proportions and layout rules right first.
+        Styling lives in <code>style.css</code>. Structure and module data live in <code>generator.js</code>.
+      </p>
 
-        <div class="controls-panel">
-          <div class="control-group">
-            <label for="modeSelect">Label mode</label>
-            <select id="modeSelect">
-              <option value="academic">Academic</option>
-              <option value="artistic">Artistic</option>
-            </select>
-          </div>
+      <div class="legend">
+        <div class="legend-row"><span class="legend-swatch knob-lg"></span> big knob</div>
+        <div class="legend-row"><span class="legend-swatch knob-md"></span> std knob</div>
+        <div class="legend-row"><span class="legend-swatch knob-sm"></span> trimpot / attenuverter</div>
+        <div class="legend-row"><span class="legend-swatch jack"></span> jack socket</div>
+        <div class="legend-row"><span class="legend-swatch screw"></span> screw hole</div>
+      </div>
 
-          <div class="control-group">
-            <label for="densitySelect">Density</label>
-            <select id="densitySelect">
-              <option value="normal">Normal</option>
-              <option value="dense" selected>Dense</option>
-              <option value="extreme">Extreme</option>
-            </select>
-          </div>
+      <div class="controls">
+        <button id="shuffleButton" type="button">Shuffle demo</button>
+        <button id="resetButton" type="button">Reset demo</button>
+      </div>
 
-          <div class="control-group">
-            <label for="showGridToggle">Grid overlay</label>
-            <select id="showGridToggle">
-              <option value="off" selected>Off</option>
-              <option value="on">On</option>
-            </select>
-          </div>
-        </div>
+      <p class="small">
+        Edit the <code>modules</code> array in <code>generator.js</code> to place parts exactly where you want them.
+        Each x/y value is in grid units, so this should stay easy to tweak.
+      </p>
+    </aside>
 
-        <div class="stats">
-          <div class="stat-row">
-            <span class="label">Module</span>
-            <span class="value" id="statName">AXIOM FOLD</span>
-          </div>
-          <div class="stat-row">
-            <span class="label">Size</span>
-            <span class="value" id="statHp">8HP</span>
-          </div>
-          <div class="stat-row">
-            <span class="label">Seed</span>
-            <span class="value" id="statSeed">0</span>
-          </div>
-          <div class="stat-row">
-            <span class="label">Elements</span>
-            <span class="value" id="statElements">0</span>
-          </div>
-          <div class="stat-row">
-            <span class="label">Family</span>
-            <span class="value" id="statFamily">Utility</span>
-          </div>
-          <div class="stat-row">
-            <span class="label">Mode</span>
-            <span class="value" id="statMode">dense / academic</span>
-          </div>
-        </div>
-
-        <div class="button-row">
-          <button class="button-primary" id="generateButton" type="button">Generate new module</button>
-          <button class="button-secondary" id="exportSvgButton" type="button">Export SVG</button>
-          <button class="button-secondary" id="exportPngButton" type="button">Export PNG</button>
-        </div>
-      </aside>
-
-      <section class="stage">
-        <div class="stage-top">
-          <span>Generated Panel</span>
-          <span id="stageCode">CV-1A</span>
-        </div>
-        <div class="stage-inner">
-          <div class="module-wrap" id="moduleTarget"></div>
-        </div>
-      </section>
-    </section>
-
-    <section class="notes">
-      <article class="note-card">
-        <h2>System</h2>
-        <p>Horizontal placement uses real HP lanes. Smallest practical panel starts at 2HP, which works well for a single jack strip.</p>
-      </article>
-      <article class="note-card">
-        <h2>Layout</h2>
-        <p>Small modules use vertical strips. Wider modules use grouped sections for large knobs, medium controls, shaft rows, sliders, and jack blocks.</p>
-      </article>
-      <article class="note-card">
-        <h2>Grid</h2>
-        <p>Turn on the overlay to inspect lane widths, vertical rows, and the reserved working area inside the panel edge clearance.</p>
-      </article>
+    <section class="canvas-wrap">
+      <div id="rack" class="rack"></div>
     </section>
   </main>
 

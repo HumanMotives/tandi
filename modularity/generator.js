@@ -1,1012 +1,200 @@
-const svgNs = "http://www.w3.org/2000/svg";
+const HP = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--panel-unit-w'));
+const GRID = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--grid-size'));
 
-const HP_MM = 5.08;
-const PANEL_HEIGHT_MM = 128.5;
+const baseModules = [
+  {
+    hp: 2,
+    sizeLabel: '2hp',
+    title: null,
+    parts: [
+      { type: 'screw', x: 1, y: 0.7 },
+      { type: 'divider', x: 1, y: 2.6, w: 1.2 },
+      { type: 'knob-md', x: 1, y: 5.0 },
+      { type: 'knob-sm', x: 1, y: 6.9 },
+      { type: 'jack', x: 1, y: 9.4, label: 'CV IN' },
+      { type: 'jack', x: 1, y: 12.5, label: 'OUT' },
+      { type: 'screw', x: 1, y: 14.8 }
+    ]
+  },
+  {
+    hp: 4,
+    sizeLabel: '4hp',
+    title: { name: 'Name', subtitle: 'Module Subtitle', y: 1.35 },
+    parts: [
+      { type: 'screw', x: 1, y: 0.7 },
+      { type: 'screw', x: 3, y: 0.7 },
+      { type: 'divider', x: 2, y: 2.6, w: 3.2 },
 
-const panelColors = [
-  "#f1d54a",
-  "#cfe870",
-  "#8fd8cf",
-  "#b8e3d1",
-  "#cfd8e3",
-  "#efd2c6",
-  "#e8ded1",
-  "#ddd4ee"
-];
+      { type: 'knob-lg', x: 2, y: 4.8, label: 'FREQ' },
+      { type: 'knob-md', x: 1, y: 6.8 },
+      { type: 'knob-md', x: 3, y: 6.8 },
+      { type: 'knob-sm', x: 1, y: 8.8, label: 'SPREAD' },
+      { type: 'knob-sm', x: 3, y: 8.8, label: 'TILT' },
 
-const inkColors = ["#111111", "#1c1c1c", "#222222"];
-const brandMarks = ["CV", "VX", "MØ", "IO", "MM", "XR", "NQ"];
+      { type: 'jack', x: 1, y: 10.9, label: 'MIX A' },
+      { type: 'jack', x: 3, y: 10.9, label: 'MIX B' },
+      { type: 'jack-square', x: 2, y: 13.0, label: 'OUT' },
 
-const wordA = [
-  "Axiom", "Vector", "Mono", "Drift", "Flux", "Tetra", "Nova", "Phase", "Pulse", "Orbit",
-  "Motive", "Signal", "Prism", "Scalar", "Void", "Ribbon", "Frame", "Contour", "Helio", "Luma"
-];
-
-const families = {
-  oscillator: {
-    label: "Oscillator",
-    wordB: ["Core", "Tone", "Fold", "Field", "Voice", "Phase"],
-    headers: ["PITCH", "FM", "WAVE", "SYNC"]
+      { type: 'screw', x: 1, y: 14.8 },
+      { type: 'screw', x: 3, y: 14.8 }
+    ]
   },
-  filter: {
-    label: "Filter",
-    wordB: ["Filter", "Span", "Color", "Trace", "Field", "Kernel"],
-    headers: ["FREQ", "Q", "DRIVE", "MIX"]
-  },
-  modulation: {
-    label: "Modulation",
-    wordB: ["Drift", "Orbit", "Bloom", "Atlas", "Flow", "Frame"],
-    headers: ["RATE", "SHAPE", "DEPTH", "CV"]
-  },
-  sequencer: {
-    label: "Sequencer",
-    wordB: ["Step", "Array", "Matrix", "Gate", "Dial", "Span"],
-    headers: ["STEP", "CLK", "GATE", "RESET"]
-  },
-  utility: {
-    label: "Utility",
-    wordB: ["Merge", "Patch", "Line", "Atlas", "Vector", "Field"],
-    headers: ["IN", "OUT", "CV", "MIX"]
-  },
-  mixer: {
-    label: "Mixer",
-    wordB: ["Mix", "Sum", "Merge", "Span", "Field", "Matrix"],
-    headers: ["CH", "LEVEL", "PAN", "OUT"]
+  {
+    hp: 4,
+    sizeLabel: '4hp',
+    title: { name: 'Tera', subtitle: 'Module Subtitle', y: 1.35 },
+    parts: [
+      { type: 'divider', x: 2, y: 2.6, w: 3.2 },
+      { type: 'knob-md', x: 2, y: 4.8, label: 'FIRE' },
+      { type: 'knob-md', x: 2, y: 6.8, label: 'WATER' },
+      { type: 'jack', x: 1, y: 9.2, label: 'INPUT' },
+      { type: 'jack', x: 3, y: 9.2, label: 'OUT' },
+      { type: 'slider', x: 2, y: 12.0, label: 'SMOKE' },
+      { type: 'screw', x: 2, y: 14.8 }
+    ]
   }
-};
+];
 
-const academicLabels = {
-  knobLarge: ["FREQ", "RATE", "SHAPE", "SPAN", "COLOR", "DRIVE", "TIME", "SCAN", "INDEX"],
-  knobMedium: ["MIX", "BIAS", "WIDTH", "FM", "Q", "DEPTH", "FOLD", "TILT", "SKEW", "LEVEL"],
-  knobShaft: ["ATTN", "CV", "MOD", "A", "B", "X", "Y", "ODD", "EVN", "TRIM", "AUX"],
-  input: ["IN", "CV", "FM", "CLK", "RST", "SYNC", "MOD", "TRIG", "LEFT", "RIGHT"],
-  output: ["OUT", "ENV", "GATE", "SUM", "ODD", "EVN", "A", "B", "MIX", "AUX"],
-  slider: ["STEP", "FADE", "LEVEL", "TIME", "SCAN", "WIDTH"]
-};
+const rack = document.getElementById('rack');
+const shuffleButton = document.getElementById('shuffleButton');
+const resetButton = document.getElementById('resetButton');
 
-const artisticLabels = {
-  knobLarge: ["DISTANCE", "DESPAIR", "UNRAVEL", "COSMOS", "TIDE", "GHOST", "RITUAL", "VAST", "MIRROR"],
-  knobMedium: ["ASH", "EMBER", "VEIL", "HOLLOW", "GLASS", "THREAD", "ECHO", "SHIFT", "RED A", "RED B"],
-  knobShaft: ["RED C", "LOSS", "A", "B", "C", "SIGNAL", "DUST", "RUST", "TRACE", "NULL"],
-  input: ["ENTRY", "DISTANCE", "SUMMON", "TIDE", "GHOST", "MEMORY", "LEFT", "RIGHT", "CALL", "LOW"],
-  output: ["EXIT", "RESPONSE", "COSMOS", "OUT LEFT", "OUT RIGHT", "RETURN", "FIELD", "GLARE", "WAKE", "BLOOM"],
-  slider: ["FADE", "DESCENT", "ASCENT", "DRIFT", "SHIFT", "WIDTH"]
-};
-
-const statName = document.getElementById("statName");
-const statHp = document.getElementById("statHp");
-const statSeed = document.getElementById("statSeed");
-const statElements = document.getElementById("statElements");
-const statFamily = document.getElementById("statFamily");
-const statMode = document.getElementById("statMode");
-const stageCode = document.getElementById("stageCode");
-const moduleTarget = document.getElementById("moduleTarget");
-const generateButton = document.getElementById("generateButton");
-const exportSvgButton = document.getElementById("exportSvgButton");
-const exportPngButton = document.getElementById("exportPngButton");
-const modeSelect = document.getElementById("modeSelect");
-const densitySelect = document.getElementById("densitySelect");
-const showGridToggle = document.getElementById("showGridToggle");
-
-let currentModule = null;
-
-function mulberry32(a) {
-  return function () {
-    let t = (a += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+function unitX(x) {
+  return x * GRID - GRID / 2;
 }
 
-function pick(rand, array) {
-  return array[Math.floor(rand() * array.length)];
+function unitY(y) {
+  return y * GRID - GRID / 2;
 }
 
-function int(rand, min, max) {
-  return Math.floor(min + rand() * (max - min + 1));
-}
+function createPart(part) {
+  const el = document.createElement('div');
+  el.classList.add('part');
 
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, value));
-}
+  if (part.type === 'screw') {
+    el.classList.add('screw-hole');
+    el.style.left = `${unitX(part.x)}px`;
+    el.style.top = `${unitY(part.y)}px`;
+    return el;
+  }
 
-function createSvgElement(tag, attributes) {
-  const el = document.createElementNS(svgNs, tag);
-  Object.keys(attributes).forEach((key) => {
-    el.setAttribute(key, attributes[key]);
-  });
+  if (part.type === 'divider') {
+    el.classList.add('divider');
+    el.style.left = `${unitX(part.x)}px`;
+    el.style.top = `${unitY(part.y)}px`;
+    el.style.width = `${part.w * GRID}px`;
+    return el;
+  }
+
+  if (part.type === 'knob-lg' || part.type === 'knob-md' || part.type === 'knob-sm') {
+    el.classList.add('knob', part.type);
+  }
+
+  if (part.type === 'jack') {
+    el.classList.add('jack');
+  }
+
+  if (part.type === 'jack-square') {
+    el.classList.add('jack', 'square-ring');
+  }
+
+  if (part.type === 'slider') {
+    el.classList.add('slider');
+  }
+
+  if (part.type === 'screen') {
+    el.classList.add('screen');
+  }
+
+  el.style.left = `${unitX(part.x)}px`;
+  el.style.top = `${unitY(part.y)}px`;
+
   return el;
 }
 
-function addLabel(parent, x, y, text, options = {}) {
-  const settings = Object.assign(
-    {
-      anchor: "middle",
-      size: 2.3,
-      weight: 600,
-      fill: "#111111"
-    },
-    options
-  );
-
-  const label = createSvgElement("text", {
-    x,
-    y,
-    "text-anchor": settings.anchor,
-    "font-size": settings.size,
-    "font-weight": settings.weight,
-    fill: settings.fill,
-    style: "letter-spacing:0.12em;font-family:Inter, sans-serif"
-  });
-
+function createLabel(text, x, y) {
+  const label = document.createElement('div');
+  label.className = 'label';
   label.textContent = text;
-  parent.appendChild(label);
+  label.style.left = `${unitX(x)}px`;
+  label.style.top = `${unitY(y)}px`;
+  return label;
 }
 
-function getDensityConfig(density) {
-  if (density === "extreme") {
-    return {
-      sectionPacking: 1.35,
-      jackRows: 7,
-      extraMediumRow: true,
-      extraShaftRow: true,
-      sliderChance: 1
-    };
-  }
+function createTitle(title, hp) {
+  const wrap = document.createElement('div');
+  wrap.className = 'module-title';
+  wrap.style.top = `${unitY(title.y)}px`;
 
-  if (density === "dense") {
-    return {
-      sectionPacking: 1.15,
-      jackRows: 5,
-      extraMediumRow: true,
-      extraShaftRow: false,
-      sliderChance: 0.75
-    };
-  }
+  const name = document.createElement('span');
+  name.className = 'name';
+  name.textContent = title.name;
 
-  return {
-    sectionPacking: 1,
-    jackRows: 3,
-    extraMediumRow: false,
-    extraShaftRow: false,
-    sliderChance: 0.35
-  };
+  const subtitle = document.createElement('span');
+  subtitle.className = 'subtitle';
+  subtitle.textContent = title.subtitle;
+
+  wrap.appendChild(name);
+  wrap.appendChild(subtitle);
+  return wrap;
 }
 
-function splitNameWords(name) {
-  return name.toUpperCase().split(/\s+/).filter(Boolean);
-}
-
-function buildNameAwarePools(nameWords, mode) {
-  const first = nameWords[0] || "SIGNAL";
-  const second = nameWords[1] || first;
-  const poetic = mode === "artistic";
-
-  return {
-    knobLarge: [
-      first,
-      second,
-      `${first} A`,
-      `${second} A`,
-      `${first} DEPTH`,
-      `${second} WIDTH`
-    ],
-    knobMedium: [
-      `${first} B`,
-      `${second} B`,
-      `${first} MIX`,
-      `${second} CV`,
-      `${first} AMT`,
-      `${second} SHIFT`
-    ],
-    knobShaft: [
-      `${first} C`,
-      `${second} C`,
-      `${first} X`,
-      `${second} Y`,
-      `${first} AUX`,
-      `${second} AUX`
-    ],
-    input: [
-      `${first} IN`,
-      `${second} IN`,
-      `${first} CV`,
-      `${second} CV`,
-      `${first} LEFT`,
-      `${second} RIGHT`
-    ],
-    output: [
-      `${first} OUT`,
-      `${second} OUT`,
-      `${first} LEFT`,
-      `${second} RIGHT`,
-      `${first} ENV`,
-      `${second} GATE`
-    ],
-    slider: poetic
-      ? [`${first} DRIFT`, `${second} DRIFT`, `${first} FADE`, `${second} ASCENT`]
-      : [`${first} STEP`, `${second} STEP`, `${first} SCAN`, `${second} TIME`]
-  };
-}
-
-function getLabelBank(mode, nameWords) {
-  const base = mode === "artistic" ? artisticLabels : academicLabels;
-  const derived = buildNameAwarePools(nameWords, mode);
-
-  return {
-    knobLarge: [...derived.knobLarge, ...base.knobLarge],
-    knobMedium: [...derived.knobMedium, ...base.knobMedium],
-    knobShaft: [...derived.knobShaft, ...base.knobShaft],
-    input: [...derived.input, ...base.input],
-    output: [...derived.output, ...base.output],
-    slider: [...derived.slider, ...base.slider]
-  };
-}
-
-function buildPanelGrid(hp) {
-  const cols = hp;
-  const rows = 28;
-  const cellW = HP_MM;
-  const cellH = PANEL_HEIGHT_MM / rows;
-
-  return {
-    cols,
-    rows,
-    cellW,
-    cellH,
-    widthMm: hp * HP_MM,
-    heightMm: PANEL_HEIGHT_MM
-  };
-}
-
-function getUsableBounds(grid) {
-  return {
-    colMin: 0,
-    colMax: grid.cols - 1,
-    rowMin: 2,
-    rowMax: grid.rows - 3
-  };
-}
-
-function getFootprints() {
-  return {
-    jack: { w: 1, h: 2, radiusMm: 3.15 },
-    shaft: { w: 1, h: 2, radiusMm: 3.15 },
-    knobMd: { w: 2, h: 3, radiusMm: 4.7 },
-    knobLg: { w: 3, h: 4, radiusMm: 6.5 },
-    slider: { w: 1, h: 7, radiusMm: 0 }
-  };
-}
-
-function mmX(grid, colLine) {
-  return colLine * grid.cellW;
-}
-
-function mmY(grid, rowLine) {
-  return rowLine * grid.cellH;
-}
-
-function crossingX(grid, colStart, widthCells) {
-  return mmX(grid, colStart + widthCells / 2);
-}
-
-function crossingY(grid, rowStart, heightCells) {
-  return mmY(grid, rowStart + heightCells / 2);
-}
-
-function makeOccupancy(grid) {
-  return Array.from({ length: grid.rows }, () =>
-    Array.from({ length: grid.cols }, () => false)
-  );
-}
-
-function canPlace(occ, bounds, col, row, w, h) {
-  if (col < bounds.colMin || row < bounds.rowMin) return false;
-  if (col + w - 1 > bounds.colMax) return false;
-  if (row + h - 1 > bounds.rowMax) return false;
-
-  for (let r = row; r < row + h; r++) {
-    for (let c = col; c < col + w; c++) {
-      if (occ[r][c]) return false;
-    }
-  }
-  return true;
-}
-
-function occupy(occ, col, row, w, h) {
-  for (let r = row; r < row + h; r++) {
-    for (let c = col; c < col + w; c++) {
-      occ[r][c] = true;
-    }
-  }
-}
-
-function centeredStarts(bounds, usableCols, widthCells, count, gapCols) {
-  const starts = [];
-  const totalWidth = count * widthCells + (count - 1) * gapCols;
-  if (totalWidth > usableCols) return starts;
-
-  const free = usableCols - totalWidth;
-  const offset = Math.floor(free / 2);
-  const startBase = bounds.colMin + offset;
-
-  for (let i = 0; i < count; i++) {
-    starts.push(startBase + i * (widthCells + gapCols));
-  }
-
-  return starts;
-}
-
-function denseStarts(bounds, usableCols, widthCells, count, gapCols) {
-  const starts = [];
-  const totalWidth = count * widthCells + (count - 1) * gapCols;
-  if (totalWidth > usableCols) return starts;
-
-  let col = bounds.colMin;
-  for (let i = 0; i < count; i++) {
-    starts.push(col);
-    col += widthCells + gapCols;
-  }
-
-  return starts;
-}
-
-function placeRow(elements, occ, grid, bounds, rowStart, footprint, count, labels, type, density, isOutput = false) {
-  const usableCols = bounds.colMax - bounds.colMin + 1;
-  const gapCols =
-    type === "knobLg" ? 1 :
-    type === "knobMd" ? 1 :
-    0;
-
-  const starts =
-    density === "extreme" && (type === "jack" || type === "shaft")
-      ? denseStarts(bounds, usableCols, footprint.w, Math.min(count, 99), gapCols)
-      : centeredStarts(bounds, usableCols, footprint.w, Math.min(count, 99), gapCols);
-
-  for (let i = 0; i < starts.length; i++) {
-    const col = starts[i];
-    if (!canPlace(occ, bounds, col, rowStart, footprint.w, footprint.h)) continue;
-
-    occupy(occ, col, rowStart, footprint.w, footprint.h);
-
-    elements.push({
-      type,
-      col,
-      row: rowStart,
-      w: footprint.w,
-      h: footprint.h,
-      x: crossingX(grid, col, footprint.w),
-      y: crossingY(grid, rowStart, footprint.h),
-      radiusMm: footprint.radiusMm,
-      label: labels[i % labels.length],
-      isOutput
-    });
-  }
-}
-
-function placeJackMatrix(elements, occ, grid, bounds, rowStart, rowCount, perRow, labels, density, isOutput = false) {
-  const fp = getFootprints().jack;
-  let labelIndex = 0;
-
-  for (let r = 0; r < rowCount; r++) {
-    const row = rowStart + r * 2;
-    const usableCols = bounds.colMax - bounds.colMin + 1;
-    const maxPerRow = Math.floor(usableCols / fp.w);
-    const count = Math.min(perRow, maxPerRow);
-
-    const starts =
-      density === "extreme"
-        ? denseStarts(bounds, usableCols, fp.w, count, 0)
-        : centeredStarts(bounds, usableCols, fp.w, count, 0);
-
-    starts.forEach((col) => {
-      if (!canPlace(occ, bounds, col, row, fp.w, fp.h)) return;
-      occupy(occ, col, row, fp.w, fp.h);
-
-      elements.push({
-        type: "jack",
-        col,
-        row,
-        w: fp.w,
-        h: fp.h,
-        x: crossingX(grid, col, fp.w),
-        y: crossingY(grid, row, fp.h),
-        radiusMm: fp.radiusMm,
-        label: labels[labelIndex % labels.length],
-        isOutput
-      });
-
-      labelIndex++;
-    });
-  }
-}
-
-function placeSingle2HPSlider(elements, occ, grid, bounds, rowStart, label) {
-  const fp = getFootprints().slider;
-  const col = 0;
-  if (!canPlace(occ, bounds, col, rowStart, fp.w, fp.h)) return false;
-
-  occupy(occ, col, rowStart, fp.w, fp.h);
-
-  elements.push({
-    type: "slider",
-    col,
-    row: rowStart,
-    w: fp.w,
-    h: fp.h,
-    x: crossingX(grid, col, fp.w),
-    y: crossingY(grid, rowStart, fp.h),
-    radiusMm: 0,
-    label,
-    isOutput: false
-  });
-
-  return true;
-}
-
-function drawGridOverlay(svg, grid, bounds, showCoords = false) {
-  const g = createSvgElement("g", { opacity: 0.35 });
-
-  for (let c = 0; c <= grid.cols; c++) {
-    const x = c * grid.cellW;
-    g.appendChild(createSvgElement("line", {
-      x1: x,
-      y1: 0,
-      x2: x,
-      y2: grid.heightMm,
-      stroke: "#111111",
-      "stroke-width": c % 2 === 0 ? 0.08 : 0.05
-    }));
-  }
-
-  for (let r = 0; r <= grid.rows; r++) {
-    const y = r * grid.cellH;
-    g.appendChild(createSvgElement("line", {
-      x1: 0,
-      y1: y,
-      x2: grid.widthMm,
-      y2: y,
-      stroke: "#111111",
-      "stroke-width": r % 2 === 0 ? 0.08 : 0.05
-    }));
-  }
-
-  const usableX = bounds.colMin * grid.cellW;
-  const usableY = bounds.rowMin * grid.cellH;
-  const usableW = (bounds.colMax - bounds.colMin + 1) * grid.cellW;
-  const usableH = (bounds.rowMax - bounds.rowMin + 1) * grid.cellH;
-
-  g.appendChild(createSvgElement("rect", {
-    x: usableX,
-    y: usableY,
-    width: usableW,
-    height: usableH,
-    fill: "none",
-    stroke: "#111111",
-    "stroke-width": 0.16,
-    "stroke-dasharray": "0.5 0.4"
-  }));
-
-  if (showCoords) {
-    for (let c = 0; c <= grid.cols; c++) {
-      addLabel(g, c * grid.cellW, 1.5, String(c), {
-        size: 1.0,
-        weight: 500
-      });
-    }
-  }
-
-  svg.appendChild(g);
-}
-
-function drawFMOPKnob(parent, x, y, radius, ink) {
-  const tickOuter = radius + 1.35;
-  const tickInnerShort = radius + 0.45;
-  const tickInnerLong = radius + 0.15;
-  const steps = 16;
-
-  for (let i = 0; i < steps; i++) {
-    const t = (-140 + (280 / (steps - 1)) * i) * Math.PI / 180;
-    const inner = i % 4 === 0 ? tickInnerLong : tickInnerShort;
-    const x1 = x + Math.cos(t) * inner;
-    const y1 = y + Math.sin(t) * inner;
-    const x2 = x + Math.cos(t) * tickOuter;
-    const y2 = y + Math.sin(t) * tickOuter;
-
-    parent.appendChild(createSvgElement("line", {
-      x1,
-      y1,
-      x2,
-      y2,
-      stroke: ink,
-      "stroke-width": i % 4 === 0 ? 0.22 : 0.14,
-      "stroke-linecap": "round"
-    }));
-  }
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius + 0.28,
-    fill: "none",
-    stroke: ink,
-    "stroke-width": 0.22
-  }));
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius,
-    fill: "#ffffff",
-    stroke: ink,
-    "stroke-width": 0.2
-  }));
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius * 0.6,
-    fill: "#3a3a3a"
-  }));
-
-  const angle = -55 * Math.PI / 180;
-  const px = x + Math.cos(angle) * (radius * 0.78);
-  const py = y + Math.sin(angle) * (radius * 0.78);
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: px,
-    cy: py,
-    r: 0.42,
-    fill: "#ffffff"
-  }));
-}
-
-function drawMediumKnob(parent, x, y, radius, ink) {
-  drawFMOPKnob(parent, x, y, radius, ink);
-}
-
-function drawLargeKnob(parent, x, y, radius, ink) {
-  drawFMOPKnob(parent, x, y, radius, ink);
-}
-
-function drawShaftKnob(parent, x, y, radius, ink) {
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius * 0.82,
-    fill: "#1a1a1a"
-  }));
-
-  parent.appendChild(createSvgElement("line", {
-    x1: x,
-    y1: y,
-    x2: x,
-    y2: y - radius + 0.6,
-    stroke: "#ffffff",
-    "stroke-width": 0.22,
-    "stroke-linecap": "round"
-  }));
-}
-
-function drawInputJack(parent, x, y, ink) {
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 3.45,
-    fill: "#d2d2d2",
-    stroke: ink,
-    "stroke-width": 0.16
-  }));
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 2.75,
-    fill: "#f2f2f2",
-    stroke: "#8f8f8f",
-    "stroke-width": 0.12
-  }));
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 1.95,
-    fill: "#313131"
-  }));
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 0.52,
-    fill: "#000000"
-  }));
-}
-
-function drawOutputJack(parent, x, y, ink) {
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 3.75,
-    fill: "none",
-    stroke: ink,
-    "stroke-width": 0.34
-  }));
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 3.45,
-    fill: "#d2d2d2",
-    stroke: ink,
-    "stroke-width": 0.16
-  }));
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 2.75,
-    fill: "#f2f2f2",
-    stroke: "#8f8f8f",
-    "stroke-width": 0.12
-  }));
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 1.95,
-    fill: "#313131"
-  }));
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: 0.52,
-    fill: "#000000"
-  }));
-}
-
-function drawSlider(parent, x, y, ink, panel) {
-  parent.appendChild(createSvgElement("rect", {
-    x: x - 0.5,
-    y: y - 7.2,
-    width: 1.0,
-    height: 14.4,
-    rx: 0.25,
-    fill: "none",
-    stroke: ink,
-    "stroke-width": 0.18
-  }));
-
-  parent.appendChild(createSvgElement("rect", {
-    x: x - 1.2,
-    y: y - 0.7,
-    width: 2.4,
-    height: 1.4,
-    rx: 0.4,
-    fill: panel,
-    stroke: ink,
-    "stroke-width": 0.18
-  }));
-}
-
-function createModule(seed) {
-  const rand = mulberry32(seed);
-  const density = densitySelect ? densitySelect.value : "dense";
-  const mode = modeSelect ? modeSelect.value : "academic";
-  const densityCfg = getDensityConfig(density);
-
-  const hpOptions = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24, 28];
-  const hp = pick(rand, hpOptions);
-  const familyKey = pick(rand, Object.keys(families));
-  const family = families[familyKey];
-
-  const grid = buildPanelGrid(hp);
-  const bounds = getUsableBounds(grid);
-  const occ = makeOccupancy(grid);
-  const fps = getFootprints();
-
-  const color = pick(rand, panelColors);
-  const ink = pick(rand, inkColors);
-  const name = `${pick(rand, wordA)} ${pick(rand, family.wordB)}`.toUpperCase();
-  const sub = `${pick(rand, brandMarks)}-${int(rand, 1, 9)}${String.fromCharCode(65 + int(rand, 0, 25))}`;
-  const nameWords = splitNameWords(name);
-  const labelBank = getLabelBank(mode, nameWords);
-
-  const usableCols = bounds.colMax - bounds.colMin + 1;
-  const compact = hp <= 4;
-  const narrow = hp <= 8;
-  const wide = hp >= 16;
-
-  const elements = [];
-
-  for (let r = 0; r <= 2; r++) {
-    occupy(occ, 0, r, grid.cols, 1);
-  }
-
-  if (hp === 2) {
-    const twoHpMode = int(rand, 0, 2);
-
-    if (twoHpMode === 0) {
-      placeJackMatrix(elements, occ, grid, bounds, 6, 5, 1, labelBank.input, density, false);
-      placeJackMatrix(elements, occ, grid, bounds, 6, 2, 1, labelBank.output, density, true);
-    } else if (twoHpMode === 1) {
-      placeJackMatrix(elements, occ, grid, bounds, 6, 3, 1, labelBank.input, density, false);
-      placeRow(elements, occ, grid, bounds, 14, fps.shaft, 1, labelBank.knobShaft, "shaft", density, false);
-      placeJackMatrix(elements, occ, grid, bounds, 22, 2, 1, labelBank.output, density, true);
-    } else {
-      placeJackMatrix(elements, occ, grid, bounds, 6, 2, 1, labelBank.input, density, false);
-      placeSingle2HPSlider(elements, occ, grid, bounds, 11, pick(rand, labelBank.slider));
-      placeJackMatrix(elements, occ, grid, bounds, 22, 2, 1, labelBank.output, density, true);
-    }
-  } else if (compact) {
-    placeJackMatrix(elements, occ, grid, bounds, 6, Math.min(7, densityCfg.jackRows + 1), 1, labelBank.input, density, false);
-    placeJackMatrix(elements, occ, grid, bounds, 6, Math.min(3, densityCfg.jackRows - 1), 1, labelBank.output, density, true);
-  } else {
-    const largeCount = clamp(Math.round((wide ? 2 : 1) * densityCfg.sectionPacking), 1, wide ? 3 : 2);
-    const mediumCount = clamp(Math.round((narrow ? 2 : 3) * densityCfg.sectionPacking), 1, wide ? 5 : 4);
-    const shaftCount = clamp(Math.round((narrow ? 2 : 4) * densityCfg.sectionPacking), 1, usableCols);
-    const inputPerRow = clamp(Math.round((narrow ? 2 : 4) * densityCfg.sectionPacking), 1, usableCols);
-    const outputPerRow = clamp(Math.round((narrow ? 1 : 2) * densityCfg.sectionPacking), 1, usableCols);
-
-    placeRow(elements, occ, grid, bounds, 5, fps.knobLg, largeCount, labelBank.knobLarge, "knobLg", density, false);
-    placeRow(elements, occ, grid, bounds, 10, fps.knobMd, mediumCount, labelBank.knobMedium, "knobMd", density, false);
-
-    if (densityCfg.extraMediumRow && hp >= 10) {
-      placeRow(elements, occ, grid, bounds, 15, fps.knobMd, Math.max(2, mediumCount - 1), labelBank.knobMedium, "knobMd", density, false);
+function renderModules(modules) {
+  rack.innerHTML = '';
+
+  modules.forEach((moduleData) => {
+    const module = document.createElement('div');
+    module.className = 'module';
+    module.style.width = `${moduleData.hp * HP}px`;
+
+    if (moduleData.title) {
+      module.appendChild(createTitle(moduleData.title, moduleData.hp));
     }
 
-    placeRow(elements, occ, grid, bounds, 20, fps.shaft, shaftCount, labelBank.knobShaft, "shaft", density, false);
+    moduleData.parts.forEach((part) => {
+      module.appendChild(createPart(part));
 
-    if (densityCfg.extraShaftRow && hp >= 14) {
-      placeRow(elements, occ, grid, bounds, 23, fps.shaft, Math.max(2, shaftCount - 1), labelBank.knobShaft, "shaft", density, false);
-    }
+      if (part.label) {
+        let labelY = part.y + 0.95;
 
-    const wantSliders =
-      family.label === "Sequencer" ||
-      family.label === "Mixer" ||
-      rand() < densityCfg.sliderChance;
+        if (part.type === 'knob-lg') labelY = part.y + 1.0;
+        if (part.type === 'knob-md') labelY = part.y + 0.95;
+        if (part.type === 'knob-sm') labelY = part.y + 0.8;
+        if (part.type === 'jack' || part.type === 'jack-square') labelY = part.y + 0.95;
+        if (part.type === 'slider') labelY = part.y + 1.9;
 
-    if (wantSliders && hp >= 8) {
-      const sliderCount = clamp(narrow ? 2 : wide ? 4 : 3, 2, usableCols);
-      placeRow(elements, occ, grid, bounds, 13, fps.slider, sliderCount, labelBank.slider, "slider", density, false);
-    }
-
-    placeJackMatrix(elements, occ, grid, bounds, 24, densityCfg.jackRows, inputPerRow, labelBank.input, density, false);
-    placeJackMatrix(elements, occ, grid, bounds, 24, Math.max(2, densityCfg.jackRows - 2), outputPerRow, labelBank.output, density, true);
-  }
-
-  return {
-    seed,
-    familyLabel: family.label,
-    hp,
-    width: grid.widthMm,
-    height: grid.heightMm,
-    color,
-    ink,
-    name,
-    sub,
-    mode,
-    density,
-    headers: family.headers.slice(0, compact ? 2 : narrow ? 3 : 4),
-    elements,
-    grid,
-    bounds
-  };
-}
-
-function renderModule(module) {
-  moduleTarget.innerHTML = "";
-
-  const svg = createSvgElement("svg", {
-    id: "moduleSvg",
-    viewBox: `0 0 ${module.width} ${module.height}`,
-    width: module.width,
-    height: module.height,
-    xmlns: svgNs,
-    role: "img",
-    "aria-label": `${module.name} Eurorack module illustration`,
-    preserveAspectRatio: "xMidYMid meet"
-  });
-
-  svg.appendChild(createSvgElement("rect", {
-    x: 0,
-    y: 0,
-    width: module.width,
-    height: module.height,
-    fill: module.color,
-    stroke: module.ink,
-    "stroke-width": 0.4
-  }));
-
-  if (showGridToggle && showGridToggle.value === "on") {
-    drawGridOverlay(svg, module.grid, module.bounds, false);
-  }
-
-  svg.appendChild(createSvgElement("line", {
-    x1: 2.4,
-    y1: 15,
-    x2: module.width - 2.4,
-    y2: 15,
-    stroke: module.ink,
-    "stroke-width": 0.24
-  }));
-
-  svg.appendChild(createSvgElement("line", {
-    x1: 2.4,
-    y1: module.height - 4.2,
-    x2: module.width - 2.4,
-    y2: module.height - 4.2,
-    stroke: module.ink,
-    "stroke-width": 0.24
-  }));
-
-  addLabel(svg, 2.8, 5.8, module.name, {
-    anchor: "start",
-    size: module.hp <= 4 ? 3.1 : module.hp <= 8 ? 4.0 : 5.0,
-    weight: 700,
-    fill: module.ink
-  });
-
-  addLabel(svg, 2.8, 9.5, module.sub, {
-    anchor: "start",
-    size: module.hp <= 4 ? 2.0 : 2.6,
-    weight: 600,
-    fill: module.ink
-  });
-
-  addLabel(svg, module.width - 2.8, 5.8, `${module.hp}HP`, {
-    anchor: "end",
-    size: module.hp <= 4 ? 2.2 : 2.8,
-    weight: 700,
-    fill: module.ink
-  });
-
-  module.headers.forEach((head, index) => {
-    const maxIndex = Math.max(1, module.headers.length - 1);
-    const x = 2.8 + index * ((module.width - 5.6) / maxIndex);
-    let anchor = "middle";
-    if (index === 0) anchor = "start";
-    if (index === module.headers.length - 1) anchor = "end";
-
-    addLabel(svg, x, 12.2, head, {
-      anchor,
-      size: module.hp <= 4 ? 1.8 : 2.2,
-      weight: 600,
-      fill: module.ink
-    });
-  });
-
-  module.elements.forEach((element) => {
-    const group = createSvgElement("g", {});
-
-    if (element.type === "knobLg") {
-      drawLargeKnob(group, element.x, element.y, element.radiusMm, module.ink);
-      addLabel(group, element.x, element.y - element.radiusMm - 1.4, element.label, {
-        size: module.hp <= 4 ? 1.6 : 1.9,
-        weight: 600
-      });
-    } else if (element.type === "knobMd") {
-      drawMediumKnob(group, element.x, element.y, element.radiusMm, module.ink);
-      addLabel(group, element.x, element.y - element.radiusMm - 1.2, element.label, {
-        size: module.hp <= 4 ? 1.6 : 1.9,
-        weight: 600
-      });
-    } else if (element.type === "shaft") {
-      drawShaftKnob(group, element.x, element.y, element.radiusMm, module.ink);
-      addLabel(group, element.x, element.y - element.radiusMm - 1.1, element.label, {
-        size: module.hp <= 4 ? 1.6 : 1.9,
-        weight: 600
-      });
-    } else if (element.type === "jack") {
-      addLabel(group, element.x, element.y - 4.15, element.label, {
-        size: module.hp <= 4 ? 1.55 : 1.85,
-        weight: 600
-      });
-
-      if (element.isOutput) {
-        drawOutputJack(group, element.x, element.y, module.ink);
-      } else {
-        drawInputJack(group, element.x, element.y, module.ink);
+        module.appendChild(createLabel(part.label, part.x, labelY));
       }
-    } else if (element.type === "slider") {
-      addLabel(group, element.x, element.y - 8.2, element.label, {
-        size: module.hp <= 4 ? 1.55 : 1.85,
-        weight: 600
-      });
-      drawSlider(group, element.x, element.y, module.ink, module.color);
-    }
+    });
 
-    svg.appendChild(group);
+    const size = document.createElement('div');
+    size.className = 'module-size';
+    size.textContent = moduleData.sizeLabel;
+    module.appendChild(size);
+
+    rack.appendChild(module);
   });
-
-  svg.appendChild(createSvgElement("circle", { cx: 1.3, cy: 1.8, r: 0.28, fill: module.ink }));
-  svg.appendChild(createSvgElement("circle", { cx: module.width - 1.3, cy: 1.8, r: 0.28, fill: module.ink }));
-  svg.appendChild(createSvgElement("circle", { cx: 1.3, cy: module.height - 1.8, r: 0.28, fill: module.ink }));
-  svg.appendChild(createSvgElement("circle", { cx: module.width - 1.3, cy: module.height - 1.8, r: 0.28, fill: module.ink }));
-
-  moduleTarget.appendChild(svg);
-
-  if (statName) statName.textContent = module.name;
-  if (statHp) statHp.textContent = `${module.hp}HP`;
-  if (statSeed) statSeed.textContent = String(module.seed);
-  if (statElements) statElements.textContent = String(module.elements.length);
-  if (statFamily) statFamily.textContent = module.familyLabel;
-  if (statMode) statMode.textContent = `${module.density} / ${module.mode}`;
-  if (stageCode) stageCode.textContent = module.sub;
 }
 
-function generateModule() {
-  const seed = Math.floor(Math.random() * 1000000);
-  currentModule = createModule(seed);
-  renderModule(currentModule);
+function cloneModules(data) {
+  return JSON.parse(JSON.stringify(data));
 }
 
-function exportCurrentSvg() {
-  const svg = document.getElementById("moduleSvg");
-  if (!svg || !currentModule) return;
+function shuffleDemo() {
+  const next = cloneModules(baseModules);
 
-  const serializer = new XMLSerializer();
-  const source = serializer.serializeToString(svg);
-  const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
+  next[0].parts[2].type = Math.random() > 0.5 ? 'knob-md' : 'knob-lg';
+  next[1].title.name = ['Name', 'Nova', 'Flux', 'Vector'][Math.floor(Math.random() * 4)];
+  next[2].title.name = ['Tera', 'Phase', 'Atlas', 'Drift'][Math.floor(Math.random() * 4)];
 
-  link.href = url;
-  link.download = currentModule.name.toLowerCase().replace(/\s+/g, "-") + ".svg";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  const fireY = 4.8 + (Math.random() > 0.5 ? 0 : 0.4);
+  next[2].parts[1].y = fireY;
+  next[2].parts[2].y = fireY + 2.0;
+
+  renderModules(next);
 }
 
-function exportCurrentPng() {
-  const svg = document.getElementById("moduleSvg");
-  if (!svg || !currentModule) return;
+shuffleButton.addEventListener('click', shuffleDemo);
+resetButton.addEventListener('click', () => renderModules(baseModules));
 
-  const serializer = new XMLSerializer();
-  const source = serializer.serializeToString(svg);
-  const svgBlob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(svgBlob);
-  const img = new Image();
-
-  img.onload = function () {
-    const scale = 10;
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(currentModule.width * scale);
-    canvas.height = Math.round(currentModule.height * scale);
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.fillStyle = currentModule.color;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-    URL.revokeObjectURL(url);
-
-    canvas.toBlob(function (blob) {
-      if (!blob) return;
-
-      const pngUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = pngUrl;
-      link.download = currentModule.name.toLowerCase().replace(/\s+/g, "-") + ".png";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(pngUrl);
-    }, "image/png");
-  };
-
-  img.src = url;
-}
-
-if (generateButton) generateButton.addEventListener("click", generateModule);
-if (exportSvgButton) exportSvgButton.addEventListener("click", exportCurrentSvg);
-if (exportPngButton) exportPngButton.addEventListener("click", exportCurrentPng);
-if (modeSelect) modeSelect.addEventListener("change", generateModule);
-if (densitySelect) densitySelect.addEventListener("change", generateModule);
-if (showGridToggle) showGridToggle.addEventListener("change", generateModule);
-
-generateModule();
+renderModules(baseModules);
