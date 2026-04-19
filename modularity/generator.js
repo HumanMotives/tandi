@@ -279,24 +279,20 @@ function getFootprints() {
   };
 }
 
-function mmX(grid, col) {
-  return col * grid.cellW;
+function mmX(grid, colLine) {
+  return colLine * grid.cellW;
 }
 
-function mmY(grid, row) {
-  return row * grid.cellH;
+function mmY(grid, rowLine) {
+  return rowLine * grid.cellH;
 }
 
-function laneCenterX(grid, laneIndex) {
-  return mmX(grid, laneIndex) + grid.cellW / 2;
+function crossingX(grid, colStart, widthCells) {
+  return mmX(grid, colStart + widthCells / 2);
 }
 
-function cellCenterX(grid, colStart, widthCells) {
-  return mmX(grid, colStart) + (widthCells * grid.cellW) / 2;
-}
-
-function cellCenterY(grid, rowStart, heightCells) {
-  return mmY(grid, rowStart) + (heightCells * grid.cellH) / 2;
+function crossingY(grid, rowStart, heightCells) {
+  return mmY(grid, rowStart + heightCells / 2);
 }
 
 function makeOccupancy(grid) {
@@ -361,8 +357,6 @@ function placeRow(elements, occ, grid, bounds, rowStart, footprint, count, label
   const gapCols =
     type === "knobLg" ? 1 :
     type === "knobMd" ? 1 :
-    type === "shaft" ? 0 :
-    type === "slider" ? 0 :
     0;
 
   const starts =
@@ -376,18 +370,14 @@ function placeRow(elements, occ, grid, bounds, rowStart, footprint, count, label
 
     occupy(occ, col, rowStart, footprint.w, footprint.h);
 
-    const x = footprint.w === 1
-      ? laneCenterX(grid, col)
-      : cellCenterX(grid, col, footprint.w);
-
     elements.push({
       type,
       col,
       row: rowStart,
       w: footprint.w,
       h: footprint.h,
-      x,
-      y: cellCenterY(grid, rowStart, footprint.h),
+      x: crossingX(grid, col, footprint.w),
+      y: crossingY(grid, rowStart, footprint.h),
       radiusMm: footprint.radiusMm,
       label: labels[i % labels.length],
       isOutput
@@ -420,8 +410,8 @@ function placeJackMatrix(elements, occ, grid, bounds, rowStart, rowCount, perRow
         row,
         w: fp.w,
         h: fp.h,
-        x: laneCenterX(grid, col),
-        y: cellCenterY(grid, row, fp.h),
+        x: crossingX(grid, col, fp.w),
+        y: crossingY(grid, row, fp.h),
         radiusMm: fp.radiusMm,
         label: labels[labelIndex % labels.length],
         isOutput
@@ -445,8 +435,8 @@ function placeSingle2HPSlider(elements, occ, grid, bounds, rowStart, label) {
     row: rowStart,
     w: fp.w,
     h: fp.h,
-    x: laneCenterX(grid, col),
-    y: cellCenterY(grid, rowStart, fp.h),
+    x: crossingX(grid, col, fp.w),
+    y: crossingY(grid, rowStart, fp.h),
     radiusMm: 0,
     label,
     isOutput: false
@@ -499,8 +489,8 @@ function drawGridOverlay(svg, grid, bounds, showCoords = false) {
   }));
 
   if (showCoords) {
-    for (let c = 0; c < grid.cols; c++) {
-      addLabel(g, c * grid.cellW + grid.cellW / 2, 1.5, String(c), {
+    for (let c = 0; c <= grid.cols; c++) {
+      addLabel(g, c * grid.cellW, 1.5, String(c), {
         size: 1.0,
         weight: 500
       });
@@ -742,11 +732,11 @@ function createModule(seed) {
       placeJackMatrix(elements, occ, grid, bounds, 6, 2, 1, labelBank.output, density, true);
     } else if (twoHpMode === 1) {
       placeJackMatrix(elements, occ, grid, bounds, 6, 3, 1, labelBank.input, density, false);
-      placeRow(elements, occ, grid, bounds, 13, fps.shaft, 1, labelBank.knobShaft, "shaft", density, false);
-      placeJackMatrix(elements, occ, grid, bounds, 18, 2, 1, labelBank.output, density, true);
+      placeRow(elements, occ, grid, bounds, 14, fps.shaft, 1, labelBank.knobShaft, "shaft", density, false);
+      placeJackMatrix(elements, occ, grid, bounds, 22, 2, 1, labelBank.output, density, true);
     } else {
       placeJackMatrix(elements, occ, grid, bounds, 6, 2, 1, labelBank.input, density, false);
-      placeSingle2HPSlider(elements, occ, grid, bounds, 12, pick(rand, labelBank.slider));
+      placeSingle2HPSlider(elements, occ, grid, bounds, 11, pick(rand, labelBank.slider));
       placeJackMatrix(elements, occ, grid, bounds, 22, 2, 1, labelBank.output, density, true);
     }
   } else if (compact) {
@@ -763,13 +753,13 @@ function createModule(seed) {
     placeRow(elements, occ, grid, bounds, 10, fps.knobMd, mediumCount, labelBank.knobMedium, "knobMd", density, false);
 
     if (densityCfg.extraMediumRow && hp >= 10) {
-      placeRow(elements, occ, grid, bounds, 14, fps.knobMd, Math.max(2, mediumCount - 1), labelBank.knobMedium, "knobMd", density, false);
+      placeRow(elements, occ, grid, bounds, 15, fps.knobMd, Math.max(2, mediumCount - 1), labelBank.knobMedium, "knobMd", density, false);
     }
 
-    placeRow(elements, occ, grid, bounds, 18, fps.shaft, shaftCount, labelBank.knobShaft, "shaft", density, false);
+    placeRow(elements, occ, grid, bounds, 20, fps.shaft, shaftCount, labelBank.knobShaft, "shaft", density, false);
 
     if (densityCfg.extraShaftRow && hp >= 14) {
-      placeRow(elements, occ, grid, bounds, 20, fps.shaft, Math.max(2, shaftCount - 1), labelBank.knobShaft, "shaft", density, false);
+      placeRow(elements, occ, grid, bounds, 23, fps.shaft, Math.max(2, shaftCount - 1), labelBank.knobShaft, "shaft", density, false);
     }
 
     const wantSliders =
@@ -779,11 +769,11 @@ function createModule(seed) {
 
     if (wantSliders && hp >= 8) {
       const sliderCount = clamp(narrow ? 2 : wide ? 4 : 3, 2, usableCols);
-      placeRow(elements, occ, grid, bounds, 12, fps.slider, sliderCount, labelBank.slider, "slider", density, false);
+      placeRow(elements, occ, grid, bounds, 13, fps.slider, sliderCount, labelBank.slider, "slider", density, false);
     }
 
-    placeJackMatrix(elements, occ, grid, bounds, 22, densityCfg.jackRows, inputPerRow, labelBank.input, density, false);
-    placeJackMatrix(elements, occ, grid, bounds, 22, Math.max(2, densityCfg.jackRows - 2), outputPerRow, labelBank.output, density, true);
+    placeJackMatrix(elements, occ, grid, bounds, 24, densityCfg.jackRows, inputPerRow, labelBank.input, density, false);
+    placeJackMatrix(elements, occ, grid, bounds, 24, Math.max(2, densityCfg.jackRows - 2), outputPerRow, labelBank.output, density, true);
   }
 
   return {
