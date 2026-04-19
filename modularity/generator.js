@@ -1,11 +1,5 @@
 const svgNs = "http://www.w3.org/2000/svg";
 
-/*
-  Real Eurorack baseline:
-  - 1 HP = 5.08 mm
-  - front panel height = 128.5 mm
-*/
-
 const HP_MM = 5.08;
 const PANEL_HEIGHT_MM = 128.5;
 
@@ -153,30 +147,30 @@ function addLabel(parent, x, y, text, options = {}) {
 function getDensityConfig(density) {
   if (density === "extreme") {
     return {
-      jackRows: 8,
-      extraMediumRows: 2,
-      extraShaftRows: 2,
-      sliderChance: 1,
-      sectionPacking: 1.3
+      sectionPacking: 1.35,
+      jackRows: 7,
+      extraMediumRow: true,
+      extraShaftRow: true,
+      sliderChance: 1
     };
   }
 
   if (density === "dense") {
     return {
-      jackRows: 6,
-      extraMediumRows: 1,
-      extraShaftRows: 1,
-      sliderChance: 0.75,
-      sectionPacking: 1.12
+      sectionPacking: 1.15,
+      jackRows: 5,
+      extraMediumRow: true,
+      extraShaftRow: false,
+      sliderChance: 0.75
     };
   }
 
   return {
-    jackRows: 4,
-    extraMediumRows: 0,
-    extraShaftRows: 0,
-    sliderChance: 0.35,
-    sectionPacking: 1
+    sectionPacking: 1,
+    jackRows: 3,
+    extraMediumRow: false,
+    extraShaftRow: false,
+    sliderChance: 0.35
   };
 }
 
@@ -252,7 +246,7 @@ function getLabelBank(mode, nameWords) {
 
 function buildPanelGrid(hp) {
   const cols = hp;
-  const rows = 24;
+  const rows = 28;
   const cellW = HP_MM;
   const cellH = PANEL_HEIGHT_MM / rows;
 
@@ -268,20 +262,20 @@ function buildPanelGrid(hp) {
 
 function getUsableBounds(grid) {
   return {
-    colMin: 1,
-    colMax: grid.cols - 2,
-    rowMin: 1,
-    rowMax: grid.rows - 2
+    colMin: 0,
+    colMax: grid.cols - 1,
+    rowMin: 2,
+    rowMax: grid.rows - 3
   };
 }
 
 function getFootprints() {
   return {
-    jack: { w: 2, h: 2, radiusMm: 1.9 },
-    shaft: { w: 2, h: 2, radiusMm: 1.7 },
-    knobMd: { w: 3, h: 3, radiusMm: 3.0 },
-    knobLg: { w: 4, h: 4, radiusMm: 4.3 },
-    slider: { w: 2, h: 5, radiusMm: 0 }
+    jack: { w: 1, h: 2, radiusMm: 1.65 },
+    shaft: { w: 1, h: 2, radiusMm: 1.45 },
+    knobMd: { w: 2, h: 3, radiusMm: 2.6 },
+    knobLg: { w: 3, h: 4, radiusMm: 3.9 },
+    slider: { w: 1, h: 5, radiusMm: 0 }
   };
 }
 
@@ -317,7 +311,6 @@ function canPlace(occ, bounds, col, row, w, h) {
       if (occ[r][c]) return false;
     }
   }
-
   return true;
 }
 
@@ -355,6 +348,7 @@ function denseStarts(bounds, usableCols, widthCells, count, gapCols) {
     starts.push(col);
     col += widthCells + gapCols;
   }
+
   return starts;
 }
 
@@ -363,8 +357,8 @@ function placeRow(elements, occ, grid, bounds, rowStart, footprint, count, label
   const gapCols =
     type === "knobLg" ? 1 :
     type === "knobMd" ? 1 :
-    type === "shaft" ? 1 :
-    type === "slider" ? 1 :
+    type === "shaft" ? 0 :
+    type === "slider" ? 0 :
     0;
 
   const starts =
@@ -400,7 +394,7 @@ function placeJackMatrix(elements, occ, grid, bounds, rowStart, rowCount, perRow
   for (let r = 0; r < rowCount; r++) {
     const row = rowStart + r * 2;
     const usableCols = bounds.colMax - bounds.colMin + 1;
-    const maxPerRow = Math.floor((usableCols + 1) / fp.w);
+    const maxPerRow = Math.floor(usableCols / fp.w);
     const count = Math.min(perRow, maxPerRow);
 
     const starts =
@@ -431,7 +425,7 @@ function placeJackMatrix(elements, occ, grid, bounds, rowStart, rowCount, perRow
 }
 
 function drawGridOverlay(svg, grid, bounds, showCoords = false) {
-  const g = createSvgElement("g", { opacity: 0.32 });
+  const g = createSvgElement("g", { opacity: 0.35 });
 
   for (let c = 0; c <= grid.cols; c++) {
     const x = c * grid.cellW;
@@ -469,25 +463,15 @@ function drawGridOverlay(svg, grid, bounds, showCoords = false) {
     height: usableH,
     fill: "none",
     stroke: "#111111",
-    "stroke-width": 0.18,
+    "stroke-width": 0.16,
     "stroke-dasharray": "0.5 0.4"
   }));
 
   if (showCoords) {
     for (let c = 0; c < grid.cols; c++) {
-      addLabel(g, c * grid.cellW + grid.cellW / 2, 1.8, String(c), {
-        size: 1.1,
-        weight: 500,
-        fill: "#111111"
-      });
-    }
-
-    for (let r = 0; r < grid.rows; r++) {
-      addLabel(g, 1.2, r * grid.cellH + grid.cellH / 2 + 0.4, String(r), {
-        size: 1.1,
-        weight: 500,
-        fill: "#111111",
-        anchor: "start"
+      addLabel(g, c * grid.cellW + grid.cellW / 2, 1.5, String(c), {
+        size: 1.0,
+        weight: 500
       });
     }
   }
@@ -496,61 +480,214 @@ function drawGridOverlay(svg, grid, bounds, showCoords = false) {
 }
 
 function drawLargeKnob(parent, x, y, radius, ink, panel) {
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: radius + 0.35, fill: "none", stroke: ink, "stroke-width": 0.28 }));
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: radius, fill: panel, stroke: ink, "stroke-width": 0.28 }));
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: radius * 0.62, fill: panel, stroke: ink, "stroke-width": 0.22 }));
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: radius * 0.18, fill: ink }));
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: radius + 0.28,
+    fill: "none",
+    stroke: ink,
+    "stroke-width": 0.24
+  }));
 
-  const notchX = x + Math.cos(-Math.PI / 3) * (radius - 0.8);
-  const notchY = y + Math.sin(-Math.PI / 3) * (radius - 0.8);
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: radius,
+    fill: panel,
+    stroke: ink,
+    "stroke-width": 0.24
+  }));
+
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: radius * 0.6,
+    fill: panel,
+    stroke: ink,
+    "stroke-width": 0.18
+  }));
+
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: radius * 0.16,
+    fill: ink
+  }));
+
+  const notchX = x + Math.cos(-Math.PI / 3) * (radius - 0.7);
+  const notchY = y + Math.sin(-Math.PI / 3) * (radius - 0.7);
+
   parent.appendChild(createSvgElement("line", {
-    x1: x, y1: y, x2: notchX, y2: notchY, stroke: ink, "stroke-width": 0.45, "stroke-linecap": "round"
+    x1: x,
+    y1: y,
+    x2: notchX,
+    y2: notchY,
+    stroke: ink,
+    "stroke-width": 0.34,
+    "stroke-linecap": "round"
   }));
 }
 
 function drawMediumKnob(parent, x, y, radius, ink, panel) {
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: radius + 0.25, fill: "none", stroke: ink, "stroke-width": 0.22 }));
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: radius, fill: panel, stroke: ink, "stroke-width": 0.22 }));
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: radius * 0.52, fill: "none", stroke: ink, "stroke-width": 0.18, opacity: 0.7 }));
-
-  const notchX = x + Math.cos(-Math.PI / 3) * (radius - 0.5);
-  const notchY = y + Math.sin(-Math.PI / 3) * (radius - 0.5);
-  parent.appendChild(createSvgElement("line", {
-    x1: x, y1: y, x2: notchX, y2: notchY, stroke: ink, "stroke-width": 0.34, "stroke-linecap": "round"
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: radius + 0.2,
+    fill: "none",
+    stroke: ink,
+    "stroke-width": 0.2
   }));
 
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: 0.18, fill: ink }));
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: radius,
+    fill: panel,
+    stroke: ink,
+    "stroke-width": 0.2
+  }));
+
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: radius * 0.52,
+    fill: panel,
+    stroke: ink,
+    "stroke-width": 0.16
+  }));
+
+  const notchX = x + Math.cos(-Math.PI / 3) * (radius - 0.45);
+  const notchY = y + Math.sin(-Math.PI / 3) * (radius - 0.45);
+
+  parent.appendChild(createSvgElement("line", {
+    x1: x,
+    y1: y,
+    x2: notchX,
+    y2: notchY,
+    stroke: ink,
+    "stroke-width": 0.28,
+    "stroke-linecap": "round"
+  }));
 }
 
 function drawShaftKnob(parent, x, y, radius, ink) {
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: radius * 0.78, fill: ink }));
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: radius * 0.78,
+    fill: ink
+  }));
+
   parent.appendChild(createSvgElement("line", {
-    x1: x, y1: y, x2: x, y2: y - radius + 0.4, stroke: "#ffffff", "stroke-width": 0.18, "stroke-linecap": "round"
+    x1: x,
+    y1: y,
+    x2: x,
+    y2: y - radius + 0.35,
+    stroke: "#ffffff",
+    "stroke-width": 0.16,
+    "stroke-linecap": "round"
   }));
 }
 
-function drawInputJack(parent, x, y, ink, panel) {
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: 1.85, fill: panel, stroke: ink, "stroke-width": 0.22 }));
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: 1.05, fill: ink }));
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: 0.34, fill: "#000000" }));
+function drawInputJack(parent, x, y, ink) {
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: 1.7,
+    fill: "#d7d7d7",
+    stroke: ink,
+    "stroke-width": 0.18
+  }));
+
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: 1.35,
+    fill: "#efefef",
+    stroke: "#999999",
+    "stroke-width": 0.12
+  }));
+
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: 0.95,
+    fill: "#3a3a3a"
+  }));
+
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: 0.34,
+    fill: "#000000"
+  }));
 }
 
-function drawOutputJack(parent, x, y, ink, panel) {
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: 2.1, fill: "none", stroke: ink, "stroke-width": 0.5 }));
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: 1.7, fill: panel, stroke: ink, "stroke-width": 0.22 }));
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: 1.05, fill: ink }));
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: 0.34, fill: "#000000" }));
+function drawOutputJack(parent, x, y, ink) {
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: 1.95,
+    fill: "none",
+    stroke: ink,
+    "stroke-width": 0.34
+  }));
+
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: 1.65,
+    fill: "#d7d7d7",
+    stroke: ink,
+    "stroke-width": 0.18
+  }));
+
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: 1.3,
+    fill: "#efefef",
+    stroke: "#999999",
+    "stroke-width": 0.12
+  }));
+
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: 0.95,
+    fill: "#3a3a3a"
+  }));
+
+  parent.appendChild(createSvgElement("circle", {
+    cx: x,
+    cy: y,
+    r: 0.34,
+    fill: "#000000"
+  }));
 }
 
 function drawSlider(parent, x, y, ink, panel) {
   parent.appendChild(createSvgElement("rect", {
-    x: x - 0.4, y: y - 3.0, width: 0.8, height: 6.0, rx: 0.35, fill: "none", stroke: ink, "stroke-width": 0.22
+    x: x - 0.32,
+    y: y - 3.0,
+    width: 0.64,
+    height: 6.0,
+    rx: 0.25,
+    fill: "none",
+    stroke: ink,
+    "stroke-width": 0.18
   }));
+
   parent.appendChild(createSvgElement("rect", {
-    x: x - 1.0, y: y - 0.45, width: 2.0, height: 0.9, rx: 0.35, fill: panel, stroke: ink, "stroke-width": 0.22
+    x: x - 0.85,
+    y: y - 0.42,
+    width: 1.7,
+    height: 0.84,
+    rx: 0.28,
+    fill: panel,
+    stroke: ink,
+    "stroke-width": 0.18
   }));
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y - 2.45, r: 0.16, fill: ink, opacity: 0.6 }));
-  parent.appendChild(createSvgElement("circle", { cx: x, cy: y + 2.45, r: 0.16, fill: ink, opacity: 0.6 }));
 }
 
 function createModule(seed) {
@@ -559,10 +696,7 @@ function createModule(seed) {
   const mode = modeSelect ? modeSelect.value : "academic";
   const densityCfg = getDensityConfig(density);
 
-  const hpOptions = density === "extreme"
-    ? [8, 10, 12, 14, 16, 18, 20, 24, 28]
-    : [6, 8, 10, 12, 14, 16, 18, 20, 24, 28];
-
+  const hpOptions = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24, 28];
   const hp = pick(rand, hpOptions);
   const familyKey = pick(rand, Object.keys(families));
   const family = families[familyKey];
@@ -580,29 +714,9 @@ function createModule(seed) {
   const labelBank = getLabelBank(mode, nameWords);
 
   const usableCols = bounds.colMax - bounds.colMin + 1;
+  const compact = hp <= 4;
+  const narrow = hp <= 8;
   const wide = hp >= 16;
-  const huge = hp >= 24;
-  const compact = hp <= 8;
-
-  let largeCount = clamp(Math.round((compact ? 1 : wide ? 2 : 1) * densityCfg.sectionPacking), 0, huge ? 3 : 2);
-  let mediumCount = clamp(Math.round((compact ? 1 : wide ? 3 : 2) * densityCfg.sectionPacking), 1, huge ? 5 : 4);
-  let shaftCount = clamp(Math.round((compact ? 2 : wide ? 5 : 3) * densityCfg.sectionPacking), 1, usableCols);
-  let inputPerRow = clamp(Math.round((compact ? 1 : wide ? 5 : 3) * densityCfg.sectionPacking), 1, Math.floor(usableCols / 2));
-  let outputPerRow = clamp(Math.round((compact ? 1 : wide ? 3 : 2) * densityCfg.sectionPacking), 1, Math.floor(usableCols / 2));
-
-  if (family.label === "Mixer") {
-    shaftCount = clamp(shaftCount + 2, 1, usableCols);
-    mediumCount = clamp(mediumCount + 1, 1, 6);
-    inputPerRow = clamp(inputPerRow + 1, 1, Math.floor(usableCols / 2));
-  }
-
-  if (family.label === "Sequencer") {
-    shaftCount = clamp(shaftCount + 2, 1, usableCols);
-  }
-
-  if (family.label === "Filter") {
-    largeCount = clamp(largeCount + 1, 1, 3);
-  }
 
   const elements = [];
 
@@ -610,36 +724,42 @@ function createModule(seed) {
     occupy(occ, 0, r, grid.cols, 1);
   }
 
-  placeRow(elements, occ, grid, bounds, 4, fps.knobLg, largeCount, labelBank.knobLarge, "knobLg", density, false);
-  placeRow(elements, occ, grid, bounds, 8, fps.knobMd, mediumCount, labelBank.knobMedium, "knobMd", density, false);
+  if (compact) {
+    placeJackMatrix(elements, occ, grid, bounds, 6, Math.min(7, densityCfg.jackRows + 1), 1, labelBank.input, density, false);
+    placeJackMatrix(elements, occ, grid, bounds, 6, Math.min(3, densityCfg.jackRows - 1), 1, labelBank.output, density, true);
+  } else {
+    const largeCount = clamp(Math.round((wide ? 2 : 1) * densityCfg.sectionPacking), 1, wide ? 3 : 2);
+    const mediumCount = clamp(Math.round((narrow ? 2 : 3) * densityCfg.sectionPacking), 1, wide ? 5 : 4);
+    const shaftCount = clamp(Math.round((narrow ? 2 : 4) * densityCfg.sectionPacking), 1, usableCols);
+    const inputPerRow = clamp(Math.round((narrow ? 2 : 4) * densityCfg.sectionPacking), 1, usableCols);
+    const outputPerRow = clamp(Math.round((narrow ? 1 : 2) * densityCfg.sectionPacking), 1, usableCols);
 
-  if (densityCfg.extraMediumRows >= 1 && hp >= 14) {
-    placeRow(elements, occ, grid, bounds, 12, fps.knobMd, Math.max(2, mediumCount - 1), labelBank.knobMedium, "knobMd", density, false);
-  }
+    placeRow(elements, occ, grid, bounds, 5, fps.knobLg, largeCount, labelBank.knobLarge, "knobLg", density, false);
+    placeRow(elements, occ, grid, bounds, 10, fps.knobMd, mediumCount, labelBank.knobMedium, "knobMd", density, false);
 
-  placeRow(elements, occ, grid, bounds, 15, fps.shaft, shaftCount, labelBank.knobShaft, "shaft", density, false);
-
-  if (densityCfg.extraShaftRows >= 1 && hp >= 18) {
-    placeRow(elements, occ, grid, bounds, 17, fps.shaft, Math.max(3, shaftCount - 1), labelBank.knobShaft, "shaft", density, false);
-  }
-
-  const wantSliders =
-    (family.label === "Sequencer" || family.label === "Mixer")
-      ? true
-      : rand() < densityCfg.sliderChance;
-
-  if (wantSliders && hp >= 10) {
-    const sliderCountA = clamp(compact ? 2 : wide ? 4 : 3, 2, Math.floor(usableCols / 2));
-    placeRow(elements, occ, grid, bounds, 10, fps.slider, sliderCountA, labelBank.slider, "slider", density, false);
-
-    if ((density === "extreme" || family.label === "Sequencer") && hp >= 18) {
-      const sliderCountB = clamp(wide ? 4 : 2, 2, Math.floor(usableCols / 2));
-      placeRow(elements, occ, grid, bounds, 14, fps.slider, sliderCountB, labelBank.slider, "slider", density, false);
+    if (densityCfg.extraMediumRow && hp >= 10) {
+      placeRow(elements, occ, grid, bounds, 14, fps.knobMd, Math.max(2, mediumCount - 1), labelBank.knobMedium, "knobMd", density, false);
     }
-  }
 
-  placeJackMatrix(elements, occ, grid, bounds, 18, densityCfg.jackRows, inputPerRow, labelBank.input, density, false);
-  placeJackMatrix(elements, occ, grid, bounds, 18, Math.max(2, densityCfg.extraJackRows), outputPerRow, labelBank.output, density, true);
+    placeRow(elements, occ, grid, bounds, 18, fps.shaft, shaftCount, labelBank.knobShaft, "shaft", density, false);
+
+    if (densityCfg.extraShaftRow && hp >= 14) {
+      placeRow(elements, occ, grid, bounds, 20, fps.shaft, Math.max(2, shaftCount - 1), labelBank.knobShaft, "shaft", density, false);
+    }
+
+    const wantSliders =
+      family.label === "Sequencer" ||
+      family.label === "Mixer" ||
+      Math.random() < densityCfg.sliderChance;
+
+    if (wantSliders && hp >= 8) {
+      const sliderCount = clamp(narrow ? 2 : wide ? 4 : 3, 2, usableCols);
+      placeRow(elements, occ, grid, bounds, 12, fps.slider, sliderCount, labelBank.slider, "slider", density, false);
+    }
+
+    placeJackMatrix(elements, occ, grid, bounds, 22, densityCfg.jackRows, inputPerRow, labelBank.input, density, false);
+    placeJackMatrix(elements, occ, grid, bounds, 22, Math.max(2, densityCfg.jackRows - 2), outputPerRow, labelBank.output, density, true);
+  }
 
   return {
     seed,
@@ -653,7 +773,7 @@ function createModule(seed) {
     sub,
     mode,
     density,
-    headers: family.headers.slice(0, compact ? 2 : hp <= 12 ? 3 : 4),
+    headers: family.headers.slice(0, compact ? 2 : narrow ? 3 : 4),
     elements,
     grid,
     bounds
@@ -674,10 +794,6 @@ function renderModule(module) {
     preserveAspectRatio: "xMidYMid meet"
   });
 
-  if (showGridToggle && showGridToggle.value === "on") {
-    drawGridOverlay(svg, module.grid, module.bounds, false);
-  }
-
   svg.appendChild(createSvgElement("rect", {
     x: 0,
     y: 0,
@@ -685,58 +801,62 @@ function renderModule(module) {
     height: module.height,
     fill: module.color,
     stroke: module.ink,
-    "stroke-width": 0.45
+    "stroke-width": 0.4
   }));
 
+  if (showGridToggle && showGridToggle.value === "on") {
+    drawGridOverlay(svg, module.grid, module.bounds, false);
+  }
+
   svg.appendChild(createSvgElement("line", {
-    x1: 6,
+    x1: 2.4,
     y1: 15,
-    x2: module.width - 6,
+    x2: module.width - 2.4,
     y2: 15,
     stroke: module.ink,
-    "stroke-width": 0.3
+    "stroke-width": 0.24
   }));
 
   svg.appendChild(createSvgElement("line", {
-    x1: 6,
-    y1: module.height - 4.5,
-    x2: module.width - 6,
-    y2: module.height - 4.5,
+    x1: 2.4,
+    y1: module.height - 4.2,
+    x2: module.width - 2.4,
+    y2: module.height - 4.2,
     stroke: module.ink,
-    "stroke-width": 0.3
+    "stroke-width": 0.24
   }));
 
-  addLabel(svg, 7, 5.8, module.name, {
+  addLabel(svg, 2.8, 5.8, module.name, {
     anchor: "start",
-    size: module.hp <= 8 ? 4.0 : module.hp <= 12 ? 5.0 : 5.8,
+    size: module.hp <= 4 ? 3.1 : module.hp <= 8 ? 4.0 : 5.0,
     weight: 700,
     fill: module.ink
   });
 
-  addLabel(svg, 7, 9.5, module.sub, {
+  addLabel(svg, 2.8, 9.5, module.sub, {
     anchor: "start",
-    size: module.hp <= 8 ? 2.4 : 3.0,
+    size: module.hp <= 4 ? 2.0 : 2.6,
     weight: 600,
     fill: module.ink
   });
 
-  addLabel(svg, module.width - 7, 5.8, `${module.hp}HP`, {
+  addLabel(svg, module.width - 2.8, 5.8, `${module.hp}HP`, {
     anchor: "end",
-    size: module.hp <= 8 ? 2.8 : 3.2,
+    size: module.hp <= 4 ? 2.2 : 2.8,
     weight: 700,
     fill: module.ink
   });
 
   module.headers.forEach((head, index) => {
     const maxIndex = Math.max(1, module.headers.length - 1);
-    const x = 7 + index * ((module.width - 14) / maxIndex);
+    const x = 2.8 + index * ((module.width - 5.6) / maxIndex);
     let anchor = "middle";
     if (index === 0) anchor = "start";
     if (index === module.headers.length - 1) anchor = "end";
 
-    addLabel(svg, x, 12.5, head, {
+    addLabel(svg, x, 12.2, head, {
       anchor,
-      size: module.hp <= 8 ? 2.0 : 2.6,
+      size: module.hp <= 4 ? 1.8 : 2.2,
       weight: 600,
       fill: module.ink
     });
@@ -747,42 +867,37 @@ function renderModule(module) {
 
     if (element.type === "knobLg") {
       drawLargeKnob(group, element.x, element.y, element.radiusMm, module.ink, module.color);
-      addLabel(group, element.x, element.y - element.radiusMm - 1.8, element.label, {
-        size: module.hp <= 8 ? 1.8 : 2.2,
-        weight: 600,
-        fill: module.ink
+      addLabel(group, element.x, element.y - element.radiusMm - 1.4, element.label, {
+        size: module.hp <= 4 ? 1.6 : 1.9,
+        weight: 600
       });
     } else if (element.type === "knobMd") {
       drawMediumKnob(group, element.x, element.y, element.radiusMm, module.ink, module.color);
-      addLabel(group, element.x, element.y - element.radiusMm - 1.5, element.label, {
-        size: module.hp <= 8 ? 1.8 : 2.2,
-        weight: 600,
-        fill: module.ink
+      addLabel(group, element.x, element.y - element.radiusMm - 1.2, element.label, {
+        size: module.hp <= 4 ? 1.6 : 1.9,
+        weight: 600
       });
     } else if (element.type === "shaft") {
       drawShaftKnob(group, element.x, element.y, element.radiusMm, module.ink);
-      addLabel(group, element.x, element.y - element.radiusMm - 1.4, element.label, {
-        size: module.hp <= 8 ? 1.8 : 2.2,
-        weight: 600,
-        fill: module.ink
+      addLabel(group, element.x, element.y - element.radiusMm - 1.1, element.label, {
+        size: module.hp <= 4 ? 1.6 : 1.9,
+        weight: 600
       });
     } else if (element.type === "jack") {
-      addLabel(group, element.x, element.y - 2.2, element.label, {
-        size: module.hp <= 8 ? 1.8 : 2.2,
-        weight: 600,
-        fill: module.ink
+      addLabel(group, element.x, element.y - 2.05, element.label, {
+        size: module.hp <= 4 ? 1.55 : 1.85,
+        weight: 600
       });
 
       if (element.isOutput) {
-        drawOutputJack(group, element.x, element.y, module.ink, module.color);
+        drawOutputJack(group, element.x, element.y, module.ink);
       } else {
-        drawInputJack(group, element.x, element.y, module.ink, module.color);
+        drawInputJack(group, element.x, element.y, module.ink);
       }
     } else if (element.type === "slider") {
-      addLabel(group, element.x, element.y - 4.2, element.label, {
-        size: module.hp <= 8 ? 1.8 : 2.2,
-        weight: 600,
-        fill: module.ink
+      addLabel(group, element.x, element.y - 3.9, element.label, {
+        size: module.hp <= 4 ? 1.55 : 1.85,
+        weight: 600
       });
       drawSlider(group, element.x, element.y, module.ink, module.color);
     }
@@ -790,10 +905,10 @@ function renderModule(module) {
     svg.appendChild(group);
   });
 
-  svg.appendChild(createSvgElement("circle", { cx: 2.4, cy: 1.8, r: 0.35, fill: module.ink }));
-  svg.appendChild(createSvgElement("circle", { cx: module.width - 2.4, cy: 1.8, r: 0.35, fill: module.ink }));
-  svg.appendChild(createSvgElement("circle", { cx: 2.4, cy: module.height - 1.8, r: 0.35, fill: module.ink }));
-  svg.appendChild(createSvgElement("circle", { cx: module.width - 2.4, cy: module.height - 1.8, r: 0.35, fill: module.ink }));
+  svg.appendChild(createSvgElement("circle", { cx: 1.3, cy: 1.8, r: 0.28, fill: module.ink }));
+  svg.appendChild(createSvgElement("circle", { cx: module.width - 1.3, cy: 1.8, r: 0.28, fill: module.ink }));
+  svg.appendChild(createSvgElement("circle", { cx: 1.3, cy: module.height - 1.8, r: 0.28, fill: module.ink }));
+  svg.appendChild(createSvgElement("circle", { cx: module.width - 1.3, cy: module.height - 1.8, r: 0.28, fill: module.ink }));
 
   moduleTarget.appendChild(svg);
 
