@@ -92,6 +92,7 @@ const exportSvgButton = document.getElementById("exportSvgButton");
 const exportPngButton = document.getElementById("exportPngButton");
 const modeSelect = document.getElementById("modeSelect");
 const densitySelect = document.getElementById("densitySelect");
+const showGridToggle = document.getElementById("showGridToggle");
 
 let currentModule = null;
 
@@ -249,11 +250,6 @@ function getLabelBank(mode, nameWords) {
   };
 }
 
-/*
-  Grid:
-  - width: 1 column = 1 HP = 5.08 mm
-  - height: 24 rows across 128.5 mm
-*/
 function buildPanelGrid(hp) {
   const cols = hp;
   const rows = 24;
@@ -270,11 +266,6 @@ function buildPanelGrid(hp) {
   };
 }
 
-/*
-  Keep a physical clearance border:
-  - 1 HP on left/right
-  - about 1 row top/bottom
-*/
 function getUsableBounds(grid) {
   return {
     colMin: 1,
@@ -284,17 +275,13 @@ function getUsableBounds(grid) {
   };
 }
 
-/*
-  Component footprints in grid cells.
-  These are design footprints, not exact CAD parts.
-*/
 function getFootprints() {
   return {
-    jack: { w: 2, h: 2, labelRows: 1, radiusMm: 1.9 },
-    shaft: { w: 2, h: 2, labelRows: 1, radiusMm: 1.7 },
-    knobMd: { w: 3, h: 3, labelRows: 1, radiusMm: 3.0 },
-    knobLg: { w: 4, h: 4, labelRows: 1, radiusMm: 4.3 },
-    slider: { w: 2, h: 5, labelRows: 1, radiusMm: 0 }
+    jack: { w: 2, h: 2, radiusMm: 1.9 },
+    shaft: { w: 2, h: 2, radiusMm: 1.7 },
+    knobMd: { w: 3, h: 3, radiusMm: 3.0 },
+    knobLg: { w: 4, h: 4, radiusMm: 4.3 },
+    slider: { w: 2, h: 5, radiusMm: 0 }
   };
 }
 
@@ -443,6 +430,71 @@ function placeJackMatrix(elements, occ, grid, bounds, rowStart, rowCount, perRow
   }
 }
 
+function drawGridOverlay(svg, grid, bounds, showCoords = false) {
+  const g = createSvgElement("g", { opacity: 0.32 });
+
+  for (let c = 0; c <= grid.cols; c++) {
+    const x = c * grid.cellW;
+    g.appendChild(createSvgElement("line", {
+      x1: x,
+      y1: 0,
+      x2: x,
+      y2: grid.heightMm,
+      stroke: "#111111",
+      "stroke-width": c % 2 === 0 ? 0.08 : 0.05
+    }));
+  }
+
+  for (let r = 0; r <= grid.rows; r++) {
+    const y = r * grid.cellH;
+    g.appendChild(createSvgElement("line", {
+      x1: 0,
+      y1: y,
+      x2: grid.widthMm,
+      y2: y,
+      stroke: "#111111",
+      "stroke-width": r % 2 === 0 ? 0.08 : 0.05
+    }));
+  }
+
+  const usableX = bounds.colMin * grid.cellW;
+  const usableY = bounds.rowMin * grid.cellH;
+  const usableW = (bounds.colMax - bounds.colMin + 1) * grid.cellW;
+  const usableH = (bounds.rowMax - bounds.rowMin + 1) * grid.cellH;
+
+  g.appendChild(createSvgElement("rect", {
+    x: usableX,
+    y: usableY,
+    width: usableW,
+    height: usableH,
+    fill: "none",
+    stroke: "#111111",
+    "stroke-width": 0.18,
+    "stroke-dasharray": "0.5 0.4"
+  }));
+
+  if (showCoords) {
+    for (let c = 0; c < grid.cols; c++) {
+      addLabel(g, c * grid.cellW + grid.cellW / 2, 1.8, String(c), {
+        size: 1.1,
+        weight: 500,
+        fill: "#111111"
+      });
+    }
+
+    for (let r = 0; r < grid.rows; r++) {
+      addLabel(g, 1.2, r * grid.cellH + grid.cellH / 2 + 0.4, String(r), {
+        size: 1.1,
+        weight: 500,
+        fill: "#111111",
+        anchor: "start"
+      });
+    }
+  }
+
+  svg.appendChild(g);
+}
+
 function drawLargeKnob(parent, x, y, radius, ink, panel) {
   parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: radius + 0.35, fill: "none", stroke: ink, "stroke-width": 0.28 }));
   parent.appendChild(createSvgElement("circle", { cx: x, cy: y, r: radius, fill: panel, stroke: ink, "stroke-width": 0.28 }));
@@ -554,12 +606,10 @@ function createModule(seed) {
 
   const elements = [];
 
-  // Header band occupies first few rows conceptually
   for (let r = 0; r <= 2; r++) {
     occupy(occ, 0, r, grid.cols, 1);
   }
 
-  // Main grouped sections
   placeRow(elements, occ, grid, bounds, 4, fps.knobLg, largeCount, labelBank.knobLarge, "knobLg", density, false);
   placeRow(elements, occ, grid, bounds, 8, fps.knobMd, mediumCount, labelBank.knobMedium, "knobMd", density, false);
 
@@ -588,7 +638,6 @@ function createModule(seed) {
     }
   }
 
-  // Dense jack field to fill lower panel
   placeJackMatrix(elements, occ, grid, bounds, 18, densityCfg.jackRows, inputPerRow, labelBank.input, density, false);
   placeJackMatrix(elements, occ, grid, bounds, 18, Math.max(2, densityCfg.extraJackRows), outputPerRow, labelBank.output, density, true);
 
@@ -605,7 +654,9 @@ function createModule(seed) {
     mode,
     density,
     headers: family.headers.slice(0, compact ? 2 : hp <= 12 ? 3 : 4),
-    elements
+    elements,
+    grid,
+    bounds
   };
 }
 
@@ -622,6 +673,10 @@ function renderModule(module) {
     "aria-label": `${module.name} Eurorack module illustration`,
     preserveAspectRatio: "xMidYMid meet"
   });
+
+  if (showGridToggle && showGridToggle.value === "on") {
+    drawGridOverlay(svg, module.grid, module.bounds, false);
+  }
 
   svg.appendChild(createSvgElement("rect", {
     x: 0,
@@ -822,5 +877,6 @@ if (exportSvgButton) exportSvgButton.addEventListener("click", exportCurrentSvg)
 if (exportPngButton) exportPngButton.addEventListener("click", exportCurrentPng);
 if (modeSelect) modeSelect.addEventListener("change", generateModule);
 if (densitySelect) densitySelect.addEventListener("change", generateModule);
+if (showGridToggle) showGridToggle.addEventListener("change", generateModule);
 
 generateModule();
