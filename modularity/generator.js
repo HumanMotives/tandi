@@ -696,7 +696,7 @@ function createModule(seed) {
   const mode = modeSelect ? modeSelect.value : "academic";
   const densityCfg = getDensityConfig(density);
 
-  const hpOptions = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24, 28];
+  const hpOptions = [2];
   const hp = pick(rand, hpOptions);
   const familyKey = pick(rand, Object.keys(families));
   const family = families[familyKey];
