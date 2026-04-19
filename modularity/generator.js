@@ -271,11 +271,11 @@ function getUsableBounds(grid) {
 
 function getFootprints() {
   return {
-    jack: { w: 1, h: 2, radiusMm: 1.65 },
-    shaft: { w: 1, h: 2, radiusMm: 1.45 },
-    knobMd: { w: 2, h: 3, radiusMm: 2.6 },
-    knobLg: { w: 3, h: 4, radiusMm: 3.9 },
-    slider: { w: 1, h: 5, radiusMm: 0 }
+    jack: { w: 1, h: 2, radiusMm: 3.15 },
+    shaft: { w: 1, h: 2, radiusMm: 3.15 },
+    knobMd: { w: 2, h: 3, radiusMm: 4.7 },
+    knobLg: { w: 3, h: 4, radiusMm: 6.5 },
+    slider: { w: 1, h: 7, radiusMm: 0 }
   };
 }
 
@@ -285,6 +285,10 @@ function mmX(grid, col) {
 
 function mmY(grid, row) {
   return row * grid.cellH;
+}
+
+function laneCenterX(grid, laneIndex) {
+  return mmX(grid, laneIndex) + grid.cellW / 2;
 }
 
 function cellCenterX(grid, colStart, widthCells) {
@@ -372,13 +376,17 @@ function placeRow(elements, occ, grid, bounds, rowStart, footprint, count, label
 
     occupy(occ, col, rowStart, footprint.w, footprint.h);
 
+    const x = footprint.w === 1
+      ? laneCenterX(grid, col)
+      : cellCenterX(grid, col, footprint.w);
+
     elements.push({
       type,
       col,
       row: rowStart,
       w: footprint.w,
       h: footprint.h,
-      x: cellCenterX(grid, col, footprint.w),
+      x,
       y: cellCenterY(grid, rowStart, footprint.h),
       radiusMm: footprint.radiusMm,
       label: labels[i % labels.length],
@@ -412,7 +420,7 @@ function placeJackMatrix(elements, occ, grid, bounds, rowStart, rowCount, perRow
         row,
         w: fp.w,
         h: fp.h,
-        x: cellCenterX(grid, col, fp.w),
+        x: laneCenterX(grid, col),
         y: cellCenterY(grid, row, fp.h),
         radiusMm: fp.radiusMm,
         label: labels[labelIndex % labels.length],
@@ -422,6 +430,29 @@ function placeJackMatrix(elements, occ, grid, bounds, rowStart, rowCount, perRow
       labelIndex++;
     });
   }
+}
+
+function placeSingle2HPSlider(elements, occ, grid, bounds, rowStart, label) {
+  const fp = getFootprints().slider;
+  const col = 0;
+  if (!canPlace(occ, bounds, col, rowStart, fp.w, fp.h)) return false;
+
+  occupy(occ, col, rowStart, fp.w, fp.h);
+
+  elements.push({
+    type: "slider",
+    col,
+    row: rowStart,
+    w: fp.w,
+    h: fp.h,
+    x: laneCenterX(grid, col),
+    y: cellCenterY(grid, rowStart, fp.h),
+    radiusMm: 0,
+    label,
+    isOutput: false
+  });
+
+  return true;
 }
 
 function drawGridOverlay(svg, grid, bounds, showCoords = false) {
@@ -479,112 +510,91 @@ function drawGridOverlay(svg, grid, bounds, showCoords = false) {
   svg.appendChild(g);
 }
 
-function drawLargeKnob(parent, x, y, radius, ink, panel) {
+function drawFMOPKnob(parent, x, y, radius, ink) {
+  const tickOuter = radius + 1.35;
+  const tickInnerShort = radius + 0.45;
+  const tickInnerLong = radius + 0.15;
+  const steps = 16;
+
+  for (let i = 0; i < steps; i++) {
+    const t = (-140 + (280 / (steps - 1)) * i) * Math.PI / 180;
+    const inner = i % 4 === 0 ? tickInnerLong : tickInnerShort;
+    const x1 = x + Math.cos(t) * inner;
+    const y1 = y + Math.sin(t) * inner;
+    const x2 = x + Math.cos(t) * tickOuter;
+    const y2 = y + Math.sin(t) * tickOuter;
+
+    parent.appendChild(createSvgElement("line", {
+      x1,
+      y1,
+      x2,
+      y2,
+      stroke: ink,
+      "stroke-width": i % 4 === 0 ? 0.22 : 0.14,
+      "stroke-linecap": "round"
+    }));
+  }
+
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
     r: radius + 0.28,
     fill: "none",
     stroke: ink,
-    "stroke-width": 0.24
+    "stroke-width": 0.22
   }));
 
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
     r: radius,
-    fill: panel,
+    fill: "#ffffff",
     stroke: ink,
-    "stroke-width": 0.24
+    "stroke-width": 0.2
   }));
 
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
     r: radius * 0.6,
-    fill: panel,
-    stroke: ink,
-    "stroke-width": 0.18
+    fill: "#3a3a3a"
   }));
+
+  const angle = -55 * Math.PI / 180;
+  const px = x + Math.cos(angle) * (radius * 0.78);
+  const py = y + Math.sin(angle) * (radius * 0.78);
 
   parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius * 0.16,
-    fill: ink
-  }));
-
-  const notchX = x + Math.cos(-Math.PI / 3) * (radius - 0.7);
-  const notchY = y + Math.sin(-Math.PI / 3) * (radius - 0.7);
-
-  parent.appendChild(createSvgElement("line", {
-    x1: x,
-    y1: y,
-    x2: notchX,
-    y2: notchY,
-    stroke: ink,
-    "stroke-width": 0.34,
-    "stroke-linecap": "round"
+    cx: px,
+    cy: py,
+    r: 0.42,
+    fill: "#ffffff"
   }));
 }
 
-function drawMediumKnob(parent, x, y, radius, ink, panel) {
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius + 0.2,
-    fill: "none",
-    stroke: ink,
-    "stroke-width": 0.2
-  }));
+function drawMediumKnob(parent, x, y, radius, ink) {
+  drawFMOPKnob(parent, x, y, radius, ink);
+}
 
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius,
-    fill: panel,
-    stroke: ink,
-    "stroke-width": 0.2
-  }));
-
-  parent.appendChild(createSvgElement("circle", {
-    cx: x,
-    cy: y,
-    r: radius * 0.52,
-    fill: panel,
-    stroke: ink,
-    "stroke-width": 0.16
-  }));
-
-  const notchX = x + Math.cos(-Math.PI / 3) * (radius - 0.45);
-  const notchY = y + Math.sin(-Math.PI / 3) * (radius - 0.45);
-
-  parent.appendChild(createSvgElement("line", {
-    x1: x,
-    y1: y,
-    x2: notchX,
-    y2: notchY,
-    stroke: ink,
-    "stroke-width": 0.28,
-    "stroke-linecap": "round"
-  }));
+function drawLargeKnob(parent, x, y, radius, ink) {
+  drawFMOPKnob(parent, x, y, radius, ink);
 }
 
 function drawShaftKnob(parent, x, y, radius, ink) {
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
-    r: radius * 0.78,
-    fill: ink
+    r: radius * 0.82,
+    fill: "#1a1a1a"
   }));
 
   parent.appendChild(createSvgElement("line", {
     x1: x,
     y1: y,
     x2: x,
-    y2: y - radius + 0.35,
+    y2: y - radius + 0.6,
     stroke: "#ffffff",
-    "stroke-width": 0.16,
+    "stroke-width": 0.22,
     "stroke-linecap": "round"
   }));
 }
@@ -593,32 +603,32 @@ function drawInputJack(parent, x, y, ink) {
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
-    r: 1.7,
-    fill: "#d7d7d7",
+    r: 3.45,
+    fill: "#d2d2d2",
     stroke: ink,
-    "stroke-width": 0.18
+    "stroke-width": 0.16
   }));
 
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
-    r: 1.35,
-    fill: "#efefef",
-    stroke: "#999999",
+    r: 2.75,
+    fill: "#f2f2f2",
+    stroke: "#8f8f8f",
     "stroke-width": 0.12
   }));
 
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
-    r: 0.95,
-    fill: "#3a3a3a"
+    r: 1.95,
+    fill: "#313131"
   }));
 
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
-    r: 0.34,
+    r: 0.52,
     fill: "#000000"
   }));
 }
@@ -627,7 +637,7 @@ function drawOutputJack(parent, x, y, ink) {
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
-    r: 1.95,
+    r: 3.75,
     fill: "none",
     stroke: ink,
     "stroke-width": 0.34
@@ -636,42 +646,42 @@ function drawOutputJack(parent, x, y, ink) {
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
-    r: 1.65,
-    fill: "#d7d7d7",
+    r: 3.45,
+    fill: "#d2d2d2",
     stroke: ink,
-    "stroke-width": 0.18
+    "stroke-width": 0.16
   }));
 
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
-    r: 1.3,
-    fill: "#efefef",
-    stroke: "#999999",
+    r: 2.75,
+    fill: "#f2f2f2",
+    stroke: "#8f8f8f",
     "stroke-width": 0.12
   }));
 
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
-    r: 0.95,
-    fill: "#3a3a3a"
+    r: 1.95,
+    fill: "#313131"
   }));
 
   parent.appendChild(createSvgElement("circle", {
     cx: x,
     cy: y,
-    r: 0.34,
+    r: 0.52,
     fill: "#000000"
   }));
 }
 
 function drawSlider(parent, x, y, ink, panel) {
   parent.appendChild(createSvgElement("rect", {
-    x: x - 0.32,
-    y: y - 3.0,
-    width: 0.64,
-    height: 6.0,
+    x: x - 0.5,
+    y: y - 7.2,
+    width: 1.0,
+    height: 14.4,
     rx: 0.25,
     fill: "none",
     stroke: ink,
@@ -679,11 +689,11 @@ function drawSlider(parent, x, y, ink, panel) {
   }));
 
   parent.appendChild(createSvgElement("rect", {
-    x: x - 0.85,
-    y: y - 0.42,
-    width: 1.7,
-    height: 0.84,
-    rx: 0.28,
+    x: x - 1.2,
+    y: y - 0.7,
+    width: 2.4,
+    height: 1.4,
+    rx: 0.4,
     fill: panel,
     stroke: ink,
     "stroke-width": 0.18
@@ -696,7 +706,7 @@ function createModule(seed) {
   const mode = modeSelect ? modeSelect.value : "academic";
   const densityCfg = getDensityConfig(density);
 
-  const hpOptions = [2];
+  const hpOptions = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24, 28];
   const hp = pick(rand, hpOptions);
   const familyKey = pick(rand, Object.keys(families));
   const family = families[familyKey];
@@ -724,7 +734,22 @@ function createModule(seed) {
     occupy(occ, 0, r, grid.cols, 1);
   }
 
-  if (compact) {
+  if (hp === 2) {
+    const twoHpMode = int(rand, 0, 2);
+
+    if (twoHpMode === 0) {
+      placeJackMatrix(elements, occ, grid, bounds, 6, 5, 1, labelBank.input, density, false);
+      placeJackMatrix(elements, occ, grid, bounds, 6, 2, 1, labelBank.output, density, true);
+    } else if (twoHpMode === 1) {
+      placeJackMatrix(elements, occ, grid, bounds, 6, 3, 1, labelBank.input, density, false);
+      placeRow(elements, occ, grid, bounds, 13, fps.shaft, 1, labelBank.knobShaft, "shaft", density, false);
+      placeJackMatrix(elements, occ, grid, bounds, 18, 2, 1, labelBank.output, density, true);
+    } else {
+      placeJackMatrix(elements, occ, grid, bounds, 6, 2, 1, labelBank.input, density, false);
+      placeSingle2HPSlider(elements, occ, grid, bounds, 12, pick(rand, labelBank.slider));
+      placeJackMatrix(elements, occ, grid, bounds, 22, 2, 1, labelBank.output, density, true);
+    }
+  } else if (compact) {
     placeJackMatrix(elements, occ, grid, bounds, 6, Math.min(7, densityCfg.jackRows + 1), 1, labelBank.input, density, false);
     placeJackMatrix(elements, occ, grid, bounds, 6, Math.min(3, densityCfg.jackRows - 1), 1, labelBank.output, density, true);
   } else {
@@ -750,7 +775,7 @@ function createModule(seed) {
     const wantSliders =
       family.label === "Sequencer" ||
       family.label === "Mixer" ||
-      Math.random() < densityCfg.sliderChance;
+      rand() < densityCfg.sliderChance;
 
     if (wantSliders && hp >= 8) {
       const sliderCount = clamp(narrow ? 2 : wide ? 4 : 3, 2, usableCols);
@@ -866,13 +891,13 @@ function renderModule(module) {
     const group = createSvgElement("g", {});
 
     if (element.type === "knobLg") {
-      drawLargeKnob(group, element.x, element.y, element.radiusMm, module.ink, module.color);
+      drawLargeKnob(group, element.x, element.y, element.radiusMm, module.ink);
       addLabel(group, element.x, element.y - element.radiusMm - 1.4, element.label, {
         size: module.hp <= 4 ? 1.6 : 1.9,
         weight: 600
       });
     } else if (element.type === "knobMd") {
-      drawMediumKnob(group, element.x, element.y, element.radiusMm, module.ink, module.color);
+      drawMediumKnob(group, element.x, element.y, element.radiusMm, module.ink);
       addLabel(group, element.x, element.y - element.radiusMm - 1.2, element.label, {
         size: module.hp <= 4 ? 1.6 : 1.9,
         weight: 600
@@ -884,7 +909,7 @@ function renderModule(module) {
         weight: 600
       });
     } else if (element.type === "jack") {
-      addLabel(group, element.x, element.y - 2.05, element.label, {
+      addLabel(group, element.x, element.y - 4.15, element.label, {
         size: module.hp <= 4 ? 1.55 : 1.85,
         weight: 600
       });
@@ -895,7 +920,7 @@ function renderModule(module) {
         drawInputJack(group, element.x, element.y, module.ink);
       }
     } else if (element.type === "slider") {
-      addLabel(group, element.x, element.y - 3.9, element.label, {
+      addLabel(group, element.x, element.y - 8.2, element.label, {
         size: module.hp <= 4 ? 1.55 : 1.85,
         weight: 600
       });
