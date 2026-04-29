@@ -1,1 +1,500 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jong Nederland – Activiteitenkalender</title>
 
+  <!--
+    =====================================================================
+    WORDPRESS INTEGRATION NOTES
+    =====================================================================
+    In WordPress, replace the CDN links below with wp_enqueue_scripts:
+      wp_enqueue_style('bootstrap', get_template_directory_uri().'/css/bootstrap.min.css', [], '4.6.2');
+      wp_enqueue_style('fontawesome', 'https://kit.fontawesome.com/YOUR_KIT.js');
+      wp_enqueue_style('jn-activiteiten', get_template_directory_uri().'/css/jn-activiteiten.css', ['bootstrap'], '1.0.0');
+      wp_enqueue_script('jn-activiteiten', get_template_directory_uri().'/js/jn-activiteiten.js', ['jquery'], '1.0.0', true);
+
+    For the WordPress template, the events loop replaces the static
+    data-* attributes on .jn-card elements. See comments in JS file.
+    =====================================================================
+  -->
+
+  <!-- Bootstrap 4.6 (backwards compatible with Bootstrap 5 patterns via CSS vars override) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous" />
+
+  <!-- FontAwesome Pro 5 (replace kit URL with your Pro kit for full icon set) -->
+  <!-- Free fallback: -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW37gb4HxoQj/TNy/D3+Tz+1+K1dHQ4HQzQPPHBRMGlXFQz7N2uuLHXzP9h5H5j8cM+AA==" crossorigin="anonymous" />
+
+  <!-- Jong Nederland Activiteiten stylesheet -->
+  <link rel="stylesheet" href="jn-activiteiten.css" />
+</head>
+<body class="jn-body">
+
+  <!--
+    =====================================================================
+    WORDPRESS TEMPLATE USAGE:
+    Replace this entire <main> with a WordPress template file, e.g.:
+      page-activiteiten.php or template-activiteiten.php
+    The PHP loop builds .jn-card elements dynamically.
+    See comments in jn-activiteiten.js for the data-* attributes needed.
+    =====================================================================
+  -->
+
+  <main class="jn-page" id="jn-activiteiten">
+
+    <!-- ── Header / Hero ────────────────────────────────────────────── -->
+    <header class="jn-hero text-center">
+      <div class="container">
+        <div class="jn-logo-wrap">
+          <!--
+            WordPress: <img src="<?php echo get_template_directory_uri(); ?>/images/jong-nederland-logo.svg" …>
+          -->
+          <img class="jn-logo" src="./Jong Nederland Logo.svg" alt="Jong Nederland" />
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Filter toolbar ───────────────────────────────────────────── -->
+    <section class="jn-filter-section">
+      <div class="container">
+        <div class="jn-filter-card">
+          <div class="jn-legend">
+            <span class="jn-legend-pill">
+              <span class="jn-dot jn-dot--green"></span> Individueel
+            </span>
+            <span class="jn-legend-pill">
+              <span class="jn-dot jn-dot--blue"></span> Groep
+            </span>
+          </div>
+          <div class="jn-filters" id="jnFilters" role="group" aria-label="Filter activiteiten">
+            <button class="jn-filter-btn active" type="button" data-filter="all">Alles</button>
+            <button class="jn-filter-btn" type="button" data-filter="individual">Individueel</button>
+            <button class="jn-filter-btn" type="button" data-filter="group">Groep</button>
+            <button class="jn-filter-btn" type="button" data-filter="info">Info only</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Featured events (large cards) ───────────────────────────── -->
+    <section class="jn-featured-section" aria-label="Uitgelichte activiteiten">
+      <div class="container">
+        <div class="row jn-featured-grid" id="jnFeaturedGrid">
+
+          <!--
+            ============================================================
+            WORDPRESS CPT LOOP (featured):
+            <?php
+              $featured_args = [
+                'post_type'      => 'jn_activiteit',
+                'posts_per_page' => -1,
+                'meta_query'     => [['key'=>'jn_featured','value'=>'1','compare'=>'=']],
+                'meta_key'       => 'jn_date_start',
+                'orderby'        => 'meta_value',
+                'order'          => 'ASC',
+              ];
+              $featured = new WP_Query($featured_args);
+              while ($featured->have_posts()): $featured->the_post();
+                $response_mode  = get_post_meta(get_the_ID(), 'jn_response_mode', true);
+                $date_display   = get_post_meta(get_the_ID(), 'jn_date_display', true);
+                $location       = get_post_meta(get_the_ID(), 'jn_location', true);
+                $price          = get_post_meta(get_the_ID(), 'jn_price', true);
+                $initial_parts  = (int) get_post_meta(get_the_ID(), 'jn_initial_participants', true);
+                $initial_groups = (int) get_post_meta(get_the_ID(), 'jn_initial_groups', true);
+                $type_label     = get_post_meta(get_the_ID(), 'jn_type_label', true);
+                $type_icon      = get_post_meta(get_the_ID(), 'jn_type_icon_fa', true); // e.g. "fa-trophy"
+                get_template_part('template-parts/jn-card-featured');
+              endwhile;
+            ?>
+            ============================================================
+
+            Static demo cards below – remove in WordPress and use loop above:
+          -->
+
+          <!-- FEATURED CARD: Festival Back2Basic -->
+          <article class="col-12 col-md-6 jn-featured-col mb-4"
+            data-event-id="festival-back2basic-2027"
+            data-response-mode="group"
+            data-filter-type="group"
+            data-initial-participants="82"
+            data-initial-groups="4">
+            <div class="jn-card jn-card--featured h-100">
+              <div class="jn-card__img-wrap">
+                <img class="jn-card__img" src="./images/zomer.jpg" alt="Festival Back2Basic" loading="lazy" />
+              </div>
+              <div class="jn-card__body">
+                <div class="jn-card__header">
+                  <div class="jn-popular-badge d-none" data-role="popular-badge">
+                    <i class="fas fa-fire" aria-hidden="true"></i> Populair
+                  </div>
+                  <h2 class="jn-card__title">Festival Back2Basic</h2>
+                  <p class="jn-card__desc">Een grote landelijke activiteit waarbij afdelingen met groepen jeugdleden deelnemen.</p>
+                </div>
+                <div class="jn-card__meta row no-gutters">
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-calendar-alt" aria-hidden="true"></i> Datum</div>
+                    <div class="jn-meta-value">10 apr 2027</div>
+                  </div>
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-map-marker-alt" aria-hidden="true"></i> Locatie</div>
+                    <div class="jn-meta-value">BillyBird / Midden van het land</div>
+                  </div>
+                </div>
+                <hr class="jn-divider" />
+                <div class="jn-card__footer">
+                  <div class="jn-stats row no-gutters" data-role="stats">
+                    <div class="col-6 jn-stat-box">
+                      <div class="jn-stat-label">Afdelingen</div>
+                      <div class="jn-stat-value" data-role="groups">4</div>
+                    </div>
+                    <div class="col-6 jn-stat-box">
+                      <div class="jn-stat-label">Verwachte deelnemers</div>
+                      <div class="jn-stat-value" data-role="participants">82</div>
+                    </div>
+                  </div>
+                  <div class="jn-response" data-role="response">
+                    <!-- Rendered by JS -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- FEATURED CARD: Kaderschouw -->
+          <article class="col-12 col-md-6 jn-featured-col mb-4"
+            data-event-id="kaderschouw-2026"
+            data-response-mode="individual"
+            data-filter-type="individual"
+            data-initial-participants="18">
+            <div class="jn-card jn-card--featured h-100">
+              <div class="jn-card__img-wrap">
+                <img class="jn-card__img" src="./images/kamp.jpg" alt="Kaderschouw" loading="lazy" />
+              </div>
+              <div class="jn-card__body">
+                <div class="jn-card__header">
+                  <div class="jn-popular-badge d-none" data-role="popular-badge">
+                    <i class="fas fa-fire" aria-hidden="true"></i> Populair
+                  </div>
+                  <h2 class="jn-card__title">Kaderschouw</h2>
+                  <p class="jn-card__desc">Meerdaags evenement waar vrijwilligers individueel boeken en je de opkomst wilt inschatten.</p>
+                </div>
+                <div class="jn-card__meta row no-gutters">
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-calendar-alt" aria-hidden="true"></i> Datum</div>
+                    <div class="jn-meta-value">25 t/m 27 sep 2026</div>
+                  </div>
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-map-marker-alt" aria-hidden="true"></i> Locatie</div>
+                    <div class="jn-meta-value">Heeswijk-Dinther</div>
+                  </div>
+                </div>
+                <hr class="jn-divider" />
+                <div class="jn-card__footer">
+                  <div class="jn-stats row no-gutters" data-role="stats">
+                    <div class="col-12 jn-stat-box">
+                      <div class="jn-stat-label">Verwachte deelnemers</div>
+                      <div class="jn-stat-value" data-role="participants">18</div>
+                    </div>
+                  </div>
+                  <div class="jn-response" data-role="response">
+                    <!-- Rendered by JS -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+        </div><!-- /.row -->
+      </div><!-- /.container -->
+    </section>
+
+    <!-- ── Regular events (masonry grid) ────────────────────────────── -->
+    <section class="jn-cards-section" aria-label="Alle activiteiten">
+      <div class="container">
+        <div class="row jn-cards-grid" id="jnCardsGrid">
+
+          <!--
+            ============================================================
+            WORDPRESS CPT LOOP (regular / non-featured):
+            <?php
+              $regular_args = [
+                'post_type'      => 'jn_activiteit',
+                'posts_per_page' => -1,
+                'meta_query'     => [
+                  ['key'=>'jn_featured','value'=>'1','compare'=>'!='],
+                ],
+                'meta_key'  => 'jn_date_start',
+                'orderby'   => 'meta_value',
+                'order'     => 'ASC',
+              ];
+              $regular = new WP_Query($regular_args);
+              while ($regular->have_posts()): $regular->the_post();
+                get_template_part('template-parts/jn-card-regular');
+              endwhile;
+              wp_reset_postdata();
+            ?>
+            ============================================================
+
+            Static demo cards below:
+          -->
+
+          <!-- CARD: Webinar wet- en regelgeving -->
+          <article class="col-12 col-sm-6 col-lg-4 mb-4 jn-card-col"
+            data-event-id="wetgeving-webinar"
+            data-response-mode="individual"
+            data-filter-type="individual"
+            data-initial-participants="6">
+            <div class="jn-card h-100">
+              <div class="jn-card__img-wrap">
+                <img class="jn-card__img" src="./images/webinar.jpg" alt="Webinar wet- en regelgeving" loading="lazy" />
+                <div class="jn-type-chip">
+                  <i class="fas fa-laptop" aria-hidden="true"></i> Webinar
+                </div>
+              </div>
+              <div class="jn-card__body">
+                <div class="jn-card__header">
+                  <div class="jn-card__title-row">
+                    <h3 class="jn-card__title">Webinar wet- en regelgeving</h3>
+                    <div class="jn-popular-badge d-none" data-role="popular-badge">
+                      <i class="fas fa-fire" aria-hidden="true"></i> Populair
+                    </div>
+                  </div>
+                  <p class="jn-card__desc">Online sessie voor vrijwilligers en bestuur over actuele wet- en regelgeving.</p>
+                </div>
+                <div class="jn-card__meta row no-gutters">
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-calendar-alt" aria-hidden="true"></i> Datum</div>
+                    <div class="jn-meta-value">12 nov 2026</div>
+                  </div>
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-map-marker-alt" aria-hidden="true"></i> Locatie</div>
+                    <div class="jn-meta-value">Online</div>
+                  </div>
+                </div>
+                <hr class="jn-divider" />
+                <div class="jn-card__footer">
+                  <div class="jn-stats row no-gutters" data-role="stats">
+                    <div class="col-12 jn-stat-box">
+                      <div class="jn-stat-label">Verwachte deelnemers</div>
+                      <div class="jn-stat-value" data-role="participants">6</div>
+                    </div>
+                  </div>
+                  <div class="jn-response" data-role="response"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- CARD: Landelijk Toernooi -->
+          <article class="col-12 col-sm-6 col-lg-4 mb-4 jn-card-col"
+            data-event-id="landelijk-toernooi-2027"
+            data-response-mode="group"
+            data-filter-type="group"
+            data-initial-participants="121"
+            data-initial-groups="6">
+            <div class="jn-card h-100">
+              <div class="jn-card__img-wrap">
+                <img class="jn-card__img" src="./images/bomenklimmen.jpg" alt="Landelijk Toernooi" loading="lazy" />
+                <div class="jn-type-chip">
+                  <i class="fas fa-trophy" aria-hidden="true"></i> Groepsactiviteit
+                </div>
+              </div>
+              <div class="jn-card__body">
+                <div class="jn-card__header">
+                  <div class="jn-card__title-row">
+                    <h3 class="jn-card__title">Landelijk Toernooi</h3>
+                    <div class="jn-popular-badge d-none" data-role="popular-badge">
+                      <i class="fas fa-fire" aria-hidden="true"></i> Populair
+                    </div>
+                  </div>
+                  <p class="jn-card__desc">Afdelingen melden zich aan voor een groep. Verwachte groepsgrootte is belangrijk voor planning.</p>
+                </div>
+                <div class="jn-card__meta row no-gutters">
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-calendar-alt" aria-hidden="true"></i> Datum</div>
+                    <div class="jn-meta-value">24 t/m 26 okt 2027</div>
+                  </div>
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-map-marker-alt" aria-hidden="true"></i> Locatie</div>
+                    <div class="jn-meta-value">Locatie volgt</div>
+                  </div>
+                </div>
+                <hr class="jn-divider" />
+                <div class="jn-card__footer">
+                  <div class="jn-stats row no-gutters" data-role="stats">
+                    <div class="col-6 jn-stat-box">
+                      <div class="jn-stat-label">Afdelingen</div>
+                      <div class="jn-stat-value" data-role="groups">6</div>
+                    </div>
+                    <div class="col-6 jn-stat-box">
+                      <div class="jn-stat-label">Verwachte deelnemers</div>
+                      <div class="jn-stat-value" data-role="participants">121</div>
+                    </div>
+                  </div>
+                  <div class="jn-response" data-role="response"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- CARD: Marketing & Communicatie -->
+          <article class="col-12 col-sm-6 col-lg-4 mb-4 jn-card-col"
+            data-event-id="marketing-com-2027"
+            data-response-mode="individual"
+            data-filter-type="individual"
+            data-initial-participants="9">
+            <div class="jn-card h-100">
+              <div class="jn-card__img-wrap">
+                <img class="jn-card__img" src="./images/webinar.jpg" alt="Marketing &amp; Communicatie" loading="lazy" />
+                <div class="jn-type-chip">
+                  <i class="fas fa-comments" aria-hidden="true"></i> Infosessie
+                </div>
+              </div>
+              <div class="jn-card__body">
+                <div class="jn-card__header">
+                  <div class="jn-card__title-row">
+                    <h3 class="jn-card__title">Marketing &amp; Communicatie</h3>
+                    <div class="jn-popular-badge d-none" data-role="popular-badge">
+                      <i class="fas fa-fire" aria-hidden="true"></i> Populair
+                    </div>
+                  </div>
+                  <p class="jn-card__desc">Praktische sessie voor vrijwilligers die met communicatie binnen de afdeling bezig zijn.</p>
+                </div>
+                <div class="jn-card__meta row no-gutters">
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-calendar-alt" aria-hidden="true"></i> Datum</div>
+                    <div class="jn-meta-value">22 feb 2027</div>
+                  </div>
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-map-marker-alt" aria-hidden="true"></i> Locatie</div>
+                    <div class="jn-meta-value">Hybride</div>
+                  </div>
+                </div>
+                <hr class="jn-divider" />
+                <div class="jn-card__footer">
+                  <div class="jn-stats row no-gutters" data-role="stats">
+                    <div class="col-12 jn-stat-box">
+                      <div class="jn-stat-label">Verwachte deelnemers</div>
+                      <div class="jn-stat-value" data-role="participants">9</div>
+                    </div>
+                  </div>
+                  <div class="jn-response" data-role="response"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- CARD: EHBO voor kids -->
+          <article class="col-12 col-sm-6 col-lg-4 mb-4 jn-card-col"
+            data-event-id="ehbo-voor-kids-2027"
+            data-response-mode="group"
+            data-filter-type="group"
+            data-initial-participants="36"
+            data-initial-groups="3">
+            <div class="jn-card h-100">
+              <div class="jn-card__img-wrap">
+                <img class="jn-card__img" src="./images/ehbo.jpg" alt="EHBO voor kids" loading="lazy" />
+                <div class="jn-type-chip">
+                  <i class="fas fa-first-aid" aria-hidden="true"></i> Cursus
+                </div>
+              </div>
+              <div class="jn-card__body">
+                <div class="jn-card__header">
+                  <div class="jn-card__title-row">
+                    <h3 class="jn-card__title">EHBO voor kids</h3>
+                    <div class="jn-popular-badge d-none" data-role="popular-badge">
+                      <i class="fas fa-fire" aria-hidden="true"></i> Populair
+                    </div>
+                  </div>
+                  <p class="jn-card__desc">Laagdrempelige activiteit waarbij een afdeling met een groep kinderen kan deelnemen.</p>
+                </div>
+                <div class="jn-card__meta row no-gutters">
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-calendar-alt" aria-hidden="true"></i> Datum</div>
+                    <div class="jn-meta-value">23 jan 2027</div>
+                  </div>
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-map-marker-alt" aria-hidden="true"></i> Locatie</div>
+                    <div class="jn-meta-value">Hybride</div>
+                  </div>
+                </div>
+                <hr class="jn-divider" />
+                <div class="jn-card__footer">
+                  <div class="jn-stats row no-gutters" data-role="stats">
+                    <div class="col-6 jn-stat-box">
+                      <div class="jn-stat-label">Afdelingen</div>
+                      <div class="jn-stat-value" data-role="groups">3</div>
+                    </div>
+                    <div class="col-6 jn-stat-box">
+                      <div class="jn-stat-label">Verwachte deelnemers</div>
+                      <div class="jn-stat-value" data-role="participants">36</div>
+                    </div>
+                  </div>
+                  <div class="jn-response" data-role="response"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- CARD: Jaarkalender (info only) -->
+          <article class="col-12 col-sm-6 col-lg-4 mb-4 jn-card-col"
+            data-event-id="jaaroverzicht-item"
+            data-response-mode="info"
+            data-filter-type="info"
+            data-initial-participants="0">
+            <div class="jn-card h-100">
+              <div class="jn-card__img-wrap">
+                <img class="jn-card__img" src="./images/vlag.jpg" alt="Jaarkalender overzicht" loading="lazy" />
+                <div class="jn-type-chip">
+                  <i class="fas fa-calendar" aria-hidden="true"></i> Voorbeeld Activiteit
+                </div>
+              </div>
+              <div class="jn-card__body">
+                <div class="jn-card__header">
+                  <div class="jn-card__title-row">
+                    <h3 class="jn-card__title">Jaarkalender overzicht</h3>
+                  </div>
+                  <p class="jn-card__desc">Een informatief kalenderitem zonder interactie. Ter info voor leden en vrijwilligers.</p>
+                </div>
+                <div class="jn-card__meta row no-gutters">
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-calendar-alt" aria-hidden="true"></i> Datum</div>
+                    <div class="jn-meta-value">Seizoen 2026–2027</div>
+                  </div>
+                  <div class="col-6 jn-meta-item">
+                    <div class="jn-meta-label"><i class="far fa-map-marker-alt" aria-hidden="true"></i> Locatie</div>
+                    <div class="jn-meta-value">Landelijk</div>
+                  </div>
+                </div>
+                <!-- No divider / no response panel for info-only -->
+              </div>
+            </div>
+          </article>
+
+        </div><!-- /.row -->
+
+        <!-- Empty state -->
+        <div class="jn-empty-state d-none" id="jnEmptyState">
+          <i class="fas fa-search fa-2x mb-3 d-block" aria-hidden="true"></i>
+          Geen activiteiten gevonden binnen dit filter.
+        </div>
+
+        <p class="jn-footer-note text-center">
+          Activiteiten kalender Jong Nederland &mdash; seizoen 2026&ndash;2027
+        </p>
+
+      </div><!-- /.container -->
+    </section>
+
+  </main><!-- /#jn-activiteiten -->
+
+  <!-- Bootstrap 4 deps -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+
+  <!-- Jong Nederland Activiteiten script -->
+  <script src="jn-activiteiten.js"></script>
+</body>
+</html>
