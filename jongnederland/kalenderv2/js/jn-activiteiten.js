@@ -147,7 +147,7 @@
           ' type="button" data-role="aantal-btn" data-event-id="' + id + '"' +
           ' aria-pressed="' + (selG ? 'true' : 'false') + '">' +
             '<i class="fas ' + (selG ? 'fa-check-circle' : 'fa-users') + '" aria-hidden="true"></i> ' +
-            (selG ? 'Aangemeld' : 'Wij doen mee') +
+            'Wij doen mee' +
           '</button>' +
         '</div>' +
         '<div class="jn-aantal-wrap' + (selG ? ' visible' : '') + '" data-role="aantal-wrap">' +

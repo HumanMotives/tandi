@@ -876,3 +876,83 @@
     border-top: 1px solid rgba(29,43,54,0.10);
   }
 }
+
+
+/* ── Chris cleanup 2026-05-04 v5: los maandoverzicht, actieve groepsknop, populair tijdelijk uit ── */
+.jn-popular-badge {
+  display: none !important;
+}
+
+.jn-month-group {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.jn-month-heading {
+  margin: 0 0 10px;
+  padding: 0 2px;
+  border-bottom: none;
+  background: transparent;
+  font-size: 1.35rem;
+}
+
+.jn-month-list {
+  display: grid;
+  gap: 12px;
+}
+
+.jn-month-item {
+  background: #fff;
+  border: 1px solid rgba(29, 43, 54, 0.08);
+  border-radius: 22px;
+  box-shadow: 0 12px 28px rgba(23, 37, 48, 0.06);
+  border-bottom: 1px solid rgba(29, 43, 54, 0.08);
+}
+
+.jn-month-item:last-child {
+  border-bottom: 1px solid rgba(29, 43, 54, 0.08);
+}
+
+.jn-month-actions .jn-action-btn.active {
+  background: var(--jn-green);
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(21, 164, 87, 0.22);
+}
+
+.jn-month-actions .jn-action-btn.active .fas,
+.jn-month-actions .jn-action-btn.active .far {
+  color: #fff;
+}
+
+.jn-month-stats {
+  background: rgba(29,43,54,0.035);
+  border-radius: 14px;
+  padding: 8px 10px;
+  gap: 0;
+}
+
+.jn-month-stat {
+  background: transparent;
+  border-radius: 0;
+  padding: 0 10px 0 0;
+}
+
+.jn-month-stat + .jn-month-stat {
+  padding-left: 10px;
+  border-left: 1px solid rgba(29,43,54,0.10);
+}
+
+@media (max-width: 575.98px) {
+  .jn-month-heading {
+    padding: 0 2px;
+    margin-bottom: 10px;
+  }
+
+  .jn-month-stats {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
