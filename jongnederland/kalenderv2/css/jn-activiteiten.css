@@ -1,0 +1,582 @@
+/*
+ * jn-activiteiten.css  –  Jong Nederland Activiteiten kalender
+ * Bootstrap 4.6 compatible | v2.0.0
+ *
+ * INHOUDSOPGAVE
+ * 1.  Design tokens (CSS variabelen)
+ * 2.  Body & paginawrapper
+ * 3.  Logo / header
+ * 4.  Filter toolbar
+ * 5.  Activiteittype kleuren & chips
+ * 6.  Kaart — gedeelde stijlen
+ * 7.  Featured kaart
+ * 8.  Reguliere kaart
+ * 9.  Kaart-onderdelen (afbeelding, body, meta, stats)
+ * 10. RSVP knoppen & invoerveld
+ * 11. Populair badge
+ * 12. Leeg-resultaat
+ * 13. Voetnoot
+ * 14. Responsive
+ * 15. Toegankelijkheid
+ */
+
+/* ── 1. Design tokens ─────────────────────────────────────────────── */
+:root {
+  /* Basis */
+  --jn-bg:          #f5f1e7;
+  --jn-card:        #ffffff;
+  --jn-text:        #1d2b36;
+  --jn-muted:       #73808c;
+  --jn-line:        rgba(29,43,54,0.10);
+  --jn-shadow:      0 16px 36px rgba(23,37,48,0.08);
+  --jn-shadow-sm:   0 6px 16px rgba(23,37,48,0.08);
+
+  /* Radii */
+  --jn-radius:      20px;
+  --jn-radius-sm:   12px;
+  --jn-radius-pill: 999px;
+
+  /* Aanmeldtype legenda */
+  --jn-green:       #15a457;
+  --jn-green-dark:  #0d7a40;
+  --jn-green-light: #e2efe8;
+  --jn-blue:        #1462c8;
+  --jn-blue-dark:   #145bb5;
+
+  /* Activiteittype kleuren */
+  --jn-jeugd:        #e8530a;   /* warm oranje-rood  */
+  --jn-jeugd-light:  #fdeee6;
+  --jn-vrijw:        #1462c8;   /* blauw             */
+  --jn-vrijw-light:  #e6eefb;
+  --jn-cursus:       #7c3aed;   /* paars             */
+  --jn-cursus-light: #f0ebff;
+  --jn-workshop:     #0d7a40;   /* groen             */
+  --jn-workshop-light: #e2f5eb;
+
+  /* Populair */
+  --jn-popular-bg:   rgba(255,243,229,0.97);
+  --jn-popular-text: #c85a00;
+}
+
+/* ── 2. Body & paginawrapper ──────────────────────────────────────── */
+.jn-body {
+  background-color: var(--jn-bg);
+  background-image:
+    radial-gradient(circle, rgba(20,98,200,0.03) 1px, transparent 1px),
+    radial-gradient(circle, rgba(21,164,87,0.03) 1px, transparent 1px);
+  background-size: 34px 34px, 44px 44px;
+  background-position: 0 0, 17px 22px;
+  color: var(--jn-text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.jn-page {
+  padding-bottom: 72px;
+}
+
+/* ── 3. Logo / header ─────────────────────────────────────────────── */
+.jn-hero {
+  padding: 28px 0 12px;
+  text-align: center;
+}
+
+.jn-logo-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.jn-logo {
+  width: min(280px, 60vw);
+  height: auto;
+  display: block;
+}
+
+/* ── 4. Filter toolbar ────────────────────────────────────────────── */
+.jn-filter-section {
+  padding-bottom: 24px;
+}
+
+.jn-filter-card {
+  background: var(--jn-card);
+  border: 1px solid rgba(29,43,54,0.08);
+  border-radius: var(--jn-radius);
+  box-shadow: var(--jn-shadow);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Legenda */
+.jn-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.jn-legend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: var(--jn-radius-pill);
+  background: rgba(29,43,54,0.05);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--jn-text);
+}
+
+.jn-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.jn-dot--green { background: var(--jn-green); }
+.jn-dot--blue  { background: var(--jn-blue);  }
+
+/* Filter knoppen */
+.jn-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.jn-filter-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1.5px solid rgba(29,43,54,0.12);
+  background: #fff;
+  color: var(--jn-text);
+  font-size: 0.88rem;
+  font-weight: 800;
+  border-radius: var(--jn-radius-pill);
+  padding: 9px 15px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.jn-filter-btn .fas {
+  margin-right: 5px;
+  font-size: 0.82em;
+}
+
+.jn-filter-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--jn-blue-dark);
+}
+
+.jn-filter-btn:focus {
+  outline: 2px solid var(--jn-blue);
+  outline-offset: 2px;
+}
+
+.jn-filter-btn.active {
+  background: var(--jn-blue-dark);
+  color: #fff;
+  border-color: var(--jn-blue-dark);
+}
+
+/* Per-type actieve kleur wanneer geselecteerd */
+.jn-filter-btn--jeugd.active        { background: var(--jn-jeugd);   border-color: var(--jn-jeugd);   }
+.jn-filter-btn--vrijwilliger.active { background: var(--jn-vrijw);   border-color: var(--jn-vrijw);   }
+.jn-filter-btn--cursus.active       { background: var(--jn-cursus);  border-color: var(--jn-cursus);  }
+.jn-filter-btn--workshop.active     { background: var(--jn-workshop);border-color: var(--jn-workshop);}
+
+/* ── 5. Activiteittype chips ─────────────────────────────────────── */
+.jn-type-chip {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: var(--jn-radius-pill);
+  font-size: 0.80rem;
+  font-weight: 800;
+  box-shadow: var(--jn-shadow-sm);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.jn-type-chip--jeugd {
+  background: var(--jn-jeugd-light);
+  color: var(--jn-jeugd);
+}
+.jn-type-chip--vrijwilliger {
+  background: var(--jn-vrijw-light);
+  color: var(--jn-vrijw);
+}
+.jn-type-chip--cursus {
+  background: var(--jn-cursus-light);
+  color: var(--jn-cursus);
+}
+.jn-type-chip--workshop {
+  background: var(--jn-workshop-light);
+  color: var(--jn-workshop);
+}
+
+/* ── 6. Kaart — gedeelde stijlen ─────────────────────────────────── */
+.jn-card {
+  background: var(--jn-card);
+  border-radius: var(--jn-radius);
+  overflow: hidden;
+  box-shadow: var(--jn-shadow);
+  border: 1px solid rgba(29,43,54,0.07);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.jn-card:hover {
+  box-shadow: 0 24px 48px rgba(23,37,48,0.13);
+  transform: translateY(-3px);
+}
+
+/* ── 7. Featured kaart ────────────────────────────────────────────── */
+.jn-featured-section {
+  padding-bottom: 8px;
+}
+
+.jn-card--featured .jn-card__img {
+  aspect-ratio: 16 / 7;
+}
+
+.jn-card--featured .jn-card__title {
+  font-size: clamp(1.55rem, 3vw, 2.1rem);
+  font-weight: 900;
+}
+
+/* ── 8. Reguliere kaart ──────────────────────────────────────────── */
+.jn-cards-section {
+  padding-bottom: 16px;
+}
+
+/* ── 9. Kaart-onderdelen ──────────────────────────────────────────── */
+
+/* Afbeeldingswrapper */
+.jn-card__img-wrap {
+  position: relative;
+  background: #e5e5e5;
+  overflow: hidden;
+}
+
+.jn-card__img {
+  width: 100%;
+  aspect-ratio: 16 / 8.5;
+  object-fit: cover;
+  display: block;
+}
+
+/* Body */
+.jn-card__body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 1 auto;
+}
+
+/* Titel & omschrijving */
+.jn-card__title {
+  margin: 0;
+  font-size: 1.12rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--jn-text);
+}
+
+.jn-card__desc {
+  margin: 0;
+  color: var(--jn-muted);
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+
+/* Meta (datum, locatie) */
+.jn-meta-item {
+  padding-right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 4px;
+}
+
+.jn-meta-label {
+  color: var(--jn-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.jn-meta-label .fas,
+.jn-meta-label .far {
+  margin-right: 3px;
+  opacity: 0.65;
+}
+
+.jn-meta-value {
+  color: var(--jn-text);
+  font-size: 0.93rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* Scheidingslijn */
+.jn-divider {
+  border: 0;
+  border-top: 1px solid var(--jn-line);
+  margin: 0;
+}
+
+/* Footer */
+.jn-card__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+}
+
+/* Stat boxes */
+.jn-stat-box {
+  background: rgba(29,43,54,0.04);
+  border-radius: var(--jn-radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.jn-stat-box + .jn-stat-box {
+  margin-left: 2px;
+}
+
+.jn-stat-label {
+  color: var(--jn-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.jn-stat-value {
+  color: var(--jn-green-dark);
+  font-size: 1.35rem;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.jn-stat-max {
+  font-size: 0.80rem;
+  font-weight: 700;
+  color: var(--jn-muted);
+  margin-left: 1px;
+}
+
+/* Volle balk indicator (optioneel visueel) */
+.jn-stat-value.is-full {
+  color: #c0392b;
+}
+
+/* ── 10. RSVP knoppen & invoerveld ───────────────────────────────── */
+.jn-response {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jn-action-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Individueel knop */
+.jn-action-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  border-radius: var(--jn-radius-pill);
+  padding: 11px 18px;
+  background: var(--jn-green-light);
+  color: var(--jn-green-dark);
+  font-size: 0.92rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.1s, background 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.jn-action-btn .fas {
+  font-size: 0.88em;
+}
+
+.jn-action-btn:hover {
+  transform: translateY(-1px);
+}
+
+.jn-action-btn:focus {
+  outline: 2px solid var(--jn-green);
+  outline-offset: 2px;
+}
+
+.jn-action-btn.active {
+  background: var(--jn-green);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(21,164,87,0.25);
+}
+
+/* Aantal-modus: invoergroep */
+.jn-aantal-wrap {
+  display: none; /* wordt flex via JS */
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.jn-aantal-wrap.visible {
+  display: flex;
+}
+
+.jn-aantal-label {
+  color: var(--jn-muted);
+  font-size: 0.83rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.jn-aantal-input {
+  border: 1.5px solid rgba(29,43,54,0.15);
+  border-radius: var(--jn-radius-sm);
+  padding: 9px 11px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--jn-text);
+  background: #fff;
+  width: 80px;
+  -moz-appearance: textfield;
+}
+
+.jn-aantal-input::-webkit-inner-spin-button,
+.jn-aantal-input::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+.jn-aantal-input:focus {
+  outline: 2px solid var(--jn-blue);
+  outline-offset: 1px;
+  border-color: var(--jn-blue);
+}
+
+.jn-aantal-input.is-invalid {
+  border-color: #c0392b;
+}
+
+/* Foutmelding invoer */
+.jn-input-error {
+  display: none;
+  color: #c0392b;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.jn-input-error.visible {
+  display: block;
+}
+
+/* ── 11. Populair badge ───────────────────────────────────────────── */
+.jn-popular-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: var(--jn-radius-pill);
+  background: var(--jn-popular-bg);
+  color: var(--jn-popular-text);
+  font-size: 0.80rem;
+  font-weight: 800;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
+/* ── 12. Leeg resultaat ───────────────────────────────────────────── */
+.jn-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  border-radius: var(--jn-radius);
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(29,43,54,0.08);
+  color: var(--jn-muted);
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.jn-empty-state .fas {
+  color: rgba(29,43,54,0.25);
+}
+
+/* ── 13. Voetnoot ─────────────────────────────────────────────────── */
+.jn-footer-note {
+  margin-top: 32px;
+  color: var(--jn-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* ── 14. Responsive ──────────────────────────────────────────────── */
+@media (min-width: 576px) {
+  .jn-filter-card {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 575px) {
+  .jn-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .jn-aantal-wrap {
+    width: 100%;
+  }
+
+  .jn-aantal-input {
+    flex: 1;
+    width: auto;
+  }
+
+  .jn-meta-item {
+    margin-bottom: 6px;
+  }
+}
+
+/* ── 15. Toegankelijkheid ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .jn-card,
+  .jn-action-btn,
+  .jn-filter-btn {
+    transition: none;
+  }
+  .jn-card:hover {
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .jn-card {
+    border: 2px solid ButtonText;
+  }
+  .jn-action-btn.active {
+    border: 2px solid ButtonText;
+  }
+}
