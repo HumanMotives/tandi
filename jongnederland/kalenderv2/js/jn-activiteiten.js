@@ -55,7 +55,7 @@
   function qsa(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
 
   /* ── Kaart data lezen ────────────────────────────────────────── */
-  function cards() { return qsa('[data-event-id]'); }
+  function cards() { return qsa('.jn-card-col[data-event-id]'); }
 
   function attr(card, name, fallback) {
     var v = card.getAttribute('data-' + name);
@@ -203,65 +203,77 @@
     }
   }
 
+  /* ── State acties ─────────────────────────────────────────── */
+  function refreshEvent(eventId, state) {
+    cards().forEach(function (card) {
+      if (attr(card, 'event-id') === eventId) updateCard(card, state);
+    });
+    if (activeView === 'month') renderMonthView();
+  }
+
+  function toggleIndividueel(eventId) {
+    var state = getState();
+    var evtSt = getEventState(eventId, state);
+    evtSt.selected = !evtSt.selected;
+    saveState(state);
+    sendRsvp('individueel', eventId, evtSt.selected, null);
+    refreshEvent(eventId, state);
+  }
+
+  function toggleAantal(eventId) {
+    var state = getState();
+    var evtSt = getEventState(eventId, state);
+    if (!evtSt.count) evtSt.count = cfg.aantallMin;
+    evtSt.selected = !evtSt.selected;
+    saveState(state);
+    sendRsvp('aantal', eventId, evtSt.selected, evtSt.count);
+    refreshEvent(eventId, state);
+  }
+
+  function setAantal(eventId, value, sourceInput) {
+    var val   = parseInt(value, 10);
+    var valid = !isNaN(val) && val >= cfg.aantallMin && val <= cfg.aantallMax;
+
+    if (sourceInput) {
+      var wrap = sourceInput.closest('[data-role="aantal-wrap"]') || sourceInput.parentNode;
+      var errEl = wrap ? qs('[data-role="input-error"]', wrap) : null;
+      sourceInput.classList.toggle('is-invalid', !valid);
+      if (errEl) errEl.classList.toggle('visible', !valid);
+    }
+
+    if (!valid) return;
+
+    var state = getState();
+    var evtSt = getEventState(eventId, state);
+    evtSt.count = val;
+    evtSt.selected = true;
+    saveState(state);
+    sendRsvp('aantal', eventId, true, val);
+    refreshEvent(eventId, state);
+  }
+
   /* ── Event listeners per kaart ───────────────────────────────── */
   function attachCardListeners(card) {
 
     /* Individueel */
     qsa('[data-role="individueel-btn"]', card).forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var id    = btn.getAttribute('data-event-id');
-        var state = getState();
-        var evtSt = getEventState(id, state);
-        evtSt.selected = !evtSt.selected;
-        saveState(state);
-        sendRsvp('individueel', id, evtSt.selected, null);
-        updateCard(card, state);
+        toggleIndividueel(btn.getAttribute('data-event-id'));
       });
     });
 
     /* Aantal — knop toggle */
     qsa('[data-role="aantal-btn"]', card).forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var id    = btn.getAttribute('data-event-id');
-        var state = getState();
-        var evtSt = getEventState(id, state);
-        if (!evtSt.count) evtSt.count = cfg.aantallMin;
-        evtSt.selected = !evtSt.selected;
-        saveState(state);
-        sendRsvp('aantal', id, evtSt.selected, evtSt.count);
-        updateCard(card, state);
+        toggleAantal(btn.getAttribute('data-event-id'));
       });
     });
 
     /* Aantal — invoerveld */
     qsa('[data-role="aantal-input"]', card).forEach(function (input) {
-      /* Valideer en sla op bij wijziging */
       function handleInput() {
-        var id      = input.getAttribute('data-event-id');
-        var val     = parseInt(input.value, 10);
-        var errEl   = qs('[data-role="input-error"]', card);
-        var valid   = !isNaN(val) && val >= cfg.aantallMin && val <= cfg.aantallMax;
-
-        input.classList.toggle('is-invalid', !valid);
-        if (errEl) errEl.classList.toggle('visible', !valid);
-
-        if (valid) {
-          var state = getState();
-          var evtSt = getEventState(id, state);
-          evtSt.count    = val;
-          evtSt.selected = true;
-          saveState(state);
-          sendRsvp('aantal', id, true, val);
-          /* Herrender alleen tellers, niet het hele panel */
-          var rsvpEl = qs('[data-role="rsvp-count"]', card);
-          if (rsvpEl) {
-            rsvpEl.firstChild.nodeValue = getRsvpTotal(card, state);
-          }
-          var badge = qs('[data-role="popular-badge"]', card);
-          if (badge) badge.classList.toggle('d-none', !isPopular(card, state));
-        }
+        setAantal(input.getAttribute('data-event-id'), input.value, input);
       }
-
       input.addEventListener('change', handleInput);
       input.addEventListener('blur',   handleInput);
     });
@@ -314,20 +326,222 @@
 
   /* ── Filter ──────────────────────────────────────────────────── */
   var activeFilter = 'all';
+  var activeView = 'tiles';
+
+  var MONTHS = {
+    jan: { index: 1, label: 'Januari' },
+    feb: { index: 2, label: 'Februari' },
+    mrt: { index: 3, label: 'Maart' },
+    apr: { index: 4, label: 'April' },
+    mei: { index: 5, label: 'Mei' },
+    jun: { index: 6, label: 'Juni' },
+    jul: { index: 7, label: 'Juli' },
+    aug: { index: 8, label: 'Augustus' },
+    sep: { index: 9, label: 'September' },
+    okt: { index: 10, label: 'Oktober' },
+    nov: { index: 11, label: 'November' },
+    dec: { index: 12, label: 'December' }
+  };
+
+  function cardMatchesFilter(card) {
+    var type = attr(card, 'type');
+    return activeFilter === 'all' || type === activeFilter;
+  }
 
   function applyFilter() {
     var allCards   = cards();
     var anyVisible = false;
 
     allCards.forEach(function (card) {
-      var type    = attr(card, 'type');
-      var visible = activeFilter === 'all' || type === activeFilter;
+      var visible = cardMatchesFilter(card);
       card.style.display = visible ? '' : 'none';
       if (visible) anyVisible = true;
     });
 
     var empty = document.getElementById('jnEmptyState');
     if (empty) empty.classList.toggle('d-none', anyVisible);
+
+    if (activeView === 'month') renderMonthView();
+  }
+
+  /* ── Weergave toggle ─────────────────────────────────────────── */
+  function applyView() {
+    var featuredSection = document.getElementById('jnFeaturedSection');
+    var cardsSection    = document.getElementById('jnCardsSection');
+    var monthSection    = document.getElementById('jnMonthSection');
+
+    var showTiles = activeView === 'tiles';
+
+    if (featuredSection) featuredSection.classList.toggle('d-none', !showTiles);
+    if (cardsSection)    cardsSection.classList.toggle('d-none', !showTiles);
+    if (monthSection)    monthSection.classList.toggle('d-none', showTiles);
+
+    if (!showTiles) renderMonthView();
+    applyFilter();
+  }
+
+  function getCardTitle(card) {
+    var el = qs('.jn-card__title', card);
+    return el ? el.textContent.trim() : '';
+  }
+
+  function getCardDescription(card) {
+    var el = qs('.jn-card__desc', card);
+    return el ? el.textContent.trim() : '';
+  }
+
+  function getCardTypeLabel(card) {
+    var chip = qs('.jn-type-chip', card);
+    return chip ? chip.textContent.replace(/\s+/g, ' ').trim() : '';
+  }
+
+  function getCardTypeIconHTML(card) {
+    var icon = qs('.jn-type-chip i', card);
+    return icon ? icon.outerHTML : '';
+  }
+
+  function getCardDate(card) {
+    var values = qsa('.jn-meta-value', card);
+    return values[0] ? values[0].textContent.trim() : '';
+  }
+
+  function getCardLocation(card) {
+    var values = qsa('.jn-meta-value', card);
+    return values[1] ? values[1].textContent.trim() : '';
+  }
+
+  function parseDateInfo(dateText) {
+    var normalized = (dateText || '').toLowerCase();
+    var match = normalized.match(/(jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)\.?\s*(20\d{2})?/);
+
+    if (!match || !MONTHS[match[1]]) {
+      return {
+        key: '9999-99',
+        label: 'Doorlopend / datum volgt',
+        sort: 99999999
+      };
+    }
+
+    var month = MONTHS[match[1]];
+    var year = match[2] ? parseInt(match[2], 10) : 2027;
+    var beforeMonth = normalized.slice(0, match.index);
+    var dayMatches = beforeMonth.match(/\d{1,2}/g);
+    var day = dayMatches && dayMatches.length ? parseInt(dayMatches[0], 10) : 1;
+
+    return {
+      key: year + '-' + String(month.index).padStart(2, '0'),
+      label: month.label + ' ' + year,
+      sort: (year * 10000) + (month.index * 100) + day
+    };
+  }
+
+  function buildMonthResponseHTML(card, state) {
+    var mode = attr(card, 'rsvp-mode');
+    if (mode === 'info') return '';
+    return buildResponseHTML(card, state);
+  }
+
+  function buildMonthStatsHTML(card, state) {
+    var mode = attr(card, 'rsvp-mode');
+    if (mode === 'info') return '';
+
+    var html = '<div class="jn-month-stats">';
+    if (mode === 'aantal') {
+      html += '<span class="jn-month-stat"><strong>' + getGroupsTotal(card, state) + '</strong> afdelingen</span>';
+    }
+    html += '<span class="jn-month-stat"><strong>' + getRsvpTotal(card, state) + '</strong> aanmeldingen</span>';
+    html += '</div>';
+    return html;
+  }
+
+  function getVisibleCardsSorted() {
+    return cards()
+      .filter(cardMatchesFilter)
+      .map(function (card) {
+        var dateInfo = parseDateInfo(getCardDate(card));
+        return { card: card, dateInfo: dateInfo };
+      })
+      .sort(function (a, b) { return a.dateInfo.sort - b.dateInfo.sort; });
+  }
+
+  function renderMonthView() {
+    var monthView = document.getElementById('jnMonthView');
+    if (!monthView) return;
+
+    var state = getState();
+    var sorted = getVisibleCardsSorted();
+
+    if (!sorted.length) {
+      monthView.innerHTML = '';
+      return;
+    }
+
+    var groups = [];
+    sorted.forEach(function (item) {
+      var current = groups.length ? groups[groups.length - 1] : null;
+      if (!current || current.key !== item.dateInfo.key) {
+        current = { key: item.dateInfo.key, label: item.dateInfo.label, items: [] };
+        groups.push(current);
+      }
+      current.items.push(item.card);
+    });
+
+    monthView.innerHTML = groups.map(function (group) {
+      var itemsHTML = group.items.map(function (card) {
+        var id = attr(card, 'event-id');
+        return (
+          '<article class="jn-month-item" data-month-event-id="' + id + '">' +
+            '<div class="jn-month-date">' + getCardDate(card) + '</div>' +
+            '<div class="jn-month-title-wrap">' +
+              '<div class="jn-month-title">' + getCardTitle(card) + '</div>' +
+              '<div class="jn-month-desc">' + getCardDescription(card) + '</div>' +
+            '</div>' +
+            '<div class="jn-month-meta">' +
+              '<span class="jn-month-type">' + getCardTypeIconHTML(card) + getCardTypeLabel(card) + '</span>' +
+              '<span class="jn-month-location"><i class="far fa-map-marker-alt" aria-hidden="true"></i> ' + getCardLocation(card) + '</span>' +
+            '</div>' +
+            '<div class="jn-month-actions">' +
+              buildMonthStatsHTML(card, state) +
+              buildMonthResponseHTML(card, state) +
+            '</div>' +
+          '</article>'
+        );
+      }).join('');
+
+      return (
+        '<section class="jn-month-group">' +
+          '<h2 class="jn-month-heading">' + group.label + '</h2>' +
+          '<div class="jn-month-list">' + itemsHTML + '</div>' +
+        '</section>'
+      );
+    }).join('');
+
+    attachMonthListeners();
+  }
+
+  function attachMonthListeners() {
+    var monthView = document.getElementById('jnMonthView');
+    if (!monthView) return;
+
+    qsa('[data-role="individueel-btn"]', monthView).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        toggleIndividueel(btn.getAttribute('data-event-id'));
+      });
+    });
+
+    qsa('[data-role="aantal-btn"]', monthView).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        toggleAantal(btn.getAttribute('data-event-id'));
+      });
+    });
+
+    qsa('[data-role="aantal-input"]', monthView).forEach(function (input) {
+      function handleInput() {
+        setAantal(input.getAttribute('data-event-id'), input.value, input);
+      }
+      input.addEventListener('change', handleInput);
+      input.addEventListener('blur', handleInput);
+    });
   }
 
   /* ── Init ────────────────────────────────────────────────────── */
@@ -348,6 +562,18 @@
         applyFilter();
       });
     });
+
+    /* Weergave knoppen */
+    qsa('.jn-view-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        qsa('.jn-view-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        activeView = btn.getAttribute('data-view');
+        applyView();
+      });
+    });
+
+    applyView();
   }
 
   if (document.readyState === 'loading') {

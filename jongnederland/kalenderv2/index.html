@@ -66,6 +66,17 @@
           </button>
         </div>
 
+
+        <!-- Weergave toggle -->
+        <div class="jn-view-toggle" id="jnViewToggle" role="group" aria-label="Kies weergave">
+          <button class="jn-view-btn active" type="button" data-view="tiles">
+            <i class="fas fa-th-large" aria-hidden="true"></i> Tegels
+          </button>
+          <button class="jn-view-btn" type="button" data-view="month">
+            <i class="fas fa-list" aria-hidden="true"></i> Maandoverzicht
+          </button>
+        </div>
+
       </div>
     </div>
   </section>
@@ -90,7 +101,7 @@
     ?>
     ============================================================
   -->
-  <section class="jn-featured-section">
+  <section class="jn-featured-section" id="jnFeaturedSection">
     <div class="container">
       <div class="row" id="jnFeaturedGrid">
 
@@ -216,6 +227,13 @@
     </div>
   </section>
 
+  <!-- ── Maandoverzicht ─────────────────────────────────────────────── -->
+  <section class="jn-month-section d-none" id="jnMonthSection" aria-live="polite">
+    <div class="container">
+      <div class="jn-month-view" id="jnMonthView"></div>
+    </div>
+  </section>
+
   <!-- ── Reguliere activiteiten ─────────────────────────────────────── -->
   <!--
     WORDPRESS LOOP (regular):
@@ -236,7 +254,7 @@
     ?>
     ============================================================
   -->
-  <section class="jn-cards-section">
+  <section class="jn-cards-section" id="jnCardsSection">
     <div class="container">
       <div class="row" id="jnCardsGrid">
 
