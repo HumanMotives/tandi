@@ -767,3 +767,112 @@
   .jn-month-actions .jn-aantal-wrap { width: 100%; }
   .jn-month-actions .jn-aantal-input { width: 100%; }
 }
+
+
+/* ── Chris cleanup 2026-05-04: compactere toolbar, radio view toggle, rustigere stats ── */
+.jn-page {
+  padding-top: 24px;
+}
+
+.jn-filter-section {
+  padding-top: 0;
+}
+
+.jn-filter-card {
+  align-items: flex-start;
+}
+
+.jn-view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-top: 2px;
+}
+
+.jn-view-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--jn-text);
+  font-size: 0.94rem;
+  font-weight: 700;
+  border-radius: 0;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  line-height: 1.2;
+}
+
+.jn-view-btn:hover {
+  transform: none;
+  color: var(--jn-blue-dark);
+}
+
+.jn-view-btn.active {
+  background: transparent;
+  color: var(--jn-blue-dark);
+  border-color: transparent;
+}
+
+.jn-view-radio {
+  margin: 0;
+  width: 15px;
+  height: 15px;
+  accent-color: var(--jn-blue-dark);
+}
+
+.jn-stats {
+  background: rgba(29,43,54,0.035);
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: stretch;
+}
+
+.jn-stat-box {
+  background: transparent;
+  border-radius: 0;
+  padding: 0 14px 0 0;
+}
+
+.jn-stat-box + .jn-stat-box {
+  margin-left: 0;
+  padding-left: 14px;
+  border-left: 1px solid rgba(29,43,54,0.10);
+}
+
+.jn-stat-label {
+  font-size: 0.78rem;
+}
+
+.jn-stat-value {
+  font-size: 1.5rem;
+}
+
+@media (min-width: 576px) {
+  .jn-filter-card {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 575px) {
+  .jn-stats {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .jn-stat-box {
+    padding: 0;
+  }
+
+  .jn-stat-box + .jn-stat-box {
+    padding-left: 0;
+    padding-top: 10px;
+    border-left: none;
+    border-top: 1px solid rgba(29,43,54,0.10);
+  }
+}

@@ -29,19 +29,6 @@
 
 <main class="jn-page" id="jn-activiteiten">
 
-  <!-- ── Logo ─────────────────────────────────────────────────────── -->
-  <header class="jn-hero">
-    <div class="container">
-      <div class="jn-logo-wrap">
-        <!--
-          WordPress:
-          <img src="<?php echo get_template_directory_uri(); ?>/images/jong-nederland-logo.svg" alt="Jong Nederland" class="jn-logo" />
-        -->
-        <img src="../images/jong-nederland-logo.svg" alt="Jong Nederland" class="jn-logo" />
-      </div>
-    </div>
-  </header>
-
   <!-- ── Filters ───────────────────────────────────────────────────── -->
   <section class="jn-filter-section">
     <div class="container">
@@ -68,13 +55,15 @@
 
 
         <!-- Weergave toggle -->
-        <div class="jn-view-toggle" id="jnViewToggle" role="group" aria-label="Kies weergave">
-          <button class="jn-view-btn active" type="button" data-view="tiles">
-            <i class="fas fa-th-large" aria-hidden="true"></i> Tegels
-          </button>
-          <button class="jn-view-btn" type="button" data-view="month">
-            <i class="fas fa-list" aria-hidden="true"></i> Maandoverzicht
-          </button>
+        <div class="jn-view-toggle" id="jnViewToggle" role="radiogroup" aria-label="Kies weergave">
+          <label class="jn-view-btn active" data-view="tiles">
+            <input class="jn-view-radio" type="radio" name="jn-view" value="tiles" checked />
+            <span>Tegels</span>
+          </label>
+          <label class="jn-view-btn" data-view="month">
+            <input class="jn-view-radio" type="radio" name="jn-view" value="month" />
+            <span>Maandoverzicht</span>
+          </label>
         </div>
 
       </div>
