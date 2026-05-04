@@ -956,3 +956,56 @@
     justify-content: flex-start;
   }
 }
+
+/* ── v6: duidelijke groepsflow met expliciete bevestiging ── */
+.jn-confirm-btn {
+  appearance: none;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: var(--jn-green);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 10px 22px rgba(21, 164, 87, 0.18);
+}
+
+.jn-confirm-btn:hover {
+  transform: translateY(-1px);
+}
+
+.jn-edit-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--jn-muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 8px 4px;
+}
+
+.jn-edit-btn:hover {
+  color: var(--jn-text);
+  text-decoration: underline;
+}
+
+.jn-aantal-wrap.visible {
+  align-items: center;
+}
+
+@media (max-width: 575.98px) {
+  .jn-confirm-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .jn-edit-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

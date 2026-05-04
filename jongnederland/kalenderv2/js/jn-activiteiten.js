@@ -86,7 +86,7 @@
     if (mode === 'individueel' && evtSt.selected) {
       return base + 1;
     }
-    if (mode === 'aantal' && evtSt.selected) {
+    if (mode === 'aantal' && evtSt.selected && evtSt.confirmed) {
       return base + (evtSt.count || cfg.aantallMin);
     }
     return base;
@@ -96,7 +96,7 @@
     var id    = attr(card, 'event-id');
     var base  = numAttr(card, 'groups-count');
     var evtSt = state[id] || {};
-    if (attr(card, 'rsvp-mode') === 'aantal' && evtSt.selected) {
+    if (attr(card, 'rsvp-mode') === 'aantal' && evtSt.selected && evtSt.confirmed) {
       return base + 1;
     }
     return base;
@@ -129,37 +129,60 @@
           ' type="button" data-role="individueel-btn" data-event-id="' + id + '"' +
           ' aria-pressed="' + (sel ? 'true' : 'false') + '">' +
             '<i class="fas ' + (sel ? 'fa-check-circle' : 'fa-heart') + '" aria-hidden="true"></i> ' +
-            (sel ? 'Je bent aangemeld' : 'Ik meld me aan') +
+            (sel ? 'Je wilt erbij zijn' : 'Ik wil erbij zijn') +
           '</button>' +
         '</div>'
       );
     }
 
     if (mode === 'aantal') {
-      var selG  = evtSt.selected;
-      var count = evtSt.count || cfg.aantallMin;
-      if (full && !selG) {
+      var selG      = evtSt.selected;
+      var confirmed = evtSt.confirmed === true;
+      var count     = evtSt.count || cfg.aantallMin;
+
+      if (full && !confirmed) {
         return '<p class="jn-full-msg"><i class="fas fa-lock" aria-hidden="true"></i> Activiteit is vol</p>';
       }
+
+      if (!selG) {
+        return (
+          '<div class="jn-action-row">' +
+            '<button class="jn-action-btn"' +
+            ' type="button" data-role="aantal-btn" data-event-id="' + id + '"' +
+            ' aria-pressed="false">' +
+              '<i class="fas fa-users" aria-hidden="true"></i> ' +
+              'Wij willen komen' +
+            '</button>' +
+          '</div>'
+        );
+      }
+
+      if (!confirmed) {
+        return (
+          '<div class="jn-aantal-wrap visible" data-role="aantal-wrap">' +
+            '<span class="jn-aantal-label">Aantal deelnemers:</span>' +
+            '<input class="jn-aantal-input"' +
+            ' type="number" inputmode="numeric"' +
+            ' min="' + cfg.aantallMin + '" max="' + cfg.aantallMax + '"' +
+            ' value="' + count + '"' +
+            ' data-role="aantal-input" data-event-id="' + id + '"' +
+            ' aria-label="Aantal deelnemers"' +
+            ' />' +
+            '<button class="jn-confirm-btn" type="button" data-role="confirm-aantal" data-event-id="' + id + '">' +
+              '<i class="fas fa-check" aria-hidden="true"></i> Bevestig' +
+            '</button>' +
+            '<span class="jn-input-error" data-role="input-error">Voer een getal in tussen ' + cfg.aantallMin + ' en ' + cfg.aantallMax + '</span>' +
+          '</div>'
+        );
+      }
+
       return (
         '<div class="jn-action-row">' +
-          '<button class="jn-action-btn' + (selG ? ' active' : '') + '"' +
-          ' type="button" data-role="aantal-btn" data-event-id="' + id + '"' +
-          ' aria-pressed="' + (selG ? 'true' : 'false') + '">' +
-            '<i class="fas ' + (selG ? 'fa-check-circle' : 'fa-users') + '" aria-hidden="true"></i> ' +
-            'Wij doen mee' +
+          '<button class="jn-action-btn active" type="button" aria-pressed="true">' +
+            '<i class="fas fa-check-circle" aria-hidden="true"></i> ' +
+            'Wij willen komen (' + count + ')' +
           '</button>' +
-        '</div>' +
-        '<div class="jn-aantal-wrap' + (selG ? ' visible' : '') + '" data-role="aantal-wrap">' +
-          '<span class="jn-aantal-label">Aantal deelnemers:</span>' +
-          '<input class="jn-aantal-input"' +
-          ' type="number" inputmode="numeric"' +
-          ' min="' + cfg.aantallMin + '" max="' + cfg.aantallMax + '"' +
-          ' value="' + count + '"' +
-          ' data-role="aantal-input" data-event-id="' + id + '"' +
-          ' aria-label="Aantal deelnemers"' +
-          ' />' +
-          '<span class="jn-input-error" data-role="input-error">Voer een getal in tussen ' + cfg.aantallMin + ' en ' + cfg.aantallMax + '</span>' +
+          '<button class="jn-edit-btn" type="button" data-role="edit-aantal" data-event-id="' + id + '">Aanpassen</button>' +
         '</div>'
       );
     }
@@ -224,13 +247,13 @@
     var state = getState();
     var evtSt = getEventState(eventId, state);
     if (!evtSt.count) evtSt.count = cfg.aantallMin;
-    evtSt.selected = !evtSt.selected;
+    evtSt.selected = true;
+    evtSt.confirmed = false;
     saveState(state);
-    sendRsvp('aantal', eventId, evtSt.selected, evtSt.count);
     refreshEvent(eventId, state);
   }
 
-  function setAantal(eventId, value, sourceInput) {
+  function validateAantalInput(value, sourceInput) {
     var val   = parseInt(value, 10);
     var valid = !isNaN(val) && val >= cfg.aantallMin && val <= cfg.aantallMax;
 
@@ -241,14 +264,42 @@
       if (errEl) errEl.classList.toggle('visible', !valid);
     }
 
-    if (!valid) return;
+    return valid ? val : null;
+  }
+
+  function setAantal(eventId, value, sourceInput) {
+    var val = validateAantalInput(value, sourceInput);
+    if (val === null) return;
 
     var state = getState();
     var evtSt = getEventState(eventId, state);
     evtSt.count = val;
     evtSt.selected = true;
+    evtSt.confirmed = false;
+    saveState(state);
+  }
+
+  function confirmAantal(eventId, value, sourceInput) {
+    var val = validateAantalInput(value, sourceInput);
+    if (val === null) return;
+
+    var state = getState();
+    var evtSt = getEventState(eventId, state);
+    evtSt.count = val;
+    evtSt.selected = true;
+    evtSt.confirmed = true;
     saveState(state);
     sendRsvp('aantal', eventId, true, val);
+    refreshEvent(eventId, state);
+  }
+
+  function editAantal(eventId) {
+    var state = getState();
+    var evtSt = getEventState(eventId, state);
+    evtSt.selected = true;
+    evtSt.confirmed = false;
+    if (!evtSt.count) evtSt.count = cfg.aantallMin;
+    saveState(state);
     refreshEvent(eventId, state);
   }
 
@@ -269,13 +320,29 @@
       });
     });
 
-    /* Aantal — invoerveld */
+    /* Aantal — invoerveld: alleen conceptwaarde bewaren, nog niet bevestigen */
     qsa('[data-role="aantal-input"]', card).forEach(function (input) {
       function handleInput() {
         setAantal(input.getAttribute('data-event-id'), input.value, input);
       }
       input.addEventListener('change', handleInput);
       input.addEventListener('blur',   handleInput);
+    });
+
+    /* Aantal — expliciet bevestigen */
+    qsa('[data-role="confirm-aantal"]', card).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var wrap = btn.closest('[data-role="aantal-wrap"]') || btn.parentNode;
+        var input = wrap ? qs('[data-role="aantal-input"]', wrap) : null;
+        confirmAantal(btn.getAttribute('data-event-id'), input ? input.value : cfg.aantallMin, input);
+      });
+    });
+
+    /* Aantal — na bevestiging aanpassen */
+    qsa('[data-role="edit-aantal"]', card).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        editAantal(btn.getAttribute('data-event-id'));
+      });
     });
   }
 
@@ -541,6 +608,20 @@
       }
       input.addEventListener('change', handleInput);
       input.addEventListener('blur', handleInput);
+    });
+
+    qsa('[data-role="confirm-aantal"]', monthView).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var wrap = btn.closest('[data-role="aantal-wrap"]') || btn.parentNode;
+        var input = wrap ? qs('[data-role="aantal-input"]', wrap) : null;
+        confirmAantal(btn.getAttribute('data-event-id'), input ? input.value : cfg.aantallMin, input);
+      });
+    });
+
+    qsa('[data-role="edit-aantal"]', monthView).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        editAantal(btn.getAttribute('data-event-id'));
+      });
     });
   }
 
