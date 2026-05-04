@@ -31,7 +31,7 @@
     aantallMax: 100,
   };
 
-  var STORAGE_KEY = 'jn-activiteiten-v2';
+  var STORAGE_KEY = 'jn-activiteiten-v7';
 
   /* ── localStorage helpers ────────────────────────────────────── */
   function getState() {
@@ -171,6 +171,7 @@
             '<button class="jn-confirm-btn" type="button" data-role="confirm-aantal" data-event-id="' + id + '">' +
               '<i class="fas fa-check" aria-hidden="true"></i> Bevestig' +
             '</button>' +
+            '<button class="jn-cancel-btn" type="button" data-role="cancel-aantal" data-event-id="' + id + '">Annuleren</button>' +
             '<span class="jn-input-error" data-role="input-error">Voer een getal in tussen ' + cfg.aantallMin + ' en ' + cfg.aantallMax + '</span>' +
           '</div>'
         );
@@ -183,6 +184,7 @@
             'Wij willen komen (' + count + ')' +
           '</button>' +
           '<button class="jn-edit-btn" type="button" data-role="edit-aantal" data-event-id="' + id + '">Aanpassen</button>' +
+          '<button class="jn-cancel-btn" type="button" data-role="cancel-aantal" data-event-id="' + id + '">Toch niet</button>' +
         '</div>'
       );
     }
@@ -303,6 +305,17 @@
     refreshEvent(eventId, state);
   }
 
+  function cancelAantal(eventId) {
+    var state = getState();
+    state[eventId] = {
+      selected: false,
+      confirmed: false
+    };
+    saveState(state);
+    sendRsvp('aantal', eventId, false, 0);
+    refreshEvent(eventId, state);
+  }
+
   /* ── Event listeners per kaart ───────────────────────────────── */
   function attachCardListeners(card) {
 
@@ -342,6 +355,13 @@
     qsa('[data-role="edit-aantal"]', card).forEach(function (btn) {
       btn.addEventListener('click', function () {
         editAantal(btn.getAttribute('data-event-id'));
+      });
+    });
+
+    /* Aantal — intentie ongedaan maken */
+    qsa('[data-role="cancel-aantal"]', card).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        cancelAantal(btn.getAttribute('data-event-id'));
       });
     });
   }
@@ -623,11 +643,30 @@
         editAantal(btn.getAttribute('data-event-id'));
       });
     });
+
+    qsa('[data-role="cancel-aantal"]', monthView).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        cancelAantal(btn.getAttribute('data-event-id'));
+      });
+    });
+  }
+
+  function clearUnconfirmedAantalDrafts(state) {
+    var changed = false;
+    Object.keys(state).forEach(function (eventId) {
+      var evtSt = state[eventId];
+      if (evtSt && evtSt.selected && evtSt.confirmed !== true) {
+        state[eventId] = { selected: false, confirmed: false };
+        changed = true;
+      }
+    });
+    if (changed) saveState(state);
   }
 
   /* ── Init ────────────────────────────────────────────────────── */
   function init() {
     var state = getState();
+    clearUnconfirmedAantalDrafts(state);
 
     /* Initialiseer alle kaarten */
     cards().forEach(function (card) {

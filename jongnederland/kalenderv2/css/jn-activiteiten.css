@@ -1009,3 +1009,27 @@
     text-align: center;
   }
 }
+
+/* ── v7: groepsflow annuleren / verwijderen ───────────────────── */
+.jn-cancel-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--jn-muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 8px 4px;
+}
+
+.jn-cancel-btn:hover {
+  color: var(--jn-text);
+  text-decoration: underline;
+}
+
+@media (max-width: 575.98px) {
+  .jn-cancel-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
