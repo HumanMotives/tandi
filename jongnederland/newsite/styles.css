@@ -854,3 +854,173 @@ blockquote p { font-size: clamp(2rem, 4vw, 3.8rem); }
     bottom: -10px;
   }
 }
+
+/* v5: CTA's onder content-rows, luchtige testimonial en ruimere aanbodkaarten */
+.story-row-reverse { display: none; }
+
+.text-actions .button { min-width: 170px; }
+.text-actions .text-link { text-transform: none; }
+
+.experience-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.experience-card.has-bg {
+  display: flex;
+  flex-direction: column;
+  min-height: 380px;
+  padding: clamp(1.6rem, 3vw, 2.5rem);
+  padding-right: clamp(2rem, 9vw, 9rem);
+}
+
+.experience-card.has-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.08) 45%, rgba(255,255,255,0) 78%);
+}
+
+.experience-card.has-bg::after {
+  right: -14%;
+  bottom: -26px;
+  width: 70%;
+  height: 105%;
+  opacity: .95;
+}
+
+.experience-card.has-bg h3 {
+  max-width: 260px;
+}
+
+.experience-card.has-bg p {
+  max-width: 360px;
+  margin-top: 1.05rem;
+}
+
+.card-button {
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 46px;
+  margin-top: auto;
+  padding: .75rem 1.05rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,.78);
+  color: var(--forest-green);
+  font-weight: 900;
+  box-shadow: 0 10px 26px rgba(36, 69, 34, .12);
+  transition: transform .2s ease, background .2s ease;
+}
+
+.card-button:hover {
+  transform: translateY(-2px);
+  background: white;
+}
+
+.quote {
+  background: linear-gradient(180deg, var(--sand), rgba(255,255,255,.72));
+}
+
+.quote-strip {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: clamp(2.4rem, 6vw, 5rem) clamp(1.2rem, 4vw, 3rem);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 12% 22%, rgba(170, 207, 100, .22), transparent 26%),
+    radial-gradient(circle at 88% 70%, rgba(143, 212, 236, .28), transparent 28%),
+    rgba(255, 253, 248, .78);
+  border: 1px solid rgba(36, 69, 34, .08);
+  box-shadow: 0 18px 50px rgba(36, 69, 34, .08);
+}
+
+.quote-strip::before {
+  content: "“";
+  position: absolute;
+  left: clamp(1rem, 4vw, 3rem);
+  top: .25rem;
+  font-family: "Lilita One", system-ui, sans-serif;
+  font-size: clamp(6rem, 13vw, 12rem);
+  line-height: 1;
+  color: rgba(170, 207, 100, .35);
+}
+
+.quote-strip blockquote {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.quote-strip blockquote p {
+  color: var(--forest-green);
+  font-size: clamp(2.2rem, 4.8vw, 5rem);
+}
+
+.quote-strip cite {
+  color: var(--night-blue);
+}
+
+.quote-dots {
+  display: flex;
+  justify-content: center;
+  gap: .5rem;
+  margin-top: 1.5rem;
+}
+
+.quote-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(36, 69, 34, .2);
+}
+
+.quote-dots .active {
+  width: 28px;
+  background: var(--nature-green);
+}
+
+@media (max-width: 920px) {
+  .experience-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .experience-card.has-bg {
+    min-height: 330px;
+    padding-right: clamp(1.4rem, 34vw, 18rem);
+  }
+
+  .experience-card.has-bg::after {
+    right: -8%;
+    width: min(360px, 48%);
+    height: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .experience-card.has-bg {
+    min-height: 430px;
+    padding: 1.4rem;
+    padding-bottom: 210px;
+  }
+
+  .experience-card.has-bg::after {
+    width: 92%;
+    height: 230px;
+    right: -18%;
+  }
+
+  .quote-strip {
+    text-align: left;
+  }
+
+  .quote-dots {
+    justify-content: flex-start;
+  }
+}
