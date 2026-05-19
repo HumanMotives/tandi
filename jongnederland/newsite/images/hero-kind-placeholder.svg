@@ -1,0 +1,17 @@
+<svg width="720" height="820" viewBox="0 0 720 820" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="365" cy="770" rx="230" ry="32" fill="#244522" opacity="0.15"/>
+  <path d="M452 285c71 47 100 143 67 242-33 100-124 165-218 145-93-20-160-117-142-219 17-101 74-197 153-211 52-9 99 16 140 43z" fill="#AACF64"/>
+  <path d="M503 382c54 31 89 92 72 146-17 55-84 103-152 83-69-20-112-99-91-158 21-59 105-109 171-71z" fill="#8FD4EC"/>
+  <path d="M254 396c-44 56-98 122-79 175 20 53 114 71 185 39 71-32 120-114 89-175-31-61-151-95-195-39z" fill="#F5C368"/>
+  <path d="M343 215c44 0 80-36 80-80s-36-80-80-80-80 36-80 80 36 80 80 80z" fill="#F5C368"/>
+  <path d="M274 120c32-78 142-89 178-18 19 38 14 83-13 106-9-35-27-57-60-60-36-3-62 11-97 44-23-18-25-47-8-72z" fill="#244522"/>
+  <path d="M236 268c31-37 74-56 119-54 55 2 102 34 126 86l29 63-103 48-24-52c-10-22-30-36-52-37-18-1-35 7-47 21l-43 52-86-70 81-57z" fill="#033B6E"/>
+  <path d="M240 312l-98 144" stroke="#244522" stroke-width="44" stroke-linecap="round"/>
+  <path d="M472 316l90 150" stroke="#244522" stroke-width="44" stroke-linecap="round"/>
+  <path d="M255 590l-55 159" stroke="#244522" stroke-width="48" stroke-linecap="round"/>
+  <path d="M439 590l68 157" stroke="#244522" stroke-width="48" stroke-linecap="round"/>
+  <rect x="139" y="397" width="420" height="170" rx="32" fill="#FAF2E8" stroke="#244522" stroke-width="10"/>
+  <circle cx="219" cy="461" r="18" fill="#AACF64"/>
+  <circle cx="501" cy="461" r="18" fill="#AACF64"/>
+  <text x="360" y="495" text-anchor="middle" font-family="Montserrat, Arial" font-size="36" font-weight="800" fill="#244522">Jong Nederland is...</text>
+</svg>
