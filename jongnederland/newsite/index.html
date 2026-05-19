@@ -1,1 +1,221 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jong Nederland | Homepage demo</title>
+  <meta name="description" content="Concept homepage demo voor Jong Nederland." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Direct naar inhoud</a>
 
+  <header class="site-header" data-reveal>
+    <a class="brand" href="#" aria-label="Jong Nederland home">
+      <span class="brand-mark" aria-hidden="true">✽</span>
+      <span class="brand-text">Jong<br>Nederland</span>
+    </a>
+
+    <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
+
+    <nav class="site-nav" id="site-nav" aria-label="Hoofdnavigatie">
+      <a href="#ouders">Voor ouders</a>
+      <a href="#vrijwilligers">Voor vrijwilligers</a>
+      <a href="#clubs">Voor clubs</a>
+      <a href="#activiteiten">Spelendatabank</a>
+      <a class="nav-cta" href="#clubzoeker">Vind een club</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero section-pad">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="trail trail-hero" aria-hidden="true"></div>
+
+      <div class="container hero-grid">
+        <div class="hero-copy" data-reveal>
+          <p class="eyebrow">Jong Nederland</p>
+          <h1>Samen jezelf zijn.</h1>
+          <p class="lead">Een plek waar kinderen en jongeren spelen, ontdekken, maken, lachen en groeien in zelfvertrouwen.</p>
+          <div class="button-row">
+            <a class="button button-primary" href="#clubzoeker">Vind een club</a>
+            <a class="button button-secondary" href="#uitleg">Wat is Jong Nederland?</a>
+          </div>
+        </div>
+
+        <div class="hero-collage" aria-label="Sfeerbeelden van Jong Nederland" data-reveal>
+          <div class="photo-card photo-main">
+            <img src="https://images.unsplash.com/photo-1524503033411-c9566986fc8f?auto=format&fit=crop&w=900&q=80" alt="Kinderen samen buiten tijdens een activiteit">
+          </div>
+          <div class="photo-card photo-small one">
+            <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=600&q=80" alt="Kind lacht tijdens een groepsactiviteit">
+          </div>
+          <div class="photo-card photo-small two">
+            <img src="https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=600&q=80" alt="Vrijwilliger met kinderen">
+          </div>
+          <span class="badge badge-yellow">elke week anders</span>
+          <span class="badge badge-blue">echt samen</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="intro section-pad" id="uitleg">
+      <div class="container split">
+        <div data-reveal>
+          <p class="eyebrow">Wat is Jong Nederland?</p>
+          <h2>Geen standaard club. Wel een plek waar je erbij hoort.</h2>
+        </div>
+        <div class="intro-text" data-reveal>
+          <p>Bij Jong Nederland komen kinderen, jongeren en vrijwilligers samen in hun eigen lokale club. De ene week is het creatief, de andere week actief, buiten, binnen, rustig, gek of juist spannend.</p>
+          <p>Het draait om plezier, vriendschap, ontdekken en jezelf mogen zijn.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cards-section section-pad" aria-label="Wat kinderen beleven">
+      <div class="container">
+        <div class="section-heading" data-reveal>
+          <p class="eyebrow">Elke week iets nieuws</p>
+          <h2>Van clubavond tot kampvuur, van knutselen tot chaos.</h2>
+        </div>
+
+        <div class="experience-grid">
+          <article class="experience-card green" data-reveal>
+            <span class="icon" aria-hidden="true">✦</span>
+            <h3>Samen spelen</h3>
+            <p>Spellen, uitdagingen en activiteiten waarin iedereen mee kan doen.</p>
+          </article>
+          <article class="experience-card yellow" data-reveal>
+            <span class="icon" aria-hidden="true">✎</span>
+            <h3>Creatief ontdekken</h3>
+            <p>Maken, bouwen, verzinnen en proberen zonder dat alles perfect hoeft.</p>
+          </article>
+          <article class="experience-card blue" data-reveal>
+            <span class="icon" aria-hidden="true">☻</span>
+            <h3>Vrienden maken</h3>
+            <p>Een vaste groep waar kinderen zichzelf kunnen zijn en erbij horen.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="routes section-pad">
+      <div class="container">
+        <div class="section-heading center" data-reveal>
+          <p class="eyebrow">Waar ben je naar op zoek?</p>
+          <h2>Kies je route</h2>
+        </div>
+
+        <div class="route-grid">
+          <a class="route-card" id="ouders" href="#clubzoeker" data-reveal>
+            <span class="route-label">Voor ouders</span>
+            <h3>Mijn kind wil meedoen</h3>
+            <p>Bekijk wat Jong Nederland is en vind een club in de buurt.</p>
+          </a>
+          <a class="route-card" id="vrijwilligers" href="#vrijwilliger" data-reveal>
+            <span class="route-label">Voor vrijwilligers</span>
+            <h3>Ik wil helpen</h3>
+            <p>Geef kinderen zelfvertrouwen en beleef samen avonturen.</p>
+          </a>
+          <a class="route-card" id="clubs" href="#aansluiten" data-reveal>
+            <span class="route-label">Voor clubs</span>
+            <h3>Onze club wil aansluiten</h3>
+            <p>Ontdek ondersteuning, verzekering, spelaanbod en trainingen.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="activities section-pad" id="activiteiten">
+      <div class="container activity-layout">
+        <div class="activity-copy" data-reveal>
+          <p class="eyebrow">Niet alleen kamp</p>
+          <h2>Jong Nederland is breder dan buiten spelen.</h2>
+          <p>Van een rommelige knutseltafel tot een spannend avondspel. Van koken in het clubgebouw tot een weekend weg. De kracht zit juist in de afwisseling.</p>
+        </div>
+
+        <div class="activity-stack" data-reveal>
+          <div class="activity-pill">clubavond</div>
+          <div class="activity-pill">creatief</div>
+          <div class="activity-pill">spel</div>
+          <div class="activity-pill">koken</div>
+          <div class="activity-pill">buiten</div>
+          <div class="activity-pill">kamp</div>
+          <div class="activity-pill">vrienden</div>
+          <div class="activity-pill">ontdekken</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="quote section-pad">
+      <div class="container quote-card" data-reveal>
+        <div class="quote-photo">
+          <img src="https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&w=900&q=80" alt="Groep kinderen samen lachend buiten">
+        </div>
+        <blockquote>
+          <p>“Bij Jong Nederland voelt het niet als een vereniging, maar als een grote vriendengroep.”</p>
+          <cite>Vrijwilliger bij Jong Nederland</cite>
+        </blockquote>
+      </div>
+    </section>
+
+    <section class="club-finder section-pad" id="clubzoeker">
+      <div class="container finder-card" data-reveal>
+        <div>
+          <p class="eyebrow">Doe mee</p>
+          <h2>Vind een club bij jou in de buurt.</h2>
+          <p>Deze demo gebruikt nog geen echte clubzoeker. In WordPress kan dit blok linken naar de bestaande afdelingenkaart of later een echte zoekmodule krijgen.</p>
+        </div>
+        <form class="finder-form" action="#" method="get">
+          <label for="postcode">Postcode of plaats</label>
+          <div class="form-row">
+            <input id="postcode" name="postcode" type="text" placeholder="Bijv. Tilburg" />
+            <button class="button button-primary" type="submit">Zoeken</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="support section-pad" id="aansluiten">
+      <div class="container support-grid">
+        <div data-reveal>
+          <p class="eyebrow">Voor lokale clubs</p>
+          <h2>Je club sterker maken zonder alles zelf te hoeven regelen.</h2>
+        </div>
+        <div class="support-list" data-reveal>
+          <div><strong>Ontzorging & support</strong><span>Ledenadministratie, verzekering, VOG en hulp bij calamiteiten.</span></div>
+          <div><strong>Spelaanbod & activiteiten</strong><span>Inspiratie, seizoensactiviteiten en ondersteuning bij kamp of bivak.</span></div>
+          <div><strong>Training & ontwikkeling</strong><span>Praktische cursussen, workshops en kennis voor vrijwilligers.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="volunteer section-pad" id="vrijwilliger">
+      <div class="container volunteer-card" data-reveal>
+        <h2>Jij maakt verschil. Word vrijwilliger.</h2>
+        <p>Help kinderen groeien in zelfvertrouwen, maak nieuwe vrienden en beleef samen kleine avonturen.</p>
+        <a class="button button-secondary light" href="#">Meer weten</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <strong>Jong Nederland</strong>
+        <p>Concept homepage demo. Geen officiële website.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#ouders">Ouders</a>
+        <a href="#vrijwilligers">Vrijwilligers</a>
+        <a href="#clubs">Clubs</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
