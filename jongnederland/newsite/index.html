@@ -38,7 +38,7 @@
       <div class="container hero-grid">
         <div class="hero-copy" data-reveal>
           <p class="eyebrow">Jong Nederland</p>
-          <h1>Samen jezelf zijn.</h1>
+          <h1>Samen <span>jezelf zijn.</span></h1>
           <p class="lead">Een plek waar kinderen en jongeren spelen, ontdekken, maken, lachen en groeien in zelfvertrouwen.</p>
           <div class="button-row">
             <a class="button button-primary" href="#clubzoeker">Vind een club</a>
@@ -47,7 +47,7 @@
         </div>
 
         <figure class="hero-photo-blob" aria-label="Jong Nederland sfeerbeeld" data-reveal>
-          <img src="images/jongnederland-overons5.jpg" alt="Kinderen en jongeren bij Jong Nederland">
+          <img src="images/jongnederland-overons1.jpg" alt="Kinderen en jongeren bij Jong Nederland">
           <span class="badge badge-yellow">elke week anders</span>
           <span class="badge badge-blue">gewoon jezelf</span>
         </figure>
@@ -58,7 +58,7 @@
       <div class="container intro-feature">
         <div class="intro-copy" data-reveal>
           <p class="eyebrow">Wat is Jong Nederland?</p>
-          <h2>Geen standaard club. Wel een plek waar je erbij hoort.</h2>
+          <h2>Geen standaard club. <span>Wel een plek waar je erbij hoort.</span></h2>
           <p>Bij Jong Nederland komen kinderen, jongeren en vrijwilligers samen in hun eigen lokale club. De ene week is het creatief, de andere week actief, buiten, binnen, rustig, gek of juist spannend.</p>
           <div class="text-actions">
             <a class="button button-primary" href="#clubzoeker">Lid worden</a>
@@ -67,8 +67,25 @@
           </div>
         </div>
         <figure class="blob-media blob-media-large" data-reveal>
-          <img src="images/jongnederland-overons1.jpg" alt="Kinderen en jongeren bij een Jong Nederland activiteit">
+          <img src="images/jongnederland-overons5.jpg" alt="Kinderen en jongeren bij een Jong Nederland activiteit">
         </figure>
+      </div>
+    </section>
+
+    <section class="club-finder section-pad" id="clubzoeker">
+      <div class="container finder-card" data-reveal>
+        <div class="finder-content">
+          <p class="eyebrow">Doe mee</p>
+          <h2>Vind een club bij jou in de buurt.</h2>
+          <p>Vul je postcode of plaats in en ontdek welke Jong Nederland club dichtbij zit.</p>
+          <form class="finder-form" action="#" method="get">
+            <label for="postcode">Postcode of plaats</label>
+            <div class="form-row">
+              <input id="postcode" name="postcode" type="text" placeholder="Bijv. Tilburg" />
+              <button class="button button-primary" type="submit">Zoeken</button>
+            </div>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -80,7 +97,7 @@
           </figure>
           <div class="story-copy">
             <p class="eyebrow">Samen jezelf zijn</p>
-            <h2>Niet perfect. Wel echt.</h2>
+            <h2>Niet perfect. <span>Wel echt.</span></h2>
             <p>Jong Nederland is geen strak plaatje. Het is een plek waar kinderen zichzelf mogen zijn, waar vrijwilligers ruimte maken voor plezier, creativiteit en verbinding.</p>
             <div class="text-actions">
               <a class="button button-primary" href="#over-ons">Over ons</a>
@@ -96,7 +113,7 @@
       <div class="container">
         <div class="section-heading" data-reveal>
           <p class="eyebrow">Elke week iets nieuws</p>
-          <h2>Van clubavond tot kampvuur, van knutselen tot chaos.</h2>
+          <h2>Van clubavond tot kampvuur, <span>van knutselen tot chaos.</span></h2>
         </div>
 
         <div class="experience-grid">
@@ -126,25 +143,31 @@
       <div class="container">
         <div class="section-heading center" data-reveal>
           <p class="eyebrow">Waar ben je naar op zoek?</p>
-          <h2>Wat wil jij doen?</h2>
+          <h2>Wat wil <span>jij doen?</span></h2>
         </div>
 
         <div class="route-grid">
-          <a class="route-card" id="ouders" href="#clubzoeker" data-reveal>
+          <article class="route-card green" id="ouders" data-reveal>
+            <span class="icon" aria-hidden="true">●</span>
             <span class="route-label">Voor ouders</span>
             <h3>Mijn kind wil meedoen</h3>
             <p>Bekijk wat Jong Nederland is en vind een club in de buurt.</p>
-          </a>
-          <a class="route-card" id="vrijwilligers" href="#vrijwilliger" data-reveal>
+            <a class="card-button" href="#clubzoeker">Vind een club</a>
+          </article>
+          <article class="route-card yellow" id="vrijwilligers" data-reveal>
+            <span class="icon" aria-hidden="true">✚</span>
             <span class="route-label">Voor vrijwilligers</span>
             <h3>Ik wil helpen</h3>
             <p>Geef kinderen zelfvertrouwen en beleef samen avonturen.</p>
-          </a>
-          <a class="route-card" id="clubs" href="#aansluiten" data-reveal>
+            <a class="card-button" href="#vrijwilligers">Word vrijwilliger</a>
+          </article>
+          <article class="route-card blue" id="clubs" data-reveal>
+            <span class="icon" aria-hidden="true">⌂</span>
             <span class="route-label">Voor clubs</span>
             <h3>Onze club wil aansluiten</h3>
             <p>Ontdek ondersteuning, verzekering, spelaanbod en trainingen.</p>
-          </a>
+            <a class="card-button" href="#aansluiten">Bekijk voordelen</a>
+          </article>
         </div>
       </div>
     </section>
@@ -183,28 +206,11 @@
       </div>
     </section>
 
-    <section class="club-finder section-pad" id="clubzoeker">
-      <div class="container finder-card" data-reveal>
-        <div class="finder-content">
-          <p class="eyebrow">Doe mee</p>
-          <h2>Vind een club bij jou in de buurt.</h2>
-          <p>Vul je postcode of plaats in en ontdek welke Jong Nederland club dichtbij zit.</p>
-          <form class="finder-form" action="#" method="get">
-            <label for="postcode">Postcode of plaats</label>
-            <div class="form-row">
-              <input id="postcode" name="postcode" type="text" placeholder="Bijv. Tilburg" />
-              <button class="button button-primary" type="submit">Zoeken</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-
     <section class="support section-pad" id="aansluiten">
       <div class="container support-grid">
         <div data-reveal>
           <p class="eyebrow">Voor lokale clubs</p>
-          <h2>Je club sterker maken zonder alles zelf te hoeven regelen.</h2>
+          <h2>Je club sterker maken <span>zonder alles zelf te hoeven regelen.</span></h2>
         </div>
         <div class="support-list" data-reveal>
           <div><strong>Ontzorging & support</strong><span>Ledenadministratie, verzekering, VOG en hulp bij calamiteiten.</span></div>
@@ -214,13 +220,6 @@
       </div>
     </section>
 
-    <section class="volunteer section-pad" id="vrijwilliger">
-      <div class="container volunteer-card" data-reveal>
-        <h2>Jij maakt verschil. Word vrijwilliger.</h2>
-        <p>Help kinderen groeien in zelfvertrouwen, maak nieuwe vrienden en beleef samen kleine avonturen.</p>
-        <a class="button button-secondary light" href="#">Meer weten</a>
-      </div>
-    </section>
   </main>
 
   <footer class="site-footer">
