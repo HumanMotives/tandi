@@ -537,3 +537,170 @@ input {
   .blob-one { width: 260px; height: 260px; right: -16%; }
   .blob-two { width: 170px; height: 170px; left: -12%; }
 }
+
+/* v3: rustigere headings, beeld/tekst-blokken en clubzoeker met achtergrondbeeld */
+h1 { font-size: clamp(3.6rem, 8.5vw, 7.2rem); }
+h2 { font-size: clamp(2.35rem, 4.7vw, 4.25rem); }
+blockquote p { font-size: clamp(2rem, 4vw, 3.8rem); }
+
+.intro-feature {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(320px, .95fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+}
+
+.intro-copy p:not(.eyebrow) {
+  max-width: 440px;
+  margin: 1.6rem 0 1.8rem;
+  font-size: 1.08rem;
+}
+
+.blob-media,
+.soft-media {
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+  background: var(--nature-green);
+  box-shadow: var(--shadow);
+}
+
+.blob-media {
+  aspect-ratio: 1.08 / 1;
+  border-radius: 43% 57% 56% 44% / 38% 34% 66% 62%;
+}
+
+.blob-media-large {
+  aspect-ratio: 1.18 / 1;
+  border-radius: 42% 58% 39% 61% / 35% 24% 76% 65%;
+}
+
+.soft-media {
+  aspect-ratio: 1.2 / 1;
+  border-radius: 42px;
+}
+
+.blob-media img,
+.soft-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.story-blocks {
+  padding-top: 0;
+}
+
+.story-grid {
+  display: grid;
+  gap: clamp(3rem, 7vw, 6rem);
+}
+
+.story-row {
+  display: grid;
+  grid-template-columns: minmax(280px, .85fr) minmax(0, 1fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+}
+
+.story-row-reverse {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .85fr);
+}
+
+.story-row-reverse .soft-media { order: 2; }
+.story-row-reverse .story-copy { order: 1; }
+
+.story-copy p:not(.eyebrow) {
+  max-width: 560px;
+  margin-top: 1.3rem;
+  font-size: 1.08rem;
+}
+
+.finder-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 380px;
+  display: grid;
+  grid-template-columns: minmax(0, .72fr) minmax(320px, .9fr);
+  align-items: center;
+  background: var(--water-blue);
+  isolation: isolate;
+}
+
+.finder-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -5% -22px auto;
+  width: min(560px, 58%);
+  height: 110%;
+  background: url("images/jongnederland-vindeenclub.png") no-repeat right bottom / contain;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.finder-content {
+  max-width: 620px;
+  position: relative;
+  z-index: 1;
+}
+
+.finder-form {
+  max-width: 520px;
+  margin-top: 1.8rem;
+}
+
+.finder-card .button-primary {
+  background: var(--forest-green);
+}
+
+@media (max-width: 920px) {
+  h1 { font-size: clamp(3.3rem, 14vw, 5.6rem); }
+  h2 { font-size: clamp(2.15rem, 10vw, 3.6rem); }
+
+  .intro-feature,
+  .story-row,
+  .story-row-reverse,
+  .finder-card {
+    grid-template-columns: 1fr;
+  }
+
+  .blob-media,
+  .blob-media-large,
+  .soft-media {
+    max-width: 620px;
+    width: 100%;
+    justify-self: center;
+  }
+
+  .story-row-reverse .soft-media,
+  .story-row-reverse .story-copy { order: initial; }
+
+  .finder-card {
+    min-height: 560px;
+    align-items: start;
+    padding-bottom: 300px;
+  }
+
+  .finder-card::after {
+    width: min(520px, 92%);
+    height: 360px;
+    right: -8%;
+    bottom: -10px;
+  }
+}
+
+@media (max-width: 560px) {
+  .section-pad { padding: 54px 0; }
+  .intro-copy p:not(.eyebrow),
+  .story-copy p:not(.eyebrow) { font-size: 1rem; }
+  .finder-card {
+    padding: 1.4rem;
+    padding-bottom: 250px;
+    min-height: 560px;
+  }
+  .finder-card::after {
+    width: 112%;
+    right: -28%;
+    height: 300px;
+  }
+}

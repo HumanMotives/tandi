@@ -1,6 +1,6 @@
-# Jong Nederland homepage demo
+# Jong Nederland homepage demo v3
 
-Losse HTML/CSS/JS demo voor GitHub + Netlify.
+Statische demo voor GitHub + Netlify.
 
 ## Bestanden
 
@@ -10,31 +10,26 @@ Losse HTML/CSS/JS demo voor GitHub + Netlify.
 - `images/logo-mark.png`
 - `images/hero-kind-placeholder.svg`
 
-## Laatste wijzigingen
+## Zelf toe te voegen afbeeldingen
 
-- Polaroid-fotocollage in de hero verwijderd.
-- Hero aangepast naar een vrijstaand kind/karakter met bordje.
-- Wisselende woorden toegevoegd: spelen, vies worden, lachen, ontdekken, maken, vrienden.
-- Menu gebruikt nu het geüploade Jong Nederland beeldmerk.
+Plaats deze bestanden in de map `images/`:
 
-## Eigen afbeeldingen gebruiken
+- `jongnederland-vindeenclub.png`
+- `jongnederland-overons1.jpg`
+- `jongnederland-overons2.jpg`
+- `jongnederland-overons3.jpg`
+- optioneel later: `jongnederland-overons4.jpg`, `jongnederland-overons5.jpg`
 
-Zet nieuwe afbeeldingen in:
+Gebruik bij voorkeur vrijstaande PNG voor `jongnederland-vindeenclub.png`, zodat deze mooi over het blauwe blok valt.
 
-```txt
-/images/
-```
+## Aanpassingen v3
 
-Vervang in `index.html` bijvoorbeeld:
+- Grote headings iets kleiner gemaakt.
+- Introblok aangepast naar beeld + tekst zoals in de screenshotstijl.
+- Reusable beeldblokken toegevoegd met organische blobvorm en afgeronde kaders.
+- Clubzoeker gebruikt nu `images/jongnederland-vindeenclub.png` als achtergrond/voorgrondbeeld.
+- Layout blijft mobile responsive: beeld en tekst stapelen onder elkaar.
 
-```html
-<img class="character-img" src="images/hero-kind-placeholder.svg" alt="Kind met bordje: Jong Nederland is...">
-```
+## Uploaden naar GitHub/Netlify
 
-Door:
-
-```html
-<img class="character-img" src="images/jouw-afbeelding.png" alt="Kind met bordje">
-```
-
-Beste resultaat: vrijstaande PNG/WebP met transparante achtergrond.
+Upload de inhoud van deze map naar je repository. De afbeeldingspaden zijn relatief (`images/...`) zodat de demo ook werkt wanneer hij in een submap staat.

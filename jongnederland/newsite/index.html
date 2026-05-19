@@ -61,15 +61,42 @@
     </section>
 
     <section class="intro section-pad" id="uitleg">
-      <div class="container split">
-        <div data-reveal>
+      <div class="container intro-feature">
+        <div class="intro-copy" data-reveal>
           <p class="eyebrow">Wat is Jong Nederland?</p>
           <h2>Geen standaard club. Wel een plek waar je erbij hoort.</h2>
-        </div>
-        <div class="intro-text" data-reveal>
           <p>Bij Jong Nederland komen kinderen, jongeren en vrijwilligers samen in hun eigen lokale club. De ene week is het creatief, de andere week actief, buiten, binnen, rustig, gek of juist spannend.</p>
-          <p>Het draait om plezier, vriendschap, ontdekken en jezelf mogen zijn.</p>
+          <a class="button button-primary" href="#clubzoeker">Lid worden</a>
         </div>
+        <figure class="blob-media blob-media-large" data-reveal>
+          <img src="images/jongnederland-overons1.jpg" alt="Kinderen en jongeren bij een Jong Nederland activiteit">
+        </figure>
+      </div>
+    </section>
+
+    <section class="story-blocks section-pad">
+      <div class="container story-grid">
+        <article class="story-row" data-reveal>
+          <figure class="blob-media">
+            <img src="images/jongnederland-overons2.jpg" alt="Jong Nederland leden tijdens een activiteit">
+          </figure>
+          <div class="story-copy">
+            <p class="eyebrow">Samen jezelf zijn</p>
+            <h2>Niet perfect. Wel echt.</h2>
+            <p>Jong Nederland is geen strak plaatje. Het is een plek waar kinderen zichzelf mogen zijn, waar vrijwilligers ruimte maken voor plezier, creativiteit en verbinding.</p>
+          </div>
+        </article>
+
+        <article class="story-row story-row-reverse" data-reveal>
+          <figure class="soft-media">
+            <img src="images/jongnederland-overons3.jpg" alt="Creatieve of actieve Jong Nederland bijeenkomst">
+          </figure>
+          <div class="story-copy">
+            <p class="eyebrow">Elke week anders</p>
+            <h2>Van clubgebouw tot buitenlucht.</h2>
+            <p>De ene keer een spelavond, de andere keer koken, knutselen, bouwen, toneel, sport of een activiteit buiten. Juist die afwisseling maakt het eigen.</p>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -162,18 +189,18 @@
 
     <section class="club-finder section-pad" id="clubzoeker">
       <div class="container finder-card" data-reveal>
-        <div>
+        <div class="finder-content">
           <p class="eyebrow">Doe mee</p>
           <h2>Vind een club bij jou in de buurt.</h2>
-          <p>Deze demo gebruikt nog geen echte clubzoeker. In WordPress kan dit blok linken naar de bestaande afdelingenkaart of later een echte zoekmodule krijgen.</p>
+          <p>Vul je postcode of plaats in en ontdek welke Jong Nederland club dichtbij zit.</p>
+          <form class="finder-form" action="#" method="get">
+            <label for="postcode">Postcode of plaats</label>
+            <div class="form-row">
+              <input id="postcode" name="postcode" type="text" placeholder="Bijv. Tilburg" />
+              <button class="button button-primary" type="submit">Zoeken</button>
+            </div>
+          </form>
         </div>
-        <form class="finder-form" action="#" method="get">
-          <label for="postcode">Postcode of plaats</label>
-          <div class="form-row">
-            <input id="postcode" name="postcode" type="text" placeholder="Bijv. Tilburg" />
-            <button class="button button-primary" type="submit">Zoeken</button>
-          </div>
-        </form>
       </div>
     </section>
 
