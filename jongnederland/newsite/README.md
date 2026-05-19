@@ -1,4 +1,4 @@
-# Jong Nederland homepage demo v3
+# Jong Nederland homepage demo v4
 
 Statische demo voor GitHub + Netlify.
 
@@ -8,7 +8,6 @@ Statische demo voor GitHub + Netlify.
 - `styles.css`
 - `script.js`
 - `images/logo-mark.png`
-- `images/hero-kind-placeholder.svg`
 
 ## Zelf toe te voegen afbeeldingen
 
@@ -18,17 +17,21 @@ Plaats deze bestanden in de map `images/`:
 - `jongnederland-overons1.jpg`
 - `jongnederland-overons2.jpg`
 - `jongnederland-overons3.jpg`
-- optioneel later: `jongnederland-overons4.jpg`, `jongnederland-overons5.jpg`
+- `jongnederland-overons4.jpg`
+- `jongnederland-overons5.jpg`
+- `jongnederland-aanbod1.png`
+- `jongnederland-aanbod2.png`
+- `jongnederland-aanbod3.png`
 
 Gebruik bij voorkeur vrijstaande PNG voor `jongnederland-vindeenclub.png`, zodat deze mooi over het blauwe blok valt.
 
-## Aanpassingen v3
+## Aanpassingen v4
 
-- Grote headings iets kleiner gemaakt.
-- Introblok aangepast naar beeld + tekst zoals in de screenshotstijl.
-- Reusable beeldblokken toegevoegd met organische blobvorm en afgeronde kaders.
-- Clubzoeker gebruikt nu `images/jongnederland-vindeenclub.png` als achtergrond/voorgrondbeeld.
-- Layout blijft mobile responsive: beeld en tekst stapelen onder elkaar.
+- Hero-placeholder vervangen door een grote foto in organische blobvorm.
+- Onder de tekst/beeld-rows dummy CTA-knop + secundaire tekstlink toegevoegd.
+- Aanbodkaarten voorbereid voor vrijstaande PNG-inserts via `jongnederland-aanbod1.png`, `jongnederland-aanbod2.png`, `jongnederland-aanbod3.png`.
+- Mobile gedrag aangepast: beeldkaarten stapelen en aanbod-inserts zakken onder de tekst.
+- Clubzoeker blijft `images/jongnederland-vindeenclub.png` gebruiken als achtergrond/voorgrondbeeld.
 
 ## Uploaden naar GitHub/Netlify
 

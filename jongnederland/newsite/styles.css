@@ -704,3 +704,153 @@ blockquote p { font-size: clamp(2rem, 4vw, 3.8rem); }
     height: 300px;
   }
 }
+
+/* v4: hero met foto-blob, CTA onder tekst-rows en aanbodkaarten met beeldinsert */
+.hero-photo-blob {
+  position: relative;
+  margin: 0;
+  min-height: 560px;
+  border-radius: 44% 56% 43% 57% / 36% 28% 72% 64%;
+  overflow: hidden;
+  background: var(--nature-green);
+  box-shadow: var(--shadow);
+  isolation: isolate;
+}
+
+.hero-photo-blob::before,
+.hero-photo-blob::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  z-index: 1;
+  opacity: .88;
+  pointer-events: none;
+}
+
+.hero-photo-blob::before {
+  width: 190px;
+  height: 190px;
+  background: var(--sun-yellow);
+  right: -42px;
+  top: 54px;
+}
+
+.hero-photo-blob::after {
+  width: 160px;
+  height: 160px;
+  background: var(--water-blue);
+  left: -34px;
+  bottom: 52px;
+}
+
+.hero-photo-blob img {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 560px;
+  object-fit: cover;
+}
+
+.hero-photo-blob .badge {
+  z-index: 3;
+}
+
+.text-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.35rem;
+  margin-top: 1.8rem;
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-weight: 900;
+  color: var(--forest-green);
+}
+
+.text-link::before {
+  content: "›";
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--forest-green);
+}
+
+.experience-card.has-bg {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 300px;
+  padding-right: clamp(1.4rem, 18vw, 15rem);
+}
+
+.experience-card.has-bg > * {
+  position: relative;
+  z-index: 2;
+}
+
+.experience-card.has-bg::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  right: -7%;
+  bottom: -18px;
+  width: 56%;
+  height: 96%;
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: contain;
+  pointer-events: none;
+}
+
+.bg-aanbod1::after { background-image: url("images/jongnederland-aanbod1.png"); }
+.bg-aanbod2::after { background-image: url("images/jongnederland-aanbod2.png"); }
+.bg-aanbod3::after { background-image: url("images/jongnederland-aanbod3.png"); }
+
+@media (max-width: 920px) {
+  .hero-photo-blob {
+    order: -1;
+    min-height: 460px;
+    max-width: 680px;
+    width: 100%;
+    justify-self: center;
+  }
+  .hero-photo-blob img { min-height: 460px; }
+
+  .experience-card.has-bg {
+    padding-right: clamp(1.4rem, 34vw, 18rem);
+  }
+  .experience-card.has-bg::after {
+    width: min(300px, 44%);
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-photo-blob {
+    min-height: 360px;
+    border-radius: 34px;
+  }
+  .hero-photo-blob img { min-height: 360px; }
+  .hero-photo-blob::before { width: 120px; height: 120px; }
+  .hero-photo-blob::after { width: 110px; height: 110px; }
+
+  .text-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .experience-card.has-bg {
+    min-height: 390px;
+    padding-right: 1.4rem;
+    padding-bottom: 190px;
+  }
+  .experience-card.has-bg::after {
+    width: 86%;
+    height: 210px;
+    right: -14%;
+    bottom: -10px;
+  }
+}
