@@ -1343,3 +1343,93 @@ h1 span, h2 span { color: var(--nature-green); }
   .footer-columns { grid-template-columns: 1fr; }
   .footer-logo { width: 58px; height: 58px; border-radius: 18px; }
 }
+
+
+/* v8: rustiger topmenu, blauwe donate-knop, geen hero labels, lage golfscheidingen */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.site-header-v7 {
+  background: var(--nature-green);
+  box-shadow: none;
+}
+
+.top-menu {
+  background: var(--white);
+  color: var(--forest-green);
+  font-family: "Montserrat", system-ui, sans-serif;
+  font-size: .82rem;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(36, 69, 34, .08);
+}
+
+.top-menu-inner { min-height: 32px; }
+.top-menu a { gap: .42rem; opacity: .88; }
+.top-menu span { font-weight: 400; }
+
+.site-header-v7 .site-nav a {
+  color: var(--forest-green);
+}
+
+.site-header-v7 .nav-cta {
+  background: var(--water-blue) !important;
+  color: var(--night-blue) !important;
+  box-shadow: none;
+}
+
+.site-header-v7 .nav-toggle {
+  box-shadow: none;
+}
+
+.hero h1,
+.hero h1 span {
+  color: var(--forest-green) !important;
+}
+
+.hero-photo-blob .badge { display: none !important; }
+.hero .trail-hero { opacity: .55; }
+
+.button-primary,
+.finder-card .button-primary,
+.nav-toggle {
+  box-shadow: none !important;
+}
+
+/* lage, subtiele golf tussen secties */
+main > section {
+  position: relative;
+  overflow: hidden;
+}
+
+main > section:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: -22px;
+  height: 44px;
+  background: inherit;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+main > section > .container {
+  position: relative;
+  z-index: 3;
+}
+
+@media (max-width: 920px) {
+  .site-header-v7 .site-nav {
+    top: 110px;
+  }
+}
