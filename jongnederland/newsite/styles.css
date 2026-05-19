@@ -1433,3 +1433,10 @@ main > section > .container {
     top: 110px;
   }
 }
+
+/* v10: verwijder gekleurde bolletjes over de hero afbeelding */
+.hero-photo-blob::before,
+.hero-photo-blob::after {
+  display: none !important;
+  content: none !important;
+}
