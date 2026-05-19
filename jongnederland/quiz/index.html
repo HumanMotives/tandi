@@ -1,1 +1,70 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ben jij een Jong Nederlander?</title>
+  <meta name="description" content="Speelse Jong Nederland quiz voor ouders en kinderen." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="page-shell">
+    <section class="jn-quiz" aria-labelledby="quiz-title">
+      <div class="shape shape-green"></div>
+      <div class="shape shape-blue"></div>
+      <div class="shape shape-yellow"></div>
 
+      <div class="quiz-grid">
+        <div class="quiz-copy">
+          <p class="eyebrow">Doe de test</p>
+          <h1 id="quiz-title">Ben jij een<br><span>Jong Nederlander?</span></h1>
+          <p class="intro">Beantwoord een paar snelle vragen en ontdek welk avontuurlijke type bij jou past.</p>
+
+          <div class="benefits" aria-label="Wat hoort bij Jong Nederland">
+            <div><span>🌲</span><strong>Buiten spelen</strong></div>
+            <div><span>🔥</span><strong>Avontuur beleven</strong></div>
+            <div><span>🤝</span><strong>Vrienden maken</strong></div>
+          </div>
+        </div>
+
+        <div class="quiz-card" id="quiz-card">
+          <div class="progress-wrap" aria-hidden="true">
+            <div class="progress-label"><span id="step-label">Vraag 1 van 7</span><span id="score-label">0%</span></div>
+            <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
+          </div>
+
+          <div id="quiz-start" class="quiz-state is-active">
+            <div class="badge">Voor ouders & kinderen</div>
+            <h2>Waar krijg jij zin van?</h2>
+            <p>Deze mini-quiz laat op een leuke manier zien wat Jong Nederland is: samen ontdekken, spelen, maken en groeien.</p>
+            <button class="btn btn-primary" id="start-btn" type="button">Start de quiz</button>
+          </div>
+
+          <div id="quiz-question" class="quiz-state" aria-live="polite">
+            <div class="question-icon" id="question-icon">🌲</div>
+            <h2 id="question-title">Vraag</h2>
+            <p id="question-text">Kies wat het beste bij jou past.</p>
+            <div class="answer-list" id="answer-list"></div>
+          </div>
+
+          <div id="quiz-result" class="quiz-state result-state" aria-live="polite">
+            <div class="result-badge" id="result-badge">Avonturier</div>
+            <h2 id="result-title">Jij bent een echte Avonturier</h2>
+            <p id="result-text"></p>
+
+            <div class="result-actions">
+              <a class="btn btn-primary" href="https://www.jongnederland.nl/afdelingen" target="_blank" rel="noopener">Vind een club in de buurt</a>
+              <a class="btn btn-secondary" href="https://www.jongnederland.nl/activiteiten" target="_blank" rel="noopener">Bekijk activiteiten</a>
+              <a class="btn btn-tertiary" href="https://www.jongnederland.nl/nieuwsbrief" target="_blank" rel="noopener">Schrijf je in voor nieuws</a>
+            </div>
+
+            <button class="reset-link" id="restart-btn" type="button">Quiz opnieuw doen</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
