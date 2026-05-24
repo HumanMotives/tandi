@@ -458,8 +458,6 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 
 <!-- ══ SCREEN 1: KAART ══ -->
 <div class="screen" id="s-map">
-  <div class="map-topbar" style="padding:0.5rem 1rem;">
-  </div>
   <div id="map-el" style="flex:1;position:relative;"></div>
 
   <!-- Popup card -->
@@ -564,75 +562,76 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 // ══════════════════════════════════════════════
 //  CONFIG — pas aan voor elke camping/route
 // ══════════════════════════════════════════════
-const WORD = 'MAGIC';
+const WORD = 'TOCHT';
+const WORD_TIP = 'Tip: een ander woord voor reis of wandeling';
 
 const LOCATIONS = [
   {
     id: 0,
-    name: 'De Oude Knotwilg',
-    emoji: '🌳',
-    color: '#7a9e7e',
-    lat: 52.2324006,
-    lng: 6.1337074,
-    letter: 'M',
-    hint: 'Zoek de dikste boom bij het water. Hij heeft grote knobbels op zijn stam.',
-    story: 'Deze knotwilg is meer dan 80 jaar oud. Vroeger kapten boeren de takken elk jaar af voor gereedschapsstelen. De boom groeide gewoon door — koppig en sterk.',
-    task: 'Leg je hand op de schors. Tel hoeveel grote knobbels je kunt vinden op de stam.',
+    name: 'De Grot',
+    emoji: '🪨',
+    color: '#7a6050',
+    lat: 52.2321735,
+    lng: 6.1344413,
+    letter: 'T',
+    hint: 'Zoek de geheimzinnige grot. Wat zou er verstopt zitten in de donkere hoeken?',
+    story: 'Grotten zijn al eeuwenlang schuilplekken voor dieren, avonturiers en geheimen. Wie weet wat er in deze grot verborgen ligt...',
+    task: 'Kijk goed in de grot. Wat zie je? Tel hoeveel verschillende dingen je kunt ontdekken.',
   },
   {
     id: 1,
-    name: 'De Verborgen Beek',
-    emoji: '💧',
-    color: '#4a8080',
-    lat: 52.2330000,
-    lng: 6.1345000,
-    letter: 'A',
-    hint: 'Volg het geluid van stromend water. De beek verstopt zich achter de bomen.',
-    story: 'Dit beekje stroomt al honderden jaren door dit dal. Vroeger wisten alleen de boeren van dit dorp precies waar het begon — dat was hun geheim.',
-    task: 'Kijk in het water. Hoeveel stenen zie je op de bodem? Zoek de mooiste steen die je kunt vinden.',
+    name: 'Bamboe Kruispunt',
+    emoji: '🎋',
+    color: '#7a9e7e',
+    lat: 52.2319616,
+    lng: 6.1335492,
+    letter: 'O',
+    hint: 'Zoek het kruispunt omringd door hoog bamboe. Luister goed — bamboestengels maken een bijzonder geluid in de wind.',
+    story: 'Bamboe is eigenlijk geen boom maar een reuzengras. Het groeit sneller dan welke plant ook op aarde — soms wel een meter per dag!',
+    task: 'Raak een bamboestengel aan. Voel hoe sterk en glad hij is. Hoe hoog denk jij dat de hoogste stengel is?',
   },
   {
     id: 2,
-    name: 'Het Oude Bankje',
-    emoji: '🪑',
-    color: '#8a7060',
-    lat: 52.2318000,
-    lng: 6.1328000,
-    letter: 'G',
-    hint: 'Ergens op de camping staat een bankje op een bijzondere plek. Wie zou hier vroeger gezeten hebben?',
-    story: 'Op dit bankje zat de kampbewaarder elke avond om de sterren te kijken. Hij beweerde dat je vanaf hier precies het Noorden kon bepalen zonder kompas.',
-    task: 'Ga op het bankje zitten en kijk recht vooruit. Wat zie je? Beschrijf het aan de anderen.',
+    name: 'Aarde en Vuur',
+    emoji: '🔥',
+    color: '#c8603a',
+    lat: 52.2323940,
+    lng: 6.1337292,
+    letter: 'C',
+    hint: 'Zoek de plek waar aarde en vuur samenkomen. Voel jij de warmte?',
+    story: 'Vuur is al miljoenen jaren het geheim van de mens. De eerste mensen die vuur maakten waren de slimste wezens op aarde — en ze bewaakten hun geheim goed.',
+    task: 'Zoek drie dingen in de buurt die met vuur te maken hebben. Wat zou hier vroeger gebrand hebben?',
   },
   {
     id: 3,
-    name: 'De Slapende Steen',
-    emoji: '🪨',
-    color: '#7a6050',
-    lat: 52.2315000,
-    lng: 6.1350000,
-    letter: 'I',
-    hint: 'Zoek een grote steen die er al eeuwen ligt. Hij is groter dan een voetbal.',
-    story: 'Zwerfkeien als deze zijn duizenden jaren geleden meegesleurd door een gigantische gletsjer vanuit Scandinavië. Deze steen begon zijn reis in Zweden!',
-    task: 'Hoe lang denk jij dat de steen al hier ligt? Tik op de steen en luister — klinkt hij hol of massief?',
+    name: 'De Kanonskogel',
+    emoji: '💣',
+    color: '#5a5a6a',
+    lat: 52.2322554,
+    lng: 6.1334754,
+    letter: 'H',
+    hint: 'Ergens ligt een zware ronde steen verstopt. Hij ziet eruit alsof hij heel ver gevlogen heeft.',
+    story: 'Kanonskogels werden vroeger gesmeed van ijzer en afgevuurd over grote afstanden. Een kogel kon soms wel twee kilometer ver vliegen!',
+    task: 'Leg je hand op de kogel. Voel hoe zwaar en glad hij is. Hoe ver denk jij dat hij gevlogen heeft?',
   },
   {
     id: 4,
-    name: 'De Geheime Plek',
-    emoji: '✨',
-    color: '#c8943a',
-    lat: 52.2327000,
-    lng: 6.1360000,
-    letter: 'C',
-    hint: 'De laatste letter wacht op de meest bijzondere plek van de camping. Zoek iets dat er anders uitziet dan de rest.',
-    story: 'Elke queeste heeft een eindpunt. Dit is de plek waar de verborgen laag het dunst is — hier, als je goed kijkt, zie je de wereld een klein beetje anders.',
-    task: 'Sluit je ogen. Tel tot 10. Open ze. Wat is het eerste dat je ziet? Dat is jouw geheime herinnering aan deze plek.',
+    name: 'De Waterfee',
+    emoji: '🧚',
+    color: '#4a8080',
+    lat: 52.2329145,
+    lng: 6.1337091,
+    letter: 'T',
+    hint: 'Volg het geluid van water. De waterfee verschuilt zich altijd vlakbij een beek of vijver.',
+    story: 'Volgens oude verhalen wonen waterfeeën op plekken waar het water heel stil en helder is. Ze zijn alleen zichtbaar voor kinderen die écht goed kijken.',
+    task: 'Kijk in het water. Zie jij het gezicht van de waterfee in de weerspiegeling? Beschrijf wat je ziet!',
   },
 ];
 
 // ══════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════
-let foundLetters = new Array(LOCATIONS.length).fill(false);
+let foundLetters = new Array(5).fill(false);
 let activeLocId  = null;
 let playerPos    = null;
 let currentZone  = 'FAR';
@@ -686,12 +685,24 @@ function initMap() {
         <span class="vl-pin-name">${loc.name}</span>
         ${found ? '<span class="vl-pin-check">✓</span>' : ''}
       </div>`;
-    el.onclick = () => selectLoc(loc.id);
+    el.style.cursor = 'pointer';
 
     const m = L.marker([loc.lat,loc.lng],{
       icon: L.divIcon({className:'',html:el,iconSize:[160,40],iconAnchor:[0,40]})
     }).addTo(map);
+
+    // Use Leaflet's own click event — avoids iOS double-tap issue
+    m.on('click', (e) => {
+      L.DomEvent.stopPropagation(e);
+      selectLoc(loc.id);
+    });
+
     pinMarkers.push({marker:m, el, locId:loc.id});
+  });
+
+  // Tap on map background closes popup
+  map.on('click', () => {
+    document.getElementById('loc-popup').classList.remove('show');
   });
 
   renderWordBar('map-word-letters');
@@ -967,11 +978,12 @@ function showEnd() {
   wrap.innerHTML = WORD.split('').map((l,i) =>
     `<div class="end-wl" style="--i:${i}">${l}</div>`
   ).join('');
+  document.getElementById('end-tip').textContent = WORD_TIP;
   showScreen('s-end');
 }
 
 function restartGame() {
-  foundLetters = new Array(LOCATIONS.length).fill(false);
+  foundLetters = new Array(5).fill(false);
   activeLocId  = null;
   currentZone  = 'FAR';
   wasUnlocked  = false;
