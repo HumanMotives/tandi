@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#f5efe0">
 <title>De Verborgen Laag</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 :root {
@@ -49,8 +49,8 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   display:flex; flex-direction:column; gap:0.3rem;
 }
 .map-title {
-  font-family:'Playfair Display',serif;
-  font-size:1.4rem; font-weight:700;
+  font-family:'DynaPuff',cursive;
+  font-size:1.8rem; font-weight:700;
   color:var(--text); letter-spacing:0.02em;
 }
 .map-subtitle { font-size:1rem; color:var(--text-soft); font-style:italic; }
@@ -65,15 +65,15 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   display:flex; align-items:center; gap:0.8rem;
   flex-shrink:0;
 }
-.word-bar-label { font-size:1rem; color:var(--text-soft); flex-shrink:0; }
+.word-bar-label { font-size:1.1rem; color:var(--text-soft); flex-shrink:0; font-family:"DynaPuff",cursive; }
 .word-letters { display:flex; gap:0.5rem; }
 .word-letter {
   width:46px; height:46px;
   border:2px solid var(--border);
   border-radius:10px;
   display:flex; align-items:center; justify-content:center;
-  font-family:'Playfair Display',serif;
-  font-size:1.6rem; font-weight:700;
+  font-family:'DynaPuff',cursive;
+  font-size:1.8rem; font-weight:700;
   background:var(--cream2);
   color:var(--text-faint);
   transition: all 0.4s;
@@ -109,15 +109,15 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 }
 .popup-info { flex:1; }
 .popup-name {
-  font-family:'Playfair Display',serif;
-  font-size:1.3rem; font-weight:700; margin-bottom:0.3rem;
+  font-family:'DynaPuff',cursive;
+  font-size:1.6rem; font-weight:700; margin-bottom:0.4rem;
 }
-.popup-hint { font-size:1rem; color:var(--text-soft); font-style:italic; line-height:1.5; }
+.popup-hint { font-size:1.1rem; color:var(--text-soft); font-style:italic; line-height:1.5; }
 .popup-meta { display:flex; align-items:center; gap:0.5rem; }
 .popup-letter-preview {
   background:var(--gold-pale); border:1.5px solid var(--gold);
   border-radius:6px; padding:0.1rem 0.5rem;
-  font-family:'Playfair Display',serif; font-size:0.9rem; font-weight:700;
+  font-family:'DynaPuff',cursive; font-size:0.9rem; font-weight:700;
   color:var(--brown);
 }
 .popup-found-badge {
@@ -126,10 +126,10 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   font-size:0.72rem; color:var(--sage-dark);
 }
 .btn-go {
-  width:100%; padding:0.85rem;
+  width:100%; padding:0.95rem;
   background:var(--sage-dark); color:#fff; border:none;
-  border-radius:50px; font-family:'Lora',serif;
-  font-size:1rem; font-weight:500; cursor:pointer;
+  border-radius:50px; font-family:'DynaPuff',cursive;
+  font-size:1.2rem; font-weight:600; cursor:pointer;
   transition:all 0.2s;
 }
 .btn-go:active { transform:scale(0.97); }
@@ -185,12 +185,12 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   flex-shrink:0;
 }
 .hunt-loc-name {
-  font-family:'Playfair Display',serif;
-  font-size:1.2rem; font-weight:700; color:var(--text);
+  font-family:'DynaPuff',cursive;
+  font-size:1.4rem; font-weight:700; color:var(--text);
   flex:1; text-align:left;
 }
 .hunt-progress {
-  font-size:1rem; color:var(--text-faint);
+  font-size:1.1rem; color:var(--text-faint);
   flex-shrink:0;
 }
 
@@ -230,15 +230,15 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 @keyframes orbClose { 0%,100%{box-shadow:0 0 60px rgba(80,200,80,0.5)} 50%{box-shadow:0 0 90px rgba(80,200,80,0.8)} }
 
 #hunt-dist {
-  font-family:'Playfair Display',serif;
-  font-size:3.8rem; font-weight:700; color:var(--text);
+  font-family:'DynaPuff',cursive;
+  font-size:4.5rem; font-weight:700; color:var(--text);
   line-height:1;
 }
-#hunt-dist-unit { font-size:1.4rem; color:var(--text-soft); margin-top:0.2rem; }
-#hunt-status { font-size:1.8rem; color:var(--text-soft); font-style:italic; }
+#hunt-dist-unit { font-size:1.6rem; color:var(--text-soft); margin-top:0.2rem; }
+#hunt-status { font-size:2rem; color:var(--text-soft); font-style:italic; }
 
 #hunt-hint {
-  font-size:1.15rem; color:var(--text-soft); font-style:italic;
+  font-size:1.25rem; color:var(--text-soft); font-style:italic;
   line-height:1.6; max-width:300px;
   background:rgba(122,80,48,0.05);
   border-left:3px solid var(--gold-pale);
@@ -275,8 +275,8 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 }
 
 #lock-btn-label {
-  font-size:1.1rem; color:var(--text-soft);
-  font-style:italic;
+  font-size:1.2rem; color:var(--text-soft);
+  font-family:"DynaPuff",cursive;
 }
 
 #debug-text { font-size:0.9rem; color:var(--text-faint); }
@@ -316,8 +316,8 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   background:linear-gradient(135deg, var(--gold-pale), #f0d888);
   border:3px solid var(--gold);
   display:flex; align-items:center; justify-content:center;
-  font-family:'Playfair Display',serif;
-  font-size:4rem; font-weight:700; color:var(--brown);
+  font-family:'DynaPuff',cursive;
+  font-size:4.5rem; font-weight:700; color:var(--brown);
   box-shadow:0 6px 30px rgba(200,148,58,0.35);
   animation:sealIn 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
 }
@@ -326,11 +326,11 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 
 .reveal-body { padding:1.2rem 1.5rem 1rem; }
 .reveal-loc-name {
-  font-family:'Playfair Display',serif;
-  font-size:1.8rem; font-weight:700; margin-bottom:0.4rem;
+  font-family:'DynaPuff',cursive;
+  font-size:2.2rem; font-weight:700; margin-bottom:0.4rem;
 }
 .reveal-story {
-  font-size:1.15rem; line-height:1.75; color:var(--text-soft);
+  font-size:1.25rem; line-height:1.8; color:var(--text-soft);
   margin-bottom:1rem;
 }
 .reveal-task {
@@ -344,7 +344,7 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   font-size:0.9rem; letter-spacing:0.18em; text-transform:uppercase;
   color:var(--gold); margin-bottom:0.5rem;
 }
-.reveal-task-text { font-size:1.15rem; line-height:1.6; color:var(--text); }
+.reveal-task-text { font-size:1.25rem; line-height:1.6; color:var(--text); }
 
 /* Word progress in reveal */
 .reveal-word-wrap {
@@ -352,14 +352,14 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   padding:1rem; margin-bottom:1.2rem;
   background:var(--cream2); border-radius:var(--radius);
 }
-.reveal-word-label { font-size:0.9rem; color:var(--text-faint); letter-spacing:0.1em; }
+.reveal-word-label { font-size:1rem; color:var(--text-faint); letter-spacing:0.05em; font-family:"DynaPuff",cursive; }
 .reveal-word-letters { display:flex; gap:0.5rem; }
 .reveal-wl {
   width:50px; height:56px;
   border:2px solid var(--border); border-radius:10px;
   display:flex; align-items:center; justify-content:center;
-  font-family:'Playfair Display',serif;
-  font-size:1.8rem; font-weight:700;
+  font-family:'DynaPuff',cursive;
+  font-size:2rem; font-weight:700;
   background:var(--cream); color:var(--text-faint);
 }
 .reveal-wl.found { background:var(--gold-pale); border-color:var(--gold); color:var(--text); }
@@ -369,8 +369,8 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   width:100%; padding:1rem;
   background:var(--sage-dark); color:#fff;
   border:none; border-radius:50px;
-  font-family:'Playfair Display',serif;
-  font-size:1.2rem; font-weight:700;
+  font-family:'DynaPuff',cursive;
+  font-size:1.3rem; font-weight:700;
   cursor:pointer; margin-bottom:2rem;
   box-shadow:0 4px 18px rgba(74,112,80,0.3);
 }
@@ -394,24 +394,24 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   animation:sealIn 0.6s cubic-bezier(0.34,1.56,0.64,1);
 }
 .end-title {
-  font-family:'Playfair Display',serif;
-  font-size:2.4rem; font-weight:700; line-height:1.25;
+  font-family:'DynaPuff',cursive;
+  font-size:2.8rem; font-weight:700; line-height:1.25;
 }
-.end-subtitle { font-size:1.2rem; color:var(--text-soft); font-style:italic; line-height:1.6; max-width:300px; }
+.end-subtitle { font-size:1.3rem; color:var(--text-soft); font-style:italic; line-height:1.6; max-width:300px; }
 .end-word-display { display:flex; gap:0.6rem; }
 .end-wl {
   width:56px; height:64px;
   background:var(--gold-pale); border:3px solid var(--gold);
   border-radius:12px;
   display:flex; align-items:center; justify-content:center;
-  font-family:'Playfair Display',serif;
+  font-family:'DynaPuff',cursive;
   font-size:2.2rem; font-weight:700; color:var(--brown);
   animation:letterPop 0.5s calc(var(--i)*0.1s) both;
 }
 .btn-restart {
   background:var(--sage-dark); color:#fff; border:none;
   border-radius:50px; padding:1.1rem 2.5rem;
-  font-family:'Playfair Display',serif;
+  font-family:'DynaPuff',cursive;
   font-size:1.2rem; cursor:pointer;
   box-shadow:0 4px 18px rgba(74,112,80,0.3);
 }
@@ -421,7 +421,7 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   align-items:center; justify-content:center;
   gap:1.8rem; padding:2rem 2rem;
   text-align:center;
-  background: linear-gradient(160deg, #f5efe0 0%, #ede4ce 100%);
+  background: #EBE7DE;
 }
 .splash-logo {
   width:240px; height:240px;
@@ -429,17 +429,17 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   animation:sealIn 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
 }
 .splash-tagline {
-  font-size:1.3rem; font-style:italic;
+  font-size:1.5rem; font-style:italic;
   color:var(--text-soft); line-height:1.5;
-  max-width:260px;
+  max-width:280px;
 }
 .btn-splash-start {
   width:100%; max-width:300px;
   padding:1.1rem 1.5rem;
   background:var(--sage-dark); color:#fff;
   border:none; border-radius:50px;
-  font-family:"Playfair Display",serif;
-  font-size:1.4rem; font-weight:700;
+  font-family:"DynaPuff",cursive;
+  font-size:1.6rem; font-weight:700;
   cursor:pointer;
   box-shadow:0 6px 24px rgba(74,112,80,0.35);
   transition:all 0.2s;
