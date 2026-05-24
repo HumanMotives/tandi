@@ -377,19 +377,12 @@ function onPosition(pos) {
   const dist = haversine(pos.coords.latitude, pos.coords.longitude, TARGET.lat, TARGET.lng);
   const zone = updateZone(dist);
 
-  // Distance display
   document.getElementById('dist-text').textContent =
     dist < 1000 ? Math.round(dist) + ' meter' : (dist/1000).toFixed(1) + ' km';
-
-  // Compass arrow
-  const bear = bearing(pos.coords.latitude, pos.coords.longitude, TARGET.lat, TARGET.lng);
-  lastBearing = bear;
-  updateArrow();
 
   // Orb + status
   const orb = document.getElementById('orb');
   const icon = document.getElementById('orb-icon');
-  const lbl  = document.getElementById('orb-label');
   const status = document.getElementById('status-text');
   const btn  = document.getElementById('reveal-btn');
 
@@ -397,20 +390,17 @@ function onPosition(pos) {
 
   if (zone === 'FAR') {
     icon.textContent = '🧭';
-    lbl.textContent  = 'ver weg';
     status.textContent = 'Loop naar de plek';
     btn.classList.remove('show');
   } else if (zone === 'NEAR') {
     orb.classList.add('near');
     icon.textContent = '🔥';
-    lbl.textContent  = 'dichterbij!';
     status.textContent = 'Je komt dichtbij!';
     btn.classList.remove('show');
     if (currentZone !== 'NEAR') vibrate([100]);
   } else if (zone === 'CLOSE') {
     orb.classList.add('close');
     icon.textContent = '⭐';
-    lbl.textContent  = 'je bent er!';
     status.textContent = 'Je hebt het gevonden!';
     if (!wasUnlocked) {
       btn.classList.add('show');
