@@ -553,6 +553,7 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   <div class="end-emblem">🏆</div>
   <div class="end-title">Gelukt!<br>Het woord is…</div>
   <div class="end-word-display" id="end-word-display"></div>
+  <div id="end-tip" style="font-size:1.1rem;font-style:italic;color:var(--text-soft);max-width:280px;text-align:center;line-height:1.5;"></div>
   <div class="end-subtitle">Je hebt alle verborgen plekken gevonden en het geheime woord ontcijferd!</div>
   <button class="btn-restart" onclick="restartGame()">Opnieuw spelen</button>
 </div>
@@ -640,8 +641,8 @@ let map, playerMarker, pinMarkers = [];
 let audioCtx     = null;
 
 const ZONES = {
-  CLOSE: { enter:20, leave:25 },
-  NEAR:  { enter:50, leave:55 },
+  CLOSE: { enter:8,  leave:12 },
+  NEAR:  { enter:30, leave:35 },
 };
 
 // ══════════════════════════════════════════════
