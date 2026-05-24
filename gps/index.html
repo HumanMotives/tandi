@@ -50,10 +50,10 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 }
 .map-title {
   font-family:'Playfair Display',serif;
-  font-size:1.1rem; font-weight:700;
+  font-size:1.4rem; font-weight:700;
   color:var(--text); letter-spacing:0.02em;
 }
-.map-subtitle { font-size:0.8rem; color:var(--text-soft); font-style:italic; }
+.map-subtitle { font-size:1rem; color:var(--text-soft); font-style:italic; }
 
 #map-el { flex:1; }
 
@@ -65,15 +65,15 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   display:flex; align-items:center; gap:0.8rem;
   flex-shrink:0;
 }
-.word-bar-label { font-size:0.75rem; color:var(--text-soft); flex-shrink:0; }
-.word-letters { display:flex; gap:0.4rem; }
+.word-bar-label { font-size:1rem; color:var(--text-soft); flex-shrink:0; }
+.word-letters { display:flex; gap:0.5rem; }
 .word-letter {
-  width:36px; height:36px;
+  width:46px; height:46px;
   border:2px solid var(--border);
-  border-radius:8px;
+  border-radius:10px;
   display:flex; align-items:center; justify-content:center;
   font-family:'Playfair Display',serif;
-  font-size:1.2rem; font-weight:700;
+  font-size:1.6rem; font-weight:700;
   background:var(--cream2);
   color:var(--text-faint);
   transition: all 0.4s;
@@ -110,9 +110,9 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 .popup-info { flex:1; }
 .popup-name {
   font-family:'Playfair Display',serif;
-  font-size:1.05rem; font-weight:700; margin-bottom:0.2rem;
+  font-size:1.3rem; font-weight:700; margin-bottom:0.3rem;
 }
-.popup-hint { font-size:0.82rem; color:var(--text-soft); font-style:italic; line-height:1.5; }
+.popup-hint { font-size:1rem; color:var(--text-soft); font-style:italic; line-height:1.5; }
 .popup-meta { display:flex; align-items:center; gap:0.5rem; }
 .popup-letter-preview {
   background:var(--gold-pale); border:1.5px solid var(--gold);
@@ -153,9 +153,9 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 }
 .vl-pin-bubble.found { border-color:var(--gold); background:var(--gold-pale); }
 .vl-pin-bubble.active-pin { border-color:var(--sage-dark); box-shadow:0 4px 18px rgba(74,112,80,0.35); }
-.vl-pin-icon { font-size:1.1rem; line-height:1; }
-.vl-pin-name { font-family:'Lora',serif; font-size:0.72rem; color:var(--text); }
-.vl-pin-check { font-size:0.7rem; }
+.vl-pin-icon { font-size:1.3rem; line-height:1; }
+.vl-pin-name { font-family:'Lora',serif; font-size:0.9rem; color:var(--text); }
+.vl-pin-check { font-size:0.85rem; }
 
 .vl-player {
   width:16px; height:16px; border-radius:50%;
@@ -186,11 +186,11 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 }
 .hunt-loc-name {
   font-family:'Playfair Display',serif;
-  font-size:1rem; font-weight:700; color:var(--text);
+  font-size:1.2rem; font-weight:700; color:var(--text);
   flex:1; text-align:left;
 }
 .hunt-progress {
-  font-size:0.75rem; color:var(--text-faint);
+  font-size:1rem; color:var(--text-faint);
   flex-shrink:0;
 }
 
@@ -231,39 +231,55 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 
 #hunt-dist {
   font-family:'Playfair Display',serif;
-  font-size:2.8rem; font-weight:700; color:var(--text);
+  font-size:3.8rem; font-weight:700; color:var(--text);
   line-height:1;
 }
-#hunt-dist-unit { font-size:1.1rem; color:var(--text-soft); margin-top:0.2rem; }
-#hunt-status { font-size:1.5rem; color:var(--text-soft); font-style:italic; }
+#hunt-dist-unit { font-size:1.4rem; color:var(--text-soft); margin-top:0.2rem; }
+#hunt-status { font-size:1.8rem; color:var(--text-soft); font-style:italic; }
 
 #hunt-hint {
-  font-size:1rem; color:var(--text-soft); font-style:italic;
-  line-height:1.6; max-width:280px;
+  font-size:1.15rem; color:var(--text-soft); font-style:italic;
+  line-height:1.6; max-width:300px;
   background:rgba(122,80,48,0.05);
   border-left:3px solid var(--gold-pale);
-  padding:0.7rem 1rem;
+  padding:0.8rem 1rem;
   border-radius:0 8px 8px 0;
   text-align:left;
 }
 
-/* Reveal button */
-#reveal-btn {
+/* Hold-to-unlock slot */
+#lock-btn-wrap {
   display:none;
-  width:100%; max-width:320px;
-  padding:1.1rem 1.5rem;
-  background:var(--sage-dark); color:#fff;
-  border:none; border-radius:50px;
-  font-family:'Playfair Display',serif;
-  font-size:1.3rem; font-weight:700;
-  cursor:pointer;
-  box-shadow:0 6px 24px rgba(74,112,80,0.35);
+  flex-direction:column; align-items:center; gap:0.8rem;
   animation:btnPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
 }
-#reveal-btn.show { display:block; }
-@keyframes btnPop { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+#lock-btn-wrap.show { display:flex; }
 
-#debug-text { font-size:0.8rem; color:var(--text-faint); }
+#lock-btn {
+  width:110px; height:110px; border-radius:50%;
+  background:var(--warm); border:4px solid var(--sage);
+  display:flex; align-items:center; justify-content:center;
+  font-size:3rem; cursor:pointer;
+  position:relative; overflow:hidden;
+  box-shadow:0 4px 20px rgba(74,112,80,0.2);
+  user-select:none; -webkit-user-select:none;
+  transition:border-color 0.3s;
+}
+#lock-btn.holding { border-color:var(--gold); }
+
+/* Sweep fill */
+#lock-btn-fill {
+  position:absolute; inset:0; border-radius:50%;
+  background: conic-gradient(rgba(74,112,80,0.25) 0%, transparent 0%);
+  transition:none;
+}
+
+#lock-btn-label {
+  font-size:1.1rem; color:var(--text-soft);
+  font-style:italic;
+}
+
+#debug-text { font-size:0.9rem; color:var(--text-faint); }
 
 /* ══════════════════════════════════
    SCREEN 3 — GEVONDEN REVEAL
@@ -292,16 +308,16 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   gap:0.5rem;
 }
 .letter-eyebrow {
-  font-size:0.7rem; letter-spacing:0.25em; text-transform:uppercase;
+  font-size:0.9rem; letter-spacing:0.25em; text-transform:uppercase;
   color:var(--text-faint);
 }
 .letter-seal {
-  width:100px; height:100px; border-radius:50%;
+  width:120px; height:120px; border-radius:50%;
   background:linear-gradient(135deg, var(--gold-pale), #f0d888);
   border:3px solid var(--gold);
   display:flex; align-items:center; justify-content:center;
   font-family:'Playfair Display',serif;
-  font-size:3.5rem; font-weight:700; color:var(--brown);
+  font-size:4rem; font-weight:700; color:var(--brown);
   box-shadow:0 6px 30px rgba(200,148,58,0.35);
   animation:sealIn 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
 }
@@ -311,10 +327,10 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 .reveal-body { padding:1.2rem 1.5rem 1rem; }
 .reveal-loc-name {
   font-family:'Playfair Display',serif;
-  font-size:1.5rem; font-weight:700; margin-bottom:0.3rem;
+  font-size:1.8rem; font-weight:700; margin-bottom:0.4rem;
 }
 .reveal-story {
-  font-size:1rem; line-height:1.75; color:var(--text-soft);
+  font-size:1.15rem; line-height:1.75; color:var(--text-soft);
   margin-bottom:1rem;
 }
 .reveal-task {
@@ -325,10 +341,10 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   margin-bottom:1.2rem;
 }
 .reveal-task-title {
-  font-size:0.72rem; letter-spacing:0.18em; text-transform:uppercase;
-  color:var(--gold); margin-bottom:0.4rem;
+  font-size:0.9rem; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:0.5rem;
 }
-.reveal-task-text { font-size:1rem; line-height:1.6; color:var(--text); }
+.reveal-task-text { font-size:1.15rem; line-height:1.6; color:var(--text); }
 
 /* Word progress in reveal */
 .reveal-word-wrap {
@@ -336,14 +352,14 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   padding:1rem; margin-bottom:1.2rem;
   background:var(--cream2); border-radius:var(--radius);
 }
-.reveal-word-label { font-size:0.75rem; color:var(--text-faint); letter-spacing:0.1em; }
+.reveal-word-label { font-size:0.9rem; color:var(--text-faint); letter-spacing:0.1em; }
 .reveal-word-letters { display:flex; gap:0.5rem; }
 .reveal-wl {
-  width:42px; height:48px;
+  width:50px; height:56px;
   border:2px solid var(--border); border-radius:10px;
   display:flex; align-items:center; justify-content:center;
   font-family:'Playfair Display',serif;
-  font-size:1.5rem; font-weight:700;
+  font-size:1.8rem; font-weight:700;
   background:var(--cream); color:var(--text-faint);
 }
 .reveal-wl.found { background:var(--gold-pale); border-color:var(--gold); color:var(--text); }
@@ -379,26 +395,24 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
 }
 .end-title {
   font-family:'Playfair Display',serif;
-  font-size:2rem; font-weight:700; line-height:1.25;
+  font-size:2.4rem; font-weight:700; line-height:1.25;
 }
-.end-subtitle { font-size:1.1rem; color:var(--text-soft); font-style:italic; line-height:1.6; max-width:280px; }
-.end-word-display {
-  display:flex; gap:0.6rem;
-}
+.end-subtitle { font-size:1.2rem; color:var(--text-soft); font-style:italic; line-height:1.6; max-width:300px; }
+.end-word-display { display:flex; gap:0.6rem; }
 .end-wl {
-  width:52px; height:60px;
+  width:56px; height:64px;
   background:var(--gold-pale); border:3px solid var(--gold);
   border-radius:12px;
   display:flex; align-items:center; justify-content:center;
   font-family:'Playfair Display',serif;
-  font-size:2rem; font-weight:700; color:var(--brown);
+  font-size:2.2rem; font-weight:700; color:var(--brown);
   animation:letterPop 0.5s calc(var(--i)*0.1s) both;
 }
 .btn-restart {
   background:var(--sage-dark); color:#fff; border:none;
-  border-radius:50px; padding:1rem 2.5rem;
+  border-radius:50px; padding:1.1rem 2.5rem;
   font-family:'Playfair Display',serif;
-  font-size:1.1rem; cursor:pointer;
+  font-size:1.2rem; cursor:pointer;
   box-shadow:0 4px 18px rgba(74,112,80,0.3);
 }
 </style>
@@ -457,7 +471,17 @@ html,body { height:100%; overflow:hidden; font-family:'Lora',Georgia,serif; back
   <div id="hunt-status">Zoeken…</div>
   <div id="hunt-hint"></div>
 
-  <button id="reveal-btn" onclick="showReveal()">🗝️ Onthul het geheim!</button>
+  <button id="reveal-btn" onclick="showReveal()" style="display:none"></button>
+
+  <div id="lock-btn-wrap">
+    <div id="lock-btn"
+      ontouchstart="startHold(event)" ontouchend="stopHold()" ontouchcancel="stopHold()"
+      onmousedown="startHold(event)" onmouseup="stopHold()" onmouseleave="stopHold()">
+      <div id="lock-btn-fill"></div>
+      <span id="lock-icon" style="position:relative;z-index:2;">🔒</span>
+    </div>
+    <div id="lock-btn-label">Houd ingedrukt om te openen</div>
+  </div>
   <div id="debug-text"></div>
 </div>
 
@@ -709,8 +733,10 @@ function startHunt() {
   document.getElementById('orb').textContent           = loc.emoji;
   document.getElementById('hunt-dist').textContent     = '—';
   document.getElementById('hunt-status').textContent   = 'Loop naar de plek…';
-  document.getElementById('reveal-btn').classList.remove('show');
-
+  document.getElementById('lock-btn-wrap').classList.remove('show');
+  document.getElementById('lock-btn-fill').style.background = 'conic-gradient(rgba(74,112,80,0.25) 0%, transparent 0%)';
+  document.getElementById('lock-icon').textContent = '🔒';
+  document.getElementById('lock-btn').classList.remove('holding');
   currentZone = 'FAR';
   wasUnlocked = false;
 
@@ -779,12 +805,76 @@ function onPosition(pos) {
     orb.classList.add('close');
     document.getElementById('hunt-status').textContent = 'Je bent er! ⭐';
     if (!wasUnlocked) {
-      document.getElementById('reveal-btn').classList.add('show');
+      document.getElementById('lock-btn-wrap').classList.add('show');
       playChime();
-      if (navigator.vibrate) navigator.vibrate([200,100,200,100,400]);
+      if (navigator.vibrate) navigator.vibrate([200,100,200]);
       wasUnlocked = true;
     }
   }
+}
+
+// ══════════════════════════════════════════════
+//  HOLD TO UNLOCK
+// ══════════════════════════════════════════════
+let holdTimer    = null;
+let holdStart    = null;
+const HOLD_MS    = 1500; // 1.5 sec to unlock
+let holdRafId    = null;
+
+function startHold(e) {
+  e.preventDefault();
+  holdStart = Date.now();
+  document.getElementById('lock-btn').classList.add('holding');
+  document.getElementById('lock-btn-label').textContent = 'Blijf vasthouden…';
+  animateHold();
+}
+
+function animateHold() {
+  if (!holdStart) return;
+  const elapsed = Date.now() - holdStart;
+  const pct = Math.min(elapsed / HOLD_MS, 1);
+  const deg = Math.round(pct * 360);
+
+  document.getElementById('lock-btn-fill').style.background =
+    `conic-gradient(rgba(74,112,80,0.35) ${deg}deg, transparent ${deg}deg)`;
+
+  // Pulse vibration every 300ms
+  if (navigator.vibrate && elapsed > 0 && Math.floor(elapsed/300) > Math.floor((elapsed-16)/300)) {
+    navigator.vibrate(15);
+  }
+
+  if (pct >= 1) {
+    unlocked();
+    return;
+  }
+  holdRafId = requestAnimationFrame(animateHold);
+}
+
+function stopHold() {
+  if (!holdStart) return;
+  const elapsed = Date.now() - holdStart;
+  holdStart = null;
+  cancelAnimationFrame(holdRafId);
+  document.getElementById('lock-btn').classList.remove('holding');
+
+  if (elapsed < HOLD_MS) {
+    // Reset
+    document.getElementById('lock-btn-fill').style.background =
+      'conic-gradient(rgba(74,112,80,0.25) 0%, transparent 0%)';
+    document.getElementById('lock-btn-label').textContent = 'Houd ingedrukt om te openen';
+  }
+}
+
+function unlocked() {
+  holdStart = null;
+  cancelAnimationFrame(holdRafId);
+  document.getElementById('lock-icon').textContent = '🔓';
+  document.getElementById('lock-btn-fill').style.background =
+    'conic-gradient(rgba(74,112,80,0.5) 360deg, transparent 360deg)';
+  document.getElementById('lock-btn-label').textContent = '✓ Geopend!';
+  playChime();
+  if (navigator.vibrate) navigator.vibrate([100,50,100,50,300]);
+  setTimeout(() => showReveal(), 600);
 }
 
 // ══════════════════════════════════════════════
