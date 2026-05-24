@@ -1006,6 +1006,10 @@ function renderWordReveal() {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  // Leaflet needs a size refresh whenever map becomes visible
+  if (id === 's-map' && map) {
+    setTimeout(() => map.invalidateSize(), 50);
+  }
 }
 
 // ══════════════════════════════════════════════
