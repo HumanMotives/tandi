@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f0f4f0">
+<title>Verborgen Plek</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: Georgia, serif;
+    background: #f0f4f0;
+    color: #222;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    gap: 2rem;
+    transition: background 0.5s ease;
+  }
+
+  body.in-range {
+    background: #c8f0c8;
+  }
+
+  #distance {
+    font-size: 4.5rem;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  #unit {
+    font-size: 2rem;
+    color: #555;
+  }
+
+  #status {
+    font-size: 2rem;
+    line-height: 1.4;
+    min-height: 3rem;
+  }
+
+  #gps-info {
+    font-size: 1.2rem;
+    color: #777;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #aaa;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .dot.on  { background: #4caf50; animation: blink 1.5s infinite; }
+  .dot.err { background: #e53935; }
+
+  @keyframes blink {
+    0%,100%{opacity:1} 50%{opacity:0.3}
+  }
+
+  #found-banner {
+    display: none;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #1a6b1a;
+    animation: pop 0.4s ease;
+  }
+  #found-banner.show { display: block; }
+
+  @keyframes pop {
+    0%  { transform: scale(0.5); opacity:0; }
+    70% { transform: scale(1.1); }
+    100%{ transform: scale(1);   opacity:1; }
+  }
+</style>
+</head>
+<body>
+
+  <div id="gps-info">
+    <span class="dot" id="dot"></span>
+    <span id="gps-label">GPS ophalen…</span>
+  </div>
+
+  <div>
+    <div id="distance">—</div>
+    <div id="unit">meter</div>
+  </div>
+
+  <div id="status">Beweeg naar de verborgen plek</div>
+
+  <div id="found-banner">🎉 Je hebt de plek gevonden!</div>
+
+</body>
+<script>
+  const TARGET = { lat: 52.2324006, lng: 6.1337074 };
+  const RADIUS = 5; // meter
+
+  let wasInRange = false;
+  let audioCtx = null;
+
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+
+  function playSound() {
+    try {
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(660, ctx.currentTime);
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.6);
+    } catch(e) {}
+  }
+
+  function vibrate() {
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+  }
+
+  function haversine(lat1, lng1, lat2, lng2) {
+    const R = 6371000;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2
+            + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180)
+            * Math.sin(dLng/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function onPosition(pos) {
+    document.getElementById('dot').className = 'dot on';
+    document.getElementById('gps-label').textContent = 'GPS actief';
+
+    const dist = haversine(pos.coords.latitude, pos.coords.longitude, TARGET.lat, TARGET.lng);
+    const rounded = Math.round(dist);
+
+    document.getElementById('distance').textContent = rounded;
+
+    const inRange = dist <= RADIUS;
+
+    if (inRange) {
+      document.body.classList.add('in-range');
+      document.getElementById('status').textContent = '✅ Je bent er!';
+      document.getElementById('found-banner').classList.add('show');
+      if (!wasInRange) {
+        playSound();
+        vibrate();
+      }
+    } else {
+      document.body.classList.remove('in-range');
+      document.getElementById('status').textContent = 'Beweeg naar de verborgen plek';
+      document.getElementById('found-banner').classList.remove('show');
+    }
+
+    wasInRange = inRange;
+  }
+
+  function onError(err) {
+    document.getElementById('dot').className = 'dot err';
+    document.getElementById('gps-label').textContent = 'Geen GPS — geef toestemming';
+  }
+
+  // Unlock AudioContext on first tap (iOS vereiste)
+  document.body.addEventListener('touchstart', () => getAudioCtx(), { once: true });
+
+  navigator.geolocation.watchPosition(onPosition, onError, {
+    enableHighAccuracy: true,
+    maximumAge: 2000,
+    timeout: 10000
+  });
+</script>
+</html>
