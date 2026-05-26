@@ -47,51 +47,51 @@
     .spel-hero {
       background: var(--sand);
       padding: clamp(32px, 4vw, 56px) 0 0;
-      overflow: hidden;
+      overflow: visible; /* foto mag uitsteken */
     }
     .spel-hero-inner {
       display: grid;
-      grid-template-columns: 1fr 380px;
+      grid-template-columns: 1fr 400px;
       gap: 2rem;
-      align-items: center;
+      align-items: flex-end;
       position: relative;
     }
-    .spel-hero-copy { padding-bottom: 2rem; }
+    .spel-hero-copy { padding-bottom: 2.5rem; }
 
     /* blob + dashed line connector */
     .spel-hero-visual {
       position: relative;
       display: flex; align-items: flex-end; justify-content: flex-end;
-      padding-bottom: 0;
     }
 
-    /* sand-coloured blob behind photo */
+    /* brede lage ellips blob */
     .hero-blob {
       position: absolute;
-      width: 560px; height: 560px;
+      width: 800px; height: 340px;
       background: var(--sun-yellow);
       border-radius: 50%;
-      bottom: -140px; right: -120px;
-      opacity: .45;
-      animation: blobPulse 6s ease-in-out infinite;
+      bottom: -60px; right: -200px;
+      opacity: .42;
+      animation: blobPulse 7s ease-in-out infinite;
       z-index: 1;
     }
     @keyframes blobPulse {
-      0%, 100% { transform: scale(1) translate(0, 0); }
-      50%       { transform: scale(1.05) translate(-12px, -14px); }
+      0%, 100% { transform: scaleX(1) scaleY(1) translate(0, 0); }
+      50%       { transform: scaleX(1.04) scaleY(1.06) translate(-12px, -10px); }
     }
 
-    /* photo card */
+    /* photo card: alleen boven afgerond, steekt 40px onder hero uit */
     .hero-photo-card {
       position: relative; z-index: 2;
-      width: 300px;
-      border-radius: 28px;
+      width: 340px;
+      border-radius: 24px 24px 0 0;
       overflow: hidden;
-      box-shadow: 0 24px 60px rgba(36,69,34,.18);
+      box-shadow: 0 24px 60px rgba(36,69,34,.2);
       background: var(--nature-green);
+      margin-bottom: -40px; /* overlapt in de volgende sectie */
     }
     .hero-photo-card img {
-      width: 100%; height: 340px;
+      width: 100%; height: 380px;
       object-fit: cover; display: block;
     }
 
@@ -188,7 +188,7 @@
       z-index: 3;
     }
 
-    /* ── Two-column layout ── */
+    /* ── Two-column layout — extra top padding voor overlappende foto ── */
     .spel-layout {
       display: grid;
       grid-template-columns: 1fr 340px;
@@ -333,10 +333,10 @@
 
     /* ── Hero responsive ── */
     @media (max-width: 860px) {
-      .spel-hero-inner { grid-template-columns: 1fr; }
-      .spel-hero-visual { justify-content: center; margin-bottom: 1rem; order: -1; }
-      .hero-blob { width: 260px; height: 260px; bottom: -20px; right: -10px; }
-      .hero-photo-card { width: 260px; }
+      .spel-hero-inner { grid-template-columns: 1fr; align-items: flex-start; }
+      .spel-hero-visual { justify-content: center; order: -1; }
+      .hero-blob { width: 500px; height: 220px; bottom: -40px; right: -60px; }
+      .hero-photo-card { width: 100%; max-width: 480px; border-radius: 20px 20px 0 0; margin-bottom: -30px; }
       .hero-photo-card img { height: 280px; }
       .hero-dashed-svg { display: none; }
     }
@@ -950,7 +950,7 @@
     </section>
 
     <!-- Main content + sidebar -->
-    <div style="background:var(--white);">
+    <div style="background:var(--white);padding-top:56px;">
       <div class="container">
         <div class="spel-layout">
 
