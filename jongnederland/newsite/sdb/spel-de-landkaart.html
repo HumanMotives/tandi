@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>De Landkaart – Kennismakingsspel | Jong Nederland Spelendatabank</title>
+  <meta name="description" content="Leer elkaar kennen via een kaart van Nederland. Leuk kennismakingsspel voor groepen van 6–20 kinderen, geschikt voor 8 jaar en ouder." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+  <style>
+    /* ── DESIGN TOKENS (overgenomen uit huisstijl) ── */
+    :root {
+      --nature-green: #AACF64;
+      --forest-green: #244522;
+      --sand:         #FAF2E8;
+      --sun-yellow:   #F5C368;
+      --water-blue:   #8FD4EC;
+      --night-blue:   #033B6E;
+      --ink:          #17311a;
+      --white:        #fffdf8;
+      --shadow:       0 22px 60px rgba(36,69,34,.16);
+      --radius-lg:    36px;
+      --radius-md:    22px;
+      --max:          1160px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Montserrat", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--white);
+      line-height: 1.65;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    p { margin: 0; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0;
+      margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
+
+    .container {
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      position: sticky; top: 0; z-index: 10;
+      display: block;
+      background: var(--nature-green);
+      box-shadow: none;
+    }
+    .top-menu {
+      background: var(--white);
+      color: var(--forest-green);
+      font-size: .82rem; font-weight: 500;
+      border-bottom: 1px solid rgba(36,69,34,.08);
+    }
+    .top-menu-inner {
+      display: flex; justify-content: flex-end; align-items: center;
+      gap: 1.25rem; min-height: 32px;
+    }
+    .top-menu a { display: inline-flex; align-items: center; gap: .42rem; opacity: .88; }
+    .top-menu a:hover { opacity: 1; }
+    .main-menu {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 2rem; min-height: 86px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: .8rem;
+      font-weight: 800;
+    }
+    .brand-mark-circle {
+      display: grid; place-items: center;
+      width: 54px; height: 54px; border-radius: 50%;
+      background: var(--forest-green);
+      font-family: "Lilita One", system-ui, sans-serif;
+      font-size: 1.5rem; color: var(--nature-green);
+    }
+    .brand-text { font-size: 1.25rem; line-height: .95; color: white; text-shadow: 0 2px 10px rgba(36,69,34,.18); }
+    .site-nav { display: flex; align-items: center; gap: 1.4rem; font-weight: 700; }
+    .site-nav a { padding: .6rem .2rem; color: var(--forest-green); }
+    .nav-cta {
+      background: var(--water-blue) !important;
+      color: var(--night-blue) !important;
+      padding: .8rem 1.1rem !important;
+      border-radius: 999px;
+    }
+    .nav-toggle {
+      display: none;
+      border: 0; border-radius: 999px;
+      padding: .75rem 1rem;
+      background: var(--forest-green); color: white;
+      font: inherit; font-weight: 900; cursor: pointer;
+    }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+      padding: 1rem 0;
+      font-size: .85rem; font-weight: 600;
+      color: rgba(23,49,26,.65);
+    }
+    .breadcrumb a { color: var(--forest-green); }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 .4rem; }
+
+    /* ── MAIN LAYOUT ── */
+    .spel-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 3rem;
+      align-items: start;
+      padding-bottom: 80px;
+    }
+
+    /* ── HERO BANNER ── */
+    .spel-hero {
+      background: var(--sand);
+      padding: clamp(32px, 4vw, 56px) 0 0;
+    }
+    .spel-hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 3rem;
+      align-items: end;
+    }
+    .spel-hero-copy { padding-bottom: 2rem; }
+
+    .category-tag {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: var(--nature-green);
+      color: var(--forest-green);
+      font-weight: 900; font-size: .8rem;
+      text-transform: uppercase; letter-spacing: .07em;
+      padding: .35rem .85rem; border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-family: "Lilita One", system-ui, sans-serif;
+      font-size: clamp(2.8rem, 6vw, 4.8rem);
+      line-height: .95; letter-spacing: -.02em;
+      color: var(--forest-green);
+      margin: 0 0 1.2rem;
+    }
+
+    .spel-intro {
+      font-size: 1.15rem; max-width: 580px; line-height: 1.65;
+      color: rgba(23,49,26,.85);
+    }
+
+    /* ── INFO BAR (vervangt pills) ── */
+    .info-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      margin-top: 1.6rem;
+      background: white;
+      border: 1px solid rgba(36,69,34,.1);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(36,69,34,.07);
+    }
+    .info-bar-item {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      padding: .75rem 1.1rem;
+      flex: 1 1 auto;
+      min-width: 0;
+      border-right: 1px solid rgba(36,69,34,.08);
+    }
+    .info-bar-item:last-child { border-right: 0; }
+    .info-bar-icon {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: var(--sand);
+      display: grid; place-items: center; flex-shrink: 0;
+      color: var(--forest-green); font-size: .82rem;
+    }
+    .info-bar-text { min-width: 0; }
+    .info-bar-text strong {
+      display: block; font-size: .68rem; font-weight: 900;
+      text-transform: uppercase; letter-spacing: .07em;
+      color: rgba(23,49,26,.45); line-height: 1; margin-bottom: .18rem;
+    }
+    .info-bar-text span {
+      display: block; font-size: .88rem; font-weight: 700;
+      color: var(--forest-green); white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    @media (max-width: 700px) {
+      .info-bar { flex-wrap: wrap; }
+      .info-bar-item {
+        flex: 1 1 calc(50% - 1px);
+        border-bottom: 1px solid rgba(36,69,34,.08);
+      }
+      .info-bar-item:nth-child(even) { border-right: 0; }
+    }
+
+    /* ── HERO IMAGE ── */
+    .spel-hero-image {
+      position: relative;
+      border-radius: 32px 32px 0 0;
+      overflow: hidden;
+      background: var(--nature-green);
+      min-height: 320px;
+      box-shadow: var(--shadow);
+    }
+    .spel-hero-image img {
+      width: 100%; height: 100%; min-height: 320px;
+      object-fit: cover;
+    }
+    .age-badge {
+      position: absolute; top: 16px; right: 16px;
+      background: var(--night-blue); color: white;
+      font-weight: 900; font-size: 1.1rem;
+      padding: .55rem .9rem; border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(3,59,110,.25);
+    }
+
+    /* ── MAIN CONTENT ── */
+    .spel-main { padding-top: 2.5rem; }
+
+    h2 {
+      font-family: "Lilita One", system-ui, sans-serif;
+      font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+      color: var(--forest-green);
+      margin: 0 0 1rem;
+      letter-spacing: -.015em;
+    }
+    h3 {
+      font-size: 1.1rem; font-weight: 800;
+      color: var(--forest-green); margin: 0 0 .5rem;
+    }
+
+    .content-block { margin-bottom: 2.5rem; }
+    .content-block p + p { margin-top: 1rem; }
+
+    .spel-steps { list-style: none; margin: 0; padding: 0; counter-reset: steps; }
+    .spel-steps li {
+      counter-increment: steps;
+      display: grid; grid-template-columns: 44px 1fr; gap: .8rem;
+      align-items: start; margin-bottom: 1.1rem;
+    }
+    .spel-steps li::before {
+      content: counter(steps);
+      display: grid; place-items: center;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--nature-green);
+      color: var(--forest-green); font-weight: 900; font-size: .95rem;
+      flex-shrink: 0;
+    }
+    .spel-steps li p { font-size: 1rem; padding-top: .55rem; }
+
+    .tip-block {
+      background: var(--sand);
+      border-left: 4px solid var(--sun-yellow);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      padding: 1.2rem 1.4rem; margin: 2rem 0;
+    }
+    .tip-block strong { display: block; color: var(--forest-green); margin-bottom: .4rem; }
+
+    /* ── UNIFIED CHECKLIST ROWS (variaties + benodigdheden) ── */
+    .checklist-block {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid rgba(36,69,34,.09);
+      box-shadow: 0 6px 22px rgba(36,69,34,.07);
+    }
+    .checklist-row {
+      display: flex; align-items: flex-start; gap: 1rem;
+      padding: 1.05rem 1.25rem;
+      background: var(--white);
+    }
+    .checklist-row:nth-child(even) { background: var(--sand); }
+    .checklist-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(170,207,100,.22);
+      display: grid; place-items: center; flex-shrink: 0;
+      color: var(--forest-green); font-size: .88rem; margin-top: .1rem;
+    }
+    .checklist-row:nth-child(even) .checklist-icon { background: rgba(255,255,255,.7); }
+    .checklist-check {
+      width: 20px; height: 20px; border-radius: 6px;
+      background: var(--nature-green);
+      display: grid; place-items: center; flex-shrink: 0;
+      color: var(--forest-green); font-size: .7rem;
+      margin-top: .22rem;
+    }
+    .checklist-body { flex: 1; }
+    .checklist-body strong { display: block; font-weight: 800; font-size: .95rem; color: var(--forest-green); margin-bottom: .18rem; }
+    .checklist-body p { font-size: .88rem; color: rgba(23,49,26,.72); margin: 0; line-height: 1.5; }
+
+    /* ── SOCIAL SHARE ── */
+    .share-bar {
+      display: flex; align-items: center; gap: .75rem;
+      flex-wrap: wrap;
+      padding: 1.5rem 0;
+      border-top: 1px solid rgba(36,69,34,.1);
+      border-bottom: 1px solid rgba(36,69,34,.1);
+      margin: 2.5rem 0;
+    }
+    .share-label { font-weight: 800; font-size: .9rem; color: var(--forest-green); margin-right: .2rem; }
+    .share-btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .55rem 1rem; border-radius: 999px;
+      font-weight: 700; font-size: .85rem;
+      transition: transform .2s ease;
+      border: 0; cursor: pointer; font-family: inherit;
+    }
+    .share-btn:hover { transform: translateY(-2px); }
+    .share-btn.whatsapp { background: #25D366; color: white; }
+    .share-btn.facebook { background: #1877F2; color: white; }
+    .share-btn.copy    { background: var(--sand); color: var(--forest-green); border: 1px solid rgba(36,69,34,.15); }
+    .share-btn.print   { background: var(--sand); color: var(--forest-green); border: 1px solid rgba(36,69,34,.15); }
+
+    /* ── RELATED GAMES ── */
+    .related-section { margin-top: 3rem; }
+    .related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.2rem; }
+    .related-card {
+      border-radius: var(--radius-md);
+      overflow: hidden; background: white;
+      box-shadow: 0 8px 24px rgba(36,69,34,.1);
+      transition: transform .2s ease;
+    }
+    .related-card:hover { transform: translateY(-3px); }
+    .related-card-img {
+      height: 130px; background: var(--nature-green);
+      position: relative; overflow: hidden;
+    }
+    .related-card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .related-card-img .age { position: absolute; top: 8px; right: 8px; background: var(--night-blue); color: white; font-weight: 900; font-size: .75rem; padding: .25rem .55rem; border-radius: 8px; }
+    .related-card-body { padding: 1rem; }
+    .related-card-body .cat { font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: var(--night-blue); margin-bottom: .3rem; }
+    .related-card-body h3 { font-size: .95rem; font-weight: 800; color: var(--forest-green); }
+
+    /* ── SIDEBAR ── */
+    .spel-sidebar { padding-top: 2.5rem; }
+
+    .sidebar-card {
+      background: white; border-radius: var(--radius-lg);
+      padding: 1.6rem; border: 1px solid rgba(36,69,34,.08);
+      box-shadow: 0 12px 36px rgba(36,69,34,.09);
+      margin-bottom: 1.4rem;
+    }
+
+    .sidebar-card h3 {
+      font-family: "Lilita One", system-ui, sans-serif;
+      font-size: 1.3rem; margin-bottom: 1.2rem;
+      color: var(--forest-green);
+    }
+
+    .spec-list { list-style: none; margin: 0; padding: 0; }
+    .spec-list li {
+      display: flex; align-items: flex-start; gap: .75rem;
+      padding: .65rem 0;
+      border-bottom: 1px solid rgba(36,69,34,.07);
+      font-size: .92rem;
+    }
+    .spec-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+    .spec-icon {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: var(--sand); display: grid; place-items: center;
+      flex-shrink: 0; color: var(--forest-green); font-size: .85rem;
+    }
+    .spec-content strong { display: block; font-size: .75rem; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: rgba(23,49,26,.5); margin-bottom: .1rem; }
+
+    /* PDF Download card */
+    .pdf-card {
+      background: linear-gradient(135deg, var(--forest-green) 0%, #1a3518 100%);
+      color: white; border-radius: var(--radius-lg);
+      padding: 1.6rem; margin-bottom: 1.4rem;
+      box-shadow: 0 16px 40px rgba(36,69,34,.22);
+      position: relative; overflow: hidden;
+    }
+    .pdf-card::before {
+      content: ""; position: absolute;
+      width: 140px; height: 140px; border-radius: 50%;
+      background: rgba(170,207,100,.18);
+      right: -30px; bottom: -30px;
+    }
+    .pdf-card::after {
+      content: ""; position: absolute;
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(245,195,104,.15);
+      right: 60px; top: -20px;
+    }
+    .pdf-card h3 { color: white; font-family: "Lilita One", system-ui, sans-serif; font-size: 1.3rem; margin-bottom: .5rem; position: relative; z-index: 1; }
+    .pdf-card p { color: rgba(255,255,255,.8); font-size: .9rem; margin-bottom: 1.2rem; position: relative; z-index: 1; }
+    .pdf-badge { display: inline-flex; align-items: center; gap: .4rem; background: rgba(255,255,255,.12); color: rgba(255,255,255,.7); font-size: .75rem; font-weight: 700; padding: .3rem .7rem; border-radius: 999px; margin-bottom: .9rem; position: relative; z-index: 1; }
+    .btn-pdf {
+      display: flex; align-items: center; justify-content: center; gap: .6rem;
+      width: 100%; padding: .95rem;
+      background: var(--nature-green); color: var(--forest-green);
+      font-weight: 900; font-size: .95rem;
+      border-radius: 999px; border: 0; cursor: pointer;
+      font-family: inherit; position: relative; z-index: 1;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .btn-pdf:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(170,207,100,.35); }
+
+    /* newsletter card */
+    .newsletter-card {
+      background: var(--water-blue);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem; margin-bottom: 1.4rem;
+    }
+    .newsletter-card h3 { color: var(--night-blue); font-family: "Lilita One", system-ui, sans-serif; font-size: 1.25rem; margin-bottom: .5rem; }
+    .newsletter-card p { font-size: .88rem; color: var(--night-blue); opacity: .85; margin-bottom: 1.1rem; }
+    .newsletter-form { display: flex; flex-direction: column; gap: .65rem; }
+    .newsletter-form input {
+      width: 100%; min-height: 48px;
+      border: 0; border-radius: 999px;
+      padding: 0 1.1rem; font: inherit; font-size: .9rem;
+      font-weight: 600; background: white;
+    }
+    .btn-nl {
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      width: 100%; padding: .85rem;
+      background: var(--night-blue); color: white;
+      font-weight: 900; font-size: .9rem;
+      border-radius: 999px; border: 0; cursor: pointer;
+      font-family: inherit;
+      transition: transform .2s ease;
+    }
+    .btn-nl:hover { transform: translateY(-2px); }
+    .newsletter-fine { font-size: .72rem; color: var(--night-blue); opacity: .65; margin-top: .4rem; text-align: center; }
+
+    /* club CTA card */
+    .club-cta-card {
+      background: var(--sun-yellow);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem; margin-bottom: 1.4rem;
+      position: relative; overflow: hidden;
+    }
+    .club-cta-card::after {
+      content: "⌂"; position: absolute;
+      right: 1rem; bottom: -.4rem;
+      font-size: 5.5rem; line-height: 1;
+      color: rgba(36,69,34,.1);
+      pointer-events: none;
+    }
+    .club-cta-card h3 { font-family: "Lilita One", system-ui, sans-serif; font-size: 1.25rem; color: var(--forest-green); margin-bottom: .4rem; }
+    .club-cta-card p { font-size: .88rem; color: var(--forest-green); opacity: .85; margin-bottom: 1.1rem; max-width: 240px; position: relative; z-index: 1; }
+    .btn-club {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .85rem 1.3rem;
+      background: var(--forest-green); color: white;
+      font-weight: 900; font-size: .9rem;
+      border-radius: 999px; position: relative; z-index: 1;
+      transition: transform .2s ease;
+    }
+    .btn-club:hover { transform: translateY(-2px); }
+
+    /* sticky PDF on scroll */
+    .sticky-pdf {
+      position: sticky; top: 110px;
+    }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      padding: clamp(2.4rem, 5vw, 4.2rem) 0 1.4rem;
+      background: var(--forest-green); color: white; overflow: hidden;
+    }
+    .footer-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 2rem; padding-bottom: 2.5rem;
+      border-bottom: 1px solid rgba(255,255,255,.25);
+    }
+    .footer-brand {
+      display: inline-flex; align-items: center; gap: 1rem;
+      font-family: "Montserrat", system-ui, sans-serif;
+      font-weight: 900; font-size: clamp(1.7rem, 3.2vw, 2.8rem); line-height: .9;
+    }
+    .footer-logo {
+      width: 72px; height: 72px; border-radius: 22px;
+      background: var(--nature-green); display: grid; place-items: center;
+      font-family: "Lilita One", system-ui, sans-serif; font-size: 2rem;
+      color: var(--forest-green);
+    }
+    .footer-columns {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(1.5rem, 4vw, 4rem);
+      padding: clamp(2rem, 4vw, 3rem) 0 2.2rem;
+    }
+    .footer-columns h3 {
+      margin: 0 0 1rem;
+      font-family: "Lilita One", system-ui, sans-serif;
+      font-size: clamp(1.3rem, 2vw, 1.8rem); line-height: 1;
+      color: var(--nature-green);
+    }
+    .footer-columns a { display: block; margin: .45rem 0; color: rgba(255,255,255,.9); font-weight: 600; font-size: .9rem; }
+    .footer-columns a:hover { color: var(--sun-yellow); }
+    .footer-bottom {
+      padding-top: 1.1rem;
+      border-top: 1px solid rgba(255,255,255,.16);
+      color: rgba(255,255,255,.65); font-size: .85rem;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(23,49,26,.55); backdrop-filter: blur(4px);
+      z-index: 100; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.is-open { display: flex; }
+    .modal {
+      background: white; border-radius: var(--radius-lg);
+      padding: clamp(1.8rem, 4vw, 3rem);
+      max-width: 480px; width: 100%;
+      box-shadow: 0 40px 100px rgba(23,49,26,.3);
+      position: relative; animation: modalIn .3s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(20px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--sand); border: 0; border-radius: 50%;
+      width: 36px; height: 36px; cursor: pointer;
+      font-size: 1.1rem; color: var(--forest-green);
+      display: grid; place-items: center;
+    }
+    .modal h2 { font-size: 1.7rem; margin-bottom: .6rem; }
+    .modal p { font-size: .95rem; color: rgba(23,49,26,.75); margin-bottom: 1.4rem; }
+    .modal-form { display: flex; flex-direction: column; gap: .75rem; }
+    .modal-form input {
+      width: 100%; min-height: 52px;
+      border: 1.5px solid rgba(36,69,34,.18); border-radius: 999px;
+      padding: 0 1.3rem; font: inherit; font-size: .95rem;
+      font-weight: 600; background: var(--sand);
+    }
+    .modal-form input:focus { outline: none; border-color: var(--nature-green); }
+    .btn-modal-submit {
+      display: flex; align-items: center; justify-content: center; gap: .6rem;
+      padding: 1rem; border-radius: 999px;
+      background: var(--forest-green); color: white;
+      font-weight: 900; font-size: 1rem; border: 0;
+      cursor: pointer; font-family: inherit;
+      transition: transform .2s ease;
+    }
+    .btn-modal-submit:hover { transform: translateY(-2px); }
+    .modal-fine { font-size: .75rem; color: rgba(23,49,26,.5); text-align: center; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--forest-green); color: white;
+      padding: .85rem 1.6rem; border-radius: 999px;
+      font-weight: 700; font-size: .9rem;
+      box-shadow: 0 12px 32px rgba(23,49,26,.22);
+      opacity: 0; transition: opacity .3s ease, transform .3s ease;
+      z-index: 200; pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── REVEAL ── */
+    [data-reveal] {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    [data-reveal].is-visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 920px) {
+      .spel-hero-inner { grid-template-columns: 1fr; }
+      .spel-hero-image { order: -1; min-height: 280px; border-radius: 32px; }
+      .spel-layout { grid-template-columns: 1fr; gap: 0; }
+      .spel-sidebar { padding-top: 0; }
+      .sticky-pdf { position: static; }
+      .related-grid { grid-template-columns: 1fr 1fr; }
+      .variation-grid { grid-template-columns: 1fr; }
+      .footer-columns { grid-template-columns: repeat(2, 1fr); }
+      .footer-top { flex-direction: column; }
+      .top-menu-inner { justify-content: flex-start; overflow-x: auto; white-space: nowrap; }
+    }
+
+    @media (max-width: 640px) {
+      .nav-toggle { display: inline-flex; }
+      .site-nav { display: none; }
+      .site-nav.is-open {
+        display: flex; flex-direction: column;
+        position: absolute; left: 20px; right: 20px; top: 112px;
+        background: var(--sand); border-radius: 20px;
+        box-shadow: var(--shadow); padding: 1rem;
+        gap: .2rem;
+      }
+      .related-grid { grid-template-columns: 1fr; }
+      .footer-columns { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════ HEADER ═══════ -->
+  <header class="site-header">
+    <div class="top-menu">
+      <div class="container top-menu-inner">
+        <a href="#">Nieuwsbrief</a>
+        <a href="#">Nieuws</a>
+        <a href="#">Contact</a>
+        <a href="#">Vrijwilligersplein</a>
+        <a href="#">Mijn Jong Nederland <i class="fa-solid fa-user" aria-hidden="true"></i></a>
+      </div>
+    </div>
+    <div class="main-menu container">
+      <a class="brand" href="#" aria-label="Jong Nederland home">
+        <div class="brand-mark-circle" aria-hidden="true">JN</div>
+        <span class="brand-text">Jong<br>Nederland</span>
+      </a>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded')==='false'?'true':'false'); document.getElementById('site-nav').classList.toggle('is-open')">Menu</button>
+      <nav class="site-nav" id="site-nav">
+        <a href="#">Voor Ouders</a>
+        <a href="#">Voor Clubs</a>
+        <a href="#">Over ons</a>
+        <a href="#" style="color:var(--night-blue);font-weight:900;">Spelendatabank</a>
+        <a class="nav-cta" href="#">Doneren</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ═══════ BREADCRUMB ═══════ -->
+  <div style="background: var(--sand); border-bottom: 1px solid rgba(36,69,34,.07);">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Kruimelpad">
+        <a href="#">Home</a>
+        <span aria-hidden="true">›</span>
+        <a href="#">Spelendatabank</a>
+        <span aria-hidden="true">›</span>
+        <a href="#">Kennismakingsspel</a>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">De Landkaart</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ═══════ HERO ═══════ -->
+  <section class="spel-hero">
+    <div class="container spel-hero-inner">
+
+      <div class="spel-hero-copy" data-reveal>
+        <span class="category-tag">
+          <i class="fa-solid fa-users"></i>
+          Kennismakingsspel
+        </span>
+        <h1>De Landkaart</h1>
+        <p class="spel-intro">
+          Gooi de bal, vertel je verhaal. Met een kaart van Nederland als vertrekpunt leren kinderen elkaar op een speelse manier kennen — wie ze zijn, waar ze vandaan komen en wat ze bijzonder maakt.
+        </p>
+        <div class="info-bar" data-reveal>
+          <div class="info-bar-item">
+            <div class="info-bar-icon"><i class="fa-solid fa-child"></i></div>
+            <div class="info-bar-text"><strong>Leeftijd</strong><span>8 jaar en ouder</span></div>
+          </div>
+          <div class="info-bar-item">
+            <div class="info-bar-icon"><i class="fa-solid fa-users"></i></div>
+            <div class="info-bar-text"><strong>Deelnemers</strong><span>6 – 20 kinderen</span></div>
+          </div>
+          <div class="info-bar-item">
+            <div class="info-bar-icon"><i class="fa-solid fa-clock"></i></div>
+            <div class="info-bar-text"><strong>Spelduur</strong><span>15 – 25 min</span></div>
+          </div>
+          <div class="info-bar-item">
+            <div class="info-bar-icon"><i class="fa-solid fa-location-dot"></i></div>
+            <div class="info-bar-text"><strong>Locatie</strong><span>Binnen &amp; buiten</span></div>
+          </div>
+          <div class="info-bar-item">
+            <div class="info-bar-icon"><i class="fa-solid fa-gauge"></i></div>
+            <div class="info-bar-text"><strong>Voorbereiding</strong><span>&lt; 5 minuten</span></div>
+          </div>
+          <div class="info-bar-item">
+            <div class="info-bar-icon"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="info-bar-text"><strong>Doelgroep</strong><span>Groepsavond</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spel-hero-image" data-reveal>
+        <img src="spel_landkaart.png" alt="Twee kinderen bekijken samen een kaart — De Landkaart kennismakingsspel">
+        <span class="age-badge">8+</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════ MAIN ═══════ -->
+  <main id="main" style="background: var(--white);">
+    <div class="container">
+      <div class="spel-layout">
+
+        <!-- ── LINKER KOLOM: SPELCONTENT ── -->
+        <div class="spel-main">
+
+          <!-- Wat is het spel -->
+          <div class="content-block" data-reveal>
+            <h2>Wat is het spel?</h2>
+            <p>De Landkaart is een laagdrempelig kennismakingsspel waarbij een kaart van Nederland als aanleiding dient om iets over jezelf te vertellen. Kinderen markeren plaatsen die voor hen betekenis hebben — hun geboorteplek, woonplaats, een fijne vakantiebestemming of de plek waar opa en oma wonen.</p>
+            <p>Door de bal te gooien bepaalt het toeval wie er aan de beurt is. Dat maakt het spannend en voorkomt dat kinderen lang hoeven te wachten. Iedereen komt aan de beurt, iedereen wordt gehoord.</p>
+          </div>
+
+          <!-- Stap voor stap -->
+          <div class="content-block" data-reveal>
+            <h2>Zo speel je het</h2>
+            <ol class="spel-steps">
+              <li><p><strong>Leg de kaart neer.</strong> Leg een grote kaart van Nederland op de grond in het midden van de ruimte. Zorg dat alle kinderen eromheen kunnen staan of zitten.</p></li>
+              <li><p><strong>Markeer je plek.</strong> Vraag elk kind om een paar plaatsnamen op de kaart aan te wijzen die voor hen betekenis hebben. Geef ze even de tijd om na te denken. Het mogen meerdere plekken zijn.</p></li>
+              <li><p><strong>Gooi de bal.</strong> De groepsleider gooit de bal naar een willekeurig kind. Dat kind vertelt kort iets over één van zijn of haar gemarkeerde plekken: "Hier ben ik geboren", "Hier woont mijn opa", of "Hier was de beste vakantie ooit".</p></li>
+              <li><p><strong>Gooi door.</strong> Als het kind klaar is met vertellen, gooit het de bal naar een ander. Zo gaat het door totdat iedereen minstens één keer aan de beurt is geweest.</p></li>
+              <li><p><strong>Sluit af.</strong> Sluit het spel af met een korte ronde: wie vond iets verrassends of herkende iets bij iemand anders?</p></li>
+            </ol>
+          </div>
+
+          <div class="tip-block" data-reveal>
+            <strong><i class="fa-solid fa-lightbulb" style="color:var(--sun-yellow);margin-right:.4rem;"></i> Tip voor begeleiders</strong>
+            Doe zelf ook mee! Als groepsleider vertel jij als eerste iets over jouw gemarkeerde plek. Dat verlaagt de drempel voor kinderen die wat verlegen zijn. Benoem ook wat je opvalt aan overeenkomsten: "Hé, drie mensen hebben Den Haag gemarkeerd — vertel!"
+          </div>
+
+          <!-- Variaties -->
+          <div class="content-block" data-reveal>
+            <h2>Variaties &amp; uitbreidingen</h2>
+            <div class="checklist-block">
+              <div class="checklist-row">
+                <div class="checklist-icon"><i class="fa-solid fa-globe"></i></div>
+                <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                <div class="checklist-body">
+                  <strong>Wereldkaart</strong>
+                  <p>Gebruik een wereldkaart in plaats van een kaart van Nederland. Ideaal voor groepen met kinderen met internationale wortels.</p>
+                </div>
+              </div>
+              <div class="checklist-row">
+                <div class="checklist-icon"><i class="fa-solid fa-pencil"></i></div>
+                <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                <div class="checklist-body">
+                  <strong>Tekenen &amp; vertellen</strong>
+                  <p>Laat kinderen zelf een "plattegrond van mijn leven" tekenen met plekken die voor hen belangrijk zijn. Hang ze daarna op.</p>
+                </div>
+              </div>
+              <div class="checklist-row">
+                <div class="checklist-icon"><i class="fa-solid fa-cards-blank"></i></div>
+                <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                <div class="checklist-body">
+                  <strong>Met vraagkaartjes</strong>
+                  <p>Gebruik kaartjes met aanvullende vragen: "Wat deed je daar?" of "Met wie was je er?" voor diepere gesprekjes.</p>
+                </div>
+              </div>
+              <div class="checklist-row">
+                <div class="checklist-icon"><i class="fa-solid fa-bolt"></i></div>
+                <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                <div class="checklist-body">
+                  <strong>Snelle versie</strong>
+                  <p>Elke speler krijgt maar 20 seconden om één plek te benoemen en één zin te zeggen. Goed voor grote groepen of als opwarmer.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wat heb je nodig + PDF CTA -->
+          <div class="content-block" data-reveal>
+            <h2>Wat heb je nodig?</h2>
+            <div class="checklist-block">
+              <div class="checklist-row">
+                <div class="checklist-icon"><i class="fa-solid fa-map"></i></div>
+                <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                <div class="checklist-body">
+                  <strong>Kaart van Nederland</strong>
+                  <p>Een afdrukbare of ingekochte kaart, minimaal A2 formaat, liefst laminaat zodat je hem vaker kunt gebruiken.</p>
+                </div>
+              </div>
+              <div class="checklist-row">
+                <div class="checklist-icon"><i class="fa-solid fa-circle-dot"></i></div>
+                <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                <div class="checklist-body">
+                  <strong>Stickers of markers</strong>
+                  <p>Schrijfbare stipjes, post-it vlaggetjes of stiften om plekken op de kaart te markeren. Eén kleur per kind werkt het beste.</p>
+                </div>
+              </div>
+              <div class="checklist-row">
+                <div class="checklist-icon"><i class="fa-solid fa-football"></i></div>
+                <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                <div class="checklist-body">
+                  <strong>Een bal</strong>
+                  <p>Elke bal voldoet — of gebruik een opgerold jasje als je niets bij de hand hebt.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inline PDF CTA -->
+            <div style="margin-top:1.6rem;background:linear-gradient(135deg,var(--forest-green) 0%,#1a3518 100%);border-radius:var(--radius-md);padding:1.6rem 1.8rem;display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap;box-shadow:0 16px 40px rgba(36,69,34,.22);position:relative;overflow:hidden;" data-reveal>
+              <div style="position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(170,207,100,.15);right:-30px;bottom:-40px;pointer-events:none;"></div>
+              <div style="position:absolute;width:90px;height:90px;border-radius:50%;background:rgba(245,195,104,.12);right:80px;top:-24px;pointer-events:none;"></div>
+              <div style="flex-shrink:0;width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:1.5rem;color:var(--nature-green);position:relative;z-index:1;">
+                <i class="fa-solid fa-file-pdf"></i>
+              </div>
+              <div style="flex:1;min-width:200px;position:relative;z-index:1;">
+                <strong style="display:block;font-family:'Lilita One',sans-serif;font-size:1.2rem;color:white;line-height:1.1;margin-bottom:.3rem;">Kant-en-klaar pakket</strong>
+                <p style="color:rgba(255,255,255,.78);font-size:.88rem;margin:0;">Inclusief printklare kaart van Nederland, markeerkaartjes en begeleidersinstructies — direct inzetbaar.</p>
+              </div>
+              <button class="btn-pdf" onclick="openModal('pdf')" style="flex-shrink:0;width:auto;padding:.85rem 1.4rem;position:relative;z-index:1;">
+                <i class="fa-solid fa-download"></i> Gratis downloaden
+              </button>
+            </div>
+          </div>
+
+          <!-- Social share -->
+          <div class="share-bar" data-reveal>
+            <span class="share-label">Delen:</span>
+            <button class="share-btn whatsapp" onclick="shareWhatsApp()">
+              <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </button>
+            <button class="share-btn facebook" onclick="shareFacebook()">
+              <i class="fa-brands fa-facebook"></i> Facebook
+            </button>
+            <button class="share-btn copy" onclick="copyLink()">
+              <i class="fa-solid fa-link"></i> Link kopiëren
+            </button>
+            <button class="share-btn print" onclick="window.print()">
+              <i class="fa-solid fa-print"></i> Afdrukken
+            </button>
+          </div>
+
+          <!-- Related games -->
+          <div class="related-section" data-reveal>
+            <h2>Meer kennismakingsspellen</h2>
+            <div class="related-grid">
+              <a class="related-card" href="#">
+                <div class="related-card-img" style="background:var(--water-blue);">
+                  <svg viewBox="0 0 260 130" style="width:100%;height:100%;"><rect width="260" height="130" fill="#8FD4EC"/><circle cx="80" cy="65" r="30" fill="#244522" opacity=".2"/><circle cx="180" cy="65" r="30" fill="#244522" opacity=".2"/></svg>
+                  <span class="age">6+</span>
+                </div>
+                <div class="related-card-body">
+                  <p class="cat">Kennismakingsspel</p>
+                  <h3>Wie ben ik?</h3>
+                </div>
+              </a>
+              <a class="related-card" href="#">
+                <div class="related-card-img" style="background:var(--sun-yellow);">
+                  <svg viewBox="0 0 260 130" style="width:100%;height:100%;"><rect width="260" height="130" fill="#F5C368"/><rect x="80" y="30" width="100" height="70" rx="12" fill="#244522" opacity=".18"/></svg>
+                  <span class="age">8+</span>
+                </div>
+                <div class="related-card-body">
+                  <p class="cat">Kringspel</p>
+                  <h3>Raap & Vertel</h3>
+                </div>
+              </a>
+              <a class="related-card" href="#">
+                <div class="related-card-img" style="background:var(--nature-green);">
+                  <svg viewBox="0 0 260 130" style="width:100%;height:100%;"><rect width="260" height="130" fill="#AACF64"/><polygon points="130,20 200,110 60,110" fill="#244522" opacity=".2"/></svg>
+                  <span class="age">10+</span>
+                </div>
+                <div class="related-card-body">
+                  <p class="cat">Behendigheid</p>
+                  <h3>Menselijke Knoop</h3>
+                </div>
+              </a>
+            </div>
+          </div>
+
+        </div><!-- /spel-main -->
+
+        <!-- ── RECHTER KOLOM: SIDEBAR ── -->
+        <aside class="spel-sidebar">
+          <div class="sticky-pdf">
+
+            <!-- Speloverzicht -->
+            <div class="sidebar-card" data-reveal>
+              <h3>Spelinfo</h3>
+              <ul class="spec-list">
+                <li>
+                  <div class="spec-icon"><i class="fa-solid fa-child"></i></div>
+                  <div class="spec-content"><strong>Leeftijd</strong>8 jaar en ouder</div>
+                </li>
+                <li>
+                  <div class="spec-icon"><i class="fa-solid fa-users"></i></div>
+                  <div class="spec-content"><strong>Deelnemers</strong>6 tot 20 kinderen</div>
+                </li>
+                <li>
+                  <div class="spec-icon"><i class="fa-solid fa-clock"></i></div>
+                  <div class="spec-content"><strong>Spelduur</strong>15 – 25 minuten</div>
+                </li>
+                <li>
+                  <div class="spec-icon"><i class="fa-solid fa-location-dot"></i></div>
+                  <div class="spec-content"><strong>Locatie</strong>Binnen & buiten</div>
+                </li>
+                <li>
+                  <div class="spec-icon"><i class="fa-solid fa-ruler"></i></div>
+                  <div class="spec-content"><strong>Ruimte</strong>Minimaal 4×4 meter</div>
+                </li>
+                <li>
+                  <div class="spec-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+                  <div class="spec-content"><strong>Benodigdheden</strong>Landkaart, stickers, bal</div>
+                </li>
+                <li>
+                  <div class="spec-icon"><i class="fa-solid fa-gauge"></i></div>
+                  <div class="spec-content"><strong>Voorbereiding</strong>Bijna geen (&lt; 5 min)</div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- PDF Download -->
+            <div class="pdf-card" data-reveal>
+              <span class="pdf-badge"><i class="fa-solid fa-file-pdf"></i> PDF beschikbaar</span>
+              <h3>Print &amp; speel direct</h3>
+              <p>Download de complete spelhandleiding met printklare kaart van Nederland, markeerkaartjes en begeleidersinstructies.</p>
+              <button class="btn-pdf" onclick="openModal('pdf')">
+                <i class="fa-solid fa-download"></i>
+                Gratis downloaden
+              </button>
+            </div>
+
+            <!-- Nieuwsbrief -->
+            <div class="newsletter-card" data-reveal>
+              <h3>Nooit een leuk spel missen?</h3>
+              <p>Ontvang elke maand de beste nieuwe spellen, seizoenstips en activiteitenideeën rechtstreeks in je mailbox.</p>
+              <div class="newsletter-form">
+                <input type="email" placeholder="jouw@email.nl" aria-label="E-mailadres voor nieuwsbrief">
+                <button class="btn-nl" onclick="showToast('Bedankt! Je bent ingeschreven voor de nieuwsbrief.')">
+                  <i class="fa-solid fa-paper-plane"></i> Inschrijven
+                </button>
+              </div>
+              <p class="newsletter-fine">Geen spam. Altijd uitschrijven mogelijk.</p>
+            </div>
+
+            <!-- Club CTA -->
+            <div class="club-cta-card" data-reveal>
+              <h3>Wil je dit spelen met je club?</h3>
+              <p>Sluit je club aan bij Jong Nederland en krijg toegang tot 1500+ spellen plus persoonlijke ondersteuning.</p>
+              <a class="btn-club" href="#">
+                <i class="fa-solid fa-house-chimney"></i>
+                Club aansluiten
+              </a>
+            </div>
+
+          </div>
+        </aside>
+
+      </div><!-- /spel-layout -->
+    </div>
+  </main>
+
+  <!-- ═══════ FOOTER ═══════ -->
+  <footer class="site-footer">
+    <div class="container footer-top">
+      <a class="footer-brand" href="#" aria-label="Jong Nederland home">
+        <div class="footer-logo" aria-hidden="true">JN</div>
+        <span>Jong<br>Nederland</span>
+      </a>
+      <div>
+        <p style="font-weight:900;margin:0 0 .65rem;">Volg ons</p>
+        <div style="display:flex;flex-wrap:wrap;gap:.75rem;">
+          <a href="#" aria-label="Facebook" style="display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:var(--sand);color:var(--forest-green);font-weight:900;"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram" style="display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:var(--sand);color:var(--forest-green);font-weight:900;"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" aria-label="YouTube" style="display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:var(--sand);color:var(--forest-green);font-weight:900;"><i class="fa-brands fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="container footer-columns">
+      <div>
+        <h3>Spelendatabank</h3>
+        <a href="#">Alle spellen</a>
+        <a href="#">Kennismakingsspellen</a>
+        <a href="#">Buitenspellen</a>
+        <a href="#">Kringspellen</a>
+        <a href="#">Kampvuurspellen</a>
+      </div>
+      <div>
+        <h3>Doe mee</h3>
+        <a href="#">Vind een club</a>
+        <a href="#">Word vrijwilliger</a>
+        <a href="#">Sluit je club aan</a>
+        <a href="#">Doneren</a>
+      </div>
+      <div>
+        <h3>Voor clubs</h3>
+        <a href="#">Vrijwilligersplein</a>
+        <a href="#">Ondersteuning</a>
+        <a href="#">Trainingen</a>
+        <a href="#">Webshop</a>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <a href="mailto:info@jongnederland.nl">info@jongnederland.nl</a>
+        <a href="#">Over ons</a>
+        <a href="#">Privacybeleid</a>
+        <a href="#">Mijn Jong Nederland</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>Concept demo speldetailpagina — geen officiële website.</p>
+    </div>
+  </footer>
+
+  <!-- ═══════ PDF MODAL ═══════ -->
+  <div class="modal-overlay" id="modal-pdf" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('pdf')" aria-label="Sluiten">✕</button>
+      <span style="display:inline-flex;align-items:center;gap:.4rem;background:var(--nature-green);color:var(--forest-green);font-weight:900;font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;padding:.35rem .85rem;border-radius:999px;margin-bottom:1rem;">
+        <i class="fa-solid fa-file-pdf"></i> Gratis download
+      </span>
+      <h2 id="modal-title" style="font-family:'Lilita One',sans-serif;font-size:1.8rem;color:var(--forest-green);margin-bottom:.5rem;">Download De Landkaart</h2>
+      <p>Vul je e-mailadres in en ontvang de printklare spelhandleiding direct in je mailbox — inclusief kaart van Nederland en markeerkaartjes.</p>
+      <div class="modal-form">
+        <input type="text" placeholder="Voornaam" aria-label="Voornaam">
+        <input type="email" placeholder="E-mailadres" aria-label="E-mailadres">
+        <button class="btn-modal-submit" onclick="submitDownload()">
+          <i class="fa-solid fa-download"></i> PDF versturen naar mijn mail
+        </button>
+        <p class="modal-fine">Geen spam. Je ontvangt ook onze maandelijkse spellennieuwsbrief. Uitschrijven kan altijd.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // Reveal on scroll
+    const revealEls = document.querySelectorAll('[data-reveal]');
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => io.observe(el));
+
+    // Modal
+    function openModal(id) {
+      document.getElementById('modal-' + id).classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+      document.getElementById('modal-' + id).classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+    document.querySelectorAll('.modal-overlay').forEach(o => {
+      o.addEventListener('click', e => { if (e.target === o) closeModal(o.id.replace('modal-','')) });
+    });
+
+    // Toast
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3200);
+    }
+
+    // PDF submit
+    function submitDownload() {
+      closeModal('pdf');
+      showToast('✓ PDF is onderweg naar je mailbox!');
+    }
+
+    // Share
+    function shareWhatsApp() {
+      window.open('https://wa.me/?text=' + encodeURIComponent('Leuk kennismakingsspel voor jongerengroepen: De Landkaart! ' + window.location.href));
+    }
+    function shareFacebook() {
+      window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href));
+    }
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.href).then(() => showToast('Link gekopieerd!')).catch(() => showToast('Kopiëren niet gelukt'));
+    }
+  </script>
+</body>
+</html>
