@@ -47,7 +47,8 @@
     .spel-hero {
       background: var(--sand);
       padding: clamp(32px, 4vw, 56px) 0 0;
-      overflow: visible; /* foto mag uitsteken */
+      overflow: visible;
+      position: relative;
     }
     .spel-hero-inner {
       display: grid;
@@ -55,6 +56,7 @@
       gap: 2rem;
       align-items: flex-end;
       position: relative;
+      z-index: 2;
     }
     .spel-hero-copy { padding-bottom: 2.5rem; }
 
@@ -64,31 +66,31 @@
       display: flex; align-items: flex-end; justify-content: flex-end;
     }
 
-    /* brede lage ellips blob */
+    /* brede lage ellips blob — zit op z-index 0, wordt afgesneden door witte sectie */
     .hero-blob {
       position: absolute;
-      width: 800px; height: 340px;
+      width: 820px; height: 360px;
       background: var(--sun-yellow);
       border-radius: 50%;
-      bottom: -60px; right: -200px;
+      bottom: -120px; right: -200px;
       opacity: .42;
       animation: blobPulse 7s ease-in-out infinite;
-      z-index: 1;
+      z-index: 0;
     }
     @keyframes blobPulse {
       0%, 100% { transform: scaleX(1) scaleY(1) translate(0, 0); }
       50%       { transform: scaleX(1.04) scaleY(1.06) translate(-12px, -10px); }
     }
 
-    /* photo card: alleen boven afgerond, steekt 40px onder hero uit */
+    /* photo card: volledig afgerond, overlapt 60px in witte sectie */
     .hero-photo-card {
-      position: relative; z-index: 2;
+      position: relative; z-index: 3;
       width: 340px;
-      border-radius: 24px 24px 0 0;
+      border-radius: 24px;
       overflow: hidden;
       box-shadow: 0 24px 60px rgba(36,69,34,.2);
       background: var(--nature-green);
-      margin-bottom: -40px; /* overlapt in de volgende sectie */
+      margin-bottom: -60px;
     }
     .hero-photo-card img {
       width: 100%; height: 380px;
@@ -335,8 +337,8 @@
     @media (max-width: 860px) {
       .spel-hero-inner { grid-template-columns: 1fr; align-items: flex-start; }
       .spel-hero-visual { justify-content: center; order: -1; }
-      .hero-blob { width: 500px; height: 220px; bottom: -40px; right: -60px; }
-      .hero-photo-card { width: 100%; max-width: 480px; border-radius: 20px 20px 0 0; margin-bottom: -30px; }
+      .hero-blob { width: 500px; height: 200px; bottom: -60px; right: -80px; }
+      .hero-photo-card { width: 100%; max-width: 480px; border-radius: 20px; margin-bottom: -40px; }
       .hero-photo-card img { height: 280px; }
       .hero-dashed-svg { display: none; }
     }
@@ -885,7 +887,7 @@
   <div id="view-spel" class="view">
 
     <!-- Breadcrumb -->
-    <div style="background:var(--sand);border-bottom:1px solid rgba(36,69,34,.07);">
+    <div style="background:var(--sand);border-bottom:1px solid rgba(36,69,34,.07);position:relative;z-index:2;">
       <div class="container">
         <nav class="breadcrumb" aria-label="Kruimelpad">
           <a href="#" onclick="showView('home');return false;">Home</a>
@@ -950,7 +952,7 @@
     </section>
 
     <!-- Main content + sidebar -->
-    <div style="background:var(--white);padding-top:56px;">
+    <div style="background:var(--white);padding-top:80px;position:relative;z-index:1;">
       <div class="container">
         <div class="spel-layout">
 
