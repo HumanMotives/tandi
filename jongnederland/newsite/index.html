@@ -569,7 +569,36 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* ── View switching ── */
+    /* ── Mobile nav fix ── */
+    @media (max-width: 920px) {
+      .site-nav {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        padding: 100px 20px 24px;
+        background: var(--sand);
+        box-shadow: 0 8px 32px rgba(36,69,34,.18);
+        z-index: 999;
+        flex-direction: column;
+        gap: .3rem;
+        border-radius: 0 0 24px 24px;
+      }
+      .site-nav.is-open { display: flex; }
+      .site-nav a {
+        padding: .85rem 1rem;
+        border-radius: 12px;
+        font-weight: 700;
+        color: var(--forest-green);
+      }
+      .site-nav a:hover { background: rgba(36,69,34,.06); }
+      .site-nav .nav-cta {
+        margin-top: .4rem;
+        text-align: center;
+        background: var(--water-blue) !important;
+        color: var(--night-blue) !important;
+        border-radius: 999px;
+      }
+    }
     .view { display: none; }
     .view.is-active { display: block; }
 
@@ -625,8 +654,7 @@
         <span class="brand-text">Jong<br>Nederland</span>
       </a>
 
-      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav"
-              onclick="this.setAttribute('aria-expanded',this.getAttribute('aria-expanded')==='false'?'true':'false');document.getElementById('site-nav').classList.toggle('is-open')">
+      <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="site-nav">
         Menu
       </button>
 
@@ -1231,10 +1259,19 @@
     initReveal();
 
     /* ── Mobile nav toggle ── */
-    document.querySelector('.nav-toggle').addEventListener('click', function() {
-      const expanded = this.getAttribute('aria-expanded') === 'true';
-      this.setAttribute('aria-expanded', String(!expanded));
-      document.getElementById('site-nav').classList.toggle('is-open', !expanded);
+    document.getElementById('nav-toggle').addEventListener('click', function() {
+      const nav = document.getElementById('site-nav');
+      const open = nav.classList.toggle('is-open');
+      this.setAttribute('aria-expanded', String(open));
+      this.textContent = open ? 'Sluiten ✕' : 'Menu';
+    });
+
+    // Sluit nav na klik op een link
+    document.getElementById('site-nav').addEventListener('click', function() {
+      this.classList.remove('is-open');
+      const toggle = document.getElementById('nav-toggle');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.textContent = 'Menu';
     });
 
     /* ── Modal ── */
