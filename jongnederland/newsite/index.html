@@ -33,14 +33,88 @@
     .spel-hero {
       background: var(--sand);
       padding: clamp(32px, 4vw, 56px) 0 0;
+      overflow: hidden;
     }
     .spel-hero-inner {
       display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 3rem;
-      align-items: end;
+      grid-template-columns: 1fr 380px;
+      gap: 2rem;
+      align-items: center;
+      position: relative;
     }
     .spel-hero-copy { padding-bottom: 2rem; }
+
+    /* blob + dashed line connector */
+    .spel-hero-visual {
+      position: relative;
+      display: flex; align-items: flex-end; justify-content: flex-end;
+      padding-bottom: 0;
+    }
+
+    /* sand-coloured blob behind photo */
+    .hero-blob {
+      position: absolute;
+      width: 340px; height: 340px;
+      background: var(--sun-yellow);
+      border-radius: 50%;
+      bottom: -40px; right: -40px;
+      opacity: .55;
+      animation: blobPulse 6s ease-in-out infinite;
+    }
+    @keyframes blobPulse {
+      0%, 100% { transform: scale(1) translate(0, 0); }
+      50%       { transform: scale(1.06) translate(-8px, -10px); }
+    }
+
+    /* photo card */
+    .hero-photo-card {
+      position: relative; z-index: 2;
+      width: 300px;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(36,69,34,.18);
+      background: var(--nature-green);
+    }
+    .hero-photo-card img {
+      width: 100%; height: 340px;
+      object-fit: cover; display: block;
+    }
+
+    /* dashed SVG path from copy to photo */
+    .hero-dashed-svg {
+      position: absolute;
+      top: 50%; left: 0;
+      width: 100%; height: 120px;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 3;
+      transform: translateY(-50%);
+    }
+    .hero-dashed-path {
+      fill: none;
+      stroke: var(--water-blue);
+      stroke-width: 2.5;
+      stroke-dasharray: 8 6;
+      stroke-linecap: round;
+      animation: dashDraw 1.8s ease forwards, dashFloat 4s 1.8s ease-in-out infinite;
+      stroke-dashoffset: 400;
+    }
+    @keyframes dashDraw {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes dashFloat {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-5px); }
+    }
+    .hero-cross {
+      fill: var(--water-blue);
+      animation: crossPop .4s 1.6s ease both;
+      transform-origin: center;
+    }
+    @keyframes crossPop {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
 
     .category-tag {
       display: inline-flex; align-items: center; gap: .4rem;
@@ -98,25 +172,14 @@
       overflow: hidden; text-overflow: ellipsis;
     }
 
-    /* ── Hero image ── */
-    .spel-hero-image {
-      position: relative;
-      border-radius: 32px 32px 0 0;
-      overflow: hidden;
-      background: var(--nature-green);
-      min-height: 320px;
-      box-shadow: var(--shadow);
-    }
-    .spel-hero-image img {
-      width: 100%; height: 100%; min-height: 320px;
-      object-fit: cover;
-    }
+    /* ── Hero image ── (now .hero-photo-card, kept for any legacy ref) */
     .age-badge {
-      position: absolute; top: 16px; right: 16px;
+      position: absolute; top: 14px; right: 14px;
       background: var(--night-blue); color: white;
       font-weight: 900; font-size: 1.1rem;
       padding: .55rem .9rem; border-radius: 14px;
       box-shadow: 0 8px 20px rgba(3,59,110,.25);
+      z-index: 3;
     }
 
     /* ── Two-column layout ── */
@@ -249,8 +312,25 @@
       box-shadow: 0 2px 8px rgba(36,69,34,.07);
     }
     .spel-action-btn:hover { transform: translateY(-2px); background: var(--sand); border-color: rgba(36,69,34,.22); }
+    /* Like button gets a yellow accent to stand out */
+    #like-btn {
+      background: var(--sun-yellow);
+      border-color: var(--sun-yellow);
+      box-shadow: 0 4px 14px rgba(245,195,104,.4);
+    }
+    #like-btn:hover { background: #f0b84e; border-color: #f0b84e; }
     .spel-action-btn.is-liked { background: #fff0f2; border-color: #e8607a; color: #e8607a; }
     .spel-action-btn:first-child { margin-right: .3rem; }
+
+    /* ── Hero responsive ── */
+    @media (max-width: 860px) {
+      .spel-hero-inner { grid-template-columns: 1fr; }
+      .spel-hero-visual { justify-content: center; margin-bottom: 1rem; order: -1; }
+      .hero-blob { width: 260px; height: 260px; bottom: -20px; right: -10px; }
+      .hero-photo-card { width: 260px; }
+      .hero-photo-card img { height: 280px; }
+      .hero-dashed-svg { display: none; }
+    }
 
     /* ── Share bar ── */
     .share-bar {
@@ -336,21 +416,17 @@
 
     /* ── Sidebar PDF card ── */
     .pdf-card {
-      background: linear-gradient(135deg, var(--forest-green) 0%, #1a3518 100%);
       color: white; border-radius: var(--radius-lg);
       padding: 1.6rem; margin-bottom: 1.4rem;
       box-shadow: 0 16px 40px rgba(36,69,34,.22);
       position: relative; overflow: hidden;
+      background: var(--forest-green);
     }
-    .pdf-card::before {
-      content: ""; position: absolute;
-      width: 140px; height: 140px; border-radius: 50%;
-      background: rgba(170,207,100,.18); right: -30px; bottom: -30px;
-    }
-    .pdf-card::after {
-      content: ""; position: absolute;
-      width: 80px; height: 80px; border-radius: 50%;
-      background: rgba(245,195,104,.15); right: 60px; top: -20px;
+    .pdf-card-bg {
+      position: absolute; inset: 0;
+      background: url('spel_landkaart.png') center/cover no-repeat;
+      opacity: .18;
+      z-index: 0;
     }
     .pdf-card h3 { color: white; font-family: "Lilita One", system-ui, sans-serif; font-size: 1.3rem; margin-bottom: .5rem; position: relative; z-index: 1; }
     .pdf-card > p { color: rgba(255,255,255,.8); font-size: .9rem; margin-bottom: 1.2rem; position: relative; z-index: 1; }
@@ -846,9 +922,25 @@
           </div>
         </div>
 
-        <div class="spel-hero-image" data-reveal>
-          <img src="spel_landkaart.png" alt="Twee kinderen bekijken samen een kaart — De Landkaart kennismakingsspel">
-          <span class="age-badge">8+</span>
+        <div class="spel-hero-visual" data-reveal>
+          <!-- Animerende blob -->
+          <div class="hero-blob"></div>
+
+          <!-- Gestippelde SVG lijn van links naar foto -->
+          <svg class="hero-dashed-svg" viewBox="0 0 420 80" preserveAspectRatio="none" aria-hidden="true">
+            <path class="hero-dashed-path" d="M 10 60 C 80 60, 160 10, 260 30"/>
+            <!-- kruisje aan het begin -->
+            <g class="hero-cross" transform="translate(6,56)">
+              <rect x="-1.5" y="-8" width="3" height="16" rx="1.5"/>
+              <rect x="-8" y="-1.5" width="16" height="3" rx="1.5"/>
+            </g>
+          </svg>
+
+          <!-- Foto als kaart -->
+          <div class="hero-photo-card">
+            <img src="spel_landkaart.png" alt="Twee kinderen bekijken samen een kaart">
+            <span class="age-badge">8+</span>
+          </div>
         </div>
       </div>
     </section>
@@ -971,6 +1063,7 @@
               </div>
 
               <div class="pdf-card" data-reveal>
+                <div class="pdf-card-bg" aria-hidden="true"></div>
                 <span class="pdf-badge"><i class="fa-solid fa-file-pdf"></i> PDF beschikbaar</span>
                 <h3>Print &amp; speel direct</h3>
                 <p>Download de complete spelhandleiding met printklare kaart van Nederland, markeerkaartjes en begeleidersinstructies.</p>
