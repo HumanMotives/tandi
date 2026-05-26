@@ -19,6 +19,20 @@
     /* Font Awesome italic fix */
     body { font-family: "Montserrat", system-ui, sans-serif; }
 
+    /* ── Heading stijlgids: Lilita One uppercase met tracking ── */
+    h1, h2 {
+      font-family: "Lilita One", system-ui, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .015em;
+      line-height: 1.0;
+    }
+    /* Homepage h1 iets groter dan spel-h1 */
+    .hero h1 {
+      font-size: clamp(2.6rem, 7vw, 5.8rem);
+      letter-spacing: .01em;
+    }
+    .hero h1 span, h2 span { color: var(--nature-green); }
+
     /* ── Breadcrumb ── */
     .breadcrumb {
       padding: .9rem 0;
@@ -54,16 +68,17 @@
     /* sand-coloured blob behind photo */
     .hero-blob {
       position: absolute;
-      width: 340px; height: 340px;
+      width: 560px; height: 560px;
       background: var(--sun-yellow);
       border-radius: 50%;
-      bottom: -40px; right: -40px;
-      opacity: .55;
+      bottom: -140px; right: -120px;
+      opacity: .45;
       animation: blobPulse 6s ease-in-out infinite;
+      z-index: 1;
     }
     @keyframes blobPulse {
       0%, 100% { transform: scale(1) translate(0, 0); }
-      50%       { transform: scale(1.06) translate(-8px, -10px); }
+      50%       { transform: scale(1.05) translate(-12px, -14px); }
     }
 
     /* photo card */
@@ -106,16 +121,6 @@
       0%, 100% { transform: translateY(0); }
       50%       { transform: translateY(-5px); }
     }
-    .hero-cross {
-      fill: var(--water-blue);
-      animation: crossPop .4s 1.6s ease both;
-      transform-origin: center;
-    }
-    @keyframes crossPop {
-      from { transform: scale(0); opacity: 0; }
-      to   { transform: scale(1); opacity: 1; }
-    }
-
     .category-tag {
       display: inline-flex; align-items: center; gap: .4rem;
       background: var(--nature-green); color: var(--forest-green);
@@ -127,8 +132,9 @@
 
     .spel-h1 {
       font-family: "Lilita One", system-ui, sans-serif;
-      font-size: clamp(2.8rem, 6vw, 4.8rem);
-      line-height: .95; letter-spacing: -.02em;
+      font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+      line-height: 1; letter-spacing: .01em;
+      text-transform: uppercase;
       color: var(--forest-green);
       margin: 0 0 1.2rem;
     }
@@ -194,13 +200,16 @@
     /* scoped headings inside spel so they don't override homepage h2/h3 */
     .spel-main h2, .spel-sidebar h2 {
       font-family: "Lilita One", system-ui, sans-serif;
-      font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+      font-size: clamp(1.4rem, 2.4vw, 1.9rem);
       color: var(--forest-green);
-      margin: 0 0 1rem; letter-spacing: -.015em;
+      margin: 0 0 1rem;
+      letter-spacing: .02em;
+      text-transform: uppercase;
     }
     .spel-main h3, .spel-sidebar h3 {
-      font-size: 1.1rem; font-weight: 800;
+      font-size: 1.05rem; font-weight: 800;
       color: var(--forest-green); margin: 0 0 .5rem;
+      letter-spacing: .01em;
     }
 
     .content-block { margin-bottom: 2.5rem; }
@@ -929,11 +938,6 @@
           <!-- Gestippelde SVG lijn van links naar foto -->
           <svg class="hero-dashed-svg" viewBox="0 0 420 80" preserveAspectRatio="none" aria-hidden="true">
             <path class="hero-dashed-path" d="M 10 60 C 80 60, 160 10, 260 30"/>
-            <!-- kruisje aan het begin -->
-            <g class="hero-cross" transform="translate(6,56)">
-              <rect x="-1.5" y="-8" width="3" height="16" rx="1.5"/>
-              <rect x="-8" y="-1.5" width="16" height="3" rx="1.5"/>
-            </g>
           </svg>
 
           <!-- Foto als kaart -->
