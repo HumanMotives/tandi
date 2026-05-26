@@ -47,61 +47,49 @@
     .spel-hero {
       background: var(--sand);
       padding: clamp(32px, 4vw, 56px) 0 0;
-      overflow: visible;
       position: relative;
+      overflow: hidden; /* blob wordt hier afgesneden */
     }
+
+    /* blob zit direct in .spel-hero, buiten de grid */
+    .hero-blob {
+      position: absolute;
+      width: 820px; height: 360px;
+      background: var(--sun-yellow);
+      border-radius: 50%;
+      bottom: -140px; right: -180px;
+      opacity: .42;
+      animation: blobPulse 7s ease-in-out infinite;
+      z-index: 0; /* achter alles in de hero */
+      pointer-events: none;
+    }
+    @keyframes blobPulse {
+      0%, 100% { transform: scaleX(1) scaleY(1); }
+      50%       { transform: scaleX(1.04) scaleY(1.06) translate(-10px, -8px); }
+    }
+
     .spel-hero-inner {
       display: grid;
       grid-template-columns: 1fr 400px;
       gap: 2rem;
       align-items: flex-end;
       position: relative;
-      z-index: 2;
+      z-index: 2; /* boven de blob */
     }
     .spel-hero-copy { padding-bottom: 2.5rem; }
 
-    /* blob + dashed line connector */
+    /* visual wrapper */
     .spel-hero-visual {
       position: relative;
       display: flex; align-items: flex-end; justify-content: flex-end;
+      z-index: 2;
     }
 
-    /* brede lage ellips blob — zit op z-index 0, wordt afgesneden door witte sectie */
-    .hero-blob {
-      position: absolute;
-      width: 820px; height: 360px;
-      background: var(--sun-yellow);
-      border-radius: 50%;
-      bottom: -120px; right: -200px;
-      opacity: .42;
-      animation: blobPulse 7s ease-in-out infinite;
-      z-index: 0;
-    }
-    @keyframes blobPulse {
-      0%, 100% { transform: scaleX(1) scaleY(1) translate(0, 0); }
-      50%       { transform: scaleX(1.04) scaleY(1.06) translate(-12px, -10px); }
-    }
-
-    /* photo card: volledig afgerond, overlapt 60px in witte sectie */
-    .hero-photo-card {
-      position: relative; z-index: 3;
-      width: 340px;
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 24px 60px rgba(36,69,34,.2);
-      background: var(--nature-green);
-      margin-bottom: -60px;
-    }
-    .hero-photo-card img {
-      width: 100%; height: 380px;
-      object-fit: cover; display: block;
-    }
-
-    /* dashed SVG path from copy to photo */
+    /* stippellijn: z-index 3, boven de blob maar ONDER de foto */
     .hero-dashed-svg {
       position: absolute;
-      top: 50%; left: 0;
-      width: 100%; height: 120px;
+      top: 50%; left: -60px;
+      width: calc(100% + 60px); height: 120px;
       overflow: visible;
       pointer-events: none;
       z-index: 3;
@@ -122,6 +110,22 @@
     @keyframes dashFloat {
       0%, 100% { transform: translateY(0); }
       50%       { transform: translateY(-5px); }
+    }
+
+    /* foto: z-index 4, boven alles — steekt 60px uit de hero */
+    .hero-photo-card {
+      position: relative;
+      z-index: 4;
+      width: 340px;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(36,69,34,.2);
+      background: var(--nature-green);
+      margin-bottom: -60px;
+    }
+    .hero-photo-card img {
+      width: 100%; height: 380px;
+      object-fit: cover; display: block;
     }
     .category-tag {
       display: inline-flex; align-items: center; gap: .4rem;
@@ -903,6 +907,9 @@
 
     <!-- Spel hero -->
     <section class="spel-hero">
+      <!-- Blob direct in sectie zodat overflow:hidden hem afsnijdt -->
+      <div class="hero-blob" aria-hidden="true"></div>
+
       <div class="container spel-hero-inner">
         <div class="spel-hero-copy" data-reveal>
           <span class="category-tag">
@@ -934,10 +941,7 @@
         </div>
 
         <div class="spel-hero-visual" data-reveal>
-          <!-- Animerende blob -->
-          <div class="hero-blob"></div>
-
-          <!-- Gestippelde SVG lijn van links naar foto -->
+          <!-- Gestippelde SVG lijn -->
           <svg class="hero-dashed-svg" viewBox="0 0 420 80" preserveAspectRatio="none" aria-hidden="true">
             <path class="hero-dashed-path" d="M 10 60 C 80 60, 160 10, 260 30"/>
           </svg>
@@ -952,7 +956,7 @@
     </section>
 
     <!-- Main content + sidebar -->
-    <div style="background:var(--white);padding-top:80px;position:relative;z-index:1;">
+    <div style="background:var(--white);padding-top:80px;position:relative;z-index:2;">
       <div class="container">
         <div class="spel-layout">
 
