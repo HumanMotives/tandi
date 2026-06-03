@@ -664,6 +664,69 @@
     .tab-panel { display: none; }
     .tab-panel.is-active { display: block; }
 
+    .tab-btn-pdf {
+      color: var(--night-blue) !important;
+    }
+    .tab-btn-pdf.is-active {
+      color: var(--night-blue) !important;
+      border-bottom-color: var(--night-blue) !important;
+      background: rgba(3,59,110,.05) !important;
+    }
+
+    /* ── PDF opt-in tab panel ── */
+    .pdf-optin-wrap {
+      background: var(--sand);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      border: 1px solid rgba(36,69,34,.08);
+    }
+    .pdf-optin-header {
+      display: flex; align-items: center; gap: 1.2rem;
+      margin-bottom: 1.8rem;
+    }
+    .pdf-optin-icon {
+      width: 56px; height: 56px; border-radius: 16px; flex-shrink: 0;
+      background: var(--forest-green);
+      display: grid; place-items: center;
+      font-size: 1.5rem; color: var(--nature-green);
+    }
+    .pdf-optin-form-wrap {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 1.6rem;
+      border: 1px solid rgba(36,69,34,.1);
+    }
+    .pdf-optin-form-header {
+      display: flex; align-items: flex-start; gap: .9rem;
+      margin-bottom: 1.2rem;
+    }
+    .pdf-optin-form-header strong { display: block; font-weight: 800; font-size: .95rem; color: var(--forest-green); margin-bottom: .2rem; }
+    .pdf-optin-form-header span  { font-size: .85rem; color: rgba(23,49,26,.65); }
+    .pdf-optin-fields {
+      display: grid; grid-template-columns: 1fr 1fr auto; gap: .65rem;
+      align-items: center;
+    }
+    .pdf-optin-fields input {
+      min-height: 48px; border: 1.5px solid rgba(36,69,34,.15);
+      border-radius: 999px; padding: 0 1.1rem;
+      font: inherit; font-size: .9rem; font-weight: 600;
+      background: var(--sand);
+    }
+    .pdf-optin-fields input:focus { outline: none; border-color: var(--nature-green); }
+    .btn-optin {
+      display: inline-flex; align-items: center; gap: .5rem;
+      height: 48px; padding: 0 1.4rem; white-space: nowrap;
+      background: var(--forest-green); color: white;
+      border: 0; border-radius: 999px;
+      font: inherit; font-weight: 900; font-size: .9rem;
+      cursor: pointer; transition: transform .15s ease;
+    }
+    .btn-optin:hover { transform: translateY(-2px); }
+    .pdf-optin-fine { font-size: .75rem; color: rgba(23,49,26,.5); margin-top: .8rem; }
+    @media (max-width: 640px) {
+      .pdf-optin-fields { grid-template-columns: 1fr; }
+    }
+
     /* ── Members wall ── */
     .members-wall {
       text-align: center;
@@ -1090,7 +1153,10 @@
                 <i class="fa-solid fa-play-circle"></i> Speluitleg
               </button>
               <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-bijsturen"    id="tbtn-bijsturen"    onclick="switchTab('bijsturen')">
-                <i class="fa-solid fa-sliders"></i> Bijsturen
+                <i class="fa-solid fa-sliders"></i> Verdieping
+              </button>
+              <button class="tab-btn tab-btn-pdf" role="tab" aria-selected="false" aria-controls="tab-pdf" id="tbtn-pdf" onclick="switchTab('pdf')">
+                <i class="fa-solid fa-download"></i> PDF Download
               </button>
               <button class="tab-btn tab-btn-locked" role="tab" aria-selected="false" aria-controls="tab-achtergrond"  id="tbtn-achtergrond"  onclick="switchTab('achtergrond')">
                 <i class="fa-solid fa-lock"></i> Achtergrond <span class="tab-members-badge">Leden</span>
@@ -1225,7 +1291,66 @@
             </div><!-- /tab-bijsturen -->
 
 
-            <!-- ══ TAB 3: ACHTERGROND (leden) ══ -->
+            <!-- ══ TAB 3: PDF DOWNLOAD (opt-in) ══ -->
+            <div class="tab-panel" id="tab-pdf" role="tabpanel" aria-labelledby="tbtn-pdf">
+
+              <div class="pdf-optin-wrap" data-reveal>
+
+                <!-- Wat zit erin -->
+                <div class="pdf-optin-header">
+                  <div class="pdf-optin-icon"><i class="fa-solid fa-file-pdf"></i></div>
+                  <div>
+                    <h2 style="text-transform:uppercase;font-family:'Lilita One',sans-serif;font-size:1.7rem;color:var(--forest-green);margin:0 0 .3rem;">Kant-en-klaar pakket</h2>
+                    <p style="color:rgba(23,49,26,.7);font-size:1rem;margin:0;">Direct inzetbaar voor je volgende clubavond.</p>
+                  </div>
+                </div>
+
+                <!-- Wat zit erin -->
+                <div class="checklist-block" style="margin-bottom:2rem;">
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-map"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Printklare kaart van Nederland</strong><p>A3/A2 formaat, klaar om te printen en te lamineren.</p></div>
+                  </div>
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-id-card"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Markeerkaartjes per kind</strong><p>Knip-en-plak kaartjes zodat elk kind zijn eigen plekken kan aangeven.</p></div>
+                  </div>
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-book-open"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Begeleidersinstructies</strong><p>Stap-voor-stap uitleg voor de leiding, inclusief tips voor versimpelen en uitdagen.</p></div>
+                  </div>
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-sliders"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Variatiekaarten</strong><p>Losse kaartjes met verdiepende vragen voor als de groep er klaar voor is.</p></div>
+                  </div>
+                </div>
+
+                <!-- Opt-in form -->
+                <div class="pdf-optin-form-wrap">
+                  <div class="pdf-optin-form-header">
+                    <i class="fa-solid fa-envelope-open-text" style="font-size:1.3rem;color:var(--forest-green);"></i>
+                    <div>
+                      <strong>Ontvang de PDF gratis in je mailbox</strong>
+                      <span>Je ontvangt ook maandelijks nieuwe spellen &amp; activiteitenideeën.</span>
+                    </div>
+                  </div>
+                  <div class="pdf-optin-fields">
+                    <input type="text"  placeholder="Voornaam"    aria-label="Voornaam">
+                    <input type="email" placeholder="E-mailadres" aria-label="E-mailadres">
+                    <button class="btn-optin" onclick="submitPdfOptin()">
+                      <i class="fa-solid fa-download"></i> Stuur mij de PDF
+                    </button>
+                  </div>
+                  <p class="pdf-optin-fine">Geen spam. Uitschrijven kan altijd. Je gegevens worden niet gedeeld.</p>
+                </div>
+
+              </div>
+
+            </div><!-- /tab-pdf -->
             <div class="tab-panel" id="tab-achtergrond" role="tabpanel" aria-labelledby="tbtn-achtergrond">
 
               <!-- Inlog wall -->
@@ -1398,6 +1523,11 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
+    function submitPdfOptin() {
+      showToast('✓ PDF is onderweg naar je mailbox!');
+      switchTab('speluitleg');
+    }
+
     /* ── Tab switcher ── */
     function switchTab(name) {
       document.querySelectorAll('.tab-btn').forEach(b => {
