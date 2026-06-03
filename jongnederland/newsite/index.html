@@ -628,6 +628,99 @@
     @media (max-width: 560px) {
       .related-grid { grid-template-columns: 1fr; }
     }
+    /* ── Tabs ── */
+    .tab-nav {
+      display: flex; gap: .5rem; flex-wrap: wrap;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid rgba(36,69,34,.1);
+      padding-bottom: 0;
+    }
+    .tab-btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .7rem 1.2rem;
+      border: 0; border-radius: 12px 12px 0 0;
+      background: transparent;
+      color: rgba(23,49,26,.55);
+      font: inherit; font-weight: 700; font-size: .9rem;
+      cursor: pointer;
+      margin-bottom: -2px;
+      border-bottom: 2px solid transparent;
+      transition: color .2s, border-color .2s, background .2s;
+    }
+    .tab-btn:hover { color: var(--forest-green); background: rgba(36,69,34,.05); }
+    .tab-btn.is-active {
+      color: var(--forest-green);
+      border-bottom-color: var(--forest-green);
+      background: rgba(36,69,34,.04);
+    }
+    .tab-btn-locked { position: relative; }
+    .tab-members-badge {
+      display: inline-flex; align-items: center;
+      background: var(--night-blue); color: white;
+      font-size: .65rem; font-weight: 900;
+      padding: .15rem .5rem; border-radius: 999px;
+      letter-spacing: .04em; text-transform: uppercase;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.is-active { display: block; }
+
+    /* ── Members wall ── */
+    .members-wall {
+      text-align: center;
+      padding: 2.5rem 2rem;
+      background: var(--sand);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(36,69,34,.08);
+    }
+    .members-wall-icon {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: var(--forest-green); color: white;
+      display: grid; place-items: center;
+      font-size: 1.4rem; margin: 0 auto 1.2rem;
+    }
+    .members-wall p { color: rgba(23,49,26,.72); font-size: .95rem; max-width: 420px; margin: 0 auto .5rem; }
+    .members-wall-actions {
+      display: flex; gap: .75rem; justify-content: center;
+      flex-wrap: wrap; margin: 1.4rem 0 1rem;
+    }
+    .btn-members-login {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .85rem 1.4rem; border-radius: 999px;
+      background: var(--forest-green); color: white;
+      font-weight: 900; font-size: .95rem;
+      transition: transform .15s ease;
+    }
+    .btn-members-login:hover { transform: translateY(-2px); }
+    .btn-members-join {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .85rem 1.4rem; border-radius: 999px;
+      background: white; color: var(--forest-green);
+      border: 1.5px solid rgba(36,69,34,.2);
+      font-weight: 900; font-size: .95rem;
+      transition: transform .15s ease;
+    }
+    .btn-members-join:hover { transform: translateY(-2px); }
+    .members-fine { font-size: .75rem !important; opacity: .6; }
+
+    /* blurred content preview */
+    .members-preview {
+      margin-top: 1.8rem;
+      border-radius: 16px; overflow: hidden;
+      border: 1px solid rgba(36,69,34,.1);
+      pointer-events: none; user-select: none;
+    }
+    .preview-blur {
+      padding: 1.4rem;
+      filter: blur(5px); opacity: .45;
+      background: white;
+    }
+    .preview-block { margin-bottom: 1.2rem; }
+    .preview-heading { height: 18px; width: 40%; background: var(--forest-green); border-radius: 6px; margin-bottom: .7rem; opacity: .5; }
+    .preview-line { height: 10px; background: rgba(36,69,34,.2); border-radius: 4px; margin-bottom: .45rem; }
+    .preview-line.short { width: 65%; }
+    .preview-tags { display: flex; gap: .5rem; margin-top: .8rem; }
+    .preview-tags span { height: 28px; width: 90px; background: var(--nature-green); border-radius: 999px; opacity: .4; }
+
   </style>
 </head>
 <body>
@@ -988,98 +1081,186 @@
       <div class="container">
         <div class="spel-layout">
 
-          <!-- Linker kolom -->
+          <!-- Linker kolom: tabs -->
           <div class="spel-main">
 
-            <div class="content-block" data-reveal>
-              <h2>Wat is het spel?</h2>
-              <p>De Landkaart is een laagdrempelig kennismakingsspel waarbij een kaart van Nederland als aanleiding dient om iets over jezelf te vertellen. Kinderen markeren plaatsen die voor hen betekenis hebben — hun geboorteplek, woonplaats, een fijne vakantiebestemming of de plek waar opa en oma wonen.</p>
-              <p>Door de bal te gooien bepaalt het toeval wie er aan de beurt is. Dat maakt het spannend en voorkomt dat kinderen lang hoeven te wachten. Iedereen komt aan de beurt, iedereen wordt gehoord.</p>
+            <!-- TAB NAV -->
+            <div class="tab-nav" role="tablist" aria-label="Spelinhoud">
+              <button class="tab-btn is-active" role="tab" aria-selected="true"  aria-controls="tab-speluitleg"   id="tbtn-speluitleg"   onclick="switchTab('speluitleg')">
+                <i class="fa-solid fa-play-circle"></i> Speluitleg
+              </button>
+              <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-bijsturen"    id="tbtn-bijsturen"    onclick="switchTab('bijsturen')">
+                <i class="fa-solid fa-sliders"></i> Bijsturen
+              </button>
+              <button class="tab-btn tab-btn-locked" role="tab" aria-selected="false" aria-controls="tab-achtergrond"  id="tbtn-achtergrond"  onclick="switchTab('achtergrond')">
+                <i class="fa-solid fa-lock"></i> Achtergrond <span class="tab-members-badge">Leden</span>
+              </button>
             </div>
 
-            <div class="content-block" data-reveal>
-              <h2>Zo speel je het</h2>
-              <ol class="spel-steps">
-                <li><p><strong>Leg de kaart neer.</strong> Leg een grote kaart van Nederland op de grond in het midden van de ruimte. Zorg dat alle kinderen eromheen kunnen staan of zitten.</p></li>
-                <li><p><strong>Markeer je plek.</strong> Vraag elk kind om een paar plaatsnamen op de kaart aan te wijzen die voor hen betekenis hebben. Geef ze even de tijd om na te denken. Het mogen meerdere plekken zijn.</p></li>
-                <li><p><strong>Gooi de bal.</strong> De groepsleider gooit de bal naar een willekeurig kind. Dat kind vertelt kort iets over één van zijn of haar gemarkeerde plekken: "Hier ben ik geboren", "Hier woont mijn opa", of "Hier was de beste vakantie ooit".</p></li>
-                <li><p><strong>Gooi door.</strong> Als het kind klaar is met vertellen, gooit het de bal naar een ander. Zo gaat het door totdat iedereen minstens één keer aan de beurt is geweest.</p></li>
-                <li><p><strong>Sluit af.</strong> Sluit het spel af met een korte ronde: wie vond iets verrassends of herkende iets bij iemand anders?</p></li>
-              </ol>
-            </div>
+            <!-- ══ TAB 1: SPELUITLEG ══ -->
+            <div class="tab-panel is-active" id="tab-speluitleg" role="tabpanel" aria-labelledby="tbtn-speluitleg">
 
-            <div class="tip-block" data-reveal>
-              <strong><i class="fa-solid fa-lightbulb" style="color:var(--sun-yellow);margin-right:.4rem;"></i> Tip voor begeleiders</strong>
-              Doe zelf ook mee! Als groepsleider vertel jij als eerste iets over jouw gemarkeerde plek. Dat verlaagt de drempel voor kinderen die wat verlegen zijn. Benoem ook wat je opvalt aan overeenkomsten: "Hé, drie mensen hebben Den Haag gemarkeerd — vertel!"
-            </div>
+              <div class="content-block" data-reveal>
+                <h2>Wat is het spel?</h2>
+                <p>De Landkaart is een laagdrempelig kennismakingsspel waarbij een kaart van Nederland als aanleiding dient om iets over jezelf te vertellen. Kinderen markeren plaatsen die voor hen betekenis hebben — hun geboorteplek, woonplaats, een fijne vakantiebestemming of de plek waar opa en oma wonen.</p>
+                <p>Door de bal te gooien bepaalt het toeval wie er aan de beurt is. Dat maakt het spannend en voorkomt dat kinderen lang hoeven te wachten. Iedereen komt aan de beurt, iedereen wordt gehoord.</p>
+              </div>
 
-            <div class="content-block" data-reveal>
-              <h2>Wat heb je nodig?</h2>
-              <div class="checklist-block">
-                <div class="checklist-row">
-                  <div class="checklist-icon"><i class="fa-solid fa-map"></i></div>
-                  <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
-                  <div class="checklist-body">
-                    <strong>Kaart van Nederland</strong>
-                    <p>Een afdrukbare of ingekochte kaart, minimaal A2 formaat, liefst laminaat zodat je hem vaker kunt gebruiken.</p>
+              <div class="content-block" data-reveal>
+                <h2>Zo speel je het</h2>
+                <ol class="spel-steps">
+                  <li><p><strong>Leg de kaart neer.</strong> Leg een grote kaart van Nederland op de grond in het midden van de ruimte. Zorg dat alle kinderen eromheen kunnen staan of zitten.</p></li>
+                  <li><p><strong>Markeer je plek.</strong> Vraag elk kind om een paar plaatsnamen op de kaart aan te wijzen die voor hen betekenis hebben. Geef ze even de tijd om na te denken.</p></li>
+                  <li><p><strong>Gooi de bal.</strong> De groepsleider gooit de bal naar een willekeurig kind. Dat kind vertelt kort iets over één van zijn of haar gemarkeerde plekken.</p></li>
+                  <li><p><strong>Gooi door.</strong> Als het kind klaar is met vertellen, gooit het de bal naar een ander. Zo gaat het door totdat iedereen minstens één keer aan de beurt is geweest.</p></li>
+                  <li><p><strong>Sluit af.</strong> Sluit het spel af met een korte ronde: wie vond iets verrassends of herkende iets bij iemand anders?</p></li>
+                </ol>
+              </div>
+
+              <div class="tip-block" data-reveal>
+                <strong><i class="fa-solid fa-lightbulb" style="color:var(--sun-yellow);margin-right:.4rem;"></i> Tip voor begeleiders</strong>
+                Doe zelf ook mee! Als groepsleider vertel jij als eerste iets over jouw gemarkeerde plek. Dat verlaagt de drempel voor kinderen die wat verlegen zijn.
+              </div>
+
+              <div class="content-block" data-reveal>
+                <h2>Wat heb je nodig?</h2>
+                <div class="checklist-block">
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-map"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Kaart van Nederland</strong><p>Een afdrukbare of ingekochte kaart, minimaal A2 formaat, liefst laminaat.</p></div>
                   </div>
-                </div>
-                <div class="checklist-row">
-                  <div class="checklist-icon"><i class="fa-solid fa-circle-dot"></i></div>
-                  <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
-                  <div class="checklist-body">
-                    <strong>Stickers of markers</strong>
-                    <p>Schrijfbare stipjes, post-it vlaggetjes of stiften om plekken op de kaart te markeren. Eén kleur per kind werkt het beste.</p>
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-circle-dot"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Stickers of markers</strong><p>Schrijfbare stipjes of post-it vlaggetjes. Eén kleur per kind werkt het beste.</p></div>
                   </div>
-                </div>
-                <div class="checklist-row">
-                  <div class="checklist-icon"><i class="fa-solid fa-football"></i></div>
-                  <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
-                  <div class="checklist-body">
-                    <strong>Een bal</strong>
-                    <p>Elke bal voldoet — of gebruik een opgerold jasje als je niets bij de hand hebt.</p>
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-football"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Een bal</strong><p>Elke bal voldoet — of gebruik een opgerold jasje.</p></div>
                   </div>
                 </div>
               </div>
 
-            </div>
-
-            <!-- Share bar -->
-            <div class="share-bar" data-reveal>
-              <span class="share-label">Delen:</span>
-              <button class="share-btn whatsapp" onclick="shareWhatsApp()"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
-              <button class="share-btn facebook" onclick="shareFacebook()"><i class="fa-brands fa-facebook"></i> Facebook</button>
-              <button class="share-btn copy" onclick="copyLink()"><i class="fa-solid fa-link"></i> Link kopiëren</button>
-              <button class="share-btn print" onclick="window.print()"><i class="fa-solid fa-print"></i> Afdrukken</button>
-            </div>
-
-            <!-- Related -->
-            <div class="related-section" data-reveal>
-              <h2>Meer kennismakingsspellen</h2>
-              <div class="related-grid">
-                <a class="related-card" href="#">
-                  <div class="related-card-img" style="background:var(--water-blue);">
-                    <svg viewBox="0 0 260 130" style="width:100%;height:100%;"><rect width="260" height="130" fill="#8FD4EC"/><circle cx="80" cy="65" r="30" fill="#244522" opacity=".2"/><circle cx="180" cy="65" r="30" fill="#244522" opacity=".2"/></svg>
-                    <span class="age">6+</span>
-                  </div>
-                  <div class="related-card-body"><p class="cat">Kennismakingsspel</p><h3>Wie ben ik?</h3></div>
-                </a>
-                <a class="related-card" href="#">
-                  <div class="related-card-img" style="background:var(--sun-yellow);">
-                    <svg viewBox="0 0 260 130" style="width:100%;height:100%;"><rect width="260" height="130" fill="#F5C368"/><rect x="80" y="30" width="100" height="70" rx="12" fill="#244522" opacity=".18"/></svg>
-                    <span class="age">8+</span>
-                  </div>
-                  <div class="related-card-body"><p class="cat">Kringspel</p><h3>Raap &amp; Vertel</h3></div>
-                </a>
-                <a class="related-card" href="#">
-                  <div class="related-card-img" style="background:var(--nature-green);">
-                    <svg viewBox="0 0 260 130" style="width:100%;height:100%;"><rect width="260" height="130" fill="#AACF64"/><polygon points="130,20 200,110 60,110" fill="#244522" opacity=".2"/></svg>
-                    <span class="age">10+</span>
-                  </div>
-                  <div class="related-card-body"><p class="cat">Behendigheid</p><h3>Menselijke Knoop</h3></div>
-                </a>
+              <!-- Share bar -->
+              <div class="share-bar" data-reveal>
+                <span class="share-label">Delen:</span>
+                <button class="share-btn whatsapp" onclick="shareWhatsApp()"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+                <button class="share-btn facebook" onclick="shareFacebook()"><i class="fa-brands fa-facebook"></i> Facebook</button>
+                <button class="share-btn copy" onclick="copyLink()"><i class="fa-solid fa-link"></i> Link kopiëren</button>
+                <button class="share-btn print" onclick="window.print()"><i class="fa-solid fa-print"></i> Afdrukken</button>
               </div>
-            </div>
+
+              <!-- Related -->
+              <div class="related-section" data-reveal>
+                <h2>Meer kennismakingsspellen</h2>
+                <div class="related-grid">
+                  <a class="related-card" href="#"><div class="related-card-img" style="background:var(--water-blue);"><svg viewBox="0 0 260 130" style="width:100%;height:100%;"><rect width="260" height="130" fill="#8FD4EC"/><circle cx="80" cy="65" r="30" fill="#244522" opacity=".2"/><circle cx="180" cy="65" r="30" fill="#244522" opacity=".2"/></svg><span class="age">6+</span></div><div class="related-card-body"><p class="cat">Kennismakingsspel</p><h3>Wie ben ik?</h3></div></a>
+                  <a class="related-card" href="#"><div class="related-card-img" style="background:var(--sun-yellow);"><svg viewBox="0 0 260 130" style="width:100%;height:100%;"><rect width="260" height="130" fill="#F5C368"/><rect x="80" y="30" width="100" height="70" rx="12" fill="#244522" opacity=".18"/></svg><span class="age">8+</span></div><div class="related-card-body"><p class="cat">Kringspel</p><h3>Raap &amp; Vertel</h3></div></a>
+                  <a class="related-card" href="#"><div class="related-card-img" style="background:var(--nature-green);"><svg viewBox="0 0 260 130" style="width:100%;height:100%;"><rect width="260" height="130" fill="#AACF64"/><polygon points="130,20 200,110 60,110" fill="#244522" opacity=".2"/></svg><span class="age">10+</span></div><div class="related-card-body"><p class="cat">Behendigheid</p><h3>Menselijke Knoop</h3></div></a>
+                </div>
+              </div>
+
+            </div><!-- /tab-speluitleg -->
+
+
+            <!-- ══ TAB 2: BIJSTUREN ══ -->
+            <div class="tab-panel" id="tab-bijsturen" role="tabpanel" aria-labelledby="tbtn-bijsturen">
+
+              <div class="content-block" data-reveal>
+                <h2>Versimpelen</h2>
+                <p>Loopt het spel stroef of is de groep nog niet op z'n gemak? Gebruik deze aanpassingen om de drempel te verlagen.</p>
+                <div class="checklist-block">
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-circle-minus"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Eén zin is genoeg</strong><p>Vertel kinderen dat één korte zin al voldoende is: "Hier ben ik geboren." Geen druk om een lang verhaal te vertellen.</p></div>
+                  </div>
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-hand"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Pas aan of sla over</strong><p>Laat kinderen die echt niet willen vertellen de bal simpelweg doorgooien. Betrokkenheid gaat boven verplichte deelname.</p></div>
+                  </div>
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-map-location"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Bekende steden noemen</strong><p>Wijs zelf een paar grote steden aan als voorbeeld zodat kinderen begrijpen wat bedoeld wordt. Geef ook jouw eigen plek aan.</p></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="content-block" data-reveal>
+                <h2>Uitdagender maken</h2>
+                <p>Gaat het goed en wil je meer diepgang of energie? Schaal het spel op met deze variaties.</p>
+                <div class="checklist-block">
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-circle-plus"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Verdiepende vragen</strong><p>Na het vertellen mag de groep één vraag stellen: "Waarom is die plek bijzonder voor jou?" Dit verdiept het gesprek.</p></div>
+                  </div>
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Tijdsdruk</strong><p>Gebruik een timer van 30 seconden. De verteller moet binnen de tijd klaar zijn. Geeft energie en zorgt dat niemand te lang spreekt.</p></div>
+                  </div>
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-globe"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Wereldkaart</strong><p>Wissel de kaart van Nederland uit voor een wereldkaart. Ideaal voor groepen met kinderen met internationale wortels.</p></div>
+                  </div>
+                  <div class="checklist-row">
+                    <div class="checklist-icon"><i class="fa-solid fa-link"></i></div>
+                    <div class="checklist-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="checklist-body"><strong>Verbindingen zoeken</strong><p>Vraag na afloop wie overlappende plekken heeft. Laat kinderen zelf ontdekken wat ze gemeen hebben met anderen.</p></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tip-block" data-reveal>
+                <strong><i class="fa-solid fa-eye" style="color:var(--sun-yellow);margin-right:.4rem;"></i> Let op tijdens het spel</strong>
+                Observeer wie de bal naar wie gooit. Kinderen kiezen vaak vrienden — gooi de bal zelf gericht naar stille kinderen om ze te betrekken zonder ze te dwingen.
+              </div>
+
+            </div><!-- /tab-bijsturen -->
+
+
+            <!-- ══ TAB 3: ACHTERGROND (leden) ══ -->
+            <div class="tab-panel" id="tab-achtergrond" role="tabpanel" aria-labelledby="tbtn-achtergrond">
+
+              <!-- Inlog wall -->
+              <div class="members-wall" data-reveal>
+                <div class="members-wall-icon"><i class="fa-solid fa-lock"></i></div>
+                <h2 style="text-transform:uppercase;font-family:'Lilita One',sans-serif;color:var(--forest-green);font-size:1.8rem;margin-bottom:.5rem;">Alleen voor leden</h2>
+                <p>De pedagogische achtergrond, ontwikkelingsdoelen en jeugdwerkonderbouwing van dit spel zijn beschikbaar voor aangesloten clubs en vrijwilligers van Jong Nederland.</p>
+                <div class="members-wall-actions">
+                  <a class="btn-members-login" href="#"><i class="fa-solid fa-user"></i> Inloggen</a>
+                  <a class="btn-members-join" href="#"><i class="fa-solid fa-house-chimney"></i> Club aansluiten</a>
+                </div>
+                <p class="members-fine">Al lid van een aangesloten club? Vraag je begeleider om toegang.</p>
+
+                <!-- Preview (gesimuleerd wazig) -->
+                <div class="members-preview" aria-hidden="true">
+                  <div class="preview-blur">
+                    <div class="preview-block">
+                      <div class="preview-heading"></div>
+                      <div class="preview-line"></div>
+                      <div class="preview-line short"></div>
+                      <div class="preview-line"></div>
+                    </div>
+                    <div class="preview-tags">
+                      <span></span><span></span><span></span>
+                    </div>
+                    <div class="preview-block">
+                      <div class="preview-heading"></div>
+                      <div class="preview-line"></div>
+                      <div class="preview-line short"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /tab-achtergrond -->
 
           </div><!-- /spel-main -->
 
@@ -1217,6 +1398,18 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
+    /* ── Tab switcher ── */
+    function switchTab(name) {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('is-active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('is-active'));
+      document.getElementById('tbtn-' + name).classList.add('is-active');
+      document.getElementById('tbtn-' + name).setAttribute('aria-selected', 'true');
+      document.getElementById('tab-' + name).classList.add('is-active');
+    }
+
     /* ── Like toggle ── */
     function toggleLike() {
       const btn = document.getElementById('like-btn');
