@@ -33,7 +33,7 @@
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
-      font-size: 16px;
+      font-size: 18px;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
@@ -54,27 +54,27 @@
 
     /* ── Type ── */
     .eyebrow {
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--muted);
       font-weight: 600;
     }
     h1 {
-      font-size: 2rem;
+      font-size: 2.6rem;
       font-weight: 700;
       letter-spacing: -0.03em;
-      line-height: 1.15;
+      line-height: 1.1;
       color: var(--text);
     }
     .lead {
-      font-size: 0.95rem;
+      font-size: 1.1rem;
       color: var(--muted);
       text-align: center;
-      max-width: 280px;
+      max-width: 300px;
     }
     .step-label {
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
       color: var(--muted);
@@ -82,13 +82,13 @@
       align-self: flex-start;
     }
     .step-title {
-      font-size: 1.4rem;
+      font-size: 1.7rem;
       font-weight: 700;
       letter-spacing: -0.02em;
       align-self: flex-start;
     }
     .step-sub {
-      font-size: 0.85rem;
+      font-size: 1rem;
       color: var(--muted);
       align-self: flex-start;
       margin-top: -0.5rem;
@@ -104,8 +104,8 @@
       color: var(--bg);
       border: none;
       border-radius: 999px;
-      padding: 0.9rem 2rem;
-      font-size: 0.95rem;
+      padding: 1rem 2rem;
+      font-size: 1.05rem;
       font-weight: 600;
       cursor: pointer;
       width: 100%;
@@ -133,6 +133,45 @@
       width: 100%; height: 100%;
       object-fit: cover;
       display: block;
+    }
+
+    /* ── Camera fullscreen ── */
+    #screenCamera {
+      padding: 0;
+      gap: 0;
+      max-width: 100%;
+      justify-content: flex-end;
+    }
+    #screenCamera video {
+      position: fixed;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+    .camera-ui {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      padding: 1.5rem 1.5rem 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%);
+    }
+    .camera-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      font-weight: 600;
+    }
+    #btnCapture {
+      background: rgba(255,255,255,0.92);
+      color: #1a1714;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
     /* ── Layer cards ── */
@@ -183,8 +222,8 @@
     .layer-card[data-layer="2"] .layer-icon svg { color: var(--l3-acc); }
 
     .layer-meta { display: flex; flex-direction: column; gap: 1px; }
-    .layer-name { font-size: 0.9rem; font-weight: 600; }
-    .layer-time { font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .layer-name { font-size: 1.05rem; font-weight: 600; }
+    .layer-time { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
     /* waveform canvas inside card */
     .layer-wave {
@@ -198,16 +237,20 @@
     .layer-card.is-active .layer-wave,
     .layer-card.is-done   .layer-wave { display: block; }
 
-    /* record indicator dot */
+    /* record button dot — this IS the tap target */
     .layer-dot {
-      width: 28px; height: 28px;
+      width: 44px; height: 44px;
       border-radius: 50%;
-      border: 1.5px solid var(--line);
+      border: 2px solid var(--line);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.1s;
     }
+    .layer-dot:active { transform: scale(0.88); }
     .layer-dot-inner {
-      width: 10px; height: 10px;
+      width: 14px; height: 14px;
       border-radius: 50%;
       background: var(--muted);
       transition: background 0.15s, transform 0.15s;
@@ -218,75 +261,31 @@
     .layer-card[data-layer="0"].is-active .layer-dot-inner { background: var(--l1-acc); animation: pulse 0.9s ease-in-out infinite; }
     .layer-card[data-layer="1"].is-active .layer-dot-inner { background: var(--l2-acc); animation: pulse 0.9s ease-in-out infinite; }
     .layer-card[data-layer="2"].is-active .layer-dot-inner { background: var(--l3-acc); animation: pulse 0.9s ease-in-out infinite; }
-    .layer-card.is-done .layer-dot-inner  { background: var(--muted); animation: none; }
-    .layer-card.is-done .layer-dot-inner::after {
-      content: '✓';
-      position: absolute;
-      font-size: 8px;
-      color: var(--muted);
+    /* while recording: dot becomes a stop square */
+    .layer-card.is-recording .layer-dot-inner {
+      border-radius: 3px;
+      animation: none !important;
     }
+    .layer-card[data-layer="0"].is-recording .layer-dot-inner { background: var(--l1-acc); }
+    .layer-card[data-layer="1"].is-recording .layer-dot-inner { background: var(--l2-acc); }
+    .layer-card[data-layer="2"].is-recording .layer-dot-inner { background: var(--l3-acc); }
+    .layer-card.is-done .layer-dot { cursor: default; }
+    .layer-card.is-done .layer-dot-inner { background: var(--muted); animation: none; border-radius: 50%; }
 
     @keyframes pulse {
       0%,100% { transform: scale(1); opacity: 1; }
       50%      { transform: scale(1.35); opacity: 0.5; }
     }
 
-    /* ── Big record button ── */
-    .record-zone {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.6rem;
-      width: 100%;
-      padding: 0.5rem 0;
-    }
-    .rec-btn {
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      border: none;
-      background: var(--text);
-      color: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: transform 0.1s, background 0.2s;
-      padding: 0;
-    }
-    .rec-btn:active { transform: scale(0.93); }
-    .rec-btn.is-recording {
-      background: #c0392b;
-    }
-    .rec-btn-dot {
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      background: var(--bg);
-    }
-    .rec-btn-label {
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--bg);
-    }
-    .rec-caption {
-      font-size: 0.75rem;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-    }
-    .timer-row {
-      font-size: 1.25rem;
-      font-weight: 300;
+    /* ── Timer (shown inside active card) ── */
+    .layer-card-timer {
+      font-size: 0.85rem;
       font-variant-numeric: tabular-nums;
-      color: var(--text);
-      letter-spacing: 0.04em;
-      min-height: 1.6rem;
+      color: var(--muted);
+      font-weight: 500;
       transition: color 0.2s;
     }
-    .timer-row.warn { color: #c0392b; }
+    .layer-card-timer.warn { color: #c0392b; }
 
     /* ── Compiling ── */
     .compiling-screen {
@@ -478,11 +477,11 @@
 
 <!-- ══ CAMERA ════════════════════════════════════════════════ -->
 <section id="screenCamera" class="screen">
-  <span class="step-label">Step 1 — Photo</span>
-  <span class="step-title">Take your cover photo</span>
-  <p class="step-sub">This becomes your release artwork.</p>
-  <div class="frame"><video id="cameraVideo" autoplay playsinline muted></video></div>
-  <button class="btn" id="btnCapture">Enable camera</button>
+  <video id="cameraVideo" autoplay playsinline muted></video>
+  <div class="camera-ui">
+    <span class="camera-label">Take your cover photo</span>
+    <button class="btn" id="btnCapture">Enable camera</button>
+  </div>
 </section>
 
 <!-- ══ SNAPSHOT ══════════════════════════════════════════════ -->
@@ -498,22 +497,13 @@
 <section id="screenRecorder" class="screen">
   <span class="step-label" id="recStepLabel">Step 2 — Sound layers</span>
   <span class="step-title" id="recTitle">Record your sound layers</span>
-  <p class="step-sub" id="recSub">Tap the button to start. Tap again to stop. Max 10 sec.</p>
+  <p class="step-sub" id="recSub">Tap the circle on a layer to record. Tap again to stop.</p>
 
   <div class="layer-cards" id="layerCards">
     <!-- generated by JS -->
   </div>
 
-  <div class="record-zone">
-    <div class="timer-row" id="timerRow">—</div>
-    <button class="rec-btn" id="btnRecord">
-      <div class="rec-btn-dot"></div>
-      <span class="rec-btn-label" id="recBtnTxt">REC</span>
-    </button>
-    <span class="rec-caption" id="recCaption">tap to record</span>
-  </div>
-
-  <p id="recTip" style="font-size:0.78rem;color:var(--muted);text-align:center">
+  <p id="recTip" style="font-size:0.9rem;color:var(--muted);text-align:center;margin-top:0.25rem">
     Tip: capture short sounds from your surroundings.
   </p>
 </section>
@@ -610,9 +600,15 @@ function buildLayerCards() {
           <span class="layer-name">${LAYER_NAMES[i]}</span>
           <span class="layer-time" id="cardTime${i}">0:00</span>
         </div>
-        <div class="layer-dot"><div class="layer-dot-inner"></div></div>
+        <div class="layer-dot" id="dot${i}" data-layer="${i}">
+          <div class="layer-dot-inner"></div>
+        </div>
         <canvas class="layer-wave" id="wave${i}" height="24"></canvas>
       </div>`;
+  }
+  // Wire up dot clicks after building
+  for (let i = 0; i < 3; i++) {
+    document.getElementById(`dot${i}`).addEventListener('click', onDotClick);
   }
 }
 
@@ -667,15 +663,11 @@ document.getElementById('btnSnapshotRetake').addEventListener('click', () => {
 });
 
 // ── Recorder ──────────────────────────────────────────────────
-const btnRecord  = document.getElementById('btnRecord');
-const timerRow   = document.getElementById('timerRow');
-const recCaption = document.getElementById('recCaption');
-const recBtnTxt  = document.getElementById('recBtnTxt');
-
 function updateCardStates() {
   for (let i = 0; i < 3; i++) {
     const card = document.getElementById(`card${i}`);
-    card.classList.remove('is-active', 'is-done');
+    if (!card) return;
+    card.classList.remove('is-active', 'is-done', 'is-recording');
     if (i < currentLayer)  card.classList.add('is-done');
     if (i === currentLayer) card.classList.add('is-active');
   }
@@ -689,12 +681,15 @@ async function ensureMic() {
   } catch { toast('🎙 Microphone access needed'); return false; }
 }
 
-btnRecord.addEventListener('click', async () => {
+async function onDotClick(e) {
+  const layerIdx = parseInt(e.currentTarget.dataset.layer);
+  // Only respond to the current active layer's dot
+  if (layerIdx !== currentLayer) return;
   if (isRecording) { stopRec(); return; }
   const ok = await ensureMic();
   if (!ok) return;
   startRec();
-});
+}
 
 function startRec() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -705,12 +700,11 @@ function startRec() {
   recorder.start();
   isRecording = true;
   recStart = Date.now();
-  btnRecord.classList.add('is-recording');
-  recBtnTxt.textContent = 'STOP';
-  recCaption.textContent = 'recording… tap to stop';
-  timerRow.textContent = '0:00';
-  timerRow.classList.remove('warn');
-  timerInt  = setInterval(tickTimer, 80);
+
+  const card = document.getElementById(`card${currentLayer}`);
+  card.classList.add('is-recording');
+
+  timerInt   = setInterval(tickTimer, 80);
   autoStopTO = setTimeout(stopRec, MAX_SEC * 1000);
 }
 
@@ -718,25 +712,25 @@ function stopRec() {
   if (!isRecording) return;
   clearTimeout(autoStopTO); clearInterval(timerInt);
   isRecording = false;
-  btnRecord.classList.remove('is-recording');
-  recBtnTxt.textContent = 'REC';
-  recCaption.textContent = '…';
+  const card = document.getElementById(`card${currentLayer}`);
+  if (card) card.classList.remove('is-recording');
   if (recorder && recorder.state === 'recording') recorder.stop();
 }
 
 function tickTimer() {
   const el = (Date.now() - recStart) / 1000;
   const s  = Math.floor(el);
-  timerRow.textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
-  timerRow.classList.toggle('warn', el > MAX_SEC - 3);
-  document.getElementById(`cardTime${currentLayer}`).textContent =
-    `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  const txt = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  const timeEl = document.getElementById(`cardTime${currentLayer}`);
+  if (timeEl) {
+    timeEl.textContent = txt;
+    timeEl.classList.toggle('warn', el > MAX_SEC - 3);
+  }
 }
 
 async function onRecStop() {
-  timerRow.textContent = '—';
-  timerRow.classList.remove('warn');
-  recCaption.textContent = 'tap to record';
+  const timeEl = document.getElementById(`cardTime${currentLayer}`);
+  if (timeEl) timeEl.classList.remove('warn');
 
   const blob = new Blob(chunks, { type: 'audio/webm' });
   const arrBuf = await blob.arrayBuffer();
