@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Moment / Place</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:       #f7f4f0;
+      --surface:  #ffffff;
+      --line:     #e8e3dc;
+      --text:     #1a1714;
+      --muted:    #9e9890;
+      --deep:     #3d3830;
+
+      /* per-layer accent palette */
+      --l1-bg:    #ede8f5;
+      --l1-acc:   #8b7db8;
+      --l2-bg:    #e5f0ea;
+      --l2-acc:   #5a9470;
+      --l3-bg:    #f5ebe4;
+      --l3-acc:   #c07a52;
+
+      --radius:   16px;
+      --max-w:    420px;
+    }
+
+    html, body {
+      width: 100%; min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Screen system ── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100dvh;
+      padding: 3rem 1.5rem 2.5rem;
+      gap: 1.25rem;
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+    .screen.active { display: flex; }
+
+    /* ── Type ── */
+    .eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: var(--text);
+    }
+    .lead {
+      font-size: 0.95rem;
+      color: var(--muted);
+      text-align: center;
+      max-width: 280px;
+    }
+    .step-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      align-self: flex-start;
+    }
+    .step-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      align-self: flex-start;
+    }
+    .step-sub {
+      font-size: 0.85rem;
+      color: var(--muted);
+      align-self: flex-start;
+      margin-top: -0.5rem;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: 999px;
+      padding: 0.9rem 2rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active { opacity: 0.7; }
+    .btn.secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1.5px solid var(--line);
+    }
+    .btn:disabled { opacity: 0.35; pointer-events: none; }
+
+    /* ── Square photo frame ── */
+    .frame {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--line);
+      position: relative;
+    }
+    .frame video, .frame img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── Layer cards ── */
+    .layer-cards {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .layer-card {
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius);
+      padding: 0.85rem 1rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.85rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .layer-card.is-active  { border-color: var(--l1-acc); }
+    .layer-card[data-layer="0"].is-active { border-color: var(--l1-acc); background: var(--l1-bg); }
+    .layer-card[data-layer="1"].is-active { border-color: var(--l2-acc); background: var(--l2-bg); }
+    .layer-card[data-layer="2"].is-active { border-color: var(--l3-acc); background: var(--l3-bg); }
+    .layer-card[data-layer="0"].is-done   { background: var(--l1-bg); border-color: transparent; opacity: 0.75; }
+    .layer-card[data-layer="1"].is-done   { background: var(--l2-bg); border-color: transparent; opacity: 0.75; }
+    .layer-card[data-layer="2"].is-done   { background: var(--l3-bg); border-color: transparent; opacity: 0.75; }
+
+    .layer-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .layer-card[data-layer="0"] .layer-icon { background: var(--l1-bg); }
+    .layer-card[data-layer="1"] .layer-icon { background: var(--l2-bg); }
+    .layer-card[data-layer="2"] .layer-icon { background: var(--l3-bg); }
+    .layer-card[data-layer="0"].is-active .layer-icon,
+    .layer-card[data-layer="0"].is-done   .layer-icon { background: rgba(139,125,184,0.2); }
+    .layer-card[data-layer="1"].is-active .layer-icon,
+    .layer-card[data-layer="1"].is-done   .layer-icon { background: rgba(90,148,112,0.2); }
+    .layer-card[data-layer="2"].is-active .layer-icon,
+    .layer-card[data-layer="2"].is-done   .layer-icon { background: rgba(192,122,82,0.2); }
+
+    .layer-icon svg { width: 16px; height: 16px; }
+    .layer-card[data-layer="0"] .layer-icon svg { color: var(--l1-acc); }
+    .layer-card[data-layer="1"] .layer-icon svg { color: var(--l2-acc); }
+    .layer-card[data-layer="2"] .layer-icon svg { color: var(--l3-acc); }
+
+    .layer-meta { display: flex; flex-direction: column; gap: 1px; }
+    .layer-name { font-size: 0.9rem; font-weight: 600; }
+    .layer-time { font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    /* waveform canvas inside card */
+    .layer-wave {
+      width: 100%;
+      height: 24px;
+      margin-top: 4px;
+      border-radius: 4px;
+      grid-column: 1 / -1;
+      display: none;
+    }
+    .layer-card.is-active .layer-wave,
+    .layer-card.is-done   .layer-wave { display: block; }
+
+    /* record indicator dot */
+    .layer-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid var(--line);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .layer-dot-inner {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.15s, transform 0.15s;
+    }
+    .layer-card[data-layer="0"] .layer-dot { border-color: var(--l1-acc); }
+    .layer-card[data-layer="1"] .layer-dot { border-color: var(--l2-acc); }
+    .layer-card[data-layer="2"] .layer-dot { border-color: var(--l3-acc); }
+    .layer-card[data-layer="0"].is-active .layer-dot-inner { background: var(--l1-acc); animation: pulse 0.9s ease-in-out infinite; }
+    .layer-card[data-layer="1"].is-active .layer-dot-inner { background: var(--l2-acc); animation: pulse 0.9s ease-in-out infinite; }
+    .layer-card[data-layer="2"].is-active .layer-dot-inner { background: var(--l3-acc); animation: pulse 0.9s ease-in-out infinite; }
+    .layer-card.is-done .layer-dot-inner  { background: var(--muted); animation: none; }
+    .layer-card.is-done .layer-dot-inner::after {
+      content: '✓';
+      position: absolute;
+      font-size: 8px;
+      color: var(--muted);
+    }
+
+    @keyframes pulse {
+      0%,100% { transform: scale(1); opacity: 1; }
+      50%      { transform: scale(1.35); opacity: 0.5; }
+    }
+
+    /* ── Big record button ── */
+    .record-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.5rem 0;
+    }
+    .rec-btn {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      border: none;
+      background: var(--text);
+      color: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.1s, background 0.2s;
+      padding: 0;
+    }
+    .rec-btn:active { transform: scale(0.93); }
+    .rec-btn.is-recording {
+      background: #c0392b;
+    }
+    .rec-btn-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--bg);
+    }
+    .rec-btn-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bg);
+    }
+    .rec-caption {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .timer-row {
+      font-size: 1.25rem;
+      font-weight: 300;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      min-height: 1.6rem;
+      transition: color 0.2s;
+    }
+    .timer-row.warn { color: #c0392b; }
+
+    /* ── Compiling ── */
+    .compiling-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      min-height: 100dvh;
+      padding: 2rem;
+    }
+    .compiling-icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      border: 2px solid var(--line);
+      border-top-color: var(--l1-acc);
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .compiling-sub { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── Playback ── */
+    .playback-layers {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .pb-layer {
+      display: grid;
+      grid-template-columns: 18px 1fr auto;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .pb-layer-icon { width: 18px; }
+    .pb-layer-icon svg { width: 14px; height: 14px; }
+    .pb-wave-wrap {
+      background: var(--line);
+      border-radius: 4px;
+      height: 28px;
+      overflow: hidden;
+    }
+    .pb-wave-wrap canvas { width: 100%; height: 100%; display: block; }
+    .pb-layer-len {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .playback-controls {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      border-radius: 999px;
+      padding: 0.5rem 0.5rem 0.5rem 0.65rem;
+    }
+    .pp-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      padding: 0;
+      transition: opacity 0.15s;
+    }
+    .pp-btn:active { opacity: 0.7; }
+    .progress-bar {
+      flex: 1;
+      height: 3px;
+      background: var(--line);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--text);
+      transition: width 0.3s linear;
+    }
+    .duration-lbl {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      padding-right: 0.4rem;
+    }
+
+    /* ── Divider ── */
+    .divider { width: 100%; height: 1px; background: var(--line); }
+
+    /* ── Welcome illustration ── */
+    .welcome-steps {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+      justify-content: center;
+      width: 100%;
+      padding: 0.5rem 0;
+    }
+    .welcome-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      flex: 1;
+    }
+    .welcome-step-icon {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .welcome-step-icon svg { width: 18px; height: 18px; color: var(--deep); }
+    .welcome-step p {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* ── Publish status ── */
+    .pub-status { font-size: 0.82rem; color: var(--muted); text-align: center; min-height: 1.2em; }
+    .pub-status.ok  { color: var(--l2-acc); }
+    .pub-status.err { color: #c0392b; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 2rem; left: 50%;
+      transform: translateX(-50%);
+      background: var(--deep);
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<!-- ══ WELCOME ══════════════════════════════════════════════ -->
+<section id="screenWelcome" class="screen active">
+  <div style="flex:1"></div>
+  <span class="eyebrow">Moment / Place</span>
+  <h1>Capture.<br>Layer.<br>Release.</h1>
+  <p class="lead">Turn a moment into a micro music album — photo + three sound loops.</p>
+
+  <div class="welcome-steps">
+    <div class="welcome-step">
+      <div class="welcome-step-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M2 12a10 10 0 1 1 20 0 10 10 0 0 1-20 0"/><path d="M8 3.5A14 14 0 0 0 8 20.5M16 3.5a14 14 0 0 1 0 17"/><path d="M2 12h20"/></svg>
+      </div>
+      <p>Capture<br>a moment</p>
+    </div>
+    <div class="welcome-step">
+      <div class="welcome-step-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+      </div>
+      <p>Record<br>3 sound layers</p>
+    </div>
+    <div class="welcome-step">
+      <div class="welcome-step-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg>
+      </div>
+      <p>Release your<br>micro album</p>
+    </div>
+  </div>
+
+  <div style="flex:1"></div>
+  <button class="btn" id="btnStart">Create</button>
+  <p style="font-size:0.75rem;color:var(--muted);text-align:center">Needs camera + microphone</p>
+</section>
+
+<!-- ══ CAMERA ════════════════════════════════════════════════ -->
+<section id="screenCamera" class="screen">
+  <span class="step-label">Step 1 — Photo</span>
+  <span class="step-title">Take your cover photo</span>
+  <p class="step-sub">This becomes your release artwork.</p>
+  <div class="frame"><video id="cameraVideo" autoplay playsinline muted></video></div>
+  <button class="btn" id="btnCapture">Enable camera</button>
+</section>
+
+<!-- ══ SNAPSHOT ══════════════════════════════════════════════ -->
+<section id="screenSnapshot" class="screen">
+  <span class="step-label">Step 1 — Photo</span>
+  <span class="step-title">Use this photo?</span>
+  <div class="frame"><img id="snapshotImg" alt="Your photo"/></div>
+  <button class="btn" id="btnSnapshotOk">Yes — continue</button>
+  <button class="btn secondary" id="btnSnapshotRetake">Retake</button>
+</section>
+
+<!-- ══ RECORDER ══════════════════════════════════════════════ -->
+<section id="screenRecorder" class="screen">
+  <span class="step-label" id="recStepLabel">Step 2 — Sound layers</span>
+  <span class="step-title" id="recTitle">Record your sound layers</span>
+  <p class="step-sub" id="recSub">Tap the button to start. Tap again to stop. Max 10 sec.</p>
+
+  <div class="layer-cards" id="layerCards">
+    <!-- generated by JS -->
+  </div>
+
+  <div class="record-zone">
+    <div class="timer-row" id="timerRow">—</div>
+    <button class="rec-btn" id="btnRecord">
+      <div class="rec-btn-dot"></div>
+      <span class="rec-btn-label" id="recBtnTxt">REC</span>
+    </button>
+    <span class="rec-caption" id="recCaption">tap to record</span>
+  </div>
+
+  <p id="recTip" style="font-size:0.78rem;color:var(--muted);text-align:center">
+    Tip: capture short sounds from your surroundings.
+  </p>
+</section>
+
+<!-- ══ COMPILING ═════════════════════════════════════════════ -->
+<section id="screenCompiling" class="screen" style="justify-content:center">
+  <div class="compiling-icon"></div>
+  <p style="font-size:1.1rem;font-weight:600">Creating your micro album…</p>
+  <p class="compiling-sub">Layering sounds into something beautiful.</p>
+</section>
+
+<!-- ══ PLAYBACK ══════════════════════════════════════════════ -->
+<section id="screenPlayback" class="screen">
+  <span class="step-label">Your release</span>
+  <span class="step-title" id="pbTitle">Your moment</span>
+
+  <div class="frame"><img id="playbackImg" alt="Cover"/></div>
+
+  <div class="playback-layers" id="pbLayers">
+    <!-- generated by JS -->
+  </div>
+
+  <div class="playback-controls">
+    <button class="pp-btn" id="btnPlayPause">▶</button>
+    <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+    <span class="duration-lbl" id="durLbl">—</span>
+  </div>
+
+  <button class="btn" id="btnPublish">Publish</button>
+  <p class="pub-status" id="pubStatus"></p>
+  <button class="btn secondary" id="btnRestart">Start over</button>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────
+const SUPABASE_URL = 'https://owaqngnojlbnbiyala.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93YXFuZ25vamxibmJpeGFpbGF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyOTM0MDAsImV4cCI6MjA2OTg2OTQwMH0.0FeffoKhv89b9Z9iUuZBNQYOSqoA8kSCQeN7lka4A_g';
+const MAX_SEC = 10;
+const LAYER_NAMES  = ['Sound Layer 1', 'Sound Layer 2', 'Sound Layer 3'];
+const LAYER_COLORS = ['var(--l1-acc)', 'var(--l2-acc)', 'var(--l3-acc)'];
+
+// layer SVG icons (waveform shapes)
+const ICONS = [
+  // wavy lines
+  `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8 Q3 4 5 8 Q7 12 9 8 Q11 4 13 8 Q14.5 10 15 8"/></svg>`,
+  // stacked rings
+  `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="8" cy="8" rx="6" ry="3"/><ellipse cx="8" cy="8" rx="3" ry="1.5"/><circle cx="8" cy="8" r="1" fill="currentColor" stroke="none"/></svg>`,
+  // pulse
+  `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1,8 4,8 5,4 6,12 7,6 8,10 9,8 15,8"/></svg>`,
+];
+
+// ── State ────────────────────────────────────────────────────
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let cameraStream = null, snapshotDataURL = null;
+let audioCtx = null, micStream = null;
+let recorder = null, chunks = [];
+let audioBuffers = [];   // per layer
+let waveformData = [];   // Float32Array snapshots for display
+let currentLayer = 0;
+let isRecording  = false;
+let recStart     = null;
+let timerInt     = null, autoStopTO = null;
+let finalBlob    = null;
+let playNode     = null, isPlaying = false;
+let loopDuration = 0, playStartTime = 0, progInt = null;
+
+// ── Screens ──────────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+let toastTO;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTO);
+  toastTO = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ── Build layer cards ─────────────────────────────────────────
+function buildLayerCards() {
+  const container = document.getElementById('layerCards');
+  container.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    container.innerHTML += `
+      <div class="layer-card" data-layer="${i}" id="card${i}">
+        <div class="layer-icon">${ICONS[i]}</div>
+        <div class="layer-meta">
+          <span class="layer-name">${LAYER_NAMES[i]}</span>
+          <span class="layer-time" id="cardTime${i}">0:00</span>
+        </div>
+        <div class="layer-dot"><div class="layer-dot-inner"></div></div>
+        <canvas class="layer-wave" id="wave${i}" height="24"></canvas>
+      </div>`;
+  }
+}
+
+// ── Welcome → Camera ──────────────────────────────────────────
+document.getElementById('btnStart').addEventListener('click', () => {
+  show('screenCamera');
+  startCamera();
+});
+
+// ── Camera ────────────────────────────────────────────────────
+const cameraVideo = document.getElementById('cameraVideo');
+const btnCapture  = document.getElementById('btnCapture');
+let   camReady    = false;
+
+async function startCamera() {
+  camReady = false;
+  btnCapture.textContent = 'Enable camera';
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    cameraVideo.srcObject = cameraStream;
+    cameraVideo.muted = true;
+    cameraVideo.playsInline = true;
+    await cameraVideo.play();
+    camReady = true;
+    btnCapture.textContent = 'Take photo';
+  } catch { toast('📷 Camera access needed'); }
+}
+
+btnCapture.addEventListener('click', async () => {
+  if (!camReady) { await startCamera(); return; }
+  const vw = cameraVideo.videoWidth, vh = cameraVideo.videoHeight;
+  const size = Math.min(vw, vh);
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  c.getContext('2d').drawImage(cameraVideo, (vw-size)/2, (vh-size)/2, size, size, 0, 0, size, size);
+  snapshotDataURL = c.toDataURL('image/jpeg', 0.92);
+  cameraStream.getTracks().forEach(t => t.stop());
+  cameraStream = null; camReady = false;
+  document.getElementById('snapshotImg').src = snapshotDataURL;
+  show('screenSnapshot');
+});
+
+// ── Snapshot ──────────────────────────────────────────────────
+document.getElementById('btnSnapshotOk').addEventListener('click', () => {
+  buildLayerCards();
+  currentLayer = 0; audioBuffers = []; waveformData = [];
+  updateCardStates();
+  show('screenRecorder');
+});
+document.getElementById('btnSnapshotRetake').addEventListener('click', () => {
+  show('screenCamera'); startCamera();
+});
+
+// ── Recorder ──────────────────────────────────────────────────
+const btnRecord  = document.getElementById('btnRecord');
+const timerRow   = document.getElementById('timerRow');
+const recCaption = document.getElementById('recCaption');
+const recBtnTxt  = document.getElementById('recBtnTxt');
+
+function updateCardStates() {
+  for (let i = 0; i < 3; i++) {
+    const card = document.getElementById(`card${i}`);
+    card.classList.remove('is-active', 'is-done');
+    if (i < currentLayer)  card.classList.add('is-done');
+    if (i === currentLayer) card.classList.add('is-active');
+  }
+}
+
+async function ensureMic() {
+  if (micStream) return true;
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    return true;
+  } catch { toast('🎙 Microphone access needed'); return false; }
+}
+
+btnRecord.addEventListener('click', async () => {
+  if (isRecording) { stopRec(); return; }
+  const ok = await ensureMic();
+  if (!ok) return;
+  startRec();
+});
+
+function startRec() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  chunks = [];
+  recorder = new MediaRecorder(micStream);
+  recorder.ondataavailable = e => chunks.push(e.data);
+  recorder.onstop = onRecStop;
+  recorder.start();
+  isRecording = true;
+  recStart = Date.now();
+  btnRecord.classList.add('is-recording');
+  recBtnTxt.textContent = 'STOP';
+  recCaption.textContent = 'recording… tap to stop';
+  timerRow.textContent = '0:00';
+  timerRow.classList.remove('warn');
+  timerInt  = setInterval(tickTimer, 80);
+  autoStopTO = setTimeout(stopRec, MAX_SEC * 1000);
+}
+
+function stopRec() {
+  if (!isRecording) return;
+  clearTimeout(autoStopTO); clearInterval(timerInt);
+  isRecording = false;
+  btnRecord.classList.remove('is-recording');
+  recBtnTxt.textContent = 'REC';
+  recCaption.textContent = '…';
+  if (recorder && recorder.state === 'recording') recorder.stop();
+}
+
+function tickTimer() {
+  const el = (Date.now() - recStart) / 1000;
+  const s  = Math.floor(el);
+  timerRow.textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  timerRow.classList.toggle('warn', el > MAX_SEC - 3);
+  document.getElementById(`cardTime${currentLayer}`).textContent =
+    `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+}
+
+async function onRecStop() {
+  timerRow.textContent = '—';
+  timerRow.classList.remove('warn');
+  recCaption.textContent = 'tap to record';
+
+  const blob = new Blob(chunks, { type: 'audio/webm' });
+  const arrBuf = await blob.arrayBuffer();
+  let buf;
+  try { buf = await audioCtx.decodeAudioData(arrBuf); }
+  catch { toast('Too short — try again'); updateCardStates(); return; }
+
+  // store waveform snapshot (downsample to ~200 points)
+  const ch   = buf.getChannelData(0);
+  const step = Math.floor(ch.length / 200);
+  const pts  = [];
+  for (let i = 0; i < 200; i++) pts.push(Math.abs(ch[i * step] || 0));
+  waveformData.push(pts);
+  audioBuffers.push(buf);
+
+  // update card time + draw waveform
+  const secs = buf.duration;
+  document.getElementById(`cardTime${currentLayer}`).textContent = fmtSecs(secs);
+  drawWave(currentLayer, pts, LAYER_COLORS[currentLayer]);
+
+  currentLayer++;
+  updateCardStates();
+
+  if (currentLayer < 3) {
+    // ready for next
+  } else {
+    show('screenCompiling');
+    await compileMix();
+  }
+}
+
+// ── Waveform drawing ──────────────────────────────────────────
+function drawWave(idx, pts, color) {
+  const canvas = document.getElementById(`wave${idx}`);
+  if (!canvas) return;
+  const W = canvas.offsetWidth || 300;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = 24 * devicePixelRatio;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const midY  = 12;
+  const scale = 10;
+  ctx.strokeStyle = color;
+  ctx.lineWidth   = 1.5;
+  ctx.lineCap     = 'round';
+  ctx.beginPath();
+  pts.forEach((v, i) => {
+    const x = (i / pts.length) * W;
+    const h = Math.min(v * scale * 4, 10);
+    ctx.moveTo(x, midY - h);
+    ctx.lineTo(x, midY + h);
+  });
+  ctx.stroke();
+}
+
+// ── Playback layer waveforms ──────────────────────────────────
+function buildPbLayers() {
+  const container = document.getElementById('pbLayers');
+  container.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const dur = audioBuffers[i] ? fmtSecs(audioBuffers[i].duration) : '—';
+    container.innerHTML += `
+      <div class="pb-layer">
+        <div class="pb-layer-icon" style="color:${LAYER_COLORS[i]}">${ICONS[i]}</div>
+        <div class="pb-wave-wrap"><canvas id="pbWave${i}" height="28"></canvas></div>
+        <span class="pb-layer-len">${dur}</span>
+      </div>`;
+  }
+  // draw after DOM is ready
+  requestAnimationFrame(() => {
+    for (let i = 0; i < 3; i++) {
+      if (waveformData[i]) {
+        const c  = document.getElementById(`pbWave${i}`);
+        const W  = c.offsetWidth || 240;
+        c.width  = W * devicePixelRatio;
+        c.height = 28 * devicePixelRatio;
+        const ctx2 = c.getContext('2d');
+        ctx2.scale(devicePixelRatio, devicePixelRatio);
+        const mid = 14;
+        ctx2.strokeStyle = LAYER_COLORS[i];
+        ctx2.lineWidth   = 1.5;
+        ctx2.lineCap     = 'round';
+        ctx2.beginPath();
+        waveformData[i].forEach((v, j) => {
+          const x = (j / waveformData[i].length) * W;
+          const h = Math.min(v * 4 * 4, 12);
+          ctx2.moveTo(x, mid - h);
+          ctx2.lineTo(x, mid + h);
+        });
+        ctx2.stroke();
+      }
+    }
+  });
+}
+
+// ── Mix compilation ───────────────────────────────────────────
+async function compileMix() {
+  const longest    = Math.max(...audioBuffers.map(b => b.duration));
+  const mixLen     = longest + 0.3;
+  const sr         = audioCtx.sampleRate;
+  const offline    = new OfflineAudioContext(2, Math.ceil(mixLen * sr), sr);
+  const masterGain = offline.createGain();
+  masterGain.gain.value = 0.65;
+  masterGain.connect(offline.destination);
+
+  audioBuffers.forEach((buf, i) => {
+    const offset = i * 0.06 + Math.random() * 0.12;
+    const src    = offline.createBufferSource();
+    src.buffer   = buf;
+    src.loop     = true;
+    src.connect(masterGain);
+    src.start(offset);
+    src.stop(mixLen);
+  });
+
+  const rendered = await offline.startRendering();
+
+  const liveCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const bufSrc  = liveCtx.createBufferSource();
+  bufSrc.buffer = rendered;
+  const dest    = liveCtx.createMediaStreamDestination();
+  bufSrc.connect(dest);
+
+  const mixRec    = new MediaRecorder(dest.stream);
+  const mixChunks = [];
+  mixRec.ondataavailable = e => mixChunks.push(e.data);
+
+  await new Promise(resolve => {
+    mixRec.onstop = resolve;
+    mixRec.start();
+    bufSrc.start();
+    bufSrc.onended = () => { mixRec.stop(); liveCtx.close(); };
+  });
+
+  finalBlob = new Blob(mixChunks, { type: 'audio/webm' });
+  showPlayback();
+}
+
+// ── Show playback ─────────────────────────────────────────────
+function showPlayback() {
+  document.getElementById('playbackImg').src = snapshotDataURL;
+  document.getElementById('pubStatus').textContent = '';
+  buildPbLayers();
+  show('screenPlayback');
+
+  finalBlob.arrayBuffer()
+    .then(ab => audioCtx.decodeAudioData(ab))
+    .then(buf => {
+      loopDuration = buf.duration;
+      document.getElementById('durLbl').textContent = fmtSecs(loopDuration);
+      btnPlayPause._buf = buf;
+      startPlay(buf);
+    });
+}
+
+// ── Audio playback ────────────────────────────────────────────
+const btnPlayPause = document.getElementById('btnPlayPause');
+const progFill     = document.getElementById('progFill');
+
+function startPlay(buf) {
+  stopPlay();
+  playNode = audioCtx.createBufferSource();
+  playNode.buffer = buf || btnPlayPause._buf;
+  playNode.loop   = true;
+  playNode.connect(audioCtx.destination);
+  playNode.start();
+  playStartTime = audioCtx.currentTime;
+  isPlaying     = true;
+  btnPlayPause.textContent = '⏸';
+  progInt = setInterval(() => {
+    const el = (audioCtx.currentTime - playStartTime) % loopDuration;
+    progFill.style.width = ((el / loopDuration) * 100) + '%';
+  }, 50);
+}
+
+function stopPlay() {
+  clearInterval(progInt);
+  if (playNode) { try { playNode.stop(); } catch {} playNode = null; }
+  isPlaying = false;
+  btnPlayPause.textContent = '▶';
+}
+
+btnPlayPause.addEventListener('click', () => {
+  if (isPlaying) stopPlay(); else startPlay();
+});
+
+// ── Publish ───────────────────────────────────────────────────
+document.getElementById('btnPublish').addEventListener('click', async () => {
+  const statusEl = document.getElementById('pubStatus');
+  const btn      = document.getElementById('btnPublish');
+  if (!snapshotDataURL || !finalBlob) { toast('Nothing to publish'); return; }
+
+  btn.disabled = true;
+  statusEl.textContent = 'Uploading…';
+  statusEl.className   = 'pub-status';
+
+  const id      = Date.now().toString();
+  const imgBlob = await (await fetch(snapshotDataURL)).blob();
+
+  const { error: e1 } = await db.storage.from('momentplaces').upload(`${id}/cover.jpg`, imgBlob);
+  if (e1) { statusEl.textContent = 'Cover upload failed'; statusEl.className = 'pub-status err'; btn.disabled = false; return; }
+
+  const { error: e2 } = await db.storage.from('momentplaces').upload(`${id}/audio.webm`, finalBlob);
+  if (e2) { statusEl.textContent = 'Audio upload failed'; statusEl.className = 'pub-status err'; btn.disabled = false; return; }
+
+  statusEl.textContent = '✦ Published';
+  statusEl.className   = 'pub-status ok';
+  btn.disabled         = false;
+  toast('Moment published ✦');
+});
+
+// ── Restart ───────────────────────────────────────────────────
+document.getElementById('btnRestart').addEventListener('click', () => {
+  stopPlay();
+  if (micStream)    { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  if (audioCtx)     { audioCtx.close(); audioCtx = null; }
+  snapshotDataURL = null; finalBlob = null; recorder = null;
+  waveformData = []; audioBuffers = [];
+  show('screenWelcome');
+});
+
+// ── Util ──────────────────────────────────────────────────────
+function fmtSecs(s) {
+  const m = Math.floor(s/60), r = Math.floor(s%60);
+  return `${m}:${String(r).padStart(2,'0')}`;
+}
+</script>
+</body>
+</html>
