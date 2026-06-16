@@ -120,7 +120,7 @@
     }
     .btn:disabled { opacity: 0.35; pointer-events: none; }
 
-    /* ── Square photo frame ── */
+    /* ── Square photo frame (generic) ── */
     .frame {
       width: 100%;
       aspect-ratio: 1 / 1;
@@ -134,6 +134,122 @@
       object-fit: cover;
       display: block;
     }
+
+    /* ── Album cover (snapshot confirm + playback) ── */
+    .album-cover {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--line);
+      position: relative;
+      box-shadow:
+        0 2px 4px rgba(0,0,0,0.06),
+        0 8px 24px rgba(0,0,0,0.13),
+        0 24px 48px rgba(0,0,0,0.08);
+    }
+    .album-cover img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .album-cover::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      background: repeating-radial-gradient(
+        circle at 50% 50%,
+        transparent 0px,
+        transparent 18px,
+        rgba(0,0,0,0.018) 19px,
+        rgba(0,0,0,0.018) 20px
+      );
+      pointer-events: none;
+    }
+    .album-meta {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 1.25rem 1.25rem 1rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.58) 0%, transparent 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .album-meta-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+    .album-meta-sub {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── Playback player card ── */
+    .player-card {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .player-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .player-title { font-size: 0.95rem; font-weight: 600; }
+    .player-dur   { font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .player-waveform {
+      width: 100%;
+      height: 44px;
+      border-radius: 6px;
+      background: var(--bg);
+      overflow: hidden;
+      position: relative;
+    }
+    .player-waveform canvas { width: 100%; height: 100%; display: block; }
+    .player-playhead {
+      position: absolute;
+      top: 0; bottom: 0; left: 0%;
+      width: 2px;
+      background: var(--text);
+      border-radius: 1px;
+    }
+    .player-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .player-progress {
+      flex: 1; height: 3px;
+      background: var(--line);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .player-progress-fill {
+      height: 100%; width: 0%;
+      background: var(--text);
+      transition: width 0.1s linear;
+    }
+
+    /* ── Live waveform during recording ── */
+    .layer-live-wave {
+      width: 100%;
+      height: 28px;
+      grid-column: 1 / -1;
+      border-radius: 4px;
+      display: none;
+    }
+    .layer-card.is-recording .layer-live-wave { display: block; }
+    .layer-card.is-recording .layer-wave      { display: none; }
 
     /* ── Camera fullscreen ── */
     #screenCamera {
@@ -307,47 +423,9 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .compiling-sub { font-size: 0.85rem; color: var(--muted); }
 
-    /* ── Playback ── */
-    .playback-layers {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .pb-layer {
-      display: grid;
-      grid-template-columns: 18px 1fr auto;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .pb-layer-icon { width: 18px; }
-    .pb-layer-icon svg { width: 14px; height: 14px; }
-    .pb-wave-wrap {
-      background: var(--line);
-      border-radius: 4px;
-      height: 28px;
-      overflow: hidden;
-    }
-    .pb-wave-wrap canvas { width: 100%; height: 100%; display: block; }
-    .pb-layer-len {
-      font-size: 0.7rem;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
-      white-space: nowrap;
-    }
-
-    .playback-controls {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background: var(--surface);
-      border: 1.5px solid var(--line);
-      border-radius: 999px;
-      padding: 0.5rem 0.5rem 0.5rem 0.65rem;
-    }
+    /* ── Play/pause button ── */
     .pp-btn {
-      width: 40px; height: 40px;
+      width: 44px; height: 44px;
       border-radius: 50%;
       background: var(--text);
       color: var(--bg);
@@ -361,26 +439,6 @@
       transition: opacity 0.15s;
     }
     .pp-btn:active { opacity: 0.7; }
-    .progress-bar {
-      flex: 1;
-      height: 3px;
-      background: var(--line);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: var(--text);
-      transition: width 0.3s linear;
-    }
-    .duration-lbl {
-      font-size: 0.75rem;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
-      white-space: nowrap;
-      padding-right: 0.4rem;
-    }
 
     /* ── Divider ── */
     .divider { width: 100%; height: 1px; background: var(--line); }
@@ -488,8 +546,14 @@
 <section id="screenSnapshot" class="screen">
   <span class="step-label">Step 1 — Photo</span>
   <span class="step-title">Use this photo?</span>
-  <div class="frame"><img id="snapshotImg" alt="Your photo"/></div>
-  <button class="btn" id="btnSnapshotOk">Yes — continue</button>
+  <div class="album-cover">
+    <img id="snapshotImg" alt="Your photo"/>
+    <div class="album-meta">
+      <span class="album-meta-title">My Moment</span>
+      <span class="album-meta-sub">Moment / Place</span>
+    </div>
+  </div>
+  <button class="btn" id="btnSnapshotOk">Yes — use this</button>
   <button class="btn secondary" id="btnSnapshotRetake">Retake</button>
 </section>
 
@@ -518,18 +582,30 @@
 <!-- ══ PLAYBACK ══════════════════════════════════════════════ -->
 <section id="screenPlayback" class="screen">
   <span class="step-label">Your release</span>
-  <span class="step-title" id="pbTitle">Your moment</span>
 
-  <div class="frame"><img id="playbackImg" alt="Cover"/></div>
-
-  <div class="playback-layers" id="pbLayers">
-    <!-- generated by JS -->
+  <div class="album-cover" id="pbAlbumCover">
+    <img id="playbackImg" alt="Cover"/>
+    <div class="album-meta">
+      <span class="album-meta-title" id="pbAlbumTitle">My Moment</span>
+      <span class="album-meta-sub">Moment / Place · 3 layers</span>
+    </div>
   </div>
 
-  <div class="playback-controls">
-    <button class="pp-btn" id="btnPlayPause">▶</button>
-    <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
-    <span class="duration-lbl" id="durLbl">—</span>
+  <div class="player-card">
+    <div class="player-top">
+      <span class="player-title">Full mix</span>
+      <span class="player-dur" id="durLbl">—</span>
+    </div>
+    <div class="player-waveform" id="playerWaveform">
+      <canvas id="playerWaveCanvas"></canvas>
+      <div class="player-playhead" id="playerPlayhead"></div>
+    </div>
+    <div class="player-row">
+      <button class="pp-btn" id="btnPlayPause">▶</button>
+      <div class="player-progress">
+        <div class="player-progress-fill" id="progFill"></div>
+      </div>
+    </div>
   </div>
 
   <button class="btn" id="btnPublish">Publish</button>
@@ -598,15 +674,15 @@ function buildLayerCards() {
         <div class="layer-icon">${ICONS[i]}</div>
         <div class="layer-meta">
           <span class="layer-name">${LAYER_NAMES[i]}</span>
-          <span class="layer-time" id="cardTime${i}">0:00</span>
+          <span class="layer-time" id="cardTime${i}"></span>
         </div>
         <div class="layer-dot" id="dot${i}" data-layer="${i}">
           <div class="layer-dot-inner"></div>
         </div>
-        <canvas class="layer-wave" id="wave${i}" height="24"></canvas>
+        <canvas class="layer-wave"      id="wave${i}"     height="24"></canvas>
+        <canvas class="layer-live-wave" id="livewave${i}" height="28"></canvas>
       </div>`;
   }
-  // Wire up dot clicks after building
   for (let i = 0; i < 3; i++) {
     document.getElementById(`dot${i}`).addEventListener('click', onDotClick);
   }
@@ -691,6 +767,9 @@ async function onDotClick(e) {
   startRec();
 }
 
+let liveWaveRAF = null;
+let analyser    = null;
+
 function startRec() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   chunks = [];
@@ -704,6 +783,13 @@ function startRec() {
   const card = document.getElementById(`card${currentLayer}`);
   card.classList.add('is-recording');
 
+  // Live waveform via AnalyserNode
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 256;
+  const micSrc = audioCtx.createMediaStreamSource(micStream);
+  micSrc.connect(analyser);
+  drawLiveWave(currentLayer);
+
   timerInt   = setInterval(tickTimer, 80);
   autoStopTO = setTimeout(stopRec, MAX_SEC * 1000);
 }
@@ -712,9 +798,43 @@ function stopRec() {
   if (!isRecording) return;
   clearTimeout(autoStopTO); clearInterval(timerInt);
   isRecording = false;
+  cancelAnimationFrame(liveWaveRAF);
+  analyser = null;
   const card = document.getElementById(`card${currentLayer}`);
   if (card) card.classList.remove('is-recording');
   if (recorder && recorder.state === 'recording') recorder.stop();
+}
+
+function drawLiveWave(idx) {
+  const canvas = document.getElementById(`livewave${idx}`);
+  if (!canvas || !analyser) return;
+  const W  = canvas.offsetWidth || 300;
+  const H  = 28;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const data = new Uint8Array(analyser.frequencyBinCount);
+  const colors = ['#8b7db8','#5a9470','#c07a52'];
+  const col = colors[idx] || colors[0];
+
+  function frame() {
+    if (!analyser) return;
+    liveWaveRAF = requestAnimationFrame(frame);
+    analyser.getByteTimeDomainData(data);
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = col;
+    ctx.lineWidth   = 1.5;
+    ctx.lineCap     = 'round';
+    ctx.beginPath();
+    const sliceW = W / data.length;
+    data.forEach((v, i) => {
+      const y = ((v / 128) - 1) * (H * 0.4) + H / 2;
+      i === 0 ? ctx.moveTo(0, y) : ctx.lineTo(i * sliceW, y);
+    });
+    ctx.stroke();
+  }
+  frame();
 }
 
 function tickTimer() {
@@ -786,46 +906,6 @@ function drawWave(idx, pts, color) {
   ctx.stroke();
 }
 
-// ── Playback layer waveforms ──────────────────────────────────
-function buildPbLayers() {
-  const container = document.getElementById('pbLayers');
-  container.innerHTML = '';
-  for (let i = 0; i < 3; i++) {
-    const dur = audioBuffers[i] ? fmtSecs(audioBuffers[i].duration) : '—';
-    container.innerHTML += `
-      <div class="pb-layer">
-        <div class="pb-layer-icon" style="color:${LAYER_COLORS[i]}">${ICONS[i]}</div>
-        <div class="pb-wave-wrap"><canvas id="pbWave${i}" height="28"></canvas></div>
-        <span class="pb-layer-len">${dur}</span>
-      </div>`;
-  }
-  // draw after DOM is ready
-  requestAnimationFrame(() => {
-    for (let i = 0; i < 3; i++) {
-      if (waveformData[i]) {
-        const c  = document.getElementById(`pbWave${i}`);
-        const W  = c.offsetWidth || 240;
-        c.width  = W * devicePixelRatio;
-        c.height = 28 * devicePixelRatio;
-        const ctx2 = c.getContext('2d');
-        ctx2.scale(devicePixelRatio, devicePixelRatio);
-        const mid = 14;
-        ctx2.strokeStyle = LAYER_COLORS[i];
-        ctx2.lineWidth   = 1.5;
-        ctx2.lineCap     = 'round';
-        ctx2.beginPath();
-        waveformData[i].forEach((v, j) => {
-          const x = (j / waveformData[i].length) * W;
-          const h = Math.min(v * 4 * 4, 12);
-          ctx2.moveTo(x, mid - h);
-          ctx2.lineTo(x, mid + h);
-        });
-        ctx2.stroke();
-      }
-    }
-  });
-}
-
 // ── Mix compilation ───────────────────────────────────────────
 async function compileMix() {
   const longest    = Math.max(...audioBuffers.map(b => b.duration));
@@ -873,17 +953,43 @@ async function compileMix() {
 function showPlayback() {
   document.getElementById('playbackImg').src = snapshotDataURL;
   document.getElementById('pubStatus').textContent = '';
-  buildPbLayers();
   show('screenPlayback');
 
   finalBlob.arrayBuffer()
     .then(ab => audioCtx.decodeAudioData(ab))
     .then(buf => {
       loopDuration = buf.duration;
-      document.getElementById('durLbl').textContent = fmtSecs(loopDuration);
+      document.getElementById('durLbl').textContent = fmtSecs(loopDuration) + ' loop';
       btnPlayPause._buf = buf;
+      drawPlayerWaveform(buf);
       startPlay(buf);
     });
+}
+
+function drawPlayerWaveform(buf) {
+  const canvas = document.getElementById('playerWaveCanvas');
+  const wrap   = document.getElementById('playerWaveform');
+  if (!canvas || !wrap) return;
+  const W = wrap.offsetWidth || 320;
+  const H = 44;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const data = buf.getChannelData(0);
+  const step = Math.floor(data.length / W);
+  ctx.strokeStyle = 'rgba(26,23,20,0.25)';
+  ctx.lineWidth   = 1.5;
+  ctx.lineCap     = 'round';
+  ctx.beginPath();
+  for (let i = 0; i < W; i++) {
+    let max = 0;
+    for (let j = 0; j < step; j++) max = Math.max(max, Math.abs(data[i * step + j] || 0));
+    const h = Math.min(max * H * 1.4, H / 2 - 2);
+    ctx.moveTo(i, H / 2 - h);
+    ctx.lineTo(i, H / 2 + h);
+  }
+  ctx.stroke();
 }
 
 // ── Audio playback ────────────────────────────────────────────
@@ -901,8 +1007,11 @@ function startPlay(buf) {
   isPlaying     = true;
   btnPlayPause.textContent = '⏸';
   progInt = setInterval(() => {
-    const el = (audioCtx.currentTime - playStartTime) % loopDuration;
-    progFill.style.width = ((el / loopDuration) * 100) + '%';
+    const el  = (audioCtx.currentTime - playStartTime) % loopDuration;
+    const pct = (el / loopDuration) * 100;
+    progFill.style.width = pct + '%';
+    const ph = document.getElementById('playerPlayhead');
+    if (ph) ph.style.left = pct + '%';
   }, 50);
 }
 
