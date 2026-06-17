@@ -1108,31 +1108,136 @@ function drawPlayerWaveform(buf) {
   ctx.stroke();
 }
 
-// ── Audio playback ────────────────────────────────────────────
+// ── Audio playback with per-layer modulation ──────────────────
 const btnPlayPause = document.getElementById('btnPlayPause');
 const progFill     = document.getElementById('progFill');
 
+// Stores active nodes so we can stop them cleanly
+let modNodes = [];
+
 function startPlay(buf) {
   stopPlay();
-  playNode = audioCtx.createBufferSource();
-  playNode.buffer = buf || btnPlayPause._buf;
-  playNode.loop   = true;
-  playNode.connect(audioCtx.destination);
-  playNode.start();
+
+  // The final mix is already compiled into one buffer.
+  // For live playback we re-play the individual audioBuffers with
+  // modulation, then feed through the same comp/limiter chain.
+  // If audioBuffers are available use them; fall back to the compiled buf.
+  const bufsToPlay = audioBuffers.length === 3 ? audioBuffers : [buf || btnPlayPause._buf];
+
+  const comp = audioCtx.createDynamicsCompressor();
+  comp.threshold.value = -24; comp.knee.value = 10;
+  comp.ratio.value = 8; comp.attack.value = 0.003; comp.release.value = 0.25;
+
+  const limiter = audioCtx.createDynamicsCompressor();
+  limiter.threshold.value = -1; limiter.knee.value = 0;
+  limiter.ratio.value = 20; limiter.attack.value = 0.001; limiter.release.value = 0.1;
+
+  const master = audioCtx.createGain();
+  master.gain.value = 0.9;
+  comp.connect(limiter); limiter.connect(master); master.connect(audioCtx.destination);
+
+  modNodes = [comp, limiter, master];
+
+  bufsToPlay.forEach((b, i) => {
+    const t0 = audioCtx.currentTime;
+
+    // ── Source
+    const src = audioCtx.createBufferSource();
+    src.buffer = b;
+    src.loop   = true;
+
+    // ── Tape wobble: two overlapping slow sinusoids on playbackRate
+    // "Wow" — very slow drift (0.05–0.15 Hz), depth ±0.004
+    // "Flutter" — faster (1–4 Hz), depth ±0.001
+    const wowRate    = 0.05  + Math.random() * 0.10;   // Hz
+    const wowDepth   = 0.003 + Math.random() * 0.002;  // fraction
+    const flutRate   = 1.0   + Math.random() * 3.0;
+    const flutDepth  = 0.0005 + Math.random() * 0.001;
+    const wowPhase   = Math.random() * Math.PI * 2;
+    const flutPhase  = Math.random() * Math.PI * 2;
+
+    // Modulate playbackRate via setValueCurveAtTime — build a 10-sec curve
+    // that wobbles subtly, then loop playback handles the rest
+    // We use a longer scheduling approach: schedule rate changes every 50ms
+    // via a recursive setTimeout so it stays alive as long as playing
+    src.playbackRate.value = 1.0;
+
+    // ── Filter sweep: BiquadFilter lowpass, cutoff stays high — subtle air change only
+    const filt = audioCtx.createBiquadFilter();
+    filt.type = 'lowpass';
+    filt.Q.value = 0.5;
+    const filtBase  = 4500 + i * 200;         // base cutoff per layer — well above speech
+    const filtRange = 400  + Math.random() * 200; // ±400–600 Hz swing only
+    const filtRate  = 0.03 + Math.random() * 0.04;
+    const filtPhase = Math.random() * Math.PI * 2;
+
+    // ── Tremolo: very subtle gain modulation
+    const tremGain  = audioCtx.createGain();
+    tremGain.gain.value = 1.0;
+    const tremDepth = 0.04 + Math.random() * 0.04; // ±4–8%
+    const tremRate  = 0.02 + Math.random() * 0.05; // Hz — glacial
+    const tremPhase = Math.random() * Math.PI * 2;
+
+    // chain: src → filt → tremGain → comp
+    src.connect(filt);
+    filt.connect(tremGain);
+    tremGain.connect(comp);
+
+    const startOffset = i * 0.06 + Math.random() * 0.12;
+    src.start(t0 + startOffset);
+
+    modNodes.push(src, filt, tremGain);
+
+    // ── Modulation tick — runs every 40ms, updates AudioParams smoothly
+    let modStartTime = null;
+    function modTick(ts) {
+      if (!isPlaying) return;
+      if (!modStartTime) modStartTime = ts;
+      const elapsed = (ts - modStartTime) / 1000; // seconds
+
+      // Tape wobble
+      const wobble = 1.0
+        + Math.sin(elapsed * wowRate  * Math.PI * 2 + wowPhase)  * wowDepth
+        + Math.sin(elapsed * flutRate * Math.PI * 2 + flutPhase) * flutDepth;
+      src.playbackRate.setTargetAtTime(wobble, audioCtx.currentTime, 0.05);
+
+      // Filter sweep
+      const cutoff = filtBase
+        + Math.sin(elapsed * filtRate * Math.PI * 2 + filtPhase) * filtRange;
+      filt.frequency.setTargetAtTime(Math.max(3000, cutoff), audioCtx.currentTime, 0.1);
+
+      // Tremolo
+      const trem = 1.0
+        + Math.sin(elapsed * tremRate * Math.PI * 2 + tremPhase) * tremDepth;
+      tremGain.gain.setTargetAtTime(trem, audioCtx.currentTime, 0.1);
+
+      modRAFs.push(requestAnimationFrame(modTick));
+    }
+    modRAFs.push(requestAnimationFrame(modTick));
+  });
+
   playStartTime = audioCtx.currentTime;
   isPlaying     = true;
   btnPlayPause.textContent = '⏸';
   progInt = setInterval(() => {
-    const el  = (audioCtx.currentTime - playStartTime) % loopDuration;
-    const pct = (el / loopDuration) * 100;
+    // use longest layer for progress
+    const ref = audioBuffers.length ? Math.max(...audioBuffers.map(b => b.duration)) : loopDuration;
+    const el  = (audioCtx.currentTime - playStartTime) % (ref || loopDuration);
+    const pct = (el / (ref || loopDuration)) * 100;
     progFill.style.width = pct + '%';
     const ph = document.getElementById('playerPlayhead');
     if (ph) ph.style.left = pct + '%';
   }, 50);
 }
 
+let modRAFs = [];
+
 function stopPlay() {
   clearInterval(progInt);
+  modRAFs.forEach(id => cancelAnimationFrame(id));
+  modRAFs = [];
+  modNodes.forEach(n => { try { n.disconnect(); } catch {} try { n.stop?.(); } catch {} });
+  modNodes = [];
   if (playNode) { try { playNode.stop(); } catch {} playNode = null; }
   isPlaying = false;
   btnPlayPause.textContent = '▶';
