@@ -166,6 +166,7 @@
         rgba(0,0,0,0.018) 20px
       );
       pointer-events: none;
+      z-index: 1;
     }
     .album-meta {
       position: absolute;
@@ -175,6 +176,8 @@
       display: flex;
       flex-direction: column;
       gap: 2px;
+      z-index: 2;
+      pointer-events: none;
     }
     .album-meta-title {
       font-size: 1rem;
@@ -188,6 +191,37 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
+
+    /* ── Release title input ── */
+    .title-field {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .title-field label {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .title-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+    .title-input::placeholder { color: var(--muted); font-weight: 400; }
+    .title-input:focus { border-color: var(--deep); }
 
     /* ── Playback player card ── */
     .player-card {
@@ -608,6 +642,11 @@
     </div>
   </div>
 
+  <div class="title-field">
+    <label for="releaseTitle">Release title</label>
+    <input class="title-input" id="releaseTitle" type="text" placeholder="Name your release…" maxlength="60" autocomplete="off" spellcheck="false"/>
+  </div>
+
   <button class="btn" id="btnPublish">Publish</button>
   <p class="pub-status" id="pubStatus"></p>
   <button class="btn secondary" id="btnRestart">Start over</button>
@@ -908,12 +947,34 @@ function drawWave(idx, pts, color) {
 
 // ── Mix compilation ───────────────────────────────────────────
 async function compileMix() {
-  const longest    = Math.max(...audioBuffers.map(b => b.duration));
-  const mixLen     = longest + 0.3;
-  const sr         = audioCtx.sampleRate;
-  const offline    = new OfflineAudioContext(2, Math.ceil(mixLen * sr), sr);
+  const longest = Math.max(...audioBuffers.map(b => b.duration));
+  const mixLen  = longest + 0.3;
+  const sr      = audioCtx.sampleRate;
+  const offline = new OfflineAudioContext(2, Math.ceil(mixLen * sr), sr);
+
+  // ── Compressor: bring up soft sounds, tame loud ones
+  const comp = offline.createDynamicsCompressor();
+  comp.threshold.value = -24;  // dB — start compressing at -24
+  comp.knee.value      = 10;   // soft knee for natural sound
+  comp.ratio.value     = 8;    // 8:1 — fairly heavy
+  comp.attack.value    = 0.003; // 3ms — fast enough to catch transients
+  comp.release.value   = 0.25; // 250ms release
+
+  // ── Limiter: second compressor stage, brickwall near 0dB
+  const limiter = offline.createDynamicsCompressor();
+  limiter.threshold.value = -1;   // dB — only triggers near 0
+  limiter.knee.value      = 0;    // hard knee
+  limiter.ratio.value     = 20;   // near-brickwall
+  limiter.attack.value    = 0.001;
+  limiter.release.value   = 0.1;
+
+  // ── Makeup gain after compression
   const masterGain = offline.createGain();
-  masterGain.gain.value = 0.65;
+  masterGain.gain.value = 0.9;
+
+  // chain: sources → comp → limiter → masterGain → destination
+  comp.connect(limiter);
+  limiter.connect(masterGain);
   masterGain.connect(offline.destination);
 
   audioBuffers.forEach((buf, i) => {
@@ -921,7 +982,7 @@ async function compileMix() {
     const src    = offline.createBufferSource();
     src.buffer   = buf;
     src.loop     = true;
-    src.connect(masterGain);
+    src.connect(comp);
     src.start(offset);
     src.stop(mixLen);
   });
@@ -953,6 +1014,10 @@ async function compileMix() {
 function showPlayback() {
   document.getElementById('playbackImg').src = snapshotDataURL;
   document.getElementById('pubStatus').textContent = '';
+  // Reset title field
+  const titleInput = document.getElementById('releaseTitle');
+  titleInput.value = '';
+  document.getElementById('pbAlbumTitle').textContent = 'My Moment';
   show('screenPlayback');
 
   finalBlob.arrayBuffer()
@@ -965,6 +1030,12 @@ function showPlayback() {
       startPlay(buf);
     });
 }
+
+// Live-update album title as user types
+document.getElementById('releaseTitle').addEventListener('input', e => {
+  const val = e.target.value.trim();
+  document.getElementById('pbAlbumTitle').textContent = val || 'My Moment';
+});
 
 function drawPlayerWaveform(buf) {
   const canvas = document.getElementById('playerWaveCanvas');
@@ -1032,6 +1103,8 @@ document.getElementById('btnPublish').addEventListener('click', async () => {
   const btn      = document.getElementById('btnPublish');
   if (!snapshotDataURL || !finalBlob) { toast('Nothing to publish'); return; }
 
+  const releaseTitle = document.getElementById('releaseTitle').value.trim() || 'My Moment';
+
   btn.disabled = true;
   statusEl.textContent = 'Uploading…';
   statusEl.className   = 'pub-status';
@@ -1045,7 +1118,12 @@ document.getElementById('btnPublish').addEventListener('click', async () => {
   const { error: e2 } = await db.storage.from('momentplaces').upload(`${id}/audio.webm`, finalBlob);
   if (e2) { statusEl.textContent = 'Audio upload failed'; statusEl.className = 'pub-status err'; btn.disabled = false; return; }
 
-  statusEl.textContent = '✦ Published';
+  // Store metadata
+  const meta = JSON.stringify({ title: releaseTitle, created: new Date().toISOString(), layers: 3 });
+  await db.storage.from('momentplaces').upload(`${id}/meta.json`,
+    new Blob([meta], { type: 'application/json' }));
+
+  statusEl.textContent = `✦ "${releaseTitle}" published`;
   statusEl.className   = 'pub-status ok';
   btn.disabled         = false;
   toast('Moment published ✦');
