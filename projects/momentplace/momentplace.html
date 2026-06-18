@@ -818,14 +818,28 @@ function updateCardStates() {
 async function ensureMic() {
   if (micStream) return true;
   try {
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        // Disable all processing that kills quiet ambient sound
+        echoCancellation:   false,
+        noiseSuppression:   false,
+        autoGainControl:    false,
+        channelCount:       1,
+        sampleRate:         44100,
+      }
+    });
     return true;
-  } catch { toast('🎙 Microphone access needed'); return false; }
+  } catch {
+    // Fallback: try with default constraints if browser rejects
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      return true;
+    } catch { toast('🎙 Microphone access needed'); return false; }
+  }
 }
 
 async function onDotClick(e) {
   const layerIdx = parseInt(e.currentTarget.dataset.layer);
-  // Only respond to the current active layer's dot
   if (layerIdx !== currentLayer) return;
   if (isRecording) { stopRec(); return; }
   const ok = await ensureMic();
@@ -835,11 +849,32 @@ async function onDotClick(e) {
 
 let liveWaveRAF = null;
 let analyser    = null;
+let inputGainNode = null; // persists across recordings
 
 function startRec() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   chunks = [];
-  recorder = new MediaRecorder(micStream);
+
+  // Clean input chain: mic → gain (+18dB) → analyser
+  // No compressor here — that caused gating artifacts.
+  // The mix-stage compressor handles leveling after recording.
+  const micSrc = audioCtx.createMediaStreamSource(micStream);
+
+  inputGainNode = audioCtx.createGain();
+  inputGainNode.gain.value = 8.0; // ×8 ≈ +18dB, clean boost
+
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 512;
+  analyser.smoothingTimeConstant = 0.7;
+
+  micSrc.connect(inputGainNode);
+  inputGainNode.connect(analyser);
+
+  // Recorder taps from the boosted stream
+  const gainDest = audioCtx.createMediaStreamDestination();
+  inputGainNode.connect(gainDest);
+  recorder = new MediaRecorder(gainDest.stream);
+
   recorder.ondataavailable = e => chunks.push(e.data);
   recorder.onstop = onRecStop;
   recorder.start();
@@ -849,13 +884,7 @@ function startRec() {
   const card = document.getElementById(`card${currentLayer}`);
   card.classList.add('is-recording');
 
-  // Live waveform via AnalyserNode
-  analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 256;
-  const micSrc = audioCtx.createMediaStreamSource(micStream);
-  micSrc.connect(analyser);
   drawLiveWave(currentLayer);
-
   timerInt   = setInterval(tickTimer, 80);
   autoStopTO = setTimeout(stopRec, MAX_SEC * 1000);
 }
