@@ -855,26 +855,17 @@ function startRec() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   chunks = [];
 
-  // Clean input chain: mic → gain (+18dB) → analyser
-  // No compressor here — that caused gating artifacts.
-  // The mix-stage compressor handles leveling after recording.
+  // Record the raw mic signal — no gain, no processing.
+  // rmsNormalize() corrects levels after recording on the decoded buffer.
   const micSrc = audioCtx.createMediaStreamSource(micStream);
-
-  inputGainNode = audioCtx.createGain();
-  inputGainNode.gain.value = 8.0; // ×8 ≈ +18dB, clean boost
 
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = 512;
   analyser.smoothingTimeConstant = 0.7;
+  micSrc.connect(analyser);
 
-  micSrc.connect(inputGainNode);
-  inputGainNode.connect(analyser);
-
-  // Recorder taps from the boosted stream
-  const gainDest = audioCtx.createMediaStreamDestination();
-  inputGainNode.connect(gainDest);
-  recorder = new MediaRecorder(gainDest.stream);
-
+  // Recorder taps directly from the raw mic stream
+  recorder = new MediaRecorder(micStream);
   recorder.ondataavailable = e => chunks.push(e.data);
   recorder.onstop = onRecStop;
   recorder.start();
@@ -991,7 +982,10 @@ async function onRecStop() {
   try { buf = await audioCtx.decodeAudioData(arrBuf); }
   catch { toast('Too short — try again'); updateCardStates(); return; }
 
-  // store waveform snapshot (downsample to ~200 points)
+  // RMS normalize this buffer before storing
+  buf = rmsNormalize(buf);
+
+  // waveform snapshot from normalized buffer
   const ch   = buf.getChannelData(0);
   const step = Math.floor(ch.length / 200);
   const pts  = [];
@@ -999,7 +993,6 @@ async function onRecStop() {
   waveformData.push(pts);
   audioBuffers.push(buf);
 
-  // update card time + draw waveform
   const secs = buf.duration;
   document.getElementById(`cardTime${currentLayer}`).textContent = fmtSecs(secs);
   drawWave(currentLayer, pts, LAYER_COLORS[currentLayer]);
@@ -1013,6 +1006,34 @@ async function onRecStop() {
     show('screenCompiling');
     await compileMix();
   }
+}
+
+// ── RMS normalization ─────────────────────────────────────────
+// Operates directly on the AudioBuffer's Float32Array data.
+// No resampling, no OfflineAudioContext — pitch stays identical.
+function rmsNormalize(buffer, targetRMS = 0.18, ceiling = 0.95) {
+  for (let c = 0; c < buffer.numberOfChannels; c++) {
+    const data = buffer.getChannelData(c); // live Float32Array — modify in place
+
+    // 1. Measure RMS across entire channel
+    let sumSq = 0;
+    for (let i = 0; i < data.length; i++) sumSq += data[i] * data[i];
+    const rms = Math.sqrt(sumSq / data.length);
+
+    if (rms < 0.00001) continue; // silence — skip
+
+    // 2. Gain to reach targetRMS, capped so we don't amplify noise into distortion
+    const gain = Math.min(targetRMS / rms, 6.0);
+
+    // 3. Apply gain + soft clip anything that exceeds ceiling
+    for (let i = 0; i < data.length; i++) {
+      let s = data[i] * gain;
+      if (s >  ceiling) s =  ceiling + (1 - ceiling) * Math.tanh((s - ceiling) / (1 - ceiling));
+      if (s < -ceiling) s = -ceiling - (1 - ceiling) * Math.tanh((-s - ceiling) / (1 - ceiling));
+      data[i] = s;
+    }
+  }
+  return buffer; // same object, modified in place
 }
 
 // ── Waveform drawing ──────────────────────────────────────────
