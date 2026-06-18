@@ -684,7 +684,7 @@
 
 <script>
 // ── Config ──────────────────────────────────────────────────
-const VERSION = 'v0.13';
+const VERSION = 'v0.14';
 document.getElementById('versionBadge').textContent = VERSION;
 const SUPABASE_URL = 'https://owaqngnojlbnbiyala.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93YXFuZ25vamxibmJpeGFpbGF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyOTM0MDAsImV4cCI6MjA2OTg2OTQwMH0.0FeffoKhv89b9Z9iUuZBNQYOSqoA8kSCQeN7lka4A_g';
@@ -856,12 +856,28 @@ async function onDotClick(e) {
 let liveWaveRAF = null;
 let analyser    = null;
 
+// Detect best codec for this browser — iOS needs mp4/aac
+function getBestMimeType() {
+  const types = [
+    'audio/mp4;codecs=mp4a.40.2', // AAC-LC in mp4 — iOS Safari
+    'audio/mp4',
+    'audio/aac',
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+  ];
+  return types.find(t => MediaRecorder.isTypeSupported(t)) || '';
+}
+
 function startRec() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   chunks = [];
 
-  // Raw mic → recorder. Nothing else.
-  recorder = new MediaRecorder(micStream);
+  const mimeType = getBestMimeType();
+  const options  = { audioBitsPerSecond: 256000 }; // 256kbps — high quality
+  if (mimeType) options.mimeType = mimeType;
+
+  recorder = new MediaRecorder(micStream, options);
   recorder.ondataavailable = e => chunks.push(e.data);
   recorder.onstop = onRecStop;
   recorder.start();
@@ -978,7 +994,8 @@ async function onRecStop() {
   const timeEl = document.getElementById(`cardTime${currentLayer}`);
   if (timeEl) timeEl.classList.remove('warn');
 
-  const blob   = new Blob(chunks, { type: 'audio/webm' });
+  const mimeType = recorder?.mimeType || 'audio/mp4';
+  const blob   = new Blob(chunks, { type: mimeType });
   const arrBuf = await blob.arrayBuffer();
   let buf;
   try { buf = await audioCtx.decodeAudioData(arrBuf); }
@@ -1068,7 +1085,7 @@ async function compileMix() {
     bufSrc.onended = () => { mixRec.stop(); liveCtx.close(); };
   });
 
-  finalBlob = new Blob(mixChunks, { type: 'audio/webm' });
+  finalBlob = new Blob(mixChunks, { type: getBestMimeType() || 'audio/mp4' });
   showPlayback();
 }
 
