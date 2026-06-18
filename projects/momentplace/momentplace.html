@@ -600,6 +600,7 @@
   <div style="flex:1"></div>
   <button class="btn" id="btnStart">Create</button>
   <p style="font-size:0.75rem;color:var(--muted);text-align:center">Needs camera + microphone</p>
+  <p id="versionBadge" style="font-size:0.65rem;color:var(--line);letter-spacing:0.1em;margin-top:-0.5rem"></p>
 </section>
 
 <!-- ══ CAMERA ════════════════════════════════════════════════ -->
@@ -683,7 +684,8 @@
 
 <script>
 // ── Config ──────────────────────────────────────────────────
-const SUPABASE_URL = 'https://owaqngnojlbnbiyala.supabase.co';
+const VERSION = 'v0.10';
+document.getElementById('versionBadge').textContent = VERSION;
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93YXFuZ25vamxibmJpeGFpbGF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyOTM0MDAsImV4cCI6MjA2OTg2OTQwMH0.0FeffoKhv89b9Z9iUuZBNQYOSqoA8kSCQeN7lka4A_g';
 const MAX_SEC = 10;
 const LAYER_NAMES  = ['Sound Layer 1', 'Sound Layer 2', 'Sound Layer 3'];
@@ -849,22 +851,12 @@ async function onDotClick(e) {
 
 let liveWaveRAF = null;
 let analyser    = null;
-let inputGainNode = null; // persists across recordings
 
 function startRec() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   chunks = [];
 
-  // Record the raw mic signal — no gain, no processing.
-  // rmsNormalize() corrects levels after recording on the decoded buffer.
-  const micSrc = audioCtx.createMediaStreamSource(micStream);
-
-  analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 512;
-  analyser.smoothingTimeConstant = 0.7;
-  micSrc.connect(analyser);
-
-  // Recorder taps directly from the raw mic stream
+  // Raw mic → recorder. Nothing else.
   recorder = new MediaRecorder(micStream);
   recorder.ondataavailable = e => chunks.push(e.data);
   recorder.onstop = onRecStop;
@@ -872,9 +864,15 @@ function startRec() {
   isRecording = true;
   recStart = Date.now();
 
+  // Analyser only for waveform visualisation — does not touch recorded signal
+  const micSrc = audioCtx.createMediaStreamSource(micStream);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 512;
+  analyser.smoothingTimeConstant = 0.7;
+  micSrc.connect(analyser);
+
   const card = document.getElementById(`card${currentLayer}`);
   card.classList.add('is-recording');
-
   drawLiveWave(currentLayer);
   timerInt   = setInterval(tickTimer, 80);
   autoStopTO = setTimeout(stopRec, MAX_SEC * 1000);
@@ -976,16 +974,13 @@ async function onRecStop() {
   const timeEl = document.getElementById(`cardTime${currentLayer}`);
   if (timeEl) timeEl.classList.remove('warn');
 
-  const blob = new Blob(chunks, { type: 'audio/webm' });
+  const blob   = new Blob(chunks, { type: 'audio/webm' });
   const arrBuf = await blob.arrayBuffer();
   let buf;
   try { buf = await audioCtx.decodeAudioData(arrBuf); }
   catch { toast('Too short — try again'); updateCardStates(); return; }
 
-  // RMS normalize this buffer before storing
-  buf = rmsNormalize(buf);
-
-  // waveform snapshot from normalized buffer
+  // Store as-is — no processing
   const ch   = buf.getChannelData(0);
   const step = Math.floor(ch.length / 200);
   const pts  = [];
@@ -993,47 +988,16 @@ async function onRecStop() {
   waveformData.push(pts);
   audioBuffers.push(buf);
 
-  const secs = buf.duration;
-  document.getElementById(`cardTime${currentLayer}`).textContent = fmtSecs(secs);
+  document.getElementById(`cardTime${currentLayer}`).textContent = fmtSecs(buf.duration);
   drawWave(currentLayer, pts, LAYER_COLORS[currentLayer]);
 
   currentLayer++;
   updateCardStates();
 
-  if (currentLayer < 3) {
-    // ready for next
-  } else {
+  if (currentLayer === 3) {
     show('screenCompiling');
     await compileMix();
   }
-}
-
-// ── RMS normalization ─────────────────────────────────────────
-// Operates directly on the AudioBuffer's Float32Array data.
-// No resampling, no OfflineAudioContext — pitch stays identical.
-function rmsNormalize(buffer, targetRMS = 0.18, ceiling = 0.95) {
-  for (let c = 0; c < buffer.numberOfChannels; c++) {
-    const data = buffer.getChannelData(c); // live Float32Array — modify in place
-
-    // 1. Measure RMS across entire channel
-    let sumSq = 0;
-    for (let i = 0; i < data.length; i++) sumSq += data[i] * data[i];
-    const rms = Math.sqrt(sumSq / data.length);
-
-    if (rms < 0.00001) continue; // silence — skip
-
-    // 2. Gain to reach targetRMS, capped so we don't amplify noise into distortion
-    const gain = Math.min(targetRMS / rms, 6.0);
-
-    // 3. Apply gain + soft clip anything that exceeds ceiling
-    for (let i = 0; i < data.length; i++) {
-      let s = data[i] * gain;
-      if (s >  ceiling) s =  ceiling + (1 - ceiling) * Math.tanh((s - ceiling) / (1 - ceiling));
-      if (s < -ceiling) s = -ceiling - (1 - ceiling) * Math.tanh((-s - ceiling) / (1 - ceiling));
-      data[i] = s;
-    }
-  }
-  return buffer; // same object, modified in place
 }
 
 // ── Waveform drawing ──────────────────────────────────────────
@@ -1060,50 +1024,29 @@ function drawWave(idx, pts, color) {
   ctx.stroke();
 }
 
-// ── Mix compilation ───────────────────────────────────────────
+// ── Mix compilation — absolute minimum ───────────────────────
 async function compileMix() {
-  const longest = Math.max(...audioBuffers.map(b => b.duration));
-  const mixLen  = longest + 0.3;
   const sr      = audioCtx.sampleRate;
-  const offline = new OfflineAudioContext(2, Math.ceil(mixLen * sr), sr);
+  const longest = Math.max(...audioBuffers.map(b => b.duration));
+  const mixLen  = longest + 0.5;
+  const offline = new OfflineAudioContext(1, Math.ceil(mixLen * sr), sr);
 
-  // ── Compressor: bring up soft sounds, tame loud ones
-  const comp = offline.createDynamicsCompressor();
-  comp.threshold.value = -24;  // dB — start compressing at -24
-  comp.knee.value      = 10;   // soft knee for natural sound
-  comp.ratio.value     = 8;    // 8:1 — fairly heavy
-  comp.attack.value    = 0.003; // 3ms — fast enough to catch transients
-  comp.release.value   = 0.25; // 250ms release
-
-  // ── Limiter: second compressor stage, brickwall near 0dB
-  const limiter = offline.createDynamicsCompressor();
-  limiter.threshold.value = -1;   // dB — only triggers near 0
-  limiter.knee.value      = 0;    // hard knee
-  limiter.ratio.value     = 20;   // near-brickwall
-  limiter.attack.value    = 0.001;
-  limiter.release.value   = 0.1;
-
-  // ── Makeup gain after compression
-  const masterGain = offline.createGain();
-  masterGain.gain.value = 0.9;
-
-  // chain: sources → comp → limiter → masterGain → destination
-  comp.connect(limiter);
-  limiter.connect(masterGain);
-  masterGain.connect(offline.destination);
-
+  // Three sources, each at 1/3 gain so they sum without clipping
   audioBuffers.forEach((buf, i) => {
-    const offset = i * 0.06 + Math.random() * 0.12;
-    const src    = offline.createBufferSource();
-    src.buffer   = buf;
-    src.loop     = true;
-    src.connect(comp);
-    src.start(offset);
+    const src  = offline.createBufferSource();
+    const gain = offline.createGain();
+    src.buffer      = buf;
+    src.loop        = true;
+    gain.gain.value = 0.38;
+    src.connect(gain);
+    gain.connect(offline.destination);
+    src.start(i * 0.05); // tiny stagger so loops don't phase-cancel on start
     src.stop(mixLen);
   });
 
   const rendered = await offline.startRendering();
 
+  // Capture rendered buffer to a blob via live re-play
   const liveCtx = new (window.AudioContext || window.webkitAudioContext)();
   const bufSrc  = liveCtx.createBufferSource();
   bufSrc.buffer = rendered;
@@ -1177,77 +1120,49 @@ function drawPlayerWaveform(buf) {
   ctx.stroke();
 }
 
-// ── Audio playback with per-layer modulation ──────────────────
+// ── Playback — bare minimum ───────────────────────────────────
 const btnPlayPause = document.getElementById('btnPlayPause');
 const progFill     = document.getElementById('progFill');
-
-// Stores active nodes so we can stop them cleanly
 let modNodes = [];
+let modRAFs  = [];
 
 function startPlay(buf) {
   stopPlay();
 
-  // The final mix is already compiled into one buffer.
-  // For live playback we re-play the individual audioBuffers with
-  // modulation, then feed through the same comp/limiter chain.
-  // If audioBuffers are available use them; fall back to the compiled buf.
   const bufsToPlay = audioBuffers.length === 3 ? audioBuffers : [buf || btnPlayPause._buf];
-
-  const comp = audioCtx.createDynamicsCompressor();
-  comp.threshold.value = -24; comp.knee.value = 10;
-  comp.ratio.value = 8; comp.attack.value = 0.003; comp.release.value = 0.25;
-
-  const limiter = audioCtx.createDynamicsCompressor();
-  limiter.threshold.value = -1; limiter.knee.value = 0;
-  limiter.ratio.value = 20; limiter.attack.value = 0.001; limiter.release.value = 0.1;
-
-  const master = audioCtx.createGain();
-  master.gain.value = 0.9;
-  comp.connect(limiter); limiter.connect(master); master.connect(audioCtx.destination);
-
-  modNodes = [comp, limiter, master];
+  const longestDur = bufsToPlay.reduce((m, b) => Math.max(m, b.duration), 0);
 
   bufsToPlay.forEach((b, i) => {
-    const t0 = audioCtx.currentTime;
-
-    const src = audioCtx.createBufferSource();
-    src.buffer = b;
-    src.loop   = true;
-
-    // MODULATION DISABLED FOR DRY TESTING
-    // Connect source directly to compressor, no filter/tremolo/wobble
-    src.connect(comp);
-
-    const startOffset = i * 0.06 + Math.random() * 0.12;
-    src.start(t0 + startOffset);
-    modNodes.push(src);
-
-    // modRAFs intentionally empty — no rAF scheduled
+    const src  = audioCtx.createBufferSource();
+    const gain = audioCtx.createGain();
+    src.buffer      = b;
+    src.loop        = true;
+    gain.gain.value = 0.38;
+    src.connect(gain);
+    gain.connect(audioCtx.destination);
+    src.start(audioCtx.currentTime + i * 0.05);
+    modNodes.push(src, gain);
   });
 
   playStartTime = audioCtx.currentTime;
+  loopDuration  = longestDur;
   isPlaying     = true;
   btnPlayPause.textContent = '⏸';
+
   progInt = setInterval(() => {
-    // use longest layer for progress
-    const ref = audioBuffers.length ? Math.max(...audioBuffers.map(b => b.duration)) : loopDuration;
-    const el  = (audioCtx.currentTime - playStartTime) % (ref || loopDuration);
-    const pct = (el / (ref || loopDuration)) * 100;
+    const el  = (audioCtx.currentTime - playStartTime) % loopDuration;
+    const pct = (el / loopDuration) * 100;
     progFill.style.width = pct + '%';
     const ph = document.getElementById('playerPlayhead');
     if (ph) ph.style.left = pct + '%';
   }, 50);
 }
 
-let modRAFs = [];
-
 function stopPlay() {
   clearInterval(progInt);
-  modRAFs.forEach(id => cancelAnimationFrame(id));
-  modRAFs = [];
-  modNodes.forEach(n => { try { n.disconnect(); } catch {} try { n.stop?.(); } catch {} });
-  modNodes = [];
-  if (playNode) { try { playNode.stop(); } catch {} playNode = null; }
+  modRAFs.forEach(id => cancelAnimationFrame(id)); modRAFs = [];
+  modNodes.forEach(n => { try { n.stop?.(); n.disconnect(); } catch {} }); modNodes = [];
+  if (playNode) { try { playNode.stop(); playNode.disconnect(); } catch {} playNode = null; }
   isPlaying = false;
   btnPlayPause.textContent = '▶';
 }
