@@ -684,7 +684,7 @@
 
 <script>
 // ── Config ──────────────────────────────────────────────────
-const VERSION = 'v0.11';
+const VERSION = 'v0.12';
 document.getElementById('versionBadge').textContent = VERSION;
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93YXFuZ25vamxibmJpeGFpbGF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyOTM0MDAsImV4cCI6MjA2OTg2OTQwMH0.0FeffoKhv89b9Z9iUuZBNQYOSqoA8kSCQeN7lka4A_g';
 const MAX_SEC = 10;
@@ -758,8 +758,11 @@ function buildLayerCards() {
 
 // ── Welcome → Camera ──────────────────────────────────────────
 document.getElementById('btnStart').addEventListener('click', () => {
-  show('screenCamera');
-  startCamera();
+  snapshotDataURL = null;
+  buildLayerCards();
+  currentLayer = 0; audioBuffers = []; waveformData = [];
+  updateCardStates();
+  show('screenRecorder');
 });
 
 // ── Camera ────────────────────────────────────────────────────
@@ -1070,7 +1073,11 @@ async function compileMix() {
 
 // ── Show playback ─────────────────────────────────────────────
 function showPlayback() {
-  document.getElementById('playbackImg').src = snapshotDataURL;
+  if (snapshotDataURL) {
+    document.getElementById('playbackImg').src = snapshotDataURL;
+  } else {
+    document.getElementById('playbackImg').style.display = 'none';
+  }
   document.getElementById('pubStatus').textContent = '';
   // Reset title field
   const titleInput = document.getElementById('releaseTitle');
