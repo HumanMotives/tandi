@@ -188,6 +188,7 @@ body.editing .knob:active{cursor:grabbing!important;}
 
   <!-- BLOSSOM MODE BUTTONS -->
   <button class="btn active" id="mb-ramp" onclick="toggleRamp()" style="top:88%;left:75%">RAMP ↓</button>
+  <button class="btn" id="mb-sync" onclick="toggleRefractSync()" style="top:81%;left:68.7%;font-size:6px;">SYNC</button>
   <button class="btn" id="mb-pitch" onclick="cyclePitchMode()" style="top:88%;left:82%">ARP —</button>
 
   <!-- TONES BUTTONS — bottom right -->
@@ -214,7 +215,7 @@ body.editing .knob:active{cursor:grabbing!important;}
 const CORE={bpm:120,get stepMs(){return 60000/(this.bpm*4);},running:false,timer:null};
 
 const TOPOLOGY={
-  index:2,labels:['÷4','÷2','×1','×2','×4'],factors:[0.25,0.5,1,2,4],
+  index:3,labels:['÷8','÷4','÷2','×1','×2'],factors:[0.125,0.25,0.5,1,2],
   subMs(){return CORE.stepMs/this.factors[this.index];}
 };
 
@@ -266,7 +267,14 @@ const PRUNE={
     const pos=[...Array(len).keys()].sort((a,b)=>(b/len+Math.random()*.3)-(a/len+Math.random()*.3));
     for(let i=0;i<len-keep;i++) this.mask[pos[i]]=false;
   },
-  tick(){if(this.rnd<0.05||Math.random()>this.rnd) return;const s=Math.random()<.5?1:-1;if(s>0) this.mask.push(this.mask.shift());else this.mask.unshift(this.mask.pop());},
+  tick(){
+    // Only fires at cycle start (called from tick when SEQ.step===0)
+    // Chance per cycle determined by rnd value
+    if(this.rnd<0.05||Math.random()>this.rnd) return;
+    const s=Math.random()<.5?1:-1;
+    if(s>0) this.mask.push(this.mask.shift());
+    else this.mask.unshift(this.mask.pop());
+  },
   allows(step){return this.mask[step%16];}
 };
 
@@ -288,14 +296,28 @@ const SLOPPY={value:0};
 
 const BLOSSOM={
   amount:0,rampMode:'down',pitchMode:'none',attack:0,reps:3,refractRnd:0,
+  refractFree:false, // false=sync to grid subdivisions, true=free timing
   fire(rootPitch,rootVel){
     if(this.amount<0.02||Math.random()>this.amount) return;
     const baseMs=TOPOLOGY.subMs(),minMidi=SEASON.root(),maxMidi=minMidi+SEASON.octaveRange*12-1;
     for(let i=0;i<this.reps;i++){
       const gen=i,rm=this.rampMode,pm=this.pitchMode,rp=this.reps;
-      let eIdx=TOPOLOGY.index;
-      if(this.refractRnd>0.05){const ms=Math.ceil(this.refractRnd*4);eIdx=Math.max(0,Math.min(4,eIdx+Math.floor(Math.random()*(ms+1))*(Math.random()<.5?1:-1)));}
-      const eMs=CORE.stepMs/TOPOLOGY.factors[eIdx];
+      let eMs;
+      if(this.refractFree && this.refractRnd>0.05){
+        // FREE mode: continuous timing variation, not grid-locked
+        const baseMs=TOPOLOGY.subMs();
+        const variance=this.refractRnd*0.8;
+        eMs=baseMs*(1-variance+Math.random()*variance*2);
+      } else {
+        // SYNC mode: always on grid subdivisions
+        let eIdx=TOPOLOGY.index;
+        if(this.refractRnd>0.05){
+          const maxShift=Math.ceil(this.refractRnd*4);
+          // Only shift at cycle-aligned moments for musical feel
+          if(gen===0) eIdx=Math.max(0,Math.min(4,eIdx+Math.floor(Math.random()*(maxShift+1))*(Math.random()<.5?1:-1)));
+        }
+        eMs=CORE.stepMs/TOPOLOGY.factors[eIdx];
+      }
       const t=this.attack*baseMs+eMs*(gen+1);
       const vel=rm==='up'?Math.max(4,Math.floor(rootVel*Math.pow(0.55,rp-gen))):Math.max(4,Math.floor(rootVel*Math.pow(0.55,gen+1)));
       let p=rootPitch;
@@ -464,6 +486,13 @@ function toggleMute(){SEQ.mute=!SEQ.mute;document.getElementById('btn-mute').cla
 function toggleRamp(){
   BLOSSOM.rampMode=BLOSSOM.rampMode==='down'?'up':'down';
   document.getElementById('mb-ramp').textContent='RAMP '+(BLOSSOM.rampMode==='down'?'↓':'↑');
+}
+function toggleRefractSync(){
+  BLOSSOM.refractFree=!BLOSSOM.refractFree;
+  const btn=document.getElementById('mb-sync');
+  btn.textContent=BLOSSOM.refractFree?'FREE':'SYNC';
+  btn.classList.toggle('active',BLOSSOM.refractFree);
+  lg('REFRACT: '+(BLOSSOM.refractFree?'FREE timing':'SYNC to grid'));
 }
 const PITCH_MODES=['none','arp','octdown','octup'];
 const PITCH_LABELS={none:'ARP —',arp:'ARP ♪',octdown:'OCT ↓',octup:'OCT ↑'};
@@ -682,7 +711,8 @@ const MANUAL_TEXT = [
   ]},
   {section:'BLOSSOM', items:[
     {name:'AMOUNT', desc:'Chance that a hit spawns echoes. 0% = no blossom. 100% = every hit blossoms.'},
-    {name:'REFRACT', desc:'Speed of the blossom echoes relative to the main grid. ÷4 = slow echoes, ×4 = rapid subdivision.'},
+    {name:'REFRACT', desc:'Speed of the blossom echoes relative to the main grid. ÷8 = very slow echoes, ×2 = rapid subdivision.'},
+    {name:'SYNC / FREE', desc:'SYNC = echoes stay on the subdivision grid. FREE = RND knop creates continuous time variation between echoes, off-grid.'},
     {name:'RND', desc:'Randomises the refract subdivision per echo — gives an organic, uneven bloom feel.'},
     {name:'OFFSET', desc:'Delay before the first echo fires. 0 = immediate, higher = echo starts later in the step.'},
     {name:'DECAY', desc:'Number of echoes per blossom (1–16). More = longer tail.'},
