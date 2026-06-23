@@ -28,9 +28,10 @@ body{
   cursor:ns-resize;display:flex;flex-direction:column;align-items:center;gap:0;
 }
 .knob-label{
-  font-size:8px;letter-spacing:.12em;color:#7A7A70;
+  font-size:8.5px;letter-spacing:.12em;color:#2A2A22;
   text-align:center;margin-top:4px;line-height:1.2;
-  pointer-events:none;font-weight:400;
+  pointer-events:none;font-weight:700;
+  text-shadow: 0 0 3px white, 0 0 6px white, 1px 1px 0 white, -1px -1px 0 white;
 }
 .knob-val{
   display:none; /* hidden — values shown in centre display on hover */
@@ -179,7 +180,11 @@ body.editing .knob:active{cursor:grabbing!important;}
   <button class="btn" id="btn-tlock" onclick="toggleLock('tones')" style="top:88%;left:90%">LOCK</button>
 
 
-  <!-- PLAY/STOP moved outside panel -->
+  <!-- SEED PATTERN — centered above left button row -->
+  <button onclick="seedPattern()" style="position:absolute;transform:translate(-50%,-50%);top:81%;left:16.75%;background:rgba(184,169,106,.12);border:1px solid #B8A96A88;color:#B8A96A;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;">⟳ SEED PAT</button>
+
+  <!-- SEED TONES — centered above right button row -->
+  <button onclick="seedTones()" style="position:absolute;transform:translate(-50%,-50%);top:81%;left:82.5%;background:rgba(184,169,106,.12);border:1px solid #B8A96A88;color:#B8A96A;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;">⟳ SEED TONES</button>
 
 </div>
 <div style="display:flex;gap:10px;justify-content:center;margin-top:10px;">
