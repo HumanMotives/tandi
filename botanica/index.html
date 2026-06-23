@@ -134,6 +134,9 @@ body.editing .knob:active{cursor:grabbing!important;}
   <button id="pluck-btn" onclick="togglePluck()" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#6A6A60;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;">🔈 AUDIO OFF</button>
   <button onclick="startSeq()" style="background:#8BAA7A;border:none;color:white;border-radius:4px;padding:6px 22px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;">▶ PLAY</button>
   <button onclick="stopSeq()"  style="background:#C47A5A;border:none;color:white;border-radius:4px;padding:6px 22px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;">■ STOP</button>
+  <select id="midi-select" onchange="selectMidiOut(this.value)" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#A8A49A;border-radius:4px;padding:6px 8px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.06em;box-shadow:0 0 0 1.5px white;max-width:160px;">
+    <option value="">— MIDI OUT —</option>
+  </select>
   <button onclick="showManual()" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#A8A49A;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;">? MANUAL</button>
 </div>
 <div class="panel" id="panel">
@@ -357,10 +360,47 @@ const MIDI={
 async function initMIDI(){
   if(!navigator.requestMIDIAccess){document.getElementById('warn').style.display='block';dot('midi','err');return;}
   try{
-    const ma=await navigator.requestMIDIAccess();dot('midi','on');document.getElementById('t-midi').textContent='MIDI OK';
-    function pick(){const o=[...ma.outputs.values()];if(o.length){MIDI.out=o[0];document.getElementById('t-out').textContent='→ '+MIDI.out.name.substring(0,14);dot('out','on');lg('MIDI: '+MIDI.out.name);}}
-    pick();ma.onstatechange=pick;
+    const ma=await navigator.requestMIDIAccess();
+    dot('midi','on');document.getElementById('t-midi').textContent='MIDI OK';
+
+    function populateSelect(){
+      const sel=document.getElementById('midi-select');
+      const outputs=[...ma.outputs.values()];
+      // Save current selection
+      const curId=sel.value;
+      sel.innerHTML='<option value="">— MIDI OUT —</option>';
+      outputs.forEach(o=>{
+        const opt=document.createElement('option');
+        opt.value=o.id; opt.textContent=o.name.substring(0,24);
+        sel.appendChild(opt);
+      });
+      // Restore or auto-select first
+      if(curId && ma.outputs.get(curId)){
+        sel.value=curId;
+      } else if(outputs.length){
+        sel.value=outputs[0].id;
+        MIDI.out=outputs[0];
+        document.getElementById('t-out').textContent='→ '+outputs[0].name.substring(0,14);
+        dot('out','on');
+        lg('MIDI: '+outputs[0].name);
+      }
+    }
+
+    populateSelect();
+    ma.onstatechange=()=>populateSelect();
+    window._midiAccess=ma; // store for selectMidiOut
   }catch(e){document.getElementById('warn').style.display='block';dot('midi','err');}
+}
+
+function selectMidiOut(id){
+  if(!window._midiAccess||!id) return;
+  const out=window._midiAccess.outputs.get(id);
+  if(out){
+    MIDI.out=out;
+    document.getElementById('t-out').textContent='→ '+out.name.substring(0,14);
+    dot('out','on');
+    lg('MIDI out: '+out.name);
+  }
 }
 
 function startSeq(){
