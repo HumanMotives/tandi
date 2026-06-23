@@ -44,6 +44,7 @@ body{
   border-radius:4px;padding:5px 12px;cursor:pointer;
   font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;
   transition:all .15s;white-space:nowrap;
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,.5);
 }
 .btn:hover{border-color:#B8A96A;color:#B8A96A;}
 .btn.active{background:#B8A96A;border-color:#B8A96A;color:#1A1A18;font-weight:700;}
@@ -181,10 +182,10 @@ body.editing .knob:active{cursor:grabbing!important;}
 
 
   <!-- SEED PATTERN — centered above left button row -->
-  <button onclick="seedPattern()" style="position:absolute;transform:translate(-50%,-50%);top:81%;left:16.75%;background:rgba(184,169,106,.12);border:1px solid #B8A96A88;color:#B8A96A;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;">⟳ SEED PAT</button>
+  <button onclick="seedPattern()" style="position:absolute;transform:translate(-50%,-50%);top:81%;left:16.75%;background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#B8B4AA;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;box-shadow:0 0 0 1.5px rgba(255,255,255,.5);">⟳ SEED PAT</button>
 
   <!-- SEED TONES — centered above right button row -->
-  <button onclick="seedTones()" style="position:absolute;transform:translate(-50%,-50%);top:81%;left:82.5%;background:rgba(184,169,106,.12);border:1px solid #B8A96A88;color:#B8A96A;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;">⟳ SEED TONES</button>
+  <button onclick="seedTones()" style="position:absolute;transform:translate(-50%,-50%);top:81%;left:82.5%;background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#B8B4AA;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;box-shadow:0 0 0 1.5px rgba(255,255,255,.5);">⟳ SEED TONES</button>
 
 </div>
 <div style="display:flex;gap:10px;justify-content:center;margin-top:10px;">
@@ -438,7 +439,7 @@ function makeKnob(cfg){
   svg.setAttribute('width',sz);svg.setAttribute('height',sz);svg.setAttribute('viewBox',`0 0 ${sz} ${sz}`);
   const bg=document.createElementNS('http://www.w3.org/2000/svg','circle');
   bg.setAttribute('cx',cx);bg.setAttribute('cy',cy);bg.setAttribute('r',r);
-  bg.setAttribute('fill','rgba(8,8,6,.88)');bg.setAttribute('stroke','#3A3A32');bg.setAttribute('stroke-width','1.5');
+  bg.setAttribute('fill','rgba(8,8,6,.88)');bg.setAttribute('stroke','rgba(255,255,255,0.6)');bg.setAttribute('stroke-width','3');
   const mk=document.createElementNS('http://www.w3.org/2000/svg','line');
   mk.setAttribute('x1',cx);mk.setAttribute('y1',cy);
   mk.setAttribute('stroke','#B8A96A');mk.setAttribute('stroke-width','2.5');mk.setAttribute('stroke-linecap','round');
