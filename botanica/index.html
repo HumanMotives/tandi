@@ -54,12 +54,13 @@ body{
 /* DISPLAY (over rose illustration centre) */
 .display{
   position:absolute;top:36%;left:48.5%;transform:translate(-50%,-50%);
-  background:#080806;border-radius:6px;padding:8px 16px;
-  display:flex;flex-direction:column;align-items:center;
+  background:#080806;border-radius:6px;
+  width:58px;height:58px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
   border:1px solid #2A2A22;
   pointer-events:none;
 }
-.dv{font-size:22px;color:#B8A96A;letter-spacing:.06em;line-height:1;}
+.dv{font-size:20px;color:#B8A96A;letter-spacing:.06em;line-height:1;}
 .dl{font-size:5px;letter-spacing:.2em;color:#3A3A32;margin-top:2px;}
 
 /* PATTERN DISPLAY */
@@ -114,29 +115,29 @@ body{
   ═══════════════════════════════════════ -->
 
   <!-- LEFT / PATTERN -->
-  <div class="knob" id="k-steps"   style="top:54%;left:6%"></div>
-  <div class="knob" id="k-length"  style="top:37%;left:15%"></div>
-  <div class="knob" id="k-prune"   style="top:34%;left:26%"></div>
-  <div class="knob" id="k-sloppy"  style="top:24%;left:38%"></div>
-  <div class="knob" id="k-prune-rnd" style="top:45%;left:30%"></div>
+  <div class="knob" id="k-steps" style="top:54%;left:6%"></div>
+  <div class="knob" id="k-length" style="top:34%;left:14%"></div>
+  <div class="knob" id="k-prune" style="top:27%;left:23%"></div>
+  <div class="knob" id="k-sloppy" style="top:22%;left:35%"></div>
+  <div class="knob" id="k-prune-rnd" style="top:40%;left:28%"></div>
 
   <!-- RIGHT / BLOSSOM -->
-  <div class="knob" id="k-blossom" style="top:31%;left:62%"></div>
-  <div class="knob" id="k-refract" style="top:34%;left:74%"></div>
-  <div class="knob" id="k-ref-rnd" style="top:45%;left:70%"></div>
-  <div class="knob" id="k-offset"  style="top:40%;left:86%"></div>
-  <div class="knob" id="k-decay"   style="top:54%;left:94%"></div>
+  <div class="knob" id="k-blossom" style="top:22%;left:65%"></div>
+  <div class="knob" id="k-refract" style="top:27%;left:77%"></div>
+  <div class="knob" id="k-ref-rnd" style="top:40%;left:72%"></div>
+  <div class="knob" id="k-offset" style="top:34%;left:86%"></div>
+  <div class="knob" id="k-decay" style="top:34%;left:94%"></div>
 
   <!-- BOTTOM CENTRE / TONES -->
-  <div class="knob" id="k-root"    style="top:70%;left:43%"></div>
-  <div class="knob" id="k-range"   style="top:72%;left:57%"></div>
-  <div class="knob" id="k-evolve"  style="top:62%;left:71%"></div>
+  <div class="knob" id="k-root" style="top:71%;left:38%"></div>
+  <div class="knob" id="k-range" style="top:71%;left:62%"></div>
+  <div class="knob" id="k-evolve" style="top:68%;left:50%"></div>
 
   <!-- SEASON BUTTONS — over the gold bar labels -->
-  <button class="btn season active" id="sb-0" onclick="setSeason(0)" style="top:55%;left:37%">SPRING</button>
-  <button class="btn season"        id="sb-1" onclick="setSeason(1)" style="top:60%;left:31%">SUMMER</button>
-  <button class="btn season"        id="sb-2" onclick="setSeason(2)" style="top:55%;left:63%">FALL</button>
-  <button class="btn season"        id="sb-3" onclick="setSeason(3)" style="top:60%;left:70%">WINTER</button>
+  <button class="btn season active" id="sb-0" onclick="setSeason(0)" style="top:53%;left:36%">SPRING</button>
+  <button class="btn season"        id="sb-1" onclick="setSeason(1)" style="top:59%;left:29%">SUMMER</button>
+  <button class="btn season"        id="sb-2" onclick="setSeason(2)" style="top:53%;left:64%">FALL</button>
+  <button class="btn season"        id="sb-3" onclick="setSeason(3)" style="top:59%;left:71%">WINTER</button>
 
   <!-- PATTERN BUTTONS — bottom left -->
   <button class="btn" id="btn-mute"   onclick="toggleMute()"          style="top:88%;left:7%">MUTE</button>
@@ -146,11 +147,11 @@ body{
 
 
   <!-- BLOSSOM MODE BUTTONS -->
-  <button class="btn active" id="mb-ramp" onclick="toggleRamp()"     style="top:55%;left:79%">RAMP ↓</button>
-  <button class="btn"        id="mb-pitch" onclick="cyclePitchMode()" style="top:55%;left:86%">ARP —</button>
+  <button class="btn active" id="mb-ramp" onclick="toggleRamp()" style="top:84%;left:73%">RAMP ↓</button>
+  <button class="btn" id="mb-pitch" onclick="cyclePitchMode()" style="top:84%;left:81%">ARP —</button>
 
   <!-- TONES BUTTONS — bottom right -->
-  <button class="btn" id="btn-tlock" onclick="toggleLock('tones')"   style="top:88%;left:76%">LOCK</button>
+  <button class="btn" id="btn-tlock" onclick="toggleLock('tones')" style="top:84%;left:90%">LOCK</button>
 
 
   <!-- PLAY/STOP moved outside panel -->
