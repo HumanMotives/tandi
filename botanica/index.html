@@ -101,6 +101,8 @@ body{
 .edit-overlay.on{display:block;}
 .edit-coords{font-size:9px;color:#B8A96A;margin-top:4px;font-weight:700;}
 body.editing .knob{cursor:grab!important;outline:2px dashed rgba(184,169,106,.4);border-radius:50%;}
+body.editing .btn{cursor:grab!important;outline:1px dashed rgba(184,169,106,.4);}
+body.editing .btn:hover{outline:1px solid #B8A96A;}
 body.editing .knob:hover{outline:2px solid #B8A96A;}
 body.editing .knob:active{cursor:grabbing!important;}
 </style>
@@ -142,18 +144,18 @@ body.editing .knob:active{cursor:grabbing!important;}
   ═══════════════════════════════════════ -->
 
   <!-- LEFT / PATTERN -->
-  <div class="knob" id="k-steps" style="top:54%;left:6%"></div>
-  <div class="knob" id="k-length" style="top:34%;left:14%"></div>
-  <div class="knob" id="k-prune" style="top:27%;left:23%"></div>
-  <div class="knob" id="k-sloppy" style="top:22%;left:35%"></div>
-  <div class="knob" id="k-prune-rnd" style="top:40%;left:28%"></div>
+  <div class="knob" id="k-steps" style="top:56.6%;left:6.3%"></div>
+  <div class="knob" id="k-length" style="top:44.5%;left:15.2%"></div>
+  <div class="knob" id="k-prune" style="top:33.8%;left:25.6%"></div>
+  <div class="knob" id="k-sloppy" style="top:29.9%;left:37.7%"></div>
+  <div class="knob" id="k-prune-rnd" style="top:42.6%;left:31.6%"></div>
 
   <!-- RIGHT / BLOSSOM -->
-  <div class="knob" id="k-blossom" style="top:22%;left:65%"></div>
-  <div class="knob" id="k-refract" style="top:27%;left:77%"></div>
-  <div class="knob" id="k-ref-rnd" style="top:40%;left:72%"></div>
-  <div class="knob" id="k-offset" style="top:34%;left:86%"></div>
-  <div class="knob" id="k-decay" style="top:34%;left:94%"></div>
+  <div class="knob" id="k-blossom" style="top:29.7%;left:62.6%"></div>
+  <div class="knob" id="k-refract" style="top:34.0%;left:74.9%"></div>
+  <div class="knob" id="k-ref-rnd" style="top:41.7%;left:68.7%"></div>
+  <div class="knob" id="k-offset" style="top:45.2%;left:84.7%"></div>
+  <div class="knob" id="k-decay" style="top:56.3%;left:91.0%"></div>
 
   <!-- BOTTOM CENTRE / TONES -->
   <div class="knob" id="k-root" style="top:71%;left:38%"></div>
@@ -497,13 +499,16 @@ function setupEditDrag(){
   const panel = document.getElementById('panel');
   const panelRect = ()=> panel.getBoundingClientRect();
 
-  document.querySelectorAll('.knob').forEach(knob=>{
+  document.querySelectorAll('.knob, .btn, .playbtn, .display, .pat-disp-outer').forEach(knob=>{
     if(knob._editDrag) return; // already set up
     knob._editDrag = true;
 
+    let didDrag = false;
+    knob.addEventListener('click', e=>{ if(didDrag){ e.stopPropagation(); e.preventDefault(); didDrag=false; } }, true);
     knob.addEventListener('mousedown', e=>{
       if(!editMode) return;
       e.preventDefault(); e.stopPropagation();
+      didDrag = false;
       const pr = panelRect();
       const startX = e.clientX, startY = e.clientY;
       const startLeft = parseFloat(knob.style.left);
@@ -512,6 +517,7 @@ function setupEditDrag(){
       document.getElementById('edit-last').textContent = 'dragging: ' + knob.id;
 
       function onMove(ev){
+        didDrag = true;
         const dx = ev.clientX - startX;
         const dy = ev.clientY - startY;
         const newLeft = Math.max(0, Math.min(100, startLeft + (dx/pr.width)*100));
