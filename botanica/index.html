@@ -7,7 +7,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Space+Mono&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 body{
-  background:#1C1C1A;
+  background:#E8E4DA;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   min-height:100vh;font-family:'Space Mono',monospace;padding:16px;user-select:none;
 }
@@ -28,40 +28,38 @@ body{
   cursor:ns-resize;display:flex;flex-direction:column;align-items:center;gap:0;
 }
 .knob-label{
-  font-size:6.5px;letter-spacing:.14em;color:#6A6A60;
-  text-align:center;margin-top:3px;line-height:1.2;
-  pointer-events:none;
+  font-size:8px;letter-spacing:.12em;color:#7A7A70;
+  text-align:center;margin-top:4px;line-height:1.2;
+  pointer-events:none;font-weight:400;
 }
 .knob-val{
-  font-size:6px;color:#B8A96A;text-align:center;
-  background:rgba(0,0,0,.5);border-radius:2px;padding:1px 3px;
-  pointer-events:none;white-space:nowrap;margin-top:1px;
+  display:none; /* hidden — values shown in centre display on hover */
 }
 
 /* BUTTON */
 .btn{
   position:absolute;transform:translate(-50%,-50%);
-  background:rgba(10,10,8,.82);border:1px solid #3A3A32;color:#A8A49A;
-  border-radius:3px;padding:2px 7px;cursor:pointer;
-  font-family:'Space Mono',monospace;font-size:6px;letter-spacing:.1em;
+  background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#B8B4AA;
+  border-radius:4px;padding:5px 12px;cursor:pointer;
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;
   transition:all .15s;white-space:nowrap;
 }
 .btn:hover{border-color:#B8A96A;color:#B8A96A;}
 .btn.active{background:#B8A96A;border-color:#B8A96A;color:#1A1A18;font-weight:700;}
 .btn.locked{background:#8BAA7A;border-color:#8BAA7A;color:white;}
 .btn.muted{background:#C47A5A;border-color:#C47A5A;color:white;}
-.btn.season{border-color:#B8A96A55;color:#B8A96A;}
+.btn.season{border-color:#B8A96A66;color:#B8A96A;font-size:9px;padding:6px 14px;}
 .btn.season.active{background:#B8A96A;color:#1A1A18;}
 
 /* DISPLAY (over rose illustration centre) */
 .display{
-  position:absolute;top:30%;left:48%;transform:translate(-50%,-50%);
-  background:#080806;border-radius:4px;padding:5px 10px;
+  position:absolute;top:36%;left:48.5%;transform:translate(-50%,-50%);
+  background:#080806;border-radius:6px;padding:8px 16px;
   display:flex;flex-direction:column;align-items:center;
   border:1px solid #2A2A22;
   pointer-events:none;
 }
-.dv{font-size:16px;color:#B8A96A;letter-spacing:.06em;line-height:1;}
+.dv{font-size:22px;color:#B8A96A;letter-spacing:.06em;line-height:1;}
 .dl{font-size:5px;letter-spacing:.2em;color:#3A3A32;margin-top:2px;}
 
 /* PATTERN DISPLAY */
@@ -95,11 +93,15 @@ body{
 </div>
 <div class="warn" id="warn">WebMIDI requires Chrome + HTTPS or localhost</div>
 
+<div style="display:flex;gap:10px;justify-content:center;margin-bottom:6px;">
+  <button onclick="seedPattern()" style="background:transparent;border:1px solid #B8A96A66;color:#B8A96A;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.14em;">⟳ SEED PATTERN</button>
+  <button onclick="seedTones()"   style="background:transparent;border:1px solid #B8A96A66;color:#B8A96A;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.14em;">⟳ SEED TONES</button>
+</div>
+<div class="pat-disp-outer" id="dv-pat" style="font-size:11px;color:#B8A96A;letter-spacing:.08em;background:#080806;border-radius:5px;padding:5px 16px;margin-bottom:6px;text-align:center;width:860px;white-space:nowrap;">· · · · · · · · · · · · · · · ·</div>
 <div class="panel" id="panel">
   <img class="panel-img" src="BOTANICA_PANEL_ALPHA_BLANK.png">
 
-  <!-- PATTERN DISPLAY -->
-  <div class="pat-disp" id="dv-pat">· · · · · · · · · · · · · · · ·</div>
+  <!-- pattern display moved outside panel -->
 
   <!-- DISPLAY centre -->
   <div class="display"><div class="dv" id="dv">SP</div><div class="dl" id="dl">SEASON</div></div>
@@ -112,22 +114,22 @@ body{
   ═══════════════════════════════════════ -->
 
   <!-- LEFT / PATTERN -->
-  <div class="knob" id="k-steps"   style="top:47%;left:6%"></div>
+  <div class="knob" id="k-steps"   style="top:54%;left:6%"></div>
   <div class="knob" id="k-length"  style="top:37%;left:15%"></div>
-  <div class="knob" id="k-prune"   style="top:27%;left:26%"></div>
+  <div class="knob" id="k-prune"   style="top:34%;left:26%"></div>
   <div class="knob" id="k-sloppy"  style="top:24%;left:38%"></div>
-  <div class="knob" id="k-prune-rnd" style="top:38%;left:30%"></div>
+  <div class="knob" id="k-prune-rnd" style="top:45%;left:30%"></div>
 
   <!-- RIGHT / BLOSSOM -->
-  <div class="knob" id="k-blossom" style="top:24%;left:62%"></div>
-  <div class="knob" id="k-refract" style="top:27%;left:74%"></div>
-  <div class="knob" id="k-ref-rnd" style="top:38%;left:70%"></div>
+  <div class="knob" id="k-blossom" style="top:31%;left:62%"></div>
+  <div class="knob" id="k-refract" style="top:34%;left:74%"></div>
+  <div class="knob" id="k-ref-rnd" style="top:45%;left:70%"></div>
   <div class="knob" id="k-offset"  style="top:40%;left:86%"></div>
-  <div class="knob" id="k-decay"   style="top:47%;left:94%"></div>
+  <div class="knob" id="k-decay"   style="top:54%;left:94%"></div>
 
   <!-- BOTTOM CENTRE / TONES -->
   <div class="knob" id="k-root"    style="top:70%;left:43%"></div>
-  <div class="knob" id="k-range"   style="top:70%;left:57%"></div>
+  <div class="knob" id="k-range"   style="top:72%;left:57%"></div>
   <div class="knob" id="k-evolve"  style="top:62%;left:71%"></div>
 
   <!-- SEASON BUTTONS — over the gold bar labels -->
@@ -141,7 +143,7 @@ body{
   <button class="btn" id="btn-plock"  onclick="toggleLock('pattern')" style="top:88%;left:13%">LOCK</button>
   <button class="btn"                 onclick="SEQ.snapToOne()"        style="top:88%;left:19%">SNAP</button>
   <button class="btn" id="btn-euclid" onclick="toggleEuclid()"        style="top:88%;left:25%">EUCLID</button>
-  <button class="btn"                 onclick="seedPattern()"          style="top:94%;left:16%;border-color:#B8A96A55;color:#B8A96A;">⟳ SEED PAT</button>
+
 
   <!-- BLOSSOM MODE BUTTONS -->
   <button class="btn active" id="mb-ramp" onclick="toggleRamp()"     style="top:55%;left:79%">RAMP ↓</button>
@@ -149,16 +151,18 @@ body{
 
   <!-- TONES BUTTONS — bottom right -->
   <button class="btn" id="btn-tlock" onclick="toggleLock('tones')"   style="top:88%;left:76%">LOCK</button>
-  <button class="btn"                onclick="seedTones()"            style="top:94%;left:84%;border-color:#B8A96A55;color:#B8A96A;">⟳ SEED TONES</button>
 
-  <!-- PLAY / STOP -->
-  <button class="playbtn play" onclick="startSeq()" style="top:94%;left:44%">▶ PLAY</button>
-  <button class="playbtn stop" onclick="stopSeq()"  style="top:94%;left:56%">■ STOP</button>
 
+  <!-- PLAY/STOP moved outside panel -->
+
+</div>
+<div style="display:flex;gap:10px;justify-content:center;margin-top:10px;">
+  <button onclick="startSeq()" style="background:#8BAA7A;border:none;color:white;border-radius:6px;padding:8px 28px;cursor:pointer;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;">▶ PLAY</button>
+  <button onclick="stopSeq()"  style="background:#C47A5A;border:none;color:white;border-radius:6px;padding:8px 28px;cursor:pointer;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;">■ STOP</button>
 </div>
 
 <div class="log" id="log"></div>
-<div class="hint">BOTANICA · Human Motives · drag knobs up/down · WebMIDI via Chrome</div>
+<div class="hint" style="color:#9A9A90;">BOTANICA · Human Motives · drag knobs up/down · WebMIDI via Chrome</div>
 
 <script>
 // ============================================================
