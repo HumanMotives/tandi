@@ -83,10 +83,37 @@ body{
 .log{width:860px;background:#080806;border-radius:5px;padding:4px 12px;height:30px;overflow:hidden;font-size:7px;color:#B8A96A;letter-spacing:.06em;margin-top:6px;}
 .ll{opacity:.45;line-height:1.7;}.ll:last-child{opacity:1;}
 .hint{font-size:7px;color:#3A3A32;letter-spacing:.1em;text-align:center;margin-top:5px;}
+
+/* EDIT MODE */
+.edit-mode-btn{
+  position:fixed;top:10px;right:10px;z-index:1000;
+  background:#B8A96A;border:none;color:#1A1A18;
+  border-radius:4px;padding:6px 14px;cursor:pointer;
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.14em;
+  font-weight:700;
+}
+.edit-overlay{
+  display:none;position:fixed;top:10px;left:10px;z-index:1000;
+  background:rgba(8,8,6,.92);border:1px solid #B8A96A;border-radius:6px;
+  padding:10px 14px;font-size:8px;color:#B8A96A;letter-spacing:.08em;
+  max-width:280px;line-height:1.9;
+}
+.edit-overlay.on{display:block;}
+.edit-coords{font-size:9px;color:#B8A96A;margin-top:4px;font-weight:700;}
+body.editing .knob{cursor:grab!important;outline:2px dashed rgba(184,169,106,.4);border-radius:50%;}
+body.editing .knob:hover{outline:2px solid #B8A96A;}
+body.editing .knob:active{cursor:grabbing!important;}
 </style>
 </head>
 <body>
 
+<button class="edit-mode-btn" onclick="toggleEditMode()">⊹ EDIT MODE</button>
+<div class="edit-overlay" id="edit-overlay">
+  <div>EDIT MODE — drag knobs to position</div>
+  <div id="edit-last" style="color:#8A8A80;font-size:7px;">click a knob to see coords</div>
+  <div class="edit-coords" id="edit-coords">—</div>
+  <div style="margin-top:6px;font-size:7px;color:#6A6A60;">Copy the id+top+left values<br>into the HTML to save.</div>
+</div>
 <div class="status">
   <span><span class="dot" id="d-midi"></span><span id="t-midi">MIDI —</span></span>
   <span><span class="dot" id="d-clk"></span><span id="t-clk">STOPPED</span></span>
@@ -425,8 +452,9 @@ function makeKnob(cfg){
   }
   let drag=false,sy=0,sv=0;
   el.addEventListener('mousedown',e=>{
+    if(editMode) return; // edit mode handles drag
     drag=true;sy=e.clientY;sv=val;e.preventDefault();
-    const mm=ev=>{if(!drag)return;val=Math.max(cfg.min,Math.min(cfg.max,sv+(sy-ev.clientY)*(cfg.max-cfg.min)/120));setMk(val);cfg.fn(val);};
+    const mm=ev=>{if(!drag||editMode)return;val=Math.max(cfg.min,Math.min(cfg.max,sv+(sy-ev.clientY)*(cfg.max-cfg.min)/120));setMk(val);cfg.fn(val);};
     const mu=()=>{drag=false;document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);};
     document.addEventListener('mousemove',mm);document.addEventListener('mouseup',mu);
   });
@@ -452,6 +480,68 @@ function buildKnobs(){
     {id:'k-evolve',   label:'EVOLVE',  min:0,  max:100,val:0,  size:34, fn(v){EVOLVE.chance=v/100;kv('evolve',Math.round(v)+'%');}},
   ].forEach(cfg=>makeKnob(cfg));
 }
+
+
+// ─── EDIT MODE ───────────────────────────────
+let editMode = false;
+
+function toggleEditMode(){
+  editMode = !editMode;
+  document.body.classList.toggle('editing', editMode);
+  document.getElementById('edit-overlay').classList.toggle('on', editMode);
+  document.querySelector('.edit-mode-btn').textContent = editMode ? '✕ EXIT EDIT' : '⊹ EDIT MODE';
+  if(editMode) setupEditDrag();
+}
+
+function setupEditDrag(){
+  const panel = document.getElementById('panel');
+  const panelRect = ()=> panel.getBoundingClientRect();
+
+  document.querySelectorAll('.knob').forEach(knob=>{
+    if(knob._editDrag) return; // already set up
+    knob._editDrag = true;
+
+    knob.addEventListener('mousedown', e=>{
+      if(!editMode) return;
+      e.preventDefault(); e.stopPropagation();
+      const pr = panelRect();
+      const startX = e.clientX, startY = e.clientY;
+      const startLeft = parseFloat(knob.style.left);
+      const startTop  = parseFloat(knob.style.top);
+
+      document.getElementById('edit-last').textContent = 'dragging: ' + knob.id;
+
+      function onMove(ev){
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        const newLeft = Math.max(0, Math.min(100, startLeft + (dx/pr.width)*100));
+        const newTop  = Math.max(0, Math.min(100, startTop  + (dy/pr.height)*100));
+        knob.style.left = newLeft.toFixed(1) + '%';
+        knob.style.top  = newTop.toFixed(1)  + '%';
+        document.getElementById('edit-coords').textContent =
+          knob.id + '\ntop:' + newTop.toFixed(1) + '% left:' + newLeft.toFixed(1) + '%';
+      }
+      function onUp(){
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        const finalLeft = parseFloat(knob.style.left).toFixed(1);
+        const finalTop  = parseFloat(knob.style.top).toFixed(1);
+        document.getElementById('edit-coords').textContent =
+          knob.id + ': top:' + finalTop + '% left:' + finalLeft + '%';
+        // Copy to clipboard
+        const text = `top:${finalTop}%;left:${finalLeft}%`;
+        navigator.clipboard?.writeText(text);
+        document.getElementById('edit-last').textContent = '✓ copied: ' + knob.id;
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+}
+
+// Prevent knob drag from interfering with edit mode
+// (the makeKnob mousedown will check editMode)
+const _origMakeKnob = makeKnob;
 
 buildKnobs();
 SEQ.genGates();SEQ.genPitches();PRUNE.generate(SEQ.len);setSeason(0);initMIDI();
