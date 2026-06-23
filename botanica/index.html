@@ -20,6 +20,10 @@ body{
 
 /* PANEL */
 .panel{position:relative;width:860px;}
+@media(max-width:900px){
+  .panel{width:100%;max-width:860px;}
+  body{padding:8px;}
+}
 .panel-img{width:100%;display:block;border-radius:10px;box-shadow:0 20px 70px rgba(0,0,0,.65);}
 
 /* KNOB */
@@ -126,7 +130,7 @@ body.editing .knob:active{cursor:grabbing!important;}
 <div class="warn" id="warn">WebMIDI requires Chrome + HTTPS or localhost</div>
 
 <div class="pat-disp-outer" id="dv-pat" style="font-size:11px;color:#B8A96A;letter-spacing:.08em;background:#080806;border-radius:5px;padding:5px 16px;margin-bottom:6px;text-align:center;width:860px;white-space:nowrap;">· · · · · · · · · · · · · · · ·</div>
-<div style="display:flex;gap:8px;justify-content:center;align-items:center;margin-bottom:10px;">
+<div style="display:flex;gap:6px;justify-content:center;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
   <button id="pluck-btn" onclick="togglePluck()" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#6A6A60;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;">🔈 AUDIO OFF</button>
   <button onclick="startSeq()" style="background:#8BAA7A;border:none;color:white;border-radius:4px;padding:6px 22px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;">▶ PLAY</button>
   <button onclick="stopSeq()"  style="background:#C47A5A;border:none;color:white;border-radius:4px;padding:6px 22px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;">■ STOP</button>
@@ -663,9 +667,9 @@ function showManual(){
     <div style="margin-bottom:20px;">
       <div style="font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.2em;color:#1A1A18;border-bottom:1px solid #D4CDB8;padding-bottom:4px;margin-bottom:10px;">${sec.section}</div>
       ${sec.items.map(item=>`
-        <div style="display:flex;gap:12px;margin-bottom:8px;">
-          <div style="min-width:90px;color:#B8A96A;font-weight:700;letter-spacing:.08em;">${item.name}</div>
-          <div style="color:#5A5A52;">${item.desc}</div>
+        <div style="margin-bottom:10px;">
+          <div style="color:#B8A96A;font-weight:700;letter-spacing:.08em;margin-bottom:2px;">${item.name}</div>
+          <div style="color:#5A5A52;padding-left:0;">${item.desc}</div>
         </div>`).join('')}
     </div>`).join('');
   document.getElementById('manual-overlay').style.display='block';
@@ -678,12 +682,12 @@ function hideManual(){
 </script>
 
 <!-- MANUAL MODAL -->
-<div id="manual-overlay" onclick="hideManual()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;overflow-y:auto;padding:40px 20px;">
-  <div onclick="event.stopPropagation()" style="background:#F2EFE6;border-radius:10px;max-width:680px;margin:0 auto;padding:32px 36px;font-family:'Space Mono',monospace;position:relative;">
+<div id="manual-overlay" onclick="hideManual()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;overflow-y:auto;padding:20px 12px;">
+  <div onclick="event.stopPropagation()" style="background:#F2EFE6;border-radius:10px;max-width:680px;margin:0 auto;padding:24px 20px;font-family:'Space Mono',monospace;position:relative;">
     <button onclick="hideManual()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:18px;cursor:pointer;color:#4A4A42;">✕</button>
     <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;letter-spacing:.2em;margin-bottom:4px;">BOTANICA</div>
-    <div style="font-size:7px;letter-spacing:.3em;color:#B8A96A;margin-bottom:20px;">— NATURAL SEQUENCER —</div>
-    <div id="manual-content" style="font-size:8px;line-height:2;color:#4A4A42;letter-spacing:.06em;"></div>
+    <div style="font-size:9px;letter-spacing:.3em;color:#B8A96A;margin-bottom:20px;">— NATURAL SEQUENCER —</div>
+    <div id="manual-content" style="font-size:12px;line-height:1.9;color:#4A4A42;letter-spacing:.03em;"></div>
     <div style="margin-top:20px;font-size:7px;color:#9A9A90;letter-spacing:.1em;">click outside to close · BOTANICA by Human Motives · 2026</div>
   </div>
 </div>
