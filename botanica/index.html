@@ -263,22 +263,32 @@ const SEASON={
 const DENSITY={raw:1.0,get value(){return Math.pow(this.raw,0.4);}};
 
 const PRUNE={
-  value:1.0,rnd:0,mask:new Array(16).fill(true),
+  value:1.0,   // main knob position (0-1, inverted: 0=full, 1=silent)
+  rnd:0,       // chance (0-1) to use random value instead of main knob
+  activeValue:1.0, // current active value (may be randomized)
+  mask:new Array(16).fill(true),
+
   generate(len){
     this.mask=new Array(16).fill(true);
-    if(this.value>=0.99) return;
-    const keep=Math.max(1,Math.round(len*this.value));
+    const v=this.activeValue;
+    if(v>=0.99) return;
+    const keep=Math.max(1,Math.round(len*v));
     const pos=[...Array(len).keys()].sort((a,b)=>(b/len+Math.random()*.3)-(a/len+Math.random()*.3));
     for(let i=0;i<len-keep;i++) this.mask[pos[i]]=false;
   },
-  tick(){
-    // Only fires at cycle start (called from tick when SEQ.step===0)
-    // Chance per cycle determined by rnd value
-    if(this.rnd<0.05||Math.random()>this.rnd) return;
-    const s=Math.random()<.5?1:-1;
-    if(s>0) this.mask.push(this.mask.shift());
-    else this.mask.unshift(this.mask.pop());
+
+  // Called at cycle start (step===0)
+  tick(len){
+    if(this.rnd>0.02 && Math.random()<this.rnd){
+      // Random: pick any value in full range (stepped block)
+      this.activeValue=Math.random();
+    } else {
+      // Use main knob position
+      this.activeValue=this.value;
+    }
+    this.generate(len);
   },
+
   allows(step){return this.mask[step%16];}
 };
 
@@ -300,28 +310,25 @@ const SLOPPY={value:0};
 
 const BLOSSOM={
   amount:0,rampMode:'down',pitchMode:'none',attack:0,reps:3,refractRnd:0,
-  refractFree:false, // false=sync to grid subdivisions, true=free timing
+  refractFree:false,
+  activeRefractIdx:3, // current active refract index (may be randomized)
+
+  // Called at cycle start — randomize refract if RND fires
+  tickRnd(){
+    if(this.refractRnd>0.02 && Math.random()<this.refractRnd){
+      // Random: pick any subdivision in full range (stepped block)
+      this.activeRefractIdx=Math.floor(Math.random()*TOPOLOGY.factors.length);
+    } else {
+      this.activeRefractIdx=TOPOLOGY.index;
+    }
+  },
   fire(rootPitch,rootVel){
     if(this.amount<0.02||Math.random()>this.amount) return;
     const baseMs=TOPOLOGY.subMs(),minMidi=SEASON.root(),maxMidi=minMidi+SEASON.octaveRange*12-1;
     for(let i=0;i<this.reps;i++){
       const gen=i,rm=this.rampMode,pm=this.pitchMode,rp=this.reps;
-      let eMs;
-      if(this.refractFree && this.refractRnd>0.05){
-        // FREE mode: continuous timing variation, not grid-locked
-        const baseMs=TOPOLOGY.subMs();
-        const variance=this.refractRnd*0.8;
-        eMs=baseMs*(1-variance+Math.random()*variance*2);
-      } else {
-        // SYNC mode: always on grid subdivisions
-        let eIdx=TOPOLOGY.index;
-        if(this.refractRnd>0.05){
-          const maxShift=Math.ceil(this.refractRnd*4);
-          // Only shift at cycle-aligned moments for musical feel
-          if(gen===0) eIdx=Math.max(0,Math.min(4,eIdx+Math.floor(Math.random()*(maxShift+1))*(Math.random()<.5?1:-1)));
-        }
-        eMs=CORE.stepMs/TOPOLOGY.factors[eIdx];
-      }
+      // Use activeRefractIdx — set at cycle start by RND logic
+      const eMs=CORE.stepMs/TOPOLOGY.factors[this.activeRefractIdx];
       const t=this.attack*baseMs+eMs*(gen+1);
       const vel=rm==='up'?Math.max(4,Math.floor(rootVel*Math.pow(0.55,rp-gen))):Math.max(4,Math.floor(rootVel*Math.pow(0.55,gen+1)));
       let p=rootPitch;
@@ -453,7 +460,7 @@ function tick(){
     },slop);
   }
   SEQ.step=(SEQ.step+1)%SEQ.len;
-  if(SEQ.step===0){EVOLVE.tick();PRUNE.tick();}
+  if(SEQ.step===0){EVOLVE.tick();PRUNE.tick(SEQ.len);BLOSSOM.tickRnd();}
   updatePD();
   CORE.timer=setTimeout(tick,Math.max(10,stepMs));
 }
@@ -555,7 +562,7 @@ function buildKnobs(){
     {id:'k-sloppy',   label:'SLOPPY',  min:0,  max:100,val:0,  size:56, fn(v){SLOPPY.value=v/100;kv('sloppy',Math.round(v)+'%');}},
     {id:'k-prune-rnd',label:'RND',     min:0,  max:100,val:0,  size:26, fn(v){PRUNE.rnd=v/100;kv('prune-rnd',Math.round(v)+'%');}},
     {id:'k-blossom',  label:'BLOSSOM', min:0,  max:100,val:0,  size:56, fn(v){BLOSSOM.amount=v/100;kv('blossom',Math.round(v)+'%');}},
-    {id:'k-refract',  label:'REFRACT', min:0,  max:4,  val:2,  size:50, fn(v){TOPOLOGY.index=Math.round(v);kv('refract',TOPOLOGY.labels[Math.round(v)]);}},
+    {id:'k-refract',  label:'REFRACT', min:0,  max:4,  val:2,  size:50, fn(v){TOPOLOGY.index=Math.round(v);BLOSSOM.activeRefractIdx=Math.round(v);kv('refract',TOPOLOGY.labels[Math.round(v)]);}},
     {id:'k-ref-rnd',  label:'RND',     min:0,  max:100,val:0,  size:26, fn(v){BLOSSOM.refractRnd=v/100;kv('ref-rnd',Math.round(v)+'%');}},
     {id:'k-offset',   label:'OFFSET',  min:0,  max:8,  val:0,  size:28, fn(v){BLOSSOM.attack=Math.round(v);kv('offset',Math.round(v)+' div');}},
     {id:'k-decay',    label:'DECAY',   min:1,  max:16, val:3,  size:28, fn(v){BLOSSOM.reps=Math.round(v);kv('decay',Math.round(v)+'×');}},
