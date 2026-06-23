@@ -126,6 +126,12 @@ body.editing .knob:active{cursor:grabbing!important;}
 <div class="warn" id="warn">WebMIDI requires Chrome + HTTPS or localhost</div>
 
 <div class="pat-disp-outer" id="dv-pat" style="font-size:11px;color:#B8A96A;letter-spacing:.08em;background:#080806;border-radius:5px;padding:5px 16px;margin-bottom:6px;text-align:center;width:860px;white-space:nowrap;">· · · · · · · · · · · · · · · ·</div>
+<div style="display:flex;gap:8px;justify-content:center;align-items:center;margin-bottom:10px;">
+  <button id="pluck-btn" onclick="togglePluck()" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#6A6A60;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;">🔈 AUDIO OFF</button>
+  <button onclick="startSeq()" style="background:#8BAA7A;border:none;color:white;border-radius:4px;padding:6px 22px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;">▶ PLAY</button>
+  <button onclick="stopSeq()"  style="background:#C47A5A;border:none;color:white;border-radius:4px;padding:6px 22px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;">■ STOP</button>
+  <button onclick="showManual()" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#A8A49A;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;">? MANUAL</button>
+</div>
 <div class="panel" id="panel">
   <img class="panel-img" src="BOTANICA_PANEL_ALPHA_BLANK.png">
 
@@ -188,10 +194,7 @@ body.editing .knob:active{cursor:grabbing!important;}
   <button onclick="seedTones()" style="position:absolute;transform:translate(-50%,-50%);top:81%;left:82.5%;background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#B8B4AA;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;box-shadow:0 0 0 1.5px rgba(255,255,255,.5);">⟳ SEED TONES</button>
 
 </div>
-<div style="display:flex;gap:10px;justify-content:center;margin-top:10px;">
-  <button onclick="startSeq()" style="background:#8BAA7A;border:none;color:white;border-radius:6px;padding:8px 28px;cursor:pointer;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;">▶ PLAY</button>
-  <button onclick="stopSeq()"  style="background:#C47A5A;border:none;color:white;border-radius:6px;padding:8px 28px;cursor:pointer;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;">■ STOP</button>
-</div>
+
 
 <div class="log" id="log"></div>
 <div class="hint" style="color:#9A9A90;">BOTANICA · Human Motives · drag knobs up/down · WebMIDI via Chrome</div>
@@ -597,19 +600,92 @@ buildKnobs();
 SEQ.genGates();SEQ.genPitches();PRUNE.generate(SEQ.len);setSeason(0);initMIDI();
 lg('BOTANICA ready · SEED PATTERN + SEED TONES then PLAY');
 
-// Audio toggle button
-const _pluckBtn=document.createElement('button');
-_pluckBtn.textContent='🔈 AUDIO OFF';
-_pluckBtn.style.cssText='background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#6A6A60;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:"Space Mono",monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;';
-_pluckBtn.onclick=()=>{
+function togglePluck(){
   PLUCK.init();
   PLUCK.enabled=!PLUCK.enabled;
-  _pluckBtn.textContent=PLUCK.enabled?'🔊 AUDIO ON':'🔈 AUDIO OFF';
-  _pluckBtn.style.color=PLUCK.enabled?'#B8A96A':'#6A6A60';
-  _pluckBtn.style.borderColor=PLUCK.enabled?'#B8A96A':'#4A4A42';
-  lg(PLUCK.enabled?'WebAudio pluck ON — no DAW needed':'WebAudio pluck OFF');
-};
-document.querySelector('[style*="display:flex;gap:10px;justify-content:center;margin-top:10px"]').prepend(_pluckBtn);
+  const btn=document.getElementById('pluck-btn');
+  btn.textContent=PLUCK.enabled?'🔊 AUDIO ON':'🔈 AUDIO OFF';
+  btn.style.color=PLUCK.enabled?'#B8A96A':'#6A6A60';
+  btn.style.borderColor=PLUCK.enabled?'#B8A96A':'#4A4A42';
+  lg(PLUCK.enabled?'WebAudio ON — no DAW needed':'WebAudio OFF');
+}
+
+// MANUAL
+const MANUAL_TEXT = [
+  {section:'PATTERN', items:[
+    {name:'LENGTH', desc:'Number of steps in the sequence (1–16). At 120 BPM, 16 steps = 1 bar.'},
+    {name:'HITS', desc:'How many of those steps have an active gate. More hits = denser rhythm.'},
+    {name:'PRUNE', desc:'Gradually removes hits from the phrase — always the same hits each cycle. Turn down to thin out the pattern. RESEED generates a new prune shape.'},
+    {name:'PRUNE RND', desc:'Slowly rotates the prune mask each cycle. Keeps things moving without full regeneration.'},
+    {name:'SLOPPY', desc:'Pushes notes slightly off the grid. 0% = machine tight. 100% = loose and human.'},
+    {name:'SEED PAT', desc:'Generate a new random gate pattern. Press until you find something you like.'},
+    {name:'LOCK', desc:'Freeze the current pattern. Notes will not change until you unlock.'},
+    {name:'SNAP', desc:'Rotate the pattern so the first active hit lands on beat 1.'},
+    {name:'EUCLID', desc:'Switch between organic random placement (off) and euclidean distribution (on). Euclid spreads hits as evenly as possible across the steps.'},
+  ]},
+  {section:'TONES', items:[
+    {name:'ROOT', desc:'Transposes the root note of the current season up or down. All generated notes follow.'},
+    {name:'RANGE', desc:'Octave spread of generated notes. 1 oct = all notes in one octave. 4 oct = wide melodic range.'},
+    {name:'EVOLVE', desc:'Chance that one tone changes each cycle. 0% = frozen. Higher = slowly drifting melody.'},
+    {name:'SEED TONES', desc:'Generate a new random set of pitches. Guaranteed to cover the full octave range.'},
+    {name:'LOCK', desc:'Freeze the current pitches. EVOLVE will not change them while locked.'},
+  ]},
+  {section:'SEASONS', items:[
+    {name:'SPRING', desc:'Pentatonic Major — bright, open, no tension. Root: C4.'},
+    {name:'SUMMER', desc:'Lydian — dreamy, floating, raised 4th. Root: G4.'},
+    {name:'FALL', desc:'Dorian — melancholic, jazzy, minor with a lift. Root: A3.'},
+    {name:'WINTER', desc:'Whole Tone — ambiguous, hovering, no resolution. Root: D4.'},
+  ]},
+  {section:'BLOSSOM', items:[
+    {name:'AMOUNT', desc:'Chance that a hit spawns echoes. 0% = no blossom. 100% = every hit blossoms.'},
+    {name:'REFRACT', desc:'Speed of the blossom echoes relative to the main grid. ÷4 = slow echoes, ×4 = rapid subdivision.'},
+    {name:'RND', desc:'Randomises the refract subdivision per echo — gives an organic, uneven bloom feel.'},
+    {name:'OFFSET', desc:'Delay before the first echo fires. 0 = immediate, higher = echo starts later in the step.'},
+    {name:'DECAY', desc:'Number of echoes per blossom (1–16). More = longer tail.'},
+    {name:'RAMP ↓', desc:'Each echo gets softer. Loudest first, fades out.'},
+    {name:'RAMP ↑', desc:'Each echo gets louder. Builds toward silence, then next hit.'},
+    {name:'ARP / OCT ↓ / OCT ↑', desc:'Pitch shape of echoes. ARP = steps up through the scale. OCT ↓ = each echo one octave lower. OCT ↑ = each echo one octave higher. Click again to turn off.'},
+  ]},
+  {section:'GETTING STARTED', items:[
+    {name:'1', desc:'Press SEED PAT to generate a rhythm.'},
+    {name:'2', desc:'Press SEED TONES to generate pitches.'},
+    {name:'3', desc:'Select a SEASON.'},
+    {name:'4', desc:'Press PLAY.'},
+    {name:'5', desc:'Turn up BLOSSOM AMOUNT to hear echoes bloom from each hit.'},
+    {name:'6', desc:'Turn PRUNE slowly down to thin the phrase.'},
+    {name:'7', desc:'Switch SEASON to hear the same pattern in a different scale.'},
+  ]},
+];
+
+function showManual(){
+  const content = document.getElementById('manual-content');
+  content.innerHTML = MANUAL_TEXT.map(sec=>`
+    <div style="margin-bottom:20px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.2em;color:#1A1A18;border-bottom:1px solid #D4CDB8;padding-bottom:4px;margin-bottom:10px;">${sec.section}</div>
+      ${sec.items.map(item=>`
+        <div style="display:flex;gap:12px;margin-bottom:8px;">
+          <div style="min-width:90px;color:#B8A96A;font-weight:700;letter-spacing:.08em;">${item.name}</div>
+          <div style="color:#5A5A52;">${item.desc}</div>
+        </div>`).join('')}
+    </div>`).join('');
+  document.getElementById('manual-overlay').style.display='block';
+  document.body.style.overflow='hidden';
+}
+function hideManual(){
+  document.getElementById('manual-overlay').style.display='none';
+  document.body.style.overflow='';
+}
 </script>
+
+<!-- MANUAL MODAL -->
+<div id="manual-overlay" onclick="hideManual()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;overflow-y:auto;padding:40px 20px;">
+  <div onclick="event.stopPropagation()" style="background:#F2EFE6;border-radius:10px;max-width:680px;margin:0 auto;padding:32px 36px;font-family:'Space Mono',monospace;position:relative;">
+    <button onclick="hideManual()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:18px;cursor:pointer;color:#4A4A42;">✕</button>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;letter-spacing:.2em;margin-bottom:4px;">BOTANICA</div>
+    <div style="font-size:7px;letter-spacing:.3em;color:#B8A96A;margin-bottom:20px;">— NATURAL SEQUENCER —</div>
+    <div id="manual-content" style="font-size:8px;line-height:2;color:#4A4A42;letter-spacing:.06em;"></div>
+    <div style="margin-top:20px;font-size:7px;color:#9A9A90;letter-spacing:.1em;">click outside to close · BOTANICA by Human Motives · 2026</div>
+  </div>
+</div>
 </body>
 </html>
