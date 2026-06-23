@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BOTANICA — Natural Sequencer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Space+Mono&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:#1A1A18;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  min-height:100vh;
+  font-family:'Space Mono',monospace;
+  padding:20px;
+  user-select:none;
+}
+
+/* STATUS BAR */
+.status-bar{
+  display:flex;gap:16px;justify-content:center;
+  font-size:8px;letter-spacing:.15em;color:#6A6A60;
+  margin-bottom:10px;
+}
+.dot{width:5px;height:5px;border-radius:50%;background:#3A3A32;display:inline-block;margin-right:4px;vertical-align:middle;transition:background .2s;}
+.dot.on{background:#8BAA7A;}.dot.err{background:#C47A5A;}
+.warn{background:#3A2A20;border:1px solid #C47A5A;border-radius:4px;padding:5px 12px;font-size:8px;color:#C47A5A;text-align:center;margin-bottom:8px;display:none;max-width:700px;}
+
+/* PANEL CONTAINER */
+.panel-wrap{
+  position:relative;
+  width:900px;
+}
+.panel-img{
+  width:100%;
+  border-radius:12px;
+  display:block;
+  box-shadow:0 24px 80px rgba(0,0,0,.7);
+}
+
+/* DISPLAY overlay — over the grey square in the middle */
+.display{
+  position:absolute;
+  top:38.5%; left:47.2%;
+  width:6.8%; height:9%;
+  background:#0A0A08;
+  border-radius:3px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.dv{font-size:14px;color:#B8A96A;letter-spacing:.06em;line-height:1;}
+.dl{font-size:5px;letter-spacing:.2em;color:#4A4A42;margin-top:2px;}
+
+/* PATTERN DISPLAY */
+.pat-display{
+  position:absolute;
+  top:2%; left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.7);
+  border-radius:4px;
+  padding:4px 10px;
+  font-size:9px;color:#B8A96A;letter-spacing:.06em;
+  pointer-events:none;
+  white-space:nowrap;
+}
+
+/* KNOB — positioned absolutely over the panel */
+.knob{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  cursor:ns-resize;
+  display:flex;flex-direction:column;align-items:center;gap:0;
+}
+.knob-val{
+  font-size:6px;color:#6A6A60;
+  background:rgba(0,0,0,.5);
+  border-radius:2px;
+  padding:1px 3px;
+  margin-top:2px;
+  pointer-events:none;
+  white-space:nowrap;
+}
+
+/* BUTTON — positioned absolutely */
+.btn{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  background:rgba(10,10,8,.8);
+  border:1px solid #4A4A42;
+  color:#C8C4B8;
+  border-radius:3px;
+  padding:3px 7px;
+  cursor:pointer;
+  font-family:'Space Mono',monospace;
+  font-size:6px;
+  letter-spacing:.1em;
+  transition:all .15s;
+  white-space:nowrap;
+}
+.btn:hover{border-color:#B8A96A;color:#B8A96A;}
+.btn.active{background:#B8A96A;border-color:#B8A96A;color:#1A1A18;font-weight:700;}
+.btn.locked{background:#8BAA7A;border-color:#8BAA7A;color:white;}
+.btn.muted{background:#C47A5A;border-color:#C47A5A;color:white;}
+.btn.season{background:rgba(184,169,106,.15);border-color:#B8A96A;color:#B8A96A;}
+.btn.season.active{background:#B8A96A;color:#1A1A18;}
+
+/* MODE buttons row */
+.mode-row{
+  position:absolute;
+  display:flex;gap:3px;
+  transform:translate(-50%,-50%);
+}
+
+/* PLAY/STOP */
+.play-btn{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  border:none;color:white;border-radius:4px;
+  padding:5px 14px;cursor:pointer;
+  font-family:'Space Mono',monospace;font-size:7px;letter-spacing:.14em;
+}
+.play-btn.play{background:#8BAA7A;}
+.play-btn.stop{background:#C47A5A;}
+
+/* LOG */
+.log-bar{
+  margin-top:8px;
+  width:900px;
+  background:#0A0A08;
+  border-radius:5px;
+  padding:5px 12px;
+  height:32px;overflow:hidden;
+  font-size:7px;color:#B8A96A;letter-spacing:.06em;
+}
+.ll{opacity:.5;line-height:1.7;}.ll:last-child{opacity:1;}
+
+/* NO-MIDI fallback info */
+.no-midi-note{
+  margin-top:8px;font-size:7px;letter-spacing:.1em;color:#4A4A42;text-align:center;
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+  <span><span class="dot" id="d-midi"></span><span id="t-midi">MIDI —</span></span>
+  <span><span class="dot" id="d-clk"></span><span id="t-clk">STOPPED</span></span>
+  <span><span class="dot" id="d-out"></span><span id="t-out">OUT —</span></span>
+</div>
+<div class="warn" id="warn">WebMIDI requires Chrome + localhost or HTTPS</div>
+
+<div class="panel-wrap" id="panel">
+  <img class="panel-img" src="BOTANICA_panel_alpha_1.png" id="panel-img">
+
+  <!-- PATTERN DISPLAY top center -->
+  <div class="pat-display" id="dv-pat">· · · · · · · · · · · · · · · ·</div>
+
+  <!-- DISPLAY (over grey square) -->
+  <div class="display">
+    <div class="dv" id="dv">SP</div>
+    <div class="dl" id="dl">SEASON</div>
+  </div>
+
+  <!-- SEASON BUTTONS -->
+  <button class="btn season active" id="sb-0" onclick="setSeason(0)" style="top:53%;left:38.5%">SPRING</button>
+  <button class="btn season" id="sb-1" onclick="setSeason(1)" style="top:57%;left:33%">SUMMER</button>
+  <button class="btn season" id="sb-2" onclick="setSeason(2)" style="top:53%;left:62.5%">FALL</button>
+  <button class="btn season" id="sb-3" onclick="setSeason(3)" style="top:57%;left:70.5%">WINTER</button>
+
+  <!-- PATTERN SECTION — bottom left -->
+  <button class="btn" id="btn-mute-l" onclick="toggleMute()" style="top:88%;left:7%">MUTE</button>
+  <button class="btn" id="btn-plock" onclick="toggleLock('pattern')" style="top:88%;left:12.5%">LOCK</button>
+  <button class="btn" onclick="SEQ.snapToOne()" style="top:88%;left:18%">SNAP</button>
+  <button class="btn" id="btn-euclid" onclick="toggleEuclid()" style="top:88%;left:23%">STYLE</button>
+
+  <!-- TONES SECTION — bottom right -->
+  <button class="btn" id="btn-tlock" onclick="toggleLock('tones')" style="top:88%;left:84.5%">LOCK</button>
+  <button class="btn" id="mb-dir" onclick="setRamp(BLOSSOM.rampMode==='down'?'up':'down')" style="top:88%;left:90.5%">DIR ↓</button>
+  <button class="btn" id="mb-arp" onclick="cyclePitchMode()" style="top:88%;left:96%">ARP</button>
+
+  <!-- SEED BUTTONS -->
+  <button class="btn" onclick="seedPattern()" style="top:96%;left:15%;background:rgba(184,169,106,.12);border-color:#B8A96A;color:#B8A96A;">⟳ SEED PAT</button>
+  <button class="btn" onclick="seedTones()" style="top:96%;left:85%;background:rgba(184,169,106,.12);border-color:#B8A96A;color:#B8A96A;">⟳ SEED TONES</button>
+
+  <!-- PLAY / STOP -->
+  <button class="play-btn play" onclick="startSeq()" style="top:96%;left:44%">▶ PLAY</button>
+  <button class="play-btn stop" onclick="stopSeq()" style="top:96%;left:56%">■ STOP</button>
+
+  <!-- KNOBS — positioned over grey circles -->
+  <!-- LEFT COLUMN -->
+  <div class="knob" id="k-steps"   style="top:46%;left:6.5%"></div>   <!-- STEPS small -->
+  <div class="knob" id="k-length"  style="top:36%;left:15.5%"></div>  <!-- LENGTH medium -->
+  <div class="knob" id="k-prune"   style="top:27%;left:26%"></div>    <!-- PRUNE large -->
+  <div class="knob" id="k-sloppy"  style="top:24%;left:38%"></div>    <!-- SLOPPY large -->
+  <div class="knob" id="k-wander"  style="top:41%;left:30%"></div>    <!-- WANDER small -->
+
+  <!-- RIGHT COLUMN -->
+  <div class="knob" id="k-blossom" style="top:24%;left:62%"></div>   <!-- BLOSSOM large -->
+  <div class="knob" id="k-refract" style="top:24%;left:75.5%"></div> <!-- REFRACT large -->
+  <div class="knob" id="k-random"  style="top:39%;left:69.5%"></div> <!-- RANDOM small -->
+  <div class="knob" id="k-offset"  style="top:39%;left:87%"></div>   <!-- OFFSET small -->
+  <div class="knob" id="k-decay"   style="top:46%;left:96%"></div>   <!-- DECAY small -->
+
+  <!-- BOTTOM CENTER -->
+  <div class="knob" id="k-root"    style="top:73%;left:43%"></div>   <!-- ROOT large -->
+  <div class="knob" id="k-range"   style="top:73%;left:58%"></div>   <!-- RANGE large -->
+  <div class="knob" id="k-evolve"  style="top:73%;left:75%"></div>   <!-- EVOLVE — hidden, small -->
+
+</div>
+
+<div class="log-bar" id="log"></div>
+<div class="no-midi-note" id="midi-note">Connect a MIDI output in Chrome via localhost for sound · WebMIDI API</div>
+
+<script>
+// ============================================================
+//  BOTANICA v9 — Panel UI
+// ============================================================
+
+const CORE={bpm:120,get stepMs(){return 60000/(this.bpm*4);},running:false,timer:null};
+
+const TOPOLOGY={
+  index:2,labels:['÷4','÷2','×1','×2','×4'],factors:[0.25,0.5,1,2,4],
+  subMs(){return CORE.stepMs/this.factors[this.index];}
+};
+
+const SCALES=[[0,2,4,7,9],[0,2,4,6,7,9,11],[0,2,3,5,7,9,10],[0,2,4,6,8,10]];
+const S_ROOTS=[60,67,57,62];
+const S_LABELS=['SP','SU','FA','WI'];
+const S_NAMES=['Pentatonic Maj','Lydian','Dorian','Whole Tone'];
+const NNAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+const SEASON={
+  index:0,transpose:0,octaveRange:2,
+  root(){return S_ROOTS[this.index]+this.transpose;},
+  scale(){return SCALES[this.index];},
+  randomNote(){
+    const sc=this.scale(),r=this.root();
+    return Math.max(0,Math.min(127,r+Math.floor(Math.random()*this.octaveRange)*12+sc[Math.floor(Math.random()*sc.length)]));
+  },
+  clampToRange(midi){
+    const sc=this.scale(),r=this.root();
+    const sem=((midi-r)%12+12)%12;
+    let best=sc[0],bd=99;
+    for(const d of sc){const dist=Math.abs(d-sem);if(dist<bd){bd=dist;best=d;}}
+    return Math.max(0,Math.min(127,r+Math.max(0,Math.min(this.octaveRange-1,Math.floor((midi-r)/12)))*12+best));
+  },
+  quantize(midi){
+    const sc=this.scale(),r=this.root();
+    const sem=((midi-r)%12+12)%12;
+    let best=sc[0],bd=99;
+    for(const d of sc){const dist=Math.abs(d-sem);if(dist<bd){bd=dist;best=d;}}
+    return Math.max(0,Math.min(127,r+Math.floor((midi-r)/12)*12+best));
+  },
+  scaleStepUp(midi){
+    const sc=this.scale(),r=this.root();
+    const sem=((midi-r)%12+12)%12;
+    let idx=0;
+    for(let i=0;i<sc.length;i++) if(sc[i]<=sem) idx=i;
+    const nIdx=(idx+1)%sc.length;
+    return Math.max(0,Math.min(127,midi-sc[idx]+sc[nIdx]+(sc[nIdx]<sc[idx]?12:0)));
+  }
+};
+
+const DENSITY={raw:1.0,get value(){return Math.pow(this.raw,0.4);}};
+
+const PRUNE={
+  value:1.0,rnd:0,mask:new Array(16).fill(true),
+  generate(len){
+    this.mask=new Array(16).fill(true);
+    if(this.value>=0.99) return;
+    const keep=Math.max(1,Math.round(len*this.value));
+    const mute=len-keep;
+    const pos=[...Array(len).keys()].sort((a,b)=>(b/len+Math.random()*0.3)-(a/len+Math.random()*0.3));
+    for(let i=0;i<mute;i++) this.mask[pos[i]]=false;
+  },
+  tick(){
+    if(this.rnd<0.05) return;
+    if(Math.random()>this.rnd) return;
+    const s=Math.random()<0.5?1:-1;
+    if(s>0) this.mask.push(this.mask.shift()); else this.mask.unshift(this.mask.pop());
+  },
+  allows(step){return this.mask[step%16];}
+};
+
+const EVOLVE={
+  chance:0,depth:2,stepCount:0,
+  tick(){
+    if(this.chance<0.01||SEQ.toneLocked) return;
+    this.stepCount++;
+    if(this.stepCount>=Math.max(1,Math.round(1/this.chance))){
+      this.stepCount=0;
+      const t=Math.floor(Math.random()*SEQ.len);
+      const n=SEASON.randomNote();
+      SEQ.rawPitchMemory[t]=n;
+      SEQ.pitchMemory[t]=SEASON.quantize(n);
+      updatePD(); lg('↻ tone evolve');
+    }
+  }
+};
+
+const SLOPPY={value:0};
+
+const BLOSSOM={
+  amount:0,rampMode:'down',pitchMode:'none',attack:0,reps:3,refractRnd:0,
+  fire(rootPitch,rootVel){
+    if(this.amount<0.02||Math.random()>this.amount) return;
+    const baseMs=TOPOLOGY.subMs();
+    const minMidi=SEASON.root(),maxMidi=minMidi+SEASON.octaveRange*12-1;
+    for(let i=0;i<this.reps;i++){
+      const gen=i,rampMode=this.rampMode,pitchMode=this.pitchMode,reps=this.reps;
+      let eIdx=TOPOLOGY.index;
+      if(this.refractRnd>0.05){const ms=Math.ceil(this.refractRnd*4);eIdx=Math.max(0,Math.min(4,eIdx+Math.floor(Math.random()*(ms+1))*(Math.random()<0.5?1:-1)));}
+      const eMs=CORE.stepMs/TOPOLOGY.factors[eIdx];
+      const t=this.attack*baseMs+eMs*(gen+1);
+      let vel=rampMode==='up'?Math.max(4,Math.floor(rootVel*Math.pow(0.55,reps-gen))):Math.max(4,Math.floor(rootVel*Math.pow(0.55,gen+1)));
+      let p=rootPitch;
+      if(pitchMode==='arp'){for(let s=0;s<gen+1;s++) p=SEASON.scaleStepUp(p);}
+      else if(pitchMode==='octdown') p=rootPitch-12*(gen+1);
+      else if(pitchMode==='octup')   p=rootPitch+12*(gen+1);
+      while(p>maxMidi) p-=12; while(p<minMidi) p+=12;
+      p=Math.max(0,Math.min(127,p));
+      const sp=p,sv=vel,sd=eMs*0.45;
+      setTimeout(()=>{if(!CORE.running||SEQ.mute)return;MIDI.noteOn(sp,sv,1);setTimeout(()=>MIDI.noteOff(sp,1),sd);},t);
+    }
+  }
+};
+
+const SEQ={
+  len:8,hits:4,step:0,
+  patternLocked:false,toneLocked:false,mute:false,euclid:false,
+  gateMemory:new Array(16).fill(false),
+  pitchMemory:new Array(16).fill(60),
+  rawPitchMemory:new Array(16).fill(60),
+  activeNotes:{},
+  get gates(){return this.gateMemory.slice(0,this.len);},
+  get pitches(){return this.pitchMemory.slice(0,this.len).map(p=>SEASON.clampToRange(p));},
+  genGates(){
+    if(this.patternLocked) return;
+    if(this.euclid){for(let i=0;i<16;i++) this.gateMemory[i]=((i*this.hits/this.len)|0)!==(((i+1)*this.hits/this.len)|0);}
+    else{this.gateMemory=new Array(16).fill(false);const pos=[...Array(this.len).keys()];for(let i=pos.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pos[i],pos[j]]=[pos[j],pos[i]];}for(let i=0;i<Math.min(this.hits,this.len);i++) this.gateMemory[pos[i]]=true;}
+  },
+  genPitches(){
+    if(this.toneLocked) return;
+    const sc=SEASON.scale(),r=SEASON.root(),range=SEASON.octaveRange;
+    const pos=[...Array(16).keys()];for(let i=pos.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pos[i],pos[j]]=[pos[j],pos[i]];}
+    for(let o=0;o<range&&o<16;o++){const d=Math.floor(Math.random()*sc.length);this.rawPitchMemory[pos[o]]=Math.max(0,Math.min(127,r+o*12+sc[d]));}
+    for(let i=range;i<16;i++) this.rawPitchMemory[pos[i]]=SEASON.randomNote();
+    this.pitchMemory=this.rawPitchMemory.map(p=>SEASON.quantize(p));
+  },
+  snapToOne(){
+    if(this.patternLocked){lg('PATTERN LOCKED');return;}
+    const first=this.gateMemory.slice(0,this.len).findIndex(g=>g);
+    if(first<=0) return;
+    for(let r=0;r<first;r++){this.gateMemory.push(this.gateMemory.shift());this.rawPitchMemory.push(this.rawPitchMemory.shift());this.pitchMemory.push(this.pitchMemory.shift());}
+    updatePD();lg('SNAP→1');
+  },
+  play(n,v,d,ch){
+    if(this.activeNotes[n]) clearTimeout(this.activeNotes[n]); else MIDI.noteOn(n,v,ch);
+    this.activeNotes[n]=setTimeout(()=>{MIDI.noteOff(n,ch);delete this.activeNotes[n];},d);
+  },
+  allOff(){for(const n in this.activeNotes){MIDI.noteOff(parseInt(n),1);}this.activeNotes={};}
+};
+
+const MIDI={
+  out:null,
+  noteOn(n,v,ch){if(!this.out||SEQ.mute||n<0||n>127)return;this.out.send([0x8F+ch,n,Math.max(1,Math.min(127,v))]);},
+  noteOff(n,ch){if(!this.out||n<0||n>127)return;this.out.send([0x7F+ch,n,0]);}
+};
+
+async function initMIDI(){
+  if(!navigator.requestMIDIAccess){document.getElementById('warn').style.display='block';dot('midi','err');return;}
+  try{
+    const ma=await navigator.requestMIDIAccess();dot('midi','on');document.getElementById('t-midi').textContent='MIDI OK';
+    function pick(){const o=[...ma.outputs.values()];if(o.length){MIDI.out=o[0];document.getElementById('t-out').textContent='→ '+MIDI.out.name.substring(0,14);dot('out','on');lg('MIDI: '+MIDI.out.name);document.getElementById('midi-note').style.display='none';}}
+    pick();ma.onstatechange=pick;
+  }catch(e){document.getElementById('warn').style.display='block';dot('midi','err');}
+}
+
+function startSeq(){
+  if(CORE.running) return;
+  CORE.running=true;SEQ.step=0;EVOLVE.stepCount=0;
+  dot('clk','on');document.getElementById('t-clk').textContent='RUNNING';tick();
+}
+function stopSeq(){
+  CORE.running=false;if(CORE.timer) clearTimeout(CORE.timer);SEQ.allOff();
+  dot('clk','');document.getElementById('t-clk').textContent='STOPPED';
+}
+function tick(){
+  if(!CORE.running) return;
+  const stepMs=CORE.stepMs,step=SEQ.step%SEQ.len;
+  const gates=SEQ.gates,pitches=SEQ.pitches;
+  const doPlay=gates[step]&&(Math.random()<DENSITY.value)&&PRUNE.allows(step);
+  if(doPlay){
+    const pitch=pitches[step],vel=Math.floor(68+Math.random()*20);
+    const sloppyMs=Math.max(0,SLOPPY.value*stepMs*0.4*(Math.random()*2-1));
+    setTimeout(()=>{
+      if(!CORE.running||SEQ.mute) return;
+      SEQ.play(pitch,vel,stepMs*0.35,1);
+      showDisp(NNAMES[((pitch%12)+12)%12]+Math.floor(pitch/12-1));
+      BLOSSOM.fire(pitch,vel);
+    },sloppyMs);
+  }
+  SEQ.step=(SEQ.step+1)%SEQ.len;
+  if(SEQ.step===0){EVOLVE.tick();PRUNE.tick();}
+  updatePD();
+  CORE.timer=setTimeout(tick,Math.max(10,stepMs));
+}
+
+let dispTimer=null;
+function showDisp(label){
+  document.getElementById('dv').textContent=label;document.getElementById('dl').textContent='';
+  if(dispTimer) clearTimeout(dispTimer);
+  dispTimer=setTimeout(()=>{document.getElementById('dv').textContent=S_LABELS[SEASON.index];document.getElementById('dl').textContent='SEASON';},2000);
+}
+function updatePD(){
+  document.getElementById('dv-pat').textContent=SEQ.gates.map((g,i)=>g?NNAMES[((SEQ.pitches[i]||60)%12+12)%12]:'·').join(' ');
+}
+function dot(id,st){const d=document.getElementById('d-'+id);if(d) d.className='dot'+(st==='on'?' on':st==='err'?' err':'');}
+function lg(msg){const l=document.getElementById('log');const d=document.createElement('div');d.className='ll';d.textContent=msg;l.appendChild(d);while(l.children.length>3) l.removeChild(l.firstChild);}
+
+function setSeason(i){
+  SEASON.index=i;
+  document.querySelectorAll('[id^="sb-"]').forEach((b,j)=>b.classList.toggle('active',j===i));
+  SEQ.pitchMemory=SEQ.rawPitchMemory.map(p=>SEASON.quantize(p));
+  updatePD();showDisp(S_LABELS[i]);lg('Season: '+S_NAMES[i]);
+}
+function seedPattern(){if(SEQ.patternLocked){lg('PATTERN LOCKED');return;}SEQ.genGates();PRUNE.generate(SEQ.len);updatePD();showDisp('PAT');lg('⟳ pattern seed');}
+function seedTones(){if(SEQ.toneLocked){lg('TONES LOCKED');return;}SEQ.genPitches();updatePD();showDisp('TON');lg('⟳ tones seed');}
+function toggleLock(t){
+  if(t==='pattern'){SEQ.patternLocked=!SEQ.patternLocked;document.getElementById('btn-plock').classList.toggle('locked',SEQ.patternLocked);lg(SEQ.patternLocked?'PATTERN LOCKED':'PATTERN FREE');}
+  else{SEQ.toneLocked=!SEQ.toneLocked;document.getElementById('btn-tlock').classList.toggle('locked',SEQ.toneLocked);lg(SEQ.toneLocked?'TONES LOCKED':'TONES FREE');}
+}
+function toggleEuclid(){
+  SEQ.euclid=!SEQ.euclid;document.getElementById('btn-euclid').classList.toggle('active',SEQ.euclid);
+  if(!SEQ.patternLocked) SEQ.genGates();updatePD();lg(SEQ.euclid?'EUCLID':'ORGANIC');
+}
+function toggleMute(){
+  SEQ.mute=!SEQ.mute;document.getElementById('btn-mute-l').classList.toggle('muted',SEQ.mute);
+  if(SEQ.mute) SEQ.allOff();
+}
+function setRamp(m){
+  BLOSSOM.rampMode=m;
+  document.getElementById('mb-dir').textContent='DIR '+(m==='down'?'↓':'↑');
+  lg('RAMP: '+m);
+}
+const pitchModes=['none','arp','octdown','octup'];
+let pitchModeIdx=0;
+function cyclePitchMode(){
+  pitchModeIdx=(pitchModeIdx+1)%pitchModes.length;
+  BLOSSOM.pitchMode=pitchModes[pitchModeIdx];
+  const labels={none:'ARP —','arp':'ARP ♪','octdown':'OCT ↓','octup':'OCT ↑'};
+  document.getElementById('mb-arp').textContent=labels[BLOSSOM.pitchMode];
+  document.getElementById('mb-arp').classList.toggle('active',pitchModeIdx>0);
+  lg('PITCH: '+BLOSSOM.pitchMode);
+}
+
+// KNOB FACTORY
+function makeKnob(cfg){
+  const sz=cfg.size||44,r=sz/2-4,cx=sz/2,cy=sz/2;
+  let val=cfg.val;
+  const container=document.getElementById(cfg.id);
+  if(!container) return;
+
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('width',sz);svg.setAttribute('height',sz);svg.setAttribute('viewBox',`0 0 ${sz} ${sz}`);
+  const bg=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  bg.setAttribute('cx',cx);bg.setAttribute('cy',cy);bg.setAttribute('r',r);
+  bg.setAttribute('fill','rgba(10,10,8,0.85)');bg.setAttribute('stroke','#4A4A42');bg.setAttribute('stroke-width','2');
+  const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  ring.setAttribute('cx',cx);ring.setAttribute('cy',cy);ring.setAttribute('r',r-3);
+  ring.setAttribute('fill','none');ring.setAttribute('stroke','#2A2A26');ring.setAttribute('stroke-width','1');
+  const mk=document.createElementNS('http://www.w3.org/2000/svg','line');
+  mk.setAttribute('x1',cx);mk.setAttribute('y1',cy);mk.setAttribute('stroke','#B8A96A');mk.setAttribute('stroke-width','2.5');mk.setAttribute('stroke-linecap','round');
+  svg.appendChild(bg);svg.appendChild(ring);svg.appendChild(mk);
+
+  const valEl=document.createElement('div');valEl.className='knob-val';valEl.id='kv-'+cfg.id.replace('k-','');
+  container.appendChild(svg);container.appendChild(valEl);
+
+  function setMk(v){
+    const pct=(v-cfg.min)/(cfg.max-cfg.min);
+    const angle=(-135+pct*270)*Math.PI/180;
+    mk.setAttribute('x2',cx+Math.sin(angle)*r);mk.setAttribute('y2',cy-Math.cos(angle)*r);
+  }
+  let dragging=false,sy=0,sv=0;
+  container.addEventListener('mousedown',e=>{
+    dragging=true;sy=e.clientY;sv=val;e.preventDefault();
+    const onMove=ev=>{if(!dragging)return;val=Math.max(cfg.min,Math.min(cfg.max,sv+(sy-ev.clientY)*(cfg.max-cfg.min)/120));setMk(val);cfg.onchange(val);};
+    const onUp=()=>{dragging=false;document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);};
+    document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
+  });
+  setMk(val);cfg.onchange(val);
+}
+
+function buildKnobs(){
+  const K=[
+    {id:'k-steps',  label:'STEPS',   min:1,  max:16, val:8,  size:28,
+      onchange(v){SEQ.len=Math.round(v);SEQ.hits=Math.min(SEQ.hits,SEQ.len);const kv=document.getElementById('kv-steps');if(kv)kv.textContent=Math.round(v);if(!SEQ.patternLocked)SEQ.genGates();PRUNE.generate(SEQ.len);updatePD();}},
+    {id:'k-length', label:'HITS',    min:1,  max:16, val:4,  size:34,
+      onchange(v){SEQ.hits=Math.min(Math.round(v),SEQ.len);const kv=document.getElementById('kv-length');if(kv)kv.textContent=Math.round(v);if(!SEQ.patternLocked)SEQ.genGates();updatePD();}},
+    {id:'k-prune',  label:'PRUNE',   min:0,  max:100,val:100,size:50,
+      onchange(v){PRUNE.value=v/100;PRUNE.generate(SEQ.len);const kv=document.getElementById('kv-prune');if(kv)kv.textContent=Math.round(v)+'%';}},
+    {id:'k-sloppy', label:'SLOPPY',  min:0,  max:100,val:0,  size:56,
+      onchange(v){SLOPPY.value=v/100;const kv=document.getElementById('kv-sloppy');if(kv)kv.textContent=Math.round(v)+'%';}},
+    {id:'k-wander', label:'RND',     min:0,  max:100,val:0,  size:26,
+      onchange(v){PRUNE.rnd=v/100;const kv=document.getElementById('kv-wander');if(kv)kv.textContent=Math.round(v)+'%';}},
+    {id:'k-blossom',label:'BLOSSOM', min:0,  max:100,val:0,  size:56,
+      onchange(v){BLOSSOM.amount=v/100;const kv=document.getElementById('kv-blossom');if(kv)kv.textContent=Math.round(v)+'%';}},
+    {id:'k-refract',label:'REFRACT', min:0,  max:4,  val:2,  size:50,
+      onchange(v){TOPOLOGY.index=Math.round(v);const kv=document.getElementById('kv-refract');if(kv)kv.textContent=TOPOLOGY.labels[Math.round(v)];}},
+    {id:'k-random', label:'RND',     min:0,  max:100,val:0,  size:26,
+      onchange(v){BLOSSOM.refractRnd=v/100;const kv=document.getElementById('kv-random');if(kv)kv.textContent=Math.round(v)+'%';}},
+    {id:'k-offset', label:'OFFSET',  min:0,  max:8,  val:0,  size:26,
+      onchange(v){BLOSSOM.attack=Math.round(v);const kv=document.getElementById('kv-offset');if(kv)kv.textContent=Math.round(v)+' div';}},
+    {id:'k-decay',  label:'DECAY',   min:1,  max:16, val:3,  size:28,
+      onchange(v){BLOSSOM.reps=Math.round(v);const kv=document.getElementById('kv-decay');if(kv)kv.textContent=Math.round(v)+'×';}},
+    {id:'k-root',   label:'ROOT',    min:-36,max:24, val:0,  size:56,
+      onchange(v){SEASON.transpose=Math.round(v);const m=SEASON.root();const kv=document.getElementById('kv-root');if(kv)kv.textContent=NNAMES[((m%12)+12)%12]+Math.floor(m/12-1);SEQ.pitchMemory=SEQ.rawPitchMemory.map(p=>SEASON.quantize(p));updatePD();}},
+    {id:'k-range',  label:'RANGE',   min:1,  max:4,  val:2,  size:56,
+      onchange(v){SEASON.octaveRange=Math.round(v);const kv=document.getElementById('kv-range');if(kv)kv.textContent=Math.round(v)+' oct';updatePD();}},
+    {id:'k-evolve', label:'EVOLVE',  min:0,  max:100,val:0,  size:30,
+      onchange(v){EVOLVE.chance=v/100;const kv=document.getElementById('kv-evolve');if(kv)kv.textContent=Math.round(v)+'%';}},
+  ];
+  K.forEach(cfg=>makeKnob(cfg));
+}
+
+buildKnobs();
+SEQ.genGates();SEQ.genPitches();PRUNE.generate(SEQ.len);setSeason(0);initMIDI();
+lg('BOTANICA — ready · SEED PATTERN to start');
+</script>
+</body>
+</html>
