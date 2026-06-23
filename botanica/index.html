@@ -123,10 +123,6 @@ body.editing .knob:active{cursor:grabbing!important;}
 </div>
 <div class="warn" id="warn">WebMIDI requires Chrome + HTTPS or localhost</div>
 
-<div style="display:flex;gap:10px;justify-content:center;margin-bottom:6px;">
-  <button onclick="seedPattern()" style="background:transparent;border:1px solid #B8A96A66;color:#B8A96A;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.14em;">⟳ SEED PATTERN</button>
-  <button onclick="seedTones()"   style="background:transparent;border:1px solid #B8A96A66;color:#B8A96A;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.14em;">⟳ SEED TONES</button>
-</div>
 <div class="pat-disp-outer" id="dv-pat" style="font-size:11px;color:#B8A96A;letter-spacing:.08em;background:#080806;border-radius:5px;padding:5px 16px;margin-bottom:6px;text-align:center;width:860px;white-space:nowrap;">· · · · · · · · · · · · · · · ·</div>
 <div class="panel" id="panel">
   <img class="panel-img" src="BOTANICA_PANEL_ALPHA_BLANK.png">
@@ -176,11 +172,11 @@ body.editing .knob:active{cursor:grabbing!important;}
 
 
   <!-- BLOSSOM MODE BUTTONS -->
-  <button class="btn active" id="mb-ramp" onclick="toggleRamp()" style="top:84%;left:73%">RAMP ↓</button>
-  <button class="btn" id="mb-pitch" onclick="cyclePitchMode()" style="top:84%;left:81%">ARP —</button>
+  <button class="btn active" id="mb-ramp" onclick="toggleRamp()" style="top:88%;left:75%">RAMP ↓</button>
+  <button class="btn" id="mb-pitch" onclick="cyclePitchMode()" style="top:88%;left:82%">ARP —</button>
 
   <!-- TONES BUTTONS — bottom right -->
-  <button class="btn" id="btn-tlock" onclick="toggleLock('tones')" style="top:84%;left:90%">LOCK</button>
+  <button class="btn" id="btn-tlock" onclick="toggleLock('tones')" style="top:88%;left:90%">LOCK</button>
 
 
   <!-- PLAY/STOP moved outside panel -->
