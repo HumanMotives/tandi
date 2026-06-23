@@ -205,7 +205,11 @@ body.editing .knob:active{cursor:grabbing!important;}
 
 
 <div class="log" id="log"></div>
-<div class="hint" style="color:#9A9A90;">BOTANICA · Human Motives · drag knobs up/down · WebMIDI via Chrome</div>
+<div style="display:flex;gap:16px;justify-content:center;align-items:center;margin-top:5px;flex-wrap:wrap;">
+  <div style="font-size:7px;letter-spacing:.1em;color:#9A9A90;">BOTANICA · drag knobs up/down · WebMIDI via Chrome</div>
+  <div style="font-size:7px;letter-spacing:.1em;color:#B8A96A;" id="version-tag">v1.0</div>
+  <div style="font-size:7px;letter-spacing:.1em;color:#7A7A72;">© 2026 CHRIS VAN DER LINDEN · HUMAN MOTIVES</div>
+</div>
 
 <script>
 // ============================================================
@@ -671,7 +675,9 @@ SEQ.play=function(note,vel,dur,ch){ _origPlay(note,vel,dur,ch); PLUCK.play(note,
 
 buildKnobs();
 SEQ.genGates();SEQ.genPitches();PRUNE.generate(SEQ.len);setSeason(0);initMIDI();
-lg('BOTANICA ready · SEED PATTERN + SEED TONES then PLAY');
+const VERSION = 'v1.0';
+document.getElementById('version-tag').textContent = VERSION;
+lg('BOTANICA ' + VERSION + ' ready · SEED PATTERN + SEED TONES then PLAY');
 
 function togglePluck(){
   PLUCK.init();
@@ -756,7 +762,8 @@ function hideManual(){
   <div onclick="event.stopPropagation()" style="background:#F2EFE6;border-radius:10px;max-width:680px;margin:0 auto;padding:24px 20px;font-family:'Space Mono',monospace;position:relative;">
     <button onclick="hideManual()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:18px;cursor:pointer;color:#4A4A42;">✕</button>
     <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;letter-spacing:.2em;margin-bottom:4px;">BOTANICA</div>
-    <div style="font-size:9px;letter-spacing:.3em;color:#B8A96A;margin-bottom:20px;">— NATURAL SEQUENCER —</div>
+    <div style="font-size:9px;letter-spacing:.3em;color:#B8A96A;margin-bottom:4px;">— NATURAL SEQUENCER —</div>
+    <div style="font-size:7px;letter-spacing:.15em;color:#9A9A90;margin-bottom:20px;" id="manual-version">v1.0 · © 2026 Chris van der Linden · Human Motives</div>
     <div id="manual-content" style="font-size:12px;line-height:1.9;color:#4A4A42;letter-spacing:.03em;"></div>
     <div style="margin-top:20px;font-size:7px;color:#9A9A90;letter-spacing:.1em;">click outside to close · BOTANICA by Human Motives · 2026</div>
   </div>
