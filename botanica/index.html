@@ -439,7 +439,7 @@ function makeKnob(cfg){
   svg.setAttribute('width',sz);svg.setAttribute('height',sz);svg.setAttribute('viewBox',`0 0 ${sz} ${sz}`);
   const bg=document.createElementNS('http://www.w3.org/2000/svg','circle');
   bg.setAttribute('cx',cx);bg.setAttribute('cy',cy);bg.setAttribute('r',r);
-  bg.setAttribute('fill','rgba(8,8,6,.88)');bg.setAttribute('stroke','rgba(255,255,255,0.6)');bg.setAttribute('stroke-width','3');
+  bg.setAttribute('fill','rgba(8,8,6,.88)');bg.setAttribute('stroke','#ffffff');bg.setAttribute('stroke-width','3');
   const mk=document.createElementNS('http://www.w3.org/2000/svg','line');
   mk.setAttribute('x1',cx);mk.setAttribute('y1',cy);
   mk.setAttribute('stroke','#B8A96A');mk.setAttribute('stroke-width','2.5');mk.setAttribute('stroke-linecap','round');
@@ -551,9 +551,65 @@ function setupEditDrag(){
 // (the makeKnob mousedown will check editMode)
 const _origMakeKnob = makeKnob;
 
+// ─── WEBAUDIO PLUCK SYNTH (fallback when no MIDI) ────────────
+const PLUCK={
+  ctx:null, enabled:false,
+  init(){ if(this.ctx) return; this.ctx=new(window.AudioContext||window.webkitAudioContext)(); },
+  play(midiNote,velocity){
+    if(!this.enabled||!this.ctx) return;
+    if(this.ctx.state==='suspended') this.ctx.resume();
+    const freq=440*Math.pow(2,(midiNote-69)/12);
+    const vel=velocity/127;
+    const now=this.ctx.currentTime;
+
+    // Noise burst (attack click)
+    const buf=this.ctx.createBuffer(1,Math.floor(this.ctx.sampleRate*0.04),this.ctx.sampleRate);
+    const data=buf.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1);
+    const src=this.ctx.createBufferSource(); src.buffer=buf;
+    const lp=this.ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=freq*5;
+    const ng=this.ctx.createGain(); ng.gain.setValueAtTime(vel*.07,now); ng.gain.exponentialRampToValueAtTime(.001,now+.04);
+    src.connect(lp); lp.connect(ng);
+
+    // Fundamental sine — marimba body
+    const osc=this.ctx.createOscillator(); osc.type='sine'; osc.frequency.value=freq;
+    const g=this.ctx.createGain(); g.gain.setValueAtTime(vel*.5,now); g.gain.exponentialRampToValueAtTime(.001,now+1.4);
+    osc.connect(g);
+
+    // 2nd harmonic — brightness
+    const osc2=this.ctx.createOscillator(); osc2.type='sine'; osc2.frequency.value=freq*2.005;
+    const g2=this.ctx.createGain(); g2.gain.setValueAtTime(vel*.12,now); g2.gain.exponentialRampToValueAtTime(.001,now+.35);
+    osc2.connect(g2);
+
+    const master=this.ctx.createGain(); master.gain.value=.75; master.connect(this.ctx.destination);
+    ng.connect(master); g.connect(master); g2.connect(master);
+
+    src.start(now); src.stop(now+.05);
+    osc.start(now); osc.stop(now+1.6);
+    osc2.start(now); osc2.stop(now+.4);
+  }
+};
+
+const _origPlay=SEQ.play.bind(SEQ);
+SEQ.play=function(note,vel,dur,ch){ _origPlay(note,vel,dur,ch); PLUCK.play(note,vel); };
+
 buildKnobs();
 SEQ.genGates();SEQ.genPitches();PRUNE.generate(SEQ.len);setSeason(0);initMIDI();
-lg('BOTANICA ready · SEED PATTERN + SEED TONES · then PLAY');
+lg('BOTANICA ready · SEED PATTERN + SEED TONES then PLAY');
+
+// Audio toggle button
+const _pluckBtn=document.createElement('button');
+_pluckBtn.textContent='🔈 AUDIO OFF';
+_pluckBtn.style.cssText='background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#6A6A60;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:"Space Mono",monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;';
+_pluckBtn.onclick=()=>{
+  PLUCK.init();
+  PLUCK.enabled=!PLUCK.enabled;
+  _pluckBtn.textContent=PLUCK.enabled?'🔊 AUDIO ON':'🔈 AUDIO OFF';
+  _pluckBtn.style.color=PLUCK.enabled?'#B8A96A':'#6A6A60';
+  _pluckBtn.style.borderColor=PLUCK.enabled?'#B8A96A':'#4A4A42';
+  lg(PLUCK.enabled?'WebAudio pluck ON — no DAW needed':'WebAudio pluck OFF');
+};
+document.querySelector('[style*="display:flex;gap:10px;justify-content:center;margin-top:10px"]').prepend(_pluckBtn);
 </script>
 </body>
 </html>
