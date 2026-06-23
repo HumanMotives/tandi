@@ -295,7 +295,7 @@ const BLOSSOM={
       while(p>maxMidi) p-=12; while(p<minMidi) p+=12;
       p=Math.max(0,Math.min(127,p));
       const sp=p,sv=vel,sd=eMs*.45;
-      setTimeout(()=>{if(!CORE.running||SEQ.mute)return;MIDI.noteOn(sp,sv,1);setTimeout(()=>MIDI.noteOff(sp,1),sd);},t);
+      setTimeout(()=>{if(!CORE.running||SEQ.mute)return;MIDI.noteOn(sp,sv,1);PLUCK.play(sp,sv);setTimeout(()=>MIDI.noteOff(sp,1),sd);},t);
     }
   }
 };
