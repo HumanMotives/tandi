@@ -188,11 +188,14 @@ body.editing .knob:active{cursor:grabbing!important;}
 
   <!-- BLOSSOM MODE BUTTONS -->
   <button class="btn active" id="mb-ramp" onclick="toggleRamp()" style="top:88%;left:75%">RAMP ↓</button>
-  <button class="btn" id="mb-sync" onclick="toggleRefractSync()" style="top:81%;left:68.7%;font-size:6px;">SYNC</button>
+  <button class="btn" id="mb-sync" onclick="toggleRefractSync()" style="top:81%;left:68.7%;font-size:6px;display:none;">SYNC</button>
   <button class="btn" id="mb-pitch" onclick="cyclePitchMode()" style="top:88%;left:82%">ARP —</button>
 
   <!-- TONES BUTTONS — bottom right -->
   <button class="btn" id="btn-tlock" onclick="toggleLock('tones')" style="top:88%;left:90%">LOCK</button>
+  <button class="btn" id="btn-oct-down" onclick="shiftOctave(-1)" style="top:91%;left:36%">OCT ↓</button>
+  <button class="btn" id="btn-oct-up"   onclick="shiftOctave(+1)" style="top:91%;left:43%">OCT ↑</button>
+  <div id="oct-display" style="position:absolute;transform:translate(-50%,-50%);top:91%;left:50%;font-size:7px;letter-spacing:.1em;color:#B8A96A;pointer-events:none;">OCT 0</div>
 
 
   <!-- SEED PATTERN — centered above left button row -->
@@ -230,8 +233,8 @@ const S_NAMES=['Pentatonic Maj','Lydian','Dorian','Whole Tone'];
 const NNAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
 const SEASON={
-  index:0,transpose:0,octaveRange:2,
-  root(){return S_ROOTS[this.index]+this.transpose;},
+  index:0,transpose:0,octaveRange:2,octaveShift:0,
+  root(){return S_ROOTS[this.index]+this.transpose+(this.octaveShift*12);},
   scale(){return SCALES[this.index];},
   randomNote(){
     const sc=this.scale(),r=this.root();
@@ -485,6 +488,15 @@ function setSeason(i){
 }
 function seedPattern(){if(SEQ.patternLocked){lg('PATTERN LOCKED');return;}SEQ.genGates();PRUNE.generate(SEQ.len);updatePD();showDisp('PAT');lg('⟳ pattern');}
 function seedTones(){if(SEQ.toneLocked){lg('TONES LOCKED');return;}SEQ.genPitches();updatePD();showDisp('TON');lg('⟳ tones');}
+function shiftOctave(dir){
+  SEASON.octaveShift=Math.max(-3,Math.min(3,SEASON.octaveShift+dir));
+  // Requantize pitches to new root
+  SEQ.pitchMemory=SEQ.rawPitchMemory.map(p=>SEASON.quantize(p));
+  document.getElementById('oct-display').textContent='OCT '+(SEASON.octaveShift>0?'+':'')+SEASON.octaveShift;
+  lg('Octave: '+(SEASON.octaveShift>0?'+':'')+SEASON.octaveShift);
+  updatePD();
+}
+
 function toggleLock(t){
   if(t==='pattern'){SEQ.patternLocked=!SEQ.patternLocked;document.getElementById('btn-plock').classList.toggle('locked',SEQ.patternLocked);lg(SEQ.patternLocked?'PATTERN LOCKED':'PATTERN FREE');}
   else{SEQ.toneLocked=!SEQ.toneLocked;document.getElementById('btn-tlock').classList.toggle('locked',SEQ.toneLocked);lg(SEQ.toneLocked?'TONES LOCKED':'TONES FREE');}
@@ -770,7 +782,7 @@ function hideManual(){
     <button onclick="hideManual()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:18px;cursor:pointer;color:#4A4A42;">✕</button>
     <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;letter-spacing:.2em;margin-bottom:4px;">BOTANICA</div>
     <div style="font-size:9px;letter-spacing:.3em;color:#B8A96A;margin-bottom:4px;">— NATURAL SEQUENCER —</div>
-    <div style="font-size:7px;letter-spacing:.15em;color:#9A9A90;margin-bottom:20px;" id="manual-version">v1.0 · © 2026 Chris van der Linden · Human Motives</div>
+    <div style="font-size:7px;letter-spacing:.15em;color:#9A9A90;margin-bottom:20px;" id="manual-version">v1.1 · © 2026 Chris van der Linden · Human Motives</div>
     <div id="manual-content" style="font-size:12px;line-height:1.9;color:#4A4A42;letter-spacing:.03em;"></div>
     <div style="margin-top:20px;font-size:7px;color:#9A9A90;letter-spacing:.1em;">click outside to close · BOTANICA by Human Motives · 2026</div>
   </div>
