@@ -116,6 +116,7 @@ body.editing .knob:active{cursor:grabbing!important;}
 <body>
 
 <button class="edit-mode-btn" onclick="toggleEditMode()" style="display:none;">⊹ EDIT MODE</button>
+<button id="ui-toggle" onclick="toggleUI()" style="position:fixed;top:10px;right:10px;z-index:1000;background:rgba(10,10,8,.75);border:1px solid #4A4A42;color:#6A6A60;border-radius:4px;padding:5px 10px;cursor:pointer;font-family:'Space Mono',monospace;font-size:7px;letter-spacing:.1em;box-shadow:0 0 0 1px rgba(255,255,255,.2);">⊙ HIDE</button>
 <div class="edit-overlay" id="edit-overlay">
   <div>EDIT MODE — drag knobs to position</div>
   <div id="edit-last" style="color:#8A8A80;font-size:7px;">click a knob to see coords</div>
@@ -138,7 +139,6 @@ body.editing .knob:active{cursor:grabbing!important;}
     <option value="">— MIDI OUT —</option>
   </select>
   <button onclick="showManual()" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#A8A49A;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;">? MANUAL</button>
-  <button onclick="toggleUI()" id="ui-toggle" style="background:rgba(10,10,8,.50);border:1px solid #4A4A4244;color:#6A6A60;border-radius:4px;padding:6px 10px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;">⊙ HIDE</button>
 </div>
 <div class="panel" id="panel">
   <img class="panel-img" src="BOTANICA_PANEL_ALPHA_BLANK.png">
@@ -700,14 +700,8 @@ function toggleUI(){
   const ids = ['controls-bar','debug-bar','dv-pat','log'];
   // controls-bar: always show toggle button, hide rest
   const bar = document.getElementById('controls-bar');
-  // Hide everything except the toggle button itself
-  const children = [...bar.children];
-  children.forEach(el => {
-    if(el.id !== 'ui-toggle') el.style.display = uiVisible ? '' : 'none';
-  });
+  bar.style.display = uiVisible ? 'flex' : 'none';
   document.getElementById('ui-toggle').textContent = uiVisible ? '⊙ HIDE' : '⊙ SHOW';
-  bar.style.justifyContent = uiVisible ? '' : 'center';
-  bar.style.marginBottom = uiVisible ? '32px' : '8px';
 }
 // Press H to toggle
 document.addEventListener('keydown', e=>{ if(e.key==='h'||e.key==='H') toggleUI(); });
