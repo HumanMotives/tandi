@@ -115,22 +115,22 @@ body.editing .knob:active{cursor:grabbing!important;}
 </head>
 <body>
 
-<button class="edit-mode-btn" onclick="toggleEditMode()">⊹ EDIT MODE</button>
+<button class="edit-mode-btn" onclick="toggleEditMode()" style="display:none;">⊹ EDIT MODE</button>
 <div class="edit-overlay" id="edit-overlay">
   <div>EDIT MODE — drag knobs to position</div>
   <div id="edit-last" style="color:#8A8A80;font-size:7px;">click a knob to see coords</div>
   <div class="edit-coords" id="edit-coords">—</div>
   <div style="margin-top:6px;font-size:7px;color:#6A6A60;">Copy the id+top+left values<br>into the HTML to save.</div>
 </div>
-<div class="status">
+<div class="status" id="debug-bar" style="display:none;">
   <span><span class="dot" id="d-midi"></span><span id="t-midi">MIDI —</span></span>
   <span><span class="dot" id="d-clk"></span><span id="t-clk">STOPPED</span></span>
   <span><span class="dot" id="d-out"></span><span id="t-out">OUT —</span></span>
 </div>
 <div class="warn" id="warn">WebMIDI requires Chrome + HTTPS or localhost</div>
 
-<div class="pat-disp-outer" id="dv-pat" style="font-size:11px;color:#B8A96A;letter-spacing:.08em;background:#080806;border-radius:5px;padding:5px 16px;margin-bottom:6px;text-align:center;width:860px;white-space:nowrap;">· · · · · · · · · · · · · · · ·</div>
-<div style="display:flex;gap:6px;justify-content:center;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
+<div class="pat-disp-outer" id="dv-pat" style="display:none;" style="font-size:11px;color:#B8A96A;letter-spacing:.08em;background:#080806;border-radius:5px;padding:5px 16px;margin-bottom:6px;text-align:center;width:860px;white-space:nowrap;">· · · · · · · · · · · · · · · ·</div>
+<div id="controls-bar" style="display:flex;gap:6px;justify-content:center;align-items:center;margin-bottom:32px;flex-wrap:wrap;transition:opacity .3s;">
   <button id="pluck-btn" onclick="togglePluck()" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#6A6A60;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;">🔈 AUDIO OFF</button>
   <button onclick="startSeq()" style="background:#8BAA7A;border:none;color:white;border-radius:4px;padding:6px 22px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;">▶ PLAY</button>
   <button onclick="stopSeq()"  style="background:#C47A5A;border:none;color:white;border-radius:4px;padding:6px 22px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;">■ STOP</button>
@@ -138,6 +138,7 @@ body.editing .knob:active{cursor:grabbing!important;}
     <option value="">— MIDI OUT —</option>
   </select>
   <button onclick="showManual()" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#A8A49A;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;">? MANUAL</button>
+  <button onclick="toggleUI()" id="ui-toggle" style="background:rgba(10,10,8,.50);border:1px solid #4A4A4244;color:#6A6A60;border-radius:4px;padding:6px 10px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;">⊙ HIDE</button>
 </div>
 <div class="panel" id="panel">
   <img class="panel-img" src="BOTANICA_PANEL_ALPHA_BLANK.png">
@@ -205,7 +206,7 @@ body.editing .knob:active{cursor:grabbing!important;}
 </div>
 
 
-<div class="log" id="log"></div>
+<div class="log" id="log" style="display:none;"></div>
 <div style="display:flex;gap:16px;justify-content:center;align-items:center;margin-top:5px;flex-wrap:wrap;">
   <div style="font-size:7px;letter-spacing:.1em;color:#9A9A90;">BOTANICA · drag knobs up/down · WebMIDI via Chrome</div>
   <div style="font-size:7px;letter-spacing:.1em;color:#B8A96A;" id="version-tag">v1.0</div>
@@ -692,9 +693,31 @@ SEQ.play=function(note,vel,dur,ch){ _origPlay(note,vel,dur,ch); PLUCK.play(note,
 
 buildKnobs();
 SEQ.genGates();SEQ.genPitches();PRUNE.generate(SEQ.len);setSeason(0);initMIDI();
-const VERSION = 'v1.0';
+const VERSION = 'v1.1';
 document.getElementById('version-tag').textContent = VERSION;
 lg('BOTANICA ' + VERSION + ' ready · SEED PATTERN + SEED TONES then PLAY');
+
+// UI visibility toggle
+let uiVisible = true;
+function toggleUI(){
+  uiVisible = !uiVisible;
+  const ids = ['controls-bar','debug-bar','dv-pat','log'];
+  // controls-bar: always show toggle button, hide rest
+  const bar = document.getElementById('controls-bar');
+  if(!uiVisible){
+    bar.style.opacity = '0.15';
+    bar.style.pointerEvents = 'none';
+    document.getElementById('ui-toggle').style.opacity = '1';
+    document.getElementById('ui-toggle').style.pointerEvents = 'auto';
+    document.getElementById('ui-toggle').textContent = '⊙ SHOW';
+  } else {
+    bar.style.opacity = '1';
+    bar.style.pointerEvents = 'auto';
+    document.getElementById('ui-toggle').textContent = '⊙ HIDE';
+  }
+}
+// Press H to toggle
+document.addEventListener('keydown', e=>{ if(e.key==='h'||e.key==='H') toggleUI(); });
 
 function togglePluck(){
   PLUCK.init();
@@ -780,7 +803,7 @@ function hideManual(){
     <button onclick="hideManual()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:18px;cursor:pointer;color:#4A4A42;">✕</button>
     <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;letter-spacing:.2em;margin-bottom:4px;">BOTANICA</div>
     <div style="font-size:9px;letter-spacing:.3em;color:#B8A96A;margin-bottom:4px;">— NATURAL SEQUENCER —</div>
-    <div style="font-size:7px;letter-spacing:.15em;color:#9A9A90;margin-bottom:20px;" id="manual-version">v1.0 · © 2026 Chris van der Linden · Human Motives</div>
+    <div style="font-size:7px;letter-spacing:.15em;color:#9A9A90;margin-bottom:20px;" id="manual-version">v1.1 · © 2026 Chris van der Linden · Human Motives</div>
     <div id="manual-content" style="font-size:12px;line-height:1.9;color:#4A4A42;letter-spacing:.03em;"></div>
     <div style="margin-top:20px;font-size:7px;color:#9A9A90;letter-spacing:.1em;">click outside to close · BOTANICA by Human Motives · 2026</div>
   </div>
