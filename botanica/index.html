@@ -19,12 +19,12 @@ body{
 .warn{display:none;background:#3A2A20;border:1px solid #C47A5A;border-radius:4px;padding:5px 12px;font-size:8px;color:#C47A5A;text-align:center;margin-bottom:6px;max-width:860px;}
 
 /* PANEL */
-.panel{position:relative;width:860px;}
+.panel{position:relative;width:860px;overflow:hidden;border-radius:20px;}
 @media(max-width:900px){
   .panel{width:100%;max-width:860px;}
   body{padding:8px;}
 }
-.panel-img{width:100%;display:block;border-radius:10px;box-shadow:0 20px 70px rgba(0,0,0,.65);}
+.panel-img{width:100%;display:block;border-radius:20px;box-shadow:0 20px 70px rgba(0,0,0,.65);}
 
 /* KNOB */
 .knob{
@@ -207,11 +207,7 @@ body.editing .knob:active{cursor:grabbing!important;}
 
 
 <div class="log" id="log" style="display:none;"></div>
-<div style="display:flex;gap:16px;justify-content:center;align-items:center;margin-top:5px;flex-wrap:wrap;">
-  <div style="font-size:7px;letter-spacing:.1em;color:#9A9A90;">BOTANICA · drag knobs up/down · WebMIDI via Chrome</div>
-  <div style="font-size:7px;letter-spacing:.1em;color:#B8A96A;" id="version-tag">v1.0</div>
-  <div style="font-size:7px;letter-spacing:.1em;color:#7A7A72;">© 2026 CHRIS VAN DER LINDEN · HUMAN MOTIVES</div>
-</div>
+<div style="font-size:7px;letter-spacing:.1em;color:#7A7A72;text-align:center;margin-top:5px;"><span id="version-tag">v1.1</span> · © 2026 CHRIS VAN DER LINDEN · HUMAN MOTIVES</div>
 
 <script>
 // ============================================================
@@ -704,17 +700,14 @@ function toggleUI(){
   const ids = ['controls-bar','debug-bar','dv-pat','log'];
   // controls-bar: always show toggle button, hide rest
   const bar = document.getElementById('controls-bar');
-  if(!uiVisible){
-    bar.style.opacity = '0.15';
-    bar.style.pointerEvents = 'none';
-    document.getElementById('ui-toggle').style.opacity = '1';
-    document.getElementById('ui-toggle').style.pointerEvents = 'auto';
-    document.getElementById('ui-toggle').textContent = '⊙ SHOW';
-  } else {
-    bar.style.opacity = '1';
-    bar.style.pointerEvents = 'auto';
-    document.getElementById('ui-toggle').textContent = '⊙ HIDE';
-  }
+  // Hide everything except the toggle button itself
+  const children = [...bar.children];
+  children.forEach(el => {
+    if(el.id !== 'ui-toggle') el.style.display = uiVisible ? '' : 'none';
+  });
+  document.getElementById('ui-toggle').textContent = uiVisible ? '⊙ HIDE' : '⊙ SHOW';
+  bar.style.justifyContent = uiVisible ? '' : 'center';
+  bar.style.marginBottom = uiVisible ? '32px' : '8px';
 }
 // Press H to toggle
 document.addEventListener('keydown', e=>{ if(e.key==='h'||e.key==='H') toggleUI(); });
