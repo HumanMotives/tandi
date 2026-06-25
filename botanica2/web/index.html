@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BOTANICA — Natural Sequencer</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div class="panel">
+<div class="header">
+  <div class="title">B O T A N I C A</div>
+  <div class="subtitle">— NATURAL SEQUENCER —</div>
+</div>
+<div class="status">
+  <span><span class="dot" id="d-midi"></span><span id="t-midi">MIDI —</span></span>
+  <span><span class="dot" id="d-clk"></span><span id="t-clk">STOPPED</span></span>
+  <span><span class="dot" id="d-out"></span><span id="t-out">OUT —</span></span>
+</div>
+<div class="warn" id="warn">WebMIDI requires Chrome · run via localhost</div>
+<div class="disp-row">
+  <div class="disp"><div class="dv" id="dv">SP</div><div class="dl" id="dl">SEASON</div></div>
+  <div class="disp" style="min-width:280px"><div class="dv" id="dv-pat" style="font-size:10px;padding-top:5px;letter-spacing:.03em">-- -- -- -- -- -- -- --</div><div class="dl">PATTERN</div></div>
+  <div class="disp"><div class="dv" id="dv-step" style="font-size:12px;padding-top:3px">— / —</div><div class="dl">STEP</div></div>
+</div>
+<div class="season-row">
+  <button class="sbtn active" onclick="setSeason(0)">SPRING</button>
+  <button class="sbtn" onclick="setSeason(1)">SUMMER</button>
+  <button class="sbtn" onclick="setSeason(2)">FALL</button>
+  <button class="sbtn" onclick="setSeason(3)">WINTER</button>
+</div>
+
+<div class="zones">
+  <!-- PATTERN -->
+  <div class="zone">
+    <div class="zone-label">PATTERN</div>
+    <div class="pots-row" id="pat-pots"></div>
+    <div class="btns-row">
+      <button class="xbtn" onclick="seedPattern()" style="font-weight:700">⟳ SEED</button>
+      <button class="xbtn" id="btn-plock" onclick="toggleLock('pattern')">LOCK</button>
+      <div class="led" id="led-plock"></div>
+      <div class="sep"></div>
+      <button class="xbtn" onclick="SEQ.snapToOne()">SNAP→1</button>
+      <button class="xbtn" id="btn-euclid" onclick="toggleEuclid()">EUCLID</button>
+      <div class="led" id="led-euc"></div>
+    </div>
+  </div>
+
+  <!-- TONES -->
+  <div class="zone">
+    <div class="zone-label">TONES</div>
+    <div class="pots-row" id="tone-pots"></div>
+    <div class="btns-row">
+      <button class="xbtn" onclick="seedTones()" style="font-weight:700">⟳ SEED</button>
+      <button class="xbtn" id="btn-tlock" onclick="toggleLock('tones')">LOCK</button>
+      <div class="led" id="led-tlock"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BLOSSOM -->
+<div class="zone-full">
+  <div class="zone-label">✦ BLOSSOM</div>
+  <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+    <div class="pots-row" id="blos-pots" style="margin-bottom:0"></div>
+    <div class="sep" style="height:60px;"></div>
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <div class="btns-row">
+        <button class="mode-btn active" id="mb-down" onclick="setRamp('down')">RAMP ↓</button>
+        <button class="mode-btn" id="mb-up" onclick="setRamp('up')">RAMP ↑</button>
+      </div>
+      <div class="btns-row">
+        <button class="mode-btn" id="mb-arp" onclick="setPitch('arp')">ARP</button>
+        <button class="mode-btn" id="mb-octdown" onclick="setPitch('octdown')">OCT ↓</button>
+        <button class="mode-btn" id="mb-octup" onclick="setPitch('octup')">OCT ↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom">
+  <div style="display:flex;gap:6px;align-items:center;">
+    <button class="xbtn" id="btn-mute" onclick="toggleMute()">MUTE</button>
+    <div class="led" id="led-mute"></div>
+  </div>
+  <div style="display:flex;gap:6px;">
+    <button class="play-btn play" onclick="startSeq()">▶ PLAY</button>
+    <button class="play-btn stop" onclick="stopSeq()">■ STOP</button>
+  </div>
+  <div style="font-size:7px;color:var(--mid);letter-spacing:.1em;">120 BPM</div>
+</div>
+<div class="log" id="log"></div>
+<div class="footer">DESIGNED BY HUMAN MOTIVES · COPYRIGHT 2026</div>
+</div>
+
+<script src="./app.js"></script>
+</body>
+</html>
