@@ -1,8 +1,3 @@
-# Max for Live
+# Max for Live Target
 
-Placeholder for future Max for Live implementation.
-
-Planned direction:
-
-- Max handles Ableton transport, MIDI output and device parameters.
-- JavaScript keeps Botanica's musical engine.
+Next milestone: build a minimal stock Ableton-looking M4L device that can call the JS engine.
