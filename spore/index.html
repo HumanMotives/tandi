@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>SPORE — microsound engine</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --fr4: #c8b96e;
+  --fr4-dark: #9e8f45;
+  --fr4-deeper: #6b5e28;
+  --copper: #b87333;
+  --copper-bright: #d4894a;
+  --soldermask: #1a1a0f;
+  --trace: #8a6e2f;
+  --silk: #f0e8c8;
+  --silk-dim: #a89c72;
+  --oxide: #4a3f1a;
+}
+
+html, body {
+  height: 100%;
+  background: var(--soldermask);
+  color: var(--silk);
+  font-family: 'Space Mono', monospace;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* PCB trace texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(90deg, rgba(139,110,47,0.04) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(139,110,47,0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.header {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 480px;
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--fr4);
+  text-transform: uppercase;
+}
+
+.subtitle {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--silk-dim);
+  text-transform: uppercase;
+}
+
+/* Main canvas area */
+#field {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 480px;
+  flex: 1;
+  margin: 12px 0 0;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Controls strip */
+.controls {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 480px;
+  padding: 12px 20px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.ctrl {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ctrl-label {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--silk-dim);
+  text-transform: uppercase;
+}
+
+.ctrl-val {
+  font-size: 12px;
+  color: var(--fr4);
+  font-weight: 700;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 2px;
+  background: var(--trace);
+  outline: none;
+  border-radius: 0;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--copper-bright);
+  cursor: pointer;
+  border: 2px solid var(--fr4);
+}
+
+/* Start button */
+.start-btn {
+  position: relative;
+  z-index: 2;
+  margin: 0 20px 4px;
+  width: calc(100% - 40px);
+  max-width: 440px;
+  padding: 12px;
+  background: none;
+  border: 1px solid var(--fr4-dark);
+  color: var(--fr4);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.start-btn:hover, .start-btn.active {
+  background: var(--fr4-dark);
+  color: var(--soldermask);
+}
+
+/* Euclid readout */
+.euclid-row {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 480px;
+  padding: 0 20px 8px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--trace);
+  background: transparent;
+  transition: background 0.06s;
+  flex-shrink: 0;
+}
+
+.step-dot.on {
+  background: var(--copper-bright);
+  border-color: var(--copper-bright);
+  box-shadow: 0 0 4px var(--copper);
+}
+
+.step-dot.active {
+  background: var(--fr4);
+  border-color: var(--fr4);
+  box-shadow: 0 0 8px var(--fr4);
+}
+
+.euclid-label {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--silk-dim);
+  text-transform: uppercase;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="title">SPORE</span>
+  <span class="subtitle">microsound engine</span>
+</div>
+
+<!-- Euclidean step display -->
+<div class="euclid-row" id="euclidRow"></div>
+
+<!-- Main canvas for spore visualization & touch -->
+<div id="field">
+  <canvas id="canvas"></canvas>
+</div>
+
+<button class="start-btn" id="startBtn">[ touch to activate ]</button>
+
+<div class="controls">
+  <div class="ctrl">
+    <div class="ctrl-label">Steps</div>
+    <input type="range" id="stepsSlider" min="8" max="24" value="16" step="1"/>
+    <div class="ctrl-val" id="stepsVal">16</div>
+  </div>
+  <div class="ctrl">
+    <div class="ctrl-label">Hits</div>
+    <input type="range" id="hitsSlider" min="1" max="12" value="5" step="1"/>
+    <div class="ctrl-val" id="hitsVal">5</div>
+  </div>
+  <div class="ctrl">
+    <div class="ctrl-label">Tempo</div>
+    <input type="range" id="tempoSlider" min="60" max="300" value="140" step="1"/>
+    <div class="ctrl-val" id="tempoVal">140</div>
+  </div>
+  <div class="ctrl">
+    <div class="ctrl-label">Mutation</div>
+    <input type="range" id="mutSlider" min="0" max="100" value="20" step="1"/>
+    <div class="ctrl-val" id="mutVal">20%</div>
+  </div>
+  <div class="ctrl">
+    <div class="ctrl-label">Spread</div>
+    <input type="range" id="spreadSlider" min="0" max="100" value="50" step="1"/>
+    <div class="ctrl-val" id="spreadVal">50%</div>
+  </div>
+  <div class="ctrl">
+    <div class="ctrl-label">Decay</div>
+    <input type="range" id="decaySlider" min="5" max="100" value="30" step="1"/>
+    <div class="ctrl-val" id="decayVal">30%</div>
+  </div>
+</div>
+
+<script>
+// ── Euclidean algorithm ──────────────────────────────────────────
+function euclid(steps, hits) {
+  if (hits <= 0) return new Array(steps).fill(0);
+  if (hits >= steps) return new Array(steps).fill(1);
+  let pattern = [];
+  let counts = [];
+  let remainders = [];
+  let divisor = steps - hits;
+  remainders.push(hits);
+  let level = 0;
+  do {
+    counts.push(Math.floor(remainders[level] / divisor));  // fixed: was missing variable
+    counts[level] = Math.floor(remainders[level] / divisor);
+    remainders.push(remainders[level] % divisor);
+    divisor = remainders[level];
+    level++;
+  } while (remainders[level] > 1);
+  counts.push(1);
+  function build(l) {
+    if (l == -1) { pattern.push(0); return; }
+    if (l == -2) { pattern.push(1); return; }
+    for (let i = 0; i < counts[l]; i++) build(l - 1);
+    if (remainders[l + 1] != 0) build(l - 2);
+  }
+  build(level - 1);
+  // rotate so first hit is on beat 0
+  let first = pattern.indexOf(1);
+  return [...pattern.slice(first), ...pattern.slice(0, first)];
+}
+
+// ── Audio engine ─────────────────────────────────────────────────
+let ctx = null;
+let running = false;
+let intervalId = null;
+let currentStep = 0;
+let generation = 0;
+
+// Spore particles for visualisation
+let spores = [];
+
+function ensureAudio() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if (ctx.state === 'suspended') ctx.resume();
+}
+
+function getParams() {
+  return {
+    steps: parseInt(stepsSlider.value),
+    hits: parseInt(hitsSlider.value),
+    tempo: parseInt(tempoSlider.value),
+    mut: parseInt(mutSlider.value) / 100,
+    spread: parseInt(spreadSlider.value) / 100,
+    decay: parseInt(decaySlider.value) / 100,
+  };
+}
+
+// Sound types: click, pop, sine grain, noise burst
+function playMicrosound(type, freq, spreadX, spreadY) {
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.18, now);
+  master.gain.linearRampToValueAtTime(0, now + 0.25);
+  master.connect(ctx.destination);
+
+  if (type === 0) {
+    // click — very short noise
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.003, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const f = ctx.createBiquadFilter();
+    f.type = 'bandpass';
+    f.frequency.value = 800 + freq * 2000;
+    f.Q.value = 2;
+    src.connect(f); f.connect(master);
+    src.start(now);
+  } else if (type === 1) {
+    // pop — filtered noise with slower attack
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.04, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * i / d.length);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const f = ctx.createBiquadFilter();
+    f.type = 'lowpass';
+    f.frequency.value = 200 + freq * 800;
+    src.connect(f); f.connect(master);
+    src.start(now);
+  } else if (type === 2) {
+    // sine grain
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 110 + freq * 880;
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0, now);
+    env.gain.linearRampToValueAtTime(0.5, now + 0.01);
+    env.gain.exponentialRampToValueAtTime(0.001, now + 0.08 + Math.random() * 0.12);
+    osc.connect(env); env.connect(master);
+    osc.start(now); osc.stop(now + 0.25);
+  } else {
+    // hiss burst
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.06, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 0.3;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const f = ctx.createBiquadFilter();
+    f.type = 'highpass';
+    f.frequency.value = 3000 + freq * 8000;
+    src.connect(f); f.connect(master);
+    src.start(now);
+  }
+
+  // Spawn visual spore
+  spawnSpore(spreadX, spreadY, type, freq);
+}
+
+function spawnSpore(x, y, type, freq) {
+  const p = getParams();
+  const angle = Math.random() * Math.PI * 2;
+  const speed = 0.5 + p.spread * 3;
+  spores.push({
+    x, y,
+    vx: Math.cos(angle) * speed * (0.5 + Math.random()),
+    vy: Math.sin(angle) * speed * (0.5 + Math.random()),
+    life: 1,
+    decay: 0.012 + p.decay * 0.03,
+    type,
+    freq,
+    gen: 0,
+    children: 0
+  });
+}
+
+let pattern = euclid(16, 5);
+let touchX = 0.5, touchY = 0.5;
+
+function tick() {
+  const p = getParams();
+  pattern = euclid(p.steps, p.hits);
+
+  // mutate pattern slightly
+  if (Math.random() < p.mut * 0.1) {
+    const idx = Math.floor(Math.random() * pattern.length);
+    pattern[idx] = pattern[idx] ? 0 : 1;
+  }
+
+  updateEuclidDisplay(pattern, currentStep);
+
+  if (pattern[currentStep % pattern.length]) {
+    generation++;
+    const freq = touchY + (Math.random() - 0.5) * p.mut;
+    const type = Math.floor(touchX * 4); // touch X selects sound type
+    const cx = canvas.width * touchX;
+    const cy = canvas.height * touchY;
+    playMicrosound(type, Math.max(0, Math.min(1, freq)), cx, cy);
+
+    // Spawn child spores based on spread
+    const childCount = Math.floor(p.spread * 3);
+    for (let i = 0; i < childCount; i++) {
+      if (Math.random() < p.spread) {
+        const childFreq = freq + (Math.random() - 0.5) * p.mut * 0.5;
+        const childType = Math.random() < p.mut ? Math.floor(Math.random() * 4) : type;
+        spawnSpore(
+          cx + (Math.random() - 0.5) * 60 * p.spread,
+          cy + (Math.random() - 0.5) * 60 * p.spread,
+          childType,
+          Math.max(0, Math.min(1, childFreq))
+        );
+      }
+    }
+  }
+
+  currentStep = (currentStep + 1) % p.steps;
+}
+
+// ── Canvas / visual ──────────────────────────────────────────────
+const canvas = document.getElementById('canvas');
+const fieldEl = document.getElementById('field');
+let W, H;
+
+function resize() {
+  const rect = fieldEl.getBoundingClientRect();
+  W = canvas.width = rect.width * window.devicePixelRatio;
+  H = canvas.height = rect.height * window.devicePixelRatio;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+}
+window.addEventListener('resize', resize);
+resize();
+
+const ctx2 = canvas.getContext('2d');
+
+// PCB color per type
+const typeColors = [
+  '#d4894a', // click — copper
+  '#c8b96e', // pop — fr4
+  '#8abf8a', // sine grain — green soldermask trace
+  '#a89c72', // hiss — silk dim
+];
+
+function draw() {
+  ctx2.clearRect(0, 0, W, H);
+
+  // Faint sediment layers in background
+  for (let i = 0; i < 5; i++) {
+    const y = H * (0.2 + i * 0.15);
+    ctx2.beginPath();
+    ctx2.moveTo(0, y);
+    for (let x = 0; x <= W; x += 20) {
+      ctx2.lineTo(x, y + Math.sin(x * 0.02 + i * 1.3 + Date.now() * 0.0001) * 3);
+    }
+    ctx2.strokeStyle = `rgba(139, 110, 47, ${0.04 + i * 0.015})`;
+    ctx2.lineWidth = 1;
+    ctx2.stroke();
+  }
+
+  // Draw spores
+  spores.forEach(s => {
+    const col = typeColors[s.type] || typeColors[0];
+    const alpha = s.life * 0.85;
+    const r = 1.5 + (1 - s.life) * 4;
+
+    ctx2.beginPath();
+    ctx2.arc(s.x, s.y, r * window.devicePixelRatio, 0, Math.PI * 2);
+    ctx2.fillStyle = col + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+    ctx2.fill();
+
+    // Trail
+    if (s.life > 0.3) {
+      ctx2.beginPath();
+      ctx2.moveTo(s.x, s.y);
+      ctx2.lineTo(s.x - s.vx * 8, s.y - s.vy * 8);
+      ctx2.strokeStyle = col + Math.floor(alpha * 0.4 * 255).toString(16).padStart(2, '0');
+      ctx2.lineWidth = 0.8 * window.devicePixelRatio;
+      ctx2.stroke();
+    }
+  });
+
+  // Touch crosshair
+  if (running) {
+    const tx = touchX * W, ty = touchY * H;
+    ctx2.strokeStyle = 'rgba(200,185,110,0.25)';
+    ctx2.lineWidth = 1;
+    ctx2.beginPath(); ctx2.moveTo(tx, 0); ctx2.lineTo(tx, H); ctx2.stroke();
+    ctx2.beginPath(); ctx2.moveTo(0, ty); ctx2.lineTo(W, ty); ctx2.stroke();
+
+    // Type label
+    const types = ['CLICK', 'POP', 'SINE', 'HISS'];
+    ctx2.fillStyle = 'rgba(200,185,110,0.5)';
+    ctx2.font = `${9 * window.devicePixelRatio}px 'Space Mono', monospace`;
+    ctx2.fillText(types[Math.floor(touchX * 4)] || 'SINE', tx + 6 * window.devicePixelRatio, ty - 6 * window.devicePixelRatio);
+  }
+
+  // Update spore physics
+  spores = spores.filter(s => s.life > 0.01);
+  spores.forEach(s => {
+    s.x += s.vx;
+    s.y += s.vy;
+    s.vx *= 0.97;
+    s.vy *= 0.97;
+    s.life -= s.decay;
+  });
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+// ── Euclidean display ────────────────────────────────────────────
+const euclidRow = document.getElementById('euclidRow');
+function updateEuclidDisplay(pat, step) {
+  euclidRow.innerHTML = '';
+  pat.forEach((v, i) => {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (v ? ' on' : '') + (i === step ? ' active' : '');
+    euclidRow.appendChild(d);
+  });
+  const lbl = document.createElement('div');
+  lbl.className = 'euclid-label';
+  lbl.textContent = `E(${pat.filter(Boolean).length},${pat.length})`;
+  euclidRow.appendChild(lbl);
+}
+updateEuclidDisplay(pattern, 0);
+
+// ── Start/stop ───────────────────────────────────────────────────
+const startBtn = document.getElementById('startBtn');
+startBtn.addEventListener('click', () => {
+  ensureAudio();
+  if (running) {
+    running = false;
+    clearInterval(intervalId);
+    intervalId = null;
+    startBtn.textContent = '[ touch to activate ]';
+    startBtn.classList.remove('active');
+  } else {
+    running = true;
+    currentStep = 0;
+    const bpm = parseInt(tempoSlider.value);
+    const ms = (60 / bpm) * 1000 / 4;
+    intervalId = setInterval(tick, ms);
+    startBtn.textContent = '[ running — tap to stop ]';
+    startBtn.classList.add('active');
+  }
+});
+
+// Update tempo on slider change
+const tempoSlider = document.getElementById('tempoSlider');
+tempoSlider.addEventListener('input', () => {
+  tempoVal.textContent = tempoSlider.value;
+  if (running) {
+    clearInterval(intervalId);
+    const ms = (60 / parseInt(tempoSlider.value)) * 1000 / 4;
+    intervalId = setInterval(tick, ms);
+  }
+});
+
+// ── Slider labels ────────────────────────────────────────────────
+const stepsSlider = document.getElementById('stepsSlider');
+const hitsSlider = document.getElementById('hitsSlider');
+const mutSlider = document.getElementById('mutSlider');
+const spreadSlider = document.getElementById('spreadSlider');
+const decaySlider = document.getElementById('decaySlider');
+const stepsVal = document.getElementById('stepsVal');
+const hitsVal = document.getElementById('hitsVal');
+const tempoVal = document.getElementById('tempoVal');
+const mutVal = document.getElementById('mutVal');
+const spreadVal = document.getElementById('spreadVal');
+const decayVal = document.getElementById('decayVal');
+
+stepsSlider.addEventListener('input', () => { stepsVal.textContent = stepsSlider.value; updateEuclidDisplay(euclid(parseInt(stepsSlider.value), parseInt(hitsSlider.value)), currentStep); });
+hitsSlider.addEventListener('input', () => { hitsVal.textContent = hitsSlider.value; updateEuclidDisplay(euclid(parseInt(stepsSlider.value), parseInt(hitsSlider.value)), currentStep); });
+mutSlider.addEventListener('input', () => { mutVal.textContent = mutSlider.value + '%'; });
+spreadSlider.addEventListener('input', () => { spreadVal.textContent = spreadSlider.value + '%'; });
+decaySlider.addEventListener('input', () => { decayVal.textContent = decaySlider.value + '%'; });
+
+// ── Touch / mouse input ──────────────────────────────────────────
+function updateTouch(e) {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  touchX = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  touchY = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+}
+
+canvas.addEventListener('mousemove', updateTouch);
+canvas.addEventListener('touchmove', updateTouch, { passive: false });
+canvas.addEventListener('touchstart', (e) => { updateTouch(e); ensureAudio(); }, { passive: false });
+</script>
+</body>
+</html>
