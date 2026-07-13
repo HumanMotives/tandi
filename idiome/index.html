@@ -189,6 +189,8 @@
   let sampleBuffer = null;
   let masterGain, reverbNode, crushNode, dryGain, wetGain;
 
+  let shortBus, shortComp, shortCrush, shortMakeup;
+
   function buildFXChain(){
     masterGain = audioCtx.createGain();
     masterGain.gain.value = 0.9;
@@ -215,6 +217,32 @@
     wetGain.connect(crushNode);
     crushNode.connect(reverbNode);
     reverbNode.connect(masterGain);
+
+    // dedicated short-lane bus: always-on compressor/limiter + fixed harsh bitcrush
+    shortBus = audioCtx.createGain();
+    shortBus.gain.value = 1;
+
+    shortComp = audioCtx.createDynamicsCompressor();
+    shortComp.threshold.value = -32;
+    shortComp.knee.value = 4;
+    shortComp.ratio.value = 16;
+    shortComp.attack.value = 0.001;
+    shortComp.release.value = 0.04;
+
+    shortCrush = audioCtx.createWaveShaper();
+    const n = 1024;
+    const curve = new Float32Array(n);
+    const levels = 14; // fixed, coarser than the macro crush — constant "digital" character
+    for (let i = 0; i < n; i++){
+      const x = (i / (n - 1)) * 2 - 1;
+      curve[i] = Math.round(x * levels) / levels;
+    }
+    shortCrush.curve = curve;
+
+    shortMakeup = audioCtx.createGain();
+    shortMakeup.gain.value = 1.9; // compensate for compressor gain reduction
+
+    shortBus.connect(shortComp).connect(shortCrush).connect(shortMakeup).connect(masterGain);
   }
 
   function setCrushAmount(amount){
@@ -469,7 +497,7 @@
   function playShortSlice(when, macroVal){
     if (!sampleBuffer) return;
     const offset = pickOffset();
-    const dur = 0.008 + Math.random() * 0.03;
+    const dur = 0.003 + Math.random() * 0.014;
     const src = audioCtx.createBufferSource();
     src.buffer = sampleBuffer;
     src.playbackRate.value = 0.85 + Math.random() * 0.3;
@@ -481,7 +509,7 @@
 
     const env = audioCtx.createGain();
     env.gain.setValueAtTime(0, when);
-    env.gain.linearRampToValueAtTime(0.7, when + 0.002);
+    env.gain.linearRampToValueAtTime(0.95, when + 0.001);
     env.gain.linearRampToValueAtTime(0, when + dur);
 
     src.connect(filt).connect(env).connect(masterGain);
@@ -498,7 +526,7 @@
   function playLongWindow(when, macroVal){
     if (!sampleBuffer) return;
     const offset = pickOffset();
-    const dur = 0.25 + Math.random() * 0.55;
+    const dur = 0.14 + Math.random() * 0.22;
     const src = audioCtx.createBufferSource();
     src.buffer = sampleBuffer;
     src.playbackRate.value = 0.92 + Math.random() * 0.16;
@@ -512,17 +540,17 @@
     filt.Q.value = 1.2;
 
     const env = audioCtx.createGain();
-    const atk = 0.04 + Math.random() * 0.08;
+    const atk = 0.02 + Math.random() * 0.05;
     env.gain.setValueAtTime(0, when);
-    env.gain.linearRampToValueAtTime(0.65, when + atk);
+    env.gain.linearRampToValueAtTime(0.45, when + atk);
     env.gain.linearRampToValueAtTime(0, when + dur);
 
     src.connect(filt).connect(env).connect(masterGain);
 
     const wet = audioCtx.createGain();
     wet.gain.setValueAtTime(0, when);
-    wet.gain.linearRampToValueAtTime(macroVal * 0.9, when + atk);
-    wet.gain.linearRampToValueAtTime(macroVal * 0.2, when + dur);
+    wet.gain.linearRampToValueAtTime(macroVal * 0.5, when + atk);
+    wet.gain.linearRampToValueAtTime(macroVal * 0.1, when + dur);
     env.connect(wet);
     wet.connect(crushNode);
 
