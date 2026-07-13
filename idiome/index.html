@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>IDIOME — micro-slice MVP</title>
+<style>
+  :root{
+    --bg: #0a0a0a;
+    --grid: rgba(255,255,255,0.055);
+    --fg: #e9e7de;
+    --dim: #6b6a63;
+    --short: #ff4b3e;   /* glitch / short slice lane */
+    --long: #35c9c1;    /* window / seed lane */
+    --macro: #e0b04d;   /* macro shape / fx */
+    --line: rgba(233,231,222,0.14);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--bg); }
+  body {
+    margin: 0;
+    padding: 18px 14px 40px;
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--fg);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .wrap { max-width: 460px; margin: 0 auto; }
+
+  header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; }
+  h1 { font-size: 15px; letter-spacing: 0.22em; margin:0; text-transform: uppercase; font-weight:600; }
+  .sub { font-size: 10px; color: var(--dim); letter-spacing: 0.08em; }
+
+  section {
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,0.012);
+  }
+  .label-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .tag {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .tag.on-short { color: var(--short); }
+  .tag.on-long { color: var(--long); }
+  .tag.on-macro { color: var(--macro); }
+
+  /* --- waveform / sample --- */
+  #waveWrap { position: relative; }
+  canvas#wave { width:100%; height: 84px; display:block; background: #050505; border-radius: 2px; }
+  .sample-controls { display:flex; gap:8px; margin-top:9px; flex-wrap: wrap; }
+  .fileLabel, button.small {
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    background: transparent; color: var(--fg); border: 1px solid var(--line);
+    padding: 7px 10px; border-radius: 999px; cursor:pointer;
+  }
+  input[type=file]{ display:none; }
+  .bufinfo { font-size: 10px; color: var(--dim); margin-left: auto; align-self:center; }
+
+  /* --- seed --- */
+  #seedZone { display:flex; align-items:center; justify-content:center; padding: 14px 0 6px; position:relative; }
+  #seedRings { position:absolute; width:150px; height:150px; pointer-events:none; }
+  #seedBtn {
+    width: 84px; height: 84px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #1c1c1c, #050505 70%);
+    border: 1px solid rgba(233,231,222,0.3);
+    color: var(--fg); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    cursor: pointer; position:relative; z-index:2;
+  }
+  #seedBtn:active { transform: translateY(1px); }
+  .seedreadout { text-align:center; font-size:9px; color: var(--dim); margin-top:6px; letter-spacing:0.06em; }
+
+  /* --- lanes --- */
+  .steps16 { display:grid; grid-template-columns: repeat(16, 1fr); gap:4px; margin: 8px 0 10px; }
+  .dot { aspect-ratio: 1; border-radius: 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); }
+  .dot.active-short { background: var(--short); border-color: var(--short); }
+  .dot.active-long { background: var(--long); border-color: var(--long); }
+  .dot.playing { outline: 1px solid var(--fg); outline-offset: 1px; }
+
+  .sliderrow { display:flex; align-items:center; gap:8px; margin-top:6px; }
+  .sliderrow label { font-size:9px; color:var(--dim); width: 58px; text-transform:uppercase; letter-spacing:0.06em; }
+  input[type=range]{
+    flex:1; -webkit-appearance:none; appearance:none; height: 2px; background: var(--line); outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:12px; height:12px; border-radius:50%;
+    background: var(--fg); cursor:pointer; border: none;
+  }
+  .val { width: 24px; text-align:right; font-size:10px; color: var(--fg); }
+
+  /* --- macro shape --- */
+  #macroBars { display:flex; gap:5px; height: 70px; align-items:flex-end; touch-action:none; }
+  .mbar { flex:1; background: rgba(224,176,77,0.15); border: 1px solid rgba(224,176,77,0.35); border-radius: 2px 2px 0 0; position:relative; min-height:4px; }
+  .mbar.playing { background: var(--macro); }
+  .macro-sub { display:flex; justify-content:space-between; margin-top:8px; }
+
+  /* --- transport --- */
+  .transport { display:flex; align-items:center; gap:10px; }
+  button.transportBtn {
+    flex:1; padding: 11px; border-radius: 999px; border: 1px solid var(--line);
+    background: transparent; color: var(--fg); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    cursor:pointer;
+  }
+  button.transportBtn.playing { background: var(--fg); color: #0a0a0a; }
+  .bpmreadout { font-size:10px; color:var(--dim); width: 78px; text-align:right; }
+
+  footer { text-align:center; font-size: 9px; color: var(--dim); margin-top: 16px; letter-spacing: 0.04em; line-height:1.5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Idiome</h1>
+    <div class="sub">micro-slice MVP · v1</div>
+  </header>
+
+  <section id="sampleSection">
+    <div class="label-row"><span class="tag">material</span><span class="bufinfo" id="bufinfo">generating…</span></div>
+    <div id="waveWrap"><canvas id="wave"></canvas></div>
+    <div class="sample-controls">
+      <label class="fileLabel" for="fileInput">load field recording</label>
+      <input type="file" id="fileInput" accept="audio/*" />
+      <button class="small" id="genTexture">generate texture</button>
+    </div>
+  </section>
+
+  <section>
+    <div id="seedZone">
+      <svg id="seedRings" viewBox="0 0 150 150">
+        <circle cx="75" cy="75" r="70" fill="none" stroke="rgba(233,231,222,0.08)" stroke-width="1"/>
+        <circle cx="75" cy="75" r="55" fill="none" stroke="rgba(233,231,222,0.08)" stroke-width="1"/>
+        <circle cx="75" cy="75" r="40" fill="none" stroke="rgba(233,231,222,0.08)" stroke-width="1"/>
+        <line x1="75" y1="5" x2="75" y2="20" stroke="rgba(233,231,222,0.15)"/>
+        <line x1="75" y1="145" x2="75" y2="130" stroke="rgba(233,231,222,0.15)"/>
+        <line x1="5" y1="75" x2="20" y2="75" stroke="rgba(233,231,222,0.15)"/>
+        <line x1="145" y1="75" x2="130" y2="75" stroke="rgba(233,231,222,0.15)"/>
+      </svg>
+      <button id="seedBtn">seed</button>
+    </div>
+    <div class="seedreadout" id="seedreadout">region — · spread —</div>
+  </section>
+
+  <section>
+    <div class="label-row"><span class="tag on-short">lane a — short / glitch</span></div>
+    <div class="steps16" id="laneAdots"></div>
+    <div class="sliderrow"><label>pulses</label><input type="range" id="aPulses" min="1" max="16" value="7"><span class="val" id="aPulsesVal">7</span></div>
+    <div class="sliderrow"><label>rotation</label><input type="range" id="aRot" min="0" max="15" value="0"><span class="val" id="aRotVal">0</span></div>
+  </section>
+
+  <section>
+    <div class="label-row"><span class="tag on-long">lane b — long / window</span></div>
+    <div class="steps16" id="laneBdots"></div>
+    <div class="sliderrow"><label>pulses</label><input type="range" id="bPulses" min="0" max="8" value="3"><span class="val" id="bPulsesVal">3</span></div>
+    <div class="sliderrow"><label>rotation</label><input type="range" id="bRot" min="0" max="15" value="4"><span class="val" id="bRotVal">4</span></div>
+  </section>
+
+  <section>
+    <div class="label-row"><span class="tag on-macro">macro shape — crush / verb / repeat</span></div>
+    <div id="macroBars"></div>
+    <div class="macro-sub">
+      <div class="sliderrow" style="flex:1;"><label>length</label><input type="range" id="macroLen" min="3" max="9" value="7"><span class="val" id="macroLenVal">7</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="transport">
+      <button class="transportBtn" id="playBtn">play</button>
+      <button class="transportBtn" id="stopBtn">stop</button>
+    </div>
+    <div class="sliderrow"><label>tempo</label><input type="range" id="bpm" min="60" max="160" value="96"><span class="bpmreadout" id="bpmVal">96 bpm</span></div>
+  </section>
+
+  <footer>lane a &amp; b share one 16-step clock. macro shape wraps at its own length against that clock — the phasing is the point.<br>tap seed to re-select the extraction region from the loaded material.</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- audio context / buffer ----------
+  let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let sampleBuffer = null;
+  let masterGain, reverbNode, crushNode, dryGain, wetGain;
+
+  function buildFXChain(){
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.9;
+    masterGain.connect(audioCtx.destination);
+
+    // algorithmic impulse response for reverb burst
+    const irLen = audioCtx.sampleRate * 1.8;
+    const ir = audioCtx.createBuffer(2, irLen, audioCtx.sampleRate);
+    for (let ch = 0; ch < 2; ch++){
+      const d = ir.getChannelData(ch);
+      for (let i = 0; i < irLen; i++){
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / irLen, 2.6);
+      }
+    }
+    reverbNode = audioCtx.createConvolver();
+    reverbNode.buffer = ir;
+    reverbNode.normalize = true;
+
+    crushNode = audioCtx.createWaveShaper();
+    setCrushAmount(0.5);
+
+    wetGain = audioCtx.createGain();
+    wetGain.gain.value = 0;
+    wetGain.connect(crushNode);
+    crushNode.connect(reverbNode);
+    reverbNode.connect(masterGain);
+  }
+
+  function setCrushAmount(amount){
+    // amount 0..1 -> fewer quantization levels as amount rises
+    const levels = Math.max(2, Math.round(32 * (1 - amount) + 2));
+    const n = 1024;
+    const curve = new Float32Array(n);
+    for (let i = 0; i < n; i++){
+      const x = (i / (n - 1)) * 2 - 1;
+      curve[i] = Math.round(x * levels) / levels;
+    }
+    crushNode.curve = curve;
+  }
+
+  // ---------- texture generation (placeholder "field recording") ----------
+  function generateTexture(){
+    const dur = 6;
+    const sr = audioCtx.sampleRate;
+    const buf = audioCtx.createBuffer(1, sr * dur, sr);
+    const d = buf.getChannelData(0);
+    // layered filtered-noise texture: a few slow amplitude envelopes + light tonal component
+    const layers = [
+      { rate: 0.07, depth: 0.5, tone: 0 },
+      { rate: 0.21, depth: 0.35, tone: 220 },
+      { rate: 0.5, depth: 0.2, tone: 0 }
+    ];
+    let lp = 0;
+    for (let i = 0; i < d.length; i++){
+      const t = i / sr;
+      let s = 0;
+      for (const L of layers){
+        const env = 0.5 + 0.5 * Math.sin(2 * Math.PI * L.rate * t + L.tone * 0.001);
+        const n = (Math.random() * 2 - 1);
+        s += n * env * L.depth;
+      }
+      // gentle one-pole lowpass to make the noise less harsh / more "field recording"-ish
+      lp += (s - lp) * 0.18;
+      d[i] = lp * 0.9;
+    }
+    sampleBuffer = buf;
+    document.getElementById("bufinfo").textContent = "synthetic texture · " + dur.toFixed(1) + "s";
+    drawWaveform();
+  }
+
+  document.getElementById("genTexture").addEventListener("click", () => {
+    generateTexture();
+  });
+
+  document.getElementById("fileInput").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    document.getElementById("bufinfo").textContent = "decoding…";
+    file.arrayBuffer().then(ab => audioCtx.decodeAudioData(ab)).then(buf => {
+      sampleBuffer = buf;
+      document.getElementById("bufinfo").textContent = file.name.slice(0,20) + " · " + buf.duration.toFixed(1) + "s";
+      drawWaveform();
+    }).catch(err => {
+      document.getElementById("bufinfo").textContent = "could not decode file";
+    });
+  });
+
+  // ---------- waveform display + trigger markers ----------
+  const waveCanvas = document.getElementById("wave");
+  let markers = []; // {x, alpha, color}
+  function resizeCanvas(){
+    const rect = waveCanvas.getBoundingClientRect();
+    waveCanvas.width = rect.width * devicePixelRatio;
+    waveCanvas.height = rect.height * devicePixelRatio;
+  }
+  function drawWaveform(){
+    resizeCanvas();
+    const ctx = waveCanvas.getContext("2d");
+    const w = waveCanvas.width, h = waveCanvas.height;
+    ctx.clearRect(0,0,w,h);
+    if (!sampleBuffer) return;
+    const data = sampleBuffer.getChannelData(0);
+    const step = Math.ceil(data.length / w);
+    ctx.strokeStyle = "rgba(233,231,222,0.55)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = 0; x < w; x++){
+      let min = 1, max = -1;
+      const start = x * step;
+      for (let i = 0; i < step; i++){
+        const v = data[start + i] || 0;
+        if (v < min) min = v;
+        if (v > max) max = v;
+      }
+      const y1 = (0.5 - min * 0.48) * h;
+      const y2 = (0.5 - max * 0.48) * h;
+      ctx.moveTo(x, y1);
+      ctx.lineTo(x, y2);
+    }
+    ctx.stroke();
+  }
+
+  function addMarker(offsetSec, color){
+    if (!sampleBuffer) return;
+    const frac = offsetSec / sampleBuffer.duration;
+    markers.push({ x: frac, alpha: 1, color });
+  }
+
+  function renderMarkers(){
+    const ctx = waveCanvas.getContext("2d");
+    const w = waveCanvas.width, h = waveCanvas.height;
+    // redraw waveform base then markers (cheap approach: redraw full each frame only if markers exist)
+    if (markers.length){
+      drawWaveform();
+      markers.forEach(m => {
+        const x = m.x * w;
+        ctx.strokeStyle = m.color.replace("ALPHA", m.alpha.toFixed(2));
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      });
+      markers.forEach(m => m.alpha -= 0.035);
+      markers = markers.filter(m => m.alpha > 0);
+    }
+    requestAnimationFrame(renderMarkers);
+  }
+  requestAnimationFrame(renderMarkers);
+  window.addEventListener("resize", drawWaveform);
+
+  // ---------- euclidean ----------
+  function euclid(steps, pulses, rotation){
+    const pattern = [];
+    if (pulses <= 0) { for (let i=0;i<steps;i++) pattern.push(false); return pattern; }
+    if (pulses >= steps) { for (let i=0;i<steps;i++) pattern.push(true); return pattern; }
+    let bucket = 0;
+    for (let i = 0; i < steps; i++){
+      bucket += pulses;
+      if (bucket >= steps){ bucket -= steps; pattern.push(true); } else pattern.push(false);
+    }
+    const r = ((rotation % steps) + steps) % steps;
+    return pattern.slice(r).concat(pattern.slice(0, r));
+  }
+
+  // ---------- lane state ----------
+  const laneA = { pulses: 7, rotation: 0, pattern: [] };
+  const laneB = { pulses: 3, rotation: 4, pattern: [] };
+  function recomputeLanes(){
+    laneA.pattern = euclid(16, laneA.pulses, laneA.rotation);
+    laneB.pattern = euclid(16, laneB.pulses, laneB.rotation);
+    renderLaneDots();
+  }
+
+  const laneAdots = document.getElementById("laneAdots");
+  const laneBdots = document.getElementById("laneBdots");
+  function buildDotGrid(container){
+    container.innerHTML = "";
+    for (let i = 0; i < 16; i++){
+      const d = document.createElement("div");
+      d.className = "dot";
+      container.appendChild(d);
+    }
+  }
+  buildDotGrid(laneAdots);
+  buildDotGrid(laneBdots);
+
+  function renderLaneDots(){
+    Array.from(laneAdots.children).forEach((el,i) => {
+      el.classList.toggle("active-short", laneA.pattern[i]);
+    });
+    Array.from(laneBdots.children).forEach((el,i) => {
+      el.classList.toggle("active-long", laneB.pattern[i]);
+    });
+  }
+
+  function bindSlider(id, valId, obj, key, onChange){
+    const el = document.getElementById(id);
+    const valEl = document.getElementById(valId);
+    el.addEventListener("input", () => {
+      obj[key] = Number(el.value);
+      valEl.textContent = el.value;
+      onChange();
+    });
+    valEl.textContent = el.value;
+  }
+  bindSlider("aPulses","aPulsesVal", laneA, "pulses", recomputeLanes);
+  bindSlider("aRot","aRotVal", laneA, "rotation", recomputeLanes);
+  bindSlider("bPulses","bPulsesVal", laneB, "pulses", recomputeLanes);
+  bindSlider("bRot","bRotVal", laneB, "rotation", recomputeLanes);
+  recomputeLanes();
+
+  // ---------- macro shape ----------
+  let macroLength = 7;
+  let macroValues = [];
+  const macroBarsEl = document.getElementById("macroBars");
+
+  function initMacroValues(len){
+    macroValues = [];
+    for (let i = 0; i < len; i++){
+      macroValues.push(0.15 + 0.5 * (0.5 + 0.5 * Math.sin(i * 1.3)));
+    }
+  }
+  function renderMacroBars(){
+    macroBarsEl.innerHTML = "";
+    macroValues.forEach((v, i) => {
+      const bar = document.createElement("div");
+      bar.className = "mbar";
+      bar.style.height = Math.max(4, v * 70) + "px";
+      bar.dataset.index = i;
+      macroBarsEl.appendChild(bar);
+    });
+  }
+  function setMacroFromPointer(clientX, clientY){
+    const rect = macroBarsEl.getBoundingClientRect();
+    const idx = Math.floor((clientX - rect.left) / (rect.width / macroLength));
+    if (idx < 0 || idx >= macroLength) return;
+    const v = Math.min(1, Math.max(0, 1 - (clientY - rect.top) / rect.height));
+    macroValues[idx] = v;
+    renderMacroBars();
+  }
+  let macroDragging = false;
+  macroBarsEl.addEventListener("pointerdown", (e) => { macroDragging = true; setMacroFromPointer(e.clientX, e.clientY); });
+  window.addEventListener("pointermove", (e) => { if (macroDragging) setMacroFromPointer(e.clientX, e.clientY); });
+  window.addEventListener("pointerup", () => { macroDragging = false; });
+
+  document.getElementById("macroLen").addEventListener("input", (e) => {
+    macroLength = Number(e.target.value);
+    document.getElementById("macroLenVal").textContent = macroLength;
+    initMacroValues(macroLength);
+    renderMacroBars();
+  });
+  initMacroValues(macroLength);
+  renderMacroBars();
+
+  // ---------- seed region ----------
+  let seedCenter = 0.5;
+  let seedSpread = 0.28;
+  function reseed(){
+    seedCenter = Math.random();
+    seedSpread = 0.12 + Math.random() * 0.35;
+    document.getElementById("seedreadout").textContent =
+      "region " + Math.round(seedCenter*100) + "% · spread " + Math.round(seedSpread*100) + "%";
+  }
+  function pickOffset(){
+    if (!sampleBuffer) return 0;
+    let f = seedCenter + (Math.random() - 0.5) * 2 * seedSpread;
+    f = Math.min(0.97, Math.max(0, f));
+    return f * sampleBuffer.duration;
+  }
+  reseed();
+  document.getElementById("seedBtn").addEventListener("click", () => {
+    audioCtx.resume();
+    reseed();
+  });
+
+  // ---------- playback: short slice / long window ----------
+  function playShortSlice(when, macroVal){
+    if (!sampleBuffer) return;
+    const offset = pickOffset();
+    const dur = 0.008 + Math.random() * 0.03;
+    const src = audioCtx.createBufferSource();
+    src.buffer = sampleBuffer;
+    src.playbackRate.value = 0.85 + Math.random() * 0.3;
+
+    const filt = audioCtx.createBiquadFilter();
+    filt.type = "bandpass";
+    filt.frequency.value = 700 + Math.random() * 5500;
+    filt.Q.value = 8 + Math.random() * 10;
+
+    const env = audioCtx.createGain();
+    env.gain.setValueAtTime(0, when);
+    env.gain.linearRampToValueAtTime(0.7, when + 0.002);
+    env.gain.linearRampToValueAtTime(0, when + dur);
+
+    src.connect(filt).connect(env).connect(masterGain);
+
+    const wet = audioCtx.createGain();
+    wet.gain.value = macroVal * 0.25;
+    env.connect(wet);
+    wet.connect(crushNode);
+
+    src.start(when, offset, dur);
+    addMarker(offset, "rgba(255,75,62,ALPHA)");
+  }
+
+  function playLongWindow(when, macroVal){
+    if (!sampleBuffer) return;
+    const offset = pickOffset();
+    const dur = 0.25 + Math.random() * 0.55;
+    const src = audioCtx.createBufferSource();
+    src.buffer = sampleBuffer;
+    src.playbackRate.value = 0.92 + Math.random() * 0.16;
+
+    const filt = audioCtx.createBiquadFilter();
+    filt.type = "lowpass";
+    const f0 = 300 + Math.random() * 400;
+    const f1 = 1800 + Math.random() * 3500;
+    filt.frequency.setValueAtTime(f0, when);
+    filt.frequency.linearRampToValueAtTime(f1, when + dur);
+    filt.Q.value = 1.2;
+
+    const env = audioCtx.createGain();
+    const atk = 0.04 + Math.random() * 0.08;
+    env.gain.setValueAtTime(0, when);
+    env.gain.linearRampToValueAtTime(0.65, when + atk);
+    env.gain.linearRampToValueAtTime(0, when + dur);
+
+    src.connect(filt).connect(env).connect(masterGain);
+
+    const wet = audioCtx.createGain();
+    wet.gain.setValueAtTime(0, when);
+    wet.gain.linearRampToValueAtTime(macroVal * 0.9, when + atk);
+    wet.gain.linearRampToValueAtTime(macroVal * 0.2, when + dur);
+    env.connect(wet);
+    wet.connect(crushNode);
+
+    src.start(when, offset, dur);
+    addMarker(offset, "rgba(53,201,193,ALPHA)");
+
+    // stutter/repeat when macro value is high
+    if (macroVal > 0.62){
+      const repeats = 1 + Math.floor((macroVal - 0.62) * 6);
+      for (let r = 1; r <= repeats; r++){
+        const t = when + r * (0.045 + Math.random()*0.02);
+        const rs = audioCtx.createBufferSource();
+        rs.buffer = sampleBuffer;
+        const rg = audioCtx.createGain();
+        rg.gain.setValueAtTime(0.4 / (r+1), t);
+        rg.gain.linearRampToValueAtTime(0, t + 0.05);
+        rs.connect(rg).connect(masterGain);
+        rs.start(t, offset, 0.045);
+      }
+    }
+  }
+
+  // ---------- scheduler ----------
+  const lookahead = 25.0; // ms
+  const scheduleAheadTime = 0.12; // s
+  let nextStepTime = 0;
+  let stepCounter = 0;
+  let timerID = null;
+  let isPlaying = false;
+
+  function stepDuration(){
+    const bpm = Number(document.getElementById("bpm").value);
+    return (60 / bpm) / 4; // 16th note
+  }
+
+  function scheduleStep(stepIndex, time){
+    const a16 = stepIndex % 16;
+    const macroIdx = stepIndex % macroLength;
+    const mVal = macroValues[macroIdx];
+
+    if (laneA.pattern[a16]) playShortSlice(time, mVal);
+    if (laneB.pattern[a16]) playLongWindow(time, mVal);
+
+    const uiDelay = Math.max(0, (time - audioCtx.currentTime) * 1000);
+    setTimeout(() => highlightStep(a16, macroIdx), uiDelay);
+  }
+
+  function highlightStep(a16, macroIdx){
+    Array.from(laneAdots.children).forEach((el,i) => el.classList.toggle("playing", i === a16));
+    Array.from(laneBdots.children).forEach((el,i) => el.classList.toggle("playing", i === a16));
+    Array.from(macroBarsEl.children).forEach((el,i) => el.classList.toggle("playing", i === macroIdx));
+  }
+
+  function scheduler(){
+    while (nextStepTime < audioCtx.currentTime + scheduleAheadTime){
+      scheduleStep(stepCounter, nextStepTime);
+      nextStepTime += stepDuration();
+      stepCounter++;
+    }
+    timerID = setTimeout(scheduler, lookahead);
+  }
+
+  function startPlayback(){
+    if (isPlaying) return;
+    if (!sampleBuffer) generateTexture();
+    audioCtx.resume();
+    isPlaying = true;
+    stepCounter = 0;
+    nextStepTime = audioCtx.currentTime + 0.05;
+    scheduler();
+    document.getElementById("playBtn").classList.add("playing");
+  }
+  function stopPlayback(){
+    isPlaying = false;
+    clearTimeout(timerID);
+    document.getElementById("playBtn").classList.remove("playing");
+    Array.from(laneAdots.children).forEach(el => el.classList.remove("playing"));
+    Array.from(laneBdots.children).forEach(el => el.classList.remove("playing"));
+    Array.from(macroBarsEl.children).forEach(el => el.classList.remove("playing"));
+  }
+
+  document.getElementById("playBtn").addEventListener("click", startPlayback);
+  document.getElementById("stopBtn").addEventListener("click", stopPlayback);
+  document.getElementById("bpm").addEventListener("input", (e) => {
+    document.getElementById("bpmVal").textContent = e.target.value + " bpm";
+  });
+
+  // ---------- init ----------
+  buildFXChain();
+  generateTexture();
+
+})();
+</script>
+</body>
+</html>
