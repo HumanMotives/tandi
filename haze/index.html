@@ -77,7 +77,9 @@
   // nothing that resolves — just floats.
   const baseFreqs = [146.83, 174.61, 196.00, 220.00, 261.63]; // D3 F3 G3 A3 C4
   const scale = [];
-  [0.5, 1, 2].forEach(mult => baseFreqs.forEach(f => scale.push(f * mult)));
+  // weighted toward the middle and upper octave — the 0.5x octave drops below
+  // ~100Hz, which most phone speakers can't reproduce at any volume
+  [1, 1, 2, 2].forEach(mult => baseFreqs.forEach(f => scale.push(f * mult)));
 
   // ---------- audio ----------
   let ctx, masterGain, masterFilter, convolver, dryGain, wetGain, compressor;
@@ -102,34 +104,45 @@
   function initAudio() {
     ctx = new (window.AudioContext || window.webkitAudioContext)();
 
-    compressor = ctx.createDynamicsCompressor();
-    compressor.threshold.value = -28;
-    compressor.knee.value = 30;
-    compressor.ratio.value = 3;
-    compressor.attack.value = 1.5;
-    compressor.release.value = 2;
+    const setup = () => {
+      compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.value = -28;
+      compressor.knee.value = 30;
+      compressor.ratio.value = 3;
+      compressor.attack.value = 1.5;
+      compressor.release.value = 2;
 
-    masterGain = ctx.createGain();
-    masterGain.gain.value = 0.55;
+      masterGain = ctx.createGain();
+      masterGain.gain.value = 1.1;
 
-    masterFilter = ctx.createBiquadFilter();
-    masterFilter.type = 'lowpass';
-    masterFilter.frequency.value = 3200;
-    masterFilter.Q.value = 0.2;
+      masterFilter = ctx.createBiquadFilter();
+      masterFilter.type = 'lowpass';
+      masterFilter.frequency.value = 5000;
+      masterFilter.Q.value = 0.2;
 
-    convolver = ctx.createConvolver();
-    convolver.buffer = buildImpulse(7, 3.2);
+      convolver = ctx.createConvolver();
+      convolver.buffer = buildImpulse(7, 3.2);
 
-    dryGain = ctx.createGain();
-    dryGain.gain.value = 0.55;
-    wetGain = ctx.createGain();
-    wetGain.gain.value = 0.75;
+      dryGain = ctx.createGain();
+      dryGain.gain.value = 1.0;
+      wetGain = ctx.createGain();
+      wetGain.gain.value = 0.9;
 
-    masterFilter.connect(dryGain).connect(masterGain);
-    masterFilter.connect(convolver).connect(wetGain).connect(masterGain);
-    masterGain.connect(compressor).connect(ctx.destination);
+      masterFilter.connect(dryGain).connect(masterGain);
+      masterFilter.connect(convolver).connect(wetGain).connect(masterGain);
+      masterGain.connect(compressor).connect(ctx.destination);
 
-    scheduleVoice();
+      scheduleVoice();
+    };
+
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(setup).catch(err => {
+        enter.textContent = 'resume failed: ' + err.message;
+        enter.classList.remove('gone');
+      });
+    } else {
+      setup();
+    }
   }
 
   function pickFreq() {
@@ -185,10 +198,10 @@
     panLFO.start(t);
     osc.start(t);
 
-    const attack = 9 + Math.random() * 14;
+    const attack = 5 + Math.random() * 8;
     const hold = 18 + Math.random() * 24;
     const release = 12 + Math.random() * 16;
-    const peak = (0.035 + Math.random() * 0.035) * (1 + brightnessBias * 0.4);
+    const peak = (0.11 + Math.random() * 0.09) * (1 + brightnessBias * 0.4);
 
     gain.gain.setValueAtTime(0, t);
     gain.gain.linearRampToValueAtTime(Math.max(peak, 0.005), t + attack);
@@ -299,11 +312,33 @@
   function begin() {
     if (started) return;
     started = true;
-    initAudio();
-    enter.classList.add('gone');
+    enter.textContent = 'waking...';
+    try {
+      initAudio();
+      setTimeout(() => {
+        if (!ctx) return;
+        if (ctx.state !== 'running') {
+          enter.textContent = 'audio context stuck: ' + ctx.state + ' — try opening this file directly in Safari, not the in-app preview';
+          enter.classList.remove('gone');
+        } else {
+          enter.classList.add('gone');
+        }
+      }, 1200);
+    } catch (err) {
+      enter.textContent = 'error: ' + err.message;
+    }
   }
   enter.addEventListener('click', begin);
   enter.addEventListener('touchstart', e => { e.preventDefault(); begin(); }, { passive: false });
+
+  // stubborn mobile webviews sometimes ignore the first resume() —
+  // keep nudging it awake on any subsequent tap, silently
+  window.addEventListener('touchstart', () => {
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+  }, { passive: true });
+  window.addEventListener('click', () => {
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+  });
 
 })();
 </script>
