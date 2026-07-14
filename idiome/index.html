@@ -1,116 +1,107 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>IDIOME — micro-slice MVP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>IDIOME</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Inline:wght@400..900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #0a0a0a;
-    --grid: rgba(255,255,255,0.055);
-    --fg: #e9e7de;
-    --dim: #6b6a63;
-    --short: #ff4b3e;   /* glitch / short slice lane */
-    --long: #35c9c1;    /* window / seed lane */
-    --macro: #e0b04d;   /* macro shape / fx */
-    --line: rgba(233,231,222,0.14);
+    --bg: #F5F1E7;
+    --panel: #FBF9F4;
+    --ink: #262420;
+    --line: #262420;
+    --dim: #8A8577;
+    --rhythm: #E7A8B8;
+    --rhythm-deep: #C97E92;
+    --sample: #A9C3A0;
+    --sample-deep: #7FA073;
+    --accent: #A7C4D9;
+    --accent-deep: #7FA2BE;
+    --yellow: #EAC468;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { background: var(--bg); }
-  body {
-    margin: 0;
-    padding: 18px 14px 40px;
-    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    color: var(--fg);
-    background-image:
-      linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-    background-size: 18px 18px;
+  body{
+    margin:0; padding:20px 16px 48px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   }
-  .wrap { max-width: 460px; margin: 0 auto; }
+  .wrap{ max-width: 760px; margin:0 auto; }
 
-  header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; }
-  h1 { font-size: 15px; letter-spacing: 0.22em; margin:0; text-transform: uppercase; font-weight:600; }
-  .sub { font-size: 10px; color: var(--dim); letter-spacing: 0.08em; }
-
-  section {
-    border: 1px solid var(--line);
-    border-radius: 3px;
-    padding: 12px;
-    margin-bottom: 10px;
-    background: rgba(255,255,255,0.012);
+  /* ---- header / signature mark ---- */
+  header{ text-align:center; margin-bottom: 26px; }
+  h1{
+    font-family: "Big Shoulders Inline", Futura, "Century Gothic", ui-sans-serif, system-ui, sans-serif;
+    font-size: 56px; letter-spacing: 0.04em; text-transform: uppercase; margin:0;
+    font-weight: 700; line-height:0.95;
   }
-  .label-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-  .tag {
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--dim);
+  .sub{ font-size:13px; color: var(--dim); letter-spacing:0.02em; margin-top:6px; }
+
+  section.panel{
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
   }
-  .tag.on-short { color: var(--short); }
-  .tag.on-long { color: var(--long); }
-  .tag.on-macro { color: var(--macro); }
-
-  /* --- waveform / sample --- */
-  #waveWrap { position: relative; }
-  canvas#wave { width:100%; height: 84px; display:block; background: #050505; border-radius: 2px; }
-  .sample-controls { display:flex; gap:8px; margin-top:9px; flex-wrap: wrap; }
-  .fileLabel, button.small {
-    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
-    background: transparent; color: var(--fg); border: 1px solid var(--line);
-    padding: 7px 10px; border-radius: 999px; cursor:pointer;
+  section.panel.rhythm{ background: #F3DCE2; }
+  section.panel.sample{ background: #E6EEE0; }
+  .panel-title{
+    font-family: "Big Shoulders Inline", Futura, "Century Gothic", ui-sans-serif, system-ui, sans-serif;
+    font-size: 20px; letter-spacing: 0.05em; text-transform: uppercase; font-weight:700;
+    margin: 0 0 12px;
   }
-  input[type=file]{ display:none; }
-  .bufinfo { font-size: 10px; color: var(--dim); margin-left: auto; align-self:center; }
+  .panel-title.rhythm{ color: var(--rhythm-deep); }
+  .panel-title.sample{ color: var(--sample-deep); }
 
-  /* --- seed --- */
-  #seedZone { display:flex; align-items:center; justify-content:center; padding: 14px 0 6px; position:relative; }
-  #seedRings { position:absolute; width:150px; height:150px; pointer-events:none; }
-  #seedBtn {
-    width: 84px; height: 84px; border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #1c1c1c, #050505 70%);
-    border: 1px solid rgba(233,231,222,0.3);
-    color: var(--fg); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
-    cursor: pointer; position:relative; z-index:2;
-  }
-  #seedBtn:active { transform: translateY(1px); }
-  .seedreadout { text-align:center; font-size:9px; color: var(--dim); margin-top:6px; letter-spacing:0.06em; }
-
-  /* --- lanes --- */
-  .steps16 { display:grid; grid-template-columns: repeat(16, 1fr); gap:4px; margin: 8px 0 10px; }
-  .dot { aspect-ratio: 1; border-radius: 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); }
-  .dot.active-short { background: var(--short); border-color: var(--short); }
-  .dot.active-long { background: var(--long); border-color: var(--long); }
-  .dot.playing { outline: 1px solid var(--fg); outline-offset: 1px; }
-
-  .sliderrow { display:flex; align-items:center; gap:8px; margin-top:6px; }
-  .sliderrow label { font-size:9px; color:var(--dim); width: 58px; text-transform:uppercase; letter-spacing:0.06em; }
+  .row{ display:flex; align-items:center; gap:10px; margin-top:10px; }
+  .row label{ font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color: var(--ink); width:82px; flex-shrink:0; }
   input[type=range]{
-    flex:1; -webkit-appearance:none; appearance:none; height: 2px; background: var(--line); outline:none;
+    flex:1; -webkit-appearance:none; appearance:none; height:3px; border-radius:2px;
+    background: var(--ink); outline:none;
   }
   input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none; width:12px; height:12px; border-radius:50%;
-    background: var(--fg); cursor:pointer; border: none;
+    -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background: var(--panel); border:2px solid var(--ink); cursor:pointer;
   }
-  .val { width: 24px; text-align:right; font-size:10px; color: var(--fg); }
+  .panel.rhythm input[type=range]::-webkit-slider-thumb{ background: var(--rhythm); }
+  .panel.sample input[type=range]::-webkit-slider-thumb{ background: var(--sample); }
+  .val{ width:38px; text-align:right; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size:12px; }
 
-  /* --- macro shape --- */
-  #macroBars { display:flex; gap:5px; height: 70px; align-items:flex-end; touch-action:none; }
-  .mbar { flex:1; background: rgba(224,176,77,0.15); border: 1px solid rgba(224,176,77,0.35); border-radius: 2px 2px 0 0; position:relative; min-height:4px; }
-  .mbar.playing { background: var(--macro); }
-  .macro-sub { display:flex; justify-content:space-between; margin-top:8px; }
-
-  /* --- transport --- */
-  .transport { display:flex; align-items:center; gap:10px; }
-  button.transportBtn {
-    flex:1; padding: 11px; border-radius: 999px; border: 1px solid var(--line);
-    background: transparent; color: var(--fg); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
-    cursor:pointer;
+  select{
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size:13px;
+    border: none; border-radius:8px; background: #EFEAE0; color:var(--ink);
+    padding: 8px 10px;
   }
-  button.transportBtn.playing { background: var(--fg); color: #0a0a0a; }
-  .bpmreadout { font-size:10px; color:var(--dim); width: 78px; text-align:right; }
 
-  footer { text-align:center; font-size: 9px; color: var(--dim); margin-top: 16px; letter-spacing: 0.04em; line-height:1.5; }
+  .transport-row{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+  .transport-row .row{ flex:1; min-width:150px; }
+
+  button{
+    font-family: "Big Shoulders Inline", Futura, "Century Gothic", ui-sans-serif, system-ui, sans-serif;
+    font-size:15px; letter-spacing:0.06em; text-transform:uppercase; font-weight:700;
+    border: none; border-radius:8px; background: #EFEAE0; color:var(--ink);
+    padding: 10px 18px; cursor:pointer;
+  }
+  button.solid{ background: var(--ink); color: var(--panel); }
+  button#seedBtn{ background: var(--accent); }
+  button#playBtn.playing{ background: var(--ink); color: var(--panel); }
+  button:active{ transform: translateY(1px); }
+
+  .fileRow{ display:flex; justify-content:center; }
+  input[type=file]{ display:none; }
+
+  .panels{ display:grid; grid-template-columns: 1fr; gap:14px; }
+  @media (min-width: 680px){
+    .panels{ grid-template-columns: 1fr 1fr; }
+  }
+
+  .playRow{ display:flex; gap:10px; margin-top:18px; }
+  .playRow button{ flex:1; }
+
+  footer{ text-align:center; font-size:10px; color: var(--dim); margin-top:18px; letter-spacing:0.02em; }
 </style>
 </head>
 <body>
@@ -118,529 +109,572 @@
 
   <header>
     <h1>Idiome</h1>
-    <div class="sub">micro-slice MVP · v1</div>
+    <div class="sub">one sample, sliced into rhythm and dust</div>
   </header>
 
-  <section id="sampleSection">
-    <div class="label-row"><span class="tag">material</span><span class="bufinfo" id="bufinfo">generating…</span></div>
-    <div id="waveWrap"><canvas id="wave"></canvas></div>
-    <div class="sample-controls">
-      <label class="fileLabel" for="fileInput">load field recording</label>
+  <section class="panel">
+    <div class="fileRow">
+      <button type="button" onclick="document.getElementById('fileInput').click()">load your sample</button>
       <input type="file" id="fileInput" accept="audio/*" />
-      <button class="small" id="genTexture">generate texture</button>
     </div>
   </section>
 
-  <section>
-    <div id="seedZone">
-      <svg id="seedRings" viewBox="0 0 150 150">
-        <circle cx="75" cy="75" r="70" fill="none" stroke="rgba(233,231,222,0.08)" stroke-width="1"/>
-        <circle cx="75" cy="75" r="55" fill="none" stroke="rgba(233,231,222,0.08)" stroke-width="1"/>
-        <circle cx="75" cy="75" r="40" fill="none" stroke="rgba(233,231,222,0.08)" stroke-width="1"/>
-        <line x1="75" y1="5" x2="75" y2="20" stroke="rgba(233,231,222,0.15)"/>
-        <line x1="75" y1="145" x2="75" y2="130" stroke="rgba(233,231,222,0.15)"/>
-        <line x1="5" y1="75" x2="20" y2="75" stroke="rgba(233,231,222,0.15)"/>
-        <line x1="145" y1="75" x2="130" y2="75" stroke="rgba(233,231,222,0.15)"/>
-      </svg>
-      <button id="seedBtn">seed</button>
-    </div>
-    <div class="seedreadout" id="seedreadout">region — · spread —</div>
-  </section>
-
-  <section>
-    <div class="label-row"><span class="tag on-short">lane a — short / glitch</span></div>
-    <div class="steps16" id="laneAdots"></div>
-    <div class="sliderrow"><label>pulses</label><input type="range" id="aPulses" min="1" max="16" value="7"><span class="val" id="aPulsesVal">7</span></div>
-    <div class="sliderrow"><label>rotation</label><input type="range" id="aRot" min="0" max="15" value="0"><span class="val" id="aRotVal">0</span></div>
-  </section>
-
-  <section>
-    <div class="label-row"><span class="tag on-long">lane b — long / window</span></div>
-    <div class="steps16" id="laneBdots"></div>
-    <div class="sliderrow"><label>pulses</label><input type="range" id="bPulses" min="0" max="8" value="3"><span class="val" id="bPulsesVal">3</span></div>
-    <div class="sliderrow"><label>rotation</label><input type="range" id="bRot" min="0" max="15" value="4"><span class="val" id="bRotVal">4</span></div>
-  </section>
-
-  <section>
-    <div class="label-row"><span class="tag on-macro">macro shape — crush / verb / repeat</span></div>
-    <div id="macroBars"></div>
-    <div class="macro-sub">
-      <div class="sliderrow" style="flex:1;"><label>length</label><input type="range" id="macroLen" min="3" max="9" value="7"><span class="val" id="macroLenVal">7</span></div>
+  <section class="panel">
+    <div class="row"><label>bpm</label><input type="range" id="bpm" min="60" max="180" value="112"><span class="val" id="bpmVal">112</span></div>
+    <div class="row"><label>division</label><select id="divSel">
+        <option value="4">1/4</option>
+        <option value="8">1/8</option>
+        <option value="16" selected>1/16</option>
+        <option value="32">1/32</option>
+        <option value="64">1/64</option>
+      </select></div>
+    <div class="playRow">
+      <button id="seedBtn" type="button">seed</button>
+      <button id="playBtn" type="button">play</button>
+      <button id="stopBtn" type="button">stop</button>
     </div>
   </section>
 
-  <section>
-    <div class="transport">
-      <button class="transportBtn" id="playBtn">play</button>
-      <button class="transportBtn" id="stopBtn">stop</button>
-    </div>
-    <div class="sliderrow"><label>tempo</label><input type="range" id="bpm" min="60" max="160" value="96"><span class="bpmreadout" id="bpmVal">96 bpm</span></div>
-  </section>
+  <div class="panels">
+    <section class="panel rhythm">
+      <div class="panel-title rhythm">rhythm</div>
+      <div class="row"><label>slices</label><input type="range" id="rSlices" min="0" max="100" value="28"><span class="val" id="rSlicesVal">28%</span></div>
+      <div class="row"><label>rotation</label><input type="range" id="rRotation" min="0" max="100" value="0"><span class="val" id="rRotationVal">0%</span></div>
+      <div class="row"><label>volume</label><input type="range" id="rVolume" min="0" max="150" value="100"><span class="val" id="rVolumeVal">100%</span></div>
+      <div class="row"><label>filter</label><input type="range" id="rFilter" min="500" max="15000" value="6500"><span class="val" id="rFilterVal">6.5k</span></div>
+    </section>
 
-  <footer>lane a &amp; b share one 16-step clock. macro shape wraps at its own length against that clock — the phasing is the point.<br>tap seed to re-select the extraction region from the loaded material.</footer>
+    <section class="panel sample">
+      <div class="panel-title sample">sample</div>
+      <div class="row"><label>slices</label><input type="range" id="sSlices" min="0" max="100" value="38"><span class="val" id="sSlicesVal">38%</span></div>
+      <div class="row"><label>rotation</label><input type="range" id="sRotation" min="0" max="100" value="25"><span class="val" id="sRotationVal">25%</span></div>
+      <div class="row"><label>volume</label><input type="range" id="sVolume" min="0" max="150" value="100"><span class="val" id="sVolumeVal">100%</span></div>
+      <div class="row"><label>filter</label><input type="range" id="sFilter" min="500" max="15000" value="12000"><span class="val" id="sFilterVal">12k</span></div>
+      <div class="row"><label>compress</label><input type="range" id="sCompress" min="0" max="100" value="45"><span class="val" id="sCompressVal">45%</span></div>
+    </section>
+  </div>
+
+  <footer id="footerYear">idiome · © human motives</footer>
 </div>
 
 <script>
 (function(){
-  "use strict";
+"use strict";
 
-  // ---------- audio context / buffer ----------
-  let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  let sampleBuffer = null;
-  let masterGain, reverbNode, crushNode, dryGain, wetGain;
+// ================= audio setup =================
+let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let sampleBuffer = null;
 
-  let shortBus, shortComp, shortCrush, shortMakeup;
+let masterGain, reverbNode, crushNode;
+let rhythmBus, rhythmComp, rhythmCrush, rhythmTone, rhythmMakeup;
+let sampleBus, sampleComp, sampleCompMakeup, sampleTone, sampleMakeup;
 
-  function buildFXChain(){
-    masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0.9;
-    masterGain.connect(audioCtx.destination);
+function setSoftClipCurve(node, drive){
+  const n = 1024; const curve = new Float32Array(n); const norm = Math.tanh(drive);
+  for (let i=0;i<n;i++){ const x=(i/(n-1))*2-1; curve[i]=Math.tanh(x*drive)/norm; }
+  node.curve = curve;
+}
+function setCrushCurve(node, levels){
+  const n = 1024; const curve = new Float32Array(n);
+  for (let i=0;i<n;i++){ const x=(i/(n-1))*2-1; curve[i]=Math.round(x*levels)/levels; }
+  node.curve = curve;
+}
+function routeOut(sourceNode, destNode, panVal){
+  const p = audioCtx.createStereoPanner();
+  p.pan.value = Math.max(-1, Math.min(1, panVal||0));
+  sourceNode.connect(p);
+  p.connect(destNode);
+}
 
-    // algorithmic impulse response for reverb burst
-    const irLen = audioCtx.sampleRate * 1.8;
-    const ir = audioCtx.createBuffer(2, irLen, audioCtx.sampleRate);
-    for (let ch = 0; ch < 2; ch++){
-      const d = ir.getChannelData(ch);
-      for (let i = 0; i < irLen; i++){
-        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / irLen, 2.6);
-      }
-    }
-    reverbNode = audioCtx.createConvolver();
-    reverbNode.buffer = ir;
-    reverbNode.normalize = true;
+function buildFXChain(){
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = 0.9;
+  masterGain.connect(audioCtx.destination);
 
-    crushNode = audioCtx.createWaveShaper();
-    setCrushAmount(0.5);
-
-    wetGain = audioCtx.createGain();
-    wetGain.gain.value = 0;
-    wetGain.connect(crushNode);
-    crushNode.connect(reverbNode);
-    reverbNode.connect(masterGain);
-
-    // dedicated short-lane bus: always-on compressor/limiter + fixed harsh bitcrush
-    shortBus = audioCtx.createGain();
-    shortBus.gain.value = 1;
-
-    shortComp = audioCtx.createDynamicsCompressor();
-    shortComp.threshold.value = -32;
-    shortComp.knee.value = 4;
-    shortComp.ratio.value = 16;
-    shortComp.attack.value = 0.001;
-    shortComp.release.value = 0.04;
-
-    shortCrush = audioCtx.createWaveShaper();
-    const n = 1024;
-    const curve = new Float32Array(n);
-    const levels = 14; // fixed, coarser than the macro crush — constant "digital" character
-    for (let i = 0; i < n; i++){
-      const x = (i / (n - 1)) * 2 - 1;
-      curve[i] = Math.round(x * levels) / levels;
-    }
-    shortCrush.curve = curve;
-
-    shortMakeup = audioCtx.createGain();
-    shortMakeup.gain.value = 1.9; // compensate for compressor gain reduction
-
-    shortBus.connect(shortComp).connect(shortCrush).connect(shortMakeup).connect(masterGain);
+  const irLen = audioCtx.sampleRate*1.8;
+  const ir = audioCtx.createBuffer(2, irLen, audioCtx.sampleRate);
+  for (let ch=0; ch<2; ch++){
+    const d = ir.getChannelData(ch);
+    for (let i=0;i<irLen;i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/irLen, 2.6);
   }
+  reverbNode = audioCtx.createConvolver();
+  reverbNode.buffer = ir; reverbNode.normalize = true;
+  crushNode = audioCtx.createWaveShaper();
+  setCrushCurve(crushNode, 20);
+  crushNode.connect(reverbNode);
+  reverbNode.connect(masterGain);
 
-  function setCrushAmount(amount){
-    // amount 0..1 -> fewer quantization levels as amount rises
-    const levels = Math.max(2, Math.round(32 * (1 - amount) + 2));
-    const n = 1024;
-    const curve = new Float32Array(n);
-    for (let i = 0; i < n; i++){
-      const x = (i / (n - 1)) * 2 - 1;
-      curve[i] = Math.round(x * levels) / levels;
-    }
-    crushNode.curve = curve;
+  // rhythm lane bus — compressor + gentle saturation + lowpass + level
+  rhythmBus = audioCtx.createGain();
+  rhythmComp = audioCtx.createDynamicsCompressor();
+  rhythmComp.threshold.value = -20; rhythmComp.knee.value = 6; rhythmComp.ratio.value = 8;
+  rhythmComp.attack.value = 0.001; rhythmComp.release.value = 0.05;
+  rhythmCrush = audioCtx.createWaveShaper();
+  setSoftClipCurve(rhythmCrush, 2.2);
+  rhythmTone = audioCtx.createBiquadFilter();
+  rhythmTone.type = "lowpass"; rhythmTone.frequency.value = 6500;
+  rhythmMakeup = audioCtx.createGain(); rhythmMakeup.gain.value = 1.0;
+  rhythmBus.connect(rhythmComp).connect(rhythmCrush).connect(rhythmTone).connect(rhythmMakeup).connect(masterGain);
+
+  // sample lane bus — compressor (pulls detail forward) + lowpass + level
+  sampleBus = audioCtx.createGain();
+  sampleComp = audioCtx.createDynamicsCompressor();
+  sampleComp.threshold.value = -19; sampleComp.knee.value = 8; sampleComp.ratio.value = 5.7;
+  sampleComp.attack.value = 0.008; sampleComp.release.value = 0.15;
+  sampleCompMakeup = audioCtx.createGain(); sampleCompMakeup.gain.value = 1.72;
+  sampleTone = audioCtx.createBiquadFilter();
+  sampleTone.type = "lowpass"; sampleTone.frequency.value = 12000;
+  sampleMakeup = audioCtx.createGain(); sampleMakeup.gain.value = 1.0;
+  sampleBus.connect(sampleComp).connect(sampleCompMakeup).connect(sampleTone).connect(sampleMakeup).connect(masterGain);
+}
+
+// ================= material =================
+function generateTexture(){
+  const dur = 6, sr = audioCtx.sampleRate;
+  const buf = audioCtx.createBuffer(1, sr*dur, sr);
+  const d = buf.getChannelData(0);
+  const layers = [{rate:0.07,depth:0.5},{rate:0.21,depth:0.35},{rate:0.5,depth:0.2}];
+  let lp = 0;
+  for (let i=0;i<d.length;i++){
+    const t=i/sr; let s=0;
+    for (const L of layers) s += (Math.random()*2-1)*(0.5+0.5*Math.sin(2*Math.PI*L.rate*t))*L.depth;
+    lp += (s-lp)*0.18; d[i]=lp*0.9;
   }
-
-  // ---------- texture generation (placeholder "field recording") ----------
-  function generateTexture(){
-    const dur = 6;
-    const sr = audioCtx.sampleRate;
-    const buf = audioCtx.createBuffer(1, sr * dur, sr);
-    const d = buf.getChannelData(0);
-    // layered filtered-noise texture: a few slow amplitude envelopes + light tonal component
-    const layers = [
-      { rate: 0.07, depth: 0.5, tone: 0 },
-      { rate: 0.21, depth: 0.35, tone: 220 },
-      { rate: 0.5, depth: 0.2, tone: 0 }
-    ];
-    let lp = 0;
-    for (let i = 0; i < d.length; i++){
-      const t = i / sr;
-      let s = 0;
-      for (const L of layers){
-        const env = 0.5 + 0.5 * Math.sin(2 * Math.PI * L.rate * t + L.tone * 0.001);
-        const n = (Math.random() * 2 - 1);
-        s += n * env * L.depth;
-      }
-      // gentle one-pole lowpass to make the noise less harsh / more "field recording"-ish
-      lp += (s - lp) * 0.18;
-      d[i] = lp * 0.9;
-    }
+  sampleBuffer = buf;
+}
+document.getElementById("fileInput").addEventListener("change", (e)=>{
+  const file = e.target.files[0];
+  if (!file) return;
+  file.arrayBuffer().then(ab=>audioCtx.decodeAudioData(ab)).then(buf=>{
     sampleBuffer = buf;
-    document.getElementById("bufinfo").textContent = "synthetic texture · " + dur.toFixed(1) + "s";
-    drawWaveform();
+  }).catch(()=>{});
+});
+
+// ================= seed region =================
+let seedCenter = 0.5, seedSpread = 0.28;
+function reseed(){
+  seedCenter = Math.random();
+  seedSpread = 0.12 + Math.random()*0.35;
+  recomputeAll();
+  randomizeMacro();
+}
+document.getElementById("seedBtn").addEventListener("click", ()=>{ audioCtx.resume(); reseed(); });
+
+// ================= euclidean =================
+function euclid(steps, pulses, rotation){
+  const pattern = [];
+  if (pulses<=0){ for(let i=0;i<steps;i++) pattern.push(false); return pattern; }
+  if (pulses>=steps){ for(let i=0;i<steps;i++) pattern.push(true); return pattern; }
+  let bucket=0;
+  for (let i=0;i<steps;i++){
+    bucket += pulses;
+    if (bucket>=steps){ bucket-=steps; pattern.push(true); } else pattern.push(false);
   }
+  const r = ((rotation%steps)+steps)%steps;
+  return pattern.slice(r).concat(pattern.slice(0,r));
+}
 
-  document.getElementById("genTexture").addEventListener("click", () => {
-    generateTexture();
-  });
+// ================= state =================
+let STEPS = 16;
+let rSlicesPct=28, rRotationPct=0, sSlicesPct=38, sRotationPct=25;
+const rhythm = { pattern: [] };
+const sample = { pattern: [] };
+let rhythmData = [], sampleData = [];
+let formShape = [];
+const CHARACTER = 0.45;      // fixed mix of noise-like vs tone-like grains
+const DRIFT = 0.28;          // fixed subtle humanization
+const TOM_CHANCE = 0.22;
+const BEAT_CHANCE = 0.08;
 
-  document.getElementById("fileInput").addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    document.getElementById("bufinfo").textContent = "decoding…";
-    file.arrayBuffer().then(ab => audioCtx.decodeAudioData(ab)).then(buf => {
-      sampleBuffer = buf;
-      document.getElementById("bufinfo").textContent = file.name.slice(0,20) + " · " + buf.duration.toFixed(1) + "s";
-      drawWaveform();
-    }).catch(err => {
-      document.getElementById("bufinfo").textContent = "could not decode file";
-    });
-  });
+function pctToPulses(pct, maxP){ return Math.round((pct/100)*maxP); }
+function pctToRotation(pct, steps){ return Math.round((pct/100)*(steps-1)); }
 
-  // ---------- waveform display + trigger markers ----------
-  const waveCanvas = document.getElementById("wave");
-  let markers = []; // {x, alpha, color}
-  function resizeCanvas(){
-    const rect = waveCanvas.getBoundingClientRect();
-    waveCanvas.width = rect.width * devicePixelRatio;
-    waveCanvas.height = rect.height * devicePixelRatio;
+function windowScaleFactor(){
+  if (STEPS<=8) return 7;
+  if (STEPS<=16) return 2.2;
+  return 1;
+}
+
+function generateFormShape(len){
+  const shape = new Array(len).fill(1);
+  let i=0;
+  while (i<len){
+    const r = Math.random();
+    let blockLen, mult;
+    if (r<0.6){ blockLen = 4+Math.floor(Math.random()*10); mult = 0.85+Math.random()*0.3; }
+    else if (r<0.8){ blockLen = 1+Math.floor(Math.random()*2); mult = 3.5+Math.random()*4.5; }
+    else { blockLen = 2+Math.floor(Math.random()*4); mult = 0.35+Math.random()*0.25; }
+    for (let k=0;k<blockLen && i<len;k++,i++) shape[i]=mult;
   }
-  function drawWaveform(){
-    resizeCanvas();
-    const ctx = waveCanvas.getContext("2d");
-    const w = waveCanvas.width, h = waveCanvas.height;
-    ctx.clearRect(0,0,w,h);
-    if (!sampleBuffer) return;
-    const data = sampleBuffer.getChannelData(0);
-    const step = Math.ceil(data.length / w);
-    ctx.strokeStyle = "rgba(233,231,222,0.55)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let x = 0; x < w; x++){
-      let min = 1, max = -1;
-      const start = x * step;
-      for (let i = 0; i < step; i++){
-        const v = data[start + i] || 0;
-        if (v < min) min = v;
-        if (v > max) max = v;
-      }
-      const y1 = (0.5 - min * 0.48) * h;
-      const y2 = (0.5 - max * 0.48) * h;
-      ctx.moveTo(x, y1);
-      ctx.lineTo(x, y2);
+  return shape;
+}
+
+function assignTreatment(entry){
+  entry.sampleOffsetFrac = Math.min(0.97, Math.max(0, seedCenter + (Math.random()-0.5)*2*seedSpread));
+  const steps = Math.random()<0.6 ? 1 : 2;
+  const up = Math.random()<0.5;
+  entry.playbackRate = up ? Math.pow(2, steps) : Math.pow(2, -steps);
+  entry.filterType = up ? "highpass" : "lowpass";
+  entry.filterFreq = up ? (1100*steps) : (2000/steps);
+  entry.filterQ = 0.7 + Math.random()*0.8;
+}
+
+function generateRhythmData(){
+  rhythmData = [];
+  formShape = generateFormShape(STEPS);
+  for (let i=0;i<STEPS;i++){
+    const useNoise = Math.random() < CHARACTER;
+    const entry = { useNoise, velocity: 0.25+Math.random()*0.75, pan:(Math.random()*2-1)*0.8, formMult: formShape[i] };
+    entry.beating = Math.random() < BEAT_CHANCE;
+    if (entry.beating){
+      entry.dur = 0.18+Math.random()*0.35;
+      entry.sampleOffsetFrac = Math.min(0.97, Math.max(0, seedCenter+(Math.random()-0.5)*2*seedSpread));
+      entry.baseRate = 0.75+Math.random()*0.6;
+      const dir = Math.random()<0.5?-1:1;
+      entry.detuneRatio = 1+dir*(0.004+Math.random()*0.012);
+    } else if (Math.random() < TOM_CHANCE){
+      entry.isTom = true;
+      entry.sampleOffsetFrac = Math.min(0.97, Math.max(0, seedCenter+(Math.random()-0.5)*2*seedSpread));
+      entry.dur = 0.09+Math.random()*0.16;
+      entry.tomStartMult = 2.2+Math.random()*2.4;
+      entry.baseRate = 0.35+Math.random()*0.3;
+      entry.filterFreq = 220+Math.random()*280;
+    } else {
+      entry.impulseLike = useNoise && Math.random()<0.3;
+      entry.dur = useNoise
+        ? (entry.impulseLike ? (0.0004+Math.random()*0.0018) : (0.004+Math.random()*0.016))
+        : (0.004+Math.random()*0.014);
+      assignTreatment(entry);
     }
-    ctx.stroke();
-  }
-
-  function addMarker(offsetSec, color){
-    if (!sampleBuffer) return;
-    const frac = offsetSec / sampleBuffer.duration;
-    markers.push({ x: frac, alpha: 1, color });
-  }
-
-  function renderMarkers(){
-    const ctx = waveCanvas.getContext("2d");
-    const w = waveCanvas.width, h = waveCanvas.height;
-    // redraw waveform base then markers (cheap approach: redraw full each frame only if markers exist)
-    if (markers.length){
-      drawWaveform();
-      markers.forEach(m => {
-        const x = m.x * w;
-        ctx.strokeStyle = m.color.replace("ALPHA", m.alpha.toFixed(2));
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      });
-      markers.forEach(m => m.alpha -= 0.035);
-      markers = markers.filter(m => m.alpha > 0);
+    if (!entry.isTom && !entry.beating){
+      entry.dur = Math.min(0.06, Math.max(0.0003, entry.dur*entry.formMult));
     }
-    requestAnimationFrame(renderMarkers);
+    rhythmData.push(entry);
   }
-  requestAnimationFrame(renderMarkers);
-  window.addEventListener("resize", drawWaveform);
+}
 
-  // ---------- euclidean ----------
-  function euclid(steps, pulses, rotation){
-    const pattern = [];
-    if (pulses <= 0) { for (let i=0;i<steps;i++) pattern.push(false); return pattern; }
-    if (pulses >= steps) { for (let i=0;i<steps;i++) pattern.push(true); return pattern; }
-    let bucket = 0;
-    for (let i = 0; i < steps; i++){
-      bucket += pulses;
-      if (bucket >= steps){ bucket -= steps; pattern.push(true); } else pattern.push(false);
-    }
-    const r = ((rotation % steps) + steps) % steps;
-    return pattern.slice(r).concat(pattern.slice(0, r));
-  }
-
-  // ---------- lane state ----------
-  const laneA = { pulses: 7, rotation: 0, pattern: [] };
-  const laneB = { pulses: 3, rotation: 4, pattern: [] };
-  function recomputeLanes(){
-    laneA.pattern = euclid(16, laneA.pulses, laneA.rotation);
-    laneB.pattern = euclid(16, laneB.pulses, laneB.rotation);
-    renderLaneDots();
-  }
-
-  const laneAdots = document.getElementById("laneAdots");
-  const laneBdots = document.getElementById("laneBdots");
-  function buildDotGrid(container){
-    container.innerHTML = "";
-    for (let i = 0; i < 16; i++){
-      const d = document.createElement("div");
-      d.className = "dot";
-      container.appendChild(d);
-    }
-  }
-  buildDotGrid(laneAdots);
-  buildDotGrid(laneBdots);
-
-  function renderLaneDots(){
-    Array.from(laneAdots.children).forEach((el,i) => {
-      el.classList.toggle("active-short", laneA.pattern[i]);
-    });
-    Array.from(laneBdots.children).forEach((el,i) => {
-      el.classList.toggle("active-long", laneB.pattern[i]);
-    });
-  }
-
-  function bindSlider(id, valId, obj, key, onChange){
-    const el = document.getElementById(id);
-    const valEl = document.getElementById(valId);
-    el.addEventListener("input", () => {
-      obj[key] = Number(el.value);
-      valEl.textContent = el.value;
-      onChange();
-    });
-    valEl.textContent = el.value;
-  }
-  bindSlider("aPulses","aPulsesVal", laneA, "pulses", recomputeLanes);
-  bindSlider("aRot","aRotVal", laneA, "rotation", recomputeLanes);
-  bindSlider("bPulses","bPulsesVal", laneB, "pulses", recomputeLanes);
-  bindSlider("bRot","bRotVal", laneB, "rotation", recomputeLanes);
-  recomputeLanes();
-
-  // ---------- macro shape ----------
-  let macroLength = 7;
-  let macroValues = [];
-  const macroBarsEl = document.getElementById("macroBars");
-
-  function initMacroValues(len){
-    macroValues = [];
-    for (let i = 0; i < len; i++){
-      macroValues.push(0.15 + 0.5 * (0.5 + 0.5 * Math.sin(i * 1.3)));
-    }
-  }
-  function renderMacroBars(){
-    macroBarsEl.innerHTML = "";
-    macroValues.forEach((v, i) => {
-      const bar = document.createElement("div");
-      bar.className = "mbar";
-      bar.style.height = Math.max(4, v * 70) + "px";
-      bar.dataset.index = i;
-      macroBarsEl.appendChild(bar);
-    });
-  }
-  function setMacroFromPointer(clientX, clientY){
-    const rect = macroBarsEl.getBoundingClientRect();
-    const idx = Math.floor((clientX - rect.left) / (rect.width / macroLength));
-    if (idx < 0 || idx >= macroLength) return;
-    const v = Math.min(1, Math.max(0, 1 - (clientY - rect.top) / rect.height));
-    macroValues[idx] = v;
-    renderMacroBars();
-  }
-  let macroDragging = false;
-  macroBarsEl.addEventListener("pointerdown", (e) => { macroDragging = true; setMacroFromPointer(e.clientX, e.clientY); });
-  window.addEventListener("pointermove", (e) => { if (macroDragging) setMacroFromPointer(e.clientX, e.clientY); });
-  window.addEventListener("pointerup", () => { macroDragging = false; });
-
-  document.getElementById("macroLen").addEventListener("input", (e) => {
-    macroLength = Number(e.target.value);
-    document.getElementById("macroLenVal").textContent = macroLength;
-    initMacroValues(macroLength);
-    renderMacroBars();
-  });
-  initMacroValues(macroLength);
-  renderMacroBars();
-
-  // ---------- seed region ----------
-  let seedCenter = 0.5;
-  let seedSpread = 0.28;
-  function reseed(){
-    seedCenter = Math.random();
-    seedSpread = 0.12 + Math.random() * 0.35;
-    document.getElementById("seedreadout").textContent =
-      "region " + Math.round(seedCenter*100) + "% · spread " + Math.round(seedSpread*100) + "%";
-  }
-  function pickOffset(){
-    if (!sampleBuffer) return 0;
-    let f = seedCenter + (Math.random() - 0.5) * 2 * seedSpread;
+function generateSampleData(){
+  sampleData = [];
+  const scale = windowScaleFactor();
+  for (let i=0;i<STEPS;i++){
+    let f = seedCenter+(Math.random()-0.5)*2*seedSpread;
     f = Math.min(0.97, Math.max(0, f));
-    return f * sampleBuffer.duration;
+    const roll = Math.random();
+    const shape = roll<0.4 ? "classic" : (roll<0.7 ? "swell-cut" : "hit-tail");
+    const entry = {
+      offsetFrac: f,
+      playbackRate: 0.92+Math.random()*0.16,
+      f0: 300+Math.random()*400,
+      f1: 1800+Math.random()*3500,
+      shape
+    };
+    if (shape==="classic"){
+      entry.atk = (0.02+Math.random()*0.05)*scale;
+      entry.dur = (0.14+Math.random()*0.22)*scale;
+    } else if (shape==="swell-cut"){
+      entry.atk = (0.15+Math.random()*0.25)*scale;
+      entry.dur = entry.atk + (0.02+Math.random()*0.06)*scale;
+    } else {
+      entry.atk = 0.002+Math.random()*0.004;
+      entry.dur = (0.05+Math.random()*0.07)*scale;
+    }
+    sampleData.push(entry);
   }
-  reseed();
-  document.getElementById("seedBtn").addEventListener("click", () => {
-    audioCtx.resume();
-    reseed();
+}
+
+function recomputeAll(){
+  const rPulses = pctToPulses(rSlicesPct, STEPS);
+  const rRot = pctToRotation(rRotationPct, STEPS);
+  const sPulses = pctToPulses(sSlicesPct, Math.floor(STEPS/2));
+  const sRot = pctToRotation(sRotationPct, STEPS);
+  rhythm.pattern = euclid(STEPS, rPulses, rRot);
+  sample.pattern = euclid(STEPS, sPulses, sRot);
+  generateRhythmData();
+  generateSampleData();
+}
+
+// ---- control bindings ----
+function bindPct(id, valId, setter){
+  const el = document.getElementById(id), v = document.getElementById(valId);
+  el.addEventListener("input", ()=>{
+    setter(Number(el.value));
+    v.textContent = el.value + "%";
+    recomputeAll();
   });
+}
+bindPct("rSlices","rSlicesVal", (val)=>{ rSlicesPct = val; });
+bindPct("rRotation","rRotationVal", (val)=>{ rRotationPct = val; });
+bindPct("sSlices","sSlicesVal", (val)=>{ sSlicesPct = val; });
+bindPct("sRotation","sRotationVal", (val)=>{ sRotationPct = val; });
 
-  // ---------- playback: short slice / long window ----------
-  function playShortSlice(when, macroVal){
-    if (!sampleBuffer) return;
-    const offset = pickOffset();
-    const dur = 0.003 + Math.random() * 0.014;
-    const src = audioCtx.createBufferSource();
-    src.buffer = sampleBuffer;
-    src.playbackRate.value = 0.85 + Math.random() * 0.3;
+document.getElementById("divSel").addEventListener("change", (e)=>{
+  STEPS = Number(e.target.value);
+  recomputeAll();
+});
 
+document.getElementById("rVolume").addEventListener("input", (e)=>{
+  rhythmMakeup.gain.value = Number(e.target.value)/100;
+  document.getElementById("rVolumeVal").textContent = e.target.value + "%";
+});
+document.getElementById("rFilter").addEventListener("input", (e)=>{
+  rhythmTone.frequency.value = Number(e.target.value);
+  document.getElementById("rFilterVal").textContent = (Number(e.target.value)/1000).toFixed(1) + "k";
+});
+document.getElementById("sVolume").addEventListener("input", (e)=>{
+  sampleMakeup.gain.value = Number(e.target.value)/100;
+  document.getElementById("sVolumeVal").textContent = e.target.value + "%";
+});
+document.getElementById("sFilter").addEventListener("input", (e)=>{
+  sampleTone.frequency.value = Number(e.target.value);
+  document.getElementById("sFilterVal").textContent = (Number(e.target.value)/1000).toFixed(1) + "k";
+});
+document.getElementById("sCompress").addEventListener("input", (e)=>{
+  const amt = Number(e.target.value)/100;
+  sampleComp.threshold.value = -6 - amt*29;
+  sampleComp.ratio.value = 3 + amt*6;
+  sampleComp.attack.value = 0.012 - amt*0.009;
+  sampleCompMakeup.gain.value = 1 + amt*1.6;
+  document.getElementById("sCompressVal").textContent = e.target.value + "%";
+});
+
+// ================= macro (hidden — gentle autonomous movement) =================
+let macroLength = 7, macroValues = [];
+const EVOLVE = 0.15;
+function randomizeMacro(){
+  macroValues = [];
+  for (let i=0;i<macroLength;i++) macroValues.push(0.1+Math.random()*0.7);
+}
+function maybeEvolveMacro(){
+  if (Math.random() < EVOLVE*0.15){
+    const idx = Math.floor(Math.random()*macroLength);
+    const delta = (Math.random()-0.5)*(0.03+EVOLVE*0.12);
+    macroValues[idx] = Math.min(1, Math.max(0, macroValues[idx]+delta));
+  }
+}
+randomizeMacro();
+
+// ================= voice builders =================
+function getJitteredPan(basePan){ return (basePan||0) + (Math.random()-0.5)*0.3*DRIFT; }
+
+function steppedDecay(param, when, dur, peak){
+  param.setValueAtTime(0, when);
+  param.linearRampToValueAtTime(peak, when+0.0006);
+  const steps = 3+Math.floor(Math.random()*4);
+  for (let i=1;i<=steps;i++){
+    const t = when+0.0006+dur*(i/steps);
+    param.setValueAtTime(peak*(1-i/steps), t);
+  }
+}
+
+function buildSampleGrain(when, entry, volFactor){
+  const env = audioCtx.createGain();
+  if (!sampleBuffer) return env;
+  const vol = volFactor*entry.velocity;
+  const src = audioCtx.createBufferSource();
+  src.buffer = sampleBuffer;
+  if (entry.playbackRate) src.playbackRate.value = entry.playbackRate;
+  const offset = entry.sampleOffsetFrac*sampleBuffer.duration;
+  const peak = (entry.impulseLike?0.6:(entry.useNoise?0.5:0.42))*vol;
+  steppedDecay(env.gain, when, entry.dur, peak);
+  if (entry.filterType){
     const filt = audioCtx.createBiquadFilter();
-    filt.type = "bandpass";
-    filt.frequency.value = 700 + Math.random() * 5500;
-    filt.Q.value = 8 + Math.random() * 10;
+    filt.type = entry.filterType; filt.frequency.value = entry.filterFreq; filt.Q.value = entry.filterQ;
+    src.connect(filt).connect(env);
+  } else { src.connect(env); }
+  routeOut(env, rhythmBus, getJitteredPan(entry.pan));
+  src.start(when, offset, entry.dur+0.01);
+  return env;
+}
 
-    const env = audioCtx.createGain();
-    env.gain.setValueAtTime(0, when);
-    env.gain.linearRampToValueAtTime(0.95, when + 0.001);
-    env.gain.linearRampToValueAtTime(0, when + dur);
+function buildSampleTom(when, entry, volFactor){
+  const env = audioCtx.createGain();
+  if (!sampleBuffer) return env;
+  const vol = volFactor*entry.velocity;
+  const src = audioCtx.createBufferSource();
+  src.buffer = sampleBuffer;
+  const startRate = entry.baseRate*entry.tomStartMult;
+  src.playbackRate.setValueAtTime(startRate, when);
+  src.playbackRate.exponentialRampToValueAtTime(Math.max(entry.baseRate,0.05), when+entry.dur*0.55);
+  const filt = audioCtx.createBiquadFilter();
+  filt.type = "lowpass"; filt.frequency.value = entry.filterFreq; filt.Q.value = 0.9;
+  const peak = 0.5*vol;
+  env.gain.setValueAtTime(0, when);
+  env.gain.linearRampToValueAtTime(peak, when+0.003);
+  env.gain.exponentialRampToValueAtTime(0.001, when+entry.dur);
+  const offset = entry.sampleOffsetFrac*sampleBuffer.duration;
+  src.connect(filt).connect(env);
+  routeOut(env, rhythmBus, getJitteredPan(entry.pan));
+  src.start(when, offset);
+  src.stop(when+entry.dur+0.05);
+  return env;
+}
 
-    src.connect(filt).connect(env).connect(masterGain);
+function buildSampleBeating(when, entry, volFactor){
+  const env = audioCtx.createGain();
+  if (!sampleBuffer) return env;
+  const vol = volFactor*entry.velocity;
+  const peak = 0.15*vol;
+  env.gain.setValueAtTime(0, when);
+  env.gain.linearRampToValueAtTime(peak, when+0.035);
+  env.gain.linearRampToValueAtTime(0, when+entry.dur);
+  const offset = entry.sampleOffsetFrac*sampleBuffer.duration;
+  const s1 = audioCtx.createBufferSource(); s1.buffer = sampleBuffer; s1.playbackRate.value = entry.baseRate;
+  const s2 = audioCtx.createBufferSource(); s2.buffer = sampleBuffer; s2.playbackRate.value = entry.baseRate*entry.detuneRatio;
+  s1.connect(env); s2.connect(env);
+  routeOut(env, rhythmBus, getJitteredPan(entry.pan));
+  s1.start(when, offset); s2.start(when, offset);
+  s1.stop(when+entry.dur+0.05); s2.stop(when+entry.dur+0.05);
+  return env;
+}
 
+function scheduleRepeats(entry, when, volFactor){
+  const count = 2+Math.floor(Math.random()*3);
+  for (let r=1;r<=count;r++){
+    const t = when + r*(0.028+Math.random()*0.018);
+    const rvol = volFactor*(0.75-r*0.14);
+    if (rvol<=0.05) continue;
+    if (entry.isTom) buildSampleTom(t, entry, rvol);
+    else if (entry.beating) buildSampleBeating(t, entry, rvol);
+    else buildSampleGrain(t, entry, rvol);
+  }
+}
+
+function playRhythmHit(when, macroVal, entry, volFactor){
+  let env;
+  if (entry.isTom) env = buildSampleTom(when, entry, volFactor);
+  else if (entry.beating) env = buildSampleBeating(when, entry, volFactor);
+  else env = buildSampleGrain(when, entry, volFactor);
+
+  if (Math.random() < 1/25){
     const wet = audioCtx.createGain();
-    wet.gain.value = macroVal * 0.25;
-    env.connect(wet);
-    wet.connect(crushNode);
+    wet.gain.value = 0.5+macroVal*0.5;
+    env.connect(wet); wet.connect(crushNode);
+  }
+  if (Math.random() < 1/28){
+    scheduleRepeats(entry, when, volFactor);
+  }
+}
 
-    src.start(when, offset, dur);
-    addMarker(offset, "rgba(255,75,62,ALPHA)");
+function playSampleWindow(when, macroVal, entry){
+  if (!sampleBuffer) return;
+  const offset = entry.offsetFrac*sampleBuffer.duration;
+  const dur = entry.dur;
+  const src = audioCtx.createBufferSource();
+  src.buffer = sampleBuffer;
+  src.playbackRate.value = entry.playbackRate;
+
+  const filt = audioCtx.createBiquadFilter();
+  filt.type = "lowpass";
+  filt.frequency.setValueAtTime(entry.f0, when);
+  filt.frequency.linearRampToValueAtTime(entry.f1, when+dur);
+  filt.Q.value = 1.2;
+
+  const env = audioCtx.createGain();
+  const atk = entry.atk;
+  if (entry.shape==="swell-cut"){
+    env.gain.setValueAtTime(0, when);
+    env.gain.linearRampToValueAtTime(0.45, when+atk);
+    env.gain.setValueAtTime(0.45, when+dur-0.005);
+    env.gain.setValueAtTime(0, when+dur);
+  } else if (entry.shape==="hit-tail"){
+    env.gain.setValueAtTime(0, when);
+    env.gain.linearRampToValueAtTime(0.5, when+atk);
+    env.gain.exponentialRampToValueAtTime(0.001, when+dur);
+  } else {
+    env.gain.setValueAtTime(0, when);
+    env.gain.linearRampToValueAtTime(0.45, when+atk);
+    env.gain.linearRampToValueAtTime(0, when+dur);
   }
 
-  function playLongWindow(when, macroVal){
-    if (!sampleBuffer) return;
-    const offset = pickOffset();
-    const dur = 0.14 + Math.random() * 0.22;
-    const src = audioCtx.createBufferSource();
-    src.buffer = sampleBuffer;
-    src.playbackRate.value = 0.92 + Math.random() * 0.16;
+  src.connect(filt).connect(env).connect(sampleBus);
 
-    const filt = audioCtx.createBiquadFilter();
-    filt.type = "lowpass";
-    const f0 = 300 + Math.random() * 400;
-    const f1 = 1800 + Math.random() * 3500;
-    filt.frequency.setValueAtTime(f0, when);
-    filt.frequency.linearRampToValueAtTime(f1, when + dur);
-    filt.Q.value = 1.2;
-
-    const env = audioCtx.createGain();
-    const atk = 0.02 + Math.random() * 0.05;
-    env.gain.setValueAtTime(0, when);
-    env.gain.linearRampToValueAtTime(0.45, when + atk);
-    env.gain.linearRampToValueAtTime(0, when + dur);
-
-    src.connect(filt).connect(env).connect(masterGain);
-
-    const wet = audioCtx.createGain();
+  const wet = audioCtx.createGain();
+  if (entry.shape==="hit-tail"){
     wet.gain.setValueAtTime(0, when);
-    wet.gain.linearRampToValueAtTime(macroVal * 0.5, when + atk);
-    wet.gain.linearRampToValueAtTime(macroVal * 0.1, when + dur);
-    env.connect(wet);
-    wet.connect(crushNode);
+    wet.gain.linearRampToValueAtTime(0.75, when+atk);
+    wet.gain.linearRampToValueAtTime(0.3, when+dur+0.6);
+  } else {
+    wet.gain.setValueAtTime(0, when);
+    wet.gain.linearRampToValueAtTime(macroVal*0.5, when+atk);
+    wet.gain.linearRampToValueAtTime(macroVal*0.1, when+dur);
+  }
+  env.connect(wet); wet.connect(crushNode);
 
-    src.start(when, offset, dur);
-    addMarker(offset, "rgba(53,201,193,ALPHA)");
+  src.start(when, offset, Math.max(dur, entry.shape==="hit-tail"?0.6:dur));
 
-    // stutter/repeat when macro value is high
-    if (macroVal > 0.62){
-      const repeats = 1 + Math.floor((macroVal - 0.62) * 6);
-      for (let r = 1; r <= repeats; r++){
-        const t = when + r * (0.045 + Math.random()*0.02);
-        const rs = audioCtx.createBufferSource();
-        rs.buffer = sampleBuffer;
-        const rg = audioCtx.createGain();
-        rg.gain.setValueAtTime(0.4 / (r+1), t);
-        rg.gain.linearRampToValueAtTime(0, t + 0.05);
-        rs.connect(rg).connect(masterGain);
-        rs.start(t, offset, 0.045);
-      }
+  if (macroVal > 0.62){
+    const repeats = 1+Math.floor((macroVal-0.62)*6);
+    for (let r=1;r<=repeats;r++){
+      const t = when + r*(0.045+Math.random()*0.02);
+      const rs = audioCtx.createBufferSource();
+      rs.buffer = sampleBuffer;
+      const rg = audioCtx.createGain();
+      rg.gain.setValueAtTime(0.4/(r+1), t);
+      rg.gain.linearRampToValueAtTime(0, t+0.05);
+      rs.connect(rg).connect(sampleBus);
+      rs.start(t, offset, 0.045);
     }
   }
+}
 
-  // ---------- scheduler ----------
-  const lookahead = 25.0; // ms
-  const scheduleAheadTime = 0.12; // s
-  let nextStepTime = 0;
-  let stepCounter = 0;
-  let timerID = null;
-  let isPlaying = false;
+// ================= scheduler =================
+const lookahead = 25.0, scheduleAheadTime = 0.12;
+let nextStepTime=0, stepCounter=0, timerID=null, isPlaying=false;
 
-  function stepDuration(){
-    const bpm = Number(document.getElementById("bpm").value);
-    return (60 / bpm) / 4; // 16th note
+function stepDuration(){
+  const bpm = Number(document.getElementById("bpm").value);
+  const stepsPerBeat = STEPS/4;
+  return (60/bpm)/stepsPerBeat;
+}
+function scheduleStep(stepIndex, time){
+  const idx = stepIndex % STEPS;
+  const macroIdx = stepIndex % macroLength;
+  const mVal = macroValues[macroIdx];
+  maybeEvolveMacro();
+  if (rhythm.pattern[idx]){
+    const jitter = (Math.random()-0.5)*0.03*DRIFT;
+    const volFactor = 1+(Math.random()-0.5)*0.6*DRIFT;
+    playRhythmHit(time+jitter, mVal, rhythmData[idx], volFactor);
   }
-
-  function scheduleStep(stepIndex, time){
-    const a16 = stepIndex % 16;
-    const macroIdx = stepIndex % macroLength;
-    const mVal = macroValues[macroIdx];
-
-    if (laneA.pattern[a16]) playShortSlice(time, mVal);
-    if (laneB.pattern[a16]) playLongWindow(time, mVal);
-
-    const uiDelay = Math.max(0, (time - audioCtx.currentTime) * 1000);
-    setTimeout(() => highlightStep(a16, macroIdx), uiDelay);
+  if (sample.pattern[idx]){
+    const jitterB = (Math.random()-0.5)*0.02*DRIFT;
+    playSampleWindow(time+jitterB, mVal, sampleData[idx]);
   }
-
-  function highlightStep(a16, macroIdx){
-    Array.from(laneAdots.children).forEach((el,i) => el.classList.toggle("playing", i === a16));
-    Array.from(laneBdots.children).forEach((el,i) => el.classList.toggle("playing", i === a16));
-    Array.from(macroBarsEl.children).forEach((el,i) => el.classList.toggle("playing", i === macroIdx));
+}
+function scheduler(){
+  while (nextStepTime < audioCtx.currentTime+scheduleAheadTime){
+    scheduleStep(stepCounter, nextStepTime);
+    nextStepTime += stepDuration();
+    stepCounter++;
   }
+  timerID = setTimeout(scheduler, lookahead);
+}
+function startPlayback(){
+  if (isPlaying) return;
+  if (!sampleBuffer) generateTexture();
+  audioCtx.resume();
+  isPlaying = true;
+  stepCounter = 0;
+  nextStepTime = audioCtx.currentTime+0.05;
+  scheduler();
+  document.getElementById("playBtn").classList.add("playing");
+}
+function stopPlayback(){
+  isPlaying = false;
+  clearTimeout(timerID);
+  document.getElementById("playBtn").classList.remove("playing");
+}
+document.getElementById("playBtn").addEventListener("click", startPlayback);
+document.getElementById("stopBtn").addEventListener("click", stopPlayback);
+document.getElementById("bpm").addEventListener("input", (e)=>{
+  document.getElementById("bpmVal").textContent = e.target.value;
+});
 
-  function scheduler(){
-    while (nextStepTime < audioCtx.currentTime + scheduleAheadTime){
-      scheduleStep(stepCounter, nextStepTime);
-      nextStepTime += stepDuration();
-      stepCounter++;
-    }
-    timerID = setTimeout(scheduler, lookahead);
-  }
-
-  function startPlayback(){
-    if (isPlaying) return;
-    if (!sampleBuffer) generateTexture();
-    audioCtx.resume();
-    isPlaying = true;
-    stepCounter = 0;
-    nextStepTime = audioCtx.currentTime + 0.05;
-    scheduler();
-    document.getElementById("playBtn").classList.add("playing");
-  }
-  function stopPlayback(){
-    isPlaying = false;
-    clearTimeout(timerID);
-    document.getElementById("playBtn").classList.remove("playing");
-    Array.from(laneAdots.children).forEach(el => el.classList.remove("playing"));
-    Array.from(laneBdots.children).forEach(el => el.classList.remove("playing"));
-    Array.from(macroBarsEl.children).forEach(el => el.classList.remove("playing"));
-  }
-
-  document.getElementById("playBtn").addEventListener("click", startPlayback);
-  document.getElementById("stopBtn").addEventListener("click", stopPlayback);
-  document.getElementById("bpm").addEventListener("input", (e) => {
-    document.getElementById("bpmVal").textContent = e.target.value + " bpm";
-  });
-
-  // ---------- init ----------
-  buildFXChain();
-  generateTexture();
+// ================= init =================
+buildFXChain();
+generateTexture();
+recomputeAll();
+document.getElementById("footerYear").textContent = "idiome · © " + new Date().getFullYear() + " human motives";
 
 })();
 </script>
