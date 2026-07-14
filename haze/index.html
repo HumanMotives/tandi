@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>HAZE</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #eef0ea;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #field {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 30%, #fbfaf4 0%, #eef0ea 45%, #e2e4dc 100%);
+  }
+  #grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: multiply;
+  }
+  #shimmer {
+    position: fixed;
+    inset: -10%;
+    pointer-events: none;
+  }
+  .voice-mark {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: #b8bdae;
+    filter: blur(1px);
+    transform: translate(-50%, -50%);
+  }
+  #enter {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #9a9d90;
+    background: #eef0ea;
+    transition: opacity 3s ease;
+    cursor: pointer;
+  }
+  #enter.gone {
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div id="field"></div>
+<canvas id="grain"></canvas>
+<svg id="shimmer"></svg>
+<div id="enter">touch to begin</div>
+
+<script>
+(function () {
+
+  // ---------- scale ----------
+  // D minor pentatonic-ish, spread across three octaves, no leading tone,
+  // nothing that resolves — just floats.
+  const baseFreqs = [146.83, 174.61, 196.00, 220.00, 261.63]; // D3 F3 G3 A3 C4
+  const scale = [];
+  [0.5, 1, 2].forEach(mult => baseFreqs.forEach(f => scale.push(f * mult)));
+
+  // ---------- audio ----------
+  let ctx, masterGain, masterFilter, convolver, dryGain, wetGain, compressor;
+  let started = false;
+  let brightnessBias = 0; // -1..1, nudged by touch, decays back to 0
+  let activeVoices = 0;
+  const MAX_VOICES = 3;
+
+  function buildImpulse(duration, decay) {
+    const rate = ctx.sampleRate;
+    const length = rate * duration;
+    const impulse = ctx.createBuffer(2, length, rate);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = impulse.getChannelData(ch);
+      for (let i = 0; i < length; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+      }
+    }
+    return impulse;
+  }
+
+  function initAudio() {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    compressor = ctx.createDynamicsCompressor();
+    compressor.threshold.value = -28;
+    compressor.knee.value = 30;
+    compressor.ratio.value = 3;
+    compressor.attack.value = 1.5;
+    compressor.release.value = 2;
+
+    masterGain = ctx.createGain();
+    masterGain.gain.value = 0.55;
+
+    masterFilter = ctx.createBiquadFilter();
+    masterFilter.type = 'lowpass';
+    masterFilter.frequency.value = 3200;
+    masterFilter.Q.value = 0.2;
+
+    convolver = ctx.createConvolver();
+    convolver.buffer = buildImpulse(7, 3.2);
+
+    dryGain = ctx.createGain();
+    dryGain.gain.value = 0.55;
+    wetGain = ctx.createGain();
+    wetGain.gain.value = 0.75;
+
+    masterFilter.connect(dryGain).connect(masterGain);
+    masterFilter.connect(convolver).connect(wetGain).connect(masterGain);
+    masterGain.connect(compressor).connect(ctx.destination);
+
+    scheduleVoice();
+  }
+
+  function pickFreq() {
+    return scale[Math.floor(Math.random() * scale.length)];
+  }
+
+  function playVoice() {
+    if (activeVoices >= MAX_VOICES) return;
+    activeVoices++;
+
+    const t = ctx.currentTime;
+    const freq = pickFreq();
+
+    const osc = ctx.createOscillator();
+    osc.type = Math.random() < 0.7 ? 'sine' : 'triangle';
+    osc.frequency.value = freq;
+
+    // the tremble — a barely-there pitch wobble, slower than breath
+    const trembleLFO = ctx.createOscillator();
+    trembleLFO.frequency.value = 0.04 + Math.random() * 0.08;
+    const trembleGain = ctx.createGain();
+    trembleGain.gain.value = 2 + Math.random() * 3; // cents
+    trembleLFO.connect(trembleGain).connect(osc.detune);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.Q.value = 0.3;
+    const baseCut = 700 + Math.random() * 900;
+    filter.frequency.value = baseCut;
+
+    const filterLFO = ctx.createOscillator();
+    filterLFO.frequency.value = 0.015 + Math.random() * 0.02;
+    const filterLFOGain = ctx.createGain();
+    filterLFOGain.gain.value = 120;
+    filterLFO.connect(filterLFOGain).connect(filter.frequency);
+
+    const gain = ctx.createGain();
+    gain.gain.value = 0;
+
+    const panner = ctx.createStereoPanner();
+    const panCenter = (Math.random() * 2 - 1) * 0.7;
+    panner.pan.value = panCenter;
+    const panLFO = ctx.createOscillator();
+    panLFO.frequency.value = 0.008 + Math.random() * 0.015;
+    const panLFOGain = ctx.createGain();
+    panLFOGain.gain.value = 0.25;
+    panLFO.connect(panLFOGain).connect(panner.pan);
+
+    osc.connect(filter).connect(gain).connect(panner).connect(masterFilter);
+
+    trembleLFO.start(t);
+    filterLFO.start(t);
+    panLFO.start(t);
+    osc.start(t);
+
+    const attack = 9 + Math.random() * 14;
+    const hold = 18 + Math.random() * 24;
+    const release = 12 + Math.random() * 16;
+    const peak = (0.035 + Math.random() * 0.035) * (1 + brightnessBias * 0.4);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(Math.max(peak, 0.005), t + attack);
+    gain.gain.setValueAtTime(Math.max(peak, 0.005), t + attack + hold);
+    gain.gain.linearRampToValueAtTime(0, t + attack + hold + release);
+
+    // brightness bias very gently nudges the filter open/closed
+    filter.frequency.setTargetAtTime(baseCut + brightnessBias * 500, t, 6);
+
+    const stopTime = t + attack + hold + release + 1;
+    [osc, trembleLFO, filterLFO, panLFO].forEach(n => n.stop(stopTime));
+
+    spawnVisualVoice(attack, hold, release, panCenter);
+
+    osc.onended = () => { activeVoices--; };
+  }
+
+  function scheduleVoice() {
+    playVoice();
+    const nextIn = (14 + Math.random() * 30) * 1000; // 14–44s between onsets
+    setTimeout(scheduleVoice, nextIn);
+  }
+
+  // ---------- visual: barely-there marks that breathe with each voice ----------
+  const shimmer = document.getElementById('shimmer');
+
+  function spawnVisualVoice(attack, hold, release, panCenter) {
+    const w = window.innerWidth, h = window.innerHeight;
+    const x = (panCenter * 0.5 + 0.5) * w + (Math.random() - 0.5) * w * 0.3;
+    const y = h * (0.25 + Math.random() * 0.5);
+
+    const el = document.createElement('div');
+    el.className = 'voice-mark';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.opacity = '0';
+    document.body.appendChild(el);
+
+    const totalMs = (attack + hold + release) * 1000;
+    const start = performance.now();
+
+    function frame(now) {
+      const elapsed = now - start;
+      let op;
+      if (elapsed < attack * 1000) {
+        op = (elapsed / (attack * 1000)) * 0.4;
+      } else if (elapsed < (attack + hold) * 1000) {
+        op = 0.4;
+      } else if (elapsed < totalMs) {
+        const relElapsed = elapsed - (attack + hold) * 1000;
+        op = 0.4 * (1 - relElapsed / (release * 1000));
+      } else {
+        el.remove();
+        return;
+      }
+      const scale = 1 + Math.sin(elapsed / 4000) * 0.15;
+      el.style.opacity = op.toFixed(3);
+      el.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- grain texture, drawn once, extremely faint ----------
+  function drawGrain() {
+    const canvas = document.getElementById('grain');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const gctx = canvas.getContext('2d');
+    const imgData = gctx.createImageData(canvas.width, canvas.height);
+    for (let i = 0; i < imgData.data.length; i += 4) {
+      const v = 200 + Math.random() * 55;
+      imgData.data[i] = v;
+      imgData.data[i + 1] = v;
+      imgData.data[i + 2] = v;
+      imgData.data[i + 3] = 255;
+    }
+    gctx.putImageData(imgData, 0, 0);
+  }
+  drawGrain();
+
+  // ---------- ambient background drift, always running, no audio needed ----------
+  const field = document.getElementById('field');
+  let driftT = 0;
+  function driftField() {
+    driftT += 0.0025;
+    const x = 50 + Math.sin(driftT) * 6;
+    const y = 30 + Math.cos(driftT * 0.7) * 8;
+    field.style.background =
+      `radial-gradient(ellipse at ${x}% ${y}%, #fbfaf4 0%, #eef0ea 45%, #e2e4dc 100%)`;
+    requestAnimationFrame(driftField);
+  }
+  driftField();
+
+  // ---------- touch/mouse: an invisible influence, not a control ----------
+  function updateBias(clientX, clientY) {
+    const nx = (clientX / window.innerWidth) * 2 - 1;
+    brightnessBias = nx * 0.6;
+  }
+  window.addEventListener('mousemove', e => updateBias(e.clientX, e.clientY));
+  window.addEventListener('touchmove', e => {
+    if (e.touches[0]) updateBias(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+  setInterval(() => { brightnessBias *= 0.96; }, 500); // slowly forgets
+
+  // ---------- start on first touch ----------
+  const enter = document.getElementById('enter');
+  function begin() {
+    if (started) return;
+    started = true;
+    initAudio();
+    enter.classList.add('gone');
+  }
+  enter.addEventListener('click', begin);
+  enter.addEventListener('touchstart', e => { e.preventDefault(); begin(); }, { passive: false });
+
+})();
+</script>
+</body>
+</html>
