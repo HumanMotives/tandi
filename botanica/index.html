@@ -21,8 +21,7 @@ body{
 .panel-img{width:100%;display:block;border-radius:20px;box-shadow:0 20px 70px rgba(0,0,0,.65);}
 
 .knob{position:absolute;transform:translate(-50%,-50%);cursor:ns-resize;display:flex;flex-direction:column;align-items:center;gap:0;}
-.knob-label{font-size:8px;letter-spacing:.1em;color:#2A2A22;text-align:center;margin-top:3px;line-height:1.15;pointer-events:none;font-weight:700;
-  text-shadow:0 0 3px white,0 0 6px white,1px 1px 0 white,-1px -1px 0 white;}
+.knob-label{display:none;}
 .knob-val{display:none;}
 
 .btn{position:absolute;transform:translate(-50%,-50%);background:#B8A96A;border:1px solid #A69857;color:#1A1A18;
@@ -86,9 +85,8 @@ body.editing .knob:active{cursor:grabbing!important;}
 </div>
 <div class="warn" id="warn">WebMIDI requires Chrome + HTTPS or localhost</div>
 
-<div class="pat-disp-outer" id="dv-pat">· · · · · · · · · · · · · · · ·</div>
 <div id="controls-bar" style="display:flex;gap:6px;justify-content:center;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
-  <button id="pluck-btn" onclick="togglePluck()" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#6A6A60;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;">🔈 AUDIO OFF</button>
+  <button id="pluck-btn" onclick="togglePluck()" style="background:#B8A96A;border:1px solid #A69857;color:#1A1A18;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;font-weight:700;">🔊 AUDIO ON</button>
   <button onclick="startSeq()" style="background:#8BAA7A;border:none;color:white;border-radius:4px;padding:6px 22px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;">▶ PLAY</button>
   <button onclick="stopSeq()"  style="background:#C47A5A;border:none;color:white;border-radius:4px;padding:6px 22px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;">■ STOP</button>
   <select id="midi-select" onchange="selectMidiOut(this.value)" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#A8A49A;border-radius:4px;padding:6px 8px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.06em;box-shadow:0 0 0 1.5px white;max-width:160px;">
@@ -117,11 +115,10 @@ body.editing .knob:active{cursor:grabbing!important;}
   <div class="knob" id="k-range"       style="top:79.4%;left:59.2%"></div>
 
   <!-- SEASON -->
-  <div class="seasonpill" id="sp-3" style="top:63.8%;left:50.0%">WINTER</div>
-  <div class="seasonpill" id="sp-2" style="top:69.8%;left:50.0%">FALL</div>
-  <div class="seasonpill" id="sp-1" style="top:75.4%;left:50.0%">SUMMER</div>
-  <div class="seasonpill" id="sp-0" style="top:80.9%;left:50.0%">SPRING</div>
-  <button class="btn" onclick="cycleSeason()" style="top:85.3%;left:50.0%;border-radius:50%;width:26px;height:26px;padding:0;">●</button>
+  <div class="seasonpill" id="sp-3" onclick="setSeason(3)" style="top:63.8%;left:50.0%;pointer-events:auto;cursor:pointer;">WINTER</div>
+  <div class="seasonpill" id="sp-2" onclick="setSeason(2)" style="top:69.8%;left:50.0%;pointer-events:auto;cursor:pointer;">FALL</div>
+  <div class="seasonpill" id="sp-1" onclick="setSeason(1)" style="top:75.4%;left:50.0%;pointer-events:auto;cursor:pointer;">SUMMER</div>
+  <div class="seasonpill" id="sp-0" onclick="setSeason(0)" style="top:80.9%;left:50.0%;pointer-events:auto;cursor:pointer;">SPRING</div>
 
   <!-- LEFT BUTTON ROW -->
   <div class="led" id="led-mute"  style="top:75.5%;left:13.9%"></div>
@@ -130,19 +127,18 @@ body.editing .knob:active{cursor:grabbing!important;}
   <button class="btn" id="btn-mute"  onclick="toggleMute()"        style="top:83.3%;left:13.9%">MUTE</button>
   <button class="btn" id="btn-plock" onclick="togglePatternLock()" style="top:83.3%;left:19.7%">PRUNE</button>
   <button class="btn" id="btn-ties"  onclick="toggleTies()"        style="top:83.3%;left:25.4%">TIES</button>
-  <button class="btn" id="btn-pseed" onclick="patternSeed()"       style="top:83.3%;left:30.9%">PATTERN<br>SEED</button>
+  <button class="btn small" id="btn-pseed" onclick="patternSeed()"       style="top:83.3%;left:33.5%">PATTERN<br>SEED</button>
 
   <!-- RIGHT BUTTON ROW -->
   <div class="led" id="led-mode" style="top:75.5%;left:74.6%"></div>
   <div class="led" id="led-arp"  style="top:75.5%;left:80.5%"></div>
   <div class="led" id="led-env"  style="top:75.5%;left:85.9%"></div>
   <button class="btn" id="btn-noteseed" onclick="noteSeed()" style="top:83.3%;left:68.4%">NOTE<br>SEED</button>
-  <button class="btn" id="btn-mode" onclick="toggleMode()"   style="top:83.3%;left:74.6%">MODE</button>
+  <button class="btn" id="btn-mode" onclick="toggleMode()"   style="top:83.3%;left:74.6%">CHORD</button>
   <button class="btn" id="btn-arp"  onclick="toggleArp()"    style="top:83.3%;left:80.5%">ARP</button>
   <button class="btn" id="btn-env"  onclick="toggleEnv()"    style="top:83.3%;left:85.9%">ENV</button>
 </div>
 
-<div class="log" id="log"></div>
 <div style="font-size:7px;letter-spacing:.1em;color:#7A7A72;text-align:center;margin-top:5px;">v2.0-browser · © 2026 CHRIS VAN DER LINDEN · HUMAN MOTIVES</div>
 
 <script>
@@ -357,6 +353,7 @@ function selectMidiOut(id){
 
 function startSeq(){
   if(CORE.running) return;
+  PLUCK.init();
   CORE.running=true;SEQ.step=0;EVOLVE.stepCount=0;
   dot('clk','on');document.getElementById('t-clk').textContent='RUNNING';tick();
 }
@@ -401,16 +398,17 @@ function showDisp(l){
   dispTimer=setTimeout(()=>{document.getElementById('dv').textContent=S_LABELS[SEASON.index];document.getElementById('dl').textContent='SEASON';},2000);
 }
 function updatePD(){
-  document.getElementById('dv-pat').textContent=SEQ.gates.map((g,i)=>g?(PRUNE.allows(i)?NNAMES[((SEQ.pitches[i]||60)%12+12)%12]:'·'):'·').join(' ');
+  const el=document.getElementById('dv-pat');if(!el)return;
+  el.textContent=SEQ.gates.map((g,i)=>g?(PRUNE.allows(i)?NNAMES[((SEQ.pitches[i]||60)%12+12)%12]:'·'):'·').join(' ');
 }
 function dot(id,st){const d=document.getElementById('d-'+id);if(d) d.className='dot'+(st==='on'?' on':st==='err'?' err':'');}
-function lg(msg){const l=document.getElementById('log');const d=document.createElement('div');d.className='ll';d.textContent=msg;l.appendChild(d);while(l.children.length>3) l.removeChild(l.firstChild);}
+function lg(msg){const l=document.getElementById('log');if(!l)return;const d=document.createElement('div');d.className='ll';d.textContent=msg;l.appendChild(d);while(l.children.length>3) l.removeChild(l.firstChild);}
 
-function cycleSeason(){
-  SEASON.index=(SEASON.index+1)%4;
-  for(let j=0;j<4;j++) document.getElementById('sp-'+j).classList.toggle('active',j===SEASON.index);
+function setSeason(i){
+  SEASON.index=i;
+  for(let j=0;j<4;j++) document.getElementById('sp-'+j).classList.toggle('active',j===i);
   SEQ.pitchMemory=SEQ.rawPitchMemory.map(p=>SEASON.quantize(p));
-  updatePD();showDisp(S_LABELS[SEASON.index]);lg('Season: '+S_NAMES[SEASON.index]);
+  updatePD();showDisp(S_LABELS[i]);lg('Season: '+S_NAMES[i]);
 }
 
 // PATTERN SEED — non-destructive, mirrors PSEED: touches Prune-shape, Tie
@@ -501,16 +499,16 @@ function makeKnob(cfg){
 
 function buildKnobs(){
   [
-    {id:'k-hits',       label:'HITS',    min:1,max:16,val:4, size:28, fn(v){SEQ.hits=Math.round(v);SEQ.genGates();updatePD();}},
+    {id:'k-hits',       label:'HITS',    min:1,max:16,val:4, size:34, fn(v){SEQ.hits=Math.round(v);SEQ.genGates();updatePD();}},
     {id:'k-length',     label:'LENGTH',  min:1,max:16,val:8, size:34, fn(v){SEQ.len=Math.round(v);updatePD();}},
     {id:'k-prune',      label:'PRUNE',   min:0,max:100,val:100,size:50, fn(v){PRUNE.value=v/100;PRUNE.generate(SEQ.len);}},
-    {id:'k-prunemod',   label:'MOD',     min:0,max:100,val:0, size:26, fn(v){PRUNE.mod=v/100;}},
+    {id:'k-prunemod',   label:'MOD',     min:0,max:100,val:0, size:34, fn(v){PRUNE.mod=v/100;}},
     {id:'k-drift',      label:'DRIFT',   min:0,max:100,val:0, size:44, fn(v){DRIFT.value=v/100;}},
     {id:'k-evolve',     label:'EVOLVE',  min:0,max:100,val:0, size:56, fn(v){EVOLVE.chance=v/100;}},
     {id:'k-blossom',    label:'BLOSSOM', min:0,max:100,val:0, size:44, fn(v){BLOSSOM.amount=v/100;}},
     {id:'k-refract',    label:'REFRACT', min:0,max:4,val:2,  size:50, fn(v){TOPOLOGY.index=Math.round(v);BLOSSOM.activeRefractIdx=Math.round(v);}},
-    {id:'k-refractmod', label:'MOD',     min:0,max:100,val:0, size:26, fn(v){BLOSSOM.refractMod=v/100;}},
-    {id:'k-decay',      label:'DECAY',   min:1,max:16,val:3,  size:28, fn(v){BLOSSOM.reps=Math.round(v);}},
+    {id:'k-refractmod', label:'MOD',     min:0,max:100,val:0, size:34, fn(v){BLOSSOM.refractMod=v/100;}},
+    {id:'k-decay',      label:'DECAY',   min:1,max:16,val:3,  size:34, fn(v){BLOSSOM.reps=Math.round(v);}},
     {id:'k-offset',     label:'OFFSET',  min:0,max:8,val:0,   size:34, fn(v){BLOSSOM.attack=Math.round(v);}},
     {id:'k-root',       label:'ROOT',    min:-48,max:48,val:0,size:56, fn(v){SEASON.transpose=Math.round(v);SEQ.pitchMemory=SEQ.rawPitchMemory.map(p=>SEASON.quantize(p));updatePD();}},
     {id:'k-range',      label:'RANGE',   min:1,max:6,val:2,   size:56, fn(v){SEASON.octaveRange=Math.round(v);updatePD();}},
@@ -529,7 +527,7 @@ function toggleEditMode(){
 function setupEditDrag(){
   const panel=document.getElementById('panel');
   const panelRect=()=>panel.getBoundingClientRect();
-  document.querySelectorAll('.knob, .btn, .display').forEach(el=>{
+  document.querySelectorAll('.knob, .btn, .display, .seasonpill').forEach(el=>{
     if(el._editDrag) return; el._editDrag=true;
     let didDrag=false;
     el.addEventListener('click',e=>{if(didDrag){e.stopPropagation();e.preventDefault();didDrag=false;}},true);
@@ -562,7 +560,7 @@ function setupEditDrag(){
 
 // ─── WEBAUDIO PLUCK SYNTH ────────────
 const PLUCK={
-  ctx:null, enabled:false,
+  ctx:null, enabled:true,
   init(){ if(this.ctx) return; this.ctx=new(window.AudioContext||window.webkitAudioContext)(); },
   play(midiNote,velocity){
     if(!this.enabled||!this.ctx) return;
@@ -600,14 +598,15 @@ function togglePluck(){
   PLUCK.enabled=!PLUCK.enabled;
   const btn=document.getElementById('pluck-btn');
   btn.textContent=PLUCK.enabled?'🔊 AUDIO ON':'🔈 AUDIO OFF';
-  btn.style.color=PLUCK.enabled?'#B8A96A':'#6A6A60';
-  btn.style.borderColor=PLUCK.enabled?'#B8A96A':'#4A4A42';
+  btn.style.background=PLUCK.enabled?'#B8A96A':'rgba(10,10,8,.88)';
+  btn.style.color=PLUCK.enabled?'#1A1A18':'#6A6A60';
+  btn.style.borderColor=PLUCK.enabled?'#A69857':'#4A4A42';
   lg(PLUCK.enabled?'WebAudio ON':'WebAudio OFF');
 }
 
 buildKnobs();
 SEQ.genGates();SEQ.genPitches();PRUNE.generate(SEQ.len);PSEED.seed();
-cycleSeason();cycleSeason();cycleSeason();cycleSeason(); // land back on SPRING with pills initialized
+setSeason(0);
 initMIDI();
 refreshModeArpUI();
 lg('BOTANICA v2 ready · gates always Euclidean · PATTERN SEED ≠ new rhythm');
