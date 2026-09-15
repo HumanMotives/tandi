@@ -25,28 +25,31 @@ body{
   text-shadow:0 0 3px white,0 0 6px white,1px 1px 0 white,-1px -1px 0 white;}
 .knob-val{display:none;}
 
-.btn{position:absolute;transform:translate(-50%,-50%);background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#B8B4AA;
-  border-radius:4px;padding:5px 12px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;
-  transition:all .15s;white-space:nowrap;box-shadow:0 0 0 1.5px rgba(255,255,255,.5);text-align:center;}
-.btn:hover{border-color:#B8A96A;color:#B8A96A;}
-.btn.active{background:#B8A96A;border-color:#B8A96A;color:#1A1A18;font-weight:700;}
-.btn.locked{background:#8BAA7A;border-color:#8BAA7A;color:white;}
-.btn.muted{background:#C47A5A;border-color:#C47A5A;color:white;}
+.btn{position:absolute;transform:translate(-50%,-50%);background:#B8A96A;border:1px solid #A69857;color:#1A1A18;
+  border-radius:4px;padding:6px 10px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.08em;
+  font-weight:700;transition:all .15s;white-space:nowrap;text-align:center;line-height:1.3;
+  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 2px 3px rgba(0,0,0,.25);}
+.btn:hover{background:#C6B87A;}
+.btn.active{background:#7c7f47;border-color:#63653a;color:#F2EFE6;}
+.btn.locked{background:#8BAA7A;border-color:#6F8E62;color:white;}
+.btn.muted{background:#C47A5A;border-color:#A6613F;color:white;}
 .btn.small{font-size:7px;padding:4px 8px;}
 
-.led{position:absolute;width:8px;height:8px;border-radius:50%;background:#3A3A32;transform:translate(-50%,-50%);transition:background .15s,box-shadow .15s;}
-.led.on{background:#F0A840;box-shadow:0 0 6px #F0A840;}
+.led{position:absolute;width:9px;height:9px;border-radius:50%;background:#D8D2C0;border:1px solid #B0A98F;
+  transform:translate(-50%,-50%);transition:background .15s,box-shadow .15s;
+  box-shadow:0 1px 1px rgba(0,0,0,.2) inset;}
+.led.on{background:#F0A840;box-shadow:0 0 7px #F0A840,0 0 2px #F0A840 inset;border-color:#C4822C;}
 
 .seasonpill{position:absolute;transform:translate(-50%,-50%);width:110px;text-align:center;padding:5px 0;
-  background:#B8A96A44;border:1px solid #B8A96A66;border-radius:14px;font-size:8px;letter-spacing:.08em;color:#5A5340;
-  pointer-events:none;transition:all .15s;}
-.seasonpill.active{background:#B8A96A;color:#1A1A18;font-weight:700;border-color:#B8A96A;}
+  background:#B8A96A44;border:1px solid #B8A96A88;border-radius:14px;font-size:8px;letter-spacing:.08em;color:#5A5340;
+  pointer-events:none;transition:all .15s;font-weight:700;}
+.seasonpill.active{background:#B8A96A;color:#1A1A18;border-color:#B8A96A;box-shadow:0 1px 2px rgba(0,0,0,.2);}
 
-.display{position:absolute;top:54.4%;left:50%;transform:translate(-50%,-50%);background:#080806;border-radius:6px;
-  width:100px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  border:1px solid #2A2A22;pointer-events:none;}
+.display{position:absolute;top:54.4%;left:50%;transform:translate(-50%,-50%);background:#1A1A18;border-radius:6px;
+  width:100px;height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:2px solid #B8A96A;pointer-events:none;box-shadow:0 2px 5px rgba(0,0,0,.3);}
 .dv{font-size:18px;color:#B8A96A;letter-spacing:.06em;line-height:1;}
-.dl{font-size:5px;letter-spacing:.18em;color:#3A3A32;margin-top:2px;}
+.dl{font-size:5px;letter-spacing:.18em;color:#6A6558;margin-top:2px;}
 
 .pat-disp-outer{font-size:11px;color:#B8A96A;letter-spacing:.08em;background:#080806;border-radius:5px;padding:5px 16px;
   margin-bottom:6px;text-align:center;width:860px;white-space:nowrap;}
