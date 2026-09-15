@@ -11,99 +11,53 @@ body{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   min-height:100vh;font-family:'Space Mono',monospace;padding:16px;user-select:none;
 }
-
-/* STATUS */
 .status{display:flex;gap:14px;justify-content:center;font-size:8px;letter-spacing:.12em;color:#5A5A52;margin-bottom:8px;}
 .dot{width:5px;height:5px;border-radius:50%;background:#3A3A32;display:inline-block;margin-right:3px;vertical-align:middle;transition:background .2s;}
 .dot.on{background:#8BAA7A;}.dot.err{background:#C47A5A;}
 .warn{display:none;background:#3A2A20;border:1px solid #C47A5A;border-radius:4px;padding:5px 12px;font-size:8px;color:#C47A5A;text-align:center;margin-bottom:6px;max-width:860px;}
 
-/* PANEL */
 .panel{position:relative;width:860px;overflow:hidden;border-radius:20px;}
-@media(max-width:900px){
-  .panel{width:100%;max-width:860px;}
-  body{padding:8px;}
-}
+@media(max-width:900px){.panel{width:100%;max-width:860px;} body{padding:8px;}}
 .panel-img{width:100%;display:block;border-radius:20px;box-shadow:0 20px 70px rgba(0,0,0,.65);}
 
-/* KNOB */
-.knob{
-  position:absolute;transform:translate(-50%,-50%);
-  cursor:ns-resize;display:flex;flex-direction:column;align-items:center;gap:0;
-}
-.knob-label{
-  font-size:8.5px;letter-spacing:.12em;color:#2A2A22;
-  text-align:center;margin-top:4px;line-height:1.2;
-  pointer-events:none;font-weight:700;
-  text-shadow: 0 0 3px white, 0 0 6px white, 1px 1px 0 white, -1px -1px 0 white;
-}
-.knob-val{
-  display:none; /* hidden — values shown in centre display on hover */
-}
+.knob{position:absolute;transform:translate(-50%,-50%);cursor:ns-resize;display:flex;flex-direction:column;align-items:center;gap:0;}
+.knob-label{font-size:8px;letter-spacing:.1em;color:#2A2A22;text-align:center;margin-top:3px;line-height:1.15;pointer-events:none;font-weight:700;
+  text-shadow:0 0 3px white,0 0 6px white,1px 1px 0 white,-1px -1px 0 white;}
+.knob-val{display:none;}
 
-/* BUTTON */
-.btn{
-  position:absolute;transform:translate(-50%,-50%);
-  background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#B8B4AA;
-  border-radius:4px;padding:5px 12px;cursor:pointer;
-  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;
-  transition:all .15s;white-space:nowrap;
-  box-shadow: 0 0 0 1.5px rgba(255,255,255,.5);
-}
+.btn{position:absolute;transform:translate(-50%,-50%);background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#B8B4AA;
+  border-radius:4px;padding:5px 12px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;
+  transition:all .15s;white-space:nowrap;box-shadow:0 0 0 1.5px rgba(255,255,255,.5);text-align:center;}
 .btn:hover{border-color:#B8A96A;color:#B8A96A;}
 .btn.active{background:#B8A96A;border-color:#B8A96A;color:#1A1A18;font-weight:700;}
 .btn.locked{background:#8BAA7A;border-color:#8BAA7A;color:white;}
 .btn.muted{background:#C47A5A;border-color:#C47A5A;color:white;}
-.btn.season{border-color:#B8A96A66;color:#B8A96A;font-size:9px;padding:6px 14px;}
-.btn.season.active{background:#B8A96A;color:#1A1A18;}
+.btn.small{font-size:7px;padding:4px 8px;}
 
-/* DISPLAY (over rose illustration centre) */
-.display{
-  position:absolute;top:39%;left:51%;transform:translate(-50%,-50%);
-  background:#080806;border-radius:6px;
-  width:58px;height:58px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  border:1px solid #2A2A22;
-  pointer-events:none;
-}
-.dv{font-size:20px;color:#B8A96A;letter-spacing:.06em;line-height:1;}
-.dl{font-size:5px;letter-spacing:.2em;color:#3A3A32;margin-top:2px;}
+.led{position:absolute;width:8px;height:8px;border-radius:50%;background:#3A3A32;transform:translate(-50%,-50%);transition:background .15s,box-shadow .15s;}
+.led.on{background:#F0A840;box-shadow:0 0 6px #F0A840;}
 
-/* PATTERN DISPLAY */
-.pat-disp{
-  position:absolute;top:1.5%;left:50%;transform:translateX(-50%);
-  background:rgba(0,0,0,.75);border-radius:3px;padding:3px 10px;
-  font-size:9px;color:#B8A96A;letter-spacing:.05em;pointer-events:none;white-space:nowrap;
-}
+.seasonpill{position:absolute;transform:translate(-50%,-50%);width:110px;text-align:center;padding:5px 0;
+  background:#B8A96A44;border:1px solid #B8A96A66;border-radius:14px;font-size:8px;letter-spacing:.08em;color:#5A5340;
+  pointer-events:none;transition:all .15s;}
+.seasonpill.active{background:#B8A96A;color:#1A1A18;font-weight:700;border-color:#B8A96A;}
 
-/* PLAY/STOP */
-.playbtn{
-  position:absolute;transform:translate(-50%,-50%);
-  border:none;color:white;border-radius:4px;padding:5px 14px;cursor:pointer;
-  font-family:'Space Mono',monospace;font-size:7px;letter-spacing:.14em;
-}
-.playbtn.play{background:#8BAA7A;}
-.playbtn.stop{background:#C47A5A;}
+.display{position:absolute;top:54.4%;left:50%;transform:translate(-50%,-50%);background:#080806;border-radius:6px;
+  width:100px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:1px solid #2A2A22;pointer-events:none;}
+.dv{font-size:18px;color:#B8A96A;letter-spacing:.06em;line-height:1;}
+.dl{font-size:5px;letter-spacing:.18em;color:#3A3A32;margin-top:2px;}
 
-/* LOG */
+.pat-disp-outer{font-size:11px;color:#B8A96A;letter-spacing:.08em;background:#080806;border-radius:5px;padding:5px 16px;
+  margin-bottom:6px;text-align:center;width:860px;white-space:nowrap;}
+
 .log{width:860px;background:#080806;border-radius:5px;padding:4px 12px;height:30px;overflow:hidden;font-size:7px;color:#B8A96A;letter-spacing:.06em;margin-top:6px;}
 .ll{opacity:.45;line-height:1.7;}.ll:last-child{opacity:1;}
-.hint{font-size:7px;color:#3A3A32;letter-spacing:.1em;text-align:center;margin-top:5px;}
 
-/* EDIT MODE */
-.edit-mode-btn{
-  position:fixed;top:10px;right:10px;z-index:1000;
-  background:#B8A96A;border:none;color:#1A1A18;
-  border-radius:4px;padding:6px 14px;cursor:pointer;
-  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.14em;
-  font-weight:700;
-}
-.edit-overlay{
-  display:none;position:fixed;top:10px;left:10px;z-index:1000;
-  background:rgba(8,8,6,.92);border:1px solid #B8A96A;border-radius:6px;
-  padding:10px 14px;font-size:8px;color:#B8A96A;letter-spacing:.08em;
-  max-width:280px;line-height:1.9;
-}
+.edit-mode-btn{position:fixed;top:10px;right:10px;z-index:1000;background:#B8A96A;border:none;color:#1A1A18;
+  border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.14em;font-weight:700;}
+.edit-overlay{display:none;position:fixed;top:10px;left:10px;z-index:1000;background:rgba(8,8,6,.92);border:1px solid #B8A96A;
+  border-radius:6px;padding:10px 14px;font-size:8px;color:#B8A96A;letter-spacing:.08em;max-width:280px;line-height:1.9;}
 .edit-overlay.on{display:block;}
 .edit-coords{font-size:9px;color:#B8A96A;margin-top:4px;font-weight:700;}
 body.editing .knob{cursor:grab!important;outline:2px dashed rgba(184,169,106,.4);border-radius:50%;}
@@ -115,121 +69,103 @@ body.editing .knob:active{cursor:grabbing!important;}
 </head>
 <body>
 
-<button class="edit-mode-btn" onclick="toggleEditMode()" style="display:none;">⊹ EDIT MODE</button>
-<button id="ui-toggle" onclick="toggleUI()" style="position:fixed;top:10px;right:10px;z-index:1000;background:rgba(10,10,8,.75);border:1px solid #4A4A42;color:#6A6A60;border-radius:4px;padding:5px 10px;cursor:pointer;font-family:'Space Mono',monospace;font-size:7px;letter-spacing:.1em;box-shadow:0 0 0 1px rgba(255,255,255,.2);">⊙ HIDE</button>
+<button class="edit-mode-btn" onclick="toggleEditMode()">⊹ EDIT MODE</button>
 <div class="edit-overlay" id="edit-overlay">
-  <div>EDIT MODE — drag knobs to position</div>
-  <div id="edit-last" style="color:#8A8A80;font-size:7px;">click a knob to see coords</div>
+  <div>EDIT MODE — drag controls to position</div>
+  <div id="edit-last" style="color:#8A8A80;font-size:7px;">click a control to see coords</div>
   <div class="edit-coords" id="edit-coords">—</div>
-  <div style="margin-top:6px;font-size:7px;color:#6A6A60;">Copy the id+top+left values<br>into the HTML to save.</div>
+  <div style="margin-top:6px;font-size:7px;color:#6A6A60;">Coords auto-copy to clipboard as top:%;left:%</div>
 </div>
-<div class="status" id="debug-bar" style="display:none;">
+<div class="status" id="debug-bar">
   <span><span class="dot" id="d-midi"></span><span id="t-midi">MIDI —</span></span>
   <span><span class="dot" id="d-clk"></span><span id="t-clk">STOPPED</span></span>
   <span><span class="dot" id="d-out"></span><span id="t-out">OUT —</span></span>
 </div>
 <div class="warn" id="warn">WebMIDI requires Chrome + HTTPS or localhost</div>
 
-<div class="pat-disp-outer" id="dv-pat" style="display:none;" style="font-size:11px;color:#B8A96A;letter-spacing:.08em;background:#080806;border-radius:5px;padding:5px 16px;margin-bottom:6px;text-align:center;width:860px;white-space:nowrap;">· · · · · · · · · · · · · · · ·</div>
-<div id="controls-bar" style="display:flex;gap:6px;justify-content:center;align-items:center;margin-bottom:32px;flex-wrap:wrap;transition:opacity .3s;">
+<div class="pat-disp-outer" id="dv-pat">· · · · · · · · · · · · · · · ·</div>
+<div id="controls-bar" style="display:flex;gap:6px;justify-content:center;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
   <button id="pluck-btn" onclick="togglePluck()" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#6A6A60;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;">🔈 AUDIO OFF</button>
   <button onclick="startSeq()" style="background:#8BAA7A;border:none;color:white;border-radius:4px;padding:6px 22px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;">▶ PLAY</button>
   <button onclick="stopSeq()"  style="background:#C47A5A;border:none;color:white;border-radius:4px;padding:6px 22px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;">■ STOP</button>
   <select id="midi-select" onchange="selectMidiOut(this.value)" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#A8A49A;border-radius:4px;padding:6px 8px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.06em;box-shadow:0 0 0 1.5px white;max-width:160px;">
     <option value="">— MIDI OUT —</option>
   </select>
-  <button onclick="showManual()" style="background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#A8A49A;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;box-shadow:0 0 0 1.5px white;">? MANUAL</button>
 </div>
+
 <div class="panel" id="panel">
-  <img class="panel-img" src="BOTANICA_PANEL_ALPHA_BLANK.png">
+  <img class="panel-img" src="panel.png">
 
-  <!-- pattern display moved outside panel -->
-
-  <!-- DISPLAY centre -->
   <div class="display"><div class="dv" id="dv">SP</div><div class="dl" id="dl">SEASON</div></div>
 
-  <!-- ═══════════════════════════════════════
-       KNOBS — positioned over grey circles
-       Measured as % of panel width/height
-       Left col: STEPS(6,47) LENGTH(15,37) PRUNE(26,27) SLOPPY(38,24)
-       Right col: BLOSSOM(62,24) REFRACT(74,27) RANDOM(69,38) OFFSET(87,40) DECAY(94,47)
-  ═══════════════════════════════════════ -->
+  <!-- KNOBS -->
+  <div class="knob" id="k-hits"        style="top:47.6%;left:14.8%"></div>
+  <div class="knob" id="k-prune"       style="top:38.9%;left:25.4%"></div>
+  <div class="knob" id="k-prunemod"    style="top:55.6%;left:33.2%"></div>
+  <div class="knob" id="k-length"      style="top:59.9%;left:23.0%"></div>
+  <div class="knob" id="k-drift"       style="top:36.9%;left:37.7%"></div>
+  <div class="knob" id="k-evolve"      style="top:33.3%;left:50.0%"></div>
+  <div class="knob" id="k-blossom"     style="top:36.9%;left:62.9%"></div>
+  <div class="knob" id="k-refract"     style="top:38.9%;left:74.6%"></div>
+  <div class="knob" id="k-refractmod"  style="top:55.6%;left:66.8%"></div>
+  <div class="knob" id="k-decay"       style="top:47.6%;left:85.9%"></div>
+  <div class="knob" id="k-offset"      style="top:59.9%;left:77.1%"></div>
+  <div class="knob" id="k-root"        style="top:79.4%;left:41.6%"></div>
+  <div class="knob" id="k-range"       style="top:79.4%;left:59.2%"></div>
 
-  <!-- LEFT / PATTERN -->
-  <div class="knob" id="k-steps" style="top:56.6%;left:6.3%"></div>
-  <div class="knob" id="k-length" style="top:44.5%;left:15.2%"></div>
-  <div class="knob" id="k-prune" style="top:33.8%;left:25.6%"></div>
-  <div class="knob" id="k-sloppy" style="top:29.9%;left:37.7%"></div>
-  <div class="knob" id="k-prune-rnd" style="top:42.6%;left:31.6%"></div>
+  <!-- SEASON -->
+  <div class="seasonpill" id="sp-3" style="top:63.8%;left:50.0%">WINTER</div>
+  <div class="seasonpill" id="sp-2" style="top:69.8%;left:50.0%">FALL</div>
+  <div class="seasonpill" id="sp-1" style="top:75.4%;left:50.0%">SUMMER</div>
+  <div class="seasonpill" id="sp-0" style="top:80.9%;left:50.0%">SPRING</div>
+  <button class="btn" onclick="cycleSeason()" style="top:85.3%;left:50.0%;border-radius:50%;width:26px;height:26px;padding:0;">●</button>
 
-  <!-- RIGHT / BLOSSOM -->
-  <div class="knob" id="k-blossom" style="top:29.7%;left:62.6%"></div>
-  <div class="knob" id="k-refract" style="top:34.0%;left:74.9%"></div>
-  <div class="knob" id="k-ref-rnd" style="top:41.7%;left:68.7%"></div>
-  <div class="knob" id="k-offset" style="top:45.2%;left:84.7%"></div>
-  <div class="knob" id="k-decay" style="top:56.3%;left:91.0%"></div>
+  <!-- LEFT BUTTON ROW -->
+  <div class="led" id="led-mute"  style="top:75.5%;left:13.9%"></div>
+  <div class="led" id="led-plock" style="top:75.5%;left:19.7%"></div>
+  <div class="led" id="led-ties"  style="top:75.5%;left:25.4%"></div>
+  <button class="btn" id="btn-mute"  onclick="toggleMute()"        style="top:83.3%;left:13.9%">MUTE</button>
+  <button class="btn" id="btn-plock" onclick="togglePatternLock()" style="top:83.3%;left:19.7%">PRUNE</button>
+  <button class="btn" id="btn-ties"  onclick="toggleTies()"        style="top:83.3%;left:25.4%">TIES</button>
+  <button class="btn" id="btn-pseed" onclick="patternSeed()"       style="top:83.3%;left:30.9%">PATTERN<br>SEED</button>
 
-  <!-- BOTTOM CENTRE / TONES -->
-  <div class="knob" id="k-root" style="top:83.8%;left:42.5%"></div>
-  <div class="knob" id="k-range" style="top:83.6%;left:58.6%"></div>
-  <div class="knob" id="k-evolve" style="top:70.6%;left:50.4%"></div>
-
-  <!-- SEASON BUTTONS — over the gold bar labels -->
-  <button class="btn season active" id="sb-0" onclick="setSeason(0)" style="top:57.9%;left:35.0%">SPRING</button>
-  <button class="btn season"        id="sb-1" onclick="setSeason(1)" style="top:57.9%;left:44.6%">SUMMER</button>
-  <button class="btn season"        id="sb-2" onclick="setSeason(2)" style="top:57.9%;left:55.4%">FALL</button>
-  <button class="btn season"        id="sb-3" onclick="setSeason(3)" style="top:57.9%;left:65.0%">WINTER</button>
-
-  <!-- PATTERN BUTTONS — bottom left -->
-  <button class="btn" id="btn-mute" onclick="toggleMute()" style="top:88.0%;left:7.0%">MUTE</button>
-  <button class="btn" id="btn-plock" onclick="toggleLock('pattern')" style="top:88.0%;left:13.3%">LOCK</button>
-  <button class="btn" onclick="SEQ.snapToOne()" style="top:88.0%;left:19.5%">SNAP</button>
-  <button class="btn" id="btn-euclid" onclick="toggleEuclid()" style="top:88.0%;left:26.5%">EUCLID</button>
-
-
-  <!-- BLOSSOM MODE BUTTONS -->
-  <button class="btn active" id="mb-ramp" onclick="toggleRamp()" style="top:88%;left:75%">RAMP ↓</button>
-  <button class="btn" id="mb-sync" onclick="toggleRefractSync()" style="top:81%;left:68.7%;font-size:6px;display:none;">SYNC</button>
-  <button class="btn" id="mb-pitch" onclick="cyclePitchMode()" style="top:88%;left:82%">ARP —</button>
-
-  <!-- TONES BUTTONS — bottom right -->
-  <button class="btn" id="btn-tlock" onclick="toggleLock('tones')" style="top:88%;left:90%">LOCK</button>
-
-
-
-  <!-- SEED PATTERN — centered above left button row -->
-  <button onclick="seedPattern()" style="position:absolute;transform:translate(-50%,-50%);top:81%;left:16.75%;background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#B8B4AA;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;box-shadow:0 0 0 1.5px rgba(255,255,255,.5);">⟳ SEED PAT</button>
-
-  <!-- SEED TONES — centered above right button row -->
-  <button onclick="seedTones()" style="position:absolute;transform:translate(-50%,-50%);top:81%;left:82.5%;background:rgba(10,10,8,.88);border:1px solid #4A4A42;color:#B8B4AA;border-radius:4px;padding:5px 16px;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;box-shadow:0 0 0 1.5px rgba(255,255,255,.5);">⟳ SEED TONES</button>
-
+  <!-- RIGHT BUTTON ROW -->
+  <div class="led" id="led-mode" style="top:75.5%;left:74.6%"></div>
+  <div class="led" id="led-arp"  style="top:75.5%;left:80.5%"></div>
+  <div class="led" id="led-env"  style="top:75.5%;left:85.9%"></div>
+  <button class="btn" id="btn-noteseed" onclick="noteSeed()" style="top:83.3%;left:68.4%">NOTE<br>SEED</button>
+  <button class="btn" id="btn-mode" onclick="toggleMode()"   style="top:83.3%;left:74.6%">MODE</button>
+  <button class="btn" id="btn-arp"  onclick="toggleArp()"    style="top:83.3%;left:80.5%">ARP</button>
+  <button class="btn" id="btn-env"  onclick="toggleEnv()"    style="top:83.3%;left:85.9%">ENV</button>
 </div>
 
-
-<div class="log" id="log" style="display:none;"></div>
-<div style="font-size:7px;letter-spacing:.1em;color:#7A7A72;text-align:center;margin-top:5px;"><span id="version-tag">v1.1</span> · © 2026 CHRIS VAN DER LINDEN · HUMAN MOTIVES</div>
+<div class="log" id="log"></div>
+<div style="font-size:7px;letter-spacing:.1em;color:#7A7A72;text-align:center;margin-top:5px;">v2.0-browser · © 2026 CHRIS VAN DER LINDEN · HUMAN MOTIVES</div>
 
 <script>
 // ============================================================
-//  BOTANICA v9 — Panel Edition
+//  BOTANICA v2 — Browser prototype matched to Teensy firmware
+//  (BOTANICA DEV 3 state: PSEED = mask-only, TSEED = direct,
+//   Chord/Arp target Blossoms only, 5-zone REFRACT)
 // ============================================================
 
 const CORE={bpm:120,get stepMs(){return 60000/(this.bpm*4);},running:false,timer:null};
 
+// REFRACT — 5 zones per roadmap TODO: ÷4 ÷2 ×1 ×2 ×4
 const TOPOLOGY={
-  index:3,labels:['÷8','÷4','÷2','×1','×2'],factors:[0.125,0.25,0.5,1,2],
-  subMs(){return CORE.stepMs/this.factors[this.index];}
+  index:2,labels:['-4','-2','x1','+2','+4'],factors:[0.25,0.5,1,2,4],
+  subMs(idx){return CORE.stepMs/this.factors[idx];}
 };
 
 const SCALES=[[0,2,4,7,9],[0,2,4,6,7,9,11],[0,2,3,5,7,9,10],[0,2,4,6,8,10]];
 const S_ROOTS=[60,67,57,62];
 const S_LABELS=['SP','SU','FA','WI'];
-const S_NAMES=['Pentatonic Maj','Lydian','Dorian','Whole Tone'];
+const S_NAMES=['Pentatonic Maj (SPRING)','Lydian (SUMMER)','Dorian (FALL)','Whole Tone (WINTER)'];
 const NNAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
 const SEASON={
-  index:0,transpose:0,octaveRange:2,octaveShift:0,
-  root(){return S_ROOTS[this.index]+this.transpose+(this.octaveShift*12);},
+  index:0,transpose:0,octaveRange:2,
+  root(){return S_ROOTS[this.index]+this.transpose;},
   scale(){return SCALES[this.index];},
   randomNote(){
     const sc=this.scale(),r=this.root();
@@ -258,42 +194,59 @@ const SEASON={
   }
 };
 
-const DENSITY={raw:1.0,get value(){return Math.pow(this.raw,0.4);}};
-
+// ── PRUNE ── main knob is a static right-to-left mask (firmware: deterministic).
+// PRUNE-MOD = the RND trimpot: chance per-cycle to swap in a random alternate shape.
 const PRUNE={
-  value:1.0,   // main knob position (0-1, inverted: 0=full, 1=silent)
-  rnd:0,       // chance (0-1) to use random value instead of main knob
-  activeValue:1.0, // current active value (may be randomized)
-  mask:new Array(16).fill(true),
-
+  value:1.0, mod:0, activeValue:1.0, mask:new Array(16).fill(true),
   generate(len){
     this.mask=new Array(16).fill(true);
     const v=this.activeValue;
     if(v>=0.99) return;
     const keep=Math.max(1,Math.round(len*v));
-    const pos=[...Array(len).keys()].sort((a,b)=>(b/len+Math.random()*.3)-(a/len+Math.random()*.3));
-    for(let i=0;i<len-keep;i++) this.mask[pos[i]]=false;
+    // deterministic right-to-left removal (matches firmware default), unless
+    // a PATTERN SEED has produced an alternate shape (see PSEED.shapeSeed)
+    for(let i=0;i<len-keep;i++) this.mask[(len-1-i)]=PSEED.shapeSeed[len-1-i]!==undefined?PSEED.shapeSeed[len-1-i]:false;
   },
-
-  // Called at cycle start (step===0)
   tick(len){
-    if(this.rnd>0.02 && Math.random()<this.rnd){
-      // Random: pick any value in full range (stepped block)
-      this.activeValue=Math.random();
-    } else {
-      // Use main knob position
-      this.activeValue=this.value;
-    }
+    if(this.mod>0.02 && Math.random()<this.mod) this.activeValue=Math.random();
+    else this.activeValue=this.value;
     this.generate(len);
   },
-
   allows(step){return this.mask[step%16];}
+};
+
+// ── PATTERN SEED (PSEED) ── non-destructive: does NOT touch gates/HITS/LENGTH.
+// Regenerates: (1) an alternate prune shape used when PRUNE-MOD fires,
+// (2) which steps are tie-candidates (only audible if TIES is on),
+// (3) the FILL/ghost-note order (not modeled in this prototype — flagged).
+const PSEED={
+  shapeSeed:new Array(16).fill(true),
+  tieCandidates:new Array(16).fill(false),
+  seed(){
+    // alternate prune shape: random subset kept, instead of strict right-to-left
+    const pos=[...Array(16).keys()];
+    for(let i=pos.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pos[i],pos[j]]=[pos[j],pos[i]];}
+    this.shapeSeed=new Array(16).fill(false);
+    const keepCount=Math.round(16*0.6);
+    for(let i=0;i<keepCount;i++) this.shapeSeed[pos[i]]=true;
+    // tie candidates: ~30% of steps become eligible to be tied
+    this.tieCandidates=new Array(16).fill(false).map(()=>Math.random()<0.3);
+    PRUNE.generate(SEQ.len);
+  }
+};
+
+const TIES={
+  on:false,
+  // returns true if this step should extend the previous note instead of
+  // retriggering — only has any effect while TIES is on, and only for
+  // steps PATTERN SEED marked as tie-candidates.
+  shouldTie(step){ return this.on && PSEED.tieCandidates[step%16]; }
 };
 
 const EVOLVE={
   chance:0,stepCount:0,
   tick(){
-    if(this.chance<0.01||SEQ.toneLocked) return;
+    if(this.chance<0.01) return;
     if(++this.stepCount>=Math.max(1,Math.round(1/this.chance))){
       this.stepCount=0;
       const t=Math.floor(Math.random()*SEQ.len);
@@ -304,33 +257,27 @@ const EVOLVE={
   }
 };
 
-const SLOPPY={value:0};
+const DRIFT={value:0}; // 0-50%=timing offset, 50-100%=groove shift
 
 const BLOSSOM={
-  amount:0,rampMode:'down',pitchMode:'none',attack:0,reps:3,refractRnd:0,
-  refractFree:false,
-  activeRefractIdx:3, // current active refract index (may be randomized)
-
-  // Called at cycle start — randomize refract if RND fires
+  amount:0,rampMode:'down',pitchMode:'none',attack:0,reps:3,refractMod:0,
+  activeRefractIdx:2,
   tickRnd(){
-    if(this.refractRnd>0.02 && Math.random()<this.refractRnd){
-      // Random: pick any subdivision in full range (stepped block)
-      this.activeRefractIdx=Math.floor(Math.random()*TOPOLOGY.factors.length);
-    } else {
-      this.activeRefractIdx=TOPOLOGY.index;
-    }
+    if(this.refractMod>0.02 && Math.random()<this.refractMod) this.activeRefractIdx=Math.floor(Math.random()*TOPOLOGY.factors.length);
+    else this.activeRefractIdx=TOPOLOGY.index;
   },
   fire(rootPitch,rootVel){
     if(this.amount<0.02||Math.random()>this.amount) return;
-    const baseMs=TOPOLOGY.subMs(),minMidi=SEASON.root(),maxMidi=minMidi+SEASON.octaveRange*12-1;
+    const minMidi=SEASON.root(),maxMidi=minMidi+SEASON.octaveRange*12-1;
+    const baseMs=CORE.stepMs;
     for(let i=0;i<this.reps;i++){
       const gen=i,rm=this.rampMode,pm=this.pitchMode,rp=this.reps;
-      // Use activeRefractIdx — set at cycle start by RND logic
-      const eMs=CORE.stepMs/TOPOLOGY.factors[this.activeRefractIdx];
+      const eMs=TOPOLOGY.subMs(this.activeRefractIdx);
       const t=this.attack*baseMs+eMs*(gen+1);
       const vel=rm==='up'?Math.max(4,Math.floor(rootVel*Math.pow(0.55,rp-gen))):Math.max(4,Math.floor(rootVel*Math.pow(0.55,gen+1)));
       let p=rootPitch;
-      if(pm==='arp'){for(let s=0;s<gen+1;s++) p=SEASON.scaleStepUp(p);}
+      // ARP/MODE (Chord) only ever apply here — Blossom layer, never Hits.
+      if(MODE.chordArp===2){for(let s=0;s<gen+1;s++) p=SEASON.scaleStepUp(p);} // ARP
       else if(pm==='octdown') p=rootPitch-12*(gen+1);
       else if(pm==='octup')   p=rootPitch+12*(gen+1);
       while(p>maxMidi) p-=12; while(p<minMidi) p+=12;
@@ -341,39 +288,33 @@ const BLOSSOM={
   }
 };
 
+// MODE (TMODE=Chord) / ARP (TARP) — mutually exclusive, both target Blossoms only
+const MODE={
+  chordArp:0, // 0=off 1=Chord 2=Arp
+};
+
+const ENV={on:false}; // simplified SEQ/SYN toggle: repurposes OFFSET/DECAY as synth Attack/Decay
+
 const SEQ={
-  len:8,hits:4,step:0,patternLocked:false,toneLocked:false,mute:false,euclid:false,
+  len:8,hits:4,step:0,patternLocked:false,mute:false,
   gateMemory:new Array(16).fill(false),
   pitchMemory:new Array(16).fill(60),
   rawPitchMemory:new Array(16).fill(60),
-  activeNotes:{},
+  activeNotes:{},lastPitch:60,
   get gates(){return this.gateMemory.slice(0,this.len);},
   get pitches(){return this.pitchMemory.slice(0,this.len).map(p=>SEASON.clampToRange(p));},
+  // Gates are ALWAYS Euclidean over MAX_STEPS (16) — firmware seqGenGates().
+  // LENGTH is a playback window, HITS is a live mask. Neither destroys the seed.
   genGates(){
-    if(this.patternLocked) return;
-    if(this.euclid){for(let i=0;i<16;i++) this.gateMemory[i]=((i*this.hits/this.len)|0)!==(((i+1)*this.hits/this.len)|0);}
-    else{
-      this.gateMemory=new Array(16).fill(false);
-      const pos=[...Array(this.len).keys()];
-      for(let i=pos.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pos[i],pos[j]]=[pos[j],pos[i]];}
-      for(let i=0;i<Math.min(this.hits,this.len);i++) this.gateMemory[pos[i]]=true;
-    }
+    for(let i=0;i<16;i++) this.gateMemory[i]=((i*this.hits/16)|0)!==(((i+1)*this.hits/16)|0);
   },
   genPitches(){
-    if(this.toneLocked) return;
     const sc=SEASON.scale(),r=SEASON.root(),range=SEASON.octaveRange;
     const pos=[...Array(16).keys()];
     for(let i=pos.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pos[i],pos[j]]=[pos[j],pos[i]];}
     for(let o=0;o<range&&o<16;o++){const d=Math.floor(Math.random()*sc.length);this.rawPitchMemory[pos[o]]=Math.max(0,Math.min(127,r+o*12+sc[d]));}
     for(let i=range;i<16;i++) this.rawPitchMemory[pos[i]]=SEASON.randomNote();
     this.pitchMemory=this.rawPitchMemory.map(p=>SEASON.quantize(p));
-  },
-  snapToOne(){
-    if(this.patternLocked){lg('PATTERN LOCKED');return;}
-    const first=this.gateMemory.slice(0,this.len).findIndex(g=>g);
-    if(first<=0) return;
-    for(let r=0;r<first;r++){this.gateMemory.push(this.gateMemory.shift());this.rawPitchMemory.push(this.rawPitchMemory.shift());this.pitchMemory.push(this.pitchMemory.shift());}
-    updatePD();lg('SNAP→1');
   },
   play(n,v,d,ch){
     if(this.activeNotes[n]) clearTimeout(this.activeNotes[n]); else MIDI.noteOn(n,v,ch);
@@ -393,45 +334,22 @@ async function initMIDI(){
   try{
     const ma=await navigator.requestMIDIAccess();
     dot('midi','on');document.getElementById('t-midi').textContent='MIDI OK';
-
     function populateSelect(){
       const sel=document.getElementById('midi-select');
       const outputs=[...ma.outputs.values()];
-      // Save current selection
       const curId=sel.value;
       sel.innerHTML='<option value="">— MIDI OUT —</option>';
-      outputs.forEach(o=>{
-        const opt=document.createElement('option');
-        opt.value=o.id; opt.textContent=o.name.substring(0,24);
-        sel.appendChild(opt);
-      });
-      // Restore or auto-select first
-      if(curId && ma.outputs.get(curId)){
-        sel.value=curId;
-      } else if(outputs.length){
-        sel.value=outputs[0].id;
-        MIDI.out=outputs[0];
-        document.getElementById('t-out').textContent='→ '+outputs[0].name.substring(0,14);
-        dot('out','on');
-        lg('MIDI: '+outputs[0].name);
-      }
+      outputs.forEach(o=>{const opt=document.createElement('option');opt.value=o.id;opt.textContent=o.name.substring(0,24);sel.appendChild(opt);});
+      if(curId && ma.outputs.get(curId)) sel.value=curId;
+      else if(outputs.length){sel.value=outputs[0].id;MIDI.out=outputs[0];document.getElementById('t-out').textContent='→ '+outputs[0].name.substring(0,14);dot('out','on');lg('MIDI: '+outputs[0].name);}
     }
-
-    populateSelect();
-    ma.onstatechange=()=>populateSelect();
-    window._midiAccess=ma; // store for selectMidiOut
+    populateSelect(); ma.onstatechange=()=>populateSelect(); window._midiAccess=ma;
   }catch(e){document.getElementById('warn').style.display='block';dot('midi','err');}
 }
-
 function selectMidiOut(id){
   if(!window._midiAccess||!id) return;
   const out=window._midiAccess.outputs.get(id);
-  if(out){
-    MIDI.out=out;
-    document.getElementById('t-out').textContent='→ '+out.name.substring(0,14);
-    dot('out','on');
-    lg('MIDI out: '+out.name);
-  }
+  if(out){MIDI.out=out;document.getElementById('t-out').textContent='→ '+out.name.substring(0,14);dot('out','on');lg('MIDI out: '+out.name);}
 }
 
 function startSeq(){
@@ -447,12 +365,22 @@ function tick(){
   if(!CORE.running) return;
   const stepMs=CORE.stepMs,step=SEQ.step%SEQ.len;
   const gates=SEQ.gates,pitches=SEQ.pitches;
-  if(gates[step]&&Math.random()<DENSITY.value&&PRUNE.allows(step)){
+  const hitsMaskOk = step < SEQ.hits ? true : true; // HITS already baked into genGates via 16-slot euclid + LENGTH window
+  if(gates[step]&&PRUNE.allows(step)){
     const pitch=pitches[step],vel=Math.floor(68+Math.random()*20);
-    const slop=Math.max(0,SLOPPY.value*stepMs*.4*(Math.random()*2-1));
+    let slop=0,swapStep=step;
+    if(DRIFT.value<=0.5) slop=Math.max(0,DRIFT.value*2*stepMs*.35*Math.random());
+    else if(Math.random()<(DRIFT.value-0.5)*2*0.3) swapStep=(step+1)%SEQ.len; // groove shift
     setTimeout(()=>{
       if(!CORE.running||SEQ.mute) return;
-      SEQ.play(pitch,vel,stepMs*.35,1);
+      if(TIES.shouldTie(step)&&SEQ.activeNotes[SEQ.lastPitch]){
+        // extend previous note instead of retriggering
+        clearTimeout(SEQ.activeNotes[SEQ.lastPitch]);
+        SEQ.activeNotes[SEQ.lastPitch]=setTimeout(()=>{MIDI.noteOff(SEQ.lastPitch,1);delete SEQ.activeNotes[SEQ.lastPitch];},stepMs*.9);
+      } else {
+        SEQ.play(pitch,vel,stepMs*.35,1);
+        SEQ.lastPitch=pitch;
+      }
       showDisp(NNAMES[((pitch%12)+12)%12]+Math.floor(pitch/12-1));
       BLOSSOM.fire(pitch,vel);
     },slop);
@@ -470,57 +398,70 @@ function showDisp(l){
   dispTimer=setTimeout(()=>{document.getElementById('dv').textContent=S_LABELS[SEASON.index];document.getElementById('dl').textContent='SEASON';},2000);
 }
 function updatePD(){
-  document.getElementById('dv-pat').textContent=SEQ.gates.map((g,i)=>g?NNAMES[((SEQ.pitches[i]||60)%12+12)%12]:'·').join(' ');
+  document.getElementById('dv-pat').textContent=SEQ.gates.map((g,i)=>g?(PRUNE.allows(i)?NNAMES[((SEQ.pitches[i]||60)%12+12)%12]:'·'):'·').join(' ');
 }
 function dot(id,st){const d=document.getElementById('d-'+id);if(d) d.className='dot'+(st==='on'?' on':st==='err'?' err':'');}
 function lg(msg){const l=document.getElementById('log');const d=document.createElement('div');d.className='ll';d.textContent=msg;l.appendChild(d);while(l.children.length>3) l.removeChild(l.firstChild);}
 
-function setSeason(i){
-  SEASON.index=i;
-  for(let j=0;j<4;j++) document.getElementById('sb-'+j).classList.toggle('active',j===i);
+function cycleSeason(){
+  SEASON.index=(SEASON.index+1)%4;
+  for(let j=0;j<4;j++) document.getElementById('sp-'+j).classList.toggle('active',j===SEASON.index);
   SEQ.pitchMemory=SEQ.rawPitchMemory.map(p=>SEASON.quantize(p));
-  updatePD();showDisp(S_LABELS[i]);lg('Season: '+S_NAMES[i]);
-}
-function seedPattern(){if(SEQ.patternLocked){lg('PATTERN LOCKED');return;}SEQ.genGates();PRUNE.generate(SEQ.len);updatePD();showDisp('PAT');lg('⟳ pattern');}
-function seedTones(){if(SEQ.toneLocked){lg('TONES LOCKED');return;}SEQ.genPitches();updatePD();showDisp('TON');lg('⟳ tones');}
-function shiftOctave(dir){
-  SEASON.octaveShift=Math.max(-3,Math.min(3,SEASON.octaveShift+dir));
-  // Requantize pitches to new root
-  SEQ.pitchMemory=SEQ.rawPitchMemory.map(p=>SEASON.quantize(p));
-  document.getElementById('oct-display').textContent='OCT '+(SEASON.octaveShift>0?'+':'')+SEASON.octaveShift;
-  lg('Octave: '+(SEASON.octaveShift>0?'+':'')+SEASON.octaveShift);
-  updatePD();
+  updatePD();showDisp(S_LABELS[SEASON.index]);lg('Season: '+S_NAMES[SEASON.index]);
 }
 
-function toggleLock(t){
-  if(t==='pattern'){SEQ.patternLocked=!SEQ.patternLocked;document.getElementById('btn-plock').classList.toggle('locked',SEQ.patternLocked);lg(SEQ.patternLocked?'PATTERN LOCKED':'PATTERN FREE');}
-  else{SEQ.toneLocked=!SEQ.toneLocked;document.getElementById('btn-tlock').classList.toggle('locked',SEQ.toneLocked);lg(SEQ.toneLocked?'TONES LOCKED':'TONES FREE');}
+// PATTERN SEED — non-destructive, mirrors PSEED: touches Prune-shape, Tie
+// candidates, (Fill order not modeled). Does NOT regenerate gates/HITS/LENGTH.
+function patternSeed(){
+  PSEED.seed();
+  updatePD();
+  showDisp('SEED');
+  const audible = PRUNE.mod>0.02 || TIES.on;
+  lg(audible ? '⟳ pattern seed (audible now)' : '⟳ pattern seed — silent until PRUNE-MOD or TIES is on');
 }
-function toggleEuclid(){
-  SEQ.euclid=!SEQ.euclid;document.getElementById('btn-euclid').classList.toggle('active',SEQ.euclid);
-  if(!SEQ.patternLocked) SEQ.genGates();updatePD();lg(SEQ.euclid?'EUCLID':'ORGANIC');
+
+// NOTE SEED — direct/audible, mirrors TSEED.
+function noteSeed(){ SEQ.genPitches(); updatePD(); showDisp('TON'); lg('⟳ note seed'); }
+
+function togglePatternLock(){
+  SEQ.patternLocked=!SEQ.patternLocked;
+  document.getElementById('btn-plock').classList.toggle('locked',SEQ.patternLocked);
+  document.getElementById('led-plock').classList.toggle('on',SEQ.patternLocked);
+  lg(SEQ.patternLocked?'PATTERN LOCKED':'PATTERN FREE');
 }
-function toggleMute(){SEQ.mute=!SEQ.mute;document.getElementById('btn-mute').classList.toggle('muted',SEQ.mute);if(SEQ.mute) SEQ.allOff();}
-function toggleRamp(){
-  BLOSSOM.rampMode=BLOSSOM.rampMode==='down'?'up':'down';
-  document.getElementById('mb-ramp').textContent='RAMP '+(BLOSSOM.rampMode==='down'?'↓':'↑');
+function toggleTies(){
+  TIES.on=!TIES.on;
+  document.getElementById('btn-ties').classList.toggle('active',TIES.on);
+  document.getElementById('led-ties').classList.toggle('on',TIES.on);
+  lg('TIES: '+(TIES.on?'ON':'OFF'));
 }
-function toggleRefractSync(){
-  BLOSSOM.refractFree=!BLOSSOM.refractFree;
-  const btn=document.getElementById('mb-sync');
-  btn.textContent=BLOSSOM.refractFree?'FREE':'SYNC';
-  btn.classList.toggle('active',BLOSSOM.refractFree);
-  lg('REFRACT: '+(BLOSSOM.refractFree?'FREE timing':'SYNC to grid'));
+function toggleMute(){
+  SEQ.mute=!SEQ.mute;
+  document.getElementById('btn-mute').classList.toggle('muted',SEQ.mute);
+  document.getElementById('led-mute').classList.toggle('on',SEQ.mute);
+  if(SEQ.mute) SEQ.allOff();
 }
-const PITCH_MODES=['none','arp','octdown','octup'];
-const PITCH_LABELS={none:'ARP —',arp:'ARP ♪',octdown:'OCT ↓',octup:'OCT ↑'};
-let pitchIdx=0;
-function cyclePitchMode(){
-  pitchIdx=(pitchIdx+1)%PITCH_MODES.length;
-  BLOSSOM.pitchMode=PITCH_MODES[pitchIdx];
-  const btn=document.getElementById('mb-pitch');
-  btn.textContent=PITCH_LABELS[BLOSSOM.pitchMode];
-  btn.classList.toggle('active',pitchIdx>0);
+// MODE (Chord) / ARP — mutually exclusive
+function toggleMode(){
+  MODE.chordArp = (MODE.chordArp===1) ? 0 : 1;
+  refreshModeArpUI();
+}
+function toggleArp(){
+  MODE.chordArp = (MODE.chordArp===2) ? 0 : 2;
+  refreshModeArpUI();
+}
+function refreshModeArpUI(){
+  document.getElementById('btn-mode').classList.toggle('active',MODE.chordArp===1);
+  document.getElementById('btn-arp').classList.toggle('active',MODE.chordArp===2);
+  document.getElementById('led-mode').classList.toggle('on',MODE.chordArp===1);
+  document.getElementById('led-arp').classList.toggle('on',MODE.chordArp===2);
+  lg('Chord/Arp: '+(MODE.chordArp===0?'OFF':MODE.chordArp===1?'CHORD (blossoms only)':'ARP (blossoms only)'));
+}
+function toggleEnv(){
+  ENV.on=!ENV.on;
+  document.getElementById('btn-env').classList.toggle('active',ENV.on);
+  document.getElementById('led-env').classList.toggle('on',ENV.on);
+  lg('ENV (SEQ/SYN): '+(ENV.on?'SYN — OFFSET/DECAY now shape the synth envelope':'SEQ'));
 }
 
 // KNOB FACTORY
@@ -528,7 +469,6 @@ function makeKnob(cfg){
   const el=document.getElementById(cfg.id);if(!el) return;
   const sz=cfg.size||44,r=sz/2-4,cx=sz/2,cy=sz/2;
   let val=cfg.val;
-
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('width',sz);svg.setAttribute('height',sz);svg.setAttribute('viewBox',`0 0 ${sz} ${sz}`);
   const bg=document.createElementNS('http://www.w3.org/2000/svg','circle');
@@ -538,11 +478,8 @@ function makeKnob(cfg){
   mk.setAttribute('x1',cx);mk.setAttribute('y1',cy);
   mk.setAttribute('stroke','#B8A96A');mk.setAttribute('stroke-width','2.5');mk.setAttribute('stroke-linecap','round');
   svg.appendChild(bg);svg.appendChild(mk);
-
   const lbl=document.createElement('div');lbl.className='knob-label';lbl.textContent=cfg.label;
-  const vEl=document.createElement('div');vEl.className='knob-val';vEl.id='kv-'+cfg.id.replace('k-','');
-  el.appendChild(svg);el.appendChild(lbl);el.appendChild(vEl);
-
+  el.appendChild(svg);el.appendChild(lbl);
   function setMk(v){
     const pct=(v-cfg.min)/(cfg.max-cfg.min);
     const a=(-135+pct*270)*Math.PI/180;
@@ -550,7 +487,7 @@ function makeKnob(cfg){
   }
   let drag=false,sy=0,sv=0;
   el.addEventListener('mousedown',e=>{
-    if(editMode) return; // edit mode handles drag
+    if(editMode) return;
     drag=true;sy=e.clientY;sv=val;e.preventDefault();
     const mm=ev=>{if(!drag||editMode)return;val=Math.max(cfg.min,Math.min(cfg.max,sv+(sy-ev.clientY)*(cfg.max-cfg.min)/120));setMk(val);cfg.fn(val);};
     const mu=()=>{drag=false;document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);};
@@ -559,93 +496,68 @@ function makeKnob(cfg){
   setMk(val);cfg.fn(val);
 }
 
-function kv(id,text){const e=document.getElementById('kv-'+id);if(e) e.textContent=text;}
-
 function buildKnobs(){
   [
-    {id:'k-steps',    label:'LENGTH',  min:1,  max:16, val:8,  size:28, fn(v){SEQ.len=Math.round(v);SEQ.hits=Math.min(SEQ.hits,SEQ.len);kv('steps',Math.round(v));if(!SEQ.patternLocked)SEQ.genGates();PRUNE.generate(SEQ.len);updatePD();}},
-    {id:'k-length',   label:'HITS',    min:1,  max:16, val:4,  size:34, fn(v){SEQ.hits=Math.min(Math.round(v),SEQ.len);kv('length',Math.round(v));if(!SEQ.patternLocked)SEQ.genGates();updatePD();}},
-    {id:'k-prune',    label:'PRUNE',   min:0,  max:100,val:100,size:50, fn(v){PRUNE.value=v/100;PRUNE.generate(SEQ.len);kv('prune',Math.round(v)+'%');}},
-    {id:'k-sloppy',   label:'SLOPPY',  min:0,  max:100,val:0,  size:56, fn(v){SLOPPY.value=v/100;kv('sloppy',Math.round(v)+'%');}},
-    {id:'k-prune-rnd',label:'RND',     min:0,  max:100,val:0,  size:26, fn(v){PRUNE.rnd=v/100;kv('prune-rnd',Math.round(v)+'%');}},
-    {id:'k-blossom',  label:'BLOSSOM', min:0,  max:100,val:0,  size:56, fn(v){BLOSSOM.amount=v/100;kv('blossom',Math.round(v)+'%');}},
-    {id:'k-refract',  label:'REFRACT', min:0,  max:4,  val:2,  size:50, fn(v){TOPOLOGY.index=Math.round(v);BLOSSOM.activeRefractIdx=Math.round(v);kv('refract',TOPOLOGY.labels[Math.round(v)]);}},
-    {id:'k-ref-rnd',  label:'RND',     min:0,  max:100,val:0,  size:26, fn(v){BLOSSOM.refractRnd=v/100;kv('ref-rnd',Math.round(v)+'%');}},
-    {id:'k-offset',   label:'OFFSET',  min:0,  max:8,  val:0,  size:28, fn(v){BLOSSOM.attack=Math.round(v);kv('offset',Math.round(v)+' div');}},
-    {id:'k-decay',    label:'DECAY',   min:1,  max:16, val:3,  size:28, fn(v){BLOSSOM.reps=Math.round(v);kv('decay',Math.round(v)+'×');}},
-    {id:'k-root',     label:'ROOT',    min:-3, max:3,  val:0,  size:56, fn(v){const oct=Math.round(v);SEASON.octaveShift=oct;SEASON.transpose=0;SEQ.pitchMemory=SEQ.rawPitchMemory.map(p=>SEASON.quantize(p));kv('root',(oct>0?'+':'')+oct+' oct');updatePD();}},
-    {id:'k-range',    label:'RANGE',   min:1,  max:4,  val:2,  size:56, fn(v){SEASON.octaveRange=Math.round(v);kv('range',Math.round(v)+' oct');updatePD();}},
-    {id:'k-evolve',   label:'EVOLVE',  min:0,  max:100,val:0,  size:34, fn(v){EVOLVE.chance=v/100;kv('evolve',Math.round(v)+'%');}},
+    {id:'k-hits',       label:'HITS',    min:1,max:16,val:4, size:28, fn(v){SEQ.hits=Math.round(v);SEQ.genGates();updatePD();}},
+    {id:'k-length',     label:'LENGTH',  min:1,max:16,val:8, size:34, fn(v){SEQ.len=Math.round(v);updatePD();}},
+    {id:'k-prune',      label:'PRUNE',   min:0,max:100,val:100,size:50, fn(v){PRUNE.value=v/100;PRUNE.generate(SEQ.len);}},
+    {id:'k-prunemod',   label:'MOD',     min:0,max:100,val:0, size:26, fn(v){PRUNE.mod=v/100;}},
+    {id:'k-drift',      label:'DRIFT',   min:0,max:100,val:0, size:44, fn(v){DRIFT.value=v/100;}},
+    {id:'k-evolve',     label:'EVOLVE',  min:0,max:100,val:0, size:56, fn(v){EVOLVE.chance=v/100;}},
+    {id:'k-blossom',    label:'BLOSSOM', min:0,max:100,val:0, size:44, fn(v){BLOSSOM.amount=v/100;}},
+    {id:'k-refract',    label:'REFRACT', min:0,max:4,val:2,  size:50, fn(v){TOPOLOGY.index=Math.round(v);BLOSSOM.activeRefractIdx=Math.round(v);}},
+    {id:'k-refractmod', label:'MOD',     min:0,max:100,val:0, size:26, fn(v){BLOSSOM.refractMod=v/100;}},
+    {id:'k-decay',      label:'DECAY',   min:1,max:16,val:3,  size:28, fn(v){BLOSSOM.reps=Math.round(v);}},
+    {id:'k-offset',     label:'OFFSET',  min:0,max:8,val:0,   size:34, fn(v){BLOSSOM.attack=Math.round(v);}},
+    {id:'k-root',       label:'ROOT',    min:-48,max:48,val:0,size:56, fn(v){SEASON.transpose=Math.round(v);SEQ.pitchMemory=SEQ.rawPitchMemory.map(p=>SEASON.quantize(p));updatePD();}},
+    {id:'k-range',      label:'RANGE',   min:1,max:6,val:2,   size:56, fn(v){SEASON.octaveRange=Math.round(v);updatePD();}},
   ].forEach(cfg=>makeKnob(cfg));
 }
 
-
 // ─── EDIT MODE ───────────────────────────────
-let editMode = false;
-
+let editMode=false;
 function toggleEditMode(){
-  editMode = !editMode;
-  document.body.classList.toggle('editing', editMode);
-  document.getElementById('edit-overlay').classList.toggle('on', editMode);
-  document.querySelector('.edit-mode-btn').textContent = editMode ? '✕ EXIT EDIT' : '⊹ EDIT MODE';
+  editMode=!editMode;
+  document.body.classList.toggle('editing',editMode);
+  document.getElementById('edit-overlay').classList.toggle('on',editMode);
+  document.querySelector('.edit-mode-btn').textContent=editMode?'✕ EXIT EDIT':'⊹ EDIT MODE';
   if(editMode) setupEditDrag();
 }
-
 function setupEditDrag(){
-  const panel = document.getElementById('panel');
-  const panelRect = ()=> panel.getBoundingClientRect();
-
-  document.querySelectorAll('.knob, .btn, .playbtn, .display, .pat-disp-outer').forEach(knob=>{
-    if(knob._editDrag) return; // already set up
-    knob._editDrag = true;
-
-    let didDrag = false;
-    knob.addEventListener('click', e=>{ if(didDrag){ e.stopPropagation(); e.preventDefault(); didDrag=false; } }, true);
-    knob.addEventListener('mousedown', e=>{
+  const panel=document.getElementById('panel');
+  const panelRect=()=>panel.getBoundingClientRect();
+  document.querySelectorAll('.knob, .btn, .display').forEach(el=>{
+    if(el._editDrag) return; el._editDrag=true;
+    let didDrag=false;
+    el.addEventListener('click',e=>{if(didDrag){e.stopPropagation();e.preventDefault();didDrag=false;}},true);
+    el.addEventListener('mousedown',e=>{
       if(!editMode) return;
-      e.preventDefault(); e.stopPropagation();
-      didDrag = false;
-      const pr = panelRect();
-      const startX = e.clientX, startY = e.clientY;
-      const startLeft = parseFloat(knob.style.left);
-      const startTop  = parseFloat(knob.style.top);
-
-      document.getElementById('edit-last').textContent = 'dragging: ' + knob.id;
-
+      e.preventDefault();e.stopPropagation();didDrag=false;
+      const pr=panelRect();
+      const startX=e.clientX,startY=e.clientY;
+      const startLeft=parseFloat(el.style.left),startTop=parseFloat(el.style.top);
+      document.getElementById('edit-last').textContent='dragging: '+el.id;
       function onMove(ev){
-        didDrag = true;
-        const dx = ev.clientX - startX;
-        const dy = ev.clientY - startY;
-        const newLeft = Math.max(0, Math.min(100, startLeft + (dx/pr.width)*100));
-        const newTop  = Math.max(0, Math.min(100, startTop  + (dy/pr.height)*100));
-        knob.style.left = newLeft.toFixed(1) + '%';
-        knob.style.top  = newTop.toFixed(1)  + '%';
-        document.getElementById('edit-coords').textContent =
-          knob.id + '\ntop:' + newTop.toFixed(1) + '% left:' + newLeft.toFixed(1) + '%';
+        didDrag=true;
+        const dx=ev.clientX-startX,dy=ev.clientY-startY;
+        const newLeft=Math.max(0,Math.min(100,startLeft+(dx/pr.width)*100));
+        const newTop=Math.max(0,Math.min(100,startTop+(dy/pr.height)*100));
+        el.style.left=newLeft.toFixed(1)+'%';el.style.top=newTop.toFixed(1)+'%';
+        document.getElementById('edit-coords').textContent=el.id+'\ntop:'+newTop.toFixed(1)+'% left:'+newLeft.toFixed(1)+'%';
       }
       function onUp(){
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-        const finalLeft = parseFloat(knob.style.left).toFixed(1);
-        const finalTop  = parseFloat(knob.style.top).toFixed(1);
-        document.getElementById('edit-coords').textContent =
-          knob.id + ': top:' + finalTop + '% left:' + finalLeft + '%';
-        // Copy to clipboard
-        const text = `top:${finalTop}%;left:${finalLeft}%`;
-        navigator.clipboard?.writeText(text);
-        document.getElementById('edit-last').textContent = '✓ copied: ' + knob.id;
+        document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);
+        const finalLeft=parseFloat(el.style.left).toFixed(1),finalTop=parseFloat(el.style.top).toFixed(1);
+        document.getElementById('edit-coords').textContent=el.id+': top:'+finalTop+'% left:'+finalLeft+'%';
+        navigator.clipboard?.writeText(`top:${finalTop}%;left:${finalLeft}%`);
+        document.getElementById('edit-last').textContent='✓ copied: '+el.id;
       }
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
+      document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
     });
   });
 }
 
-// Prevent knob drag from interfering with edit mode
-// (the makeKnob mousedown will check editMode)
-const _origMakeKnob = makeKnob;
-
-// ─── WEBAUDIO PLUCK SYNTH (fallback when no MIDI) ────────────
+// ─── WEBAUDIO PLUCK SYNTH ────────────
 const PLUCK={
   ctx:null, enabled:false,
   init(){ if(this.ctx) return; this.ctx=new(window.AudioContext||window.webkitAudioContext)(); },
@@ -655,8 +567,8 @@ const PLUCK={
     const freq=440*Math.pow(2,(midiNote-69)/12);
     const vel=velocity/127;
     const now=this.ctx.currentTime;
-
-    // Noise burst (attack click)
+    const attack = ENV.on ? Math.max(0.001, BLOSSOM.attack/16) : 0.001;
+    const decayT = ENV.on ? Math.max(0.05, BLOSSOM.reps/8) : 1.4;
     const buf=this.ctx.createBuffer(1,Math.floor(this.ctx.sampleRate*0.04),this.ctx.sampleRate);
     const data=buf.getChannelData(0);
     for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1);
@@ -664,47 +576,21 @@ const PLUCK={
     const lp=this.ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=freq*5;
     const ng=this.ctx.createGain(); ng.gain.setValueAtTime(vel*.07,now); ng.gain.exponentialRampToValueAtTime(.001,now+.04);
     src.connect(lp); lp.connect(ng);
-
-    // Fundamental sine — marimba body
     const osc=this.ctx.createOscillator(); osc.type='sine'; osc.frequency.value=freq;
-    const g=this.ctx.createGain(); g.gain.setValueAtTime(vel*.5,now); g.gain.exponentialRampToValueAtTime(.001,now+1.4);
+    const g=this.ctx.createGain(); g.gain.setValueAtTime(0,now); g.gain.linearRampToValueAtTime(vel*.5,now+attack); g.gain.exponentialRampToValueAtTime(.001,now+attack+decayT);
     osc.connect(g);
-
-    // 2nd harmonic — brightness
     const osc2=this.ctx.createOscillator(); osc2.type='sine'; osc2.frequency.value=freq*2.005;
     const g2=this.ctx.createGain(); g2.gain.setValueAtTime(vel*.12,now); g2.gain.exponentialRampToValueAtTime(.001,now+.35);
     osc2.connect(g2);
-
     const master=this.ctx.createGain(); master.gain.value=.75; master.connect(this.ctx.destination);
     ng.connect(master); g.connect(master); g2.connect(master);
-
     src.start(now); src.stop(now+.05);
-    osc.start(now); osc.stop(now+1.6);
+    osc.start(now); osc.stop(now+attack+decayT+.2);
     osc2.start(now); osc2.stop(now+.4);
   }
 };
-
 const _origPlay=SEQ.play.bind(SEQ);
 SEQ.play=function(note,vel,dur,ch){ _origPlay(note,vel,dur,ch); PLUCK.play(note,vel); };
-
-buildKnobs();
-SEQ.genGates();SEQ.genPitches();PRUNE.generate(SEQ.len);setSeason(0);initMIDI();
-const VERSION = 'v1.1';
-document.getElementById('version-tag').textContent = VERSION;
-lg('BOTANICA ' + VERSION + ' ready · SEED PATTERN + SEED TONES then PLAY');
-
-// UI visibility toggle
-let uiVisible = true;
-function toggleUI(){
-  uiVisible = !uiVisible;
-  const ids = ['controls-bar','debug-bar','dv-pat','log'];
-  // controls-bar: always show toggle button, hide rest
-  const bar = document.getElementById('controls-bar');
-  bar.style.display = uiVisible ? 'flex' : 'none';
-  document.getElementById('ui-toggle').textContent = uiVisible ? '⊙ HIDE' : '⊙ SHOW';
-}
-// Press H to toggle
-document.addEventListener('keydown', e=>{ if(e.key==='h'||e.key==='H') toggleUI(); });
 
 function togglePluck(){
   PLUCK.init();
@@ -713,87 +599,15 @@ function togglePluck(){
   btn.textContent=PLUCK.enabled?'🔊 AUDIO ON':'🔈 AUDIO OFF';
   btn.style.color=PLUCK.enabled?'#B8A96A':'#6A6A60';
   btn.style.borderColor=PLUCK.enabled?'#B8A96A':'#4A4A42';
-  lg(PLUCK.enabled?'WebAudio ON — no DAW needed':'WebAudio OFF');
+  lg(PLUCK.enabled?'WebAudio ON':'WebAudio OFF');
 }
 
-// MANUAL
-const MANUAL_TEXT = [
-  {section:'PATTERN', items:[
-    {name:'LENGTH', desc:'Number of steps in the sequence (1–16). At 120 BPM, 16 steps = 1 bar.'},
-    {name:'HITS', desc:'How many of those steps have an active gate. More hits = denser rhythm.'},
-    {name:'PRUNE', desc:'Gradually removes hits from the phrase — always the same hits each cycle. Turn down to thin out the pattern. RESEED generates a new prune shape.'},
-    {name:'PRUNE RND', desc:'Slowly rotates the prune mask each cycle. Keeps things moving without full regeneration.'},
-    {name:'SLOPPY', desc:'Pushes notes slightly off the grid. 0% = machine tight. 100% = loose and human.'},
-    {name:'SEED PAT', desc:'Generate a new random gate pattern. Press until you find something you like.'},
-    {name:'LOCK', desc:'Freeze the current pattern. Notes will not change until you unlock.'},
-    {name:'SNAP', desc:'Rotate the pattern so the first active hit lands on beat 1.'},
-    {name:'EUCLID', desc:'Switch between organic random placement (off) and euclidean distribution (on). Euclid spreads hits as evenly as possible across the steps.'},
-  ]},
-  {section:'TONES', items:[
-    {name:'ROOT', desc:'Transposes the root note of the current season up or down. All generated notes follow.'},
-    {name:'RANGE', desc:'Octave spread of generated notes. 1 oct = all notes in one octave. 4 oct = wide melodic range.'},
-    {name:'EVOLVE', desc:'Chance that one tone changes each cycle. 0% = frozen. Higher = slowly drifting melody.'},
-    {name:'SEED TONES', desc:'Generate a new random set of pitches. Guaranteed to cover the full octave range.'},
-    {name:'LOCK', desc:'Freeze the current pitches. EVOLVE will not change them while locked.'},
-  ]},
-  {section:'SEASONS', items:[
-    {name:'SPRING', desc:'Pentatonic Major — bright, open, no tension. Root: C4.'},
-    {name:'SUMMER', desc:'Lydian — dreamy, floating, raised 4th. Root: G4.'},
-    {name:'FALL', desc:'Dorian — melancholic, jazzy, minor with a lift. Root: A3.'},
-    {name:'WINTER', desc:'Whole Tone — ambiguous, hovering, no resolution. Root: D4.'},
-  ]},
-  {section:'BLOSSOM', items:[
-    {name:'AMOUNT', desc:'Chance that a hit spawns echoes. 0% = no blossom. 100% = every hit blossoms.'},
-    {name:'REFRACT', desc:'Speed of the blossom echoes relative to the main grid. ÷8 = very slow echoes, ×2 = rapid subdivision.'},
-    {name:'SYNC / FREE', desc:'SYNC = echoes stay on the subdivision grid. FREE = RND knop creates continuous time variation between echoes, off-grid.'},
-    {name:'RND', desc:'Randomises the refract subdivision per echo — gives an organic, uneven bloom feel.'},
-    {name:'OFFSET', desc:'Delay before the first echo fires. 0 = immediate, higher = echo starts later in the step.'},
-    {name:'DECAY', desc:'Number of echoes per blossom (1–16). More = longer tail.'},
-    {name:'RAMP ↓', desc:'Each echo gets softer. Loudest first, fades out.'},
-    {name:'RAMP ↑', desc:'Each echo gets louder. Builds toward silence, then next hit.'},
-    {name:'ARP / OCT ↓ / OCT ↑', desc:'Pitch shape of echoes. ARP = steps up through the scale. OCT ↓ = each echo one octave lower. OCT ↑ = each echo one octave higher. Click again to turn off.'},
-  ]},
-  {section:'GETTING STARTED', items:[
-    {name:'1', desc:'Press SEED PAT to generate a rhythm.'},
-    {name:'2', desc:'Press SEED TONES to generate pitches.'},
-    {name:'3', desc:'Select a SEASON.'},
-    {name:'4', desc:'Press PLAY.'},
-    {name:'5', desc:'Turn up BLOSSOM AMOUNT to hear echoes bloom from each hit.'},
-    {name:'6', desc:'Turn PRUNE slowly down to thin the phrase.'},
-    {name:'7', desc:'Switch SEASON to hear the same pattern in a different scale.'},
-  ]},
-];
-
-function showManual(){
-  const content = document.getElementById('manual-content');
-  content.innerHTML = MANUAL_TEXT.map(sec=>`
-    <div style="margin-bottom:20px;">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.2em;color:#1A1A18;border-bottom:1px solid #D4CDB8;padding-bottom:4px;margin-bottom:10px;">${sec.section}</div>
-      ${sec.items.map(item=>`
-        <div style="margin-bottom:10px;">
-          <div style="color:#B8A96A;font-weight:700;letter-spacing:.08em;margin-bottom:2px;">${item.name}</div>
-          <div style="color:#5A5A52;padding-left:0;">${item.desc}</div>
-        </div>`).join('')}
-    </div>`).join('');
-  document.getElementById('manual-overlay').style.display='block';
-  document.body.style.overflow='hidden';
-}
-function hideManual(){
-  document.getElementById('manual-overlay').style.display='none';
-  document.body.style.overflow='';
-}
+buildKnobs();
+SEQ.genGates();SEQ.genPitches();PRUNE.generate(SEQ.len);PSEED.seed();
+cycleSeason();cycleSeason();cycleSeason();cycleSeason(); // land back on SPRING with pills initialized
+initMIDI();
+refreshModeArpUI();
+lg('BOTANICA v2 ready · gates always Euclidean · PATTERN SEED ≠ new rhythm');
 </script>
-
-<!-- MANUAL MODAL -->
-<div id="manual-overlay" onclick="hideManual()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;overflow-y:auto;padding:20px 12px;">
-  <div onclick="event.stopPropagation()" style="background:#F2EFE6;border-radius:10px;max-width:680px;margin:0 auto;padding:24px 20px;font-family:'Space Mono',monospace;position:relative;">
-    <button onclick="hideManual()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:18px;cursor:pointer;color:#4A4A42;">✕</button>
-    <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;letter-spacing:.2em;margin-bottom:4px;">BOTANICA</div>
-    <div style="font-size:9px;letter-spacing:.3em;color:#B8A96A;margin-bottom:4px;">— NATURAL SEQUENCER —</div>
-    <div style="font-size:7px;letter-spacing:.15em;color:#9A9A90;margin-bottom:20px;" id="manual-version">v1.1 · © 2026 Chris van der Linden · Human Motives</div>
-    <div id="manual-content" style="font-size:12px;line-height:1.9;color:#4A4A42;letter-spacing:.03em;"></div>
-    <div style="margin-top:20px;font-size:7px;color:#9A9A90;letter-spacing:.1em;">click outside to close · BOTANICA by Human Motives · 2026</div>
-  </div>
-</div>
 </body>
 </html>
