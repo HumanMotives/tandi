@@ -101,18 +101,18 @@ body.editing .knob:active{cursor:grabbing!important;}
 
   <!-- KNOBS -->
   <div class="knob" id="k-hits"        style="top:46.7%;left:14.7%"></div>
-  <div class="knob" id="k-prune"       style="top:38.9%;left:25.1%"></div>
+  <div class="knob" id="k-prune"       style="top:38.7%;left:25.2%"></div>
   <div class="knob" id="k-prunemod"    style="top:54.7%;left:33.1%"></div>
   <div class="knob" id="k-length"      style="top:59.0%;left:22.5%"></div>
   <div class="knob" id="k-drift"       style="top:36.0%;left:37.5%"></div>
-  <div class="knob" id="k-evolve"      style="top:33.3%;left:50.0%"></div>
+  <div class="knob" id="k-evolve"      style="top:32.4%;left:49.6%"></div>
   <div class="knob" id="k-blossom"     style="top:36.0%;left:62.0%"></div>
-  <div class="knob" id="k-refract"     style="top:38.7%;left:74.1%"></div>
+  <div class="knob" id="k-refract"     style="top:38.7%;left:74.2%"></div>
   <div class="knob" id="k-refractmod"  style="top:54.4%;left:66.3%"></div>
   <div class="knob" id="k-decay"       style="top:46.7%;left:84.7%"></div>
   <div class="knob" id="k-offset"      style="top:59.0%;left:76.8%"></div>
-  <div class="knob" id="k-root"        style="top:77.8%;left:41.1%"></div>
-  <div class="knob" id="k-range"       style="top:77.1%;left:58.5%"></div>
+  <div class="knob" id="k-root"        style="top:77.6%;left:40.9%"></div>
+  <div class="knob" id="k-range"       style="top:77.3%;left:58.4%"></div>
 
   <!-- SEASON -->
   <div class="seasonpill" id="sp-3" onclick="setSeason(3)" style="top:65.8%;left:50.0%;pointer-events:auto;cursor:pointer;">WINTER</div>
@@ -511,17 +511,17 @@ function makeKnob(cfg){
 
 function buildKnobs(){
   [
-    {id:'k-hits',       label:'HITS',    min:1,max:16,val:4, size:34, fn(v){SEQ.hits=Math.round(v);if(!SEQ.patternLocked)SEQ.genGates();updatePD();}},
-    {id:'k-length',     label:'LENGTH',  min:1,max:16,val:8, size:34, fn(v){SEQ.len=Math.round(v);updatePD();}},
+    {id:'k-hits',       label:'HITS',    min:1,max:16,val:4, size:40, fn(v){SEQ.hits=Math.round(v);if(!SEQ.patternLocked)SEQ.genGates();updatePD();}},
+    {id:'k-length',     label:'LENGTH',  min:1,max:16,val:8, size:40, fn(v){SEQ.len=Math.round(v);updatePD();}},
     {id:'k-prune',      label:'PRUNE',   min:0,max:100,val:0,size:56, fn(v){PRUNE.value=1-(v/100);PRUNE.generate(SEQ.len);}},
-    {id:'k-prunemod',   label:'MOD',     min:0,max:100,val:0, size:34, fn(v){PRUNE.mod=v/100;}},
+    {id:'k-prunemod',   label:'MOD',     min:0,max:100,val:0, size:40, fn(v){PRUNE.mod=v/100;}},
     {id:'k-drift',      label:'DRIFT',   min:0,max:100,val:0, size:56, fn(v){DRIFT.value=v/100;}},
     {id:'k-evolve',     label:'EVOLVE',  min:0,max:100,val:0, size:56, fn(v){EVOLVE.chance=v/100;}},
     {id:'k-blossom',    label:'BLOSSOM', min:0,max:100,val:0, size:56, fn(v){BLOSSOM.amount=v/100;}},
     {id:'k-refract',    label:'REFRACT', min:0,max:4,val:2,  size:56, fn(v){TOPOLOGY.index=Math.round(v);BLOSSOM.activeRefractIdx=Math.round(v);}},
-    {id:'k-refractmod', label:'MOD',     min:0,max:100,val:0, size:34, fn(v){BLOSSOM.refractMod=v/100;}},
-    {id:'k-decay',      label:'DECAY',   min:1,max:16,val:3,  size:34, fn(v){BLOSSOM.reps=Math.round(v);}},
-    {id:'k-offset',     label:'OFFSET',  min:0,max:8,val:0,   size:34, fn(v){BLOSSOM.attack=Math.round(v);}},
+    {id:'k-refractmod', label:'MOD',     min:0,max:100,val:0, size:40, fn(v){BLOSSOM.refractMod=v/100;}},
+    {id:'k-decay',      label:'DECAY',   min:1,max:16,val:3,  size:40, fn(v){BLOSSOM.reps=Math.round(v);}},
+    {id:'k-offset',     label:'OFFSET',  min:0,max:8,val:0,   size:40, fn(v){BLOSSOM.attack=Math.round(v);}},
     {id:'k-root',       label:'ROOT',    min:-48,max:48,val:0,size:56, fn(v){SEASON.transpose=Math.round(v);SEQ.pitchMemory=SEQ.rawPitchMemory.map(p=>SEASON.quantize(p));updatePD();}},
     {id:'k-range',      label:'RANGE',   min:1,max:6,val:2,   size:56, fn(v){SEASON.octaveRange=Math.round(v);updatePD();}},
   ].forEach(cfg=>makeKnob(cfg));
