@@ -35,7 +35,7 @@ img{display:block}
 #tickwrap{position:absolute;top:16px;height:100px;overflow:hidden}
 #ticker{position:absolute;top:24px;left:0;white-space:nowrap;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;font-size:40px;font-weight:700;color:#fff;line-height:52px}
 #badge{position:absolute;left:46px;top:20px;width:162px;height:162px;border-radius:50%;background:#fff;box-shadow:0 16px 36px rgba(0,0,0,.26);z-index:9}
-#badge img{width:120px;height:auto;margin:auto;position:absolute;left:0;right:0;top:0;bottom:0;-webkit-transform:translateX(-8px);transform:translateX(-8px)}
+#badge img{width:160px;height:171px;margin:auto;position:absolute;left:-2px;right:0;top:-5px;bottom:0;-webkit-transform:translateX(-8px);transform:translateX(-8px)}
 #prog{position:absolute;left:0;bottom:0;height:6px;width:100%;background:#8a8a8a;z-index:9;-webkit-transform-origin:0 0;transform-origin:0 0;-webkit-transform:scaleX(0);transform:scaleX(0)}
 .deck{position:absolute;left:0;top:124px;width:1920px;height:956px;overflow:hidden}
 .slide{position:absolute;left:0;top:0;width:1920px;height:956px;opacity:0;overflow:hidden;z-index:1}
@@ -101,6 +101,11 @@ img{display:block}
       </div>
     </div>
 
+    <!-- TEMPLATE T8 Sponsor Logo (wordt automatisch tussen de slides gezet) -->
+    <div class="slide" data-solo="1" data-anim="fade" style="background:#fff">
+      <img id="soloimg" data-in="Up" alt="Sponsor" style="position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;max-width:1100px;max-height:600px;width:auto;height:auto">
+    </div>
+
     <!-- TEMPLATE T1 Sponsoren Overzicht -->
     <div class="slide" data-anim="fade" style="background:#F7F4EC">
       <div style="position:absolute;right:-230px;bottom:-280px;width:940px;height:940px;border-radius:50%;border:80px solid rgba(206,33,48,.055)" class="wm"></div>
@@ -162,15 +167,31 @@ img{display:block}
         <div class="C" style="font-size:52px;color:#CE2130;line-height:1">Uit de keuken</div>
         <div class="A" style="font-size:100px;line-height:1.05;margin-top:6px">EFKES IETS ETEN</div>
       </div>
-      <div class="abs" data-in="Left" style="left:70px;bottom:60px;width:930px;height:490px">
-        <div data-in="Pop" class="abs" style="left:0;bottom:0;width:452px;height:440px"><div class="br sh" style="width:100%;height:100%"><img class="cover" src="img/s/food-1.png" alt="" style="border-radius:24px"></div></div>
-        <div data-in="Pop" class="abs" style="left:478px;bottom:50px;width:452px;height:440px"><div class="br sh" style="width:100%;height:100%;-webkit-animation-delay:1.3s;animation-delay:1.3s"><img class="cover" src="img/s/food-2.png" alt="" style="border-radius:24px"></div></div>
-      </div>
-      <div class="abs" data-in="Right" style="left:1044px;bottom:60px;width:806px">
-        <div class="fx sb" style="border-bottom:2px solid #ddd6c4;padding:16px 0"><span class="A" style="font-size:44px">Broodje frikandel</span><span class="A" style="font-size:44px;color:#CE2130">€ 2,55</span></div>
-        <div class="fx sb" style="border-bottom:2px solid #ddd6c4;padding:16px 0"><span class="A" style="font-size:44px">Tosti ham/kaas</span><span class="A" style="font-size:44px;color:#CE2130">€ 2,00</span></div>
-        <div class="fx sb" style="border-bottom:2px solid #ddd6c4;padding:16px 0"><span class="A" style="font-size:44px">Snoep / Chips</span><span class="A" style="font-size:44px;color:#CE2130">€ 1,50</span></div>
-        <div class="fx sb" style="padding:16px 0"><span class="A" style="font-size:44px">Koffie + koek</span><span class="A" style="font-size:44px;color:#CE2130">€ 2,50</span></div>
+      <div data-in="Pop" class="abs" style="left:70px;top:300px;width:400px;height:400px"><div class="br sh" style="width:100%;height:100%"><img class="cover" src="img/s/food-1.png" alt="" style="border-radius:24px"></div></div>
+      <div data-in="Pop" class="abs" style="left:320px;top:510px;width:380px;height:380px"><div class="br sh" style="width:100%;height:100%;-webkit-animation-delay:1.3s;animation-delay:1.3s"><img class="cover" src="img/s/food-2.png" alt="" style="border-radius:24px"></div></div>
+      <div data-in="Right" class="abs" style="left:780px;top:290px;width:1070px">
+        <div class="abs" style="left:0;top:0;width:503px">
+          <div>
+            <div style="font-size:26px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:8px;border-bottom:4px solid #111">UIT DE FRITUUR</div>
+            <div class="fx sb" style="padding:13px 0;border-bottom:2px solid #ddd6c4;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Broodje kroket / frikandel</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap">€ 2,50</span></div>
+            <div class="fx sb" style="padding:13px 0;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Broodje kipburger</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap">€ 3,50</span></div>
+          </div>
+          <div style="margin-top:38px">
+            <div style="font-size:26px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:8px;border-bottom:4px solid #111">WARM UIT DE OVEN</div>
+            <div class="fx sb" style="padding:13px 0;border-bottom:2px solid #ddd6c4;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Tosti / vlamtosti</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap">€ 2,50</span></div>
+            <div class="fx sb" style="padding:13px 0;border-bottom:2px solid #ddd6c4;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Worstenbroodje</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap">€ 2,75</span></div>
+            <div class="fx sb" style="padding:13px 0;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Frikandelbroodje</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap">€ 3,25</span></div>
+          </div>
+        </div>
+        <div class="abs" style="left:567px;top:0;width:503px">
+          <div>
+            <div style="font-size:26px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:8px;border-bottom:4px solid #111">SNOEP &amp; CHIPS</div>
+            <div class="fx sb" style="padding:13px 0;border-bottom:2px solid #ddd6c4;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Chips</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap">€ 1,25</span></div>
+            <div class="fx sb" style="padding:13px 0;border-bottom:2px solid #ddd6c4;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Twix / Snickers / Knoppers</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap">€ 1,50</span></div>
+            <div class="fx sb" style="padding:13px 0;border-bottom:2px solid #ddd6c4;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Haribo / Skittles</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap">€ 1,50</span></div>
+            <div class="fx sb" style="padding:13px 0;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Sportlife</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap">€ 1,50</span></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -292,8 +313,11 @@ img{display:block}
 
 <script>
 /* ===== Instellingen — pas hier aan =====
-   URL-opties: ?mode=ontvangst  ?sec=20  ?fx=full (alle effecten, voor snelle hardware)  ?reload=60  */
+   URL-opties: ?mode=ontvangst  ?sec=20  ?sponsor=3  ?fx=full (alle effecten, voor snelle hardware)  ?reload=60  */
 var TICKER = "Welkom op Sportpark De Smeel · RKVV Casteren wenst alle teams een sportieve wedstrijd · Vandaag in de kantine: verse soep en broodje frikandel · Zaterdag 15 november Trucker's Ball, 20:30 · Ook sponsor worden? Vraag het aan de bar";
+// Losse sponsorlogo's: komen om de SPONSOR_EVERY slides één voor één voorbij (0 = uit, of ?sponsor=4)
+var SPONSOR_EVERY = 3;
+var SPONSORS = ["img/s/solo-1.png", "img/s/solo-2.png", "img/s/solo-3.png", "img/s/solo-4.png", "img/s/solo-5.png", "img/s/solo-6.png", "img/s/solo-7.png"];
 var INDELING = [
   ["Casteren JO9-1 — Bladella JO9-2", "09:00", "VELD 3", "2"],
   ["Casteren JO11-1 — Hapert JO11-1", "09:45", "VELD 2", "3"],
@@ -363,7 +387,15 @@ var INDELING = [
   setAnim(tk, 'tick ' + tDur + 's linear infinite');
 
   // slides
-  var slides = deck.querySelectorAll('.slide');
+  var all = deck.querySelectorAll('.slide'), slides = [], solo = null, soloN = 0;
+  var every = parseInt(q('sponsor', String(SPONSOR_EVERY)), 10) || 0;
+  for (var a = 0, c = 0; a < all.length; a++) {
+    if (all[a].getAttribute('data-solo')) { solo = all[a]; continue; }
+    slides.push(all[a]); c++;
+    if (deck.id === 'kantine' && every > 0 && SPONSORS.length && c % every === 0) slides.push('SOLO');
+  }
+  if (!solo) slides = slides.filter(function (x) { return x !== 'SOLO'; });
+  for (var b = 0; b < slides.length; b++) if (slides[b] === 'SOLO') slides[b] = solo;
   var prog = document.getElementById('prog');
   var cur = 0, timer = null;
   var ANIM = { fade: 'fade 1.8s ease both', zoom: 'zoom 2.6s cubic-bezier(.2,.8,.2,1) both', wipe: 'wipe 1.7s cubic-bezier(.75,0,.15,1) both', fold: 'fold 2s cubic-bezier(.3,.9,.2,1) both', up: 'up 1.6s cubic-bezier(.2,.85,.2,1) both' };
@@ -371,9 +403,10 @@ var INDELING = [
   var LITE = { fade: 'fade 1.2s ease both', zoom: 'fade 1.2s ease both', wipe: 'fade 1.2s ease both', fold: 'fade 1.2s ease both', up: 'up 1.1s ease-out both' };
   if (!FULL) ANIM = LITE;
   function show(i) {
-    for (var k = 0; k < slides.length; k++) {
-      var s = slides[k];
-      if (k === i) {
+    if (slides[i] === solo) document.getElementById('soloimg').src = SPONSORS[soloN++ % SPONSORS.length];
+    for (var k = 0; k < all.length; k++) {
+      var s = all[k];
+      if (s === slides[i]) {
         s.style.zIndex = 2; s.style.opacity = 1;
         setAnim(s, 'none'); void s.offsetWidth;
         setAnim(s, ANIM[s.getAttribute('data-anim')] || ANIM.fade);
