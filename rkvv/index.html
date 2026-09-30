@@ -24,21 +24,21 @@ img{display:block}
 .sh{-webkit-filter:drop-shadow(0 24px 24px rgba(0,0,0,.28));filter:drop-shadow(0 24px 24px rgba(0,0,0,.28))}
 .lite .sh{-webkit-filter:none;filter:none}
 .lite .br{-webkit-animation:none!important;animation:none!important}
-.lite .card,.lite #badge{box-shadow:none!important}
+.lite .card,.lite #badge,.lite .nosh{box-shadow:none!important}
 .lite .wm{display:none}
 
 #stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;margin:-540px 0 0 -960px;background:#F7F4EC;overflow:hidden;-webkit-transform-origin:50% 50%;transform-origin:50% 50%}
-#bar{position:absolute;left:0;top:0;width:1920px;height:108px;background:#F4F2EC;border-bottom:8px solid #E6D74F;z-index:8}
-#clockbox{position:absolute;left:226px;top:0;height:100px;background:#E7E4DA;padding:0 38px}
-#date{font-size:26px;font-weight:600;color:#6f6d66;margin-right:20px}
-#clock{font-size:40px;color:#CE2130}
-#tickwrap{position:absolute;top:0;right:0;height:100px;overflow:hidden}
-#ticker{position:absolute;top:24px;left:0;white-space:nowrap;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;font-size:40px;font-weight:700;color:#25231f;line-height:52px}
-#badge{position:absolute;left:38px;top:4px;width:162px;height:162px;border-radius:50%;background:#fff;box-shadow:0 16px 36px rgba(0,0,0,.26);z-index:9}
-#badge img{width:120px;height:auto;margin:auto;position:absolute;left:0;right:0;top:0;bottom:0}
-#prog{position:absolute;left:0;bottom:0;height:6px;width:100%;background:#E6D74F;z-index:9;-webkit-transform-origin:0 0;transform-origin:0 0;-webkit-transform:scaleX(0);transform:scaleX(0)}
-.deck{position:absolute;left:0;top:108px;width:1920px;height:972px;overflow:hidden}
-.slide{position:absolute;left:0;top:0;width:1920px;height:972px;opacity:0;overflow:hidden;z-index:1}
+#bar{position:absolute;left:0;top:0;width:1920px;height:124px;background:#111;border-bottom:8px solid #E6D74F;z-index:8}
+#clockbox{position:absolute;right:0;top:16px;height:100px;background:#1f1f1f;padding:0 38px}
+#date{font-size:26px;font-weight:600;color:#a8a8a8;margin-right:20px}
+#clock{font-size:40px;color:#E6D74F}
+#tickwrap{position:absolute;top:16px;height:100px;overflow:hidden}
+#ticker{position:absolute;top:24px;left:0;white-space:nowrap;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;font-size:40px;font-weight:700;color:#fff;line-height:52px}
+#badge{position:absolute;left:46px;top:20px;width:162px;height:162px;border-radius:50%;background:#fff;box-shadow:0 16px 36px rgba(0,0,0,.26);z-index:9}
+#badge img{width:120px;height:auto;margin:auto;position:absolute;left:0;right:0;top:0;bottom:0;-webkit-transform:translateX(-8px);transform:translateX(-8px)}
+#prog{position:absolute;left:0;bottom:0;height:6px;width:100%;background:#8a8a8a;z-index:9;-webkit-transform-origin:0 0;transform-origin:0 0;-webkit-transform:scaleX(0);transform:scaleX(0)}
+.deck{position:absolute;left:0;top:124px;width:1920px;height:956px;overflow:hidden}
+.slide{position:absolute;left:0;top:0;width:1920px;height:956px;opacity:0;overflow:hidden;z-index:1}
 [data-in]{opacity:0}
 
 .kicker{font-size:30px;font-weight:800;letter-spacing:.24em}
@@ -51,6 +51,8 @@ img{display:block}
 @keyframes prog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @-webkit-keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
+@-webkit-keyframes ball{0%{opacity:1;-webkit-transform:translate3d(-160px,120px,0) scale(4.6) rotate(0deg)}45%{opacity:1;-webkit-transform:translate3d(120px,-60px,0) scale(1.1) rotate(-260deg)}100%{opacity:0;-webkit-transform:translate3d(780px,-440px,0) scale(.06) rotate(-620deg)}}
+@keyframes ball{0%{opacity:1;transform:translate3d(-160px,120px,0) scale(4.6) rotate(0deg)}45%{opacity:1;transform:translate3d(120px,-60px,0) scale(1.1) rotate(-260deg)}100%{opacity:0;transform:translate3d(780px,-440px,0) scale(.06) rotate(-620deg)}}
 @-webkit-keyframes zoom{from{opacity:0;-webkit-transform:scale(1.08)}to{opacity:1;-webkit-transform:scale(1)}}
 @keyframes zoom{from{opacity:0;transform:scale(1.08)}to{opacity:1;transform:scale(1)}}
 @-webkit-keyframes wipe{from{opacity:1;-webkit-clip-path:inset(0 100% 0 0)}to{opacity:1;-webkit-clip-path:inset(0 0 0 0)}}
@@ -83,10 +85,12 @@ img{display:block}
   </div>
   <div id="badge"><img src="img/s/logo.png" alt="RKVV Casteren"></div>
   <div id="prog"></div>
+  <img id="ballfx" src="img/s/voetbal-groot.png" alt="" style="position:absolute;left:50%;top:50%;width:800px;height:800px;margin:-400px 0 0 -400px;opacity:0;z-index:12;will-change:transform;-webkit-backface-visibility:hidden">
 
   <!-- ================= KANTINE ================= -->
   <div class="deck" id="kantine">
 
+    <!-- TEMPLATE T2 Sponsor Uitgelicht -->
     <div class="slide" data-anim="fold" style="background:#fff">
       <div class="abs fx col jc" style="left:0;top:0;width:1200px;height:972px;padding:0 90px">
         <div data-in="Up" style="height:300px"><img class="contain" src="img/s/sponsor-hero.png" alt=""></div>
@@ -97,6 +101,7 @@ img{display:block}
       </div>
     </div>
 
+    <!-- TEMPLATE T1 Sponsoren Overzicht -->
     <div class="slide" data-anim="fade" style="background:#F7F4EC">
       <div style="position:absolute;right:-230px;bottom:-280px;width:940px;height:940px;border-radius:50%;border:80px solid rgba(206,33,48,.055)" class="wm"></div>
       <img data-in="Roll" class="abs sh" src="img/s/voetbal.png" alt="" style="right:330px;top:26px;width:130px">
@@ -119,7 +124,8 @@ img{display:block}
       </div>
     </div>
 
-    <div class="slide" data-anim="up" style="background:#CE2130;background:linear-gradient(160deg,#CE2130,#99141F)">
+    <!-- TEMPLATE T3a Catering Menu · Uitgelicht -->
+    <div class="slide" data-anim="up" data-ball="1" style="background:#CE2130;background:linear-gradient(160deg,#CE2130,#99141F)">
       <div class="abs" style="left:70px;top:86px">
         <div class="C" style="font-size:52px;color:#E6D74F;line-height:1">Vandaag aan de bar</div>
         <div class="A" style="font-size:88px;color:#fff;line-height:1.05;margin-top:6px">SPECIAALBIER<br>&amp; FRISDRANK</div>
@@ -149,6 +155,7 @@ img{display:block}
       </div>
     </div>
 
+    <!-- TEMPLATE T3b Catering Menu · Menukaart -->
     <div class="slide" data-anim="up" style="background:#F7F4EC">
       <img class="abs" src="img/s/logo.png" alt="" style="left:-170px;bottom:-190px;width:700px;opacity:.05">
       <div class="abs" style="left:70px;top:86px">
@@ -167,6 +174,7 @@ img{display:block}
       </div>
     </div>
 
+    <!-- TEMPLATE T6 Thema Avond -->
     <div class="slide" data-anim="wipe" style="background:#E6D74F">
       <div class="abs" style="left:900px;top:0;width:1020px;height:972px">
         <img data-in="Right" class="abs sh" src="img/s/trucker.png" alt="" style="right:120px;bottom:-20px;height:980px;width:auto">
@@ -187,97 +195,37 @@ img{display:block}
       </div>
     </div>
 
-    <div class="slide" data-anim="up" style="background:#F7F4EC">
-      <img class="abs" src="img/s/logo.png" alt="" style="right:-130px;top:-150px;width:640px;opacity:.05">
-      <img data-in="Roll" class="abs sh" src="img/s/voetbal.png" alt="" style="right:340px;top:30px;width:110px">
-      <div class="abs" style="left:70px;top:80px">
-        <div class="C" style="font-size:48px;color:#CE2130;line-height:1">Afgelopen weekend</div>
-        <div class="A" style="font-size:82px;line-height:1.05">UITSLAGEN</div>
-      </div>
-      <div class="abs fx col jc" style="left:70px;top:250px;width:1780px;height:670px">
-        <div data-in="Up" class="row fx ac" style="border-left:12px solid #CE2130;padding:22px 30px;margin-bottom:18px">
-          <span class="A" style="width:190px;font-size:34px;color:#CE2130">SENIOREN 1</span>
-          <span class="A f1" style="font-size:44px;margin:0 26px">RKVV Casteren — Reusel Sport</span>
-          <span class="A" style="width:200px;font-size:46px;color:#fff;background:#111;border-radius:12px;padding:8px 0;text-align:center">3 – 1</span>
-        </div>
-        <div data-in="Up" class="row fx ac" style="border-left:12px solid #CE2130;padding:22px 30px;margin-bottom:18px">
-          <span class="A" style="width:190px;font-size:34px;color:#CE2130">SENIOREN 2</span>
-          <span class="A f1" style="font-size:44px;margin:0 26px">Bladella 3 — RKVV Casteren 2</span>
-          <span class="A" style="width:200px;font-size:46px;color:#fff;background:#111;border-radius:12px;padding:8px 0;text-align:center">2 – 2</span>
-        </div>
-        <div data-in="Up" class="row fx ac" style="border-left:12px solid #E6D74F;padding:22px 30px;margin-bottom:18px">
-          <span class="A" style="width:190px;font-size:34px;color:#8a7d33">JO13-1</span>
-          <span class="A f1" style="font-size:44px;margin:0 26px">RKVV Casteren JO13 — Hapert JO13</span>
-          <span class="A" style="width:200px;font-size:46px;color:#fff;background:#111;border-radius:12px;padding:8px 0;text-align:center">4 – 2</span>
-        </div>
-        <div data-in="Up" class="row fx ac" style="border-left:12px solid #E6D74F;padding:22px 30px">
-          <span class="A" style="width:190px;font-size:34px;color:#8a7d33">JO10-1</span>
-          <span class="A f1" style="font-size:44px;margin:0 26px">DOSL JO10 — RKVV Casteren JO10</span>
-          <span class="A" style="width:200px;font-size:46px;color:#fff;background:#111;border-radius:12px;padding:8px 0;text-align:center">1 – 5</span>
-        </div>
-      </div>
-    </div>
-
+    <!-- TEMPLATE T4 Speler van de maand -->
     <div class="slide" data-anim="fade" style="background:#fff">
       <div class="abs" style="left:0;top:0;width:840px;height:972px;background:#EDE8DC"><img class="cover" src="img/s/jeugdspeler.jpg" alt=""></div>
       <div class="abs fx col jc" style="left:840px;top:0;width:1080px;height:972px;padding:80px 70px">
         <div class="kicker" style="color:#CE2130">SPELER VAN DE MAAND</div>
         <div data-in="Up" class="A" style="font-size:118px;line-height:1.02;margin-top:16px">TIJN<br>WILBORTS</div>
         <div data-in="Up" class="C" style="font-size:54px;color:#CE2130;margin-top:8px">CASTEREN 1</div>
-        <div data-in="Up" style="font-size:34px;font-weight:600;color:#5f5f5f;margin-top:28px;max-width:720px">Sem traint elke week mee met de keepers, helpt bij de Kabouters op zaterdag en scoorde er vorige maand zeven. Dikke duim!</div>
+        <div data-in="Up" style="font-size:34px;font-weight:600;color:#5f5f5f;margin-top:28px;max-width:720px">Korte tekst over de speler: waarom deze maand, het mooiste moment en een dikke duim van de club.</div>
       </div>
     </div>
 
-    <div class="slide" data-anim="zoom" style="background:#111">
+    <!-- TEMPLATE T5 Teamfoto -->
+    <div class="slide" data-anim="zoom" data-ball="1" style="background:#111">
       <img class="cover" src="img/s/foto-week.jpg" alt="">
       <div class="abs" style="left:0;right:0;bottom:0;padding:70px;background:linear-gradient(0deg,rgba(0,0,0,.85),rgba(0,0,0,0))">
-        <div class="C" style="font-size:48px;color:#E6D74F;line-height:1">Foto van de week</div>
-        <div class="A" style="font-size:76px;color:#fff;line-height:1.12;margin-top:6px">CASTEREN DAMES IN ACTIE</div>
+        <div class="C" style="font-size:48px;color:#E6D74F;line-height:1">Teamfoto · seizoen 2026/27</div>
+        <div class="A" style="font-size:76px;color:#fff;line-height:1.12;margin-top:6px">RKVV CASTEREN DAMES 1</div>
       </div>
     </div>
 
-    <div class="slide" data-anim="wipe" style="background:#1d2b1a">
-      <div class="abs fx col jc" style="left:0;top:0;width:960px;height:972px;padding:80px 70px">
-        <img data-in="Pop" class="sh" src="img/s/desmeel-logo.png" alt="De Smeel" style="width:150px;height:auto;margin-bottom:26px">
-        <div class="kicker" style="color:#9ec27a">MULTIFUNCTIONEEL SPORTPARK</div>
-        <div class="A" style="font-size:128px;line-height:1;color:#fff;margin-top:16px">DE<br>SMEEL</div>
-        <div data-in="Up" class="C" style="font-size:56px;color:#E6D74F;margin-top:12px">Samen buiten bewegen</div>
-        <div data-in="Up" style="font-size:34px;font-weight:600;color:#cfd9c6;margin-top:26px;max-width:740px">Nieuwe kantine, kleedlokalen en ontvangstruimte — gebouwd met de gemeente, ingericht door onze eigen vrijwilligers. Ruimte voor voetbal, verenigingen, natuur en beweging.</div>
-        <div data-in="Up" class="fx" style="margin-top:34px">
-          <span class="A" style="background:#2c4026;color:#dfe9d8;font-size:28px;padding:13px 22px;border-radius:10px;margin-right:14px">SPORT</span>
-          <span class="A" style="background:#2c4026;color:#dfe9d8;font-size:28px;padding:13px 22px;border-radius:10px;margin-right:14px">FIETSEN</span>
-          <span class="A" style="background:#2c4026;color:#dfe9d8;font-size:28px;padding:13px 22px;border-radius:10px;margin-right:14px">WANDELEN</span>
-          <span class="A" style="background:#CE2130;color:#fff;font-size:28px;padding:13px 22px;border-radius:10px">RKVV CASTEREN</span>
-        </div>
-      </div>
-      <div class="abs" style="left:960px;top:0;width:960px;height:972px;background:#2a3a26"><img class="cover" src="img/s/smeel-hero.jpg" alt=""></div>
-    </div>
-
+    <!-- TEMPLATE T7 Vrijwilliger van de maand -->
     <div class="slide" data-anim="up" style="background:#F7F4EC">
-      <div class="wm" style="position:absolute;left:-260px;top:-240px;width:860px;height:860px;border-radius:50%;border:70px solid rgba(206,33,48,.05)"></div>
-      <div class="abs fx col" style="left:70px;top:74px;width:868px;height:854px">
-        <div class="C" style="font-size:48px;color:#CE2130;line-height:1">Onmisbaar</div>
-        <div class="A" style="font-size:74px;line-height:1.1">VRIJWILLIGER<br>VAN DE MAAND</div>
-        <div data-in="Left" class="f1 fx col" style="margin-top:26px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 12px 34px rgba(0,0,0,.08)">
-          <div class="f1" style="position:relative"><img class="cover abs" src="img/s/vrijwilliger.jpg" alt="" style="left:0;top:0"></div>
-          <div style="padding:24px 30px">
-            <div class="A" style="font-size:52px;line-height:1">Dana &amp; Agata</div>
-            <div style="font-size:30px;font-weight:600;color:#666;margin-top:6px">Al 15 jaar te vinden op en rond het veld.</div>
-          </div>
-        </div>
+      <div class="wm" style="position:absolute;left:-260px;bottom:-300px;width:860px;height:860px;border-radius:50%;border:70px solid rgba(206,33,48,.05)"></div>
+      <div class="abs fx col jc" style="left:0;top:0;width:1080px;height:972px;padding:80px 70px 80px 90px">
+        <div class="kicker" style="color:#CE2130">VRIJWILLIGER VAN DE MAAND</div>
+        <div data-in="Up" class="A" style="font-size:118px;line-height:1.02;margin-top:16px">DANA<br>&amp; AGATA</div>
+        <div data-in="Up" class="C" style="font-size:54px;color:#CE2130;margin-top:8px">Onmisbaar op en rond het veld</div>
+        <div data-in="Up" style="font-size:34px;font-weight:600;color:#5f5f5f;margin-top:28px;max-width:760px">Al 15 jaar te vinden op en rond het veld. Zonder vrijwilligers geen club — bedankt!</div>
       </div>
-      <div class="abs fx col" style="left:982px;top:74px;width:868px;height:854px">
-        <div class="C" style="font-size:48px;color:#CE2130;line-height:1">Proficiat</div>
-        <div class="A" style="font-size:74px;line-height:1.1">VERJAARDAGEN<br>DEZE WEEK</div>
-        <div class="f1 fx col jc" style="margin-top:26px">
-          <div data-in="Right" class="fx ac sb" style="background:#fff;border-radius:14px;padding:22px 30px;margin-bottom:16px"><span class="A" style="font-size:44px">Luuk Bekkers</span><span style="font-size:32px;font-weight:700;color:#CE2130">ma · JO15-1</span></div>
-          <div data-in="Right" class="fx ac sb" style="background:#fff;border-radius:14px;padding:22px 30px;margin-bottom:16px"><span class="A" style="font-size:44px">Anne Coppens</span><span style="font-size:32px;font-weight:700;color:#CE2130">wo · Dames 1</span></div>
-          <div data-in="Right" class="fx ac sb" style="background:#fff;border-radius:14px;padding:22px 30px;margin-bottom:16px"><span class="A" style="font-size:44px">Jan Maas</span><span style="font-size:32px;font-weight:700;color:#CE2130">do · Veteranen</span></div>
-          <div data-in="Right" class="fx ac sb" style="background:#E6D74F;border-radius:14px;padding:22px 30px"><span class="A" style="font-size:44px">Fien de Kort</span><span style="font-size:32px;font-weight:700;color:#6f671f">za · Kabouters</span></div>
-        </div>
-      </div>
+      <div data-in="Right" class="abs" style="left:1080px;top:0;width:840px;height:972px;background:#EDE8DC"><img class="cover" src="img/s/vrijwilliger.jpg" alt=""></div>
     </div>
-
   </div>
 
   <!-- ================= ONTVANGST ================= -->
@@ -331,7 +279,7 @@ img{display:block}
         </div>
         <div class="C" style="font-size:52px;color:#E6D74F;margin-top:34px">Fijne wedstrijd!</div>
       </div>
-      <div data-in="Left" class="abs" style="left:1070px;top:60px;width:790px;height:852px;border-radius:18px;overflow:hidden;background:#3a5a30;box-shadow:0 20px 60px rgba(0,0,0,.45)">
+      <div data-in="Left" class="abs nosh" style="left:1070px;top:60px;width:790px;height:852px;border-radius:18px;overflow:hidden;background:#3a5a30;box-shadow:0 20px 60px rgba(0,0,0,.45)">
         <img class="cover" src="img/s/foto-week.jpg" alt="">
         <div class="abs" style="left:0;right:0;bottom:0;padding:34px;background:linear-gradient(0deg,rgba(0,0,0,.8),rgba(0,0,0,0))">
           <div class="A" style="font-size:44px;color:#fff;line-height:1.14">SAMEN VOETBALLEN OP DE SMEEL</div>
@@ -407,7 +355,8 @@ var INDELING = [
 
   // ticker
   var tw = document.getElementById('tickwrap'), tk = document.getElementById('ticker');
-  tw.style.left = (226 + document.getElementById('clockbox').offsetWidth) + 'px';
+  tw.style.left = '270px';
+  tw.style.right = document.getElementById('clockbox').offsetWidth + 'px';
   tk.innerHTML = TICKER;
   tk.style.paddingLeft = tw.offsetWidth + 'px';
   var tDur = Math.round((tk.offsetWidth) / 90);
@@ -442,6 +391,9 @@ var INDELING = [
     }
     setAnim(prog, 'none'); void prog.offsetWidth;
     setAnim(prog, 'prog ' + secs + 's linear both');
+    var bf = document.getElementById('ballfx');
+    setAnim(bf, 'none'); void bf.offsetWidth;
+    if (slides[i].getAttribute('data-ball')) setAnim(bf, 'ball 1.15s cubic-bezier(.2,.55,.25,1) both');
     cur = i;
     clearTimeout(timer);
     timer = setTimeout(function () { show((cur + 1) % slides.length); }, secs * 1000);
