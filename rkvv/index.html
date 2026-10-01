@@ -33,7 +33,7 @@ img{display:block}
 #date{font-size:26px;font-weight:600;color:#a8a8a8;margin-right:20px}
 #clock{font-size:40px;color:#E6D74F}
 #tickwrap{position:absolute;top:16px;height:100px;overflow:hidden}
-#ticker{position:absolute;top:24px;left:0;white-space:nowrap;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;font-size:40px;font-weight:700;color:#fff;line-height:52px}
+#ticker{position:absolute;top:24px;left:0;white-space:pre;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;font-size:40px;font-weight:700;color:#fff;line-height:52px}
 #badge{position:absolute;left:46px;top:20px;width:162px;height:162px;border-radius:50%;background:#fff;box-shadow:0 16px 36px rgba(0,0,0,.26);z-index:9}
 #badge img{width:160px;height:171px;margin:auto;position:absolute;left:-2px;right:0;top:-5px;bottom:0;-webkit-transform:translateX(-8px);transform:translateX(-8px)}
 #prog{position:absolute;left:0;bottom:0;height:6px;width:100%;background:#8a8a8a;z-index:9;-webkit-transform-origin:0 0;transform-origin:0 0;-webkit-transform:scaleX(0);transform:scaleX(0)}
@@ -45,11 +45,16 @@ img{display:block}
 .card{background:#fff;border-radius:20px}
 .row{background:#fff;border-radius:16px}
 
-@-webkit-keyframes tick{from{-webkit-transform:translate3d(0,0,0)}to{-webkit-transform:translate3d(-100%,0,0)}}
-@keyframes tick{from{transform:translate3d(0,0,0)}to{transform:translate3d(-100%,0,0)}}
+@-webkit-keyframes tick{from{-webkit-transform:translate3d(0,0,0)}to{-webkit-transform:translate3d(-50%,0,0)}}
+@keyframes tick{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 @-webkit-keyframes prog{from{-webkit-transform:scaleX(0)}to{-webkit-transform:scaleX(1)}}
 @keyframes prog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @-webkit-keyframes fade{from{opacity:0}to{opacity:1}}
+@-webkit-keyframes slowZoom{from{-webkit-transform:scale(1)}to{-webkit-transform:scale(1.14)}}
+@keyframes slowZoom{from{transform:scale(1)}to{transform:scale(1.14)}}
+@-webkit-keyframes drift{from{-webkit-transform:translate3d(0,0,0)}to{-webkit-transform:translate3d(-60px,0,0)}}
+@keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-60px,0,0)}}
+.drift{-webkit-animation:drift 16s ease-in-out 2s infinite alternate;animation:drift 16s ease-in-out 2s infinite alternate;will-change:transform}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @-webkit-keyframes soloWipe{0%,21.1%{opacity:1;-webkit-clip-path:inset(0 100% 0 0)}78.9%,100%{opacity:1;-webkit-clip-path:inset(0 0 0 0)}}
 @keyframes soloWipe{0%,21.1%{opacity:1;-webkit-clip-path:inset(0 100% 0 0);clip-path:inset(0 100% 0 0)}78.9%,100%{opacity:1;-webkit-clip-path:inset(0 0 0 0);clip-path:inset(0 0 0 0)}}
@@ -148,9 +153,9 @@ img{display:block}
       </div>
       <div class="abs" style="left:70px;bottom:60px;width:1780px;height:360px">
         <div class="abs card" data-in="Left" style="left:0;top:0;width:570px;height:360px;padding:26px">
-          <div data-in="Pop" class="abs" style="left:26px;right:26px;top:-190px;height:400px"><div class="br sh" style="width:100%;height:100%"><img class="contain" src="img/s/drink-1.png" alt=""></div></div>
+          <div data-in="Pop" class="abs" style="left:26px;right:26px;top:-190px;height:400px"><div class="br sh abs" style="left:0;top:0;width:50%;height:100%"><img class="contain" src="img/s/drink-1.png" alt=""></div><div class="br sh abs" style="left:50%;top:0;width:50%;height:100%;-webkit-animation-delay:.6s;animation-delay:.6s"><img class="contain" src="img/daurabier.png" alt=""></div></div>
           <div class="abs" style="left:26px;right:26px;bottom:26px">
-            <div class="fx sb"><span class="A" style="font-size:40px">Speciaalbier</span><span class="A" style="font-size:40px;color:#CE2130" data-prijs="4,00" data-prijs-dovr="4,00">€ 4,00</span></div>
+            <div class="fx sb"><span class="A" style="font-size:40px">Speciaalbier</span><span class="A" style="font-size:40px;color:#CE2130" data-prijs="3,50" data-prijs-dovr="3,50">€ 3,50</span></div>
             <div style="font-size:26px;font-weight:600;color:#666;margin-top:14px">Wisselende bieren · vraag de bar</div>
           </div>
         </div>
@@ -171,64 +176,57 @@ img{display:block}
       </div>
     </div>
 
-    <!-- TEMPLATE T3b Catering Menu · Menukaart -->
+    <!-- TEMPLATE T3b Catering Menu · Menukaart (3 kaarten: frituur / oven / snoep) -->
     <div class="slide" data-anim="up" style="background:#F7F4EC">
-      <img class="abs" src="img/s/logo.png" alt="" style="left:-170px;bottom:-190px;width:700px;opacity:.05">
+      <img class="abs" src="img/s/logo.png" alt="" style="right:-170px;top:-190px;width:640px;opacity:.05">
       <div class="abs" style="left:70px;top:86px">
         <div class="C" style="font-size:52px;color:#CE2130;line-height:1">Uit de keuken<span class="prijslabel" style="display:none;margin-left:22px;font-family:'Barlow Condensed',Arial,sans-serif;font-size:26px;font-weight:800;letter-spacing:.14em;color:#111;background:#E6D74F;border-radius:999px;padding:6px 18px;vertical-align:middle">DONDERDAG &amp; VRIJDAG</span></div>
         <div class="A" style="font-size:100px;line-height:1.05;margin-top:6px">EFKES IETS ETEN</div>
       </div>
-      <div data-in="Pop" class="abs" style="left:70px;top:300px;width:400px;height:400px"><div class="br sh" style="width:100%;height:100%"><img class="cover" src="img/s/food-1.png" alt="" style="border-radius:24px"></div></div>
-      <div data-in="Pop" class="abs" style="left:320px;top:510px;width:380px;height:380px"><div class="br sh" style="width:100%;height:100%;-webkit-animation-delay:1.3s;animation-delay:1.3s"><img class="cover" src="img/s/food-2.png" alt="" style="border-radius:24px"></div></div>
-      <div data-in="Right" class="abs" style="left:780px;top:290px;width:1070px">
-        <div class="abs" style="left:0;top:0;width:503px">
-          <div>
-            <div style="font-size:26px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:8px;border-bottom:4px solid #111">UIT DE FRITUUR</div>
-            <div class="fx sb" style="padding:13px 0;border-bottom:2px solid #ddd6c4;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Broodje kroket / frikandel</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,50">€ 2,50</span></div>
-            <div class="fx sb" style="padding:13px 0;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Broodje kipburger</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap" data-prijs="3,50" data-prijs-dovr="3,50">€ 3,50</span></div>
-          </div>
-          <div style="margin-top:38px">
-            <div style="font-size:26px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:8px;border-bottom:4px solid #111">WARM UIT DE OVEN</div>
-            <div class="fx sb" style="padding:13px 0;border-bottom:2px solid #ddd6c4;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Tosti / vlamtosti</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,50">€ 2,50</span></div>
-            <div class="fx sb" style="padding:13px 0;border-bottom:2px solid #ddd6c4;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Worstenbroodje</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap" data-prijs="2,75" data-prijs-dovr="2,75">€ 2,75</span></div>
-            <div class="fx sb" style="padding:13px 0;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Frikandelbroodje</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap" data-prijs="3,25" data-prijs-dovr="3,25">€ 3,25</span></div>
-          </div>
+      <div class="abs" style="left:70px;top:390px;width:1780px">
+        <div data-in="Left" class="abs card nosh" style="left:0px;top:0;width:567px;height:510px;padding:140px 32px 22px;box-shadow:0 14px 36px rgba(0,0,0,.07)">
+          <div data-in="Pop" class="abs" style="left:113px;top:-130px;width:340px;height:260px"><div class="br sh" style="width:100%;height:100%;-webkit-animation-delay:0s;animation-delay:0s"><img class="contain" src="img/s/food-1.png" alt="" onerror="this.style.display='none'"></div></div>
+          <div style="font-size:26px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:10px;border-bottom:4px solid #111;margin-bottom:6px">UIT DE FRITUUR</div>
+          <div class="fx sb" style="padding:10px 0;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Broodje kroket / frikandel</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,50">€ 2,50</span></div>
+          <div class="fx sb" style="padding:10px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Broodje kipburger</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="3,50" data-prijs-dovr="3,50">€ 3,50</span></div>
         </div>
-        <div class="abs" style="left:567px;top:0;width:503px">
-          <div>
-            <div style="font-size:26px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:8px;border-bottom:4px solid #111">SNOEP &amp; CHIPS</div>
-            <div class="fx sb" style="padding:13px 0;border-bottom:2px solid #ddd6c4;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Chips</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap" data-prijs="1,25" data-prijs-dovr="1,25">€ 1,25</span></div>
-            <div class="fx sb" style="padding:13px 0;border-bottom:2px solid #ddd6c4;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Twix / Snickers / Knoppers</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap" data-prijs="1,50" data-prijs-dovr="1,50">€ 1,50</span></div>
-            <div class="fx sb" style="padding:13px 0;border-bottom:2px solid #ddd6c4;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Haribo / Skittles</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap" data-prijs="1,50" data-prijs-dovr="1,50">€ 1,50</span></div>
-            <div class="fx sb" style="padding:13px 0;"><span class="A" style="font-size:36px;line-height:1.15;margin-right:20px">Sportlife</span><span class="A" style="font-size:36px;color:#CE2130;white-space:nowrap" data-prijs="1,50" data-prijs-dovr="1,50">€ 1,50</span></div>
-          </div>
+        <div data-in="Up" class="abs card nosh" style="left:607px;top:0;width:567px;height:510px;padding:140px 32px 22px;box-shadow:0 14px 36px rgba(0,0,0,.07)">
+          <div data-in="Pop" class="abs" style="left:113px;top:-130px;width:340px;height:260px"><div class="br sh" style="width:100%;height:100%;-webkit-animation-delay:1.1s;animation-delay:1.1s"><img class="contain" src="img/s/food-2.png" alt="" onerror="this.style.display='none'"></div></div>
+          <div style="font-size:26px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:10px;border-bottom:4px solid #111;margin-bottom:6px">UIT DE OVEN</div>
+          <div class="fx sb" style="padding:10px 0;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Tosti / vlamtosti</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,50">€ 2,50</span></div>
+          <div class="fx sb" style="padding:10px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Worstenbroodje</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="2,75" data-prijs-dovr="2,75">€ 2,75</span></div>
+          <div class="fx sb" style="padding:10px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Frikandelbroodje</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="3,25" data-prijs-dovr="3,25">€ 3,25</span></div>
+        </div>
+        <div data-in="Right" class="abs card nosh" style="left:1214px;top:0;width:567px;height:510px;padding:140px 32px 22px;box-shadow:0 14px 36px rgba(0,0,0,.07)">
+          <div data-in="Pop" class="abs" style="left:113px;top:-130px;width:340px;height:260px"><div class="br sh" style="width:100%;height:100%;-webkit-animation-delay:2.2s;animation-delay:2.2s"><img class="contain" src="img/chips.png" alt="" onerror="this.style.display='none'"></div></div>
+          <div style="font-size:26px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:10px;border-bottom:4px solid #111;margin-bottom:6px">SNOEP &amp; CHIPS</div>
+          <div class="fx sb" style="padding:10px 0;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Chips</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="1,25" data-prijs-dovr="1,25">€ 1,25</span></div>
+          <div class="fx sb" style="padding:10px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Twix / Snickers / Knoppers</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="1,50" data-prijs-dovr="1,50">€ 1,50</span></div>
+          <div class="fx sb" style="padding:10px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Haribo / Skittles</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="1,50" data-prijs-dovr="1,50">€ 1,50</span></div>
+          <div class="fx sb" style="padding:10px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Sportlife</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="1,50" data-prijs-dovr="1,50">€ 1,50</span></div>
         </div>
       </div>
     </div>
 
-    <!-- TEMPLATE T6 Thema Avond -->
+    <!-- TEMPLATE T6 Thema Avond (nu: Oktoberfest) — afbeelding: img/activiteiten/rkvv-oktoberfest.png -->
     <div class="slide" data-anim="wipe" style="background:#E6D74F">
-      <div class="abs" style="left:900px;top:0;width:1020px;height:972px">
-        <img data-in="Right" class="abs sh" src="img/s/trucker.png" alt="" style="right:120px;bottom:-20px;height:980px;width:auto">
-        <img data-in="Roll" class="abs sh" src="img/s/voetbal.png" alt="" style="right:30px;bottom:90px;width:175px;z-index:4">
-        <div data-in="Pop" class="abs" style="left:-130px;bottom:70px;width:620px;z-index:3">
-          <div style="-webkit-transform:rotate(-22deg);transform:rotate(-22deg)"><img class="br sh" src="img/s/truckersball-logo.png" alt="" style="width:100%;height:auto;-webkit-animation-delay:.8s;animation-delay:.8s"></div>
-        </div>
+      <div class="abs" style="left:900px;top:0;width:1020px;height:956px">
+        <div class="abs drift" style="left:0;top:0;right:0;bottom:0"><img data-in="Right" class="abs sh" src="img/activiteiten/rkvv-oktoberfest.png" alt="" style="right:120px;bottom:-20px;height:980px;width:auto"></div>
       </div>
       <div class="abs fx col jc" style="left:0;top:0;width:900px;height:972px;padding:80px 70px;z-index:2">
-        <div class="kicker" style="color:#CE2130">ZATERDAG 15 NOVEMBER · 20:30</div>
-        <div class="A" style="font-size:150px;line-height:.98;margin-top:16px">TRUCKER'S<br>BALL</div>
-        <div class="C" style="font-size:58px;color:#CE2130;margin-top:12px">3e Editie!</div>
-        <div data-in="Up" style="font-size:36px;font-weight:600;color:#3b3620;margin-top:26px;max-width:640px">Met de vlam in de pijp gaan we naar de kantine.<br>Bud-bier &amp; de Heerlijke Ballen van Leon!</div>
+        <div class="kicker" style="color:#CE2130">ZONDAG 25 OKTOBER</div>
+        <div class="A" style="font-size:150px;line-height:.98;margin-top:16px">OKTOBER<br>FEST</div>
+        <div class="C" style="font-size:58px;color:#CE2130;margin-top:12px">Kantine-avond in Oktoberfest-sfeer</div>
+        <div data-in="Up" style="font-size:36px;font-weight:600;color:#3b3620;margin-top:26px;max-width:640px">Grote pullen, braadworst en gezelligheid. Dirndl en lederhosen van harte welkom!</div>
         <div data-in="Up" class="fx" style="margin-top:34px">
-          <span class="A" style="background:#111;color:#fff;font-size:30px;padding:14px 24px;border-radius:10px;margin-right:16px">GRATIS ENTREE</span>
-          <span class="A" style="background:#CE2130;color:#fff;font-size:30px;padding:14px 24px;border-radius:10px">LIVE MUZIEK</span>
+          <span class="A" style="background:#111;color:#fff;font-size:30px;padding:14px 24px;border-radius:10px;margin-right:16px">IEDEREEN WELKOM</span>
+          <span class="A" style="background:#CE2130;color:#fff;font-size:30px;padding:14px 24px;border-radius:10px">IN DE KANTINE</span>
         </div>
       </div>
     </div>
 
-    <!-- TEMPLATE T4 Speler van de maand -->
-    <div class="slide" data-anim="fade" style="background:#fff">
+    <!-- TEMPLATE T4 Speler van de maand — UIT (data-off). Weer aanzetten: data-off weghalen -->
+    <div class="slide" data-off="1" data-anim="fade" style="background:#fff">
       <div class="abs" style="left:0;top:0;width:840px;height:972px;background:#EDE8DC"><img class="cover" src="img/s/jeugdspeler.jpg" alt=""></div>
       <div class="abs fx col jc" style="left:840px;top:0;width:1080px;height:972px;padding:80px 70px">
         <div class="kicker" style="color:#CE2130">SPELER VAN DE MAAND</div>
@@ -244,7 +242,7 @@ img{display:block}
       <div class="abs fx ac jc" style="left:24px;top:20px;width:1326px;height:916px">
         <img id="teamphoto" class="sh" src="img/s/foto-week.jpg" alt="" style="max-width:100%;max-height:100%;width:auto;height:auto">
       </div>
-      <div data-in="Right" class="abs fx col" style="left:1390px;top:84px;width:490px;height:790px">
+      <div data-in="Right" class="abs fx col jc" style="left:1390px;top:84px;width:490px;height:790px">
         <div id="tm-seizoen" style="font-size:26px;font-weight:800;letter-spacing:.22em;color:#CE2130">TEAMFOTO</div>
         <div id="tm-team" class="A" style="font-size:104px;line-height:1.02;margin-top:10px"></div>
         <div id="tm-club" class="C" style="font-size:52px;color:#CE2130;line-height:1.1"></div>
@@ -341,9 +339,11 @@ img{display:block}
    URL-opties: ?mode=ontvangst  ?sec=20  ?sponsor=3  ?fx=full (alle effecten, voor snelle hardware)  ?reload=60  */
 // Tickerfeed (Cloudflare Worker, zie map worker/). Leeg = alleen vaste tekst.
 var TICKER_FEED = "";
-var TICKER = "Welkom op Sportpark De Smeel · RKVV Casteren wenst alle teams een sportieve wedstrijd · Vandaag in de kantine: verse soep en broodje frikandel · Zaterdag 15 november Trucker's Ball, 20:30 · Ook sponsor worden? Vraag het aan de bar";
+var TICKER = "Welkom bij RKVV Casteren    •   Let op dat je nog even niet over het ingezaaide gras loopt    •   De officiële opening is op 10 oktober    •   Wil jij bij de club van 50? Vraag aan de bar    •   ";
 // Teams voor de Teamfoto-slide. Foto's staan in img/teamfotos/casnet26/.
 // Lege lijst spelers/staf = dat blok wordt verborgen.
+// Spelers- en stafnamen tonen? (false = alleen teamnaam + club)
+var TOON_TEAMNAMEN = false;
 var TEAMFOTO_MAP = "img/teamfotos/casnet26/";
 var TEAMS = [
   { foto: "1.jpg", team: "JO10-1", club: "Casteren/Netersel", seizoen: "2026/27",
@@ -448,9 +448,9 @@ var INDELING = [
   tw.style.left = '270px';
   tw.style.right = document.getElementById('clockbox').offsetWidth + 'px';
   function setTicker(text) {
-    tk.innerHTML = text;
-    tk.style.paddingLeft = tw.offsetWidth + 'px';
-    var tDur = Math.round((tk.offsetWidth) / 90);
+    tk.innerHTML = text + text;
+    tk.style.paddingLeft = '0';
+    var tDur = Math.max(10, Math.round((tk.offsetWidth / 2) / 90));
     setAnim(tk, 'none'); void tk.offsetWidth;
     setAnim(tk, 'tick ' + tDur + 's linear infinite');
   }
@@ -469,7 +469,7 @@ var INDELING = [
         if (data.uitslagen && data.uitslagen.length) parts.push('<b style="color:#E6D74F">UITSLAGEN</b>&nbsp;&nbsp;' + data.uitslagen.map(esc).join(' &nbsp;·&nbsp; '));
         if (data.nieuws && data.nieuws.length) parts.push('<b style="color:#E6D74F">SPORTNIEUWS</b>&nbsp;&nbsp;' + data.nieuws.map(esc).join(' &nbsp;·&nbsp; '));
         if (!parts.length) return;
-        var txt = TICKER + ' &nbsp;&nbsp;&nbsp;&nbsp; ' + parts.join(' &nbsp;&nbsp;&nbsp;&nbsp; ');
+        var txt = TICKER + ' &nbsp;&nbsp;&nbsp;&nbsp; ' + parts.join(' &nbsp;&nbsp;&nbsp;&nbsp; ') + ' &nbsp;&nbsp;&nbsp;&nbsp; ';
         if (txt !== lastFeed) { lastFeed = txt; setTicker(txt); }
       };
       x.send();
@@ -500,6 +500,7 @@ var INDELING = [
   };
   for (var a = 0, c = 0; a < all.length; a++) {
     if (all[a].getAttribute('data-solo')) { solo = all[a]; continue; }
+    if (all[a].getAttribute('data-off')) continue;
     slides.push(all[a]); c++;
     if (deck.id === 'kantine' && every > 0 && SPONSORS.length && c % every === 0) slides.push('SOLO');
   }
@@ -525,11 +526,11 @@ var INDELING = [
     document.getElementById('tm-seizoen').innerHTML = 'TEAMFOTO &middot; ' + esc(t.seizoen || '');
     document.getElementById('tm-team').innerHTML = esc(t.team || '');
     document.getElementById('tm-club').innerHTML = esc(t.club || '');
-    var sp = t.spelers || [], h = '';
+    var sp = TOON_TEAMNAMEN ? (t.spelers || []) : [], h = '';
     for (var a = 0; a < sp.length; a++) h += '<div style="display:inline-block;width:50%;padding-right:24px;margin-bottom:6px;vertical-align:top">' + esc(sp[a]) + '</div>';
     document.getElementById('tm-spelers').innerHTML = h;
     document.getElementById('tm-spelers-wrap').style.display = sp.length ? '' : 'none';
-    var st = t.staf || [], g = '';
+    var st = TOON_TEAMNAMEN ? (t.staf || []) : [], g = '';
     for (var b = 0; b < st.length; b++) g += '<div style="margin-bottom:6px">' + esc(st[b]) + '</div>';
     document.getElementById('tm-staf').innerHTML = g;
     document.getElementById('tm-staf-wrap').style.display = st.length ? '' : 'none';
@@ -539,6 +540,7 @@ var INDELING = [
     if (slides[i].getAttribute && slides[i].getAttribute('data-ug') && UITGELICHT.length) {
       var u = UITGELICHT[ugN++ % UITGELICHT.length], hr = document.getElementById('ug-hero');
       document.getElementById('ug-logo').src = 'img/sponsors/' + u.logo;
+      var ul = document.getElementById('ug-logo'); setAnim(ul, 'none'); void ul.offsetWidth; setAnim(ul, 'slowZoom ' + (secs + 2) + 's ease-out both');
       hr.style.visibility = ''; hr.onerror = function () { this.style.visibility = 'hidden'; };
       hr.src = 'img/sponsors/' + u.hero;
     }
