@@ -104,8 +104,8 @@ img{display:block}
 
     <!-- TEMPLATE T2 Sponsor Uitgelicht (wisselt tussen de sponsors in UITGELICHT) -->
     <div class="slide" data-every="2" data-anim="fold" data-ug="1" style="background:#fff">
-      <div class="abs fx col jc" style="left:0;top:0;width:1200px;height:956px;padding:0 90px">
-        <div data-in="Up" style="height:300px"><img id="ug-logo" class="contain" src="img/sponsors/sponsor-smitswater.jpg" alt=""></div>
+      <div class="abs fx col jc" style="left:0;top:0;width:1200px;height:956px;padding:0 60px">
+        <div data-in="Up" style="height:620px"><img id="ug-logo" class="contain" src="img/sponsors/sponsor-smitswater.jpg" alt=""></div>
       </div>
       <div class="abs" style="left:1200px;top:0;width:720px;height:956px;background:#E6D74F;overflow:hidden">
         <img id="ug-hero" class="cover abs" src="img/sponsors/sponsor-smitswater-hero.jpg" alt="" style="left:0;top:0;opacity:.14">
@@ -119,7 +119,7 @@ img{display:block}
     <!-- TEMPLATE T8 Sponsor Logo (wordt automatisch tussen de slides gezet) -->
     <div class="slide" data-solo="1" data-anim="fade" style="background:#fff">
       <div id="solocap" style="position:absolute;left:0;right:0;top:120px;text-align:center;font-size:30px;font-weight:800;letter-spacing:.28em;color:#8a877e">WIJ BEDANKEN ONZE SPONSOR</div>
-      <img id="soloimg" data-in="Up" alt="Sponsor" style="position:absolute;left:0;right:0;top:120px;bottom:0;margin:auto;max-width:1100px;max-height:560px;width:auto;height:auto">
+      <img id="soloimg" data-in="Up" alt="Sponsor" style="position:absolute;left:0;right:0;top:150px;bottom:0;margin:auto;width:1500px;height:720px;object-fit:contain">
     </div>
 
     <!-- TEMPLATE T1 Sponsoren Overzicht (kiest elke keer willekeurig 7 uit SPONSORS) -->
@@ -181,46 +181,56 @@ img{display:block}
       </div>
     </div>
 
-    <!-- TEMPLATE T3c Catering Menu · Drankenkaart (data-prijs = normaal, data-prijs-dovr = donderdag) -->
+    <!-- Afbeeldingen drankenkaart (vrijstaande PNG): img/drankenkaart/warm-fris.png · img/drankenkaart/wijn.png -->
+    <!-- TEMPLATE T3c Drankenkaart 1/2 · BIER &amp; WIJN (data-prijs = normaal, data-prijs-dovr = donderdag) -->
     <div class="slide" data-anim="up" style="background:#F7F4EC">
-      <div class="abs prijslabel" data-in="Pop" style="display:none;right:110px;top:40px;z-index:6">
-        <div class="nosh" style="width:250px;height:250px;border-radius:50%;background:#E6D74F;border:8px solid #fff;box-shadow:0 18px 34px rgba(0,0,0,.25);display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;text-align:center;transform:rotate(10deg);-webkit-transform:rotate(10deg)">
-              <div style="font-family:'Caveat Brush','Comic Sans MS',cursive;font-size:40px;color:#CE2130;line-height:1">Donderdag</div>
-              <div style="font-family:Anton,Impact,sans-serif;font-size:50px;color:#111;line-height:1.02;margin-top:4px">LEDEN<br>AVOND</div>
-            </div>
-      </div>
       <img class="abs" src="img/s/logo.png" alt="" style="right:-170px;bottom:-190px;width:640px;opacity:.05">
-      <div class="abs" style="left:70px;top:86px">
-        <div class="C" style="font-size:52px;color:#CE2130;line-height:1">Aan de bar</div>
-        <div class="A" style="font-size:100px;line-height:1.05;margin-top:6px">DE DRANKENKAART</div>
+      <div class="abs" style="left:240px;top:44px">
+        <div class="C" style="font-size:46px;color:#CE2130;line-height:1">De drankenkaart</div>
+        <div class="A" style="font-size:96px;line-height:1.05;margin-top:2px">BIER &amp; WIJN</div>
       </div>
-      <div class="abs" style="left:70px;top:330px;width:1780px">
-        <div data-in="Up" class="abs card nosh" style="left:0px;top:0;width:423px;padding:26px 28px 18px;box-shadow:0 14px 36px rgba(0,0,0,.07)">
-          <div style="font-size:24px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:10px;border-bottom:4px solid #111;margin-bottom:4px">WARM &amp; FRIS</div>
-          <div class="fx sb" style="padding:11px 0;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Koffie / thee</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="1,50" data-prijs-dovr="1,00">€ 1,50</span></div>
-          <div class="fx sb" style="padding:11px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Fris</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="2,00" data-prijs-dovr="1,50">€ 2,00</span></div>
-          <div class="fx sb" style="padding:11px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Sportdrank</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
+      <div class="abs" style="left:70px;top:290px;width:1780px">
+        <div data-in="Left" class="abs card nosh" style="left:0px;top:0;width:865px;padding:26px 40px 18px;box-shadow:0 14px 36px rgba(0,0,0,.07)">
+          <div data-in="Pop" class="abs" style="right:30px;top:-170px;width:220px;height:250px"><div class="br sh" style="width:100%;height:100%;-webkit-animation-delay:0s;animation-delay:0s"><img class="contain" src="img/s/drink-1.png" alt="" style="object-position:50% 100%" onerror="this.style.display='none'"></div></div>
+          <div style="font-size:34px;font-weight:800;letter-spacing:.18em;color:#CE2130;padding-bottom:12px;border-bottom:5px solid #111;margin-bottom:4px;margin-right:230px">BIER</div>
+          <div class="fx sb" style="padding:14px 0;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Dommelsch fles</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,25" data-prijs-dovr="1,50">€ 2,25</span></div>
+          <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Liefmans</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
+          <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Palm</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
+          <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Stelz</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="3,00" data-prijs-dovr="2,50">€ 3,00</span></div>
+          <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Speciaalbier</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="3,50" data-prijs-dovr="3,00">€ 3,50</span></div>
+          <div class="fx sb niet-donderdag" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Dommelsch krat</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="45,00" data-prijs-dovr="45,00">€ 45,00</span></div>
         </div>
-        <div data-in="Up" class="abs card nosh" style="left:453px;top:0;width:423px;padding:26px 28px 18px;box-shadow:0 14px 36px rgba(0,0,0,.07)">
-          <div style="font-size:24px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:10px;border-bottom:4px solid #111;margin-bottom:4px">0.0 &amp; LICHT</div>
-          <div class="fx sb" style="padding:11px 0;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Radler</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="2,25" data-prijs-dovr="2,00">€ 2,25</span></div>
-          <div class="fx sb" style="padding:11px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Hertog Jan 0.0</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="2,25" data-prijs-dovr="2,00">€ 2,25</span></div>
-          <div class="fx sb" style="padding:11px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Leffe 0.0</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="2,25" data-prijs-dovr="2,00">€ 2,25</span></div>
-          <div class="fx sb" style="padding:11px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Glutenvrij bier</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
+        <div data-in="Right" class="abs card nosh" style="left:915px;top:0;width:865px;padding:26px 40px 18px;box-shadow:0 14px 36px rgba(0,0,0,.07)">
+          <div data-in="Pop" class="abs" style="right:30px;top:-170px;width:220px;height:250px"><div class="br sh" style="width:100%;height:100%;-webkit-animation-delay:0.9s;animation-delay:0.9s"><img class="contain" src="img/drankenkaart/wijn.png" alt="" style="object-position:50% 100%" onerror="this.style.display='none'"></div></div>
+          <div style="font-size:34px;font-weight:800;letter-spacing:.18em;color:#CE2130;padding-bottom:12px;border-bottom:5px solid #111;margin-bottom:4px;margin-right:230px">WIJN</div>
+          <div class="fx sb" style="padding:14px 0;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Mucho Mas (wit)</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
+          <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Wijn</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
         </div>
-        <div data-in="Up" class="abs card nosh" style="left:905px;top:0;width:423px;padding:26px 28px 18px;box-shadow:0 14px 36px rgba(0,0,0,.07)">
-          <div style="font-size:24px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:10px;border-bottom:4px solid #111;margin-bottom:4px">BIER</div>
-          <div class="fx sb" style="padding:11px 0;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Dommelsch fles</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="2,25" data-prijs-dovr="1,50">€ 2,25</span></div>
-          <div class="fx sb" style="padding:11px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Liefmans</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
-          <div class="fx sb" style="padding:11px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Palm</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
-          <div class="fx sb" style="padding:11px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Stelz</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="3,00" data-prijs-dovr="2,50">€ 3,00</span></div>
-          <div class="fx sb" style="padding:11px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Speciaalbier (wisselend)</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="3,50" data-prijs-dovr="3,00">€ 3,50</span></div>
-          <div class="fx sb niet-donderdag" style="padding:11px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Dommelsch krat</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="45,00" data-prijs-dovr="45,00">€ 45,00</span></div>
+      </div>
+    </div>
+
+    <!-- TEMPLATE T3c Drankenkaart 2/2 · FRIS &amp; 0.0 (data-prijs = normaal, data-prijs-dovr = donderdag) -->
+    <div class="slide" data-anim="up" style="background:#F7F4EC">
+      <img class="abs" src="img/s/logo.png" alt="" style="right:-170px;bottom:-190px;width:640px;opacity:.05">
+      <div class="abs" style="left:240px;top:44px">
+        <div class="C" style="font-size:46px;color:#CE2130;line-height:1">De drankenkaart</div>
+        <div class="A" style="font-size:96px;line-height:1.05;margin-top:2px">FRIS &amp; 0.0</div>
+      </div>
+      <div class="abs" style="left:70px;top:290px;width:1780px">
+        <div data-in="Left" class="abs card nosh" style="left:0px;top:0;width:865px;padding:26px 40px 18px;box-shadow:0 14px 36px rgba(0,0,0,.07)">
+          <div data-in="Pop" class="abs" style="right:30px;top:-170px;width:220px;height:250px"><div class="br sh" style="width:100%;height:100%;-webkit-animation-delay:0s;animation-delay:0s"><img class="contain" src="img/drankenkaart/warm-fris.png" alt="" style="object-position:50% 100%" onerror="this.style.display='none'"></div></div>
+          <div style="font-size:34px;font-weight:800;letter-spacing:.18em;color:#CE2130;padding-bottom:12px;border-bottom:5px solid #111;margin-bottom:4px;margin-right:230px">WARM &amp; FRIS</div>
+          <div class="fx sb" style="padding:14px 0;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Koffie / thee</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="1,50" data-prijs-dovr="1,00">€ 1,50</span></div>
+          <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Fris</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,00" data-prijs-dovr="1,50">€ 2,00</span></div>
+          <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Sportdrank</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
         </div>
-        <div data-in="Up" class="abs card nosh" style="left:1358px;top:0;width:423px;padding:26px 28px 18px;box-shadow:0 14px 36px rgba(0,0,0,.07)">
-          <div style="font-size:24px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:10px;border-bottom:4px solid #111;margin-bottom:4px">WIJN</div>
-          <div class="fx sb" style="padding:11px 0;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Witte wijn · Mucho Mas</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
-          <div class="fx sb" style="padding:11px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:31px;line-height:1.15;margin-right:14px">Wijn</span><span class="A" style="font-size:31px;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
+        <div data-in="Right" class="abs card nosh" style="left:915px;top:0;width:865px;padding:26px 40px 18px;box-shadow:0 14px 36px rgba(0,0,0,.07)">
+          <div data-in="Pop" class="abs" style="right:30px;top:-170px;width:220px;height:250px"><div class="br sh" style="width:100%;height:100%;-webkit-animation-delay:0.9s;animation-delay:0.9s"><img class="contain" src="img/s/drink-2.png" alt="" style="object-position:50% 100%" onerror="this.style.display='none'"></div></div>
+          <div style="font-size:34px;font-weight:800;letter-spacing:.18em;color:#CE2130;padding-bottom:12px;border-bottom:5px solid #111;margin-bottom:4px;margin-right:230px">0.0 &amp; LICHT</div>
+          <div class="fx sb" style="padding:14px 0;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Radler</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,25" data-prijs-dovr="2,00">€ 2,25</span></div>
+          <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Hertog Jan 0.0</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,25" data-prijs-dovr="2,00">€ 2,25</span></div>
+          <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Leffe 0.0</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,25" data-prijs-dovr="2,00">€ 2,25</span></div>
+          <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Glutenvrij bier</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
         </div>
       </div>
     </div>
@@ -263,8 +273,8 @@ img{display:block}
       </div>
     </div>
 
-    <!-- TEMPLATE T6 Thema Avond (nu: Oktoberfest) — afbeelding: img/activiteiten/rkvv-oktoberfest.png -->
-    <div class="slide" data-anim="wipe" style="background:#E6D74F">
+    <!-- TEMPLATE T6 Thema Avond (nu: Oktoberfest) — alleen op donderdag — afbeelding: img/activiteiten/rkvv-oktoberfest.png -->
+    <div class="slide" data-alleen-donderdag="1" data-anim="wipe" style="background:#E6D74F">
       <div class="abs" style="left:900px;top:0;width:1020px;height:956px">
         <div class="abs drift" style="left:0;top:0;right:0;bottom:0"><img data-in="Right" class="abs sh" src="img/activiteiten/rkvv-oktoberfest.png" alt="" style="right:120px;bottom:-20px;height:980px;width:auto"></div>
         <div data-in="Pop" class="abs" style="left:-40px;top:120px;z-index:4">
@@ -321,8 +331,8 @@ img{display:block}
       <img data-in="Roll" class="abs sh" src="img/s/voetbal.png" alt="" style="right:56px;bottom:34px;width:140px">
     </div>
 
-    <!-- TEMPLATE T7 Vrijwilliger van de maand (data-every="3": 1 op de 3 rondes) -->
-    <div class="slide" data-every="3" data-anim="up" style="background:#F7F4EC">
+    <!-- TEMPLATE T7 Vrijwilliger van de maand — UIT (data-off). Weer aanzetten: data-off weghalen -->
+    <div class="slide" data-off="1" data-every="3" data-anim="up" style="background:#F7F4EC">
       <div class="wm" style="position:absolute;left:-260px;bottom:-300px;width:860px;height:860px;border-radius:50%;border:70px solid rgba(206,33,48,.05)"></div>
       <div class="abs fx col jc" style="left:0;top:0;width:1080px;height:972px;padding:80px 70px 80px 90px">
         <div class="kicker" style="color:#CE2130">VRIJWILLIGER VAN DE MAAND</div>
@@ -447,7 +457,8 @@ var SPONSORS = [
   "img/sponsors/sponsor-gooskens.jpg",
   "img/sponsors/sponsor-corstiaans.jpg",
   "img/sponsors/sponsor-denbels.jpg",
-  "img/sponsors/sponsor-autoservicecasteren.jpg"
+  "img/sponsors/sponsor-autoservicecasteren.jpg",
+  "img/sponsors/sponsor-teurlings.jpg"
 ];
 var INDELING = [
   ["Casteren JO9-1 — Bladella JO9-2", "09:00", "VELD 3", "2"],
@@ -546,7 +557,13 @@ var INDELING = [
 
   // slides
   var pf = q('prijzen', 'auto');
-  var isThursday = pf === 'donderdag' || pf === 'dovr' || (pf === 'auto' && new Date().getDay() === 4);
+  function isThursday() { return pf === 'donderdag' || pf === 'dovr' || (pf === 'auto' && new Date().getDay() === 4); }
+  function dayOk(el) {
+    if (!el || !el.getAttribute) return true;
+    if (el.getAttribute('data-niet-donderdag') && isThursday()) return false;
+    if (el.getAttribute('data-alleen-donderdag') && !isThursday()) return false;
+    return true;
+  }
   var all = deck.querySelectorAll('.slide'), slides = [], solo = null, soloN = 0;
   var every = parseInt(q('sponsor', String(SPONSOR_EVERY)), 10) || 0;
   var teamN = 0, ugN = 0;
@@ -565,13 +582,23 @@ var INDELING = [
       }
     } catch (e) {}
   };
-  for (var a = 0, c = 0; a < all.length; a++) {
+  var seq = [], wallEl = null;
+  for (var a = 0; a < all.length; a++) {
     if (all[a].getAttribute('data-solo')) { solo = all[a]; continue; }
     if (all[a].getAttribute('data-off')) continue;
-    if (all[a].getAttribute('data-niet-donderdag') && isThursday) continue;
-    slides.push(all[a]); c++;
-    if (deck.id === 'kantine' && every > 0 && SPONSORS.length && c % every === 0) slides.push('SOLO');
+    if (all[a].getAttribute('data-wall')) wallEl = all[a];
+    seq.push(all[a]);
   }
+  // Sponsoren Overzicht 2x per ronde (telkens een nieuwe willekeurige set)
+  if (deck.id === 'kantine' && wallEl && seq.length > 3) {
+    var wi = seq.indexOf(wallEl);
+    seq.splice((wi + Math.ceil(seq.length / 2)) % seq.length + 1, 0, wallEl);
+  }
+  for (var c = 0; c < seq.length; c++) {
+    slides.push(seq[c]);
+    if (deck.id === 'kantine' && every > 0 && SPONSORS.length && (c + 1) % every === 0) slides.push('SOLO');
+  }
+
   if (!solo) slides = slides.filter(function (x) { return x !== 'SOLO'; });
   for (var b = 0; b < slides.length; b++) if (slides[b] === 'SOLO') slides[b] = solo;
   var prog = document.getElementById('prog');
@@ -613,7 +640,7 @@ var INDELING = [
       if (nx <= i) round++;
       i = nx;
       var ev = parseInt(slides[i].getAttribute && slides[i].getAttribute('data-every') || '0', 10);
-      if (!ev || n === 1 || round % ev === 0) break;
+      if (dayOk(slides[i]) && (!ev || n === 1 || round % ev === 0)) break;
     }
     return i;
   }
