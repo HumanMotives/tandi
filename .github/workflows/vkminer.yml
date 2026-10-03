@@ -1,0 +1,90 @@
+name: VK miner
+
+on:
+  workflow_dispatch:
+    inputs:
+      preset:
+        description: Zoekpreset (zie vkminer/tool/config.yaml)
+        type: choice
+        options: [otr-scifi, ufo-interviews, bmovies, prelinger, custom]
+        default: otr-scifi
+      query:
+        description: Extra zoektermen (bij custom de volledige zoekopdracht)
+        required: false
+        default: ''
+      max_items:
+        description: Aantal items
+        default: '5'
+      max_files:
+        description: Bestanden per item
+        default: '3'
+      whisper_model:
+        description: Whisper-model (groter = beter en trager)
+        type: choice
+        options: [base.en, small.en, medium.en]
+        default: base.en
+      pd_only:
+        description: Alleen items met duidelijke publiek-domein- of CC-licentie
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vkminer
+  cancel-in-progress: false
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: vkminer/tool/requirements.txt
+
+      - name: ffmpeg installeren
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+
+      - name: Whisper-modellen cachen
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: whisper-${{ inputs.whisper_model }}
+
+      - run: pip install -r vkminer/tool/requirements.txt
+
+      - name: Oogsten
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PRESET: ${{ inputs.preset }}
+          QUERY: ${{ inputs.query }}
+          MAX_ITEMS: ${{ inputs.max_items }}
+          MAX_FILES: ${{ inputs.max_files }}
+          WHISPER: ${{ inputs.whisper_model }}
+          PD_ONLY: ${{ inputs.pd_only }}
+        run: |
+          BATCH="b$(date -u +%Y%m%d-%H%M)-${PRESET}"
+          echo "BATCH=$BATCH" >> "$GITHUB_ENV"
+          EXTRA=""
+          if [ "$PD_ONLY" = "true" ]; then EXTRA="--pd-only"; fi
+          python vkminer/tool/harvest.py --preset "$PRESET" --query "$QUERY" \
+            --max-items "$MAX_ITEMS" --max-files "$MAX_FILES" --whisper "$WHISPER" \
+            --batch "$BATCH" --out "vkminer/batches/$BATCH" \
+            --batches-index vkminer/batches.json $EXTRA
+
+      - name: Opslaan in de repo (Cloudflare publiceert automatisch)
+        if: always()
+        run: |
+          git config user.name "vkminer-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for f in vkminer/batches vkminer/batches.json vkminer/tool/processed.txt; do [ -e "$f" ] && git add "$f"; done
+          if git diff --cached --quiet; then echo "Niets nieuws"; exit 0; fi
+          git commit -m "vkminer: $BATCH"
+          git pull --rebase
+          git push
