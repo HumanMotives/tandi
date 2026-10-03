@@ -1,0 +1,1119 @@
+{
+ "batch": {
+  "name": "b20261003-1040-otr-scifi",
+  "preset": "otr-scifi",
+  "query": "collection:oldtimeradio AND title:(\"x minus one\" OR \"dimension x\" OR \"lights out\" OR \"inner sanctum\" OR \"quiet please\" OR \"mysterious traveler\" OR \"beyond tomorrow\" OR \"escape\")",
+  "whisper": "base.en",
+  "claude": false,
+  "created": "2026-10-03T11:03:52+00:00"
+ },
+ "clips": [
+  {
+   "id": "themysterioustraveler-44-01-30009houseofde-00037",
+   "file": "clips/themysterioustraveler-44-01-30009houseofde-00037.wav",
+   "text": "in the dark darkness stirs strange tells in some minds the things that happen at",
+   "score": 9,
+   "ai": null,
+   "tags": [
+    "the thing",
+    "darkness",
+    "strange"
+   ],
+   "start": 37.45,
+   "end": 46.31,
+   "item": "TheMysteriousTraveler",
+   "title": "The Mysterious Traveler - single episodes",
+   "source_file": "44-01-30009HouseOfDeath.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheMysteriousTraveler",
+   "source_url": "https://archive.org/download/TheMysteriousTraveler/44-01-30009HouseOfDeath.mp3#t=37.4",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-05-01002-01174",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-05-01002-01174.wav",
+   "text": "Lou who loo chah come on now, Marty. This is life and death the guy you sent over to hire me for the invasion picture",
+   "score": 6,
+   "ai": null,
+   "tags": [
+    "invasion",
+    "death"
+   ],
+   "start": 1174.33,
+   "end": 1180.37,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-05-01002TheParade.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-05-01002TheParade.mp3#t=1174.3",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-dimension-x-singles-dimension-x-1950-04--00033",
+   "file": "clips/otrr-dimension-x-singles-dimension-x-1950-04--00033.wav",
+   "text": "But there are men today, psychologists now experimenting with telepathy, hypnosis, thought transference,",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "hypnos",
+    "experiment"
+   ],
+   "start": 33.6,
+   "end": 41.88,
+   "item": "OTRR_Dimension_X_Singles",
+   "title": "Dimension X - Single Episodes",
+   "source_file": "Dimension_X_1950-04-22__03_ReportOnBarnhouseEffect.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/OTRR_Dimension_X_Singles",
+   "source_url": "https://archive.org/download/OTRR_Dimension_X_Singles/Dimension_X_1950-04-22__03_ReportOnBarnhouseEffect.mp3#t=33.6",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-escape-singles-escape-47-02-28-000--00678",
+   "file": "clips/otrr-escape-singles-escape-47-02-28-000--00678.wav",
+   "text": "I said I saw a strange thing the other day.",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "strange",
+    "i saw"
+   ],
+   "start": 678.01,
+   "end": 681.47,
+   "item": "OTRR_Escape_Singles",
+   "title": "Escape - Single Episodes",
+   "source_file": "Escape_47-02-28_-000-_Out_Of_This_World_-Audition-.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/OTRR_Escape_Singles",
+   "source_url": "https://archive.org/download/OTRR_Escape_Singles/Escape_47-02-28_-000-_Out_Of_This_World_-Audition-.mp3#t=678.0",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-escape-singles-escape-47-03-21-000--00318",
+   "file": "clips/otrr-escape-singles-escape-47-03-21-000--00318.wav",
+   "text": "You know, Toby, Toby, I saw a very strange sight the other day.",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "strange",
+    "i saw"
+   ],
+   "start": 318.56,
+   "end": 322.88,
+   "item": "OTRR_Escape_Singles",
+   "title": "Escape - Single Episodes",
+   "source_file": "Escape_47-03-21_-000-_Dead_of_Night_-Audition-.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/OTRR_Escape_Singles",
+   "source_url": "https://archive.org/download/OTRR_Escape_Singles/Escape_47-03-21_-000-_Dead_of_Night_-Audition-.mp3#t=318.6",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-01--00489",
+   "file": "clips/otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-01--00489.wav",
+   "text": "Oh, have no fear for the day of ghost-like voices from the dead",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "ghost",
+    "the dead",
+    "voice"
+   ],
+   "start": 488.97,
+   "end": 493.97,
+   "item": "OTRR_Inner_Sanctum_Mysteries_Singles",
+   "title": "Inner Sanctum Mysteries - Single Episodes",
+   "source_file": "Inner Sanctum  41-01-07 Amazing Death Of Mrs Putnam.mp3",
+   "year": "2020-01-03",
+   "item_url": "https://archive.org/details/OTRR_Inner_Sanctum_Mysteries_Singles",
+   "source_url": "https://archive.org/download/OTRR_Inner_Sanctum_Mysteries_Singles/Inner%20Sanctum%20%2041-01-07%20Amazing%20Death%20Of%20Mrs%20Putnam.mp3#t=489.0",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-01--00913",
+   "file": "clips/otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-01--00913.wav",
+   "text": "Wondering about the strange death of Mrs. Pupnam?",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "strange",
+    "death"
+   ],
+   "start": 913.31,
+   "end": 916.33,
+   "item": "OTRR_Inner_Sanctum_Mysteries_Singles",
+   "title": "Inner Sanctum Mysteries - Single Episodes",
+   "source_file": "Inner Sanctum  41-01-07 Amazing Death Of Mrs Putnam.mp3",
+   "year": "2020-01-03",
+   "item_url": "https://archive.org/details/OTRR_Inner_Sanctum_Mysteries_Singles",
+   "source_url": "https://archive.org/download/OTRR_Inner_Sanctum_Mysteries_Singles/Inner%20Sanctum%20%2041-01-07%20Amazing%20Death%20Of%20Mrs%20Putnam.mp3#t=913.3",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-04-24001-00858",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-04-24001-00858.wav",
+   "text": "All radiation detectors to be fully manned.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "radiation"
+   ],
+   "start": 858.44,
+   "end": 861.0,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-04-24001NoContact.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-04-24001NoContact.mp3#t=858.4",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-04-24001-01000",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-04-24001-01000.wav",
+   "text": "Damage controlled. Is our lead shield leaking radiation? Well keep at it.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "radiation"
+   ],
+   "start": 1000.31,
+   "end": 1005.37,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-04-24001NoContact.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-04-24001NoContact.mp3#t=1000.3",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-04-24001-01651",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-04-24001-01651.wav",
+   "text": "But who would ever dream that invaders from outer space would take advantage of that weakness",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "outer space",
+    "dream"
+   ],
+   "start": 1651.63,
+   "end": 1656.55,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-04-24001NoContact.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-04-24001NoContact.mp3#t=1651.6",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-05-01002-00331",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-05-01002-00331.wav",
+   "text": "The concept of invasion from Mars.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "invasion"
+   ],
+   "start": 330.89,
+   "end": 335.61,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-05-01002TheParade.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-05-01002TheParade.mp3#t=330.9",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-05-01002-00475",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-05-01002-00475.wav",
+   "text": "A man named Lucha, client unknown, starts publicizing the Martian invasion.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "invasion"
+   ],
+   "start": 475.32,
+   "end": 480.94,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-05-01002TheParade.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-05-01002TheParade.mp3#t=475.3",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-05-01002-00781",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-05-01002-00781.wav",
+   "text": "extravaganza, invasion from Mars.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "invasion"
+   ],
+   "start": 780.69,
+   "end": 783.15,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-05-01002TheParade.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-05-01002TheParade.mp3#t=780.7",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-05-01002-00942",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-05-01002-00942.wav",
+   "text": "Perhaps they're reminded of the actuality of war and possible invasion.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "invasion"
+   ],
+   "start": 942.45,
+   "end": 946.31,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-05-01002TheParade.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-05-01002TheParade.mp3#t=942.4",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-05-01002-01434",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-05-01002-01434.wav",
+   "text": "He wanted to run to the police with some story about a Martian invasion.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "invasion"
+   ],
+   "start": 1434.32,
+   "end": 1438.42,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-05-01002TheParade.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-05-01002TheParade.mp3#t=1434.3",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-05-08003-00171",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-05-08003-00171.wav",
+   "text": "than come in without the cover of darkness.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 171.12,
+   "end": 173.42,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-05-08003MarsIsHeaven.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-05-08003MarsIsHeaven.mp3#t=171.1",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-05-08003-00293",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-05-08003-00293.wav",
+   "text": "We're a 17 man on an alien world, and it's up to us whether we ever get home again.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "alien"
+   ],
+   "start": 292.71,
+   "end": 298.71,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-05-08003MarsIsHeaven.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-05-08003MarsIsHeaven.mp3#t=292.7",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-escape-singles-escape-47-02-28-000--00665",
+   "file": "clips/otrr-escape-singles-escape-47-02-28-000--00665.wav",
+   "text": "I said I saw a very strange thing the other day.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "strange",
+    "i saw"
+   ],
+   "start": 664.79,
+   "end": 668.45,
+   "item": "OTRR_Escape_Singles",
+   "title": "Escape - Single Episodes",
+   "source_file": "Escape_47-02-28_-000-_Out_Of_This_World_-Audition-.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/OTRR_Escape_Singles",
+   "source_url": "https://archive.org/download/OTRR_Escape_Singles/Escape_47-02-28_-000-_Out_Of_This_World_-Audition-.mp3#t=664.8",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-escape-singles-escape-47-03-21-000--00327",
+   "file": "clips/otrr-escape-singles-escape-47-03-21-000--00327.wav",
+   "text": "Toby, I said I saw a very strange sight the other day.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "strange",
+    "i saw"
+   ],
+   "start": 327.36,
+   "end": 331.26,
+   "item": "OTRR_Escape_Singles",
+   "title": "Escape - Single Episodes",
+   "source_file": "Escape_47-03-21_-000-_Dead_of_Night_-Audition-.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/OTRR_Escape_Singles",
+   "source_url": "https://archive.org/download/OTRR_Escape_Singles/Escape_47-03-21_-000-_Dead_of_Night_-Audition-.mp3#t=327.4",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-01--00091",
+   "file": "clips/otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-01--00091.wav",
+   "text": "And listen to his weird and stranger tale as ever with soul.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "strange",
+    "soul"
+   ],
+   "start": 90.94,
+   "end": 95.5,
+   "item": "OTRR_Inner_Sanctum_Mysteries_Singles",
+   "title": "Inner Sanctum Mysteries - Single Episodes",
+   "source_file": "Inner Sanctum  41-01-07 Amazing Death Of Mrs Putnam.mp3",
+   "year": "2020-01-03",
+   "item_url": "https://archive.org/details/OTRR_Inner_Sanctum_Mysteries_Singles",
+   "source_url": "https://archive.org/download/OTRR_Inner_Sanctum_Mysteries_Singles/Inner%20Sanctum%20%2041-01-07%20Amazing%20Death%20Of%20Mrs%20Putnam.mp3#t=90.9",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-01--00471",
+   "file": "clips/otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-01--00471.wav",
+   "text": "A strange telephone call late at night.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "strange",
+    "night"
+   ],
+   "start": 471.35,
+   "end": 474.49,
+   "item": "OTRR_Inner_Sanctum_Mysteries_Singles",
+   "title": "Inner Sanctum Mysteries - Single Episodes",
+   "source_file": "Inner Sanctum  41-01-07 Amazing Death Of Mrs Putnam.mp3",
+   "year": "2020-01-03",
+   "item_url": "https://archive.org/details/OTRR_Inner_Sanctum_Mysteries_Singles",
+   "source_url": "https://archive.org/download/OTRR_Inner_Sanctum_Mysteries_Singles/Inner%20Sanctum%20%2041-01-07%20Amazing%20Death%20Of%20Mrs%20Putnam.mp3#t=471.3",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-08--00820",
+   "file": "clips/otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-08--00820.wav",
+   "text": "It starts north with a darkness.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 820.05,
+   "end": 822.61,
+   "item": "OTRR_Inner_Sanctum_Mysteries_Singles",
+   "title": "Inner Sanctum Mysteries - Single Episodes",
+   "source_file": "Inner Sanctum  41-08-10 The Death Ship.mp3",
+   "year": "2020-01-03",
+   "item_url": "https://archive.org/details/OTRR_Inner_Sanctum_Mysteries_Singles",
+   "source_url": "https://archive.org/download/OTRR_Inner_Sanctum_Mysteries_Singles/Inner%20Sanctum%20%2041-08-10%20The%20Death%20Ship.mp3#t=820.0",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "themysterioustraveler-44-01-30009houseofde-00643",
+   "file": "clips/themysterioustraveler-44-01-30009houseofde-00643.wav",
+   "text": "The minutes dragged into ours, and each hour was a nightmare.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "nightmare",
+    "night"
+   ],
+   "start": 643.57,
+   "end": 647.77,
+   "item": "TheMysteriousTraveler",
+   "title": "The Mysterious Traveler - single episodes",
+   "source_file": "44-01-30009HouseOfDeath.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheMysteriousTraveler",
+   "source_url": "https://archive.org/download/TheMysteriousTraveler/44-01-30009HouseOfDeath.mp3#t=643.6",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "themysterioustraveler-44-02-27013thegooddi-00052",
+   "file": "clips/themysterioustraveler-44-02-27013thegooddi-00052.wav",
+   "text": "dark, dark misturs, strange tellers in some minds, particularly those of children, for children",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "strange",
+    "dark",
+    "mind"
+   ],
+   "start": 51.9,
+   "end": 62.34,
+   "item": "TheMysteriousTraveler",
+   "title": "The Mysterious Traveler - single episodes",
+   "source_file": "44-02-27013TheGoodDieYoung.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheMysteriousTraveler",
+   "source_url": "https://archive.org/download/TheMysteriousTraveler/44-02-27013TheGoodDieYoung.mp3#t=51.9",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "themysterioustraveler-44-02-27013thegooddi-00306",
+   "file": "clips/themysterioustraveler-44-02-27013thegooddi-00306.wav",
+   "text": "She lay quietly in the darkness, thinking.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 306.47,
+   "end": 310.15,
+   "item": "TheMysteriousTraveler",
+   "title": "The Mysterious Traveler - single episodes",
+   "source_file": "44-02-27013TheGoodDieYoung.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheMysteriousTraveler",
+   "source_url": "https://archive.org/download/TheMysteriousTraveler/44-02-27013TheGoodDieYoung.mp3#t=306.5",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "themysterioustraveler-44-02-27013thegooddi-01252",
+   "file": "clips/themysterioustraveler-44-02-27013thegooddi-01252.wav",
+   "text": "Are you still troubled by nightmares?",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "nightmare",
+    "night"
+   ],
+   "start": 1252.4,
+   "end": 1255.62,
+   "item": "TheMysteriousTraveler",
+   "title": "The Mysterious Traveler - single episodes",
+   "source_file": "44-02-27013TheGoodDieYoung.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheMysteriousTraveler",
+   "source_url": "https://archive.org/download/TheMysteriousTraveler/44-02-27013TheGoodDieYoung.mp3#t=1252.4",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "themysterioustraveler-44-02-27013thegooddi-01425",
+   "file": "clips/themysterioustraveler-44-02-27013thegooddi-01425.wav",
+   "text": "Stephen, Dr. Smith said she had a nightmare.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "nightmare",
+    "night"
+   ],
+   "start": 1424.94,
+   "end": 1427.86,
+   "item": "TheMysteriousTraveler",
+   "title": "The Mysterious Traveler - single episodes",
+   "source_file": "44-02-27013TheGoodDieYoung.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheMysteriousTraveler",
+   "source_url": "https://archive.org/download/TheMysteriousTraveler/44-02-27013TheGoodDieYoung.mp3#t=1424.9",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-04-24001-00919",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-04-24001-00919.wav",
+   "text": "It was bouncing back so fast, it's almost beating the signal.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the signal"
+   ],
+   "start": 918.97,
+   "end": 921.85,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-04-24001NoContact.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-04-24001NoContact.mp3#t=919.0",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-04-24001-00948",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-04-24001-00948.wav",
+   "text": "No radiation, no time, no nothing.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "radiation"
+   ],
+   "start": 947.87,
+   "end": 950.43,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-04-24001NoContact.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-04-24001NoContact.mp3#t=947.9",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-04-24001-01015",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-04-24001-01015.wav",
+   "text": "Where's the radiation coming from? Sir it's coming from inside this ship. That's",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "radiation"
+   ],
+   "start": 1014.93,
+   "end": 1022.71,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-04-24001NoContact.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-04-24001NoContact.mp3#t=1014.9",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-04-24001-01022",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-04-24001-01022.wav",
+   "text": "engines then. It is so we're finished. Engine room. Yes sir. That radiation must be in the",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "radiation"
+   ],
+   "start": 1022.01,
+   "end": 1028.13,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-04-24001NoContact.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-04-24001NoContact.mp3#t=1022.0",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-04-24001-01056",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-04-24001-01056.wav",
+   "text": "The signal's weaker now.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the signal"
+   ],
+   "start": 1055.88,
+   "end": 1057.78,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-04-24001NoContact.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-04-24001NoContact.mp3#t=1055.9",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-05-01002-00449",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-05-01002-00449.wav",
+   "text": "the picture a space opera titled invasion from Mars get it oh I begin to see also",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "invasion"
+   ],
+   "start": 449.38,
+   "end": 457.56,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-05-01002TheParade.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-05-01002TheParade.mp3#t=449.4",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-05-01002-01181",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-05-01002-01181.wav",
+   "text": "Invasion from Mars the space opera. Are you bad?",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "invasion"
+   ],
+   "start": 1181.25,
+   "end": 1184.71,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-05-01002TheParade.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-05-01002TheParade.mp3#t=1181.2",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-05-08003-00108",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-05-08003-00108.wav",
+   "text": "the silent goats of space, to descend at last into the darkness of the upper Martian atmospheres.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 107.83,
+   "end": 115.61,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-05-08003MarsIsHeaven.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-05-08003MarsIsHeaven.mp3#t=107.8",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone55-05-08003-01509",
+   "file": "clips/otrr-x-minus-one-singles-xminusone55-05-08003-01509.wav",
+   "text": "They make the thing that Mars was heaven and we fell to the trap.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 1509.45,
+   "end": 1512.59,
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne55-05-08003MarsIsHeaven.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne55-05-08003MarsIsHeaven.mp3#t=1509.5",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-dimension-x-singles-dimension-x-1950-04--00071",
+   "file": "clips/otrr-dimension-x-singles-dimension-x-1950-04--00071.wav",
+   "text": "And in five minutes the signal will flash,",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the signal"
+   ],
+   "start": 70.92,
+   "end": 73.6,
+   "item": "OTRR_Dimension_X_Singles",
+   "title": "Dimension X - Single Episodes",
+   "source_file": "Dimension_X_1950-04-08__01_OuterLimit.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/OTRR_Dimension_X_Singles",
+   "source_url": "https://archive.org/download/OTRR_Dimension_X_Singles/Dimension_X_1950-04-08__01_OuterLimit.mp3#t=70.9",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-dimension-x-singles-dimension-x-1950-04--00112",
+   "file": "clips/otrr-dimension-x-singles-dimension-x-1950-04--00112.wav",
+   "text": "She's the first one built for outer space.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "outer space"
+   ],
+   "start": 112.16,
+   "end": 114.76,
+   "item": "OTRR_Dimension_X_Singles",
+   "title": "Dimension X - Single Episodes",
+   "source_file": "Dimension_X_1950-04-08__01_OuterLimit.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/OTRR_Dimension_X_Singles",
+   "source_url": "https://archive.org/download/OTRR_Dimension_X_Singles/Dimension_X_1950-04-08__01_OuterLimit.mp3#t=112.2",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-dimension-x-singles-dimension-x-1950-04--00285",
+   "file": "clips/otrr-dimension-x-singles-dimension-x-1950-04--00285.wav",
+   "text": "I'm afraid I'm going out of the mind.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "afraid",
+    "mind"
+   ],
+   "start": 284.82,
+   "end": 288.1,
+   "item": "OTRR_Dimension_X_Singles",
+   "title": "Dimension X - Single Episodes",
+   "source_file": "Dimension_X_1950-04-22__03_ReportOnBarnhouseEffect.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/OTRR_Dimension_X_Singles",
+   "source_url": "https://archive.org/download/OTRR_Dimension_X_Singles/Dimension_X_1950-04-22__03_ReportOnBarnhouseEffect.mp3#t=284.8",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-dimension-x-singles-dimension-x-1950-04--00914",
+   "file": "clips/otrr-dimension-x-singles-dimension-x-1950-04--00914.wav",
+   "text": "on what you think of the things the way they are.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 914.52,
+   "end": 917.3,
+   "item": "OTRR_Dimension_X_Singles",
+   "title": "Dimension X - Single Episodes",
+   "source_file": "Dimension_X_1950-04-22__03_ReportOnBarnhouseEffect.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/OTRR_Dimension_X_Singles",
+   "source_url": "https://archive.org/download/OTRR_Dimension_X_Singles/Dimension_X_1950-04-22__03_ReportOnBarnhouseEffect.mp3#t=914.5",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-escape-singles-escape-47-07-07-001--00826",
+   "file": "clips/otrr-escape-singles-escape-47-07-07-001--00826.wav",
+   "text": "The thing will work, I know it will.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 826.26,
+   "end": 828.42,
+   "item": "OTRR_Escape_Singles",
+   "title": "Escape - Single Episodes",
+   "source_file": "Escape_47-07-07_-001-_The_Man_Who_Would_Be_King_-Raymond_Lawrence-.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/OTRR_Escape_Singles",
+   "source_url": "https://archive.org/download/OTRR_Escape_Singles/Escape_47-07-07_-001-_The_Man_Who_Would_Be_King_-Raymond_Lawrence-.mp3#t=826.3",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-01--00733",
+   "file": "clips/otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-01--00733.wav",
+   "text": "But her voice and her death almost two hours before we got the call...",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "death",
+    "voice"
+   ],
+   "start": 733.19,
+   "end": 738.85,
+   "item": "OTRR_Inner_Sanctum_Mysteries_Singles",
+   "title": "Inner Sanctum Mysteries - Single Episodes",
+   "source_file": "Inner Sanctum  41-01-07 Amazing Death Of Mrs Putnam.mp3",
+   "year": "2020-01-03",
+   "item_url": "https://archive.org/details/OTRR_Inner_Sanctum_Mysteries_Singles",
+   "source_url": "https://archive.org/download/OTRR_Inner_Sanctum_Mysteries_Singles/Inner%20Sanctum%20%2041-01-07%20Amazing%20Death%20Of%20Mrs%20Putnam.mp3#t=733.2",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-01--01223",
+   "file": "clips/otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-01--01223.wav",
+   "text": "Yes, yes, they shot my dog while the poor creature was trying to protect me.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "creature"
+   ],
+   "start": 1223.07,
+   "end": 1228.01,
+   "item": "OTRR_Inner_Sanctum_Mysteries_Singles",
+   "title": "Inner Sanctum Mysteries - Single Episodes",
+   "source_file": "Inner Sanctum  41-01-07 Amazing Death Of Mrs Putnam.mp3",
+   "year": "2020-01-03",
+   "item_url": "https://archive.org/details/OTRR_Inner_Sanctum_Mysteries_Singles",
+   "source_url": "https://archive.org/download/OTRR_Inner_Sanctum_Mysteries_Singles/Inner%20Sanctum%20%2041-01-07%20Amazing%20Death%20Of%20Mrs%20Putnam.mp3#t=1223.1",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-08--00137",
+   "file": "clips/otrr-inner-sanctum-mysteries-singles-inner-sanctum-41-08--00137.wav",
+   "text": "It's the thing when it picks himself right up to the left.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 136.84,
+   "end": 139.26,
+   "item": "OTRR_Inner_Sanctum_Mysteries_Singles",
+   "title": "Inner Sanctum Mysteries - Single Episodes",
+   "source_file": "Inner Sanctum  41-08-10 The Death Ship.mp3",
+   "year": "2020-01-03",
+   "item_url": "https://archive.org/details/OTRR_Inner_Sanctum_Mysteries_Singles",
+   "source_url": "https://archive.org/download/OTRR_Inner_Sanctum_Mysteries_Singles/Inner%20Sanctum%20%2041-08-10%20The%20Death%20Ship.mp3#t=136.8",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "themysterioustraveler-44-03-26017strangeri-00547",
+   "file": "clips/themysterioustraveler-44-03-26017strangeri-00547.wav",
+   "text": "A strange. Of course it was a dream. Yes, of course.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "strange",
+    "dream"
+   ],
+   "start": 547.22,
+   "end": 553.98,
+   "item": "TheMysteriousTraveler",
+   "title": "The Mysterious Traveler - single episodes",
+   "source_file": "44-03-26017StrangerInTheHouse.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheMysteriousTraveler",
+   "source_url": "https://archive.org/download/TheMysteriousTraveler/44-03-26017StrangerInTheHouse.mp3#t=547.2",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "themysterioustraveler-44-03-26017strangeri-00743",
+   "file": "clips/themysterioustraveler-44-03-26017strangeri-00743.wav",
+   "text": "She's from another world of fans in the evil world.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "another world"
+   ],
+   "start": 743.01,
+   "end": 745.87,
+   "item": "TheMysteriousTraveler",
+   "title": "The Mysterious Traveler - single episodes",
+   "source_file": "44-03-26017StrangerInTheHouse.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheMysteriousTraveler",
+   "source_url": "https://archive.org/download/TheMysteriousTraveler/44-03-26017StrangerInTheHouse.mp3#t=743.0",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "themysterioustraveler-44-03-26017strangeri-00916",
+   "file": "clips/themysterioustraveler-44-03-26017strangeri-00916.wav",
+   "text": "How else do you account for his remembrance of the things",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 915.73,
+   "end": 918.55,
+   "item": "TheMysteriousTraveler",
+   "title": "The Mysterious Traveler - single episodes",
+   "source_file": "44-03-26017StrangerInTheHouse.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheMysteriousTraveler",
+   "source_url": "https://archive.org/download/TheMysteriousTraveler/44-03-26017StrangerInTheHouse.mp3#t=915.7",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   }
+  }
+ ]
+}
