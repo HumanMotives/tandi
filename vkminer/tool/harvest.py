@@ -238,9 +238,9 @@ def select_clips(segs, cfg, pats, api_key, per_file):
     return final
 
 
-def cut(src, start, end, total, pad, dest):
-    a = max(0.0, start - pad)
-    b = min(total, end + pad)
+def cut(src, start, end, total, pad_start, pad_end, dest):
+    a = max(0.0, start - pad_start)
+    b = min(total, end + pad_end)
     d = b - a
     fade = 0.015
     subprocess.run(
@@ -250,6 +250,14 @@ def cut(src, start, end, total, pad, dest):
         check=True,
     )
     return a, b
+
+
+def pad_start(cfg):
+    return float(cfg.get("pad_start", cfg.get("pad", 0.35)))
+
+
+def pad_end(cfg):
+    return float(cfg.get("pad_end", 1.5))
 
 
 def slug(s, n=40):
@@ -329,13 +337,24 @@ def main():
                 segs, total = transcribe(model, wav, cfg.get("language"))
                 picked = select_clips(segs, cfg, pats, api_key, args.per_file)
                 log(f"   {len(segs)} zinnen, {len(picked)} clips")
+                tkey = f"{slug(ident)}-{slug(Path(name).stem, 20)}"
+                if picked:
+                    (out / "transcripts").mkdir(exist_ok=True)
+                    (out / "transcripts" / f"{tkey}.json").write_text(json.dumps({
+                        "item": ident, "file": name, "title": title, "url": url,
+                        "duration": round(total, 2),
+                        "segments": [[round(x["start"], 2), round(x["end"], 2), x["text"]] for x in segs],
+                    }, ensure_ascii=False))
                 for c in picked:
                     cid = f"{slug(ident)}-{slug(Path(name).stem, 20)}-{int(c['start']):05d}"
-                    a, b = cut(wav, c["start"], c["end"], total, cfg["pad"], clips_dir / f"{cid}.wav")
+                    a, b = cut(wav, c["start"], c["end"], total, pad_start(cfg), pad_end(cfg),
+                               clips_dir / f"{cid}.wav")
                     clips.append({
                         "id": cid, "file": f"clips/{cid}.wav", "text": c["text"],
                         "score": c["score"], "ai": c.get("ai"), "tags": c["tags"],
                         "start": round(a, 2), "end": round(b, 2),
+                        "t0": round(c["start"], 2), "t1": round(c["end"], 2),
+                        "transcript": f"transcripts/{tkey}.json", "source_dl": url,
                         "item": ident, "title": title, "source_file": name,
                         "year": " ".join(as_list(md.get("year") or md.get("date")))[:10],
                         "item_url": f"https://archive.org/details/{ident}",

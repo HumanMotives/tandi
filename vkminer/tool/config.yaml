@@ -15,7 +15,8 @@ presets:
 language: en          # taal voor Whisper; leeg = automatisch detecteren
 min_clip: 1.2         # seconden
 max_clip: 14          # seconden
-pad: 0.35             # marge rond elke knip (seconden)
+pad_start: 0.35       # marge voor elke knip (seconden)
+pad_end: 1.5          # marge na elke knip, zodat het laatste woord niet wordt afgekapt
 max_minutes: 120      # langere bestanden overslaan
 claude_model: claude-haiku-4-5-20251001
 claude_min_score: 6   # 0-10, alleen als ANTHROPIC_API_KEY is ingesteld
