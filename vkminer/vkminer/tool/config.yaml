@@ -1,0 +1,28 @@
+# Zoekpresets in Internet Archive advanced-search syntax.
+# Voeg je een preset toe? Zet de naam dan ook in de keuzelijst in .github/workflows/harvest.yml.
+presets:
+  otr-scifi:
+    query: 'collection:oldtimeradio AND title:("x minus one" OR "dimension x" OR "lights out" OR "inner sanctum" OR "quiet please" OR "mysterious traveler" OR "beyond tomorrow" OR "escape")'
+  ufo-interviews:
+    query: '(ufo OR "flying saucer" OR abduction OR abductee OR "close encounter" OR contactee) AND mediatype:(audio OR movies)'
+  bmovies:
+    query: 'collection:(SciFi_Horror OR feature_films) AND (subject:horror OR subject:"science fiction" OR subject:sci-fi)'
+  prelinger:
+    query: 'collection:prelinger AND (atomic OR space OR future OR hypnosis OR mental OR robot OR radiation)'
+  custom:
+    query: ''
+
+language: en          # taal voor Whisper; leeg = automatisch detecteren
+min_clip: 1.2         # seconden
+max_clip: 14          # seconden
+pad: 0.35             # marge rond elke knip (seconden)
+max_minutes: 120      # langere bestanden overslaan
+claude_model: claude-haiku-4-5-20251001
+claude_min_score: 6   # 0-10, alleen als ANTHROPIC_API_KEY is ingesteld
+keyword_min_score: 3  # drempel als Claude niet meedoet
+
+# Trefwoorden met gewicht. Matcht op woordbegin, hoofdletterongevoelig.
+keywords:
+  3: [abduct, "taken aboard", "not human", "not of this earth", "another world", "they took", saucer, alien, creature, beings, "missing time", hypnos, "something out there", "it's alive", invasion, radiation, mutat, "the thing", "from beyond", "outer space", "the signal"]
+  2: [darkness, scream, afraid, "don't look", strange, "can't explain", silence, "deep space", planet, "no one", forever, "i saw", nightmare, ghost, death, "the dead", experiment, "the light", machine]
+  1: [night, cold, dark, sky, stars, human, soul, mind, brain, dream, voice]
