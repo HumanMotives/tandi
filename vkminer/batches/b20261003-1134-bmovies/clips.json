@@ -1,0 +1,569 @@
+{
+ "batch": {
+  "name": "b20261003-1134-bmovies",
+  "preset": "bmovies",
+  "query": "collection:(SciFi_Horror OR feature_films) AND (subject:horror OR subject:\"science fiction\" OR subject:sci-fi)",
+  "whisper": "base.en",
+  "claude": false,
+  "created": "2026-10-03T11:40:45+00:00"
+ },
+ "clips": [
+  {
+   "id": "invasionofthebeegirls-invasionofthebeegirl-04342",
+   "file": "clips/invasionofthebeegirls-invasionofthebeegirl-04342.wav",
+   "text": "Mutated cells are infiltrated with a measurable degree of gamma radiation, which registers",
+   "score": 6,
+   "ai": null,
+   "tags": [
+    "radiation",
+    "mutat"
+   ],
+   "start": 4342.41,
+   "end": 4348.2,
+   "t0": 4342.76,
+   "t1": 4346.7,
+   "transcript": "transcripts/invasionofthebeegirls-invasionofthebeegirl.json",
+   "source_dl": "https://archive.org/download/InvasionOfTheBeeGirls/InvasionOfTheBeeGirls_512kb.mp4",
+   "item": "InvasionOfTheBeeGirls",
+   "title": "Invasion of the Bee girls",
+   "source_file": "InvasionOfTheBeeGirls_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/InvasionOfTheBeeGirls",
+   "source_url": "https://archive.org/download/InvasionOfTheBeeGirls/InvasionOfTheBeeGirls_512kb.mp4#t=4342.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "house-on-haunted-hill-ipod-house-on-haunted-hil-03030",
+   "file": "clips/house-on-haunted-hill-ipod-house-on-haunted-hil-03030.wav",
+   "text": "I'm not afraid of your ghosts, Bridget, but I am afraid.",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "afraid",
+    "ghost"
+   ],
+   "start": 3030.14,
+   "end": 3037.73,
+   "t0": 3030.49,
+   "t1": 3036.23,
+   "transcript": "transcripts/house-on-haunted-hill-ipod-house-on-haunted-hil.json",
+   "source_dl": "https://archive.org/download/house_on_haunted_hill_ipod/house_on_haunted_hill.mp3",
+   "item": "house_on_haunted_hill_ipod",
+   "title": "House on Haunted Hill",
+   "source_file": "house_on_haunted_hill.mp3",
+   "year": "1959",
+   "item_url": "https://archive.org/details/house_on_haunted_hill_ipod",
+   "source_url": "https://archive.org/download/house_on_haunted_hill_ipod/house_on_haunted_hill.mp3#t=3030.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "thenakedwitch-thenakedwitch1964ful-00140",
+   "file": "clips/thenakedwitch-thenakedwitch1964ful-00140.wav",
+   "text": "let us try to understand these strange creatures and the evil forces behind them.",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "creature",
+    "strange"
+   ],
+   "start": 140.29,
+   "end": 147.6,
+   "t0": 140.64,
+   "t1": 146.1,
+   "transcript": "transcripts/thenakedwitch-thenakedwitch1964ful.json",
+   "source_dl": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "item": "TheNakedWitch",
+   "title": "The Naked Witch",
+   "source_file": "TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheNakedWitch",
+   "source_url": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3#t=140.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "thenakedwitch-thenakedwitch1964ful-00291",
+   "file": "clips/thenakedwitch-thenakedwitch1964ful-00291.wav",
+   "text": "conceivable to the human mind, but to these evil perverted creatures it was all terribly",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "creature",
+    "human",
+    "mind"
+   ],
+   "start": 291.19,
+   "end": 300.14,
+   "t0": 291.54,
+   "t1": 298.64,
+   "transcript": "transcripts/thenakedwitch-thenakedwitch1964ful.json",
+   "source_dl": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "item": "TheNakedWitch",
+   "title": "The Naked Witch",
+   "source_file": "TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheNakedWitch",
+   "source_url": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3#t=291.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "thenakedwitch-thenakedwitch1964ful-00323",
+   "file": "clips/thenakedwitch-thenakedwitch1964ful-00323.wav",
+   "text": "Lived by day as ordinary human beings,",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "beings",
+    "human"
+   ],
+   "start": 323.39,
+   "end": 327.94,
+   "t0": 323.74,
+   "t1": 326.44,
+   "transcript": "transcripts/thenakedwitch-thenakedwitch1964ful.json",
+   "source_dl": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "item": "TheNakedWitch",
+   "title": "The Naked Witch",
+   "source_file": "TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheNakedWitch",
+   "source_url": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3#t=323.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "thenakedwitch-thenakedwitch1964ful-00415",
+   "file": "clips/thenakedwitch-thenakedwitch1964ful-00415.wav",
+   "text": "into the night sky and hideous creatures",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "creature",
+    "night",
+    "sky"
+   ],
+   "start": 415.06,
+   "end": 419.29,
+   "t0": 415.41,
+   "t1": 417.79,
+   "transcript": "transcripts/thenakedwitch-thenakedwitch1964ful.json",
+   "source_dl": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "item": "TheNakedWitch",
+   "title": "The Naked Witch",
+   "source_file": "TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheNakedWitch",
+   "source_url": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3#t=415.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "thenakedwitch-thenakedwitch1964ful-01723",
+   "file": "clips/thenakedwitch-thenakedwitch1964ful-01723.wav",
+   "text": "That same night under cover of darkness,",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "night",
+    "dark"
+   ],
+   "start": 1723.47,
+   "end": 1727.38,
+   "t0": 1723.82,
+   "t1": 1725.88,
+   "transcript": "transcripts/thenakedwitch-thenakedwitch1964ful.json",
+   "source_dl": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "item": "TheNakedWitch",
+   "title": "The Naked Witch",
+   "source_file": "TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheNakedWitch",
+   "source_url": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3#t=1723.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "house-on-haunted-hill-ipod-house-on-haunted-hil-01902",
+   "file": "clips/house-on-haunted-hill-ipod-house-on-haunted-hil-01902.wav",
+   "text": "I saw a lie awake nights wondering why I married you.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "i saw",
+    "night"
+   ],
+   "start": 1902.17,
+   "end": 1906.82,
+   "t0": 1902.52,
+   "t1": 1905.32,
+   "transcript": "transcripts/house-on-haunted-hill-ipod-house-on-haunted-hil.json",
+   "source_dl": "https://archive.org/download/house_on_haunted_hill_ipod/house_on_haunted_hill.mp3",
+   "item": "house_on_haunted_hill_ipod",
+   "title": "House on Haunted Hill",
+   "source_file": "house_on_haunted_hill.mp3",
+   "year": "1959",
+   "item_url": "https://archive.org/details/house_on_haunted_hill_ipod",
+   "source_url": "https://archive.org/download/house_on_haunted_hill_ipod/house_on_haunted_hill.mp3#t=1902.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "bloodypitofhorror-bloodypitofhorror-00188",
+   "file": "clips/bloodypitofhorror-bloodypitofhorror-00188.wav",
+   "text": "The seal of this tribunal will entomb forever both your body and your evil soul.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "forever",
+    "soul"
+   ],
+   "start": 187.87,
+   "end": 194.18,
+   "t0": 188.22,
+   "t1": 192.68,
+   "transcript": "transcripts/bloodypitofhorror-bloodypitofhorror.json",
+   "source_dl": "https://archive.org/download/BloodyPitOfHorror/BloodyPitOfHorror.mp3",
+   "item": "BloodyPitOfHorror",
+   "title": "Bloody Pit of Horror",
+   "source_file": "BloodyPitOfHorror.mp3",
+   "year": "1965",
+   "item_url": "https://archive.org/details/BloodyPitOfHorror",
+   "source_url": "https://archive.org/download/BloodyPitOfHorror/BloodyPitOfHorror.mp3#t=187.9",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "bloodypitofhorror-bloodypitofhorror-03149",
+   "file": "clips/bloodypitofhorror-bloodypitofhorror-03149.wav",
+   "text": "I was forced to retreat to this castle. Mankind is made up of inferior creatures.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "creature"
+   ],
+   "start": 3149.36,
+   "end": 3158.26,
+   "t0": 3149.71,
+   "t1": 3156.76,
+   "transcript": "transcripts/bloodypitofhorror-bloodypitofhorror.json",
+   "source_dl": "https://archive.org/download/BloodyPitOfHorror/BloodyPitOfHorror.mp3",
+   "item": "BloodyPitOfHorror",
+   "title": "Bloody Pit of Horror",
+   "source_file": "BloodyPitOfHorror.mp3",
+   "year": "1965",
+   "item_url": "https://archive.org/details/BloodyPitOfHorror",
+   "source_url": "https://archive.org/download/BloodyPitOfHorror/BloodyPitOfHorror.mp3#t=3149.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "thenakedwitch-thenakedwitch1964ful-00022",
+   "file": "clips/thenakedwitch-thenakedwitch1964ful-00022.wav",
+   "text": "From the deeper darkness where no living being has ever walked,",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 21.73,
+   "end": 27.78,
+   "t0": 22.08,
+   "t1": 26.28,
+   "transcript": "transcripts/thenakedwitch-thenakedwitch1964ful.json",
+   "source_dl": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "item": "TheNakedWitch",
+   "title": "The Naked Witch",
+   "source_file": "TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheNakedWitch",
+   "source_url": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3#t=21.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "thenakedwitch-thenakedwitch1964ful-00033",
+   "file": "clips/thenakedwitch-thenakedwitch1964ful-00033.wav",
+   "text": "This is the story of one such creature.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "creature"
+   ],
+   "start": 33.57,
+   "end": 37.86,
+   "t0": 33.92,
+   "t1": 36.36,
+   "transcript": "transcripts/thenakedwitch-thenakedwitch1964ful.json",
+   "source_dl": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "item": "TheNakedWitch",
+   "title": "The Naked Witch",
+   "source_file": "TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheNakedWitch",
+   "source_url": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3#t=33.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "thenakedwitch-thenakedwitch1964ful-00067",
+   "file": "clips/thenakedwitch-thenakedwitch1964ful-00067.wav",
+   "text": "Do these sinister creatures live only in the superstitious minds of ignorant people?",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "creature",
+    "mind"
+   ],
+   "start": 67.52,
+   "end": 76.89,
+   "t0": 67.87,
+   "t1": 75.39,
+   "transcript": "transcripts/thenakedwitch-thenakedwitch1964ful.json",
+   "source_dl": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "item": "TheNakedWitch",
+   "title": "The Naked Witch",
+   "source_file": "TheNakedWitch1964FullMovieFilmHorror.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheNakedWitch",
+   "source_url": "https://archive.org/download/TheNakedWitch/TheNakedWitch1964FullMovieFilmHorror.mp3#t=67.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invasionofthebeegirls-invasionofthebeegirl-01617",
+   "file": "clips/invasionofthebeegirls-invasionofthebeegirl-01617.wav",
+   "text": "What's left of the thing where the bridge is out in the old highway?",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 1617.3,
+   "end": 1621.57,
+   "t0": 1617.65,
+   "t1": 1620.07,
+   "transcript": "transcripts/invasionofthebeegirls-invasionofthebeegirl.json",
+   "source_dl": "https://archive.org/download/InvasionOfTheBeeGirls/InvasionOfTheBeeGirls_512kb.mp4",
+   "item": "InvasionOfTheBeeGirls",
+   "title": "Invasion of the Bee girls",
+   "source_file": "InvasionOfTheBeeGirls_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/InvasionOfTheBeeGirls",
+   "source_url": "https://archive.org/download/InvasionOfTheBeeGirls/InvasionOfTheBeeGirls_512kb.mp4#t=1617.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invasionofthebeegirls-invasionofthebeegirl-04973",
+   "file": "clips/invasionofthebeegirls-invasionofthebeegirl-04973.wav",
+   "text": "Well, what Susan Harris didn't realize was that the radiation caused them to be sterile.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "radiation"
+   ],
+   "start": 4973.28,
+   "end": 4979.81,
+   "t0": 4973.63,
+   "t1": 4978.31,
+   "transcript": "transcripts/invasionofthebeegirls-invasionofthebeegirl.json",
+   "source_dl": "https://archive.org/download/InvasionOfTheBeeGirls/InvasionOfTheBeeGirls_512kb.mp4",
+   "item": "InvasionOfTheBeeGirls",
+   "title": "Invasion of the Bee girls",
+   "source_file": "InvasionOfTheBeeGirls_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/InvasionOfTheBeeGirls",
+   "source_url": "https://archive.org/download/InvasionOfTheBeeGirls/InvasionOfTheBeeGirls_512kb.mp4#t=4973.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "house-on-haunted-hill-ipod-house-on-haunted-hil-00522",
+   "file": "clips/house-on-haunted-hill-ipod-house-on-haunted-hil-00522.wav",
+   "text": "Let me spend the night ghost party with your idea, remember.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "ghost",
+    "night"
+   ],
+   "start": 522.12,
+   "end": 527.27,
+   "t0": 522.47,
+   "t1": 525.77,
+   "transcript": "transcripts/house-on-haunted-hill-ipod-house-on-haunted-hil.json",
+   "source_dl": "https://archive.org/download/house_on_haunted_hill_ipod/house_on_haunted_hill.mp3",
+   "item": "house_on_haunted_hill_ipod",
+   "title": "House on Haunted Hill",
+   "source_file": "house_on_haunted_hill.mp3",
+   "year": "1959",
+   "item_url": "https://archive.org/details/house_on_haunted_hill_ipod",
+   "source_url": "https://archive.org/download/house_on_haunted_hill_ipod/house_on_haunted_hill.mp3#t=522.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "house-on-haunted-hill-ipod-house-on-haunted-hil-02351",
+   "file": "clips/house-on-haunted-hill-ipod-house-on-haunted-hil-02351.wav",
+   "text": "I don't think anyone else is going to walk around in total darkness.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 2350.98,
+   "end": 2355.95,
+   "t0": 2351.33,
+   "t1": 2354.45,
+   "transcript": "transcripts/house-on-haunted-hill-ipod-house-on-haunted-hil.json",
+   "source_dl": "https://archive.org/download/house_on_haunted_hill_ipod/house_on_haunted_hill.mp3",
+   "item": "house_on_haunted_hill_ipod",
+   "title": "House on Haunted Hill",
+   "source_file": "house_on_haunted_hill.mp3",
+   "year": "1959",
+   "item_url": "https://archive.org/details/house_on_haunted_hill_ipod",
+   "source_url": "https://archive.org/download/house_on_haunted_hill_ipod/house_on_haunted_hill.mp3#t=2351.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invasionofthebeegirls-invasionofthebeegirl-04326",
+   "file": "clips/invasionofthebeegirls-invasionofthebeegirl-04326.wav",
+   "text": "If this forced mutation on the energy level that we're talking about did occur,",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "mutat"
+   ],
+   "start": 4326.35,
+   "end": 4333.24,
+   "t0": 4326.7,
+   "t1": 4331.74,
+   "transcript": "transcripts/invasionofthebeegirls-invasionofthebeegirl.json",
+   "source_dl": "https://archive.org/download/InvasionOfTheBeeGirls/InvasionOfTheBeeGirls_512kb.mp4",
+   "item": "InvasionOfTheBeeGirls",
+   "title": "Invasion of the Bee girls",
+   "source_file": "InvasionOfTheBeeGirls_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/InvasionOfTheBeeGirls",
+   "source_url": "https://archive.org/download/InvasionOfTheBeeGirls/InvasionOfTheBeeGirls_512kb.mp4#t=4326.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invasionofthebeegirls-invasionofthebeegirl-04352",
+   "file": "clips/invasionofthebeegirls-invasionofthebeegirl-04352.wav",
+   "text": "And I heard a voice from heaven saying, right, blessed are the dead who die in the Lord from",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the dead",
+    "voice"
+   ],
+   "start": 4351.95,
+   "end": 4360.0,
+   "t0": 4352.3,
+   "t1": 4358.5,
+   "transcript": "transcripts/invasionofthebeegirls-invasionofthebeegirl.json",
+   "source_dl": "https://archive.org/download/InvasionOfTheBeeGirls/InvasionOfTheBeeGirls_512kb.mp4",
+   "item": "InvasionOfTheBeeGirls",
+   "title": "Invasion of the Bee girls",
+   "source_file": "InvasionOfTheBeeGirls_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/InvasionOfTheBeeGirls",
+   "source_url": "https://archive.org/download/InvasionOfTheBeeGirls/InvasionOfTheBeeGirls_512kb.mp4#t=4351.9",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invasionofthebeegirls-invasionofthebeegirl-04390",
+   "file": "clips/invasionofthebeegirls-invasionofthebeegirl-04390.wav",
+   "text": "receive the things done in the body according to what he hath done, whether it be good or",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 4390.41,
+   "end": 4398.44,
+   "t0": 4390.76,
+   "t1": 4396.94,
+   "transcript": "transcripts/invasionofthebeegirls-invasionofthebeegirl.json",
+   "source_dl": "https://archive.org/download/InvasionOfTheBeeGirls/InvasionOfTheBeeGirls_512kb.mp4",
+   "item": "InvasionOfTheBeeGirls",
+   "title": "Invasion of the Bee girls",
+   "source_file": "InvasionOfTheBeeGirls_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/InvasionOfTheBeeGirls",
+   "source_url": "https://archive.org/download/InvasionOfTheBeeGirls/InvasionOfTheBeeGirls_512kb.mp4#t=4390.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  }
+ ]
+}
