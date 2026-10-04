@@ -38,10 +38,21 @@ async function latest(kind) {
   const r = await gh(`/actions/workflows/${WORKFLOWS[kind]}/runs?per_page=3`);
   if (!r.ok) throw new Error(`${WORKFLOWS[kind]} gaf ${await ghError(r)}`);
   const run = ((await r.json()).workflow_runs || [])[0];
-  return run ? {
-    id: run.id, status: run.status, conclusion: run.conclusion, url: run.html_url,
+  if (!run) return null;
+  let step = null;
+  if (run.status !== 'completed') {
+    try {
+      const j = await gh(`/actions/runs/${run.id}/jobs`);
+      if (j.ok) {
+        const steps = ((await j.json()).jobs || [])[0]?.steps || [];
+        step = (steps.find(x => x.status === 'in_progress') || steps.filter(x => x.status === 'completed').pop() || {}).name || null;
+      }
+    } catch {}
+  }
+  return {
+    id: run.id, status: run.status, conclusion: run.conclusion, url: run.html_url, step,
     started: run.run_started_at || run.created_at, updated: run.updated_at,
-  } : null;
+  };
 }
 
 export default async (req) => {
