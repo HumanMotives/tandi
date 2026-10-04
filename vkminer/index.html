@@ -110,9 +110,19 @@ a.btn { color: var(--muted); text-decoration: none; }
 }
 .form textarea { min-height: 84px; resize: vertical; }
 .form .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-#runstatus { color: var(--glow); }
+#runstatus { color: var(--glow); margin-top: 8px; }
 #runstatus:empty { display: none; }
 #runstatus a { color: inherit; }
+#runstatus.busy {
+  display: inline-flex; align-items: center; gap: 10px; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--glow); border-radius: 999px; padding: 5px 14px 5px 12px;
+}
+#runstatus.busy::before {
+  content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--glow); flex: none;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .3; transform: scale(.7); } }
+@media (prefers-reduced-motion: reduce) { #runstatus.busy::before { animation: none; } }
 .btn:disabled, .btn[disabled] { opacity: .45; cursor: default; }
 .keys { color: var(--muted); font-size: .8rem; margin-top: 28px; }
 kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
@@ -424,6 +434,8 @@ $('#preq').addEventListener('click', async () => {
   const res = await api({ kind: 'cuts', request: { batch: data.batch.name, transcript: pClip.transcript, ranges: rs } });
   if (res.error) { $('#selinfo').textContent = res.error; $('#preq').disabled = false; return; }
   $('#selinfo').textContent = 'Wordt geknipt. Over een paar minuten staan de clips bovenaan, met label extra.';
+  busy('Extra clips worden geknipt… Ze verschijnen vanzelf bovenaan.');
+  busy('Extra clips worden geknipt… (een paar minuten)');
   watchCuts(data.batch.name, data.clips.length);
 });
 
@@ -495,9 +507,18 @@ async function api(body) {
   } catch { return { error: 'Startknop niet bereikbaar.' }; }
 }
 
+const STEP = {
+  'Oogsten': 'zoeken, luisteren en knippen',
+  'Verzoek klaarzetten': 'voorbereiden',
+  'ffmpeg installeren': 'opstarten', 'Whisper-modellen cachen': 'opstarten',
+  'Opslaan in de repo (Netlify publiceert automatisch)': 'opslaan',
+};
+function busy(text) { $('#runstatus').className = 'busy'; $('#runstatus').innerHTML = text; }
 function showRun(run) {
+  $('#runstatus').className = '';
   if (run && run.status !== 'completed') {
-    $('#runstatus').innerHTML = `Batch bezig, ${mins(run.started)} min (<a href="${esc(run.url)}" target="_blank" rel="noopener">details</a>)`;
+    const step = run.status === 'queued' ? 'in de wachtrij' : (STEP[run.step] || 'opstarten');
+    busy(`Batch bezig: ${esc(step)}, ${mins(run.started)} min <a href="${esc(run.url)}" target="_blank" rel="noopener">details</a>`);
     $('#rstart').disabled = true; $('#newrun').textContent = 'Batch bezig…';
     return 'busy';
   }
@@ -513,12 +534,12 @@ async function watchRun(before, since = 0) {
   const d = await api();
   const notPickedUp = since && (!d.run || new Date(d.run.started).getTime() < since - 60000) && Date.now() - since < 300000;
   const st = d.error || notPickedUp ? 'busy' : showRun(d.run);
-  if (st === 'busy') { watchTimer = setTimeout(() => watchRun(before, since), 20000); return; }
+  if (st === 'busy') { watchTimer = setTimeout(() => watchRun(before, since), 15000); return; }
   // run klaar: wachten tot Netlify de batch online heeft
   const fresh = (await refreshBatches()).find(b => !before.includes(b.name));
-  if (fresh) { refreshBatches(fresh.name); $('#runstatus').textContent = `Nieuwe batch: ${fresh.count} clips.`; return; }
+  if (fresh) { refreshBatches(fresh.name); $('#runstatus').className = ''; $('#runstatus').textContent = `Nieuwe batch: ${fresh.count} clips.`; return; }
   if (d.run && d.run.conclusion === 'success' && mins(d.run.updated) < 15) {
-    $('#runstatus').textContent = 'Batch klaar, wordt gepubliceerd…';
+    busy('Batch klaar, wordt gepubliceerd…');
     watchTimer = setTimeout(() => watchRun(before, since), 20000);
   }
 }
@@ -528,7 +549,7 @@ function watchCuts(batch, count, tries = 0) {
     const d = await fetch(`batches/${batch}/clips.json?` + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => null);
     if (d && d.clips.length > count) {
       if (data.batch.name === batch) { data = d; render(); }
-      $('#runstatus').textContent = `${d.clips.length - count} extra clip(s) toegevoegd.`;
+      $('#runstatus').className = ''; $('#runstatus').textContent = `${d.clips.length - count} extra clip(s) toegevoegd.`;
       refreshBatches(data.batch.name);
     } else if (tries < 30) watchCuts(batch, count, tries + 1);
   }, 20000);
@@ -552,15 +573,21 @@ $('#rstart').addEventListener('click', async () => {
   if (res.error) { $('#rmsg').textContent = res.error; $('#rstart').disabled = false; return; }
   $('#rmsg').textContent = 'Duurt meestal 15–30 minuten.';
   closeRun();
-  $('#runstatus').textContent = 'Batch gestart. Deze pagina mag open blijven; de nieuwe batch verschijnt vanzelf.';
+  busy('Batch wordt gestart… Deze pagina mag open blijven; de nieuwe batch verschijnt vanzelf.');
+  $('#newrun').textContent = 'Batch bezig…'; $('#rstart').disabled = true;
   const before = [...batchNames];
   const since = Date.now();
-  setTimeout(() => watchRun(before, since), 15000);
+  setTimeout(() => watchRun(before, since), 8000);
 });
 
 firstLoad.then(() => api()).then(d => {
   needsPassword = !!d.needsPassword; $('#r-passwrap').hidden = !needsPassword;
-  if (!d.error && showRun(d.run) === 'busy') watchRun([...batchNames]);
+  if (d.error) return;
+  if (showRun(d.run) === 'busy') { watchRun([...batchNames]); return; }
+  if (d.cuts && d.cuts.status !== 'completed') {
+    busy(`Extra clips worden geknipt, ${mins(d.cuts.started)} min <a href="${esc(d.cuts.url)}" target="_blank" rel="noopener">details</a>`);
+    watchCuts(data.batch.name, data.clips.length);
+  }
 });
 </script>
 </body>
