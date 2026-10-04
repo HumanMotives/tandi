@@ -23,6 +23,23 @@ search:
     - hypnosis
     - robot
 
+# BRONNEN: welk soort materiaal heeft voorrang?
+# Matcht op IA-collectie of op een woord in titel/onderwerp (hoofdletterongevoelig).
+# 'avoid' wint van 'prefer': een luisterboek met 'radio' in de titel blijft een luisterboek.
+sources:
+  per_source: 1          # clips per bron (IA-item); meer uit dezelfde bron via Meer knippen
+  prefer:                # films, oude radio, interviews: eerst verwerkt, kleine bonus
+    bonus: 2
+    collections: [feature_films, prelinger, scifi_horror, film_noir, classic_tv, classic_cartoons,
+                  oldtimeradio, otrr, radioprograms, old_time_radio]
+    words: [film, movie, trailer, newsreel, documentary, interview, radio, broadcast,
+            "old time radio", otr, "radio drama", "radio play", serial, episode]
+  avoid:                 # luisterboeken en e-books: droog voorgelezen, pas als laatste
+    penalty: 6
+    collections: [librivoxaudio, audio_bookspoetry, audiobooks, audio_books, booksbylanguage]
+    words: [librivox, audiobook, "audio book", "e-book", ebook, unabridged, chapter, "read by",
+            "reading of", "solo reading", "dramatic reading", poem, poetry]
+
 language: en          # taal voor Whisper; leeg = automatisch detecteren
 min_clip: 1.2         # seconden
 max_clip: 14          # seconden

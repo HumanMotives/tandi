@@ -7,6 +7,7 @@ schrijft een audit-site naar --out.
 """
 import argparse
 import difflib
+import itertools
 import json
 import os
 import re
@@ -71,6 +72,34 @@ def license_of(md):
     else:
         status = "check"
     return {"status": status, "url": url, "rights": rights[:240]}
+
+
+def source_kind(meta, cfg):
+    """'avoid' (luisterboek/e-book), 'prefer' (film, radio, interview) of 'neutral'."""
+    src = cfg.get("sources") or {}
+    colls = {str(c).lower() for c in as_list(meta.get("collection"))}
+    text = " ".join(str(x) for x in as_list(meta.get("title")) + as_list(meta.get("subject"))).lower()
+
+    def match(group):
+        g = src.get(group) or {}
+        if colls & {str(c).lower() for c in g.get("collections") or []}:
+            return True
+        return any(re.search(r"\b" + re.escape(str(w).lower()), text) for w in g.get("words") or [])
+
+    if match("avoid"):
+        return "avoid"
+    if match("prefer"):
+        return "prefer"
+    return "neutral"
+
+
+def kind_adjust(kind, cfg):
+    src = cfg.get("sources") or {}
+    if kind == "avoid":
+        return -float((src.get("avoid") or {}).get("penalty", 6))
+    if kind == "prefer":
+        return float((src.get("prefer") or {}).get("bonus", 2))
+    return 0.0
 
 
 def pick_files(item, max_files, max_minutes):
@@ -164,7 +193,8 @@ CLAUDE_PROMPT = """You pick spoken-word samples for an experimental electronic m
 Wanted: eerie, weird, wonderful lines from old horror/sci-fi films, radio plays and strange interviews
 (alien abduction, UFOs, the unexplained). A good sample works on its own, without plot context:
 evocative, mysterious, quotable, unsettling or strangely beautiful. Score low for mundane talk,
-plot exposition, character names, announcements and commercials.
+plot exposition, character names, announcements and commercials. Score low for audiobook
+narration and flat readings of books or poems: we want the colour and atmosphere of film, radio and interviews.
 
 Rate each numbered line 0-10. Reply with ONLY a JSON array, no prose:
 [{"i": <number>, "score": <0-10>, "tags": ["1-3 short lowercase tags"]}]
@@ -325,9 +355,8 @@ def main():
     ap.add_argument("--terms", default="", help="zoekwoorden, komma-gescheiden; leeg = lijst uit config")
     ap.add_argument("--keywords", default="", help="extra trefwoorden voor het knippen, komma-gescheiden")
     ap.add_argument("--request", help="JSON-bestand of issue-tekst met bovenstaande velden")
-    ap.add_argument("--max-items", type=int, default=5)
+    ap.add_argument("--max-items", type=int, default=15, help="aantal clips; één per bron")
     ap.add_argument("--max-files", type=int, default=3, help="bestanden per item")
-    ap.add_argument("--per-file", type=int, default=8, help="max clips per bestand")
     ap.add_argument("--whisper", default="base.en")
     ap.add_argument("--pd-only", action="store_true")
     ap.add_argument("--batch", default=datetime.now(timezone.utc).strftime("b%Y%m%d-%H%M"))
@@ -341,7 +370,7 @@ def main():
         req = json.loads(m.group(1) if m else raw)
         args.terms = req.get("terms", args.terms)
         args.keywords = req.get("keywords", args.keywords)
-        args.max_items = max(1, min(20, int(req.get("max_items", args.max_items))))
+        args.max_items = max(1, min(40, int(req.get("max_items", args.max_items))))
         args.max_files = max(1, min(10, int(req.get("max_files", args.max_files))))
         if req.get("whisper") in ("base.en", "small.en", "medium.en"):
             args.whisper = req["whisper"]
@@ -369,11 +398,19 @@ def main():
     model = WhisperModel(args.whisper, device="cpu", compute_type="int8")
 
     log(f"Query: {query}")
-    results = ia.search_items(query, fields=["identifier"], sorts=["downloads desc"])
-    clips, items_done, work = [], 0, Path(tempfile.mkdtemp())
+    per_source = max(1, int((cfg.get("sources") or {}).get("per_source", 1)))
+    results = ia.search_items(query, fields=["identifier", "title", "collection", "subject"],
+                              sorts=["downloads desc"])
+    pool = list(itertools.islice(results, max(200, args.max_items * 15)))
+    order = {"prefer": 0, "neutral": 1, "avoid": 2}
+    pool.sort(key=lambda h: order[source_kind(h, cfg)])  # stabiel: binnen een groep blijft populair eerst
+    counts = {k: sum(1 for h in pool if source_kind(h, cfg) == k) for k in order}
+    log(f"{len(pool)} bronnen gevonden: {counts['prefer']} film/radio/interview, "
+        f"{counts['neutral']} overig, {counts['avoid']} luisterboek (achteraan)")
+    clips, items_done, tried, titles, work = [], 0, 0, set(), Path(tempfile.mkdtemp())
 
-    for hit in results:
-        if items_done >= args.max_items:
+    for hit in pool:
+        if items_done >= args.max_items or tried >= args.max_items * 4:
             break
         ident = hit["identifier"]
         try:
@@ -390,9 +427,16 @@ def main():
                  if f"{ident}/{f['name']}" not in done]
         if not files:
             continue
-        items_done += 1
         title = " ".join(as_list(md.get("title"))) or ident
-        log(f"[{items_done}/{args.max_items}] {title} ({lic['status']})")
+        tkey_title = norm(title)[:60]
+        if tkey_title in titles:  # zelfde film/programma onder een andere upload
+            log(f"- {ident}: zelfde titel als eerdere bron, overgeslagen")
+            continue
+        kind = source_kind(md, cfg)
+        adjust = kind_adjust(kind, cfg)
+        tried += 1
+        log(f"[{items_done + 1}/{args.max_items}] {title} ({lic['status']}, {kind})")
+        found = 0
 
         for f in files:
             name = f["name"]
@@ -403,7 +447,7 @@ def main():
                 fetch_to_wav(url, wav)
                 log("   transcriberen")
                 segs, total = transcribe(model, wav, cfg.get("language"))
-                picked = select_clips(segs, cfg, pats, api_key, args.per_file, seen)
+                picked = select_clips(segs, cfg, pats, api_key, per_source - found, seen)
                 log(f"   {len(segs)} zinnen, {len(picked)} clips")
                 tkey = f"{slug(ident)}-{slug(Path(name).stem, 20)}"
                 if picked:
@@ -415,6 +459,9 @@ def main():
                     }, ensure_ascii=False))
                 for c in picked:
                     seen.add(c["text"])
+                    c["score"] = round(c["score"] + adjust, 1)
+                    if kind == "avoid":
+                        c["tags"] = ["luisterboek"] + list(c["tags"])[:2]
                     cid = f"{slug(ident)}-{slug(Path(name).stem, 20)}-{int(c['start']):05d}"
                     a, b = cut(wav, c["start"], c["end"], total, pad_start(cfg), pad_end(cfg),
                                clips_dir / f"{cid}.wav")
@@ -428,8 +475,9 @@ def main():
                         "year": " ".join(as_list(md.get("year") or md.get("date")))[:10],
                         "item_url": f"https://archive.org/details/{ident}",
                         "source_url": f"{url}#t={a:.1f}",
-                        "license": lic,
+                        "license": lic, "kind": kind,
                     })
+                found += len(picked)
             except Exception as e:
                 log(f"   fout bij {name}: {e}")
             finally:
@@ -439,6 +487,11 @@ def main():
                 fh.write(f"{ident}/{name}\n")
             # tussentijds wegschrijven, zodat een afgebroken run toch iets oplevert
             write_index(out, args, query, api_key, clips)
+            if found >= per_source:
+                break  # genoeg uit deze bron; overige bestanden niet downloaden
+        if found:
+            items_done += 1
+            titles.add(tkey_title)
 
     shutil.rmtree(work, ignore_errors=True)
     if not clips:
