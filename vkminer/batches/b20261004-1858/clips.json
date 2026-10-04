@@ -9,6 +9,34 @@
  },
  "clips": [
   {
+   "item": "Grave_of_the_Vampire_movie",
+   "title": "Grave of the Vampire",
+   "source_file": "Grave-of-the-Vampire.mp3",
+   "year": "1974",
+   "item_url": "https://archive.org/details/Grave_of_the_Vampire_movie",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "transcript": "transcripts/grave-of-the-vampire-movie-grave-of-the-vampire.json",
+   "source_dl": "https://archive.org/download/Grave_of_the_Vampire_movie/Grave-of-the-Vampire.mp3",
+   "id": "grave-of-the-vampire-movie-grave-of-the-vampire-02465-x02477",
+   "file": "clips/grave-of-the-vampire-movie-grave-of-the-vampire-02465-x02477.wav",
+   "text": "So we fear that God's demons, devils, angels, vampires.",
+   "score": 13.0,
+   "ai": null,
+   "tags": [
+    "extra"
+   ],
+   "extra": true,
+   "start": 2465.39,
+   "end": 2478.79,
+   "t0": 2465.74,
+   "t1": 2477.29,
+   "source_url": "https://archive.org/download/Grave_of_the_Vampire_movie/Grave-of-the-Vampire.mp3#t=2465.4"
+  },
+  {
    "id": "grave-of-the-vampire-movie-grave-of-the-vampire-02456",
    "file": "clips/grave-of-the-vampire-movie-grave-of-the-vampire-02456.wav",
    "text": "The antibiotics that keep us one step ahead of death, and we are left with pathetic frightened little creatures.",
