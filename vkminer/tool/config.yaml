@@ -28,6 +28,7 @@ search:
 # 'avoid' wint van 'prefer': een luisterboek met 'radio' in de titel blijft een luisterboek.
 sources:
   per_source: 1          # clips per bron (IA-item); meer uit dezelfde bron via Meer knippen
+  skip_polled: true      # bronnen uit eerdere batches overslaan (lijst: tool/processed.txt)
   prefer:                # films, oude radio, interviews: eerst verwerkt, kleine bonus
     bonus: 2
     collections: [feature_films, prelinger, scifi_horror, film_noir, classic_tv, classic_cartoons,

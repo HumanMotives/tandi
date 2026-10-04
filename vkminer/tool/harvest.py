@@ -24,7 +24,7 @@ import requests
 import yaml
 
 ROOT = Path(__file__).resolve().parent
-STATE = ROOT / "processed.txt"
+STATE = ROOT / "processed.txt"  # verwerkte bestanden (item/bestand) en bronnen (title:...)
 SEEN = ROOT / "seen.txt"  # al geknipte zinnen, tegen dubbelingen
 
 AUDIO_FORMATS = ["64Kbps MP3", "VBR MP3", "128Kbps MP3", "MP3", "Ogg Vorbis", "Flac", "WAVE"]
@@ -391,7 +391,16 @@ def main():
     clips_dir.mkdir(parents=True, exist_ok=True)
 
     STATE.parent.mkdir(exist_ok=True)
-    done = set(STATE.read_text().split()) if STATE.exists() else set()
+    done = {l.strip() for l in STATE.read_text().splitlines() if l.strip()} if STATE.exists() else set()
+    # Bronnen die in een eerdere batch al eens bekeken zijn, met of zonder resultaat.
+    skip_polled = bool((cfg.get("sources") or {}).get("skip_polled", True))
+    polled_items = {l.split("/", 1)[0] for l in done if "/" in l and not l.startswith("title:")}
+    polled_titles = {l[6:] for l in done if l.startswith("title:")}
+
+    def remember(line):
+        done.add(line)
+        with STATE.open("a") as fh:
+            fh.write(line + "\n")
 
     from faster_whisper import WhisperModel
     log(f"Whisper laden: {args.whisper}")
@@ -401,7 +410,19 @@ def main():
     per_source = max(1, int((cfg.get("sources") or {}).get("per_source", 1)))
     results = ia.search_items(query, fields=["identifier", "title", "collection", "subject"],
                               sorts=["downloads desc"])
-    pool = list(itertools.islice(results, max(200, args.max_items * 15)))
+    def fresh(hits, limit=3000):
+        """Nieuwe bronnen; slaat eerder bekeken items en titels over."""
+        for n, h in enumerate(hits):
+            if n >= limit:
+                return
+            if skip_polled and (h["identifier"] in polled_items
+                                or norm(" ".join(str(t) for t in as_list(h.get("title"))))[:60] in polled_titles):
+                continue
+            yield h
+
+    pool = list(itertools.islice(fresh(results), max(200, args.max_items * 15)))
+    if skip_polled:
+        log(f"{len(polled_items)} bronnen al eerder bekeken, die worden overgeslagen")
     order = {"prefer": 0, "neutral": 1, "avoid": 2}
     pool.sort(key=lambda h: order[source_kind(h, cfg)])  # stabiel: binnen een groep blijft populair eerst
     counts = {k: sum(1 for h in pool if source_kind(h, cfg) == k) for k in order}
@@ -482,16 +503,16 @@ def main():
                 log(f"   fout bij {name}: {e}")
             finally:
                 wav.unlink(missing_ok=True)
-            done.add(f"{ident}/{name}")
-            with STATE.open("a") as fh:
-                fh.write(f"{ident}/{name}\n")
+            remember(f"{ident}/{name}")
             # tussentijds wegschrijven, zodat een afgebroken run toch iets oplevert
             write_index(out, args, query, api_key, clips)
             if found >= per_source:
                 break  # genoeg uit deze bron; overige bestanden niet downloaden
+        titles.add(tkey_title)
+        if tkey_title and f"title:{tkey_title}" not in done:
+            remember(f"title:{tkey_title}")
         if found:
             items_done += 1
-            titles.add(tkey_title)
 
     shutil.rmtree(work, ignore_errors=True)
     if not clips:
