@@ -4,16 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>VK miner</title>
+<title>VK Sample Miner</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📼</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #23262e; --surface: #2c3039; --line: #3b404b;
-  --ink: #ebe6dc; --muted: #9a9fa9;
-  --glow: #b7a4e3; --keep: #8fbfa6; --drop: #cf8a80;
+  --paper: #ffffff; --soft: #f3f4f6; --line: #e2e4e8;
+  --ink: #1b1e25; --muted: #6a707b;
+  --head: #1b1e25; --head-ink: #f1ede4; --head-muted: #a2a7b1; --head-line: #3a3f4a; --head-field: #272b34;
+  --go: #d0583a;
+  --wav: #f2b230; --wav-ink: #1b1e25;
+  --keep: #2c7a57; --drop: #b4473a; --mark: #6c55c2; --mark-soft: #f4f1fc;
   --sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --serif: "Newsreader", Georgia, "Times New Roman", serif;
   box-sizing: border-box;
@@ -21,156 +24,202 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 *, *::before, *::after { box-sizing: inherit; }
-html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 140px); }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
-button, select { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
+html { background: var(--paper); scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 70px); }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--sans); }
+button, select, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--mark); outline-offset: 2px; }
+.in { max-width: 760px; margin: 0 auto; padding-left: 18px; padding-right: 18px; }
 
-header {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2;
-  background: var(--bg); border-bottom: 1px solid var(--line);
+/* Kop */
+.mast { background: var(--head); color: var(--head-ink); }
+.mast .in { padding-top: 24px; padding-bottom: 20px; }
+.mast :focus-visible { outline-color: var(--head-ink); }
+h1 { margin: 0 0 18px; font: 600 1.75rem/1.1 var(--sans); letter-spacing: -.01em; }
+.field-label { display: block; font-size: .82rem; color: var(--head-muted); margin-bottom: 6px; }
+#batch {
+  display: block; width: min(100%, 460px); background: var(--head-field); color: var(--head-ink);
+  border: 1px solid var(--head-line); border-radius: 8px; padding: 9px 10px;
 }
-.bar { max-width: 760px; margin: 0 auto; padding: 14px 18px 12px; }
-h1 { margin: 0; font: 500 1.05rem/1.3 var(--sans); }
-h1 select { font-weight: 500; max-width: 100%; }
-.sub { color: var(--muted); font-size: .85rem; margin-top: 2px; overflow-wrap: anywhere; }
-.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
-.seg button { background: none; border: 0; padding: 5px 12px; cursor: pointer; color: var(--muted); }
-.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); }
-select { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
-.actions { display: flex; gap: 8px; }
-.btn { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
-.btn:disabled { opacity: .45; cursor: default; }
-
-main { max-width: 760px; margin: 0 auto; padding: 6px 18px 60px; }
-.clip {
-  display: grid; grid-template-columns: 44px 1fr; gap: 4px 14px;
-  padding: 18px 0 16px 12px; border-bottom: 1px solid var(--line);
-  border-left: 3px solid transparent; margin-left: -15px;
+.go {
+  display: inline-block; margin-top: 12px; background: var(--go); color: #fff; border: 0; border-radius: 8px;
+  padding: 10px 18px; font-weight: 600; cursor: pointer;
 }
-.clip.current { border-left-color: var(--glow); }
-.clip[data-state="keep"] .quote { color: var(--keep); }
-.clip[data-state="drop"] { opacity: .45; }
-.play {
-  width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line);
-  background: var(--surface); cursor: pointer; display: grid; place-items: center;
-}
-.play svg { width: 14px; height: 14px; fill: var(--ink); }
-.clip.playing .play { border-color: var(--glow); box-shadow: 0 0 0 4px rgba(183,164,227,.18); }
-.quote {
-  font: italic 400 1.38rem/1.35 var(--serif); margin: 4px 0 8px; max-width: 34em;
-  overflow-wrap: anywhere;
-}
-.meta { grid-column: 2; color: var(--muted); font-size: .82rem; display: flex; flex-wrap: wrap; gap: 4px 14px; }
-.meta a { color: var(--muted); }
-.meta a:hover { color: var(--ink); }
-.lic-check { color: var(--drop); }
-.tags { display: inline-flex; gap: 6px; }
-.tag { border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; }
-.decide { grid-column: 2; display: flex; gap: 8px; margin-top: 10px; }
-.decide button { border: 1px solid var(--line); background: none; border-radius: 6px; padding: 4px 14px; cursor: pointer; color: var(--muted); }
-.decide .k[aria-pressed="true"] { border-color: var(--keep); color: var(--keep); }
-.decide .d[aria-pressed="true"] { border-color: var(--drop); color: var(--drop); }
-.empty { color: var(--muted); padding: 40px 0; }
-.top { display: flex; gap: 12px; align-items: center; justify-content: space-between; }
-a.btn { color: var(--muted); text-decoration: none; }
-.btn.go { border-color: var(--glow); color: var(--glow); }
-.decide .more { margin-left: auto; }
-.extra-badge { color: var(--glow); }
-.overlay { position: fixed; inset: 0; z-index: 5; display: none; background: rgba(20,22,27,.6); }
-.overlay.open { display: block; }
-.sheet {
-  position: absolute; top: 0; right: 0; bottom: 0; width: min(640px, 100%);
-  background: var(--bg); border-left: 1px solid var(--line); display: flex; flex-direction: column;
-  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-.sheet-head { padding: 16px 18px 12px; border-bottom: 1px solid var(--line); }
-.sheet-head .row { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
-.sheet-head h2 { margin: 0; font: 500 1rem/1.3 var(--sans); }
-.sheet-head audio { width: 100%; margin-top: 12px; }
-.hint { color: var(--muted); font-size: .82rem; margin-top: 6px; }
-#lines { flex: 1; overflow-y: auto; padding: 6px 0; }
-.line { display: grid; grid-template-columns: 26px 52px 1fr; gap: 8px; align-items: start; padding: 7px 18px; cursor: pointer; }
-.line:hover { background: var(--surface); }
-.line input { margin-top: 4px; accent-color: var(--glow); }
-.line time { color: var(--muted); font-size: .8rem; padding-top: 2px; font-variant-numeric: tabular-nums; }
-.line .tx { font: italic 400 1.02rem/1.4 var(--serif); }
-.line.inclip { border-left: 3px solid var(--glow); padding-left: 15px; }
-.line.sel .tx { color: var(--glow); }
-.line.now { background: var(--surface); }
-.sheet-foot { border-top: 1px solid var(--line); padding: 12px 18px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-#selinfo { color: var(--muted); font-size: .85rem; margin-right: auto; }
-.form { padding: 16px 18px; overflow-y: auto; flex: 1; display: grid; gap: 14px; align-content: start; }
-.form label { display: grid; gap: 5px; font-size: .85rem; color: var(--muted); }
-.form label.check { display: flex; gap: 8px; align-items: center; }
-.form textarea, .form input[type=number], .form select {
-  background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px;
-  padding: 8px; font: inherit; width: 100%;
-}
-.form textarea { min-height: 84px; resize: vertical; }
-.form .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-#runstatus { color: var(--glow); margin-top: 8px; }
+.go:hover:not(:disabled) { filter: brightness(1.07); }
+.go:disabled { opacity: .55; cursor: default; }
+#runstatus { margin-top: 12px; font-size: .85rem; color: var(--head-ink); overflow-wrap: anywhere; }
 #runstatus:empty { display: none; }
-#runstatus a { color: inherit; }
+#runstatus a { color: inherit; white-space: nowrap; }
 #runstatus.busy {
-  display: inline-flex; align-items: center; gap: 10px; color: var(--ink);
-  background: var(--surface); border: 1px solid var(--glow); border-radius: 999px; padding: 5px 14px 5px 12px;
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--head-field); border: 1px solid var(--head-line); border-radius: 999px; padding: 5px 14px 5px 12px;
 }
 #runstatus.busy::before {
-  content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--glow); flex: none;
+  content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--go); flex: none;
   animation: pulse 1.4s ease-in-out infinite;
 }
 @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .3; transform: scale(.7); } }
 @media (prefers-reduced-motion: reduce) { #runstatus.busy::before { animation: none; } }
-.btn:disabled, .btn[disabled] { opacity: .45; cursor: default; }
+
+/* Werkbalk */
+.tools {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2;
+  background: var(--paper); border-bottom: 1px solid var(--line);
+}
+.tools .in { padding-top: 10px; padding-bottom: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.seg button { background: none; border: 0; padding: 5px 12px; cursor: pointer; color: var(--muted); font-size: .9rem; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+select { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+.actions { display: flex; gap: 8px; margin-left: auto; }
+.btn {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 5px 12px;
+  cursor: pointer; white-space: nowrap; color: var(--ink); font-size: .9rem;
+}
+.btn:hover:not(:disabled) { background: var(--soft); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.dark { background: var(--ink); border-color: var(--ink); color: #fff; }
+.btn.dark:hover:not(:disabled) { background: #333845; }
+.btn.hot { background: var(--go); border-color: var(--go); color: #fff; font-weight: 600; }
+.btn.hot:hover:not(:disabled) { background: var(--go); filter: brightness(1.07); }
+
+/* Clips */
+main .in { padding-top: 4px; padding-bottom: 60px; }
+.clip {
+  display: grid; grid-template-columns: 34px 1fr; gap: 2px 12px;
+  padding: 12px 8px 12px 12px; border-bottom: 1px solid var(--line);
+  border-left: 3px solid transparent; margin-left: -15px;
+}
+.clip.current { border-left-color: var(--mark); background: var(--mark-soft); }
+.clip[data-state="keep"] .quote { color: var(--keep); }
+.clip[data-state="drop"] { opacity: .45; }
+.play {
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line);
+  background: var(--paper); cursor: pointer; display: grid; place-items: center; margin-top: 2px;
+}
+.play svg { width: 12px; height: 12px; fill: var(--ink); }
+.clip.playing .play { border-color: var(--mark); box-shadow: 0 0 0 3px rgba(108,85,194,.2); }
+.quote { font: italic 400 1.18rem/1.32 var(--serif); margin: 3px 0 4px; max-width: 36em; overflow-wrap: anywhere; }
+.meta { grid-column: 2; color: var(--muted); font-size: .78rem; display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.meta a { color: var(--muted); }
+.meta a:hover { color: var(--ink); }
+.lic-check { color: var(--drop); }
+.tags { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.tag { border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
+.extra-badge { color: var(--mark); font-weight: 500; }
+.decide { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+.decide button.opt {
+  border: 1px solid var(--line); background: var(--paper); border-radius: 6px;
+  padding: 4px 12px; cursor: pointer; color: var(--ink); font-size: .85rem;
+}
+.decide button.opt:hover { background: var(--soft); }
+.decide .k[aria-pressed="true"] { background: var(--keep); border-color: var(--keep); color: #fff; }
+.decide .d[aria-pressed="true"] { background: var(--drop); border-color: var(--drop); color: #fff; }
+.wav {
+  margin-left: auto; width: 38px; height: 30px; border-radius: 6px; background: var(--wav); color: var(--wav-ink);
+  display: grid; place-items: center; text-decoration: none;
+}
+.wav:hover { filter: brightness(1.05); }
+.wav svg { width: 16px; height: 16px; }
+.empty { color: var(--muted); padding: 40px 0; }
 .keys { color: var(--muted); font-size: .8rem; margin-top: 28px; }
 kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
+
+/* Panelen */
+.overlay { position: fixed; inset: 0; z-index: 5; display: none; background: rgba(20,22,27,.45); }
+.overlay.open { display: block; }
+.sheet {
+  position: absolute; top: 0; right: 0; bottom: 0; width: min(640px, 100%);
+  background: var(--paper); display: flex; flex-direction: column; box-shadow: -8px 0 30px rgba(0,0,0,.15);
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.sheet-head { padding: 16px 18px 12px; border-bottom: 1px solid var(--line); }
+.sheet-head .row { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.sheet-head h2 { margin: 0; font: 600 1rem/1.3 var(--sans); }
+.sheet-head audio { width: 100%; margin-top: 12px; }
+.hint { color: var(--muted); font-size: .82rem; margin: 6px 0 0; }
+#lines { flex: 1; overflow-y: auto; padding: 6px 0; }
+.line { display: grid; grid-template-columns: 26px 52px 1fr; gap: 8px; align-items: start; padding: 7px 18px; cursor: pointer; }
+.line:hover { background: var(--soft); }
+.line input { margin-top: 4px; accent-color: var(--mark); }
+.line time { color: var(--muted); font-size: .8rem; padding-top: 2px; font-variant-numeric: tabular-nums; }
+.line .tx { font: italic 400 1.02rem/1.4 var(--serif); }
+.line.inclip { border-left: 3px solid var(--mark); padding-left: 15px; }
+.line.sel .tx { color: var(--mark); }
+.line.now { background: var(--mark-soft); }
+.sheet-foot { border-top: 1px solid var(--line); padding: 12px 18px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+#selinfo { color: var(--muted); font-size: .85rem; margin-right: auto; }
+.form { padding: 16px 18px; overflow-y: auto; flex: 1; display: grid; gap: 14px; align-content: start; }
+.form label { display: grid; gap: 5px; font-size: .85rem; color: var(--muted); }
+.form label.check { display: flex; gap: 8px; align-items: center; color: var(--ink); }
+.form textarea, .form input[type=number], .form input[type=password], .form select {
+  background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 6px;
+  padding: 8px; width: 100%;
+}
+.form textarea { min-height: 84px; resize: vertical; }
+.form .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+#rmsg { margin: 0 auto 0 0; }
+
 @media (max-width: 560px) {
-  .actions { margin-left: 0; width: 100%; }
+  h1 { font-size: 1.5rem; }
+  .go { width: 100%; }
+  .tools { position: static; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  .seg button { padding: 5px 10px; }
+  .actions { margin-left: 0; flex: 1; }
   .actions .btn { flex: 1; }
-  .quote { font-size: 1.2rem; }
+  .decide { flex-wrap: nowrap; gap: 5px; }
+  .decide button.opt { padding: 4px 9px; }
+  .wav { width: 34px; flex: none; }
+  .clip { grid-template-columns: 32px 1fr; gap: 2px 10px; padding-right: 0; }
+  .play { width: 32px; height: 32px; }
+  .quote { font-size: 1.08rem; }
   .keys { display: none; }
+  .form .row2 { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
-<header>
-  <div class="bar">
-    <div class="top">
-      <h1><select id="batch" aria-label="Batch" hidden></select><span id="nobatch">VK miner</span></h1>
-      <button class="btn go" id="newrun">Nieuwe batch</button>
-    </div>
-    <div class="sub" id="sub">Laden…</div>
-    <div class="sub" id="runstatus" aria-live="polite"></div>
-    <div class="controls">
-      <div class="seg" role="group" aria-label="Filter">
-        <button data-f="todo" aria-pressed="true">Te beoordelen</button>
-        <button data-f="keep" aria-pressed="false">Bewaard</button>
-        <button data-f="drop" aria-pressed="false">Weg</button>
-        <button data-f="all" aria-pressed="false">Alles</button>
-      </div>
-      <select id="sort" aria-label="Sorteren">
-        <option value="score">Op score</option>
-        <option value="source">Op bron</option>
-      </select>
-      <div class="actions">
-        <button class="btn" id="zip" disabled>Download bewaard (.zip)</button>
-        <button class="btn" id="json" disabled>Lijst (.json)</button>
-      </div>
-    </div>
+<header class="mast">
+  <div class="in">
+    <h1>VK Sample Miner</h1>
+    <label class="field-label" for="batch">Finished Batches</label>
+    <select id="batch" disabled><option>Laden…</option></select>
+    <button class="go" id="newrun">Generate New Batch</button>
+    <div id="runstatus" aria-live="polite"></div>
   </div>
 </header>
+
+<div class="tools">
+  <div class="in">
+    <div class="seg" role="group" aria-label="Filter">
+      <button data-f="todo" aria-pressed="true">Te beoordelen</button>
+      <button data-f="keep" aria-pressed="false">Bewaard</button>
+      <button data-f="drop" aria-pressed="false">Weg</button>
+      <button data-f="all" aria-pressed="false">Alles</button>
+    </div>
+    <select id="sort" aria-label="Sorteren">
+      <option value="score">Op score</option>
+      <option value="source">Op bron</option>
+    </select>
+    <div class="actions">
+      <button class="btn" id="zip" disabled>Zip bewaard</button>
+      <button class="btn" id="json" disabled>JSON</button>
+    </div>
+  </div>
+</div>
+
 <main>
-  <div id="list"></div>
-  <p class="keys"><kbd>spatie</kbd> afspelen <kbd>↑</kbd><kbd>↓</kbd> vorige/volgende <kbd>b</kbd> bewaren <kbd>w</kbd> weg <kbd>r</kbd> herhalen aan/uit</p>
+  <div class="in">
+    <div id="list"><p class="empty">Laden…</p></div>
+    <p class="keys"><kbd>spatie</kbd> afspelen <kbd>↑</kbd><kbd>↓</kbd> vorige/volgende <kbd>b</kbd> bewaren <kbd>w</kbd> weg <kbd>r</kbd> herhalen aan/uit</p>
+  </div>
 </main>
 
 <div id="runpanel" class="overlay" aria-hidden="true">
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rtitle">
     <div class="sheet-head">
       <div class="row">
-        <h2 id="rtitle">Nieuwe batch</h2>
+        <h2 id="rtitle">Generate New Batch</h2>
         <button class="btn" id="rclose">Sluiten</button>
       </div>
       <p class="hint">Zoekt op heel Internet Archive, inclusief Prelinger. Lege velden gebruiken de standaardlijsten.</p>
@@ -192,11 +241,11 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
         </label>
       </div>
       <label class="check"><input id="r-pd" type="checkbox" checked> Alleen materiaal met duidelijke vrije licentie</label>
-      <label id="r-passwrap" hidden>Wachtwoord <input id="r-pass" type="password" autocomplete="current-password" style="background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px;font:inherit"></label>
+      <label id="r-passwrap" hidden>Wachtwoord <input id="r-pass" type="password" autocomplete="current-password"></label>
     </div>
     <div class="sheet-foot">
-      <span class="hint" id="rmsg" style="margin:0 auto 0 0">Duurt meestal 15–30 minuten.</span>
-      <button class="btn go" id="rstart">Start batch</button>
+      <span class="hint" id="rmsg">Duurt meestal 15–30 minuten.</span>
+      <button class="btn hot" id="rstart">Start batch</button>
     </div>
   </div>
 </div>
@@ -214,8 +263,9 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
     <div id="lines"></div>
     <div class="sheet-foot">
       <span id="selinfo">Niets geselecteerd</span>
-      <button class="btn" id="pclear">Selectie wissen</button>
-      <button class="btn go" id="preq" disabled>Knip selectie</button>
+      <button class="btn" id="pext">Clip verlengen</button>
+      <button class="btn" id="pclear">Wissen</button>
+      <button class="btn dark" id="preq" disabled>Knip selectie</button>
     </div>
   </div>
 </div>
@@ -224,6 +274,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
 <script>
 const PLAY = '<svg viewBox="0 0 10 10"><path d="M2 1l7 4-7 4z"/></svg>';
 const PAUSE = '<svg viewBox="0 0 10 10"><path d="M2 1h2v8H2zM6 1h2v8H6z"/></svg>';
+const DL = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13.5h10"/></svg>';
 let base = '', data = { batch: {}, clips: [] }, decisions = {}, filter = 'todo', sort = 'score', cur = 0, loop = false;
 const audio = new Audio();
 let playingId = null;
@@ -238,6 +289,7 @@ function save() {
 }
 const fmt = s => { s = Math.max(0, s); const m = Math.floor(s / 60); return m + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const empty = msg => { $('#list').innerHTML = `<p class="empty">${msg}</p>`; };
 
 function visible() {
   let list = data.clips.filter(c => {
@@ -251,13 +303,10 @@ function visible() {
 function render() {
   const list = visible();
   const kept = data.clips.filter(c => decisions[c.id] === 'keep').length;
-  const done = Object.keys(decisions).length;
-  $('#sub').textContent = `${data.clips.length} clips, ${done} beoordeeld, ${kept} bewaard` +
-    (data.batch.claude ? '' : ' (zonder Claude-score)');
   $('#zip').disabled = $('#json').disabled = kept === 0;
   cur = Math.min(cur, Math.max(0, list.length - 1));
   if (!list.length) {
-    $('#list').innerHTML = `<p class="empty">${data.clips.length ? 'Niets in deze weergave. Kies een ander filter.' : 'Deze batch heeft geen clips opgeleverd. Probeer een andere preset of verlaag de drempel in config.yaml.'}</p>`;
+    empty(data.clips.length ? 'Niets in deze weergave. Kies een ander filter.' : 'Deze batch heeft geen clips opgeleverd. Probeer andere zoekwoorden of verlaag de drempel in config.yaml.');
     return;
   }
   $('#list').innerHTML = list.map((c, i) => {
@@ -267,9 +316,9 @@ function render() {
       : `<span title="${esc(c.license?.url || '')}">${c.license?.status === 'cc' ? 'Creative Commons' : 'Publiek domein'}</span>`;
     return `<article class="clip${i === cur ? ' current' : ''}${playingId === c.id ? ' playing' : ''}" data-id="${c.id}" data-i="${i}" data-state="${st}">
       <button class="play" aria-label="Afspelen">${playingId === c.id && !audio.paused ? PAUSE : PLAY}</button>
-      <div><p class="quote">“${esc(c.text)}”</p></div>
+      <p class="quote">“${esc(c.text)}”</p>
       <div class="meta">
-        <a href="${esc(c.item_url)}" target="_blank" rel="noopener">${esc(c.title)}${c.year ? ' (' + esc(c.year.slice(0, 4)) + ')' : ''}</a>
+        <a href="${esc(c.item_url)}" target="_blank" rel="noopener">${esc(c.title)}${c.year ? ' (' + esc(String(c.year).slice(0, 4)) + ')' : ''}</a>
         <a href="${esc(c.source_url)}" target="_blank" rel="noopener">bron op ${fmt(c.start)}</a>
         <span>${(c.end - c.start).toFixed(1)} s</span>
         ${c.extra ? '<span class="extra-badge">extra</span>' : `<span>score ${c.score}</span>`}
@@ -277,11 +326,10 @@ function render() {
         ${c.tags?.length ? `<span class="tags">${c.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</span>` : ''}
       </div>
       <div class="decide">
-        <button class="k" aria-pressed="${st === 'keep'}">Bewaren</button>
-        <button class="d" aria-pressed="${st === 'drop'}">Weg</button>
-        <a class="btn" href="${esc(base + c.file)}" download style="text-decoration:none;font-size:.85rem;padding:4px 10px">WAV</a>
-        <button class="more lng">Langer</button>
-        <button class="mre">Meer uit bron</button>
+        <button class="opt k" aria-pressed="${st === 'keep'}">Bewaren</button>
+        <button class="opt d" aria-pressed="${st === 'drop'}">Weg</button>
+        <button class="opt cut">Meer knippen</button>
+        <a class="wav" href="${esc(base + c.file)}" download aria-label="Download WAV" title="Download WAV">${DL}</a>
       </div>
     </article>`;
   }).join('');
@@ -314,8 +362,7 @@ $('#list').addEventListener('click', e => {
   if (e.target.closest('.play')) toggle(c);
   else if (e.target.closest('.k')) decide(c, 'keep');
   else if (e.target.closest('.d')) decide(c, 'drop');
-  else if (e.target.closest('.lng')) openPanel(c, true);
-  else if (e.target.closest('.mre')) openPanel(c, false);
+  else if (e.target.closest('.cut')) openPanel(c);
   else if (!e.target.closest('a')) render();
 });
 document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
@@ -339,9 +386,9 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'r') { loop = !loop; audio.loop = loop; }
 });
 
-// ---- Bronpaneel: langer luisteren en extra stukken kiezen ----
+// ---- Bronpaneel: verder luisteren, clip verlengen of extra stukken kiezen ----
 const srcAudio = $('#srcAudio');
-let pClip = null, pSegs = [], pSel = new Set(), pUrl = '';
+let pClip = null, pSegs = [], pSel = new Set(), pUrl = '', pIn = [];
 
 function playFrom(t) {
   audio.pause();
@@ -350,8 +397,8 @@ function playFrom(t) {
   else { srcAudio.preload = 'auto'; srcAudio.addEventListener('loadedmetadata', go, { once: true }); srcAudio.load(); }
 }
 
-async function openPanel(c, longer) {
-  pClip = c; pSel = new Set(); pSegs = [];
+async function openPanel(c) {
+  pClip = c; pSel = new Set(); pSegs = []; pIn = [];
   pUrl = c.source_dl || (c.source_url || '').split('#')[0];
   $('#ptitle').textContent = c.title + (c.source_file ? ` (${c.source_file})` : '');
   srcAudio.pause(); srcAudio.src = pUrl; srcAudio.preload = 'none';
@@ -365,30 +412,29 @@ async function openPanel(c, longer) {
     } catch { pSegs = []; }
   }
   const t0 = c.t0 ?? c.start, t1 = c.t1 ?? c.end;
-  const inClip = s => s[0] < t1 && s[1] > t0;
+  pIn = pSegs.map((s, i) => (s[0] < t1 && s[1] > t0) ? i : -1).filter(i => i >= 0);
   if (!pSegs.length) {
     $('#phint').textContent = 'Geen tekst beschikbaar voor deze batch. Je kunt wel de hele bron beluisteren; nieuwe batches hebben ook de tekst.';
-    $('#lines').innerHTML = '';
     updateSel(); playFrom(c.start); return;
   }
-  $('#phint').textContent = 'Klik een zin om vanaf daar te luisteren. Vink zinnen aan om ze te laten knippen; aaneengesloten zinnen worden één clip.';
-  if (longer) {
-    const idx = pSegs.map((s, i) => inClip(s) ? i : -1).filter(i => i >= 0);
-    const last = idx.length ? idx[idx.length - 1] : 0;
-    for (let i = idx[0] ?? 0; i <= Math.min(pSegs.length - 1, last + 3); i++) pSel.add(i);
-  }
-  $('#lines').innerHTML = pSegs.map((s, i) => `<div class="line${inClip(s) ? ' inclip' : ''}${pSel.has(i) ? ' sel' : ''}" data-i="${i}">
-      <input type="checkbox" aria-label="Selecteer" ${pSel.has(i) ? 'checked' : ''}>
+  $('#phint').textContent = 'Klik een zin om vanaf daar te luisteren. Vink zinnen aan om te knippen; aaneengesloten zinnen worden één clip. Clip verlengen pakt de huidige clip plus de volgende zin.';
+  $('#lines').innerHTML = pSegs.map((s, i) => `<div class="line${pIn.includes(i) ? ' inclip' : ''}" data-i="${i}">
+      <input type="checkbox" aria-label="Selecteer">
       <time>${fmt(s[0])}</time><span class="tx">${esc(s[2])}</span></div>`).join('');
   updateSel();
-  const first = $('#lines .inclip');
-  first?.scrollIntoView({ block: 'center' });
+  $('#lines .inclip')?.scrollIntoView({ block: 'center' });
   playFrom(Math.max(0, t0 - 0.3));
 }
 
 function closePanel() {
   srcAudio.pause();
   $('#panel').classList.remove('open'); $('#panel').setAttribute('aria-hidden', 'true');
+}
+
+function setSel(i, on) {
+  on ? pSel.add(i) : pSel.delete(i);
+  const row = document.querySelector(`#lines .line[data-i="${i}"]`);
+  if (row) { row.classList.toggle('sel', on); row.querySelector('input').checked = on; }
 }
 
 function selRanges() {
@@ -406,15 +452,26 @@ function updateSel() {
   const secs = rs.reduce((n, r) => n + r.end - r.start, 0);
   $('#selinfo').textContent = rs.length ? `${rs.length} clip(s), ${secs.toFixed(1)} s` : 'Niets geselecteerd';
   $('#preq').disabled = !rs.length || !pClip?.transcript;
+  $('#pext').disabled = !pSegs.length;
 }
 
 $('#lines').addEventListener('click', e => {
   const row = e.target.closest('.line'); if (!row) return;
   const i = +row.dataset.i;
-  if (e.target.matches('input')) {
-    e.target.checked ? pSel.add(i) : pSel.delete(i);
-    row.classList.toggle('sel', e.target.checked); updateSel();
-  } else playFrom(pSegs[i][0]);
+  if (e.target.matches('input')) { setSel(i, e.target.checked); updateSel(); }
+  else playFrom(pSegs[i][0]);
+});
+$('#pext').addEventListener('click', () => {
+  if (!pSegs.length) return;
+  let next;
+  if (!pSel.size) {
+    const from = pIn.length ? pIn[0] : 0, to = pIn.length ? pIn[pIn.length - 1] : 0;
+    for (let i = from; i <= to; i++) setSel(i, true);
+    next = to + 1;
+  } else next = Math.max(...pSel) + 1;
+  if (next < pSegs.length) setSel(next, true);
+  updateSel();
+  document.querySelector(`#lines .line[data-i="${Math.min(next, pSegs.length - 1)}"]`)?.scrollIntoView({ block: 'nearest' });
 });
 srcAudio.addEventListener('timeupdate', () => {
   const t = srcAudio.currentTime;
@@ -424,17 +481,13 @@ srcAudio.addEventListener('timeupdate', () => {
 });
 $('#pclose').addEventListener('click', closePanel);
 $('#panel').addEventListener('click', e => { if (e.target.id === 'panel') closePanel(); });
-$('#pclear').addEventListener('click', () => {
-  pSel.clear(); document.querySelectorAll('#lines input').forEach(x => x.checked = false);
-  document.querySelectorAll('#lines .sel').forEach(x => x.classList.remove('sel')); updateSel();
-});
+$('#pclear').addEventListener('click', () => { [...pSel].forEach(i => setSel(i, false)); updateSel(); });
 $('#preq').addEventListener('click', async () => {
   const rs = selRanges(); if (!rs.length) return;
   $('#preq').disabled = true; $('#selinfo').textContent = 'Versturen…';
   const res = await api({ kind: 'cuts', request: { batch: data.batch.name, transcript: pClip.transcript, ranges: rs } });
   if (res.error) { $('#selinfo').textContent = res.error; $('#preq').disabled = false; return; }
   $('#selinfo').textContent = 'Wordt geknipt. Over een paar minuten staan de clips bovenaan, met label extra.';
-  busy('Extra clips worden geknipt… Ze verschijnen vanzelf bovenaan.');
   busy('Extra clips worden geknipt… (een paar minuten)');
   watchCuts(data.batch.name, data.clips.length);
 });
@@ -448,7 +501,7 @@ $('#json').addEventListener('click', () => {
   saveBlob(new Blob([JSON.stringify({ batch: data.batch, clips: keptList() }, null, 1)], { type: 'application/json' }), `${data.batch.name || 'batch'}-bewaard.json`);
 });
 $('#zip').addEventListener('click', async () => {
-  const btn = $('#zip'); const kept = keptList();
+  const btn = $('#zip'); const kept = keptList(); const label = btn.textContent;
   if (!window.JSZip) { btn.textContent = 'Zip niet beschikbaar'; return; }
   btn.disabled = true;
   const zip = new JSZip();
@@ -458,14 +511,34 @@ $('#zip').addEventListener('click', async () => {
   }
   zip.file('bronnen.json', JSON.stringify(kept, null, 1));
   saveBlob(await zip.generateAsync({ type: 'blob' }), `${data.batch.name || 'batch'}-bewaard.zip`);
-  btn.textContent = 'Download bewaard (.zip)'; btn.disabled = false;
+  btn.textContent = label; btn.disabled = false;
 });
+
+// ---- Batches ----
+const MONTHS = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+function batchDate(b) {
+  const raw = b.date || b.created || b.started || '';
+  let d = raw ? new Date(raw) : null;
+  if (!d || isNaN(d)) {
+    const m = String(b.name || '').match(/(20\d{2})-?(\d{2})-?(\d{2})/);
+    d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+  }
+  return d && !isNaN(d) ? `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}` : '';
+}
+function batchGenre(b) {
+  const terms = Array.isArray(b.terms) ? b.terms.slice(0, 2).join(', ') : '';
+  const g = String(b.genre || b.preset || terms || '').trim();
+  if (!g) return 'Eigen zoekopdracht';
+  return g.length <= 3 ? g.toUpperCase() : g.charAt(0).toUpperCase() + g.slice(1);
+}
+// batches.json staat nieuwste eerst, dus de oudste is batch 1
+const batchLabel = (b, i, n) => [`Batch ${n - i}`, batchGenre(b), batchDate(b)].filter(Boolean).join(' – ');
 
 function loadBatch(name) {
   base = `batches/${name}/`; cur = 0; audio.pause(); playingId = null;
   history.replaceState(null, '', '#' + name);
   fetch(base + 'clips.json').then(r => r.json()).then(d => { data = d; load(); render(); })
-    .catch(() => { data = { batch: {}, clips: [] }; $('#sub').textContent = `Batch ${name} kon niet geladen worden.`; $('#list').innerHTML = ''; });
+    .catch(() => { data = { batch: {}, clips: [] }; empty(`Deze batch kon niet geladen worden (${esc(name)}).`); });
 }
 $('#batch').addEventListener('change', e => loadBatch(e.target.value));
 let batchNames = [];
@@ -473,11 +546,12 @@ async function refreshBatches(pick) {
   const list = await fetch('batches.json?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []);
   batchNames = list.map(b => b.name);
   if (!list.length) {
-    $('#sub').textContent = 'Nog geen batches. Klik op Nieuwe batch.';
+    $('#batch').innerHTML = '<option>Nog geen batches</option>'; $('#batch').disabled = true;
+    empty('Nog geen batches. Klik op Generate New Batch.');
     return list;
   }
-  $('#batch').hidden = false; $('#nobatch').hidden = true;
-  $('#batch').innerHTML = list.map(b => `<option value="${esc(b.name)}">${esc(b.name)}${b.preset ? ': ' + esc(b.preset) : ''} (${b.count})</option>`).join('');
+  $('#batch').disabled = false;
+  $('#batch').innerHTML = list.map((b, i) => `<option value="${esc(b.name)}">${esc(batchLabel(b, i, list.length))}</option>`).join('');
   const want = pick || decodeURIComponent(location.hash.slice(1));
   const name = batchNames.includes(want) ? want : list[0].name;
   $('#batch').value = name; loadBatch(name);
@@ -485,9 +559,9 @@ async function refreshBatches(pick) {
 }
 const firstLoad = refreshBatches();
 
-
 // ---- Starten via de Netlify-functie ----
 const API = 'api/run';
+const NEWRUN = 'Generate New Batch';
 let needsPassword = false, watchTimer = null;
 const list = v => v.split(/[\n,]/).map(x => x.trim()).filter(Boolean);
 const mins = iso => Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
@@ -514,15 +588,16 @@ const STEP = {
   'Opslaan in de repo (Netlify publiceert automatisch)': 'opslaan',
 };
 function busy(text) { $('#runstatus').className = 'busy'; $('#runstatus').innerHTML = text; }
+function note(text) { $('#runstatus').className = ''; $('#runstatus').textContent = text; }
 function showRun(run) {
   $('#runstatus').className = '';
   if (run && run.status !== 'completed') {
     const step = run.status === 'queued' ? 'in de wachtrij' : (STEP[run.step] || 'opstarten');
     busy(`Batch bezig: ${esc(step)}, ${mins(run.started)} min <a href="${esc(run.url)}" target="_blank" rel="noopener">details</a>`);
-    $('#rstart').disabled = true; $('#newrun').textContent = 'Batch bezig…';
+    $('#rstart').disabled = true; $('#newrun').disabled = true; $('#newrun').textContent = 'Batch bezig…';
     return 'busy';
   }
-  $('#rstart').disabled = false; $('#newrun').textContent = 'Nieuwe batch';
+  $('#rstart').disabled = false; $('#newrun').disabled = false; $('#newrun').textContent = NEWRUN;
   if (run && run.conclusion && run.conclusion !== 'success' && mins(run.updated) < 120) {
     $('#runstatus').innerHTML = `Laatste batch mislukt (<a href="${esc(run.url)}" target="_blank" rel="noopener">details</a>)`;
   } else $('#runstatus').textContent = '';
@@ -537,7 +612,7 @@ async function watchRun(before, since = 0) {
   if (st === 'busy') { watchTimer = setTimeout(() => watchRun(before, since), 15000); return; }
   // run klaar: wachten tot Netlify de batch online heeft
   const fresh = (await refreshBatches()).find(b => !before.includes(b.name));
-  if (fresh) { refreshBatches(fresh.name); $('#runstatus').className = ''; $('#runstatus').textContent = `Nieuwe batch: ${fresh.count} clips.`; return; }
+  if (fresh) { refreshBatches(fresh.name); note(`Nieuwe batch klaar: ${fresh.count} clips.`); return; }
   if (d.run && d.run.conclusion === 'success' && mins(d.run.updated) < 15) {
     busy('Batch klaar, wordt gepubliceerd…');
     watchTimer = setTimeout(() => watchRun(before, since), 20000);
@@ -549,7 +624,7 @@ function watchCuts(batch, count, tries = 0) {
     const d = await fetch(`batches/${batch}/clips.json?` + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => null);
     if (d && d.clips.length > count) {
       if (data.batch.name === batch) { data = d; render(); }
-      $('#runstatus').className = ''; $('#runstatus').textContent = `${d.clips.length - count} extra clip(s) toegevoegd.`;
+      note(`${d.clips.length - count} extra clip(s) toegevoegd.`);
       refreshBatches(data.batch.name);
     } else if (tries < 30) watchCuts(batch, count, tries + 1);
   }, 20000);
@@ -574,7 +649,7 @@ $('#rstart').addEventListener('click', async () => {
   $('#rmsg').textContent = 'Duurt meestal 15–30 minuten.';
   closeRun();
   busy('Batch wordt gestart… Deze pagina mag open blijven; de nieuwe batch verschijnt vanzelf.');
-  $('#newrun').textContent = 'Batch bezig…'; $('#rstart').disabled = true;
+  $('#newrun').disabled = true; $('#newrun').textContent = 'Batch bezig…';
   const before = [...batchNames];
   const since = Date.now();
   setTimeout(() => watchRun(before, since), 8000);
