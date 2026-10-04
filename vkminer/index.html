@@ -137,6 +137,12 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
 .sheet-head h2 { margin: 0; font: 600 1rem/1.3 var(--sans); }
 .sheet-head audio { width: 100%; margin-top: 12px; }
 .hint { color: var(--muted); font-size: .82rem; margin: 6px 0 0; }
+.partial {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 10px;
+  padding: 8px 10px 8px 12px; background: var(--mark-soft); border-radius: 8px; font-size: .85rem;
+}
+.partial[hidden] { display: none; }
+.partial span { flex: 1 1 200px; }
 #lines { flex: 1; overflow-y: auto; padding: 6px 0; }
 .line { display: grid; grid-template-columns: 26px 52px 1fr; gap: 8px; align-items: start; padding: 7px 18px; cursor: pointer; }
 .line:hover { background: var(--soft); }
@@ -235,7 +241,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
         <h2 id="rtitle">Harvest New Samples</h2>
         <button class="btn" id="rclose">Sluiten</button>
       </div>
-      <p class="hint">Zoekt op heel Internet Archive. Eerst vindt hij bronnen, daarna knipt hij daaruit de zinnen die het best passen. Lege velden gebruiken de standaardlijsten.</p>
+      <p class="hint">Zoekt op heel Internet Archive. Eerst vindt hij bronnen, daarna knipt hij daaruit de zinnen die het best passen. Alles is optioneel: laat je de velden leeg, dan kiest hij op basis van het bandprofiel.</p>
     </div>
     <div class="form">
       <fieldset class="types">
@@ -247,6 +253,10 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
           <label class="chip"><input type="checkbox" value="all"><span>Alles</span></label>
         </div>
       </fieldset>
+      <label><span class="lbl">Waar zoek je naar?</span>
+        <span class="sub">In gewone taal, bijvoorbeeld: kalme stemmen die vertellen wat ze in de lucht zagen. Werkt met Claude.</span>
+        <textarea id="r-brief" maxlength="600" placeholder="Beschrijf de sfeer, het soort stem of het onderwerp"></textarea>
+      </label>
       <label><span class="lbl">Bronnen zoeken over</span>
         <span class="sub">Onderwerp van de film, uitzending of opname. Eén per regel of met komma's.</span>
         <textarea id="r-terms" placeholder="zombie&#10;mad scientist&#10;flying saucer"></textarea>
@@ -283,6 +293,10 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
       </div>
       <audio id="srcAudio" controls preload="none"></audio>
       <p class="hint" id="phint"></p>
+      <div class="partial" id="ppartial" hidden>
+        <span id="ppartial-txt"></span>
+        <button class="btn dark" id="panalyse">Analyse Entire Source</button>
+      </div>
     </div>
     <div id="lines"></div>
     <div class="sheet-foot">
@@ -413,7 +427,8 @@ document.addEventListener('keydown', e => {
 
 // ---- Bronpaneel: verder luisteren, clip verlengen of extra stukken kiezen ----
 const srcAudio = $('#srcAudio');
-let pClip = null, pSegs = [], pSel = new Set(), pUrl = '', pIn = [];
+let pClip = null, pSegs = [], pSel = new Set(), pUrl = '', pIn = [], pT = null;
+const analysing = new Set();
 
 function playFrom(t) {
   audio.pause();
@@ -423,7 +438,8 @@ function playFrom(t) {
 }
 
 async function openPanel(c) {
-  pClip = c; pSel = new Set(); pSegs = []; pIn = [];
+  pClip = c; pSel = new Set(); pSegs = []; pIn = []; pT = null;
+  $('#ppartial').hidden = true;
   pUrl = c.source_dl || (c.source_url || '').split('#')[0];
   $('#ptitle').textContent = c.title + (c.source_file ? ` (${c.source_file})` : '');
   srcAudio.pause(); srcAudio.src = pUrl; srcAudio.preload = 'none';
@@ -431,8 +447,8 @@ async function openPanel(c) {
   $('#lines').innerHTML = '';
   if (c.transcript) {
     try {
-      const t = await fetch(base + c.transcript).then(r => r.json());
-      pSegs = t.segments || [];
+      const t = await fetch(base + c.transcript + '?' + Date.now(), { cache: 'no-store' }).then(r => r.json());
+      pT = t; pSegs = t.segments || [];
       if (t.url) { pUrl = t.url; srcAudio.src = pUrl; }
     } catch { pSegs = []; }
   }
@@ -443,12 +459,54 @@ async function openPanel(c) {
     updateSel(); playFrom(c.start); return;
   }
   $('#phint').textContent = 'Klik een zin om vanaf daar te luisteren. Vink zinnen aan om te knippen; aaneengesloten zinnen worden één clip. Clip verlengen pakt de huidige clip plus de volgende zin.';
-  $('#lines').innerHTML = pSegs.map((s, i) => `<div class="line${pIn.includes(i) ? ' inclip' : ''}" data-i="${i}">
-      <input type="checkbox" aria-label="Selecteer">
-      <time>${fmt(s[0])}</time><span class="tx">${esc(s[2])}</span></div>`).join('');
-  updateSel();
+  renderLines(); showPartial();
   $('#lines .inclip')?.scrollIntoView({ block: 'center' });
   playFrom(Math.max(0, t0 - 0.3));
+}
+
+function renderLines() {
+  $('#lines').innerHTML = pSegs.map((s, i) => `<div class="line${pIn.includes(i) ? ' inclip' : ''}${pSel.has(i) ? ' sel' : ''}" data-i="${i}">
+      <input type="checkbox" aria-label="Selecteer"${pSel.has(i) ? ' checked' : ''}>
+      <time>${fmt(s[0])}</time><span class="tx">${esc(s[2])}</span></div>`).join('');
+  updateSel();
+}
+
+const aKey = () => `${data.batch.name}|${pClip?.transcript}`;
+function showPartial() {
+  const box = $('#ppartial');
+  if (!pT || !pT.partial) { box.hidden = true; return; }
+  box.hidden = false;
+  const running = analysing.has(aKey());
+  $('#ppartial-txt').textContent = running
+    ? 'Bron wordt volledig uitgeschreven. Duurt 5–15 minuten; de tekst verschijnt hier vanzelf.'
+    : `Uitgeschreven tot ${fmt(pT.analysed_until || 0)} van ${fmt(pT.duration || 0)}. De rest is nog niet geanalyseerd.`;
+  $('#panalyse').disabled = running;
+}
+
+$('#panalyse').addEventListener('click', async () => {
+  const batch = data.batch.name, tpath = pClip.transcript, key = aKey();
+  $('#panalyse').disabled = true; $('#ppartial-txt').textContent = 'Versturen…';
+  const res = await api({ kind: 'cuts', request: { action: 'analyse', batch, transcript: tpath } });
+  if (res.error) { $('#ppartial-txt').textContent = res.error; $('#panalyse').disabled = false; return; }
+  analysing.add(key); showPartial();
+  busy('Bron wordt volledig uitgeschreven… (5–15 min)');
+  watchTranscript(batch, tpath, key);
+});
+
+function watchTranscript(batch, tpath, key, tries = 0) {
+  setTimeout(async () => {
+    const t = await fetch(`batches/${batch}/${tpath}?` + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => null);
+    if (t && !t.partial) {
+      analysing.delete(key);
+      note(`Bron volledig uitgeschreven: ${t.title || ''}`);
+      if ($('#panel').classList.contains('open') && aKey() === key) {
+        const top = $('#lines').scrollTop;
+        pT = t; pSegs = t.segments || []; renderLines(); showPartial();
+        $('#lines').scrollTop = top;
+      }
+    } else if (tries < 60) watchTranscript(batch, tpath, key, tries + 1);
+    else { analysing.delete(key); note('Uitschrijven duurt langer dan verwacht. Kijk later nog eens.'); }
+  }, 20000);
 }
 
 function closePanel() {
@@ -655,10 +713,20 @@ function watchCuts(batch, count, tries = 0) {
   }, 20000);
 }
 
+// Na herladen: wachten tot een lopende knip- of uitschrijfopdracht klaar is
+function watchJob() {
+  setTimeout(async () => {
+    const d = await api();
+    if (!d.error && d.cuts && d.cuts.status !== 'completed') return watchJob();
+    busy('Klaar, wordt gepubliceerd…');
+    setTimeout(() => { note('Klaar. Nieuwe clips of tekst zijn geladen.'); refreshBatches(data.batch.name); }, 60000);
+  }, 20000);
+}
+
 function closeRun() { $('#runpanel').classList.remove('open'); $('#runpanel').setAttribute('aria-hidden', 'true'); }
 $('#newrun').addEventListener('click', () => {
   $('#runpanel').classList.add('open'); $('#runpanel').setAttribute('aria-hidden', 'false');
-  if (matchMedia('(pointer: fine)').matches) $('#r-terms').focus();
+  if (matchMedia('(pointer: fine)').matches) $('#r-brief').focus();
 });
 $('#rclose').addEventListener('click', closeRun);
 // Soort bron: Alles sluit de rest uit en andersom
@@ -681,6 +749,7 @@ $('#rstart').addEventListener('click', async () => {
     max_items: Math.max(1, Math.min(40, +$('#r-items').value || 15)),
     per_source: Math.max(1, Math.min(5, +$('#r-per').value || 1)),
     types: chosenTypes(),
+    brief: $('#r-brief').value.trim(),
     whisper: $('#r-model').value, pd_only: $('#r-pd').checked,
   };
   $('#rstart').disabled = true; $('#rmsg').textContent = 'Starten…';
@@ -700,8 +769,8 @@ firstLoad.then(() => api()).then(d => {
   if (d.error) return;
   if (showRun(d.run) === 'busy') { watchRun([...batchNames]); return; }
   if (d.cuts && d.cuts.status !== 'completed') {
-    busy(`Extra clips worden geknipt, ${mins(d.cuts.started)} min <a href="${esc(d.cuts.url)}" target="_blank" rel="noopener">details</a>`);
-    watchCuts(data.batch.name, data.clips.length);
+    busy(`Extra clips of bron worden verwerkt, ${mins(d.cuts.started)} min <a href="${esc(d.cuts.url)}" target="_blank" rel="noopener">details</a>`);
+    watchJob();
   }
 });
 </script>
