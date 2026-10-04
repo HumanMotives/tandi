@@ -78,8 +78,8 @@ a.btn { color: var(--muted); text-decoration: none; }
 .btn.go { border-color: var(--glow); color: var(--glow); }
 .decide .more { margin-left: auto; }
 .extra-badge { color: var(--glow); }
-#panel { position: fixed; inset: 0; z-index: 5; display: none; background: rgba(20,22,27,.6); }
-#panel.open { display: block; }
+.overlay { position: fixed; inset: 0; z-index: 5; display: none; background: rgba(20,22,27,.6); }
+.overlay.open { display: block; }
 .sheet {
   position: absolute; top: 0; right: 0; bottom: 0; width: min(640px, 100%);
   background: var(--bg); border-left: 1px solid var(--line); display: flex; flex-direction: column;
@@ -101,6 +101,19 @@ a.btn { color: var(--muted); text-decoration: none; }
 .line.now { background: var(--surface); }
 .sheet-foot { border-top: 1px solid var(--line); padding: 12px 18px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 #selinfo { color: var(--muted); font-size: .85rem; margin-right: auto; }
+.form { padding: 16px 18px; overflow-y: auto; flex: 1; display: grid; gap: 14px; align-content: start; }
+.form label { display: grid; gap: 5px; font-size: .85rem; color: var(--muted); }
+.form label.check { display: flex; gap: 8px; align-items: center; }
+.form textarea, .form input[type=number], .form select {
+  background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px;
+  padding: 8px; font: inherit; width: 100%;
+}
+.form textarea { min-height: 84px; resize: vertical; }
+.form .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+#runstatus { color: var(--glow); }
+#runstatus:empty { display: none; }
+#runstatus a { color: inherit; }
+.btn:disabled, .btn[disabled] { opacity: .45; cursor: default; }
 .keys { color: var(--muted); font-size: .8rem; margin-top: 28px; }
 kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
 @media (max-width: 560px) {
@@ -116,9 +129,10 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
   <div class="bar">
     <div class="top">
       <h1><select id="batch" aria-label="Batch" hidden></select><span id="nobatch">VK miner</span></h1>
-      <a class="btn go" id="newrun" target="_blank" rel="noopener" style="text-decoration:none">Nieuwe batch</a>
+      <button class="btn go" id="newrun">Nieuwe batch</button>
     </div>
     <div class="sub" id="sub">Laden…</div>
+    <div class="sub" id="runstatus" aria-live="polite"></div>
     <div class="controls">
       <div class="seg" role="group" aria-label="Filter">
         <button data-f="todo" aria-pressed="true">Te beoordelen</button>
@@ -142,7 +156,42 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
   <p class="keys"><kbd>spatie</kbd> afspelen <kbd>↑</kbd><kbd>↓</kbd> vorige/volgende <kbd>b</kbd> bewaren <kbd>w</kbd> weg <kbd>r</kbd> herhalen aan/uit</p>
 </main>
 
-<div id="panel" aria-hidden="true">
+<div id="runpanel" class="overlay" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rtitle">
+    <div class="sheet-head">
+      <div class="row">
+        <h2 id="rtitle">Nieuwe batch</h2>
+        <button class="btn" id="rclose">Sluiten</button>
+      </div>
+      <p class="hint">Zoekt op heel Internet Archive, inclusief Prelinger. Lege velden gebruiken de standaardlijsten.</p>
+    </div>
+    <div class="form">
+      <label>Zoekwoorden: wat moet hij vinden? Eén per regel of met komma's.
+        <textarea id="r-terms" placeholder="zombie&#10;mad scientist&#10;voodoo"></textarea>
+      </label>
+      <label>Trefwoorden: welke zinnen moet hij knippen? Komen bovenop de standaardlijst.
+        <textarea id="r-kw" placeholder="they came&#10;the experiment&#10;don't go in there"></textarea>
+      </label>
+      <div class="row2">
+        <label>Aantal items <input id="r-items" type="number" min="1" max="20" value="5"></label>
+        <label>Kwaliteit transcriptie
+          <select id="r-model">
+            <option value="base.en">Snel</option>
+            <option value="small.en">Beter (3x trager)</option>
+          </select>
+        </label>
+      </div>
+      <label class="check"><input id="r-pd" type="checkbox" checked> Alleen materiaal met duidelijke vrije licentie</label>
+      <label id="r-passwrap" hidden>Wachtwoord <input id="r-pass" type="password" autocomplete="current-password" style="background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px;font:inherit"></label>
+    </div>
+    <div class="sheet-foot">
+      <span class="hint" id="rmsg" style="margin:0 auto 0 0">Duurt meestal 15–30 minuten.</span>
+      <button class="btn go" id="rstart">Start batch</button>
+    </div>
+  </div>
+</div>
+
+<div id="panel" class="overlay" aria-hidden="true">
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ptitle">
     <div class="sheet-head">
       <div class="row">
@@ -156,7 +205,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
     <div class="sheet-foot">
       <span id="selinfo">Niets geselecteerd</span>
       <button class="btn" id="pclear">Selectie wissen</button>
-      <a class="btn go" id="preq" target="_blank" rel="noopener" aria-disabled="true">Knippen via GitHub</a>
+      <button class="btn go" id="preq" disabled>Knip selectie</button>
     </div>
   </div>
 </div>
@@ -268,6 +317,7 @@ $('#sort').addEventListener('change', e => { sort = e.target.value; cur = 0; ren
 
 document.addEventListener('keydown', e => {
   if ($('#panel').classList.contains('open')) { if (e.key === 'Escape') closePanel(); return; }
+  if ($('#runpanel').classList.contains('open')) { if (e.key === 'Escape') closeRun(); return; }
   if (e.target.matches('input, select, textarea') || e.metaKey || e.ctrlKey) return;
   if (e.key === ' ' && e.target.closest('button, a')) return;
   const list = visible(); const c = list[cur]; if (!c) return;
@@ -345,13 +395,7 @@ function updateSel() {
   const rs = selRanges();
   const secs = rs.reduce((n, r) => n + r.end - r.start, 0);
   $('#selinfo').textContent = rs.length ? `${rs.length} clip(s), ${secs.toFixed(1)} s` : 'Niets geselecteerd';
-  const a = $('#preq');
-  if (!rs.length || !pClip?.transcript) { a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true'); a.style.opacity = .45; return; }
-  const req = { batch: data.batch.name, transcript: pClip.transcript, ranges: rs };
-  const title = `vkminer: extra knippen uit ${pClip.title}`.slice(0, 120);
-  const body = 'Verzoek van humanmotives.org/vkminer. Klik op Submit new issue; de rest gaat vanzelf.\n\n```json\n' + JSON.stringify(req) + '\n```';
-  a.href = `https://github.com/${GITHUB_REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
-  a.removeAttribute('aria-disabled'); a.style.opacity = '';
+  $('#preq').disabled = !rs.length || !pClip?.transcript;
 }
 
 $('#lines').addEventListener('click', e => {
@@ -374,9 +418,13 @@ $('#pclear').addEventListener('click', () => {
   pSel.clear(); document.querySelectorAll('#lines input').forEach(x => x.checked = false);
   document.querySelectorAll('#lines .sel').forEach(x => x.classList.remove('sel')); updateSel();
 });
-$('#preq').addEventListener('click', () => {
-  if (!$('#preq').href) return;
-  setTimeout(() => { $('#selinfo').textContent = 'Verzoek geopend in GitHub. Na het indienen staan de clips er binnen een paar minuten.'; }, 300);
+$('#preq').addEventListener('click', async () => {
+  const rs = selRanges(); if (!rs.length) return;
+  $('#preq').disabled = true; $('#selinfo').textContent = 'Versturen…';
+  const res = await api({ kind: 'cuts', request: { batch: data.batch.name, transcript: pClip.transcript, ranges: rs } });
+  if (res.error) { $('#selinfo').textContent = res.error; $('#preq').disabled = false; return; }
+  $('#selinfo').textContent = 'Wordt geknipt. Over een paar minuten staan de clips bovenaan, met label extra.';
+  watchCuts(data.batch.name, data.clips.length);
 });
 
 function keptList() { return data.clips.filter(c => decisions[c.id] === 'keep'); }
@@ -413,11 +461,11 @@ async function refreshBatches(pick) {
   const list = await fetch('batches.json?' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []);
   batchNames = list.map(b => b.name);
   if (!list.length) {
-    $('#sub').textContent = 'Nog geen batches. Klik Nieuwe batch en daarna op GitHub op Run workflow. Ververs deze pagina na 15–30 minuten.';
+    $('#sub').textContent = 'Nog geen batches. Klik op Nieuwe batch.';
     return list;
   }
   $('#batch').hidden = false; $('#nobatch').hidden = true;
-  $('#batch').innerHTML = list.map(b => `<option value="${esc(b.name)}">${esc(b.name)} (${b.count})</option>`).join('');
+  $('#batch').innerHTML = list.map(b => `<option value="${esc(b.name)}">${esc(b.name)}${b.preset ? ': ' + esc(b.preset) : ''} (${b.count})</option>`).join('');
   const want = pick || decodeURIComponent(location.hash.slice(1));
   const name = batchNames.includes(want) ? want : list[0].name;
   $('#batch').value = name; loadBatch(name);
@@ -425,10 +473,95 @@ async function refreshBatches(pick) {
 }
 const firstLoad = refreshBatches();
 
-// ---- Nieuwe batch: link naar GitHub ----
-// Vul hier je repo in, zoals in de GitHub-URL: gebruikersnaam/reponaam
-const GITHUB_REPO = 'HumanMotives/tandi';
-$('#newrun').href = `https://github.com/${GITHUB_REPO}/actions/workflows/vkminer.yml`;
+
+// ---- Starten via de Netlify-functie ----
+const API = 'api/run';
+let needsPassword = false, watchTimer = null;
+const list = v => v.split(/[\n,]/).map(x => x.trim()).filter(Boolean);
+const mins = iso => Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
+try { $('#r-pass').value = localStorage.getItem('vkminer:pw') || ''; } catch {}
+
+async function api(body) {
+  if (body) {
+    let pw = $('#r-pass').value;
+    if (needsPassword && !pw) { pw = prompt('Wachtwoord') || ''; $('#r-pass').value = pw; }
+    body.password = pw;
+  }
+  try {
+    const r = await fetch(API, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : { cache: 'no-store' });
+    const d = await r.json().catch(() => ({ error: `Startknop niet bereikbaar (${r.status}).` }));
+    if (body && r.ok) { try { localStorage.setItem('vkminer:pw', body.password || ''); } catch {} }
+    return r.ok ? d : { ...d, error: d.error || `Fout ${r.status}` };
+  } catch { return { error: 'Startknop niet bereikbaar.' }; }
+}
+
+function showRun(run) {
+  if (run && run.status !== 'completed') {
+    $('#runstatus').innerHTML = `Batch bezig, ${mins(run.started)} min (<a href="${esc(run.url)}" target="_blank" rel="noopener">details</a>)`;
+    $('#rstart').disabled = true; $('#newrun').textContent = 'Batch bezig…';
+    return 'busy';
+  }
+  $('#rstart').disabled = false; $('#newrun').textContent = 'Nieuwe batch';
+  if (run && run.conclusion && run.conclusion !== 'success' && mins(run.updated) < 120) {
+    $('#runstatus').innerHTML = `Laatste batch mislukt (<a href="${esc(run.url)}" target="_blank" rel="noopener">details</a>)`;
+  } else $('#runstatus').textContent = '';
+  return 'idle';
+}
+
+async function watchRun(before, since = 0) {
+  clearTimeout(watchTimer);
+  const d = await api();
+  const notPickedUp = since && (!d.run || new Date(d.run.started).getTime() < since - 60000) && Date.now() - since < 300000;
+  const st = d.error || notPickedUp ? 'busy' : showRun(d.run);
+  if (st === 'busy') { watchTimer = setTimeout(() => watchRun(before, since), 20000); return; }
+  // run klaar: wachten tot Netlify de batch online heeft
+  const fresh = (await refreshBatches()).find(b => !before.includes(b.name));
+  if (fresh) { refreshBatches(fresh.name); $('#runstatus').textContent = `Nieuwe batch: ${fresh.count} clips.`; return; }
+  if (d.run && d.run.conclusion === 'success' && mins(d.run.updated) < 15) {
+    $('#runstatus').textContent = 'Batch klaar, wordt gepubliceerd…';
+    watchTimer = setTimeout(() => watchRun(before, since), 20000);
+  }
+}
+
+function watchCuts(batch, count, tries = 0) {
+  setTimeout(async () => {
+    const d = await fetch(`batches/${batch}/clips.json?` + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => null);
+    if (d && d.clips.length > count) {
+      if (data.batch.name === batch) { data = d; render(); }
+      $('#runstatus').textContent = `${d.clips.length - count} extra clip(s) toegevoegd.`;
+      refreshBatches(data.batch.name);
+    } else if (tries < 30) watchCuts(batch, count, tries + 1);
+  }, 20000);
+}
+
+function closeRun() { $('#runpanel').classList.remove('open'); $('#runpanel').setAttribute('aria-hidden', 'true'); }
+$('#newrun').addEventListener('click', () => {
+  $('#runpanel').classList.add('open'); $('#runpanel').setAttribute('aria-hidden', 'false'); $('#r-terms').focus();
+});
+$('#rclose').addEventListener('click', closeRun);
+$('#runpanel').addEventListener('click', e => { if (e.target.id === 'runpanel') closeRun(); });
+
+$('#rstart').addEventListener('click', async () => {
+  const request = {
+    terms: list($('#r-terms').value), keywords: list($('#r-kw').value),
+    max_items: Math.max(1, Math.min(20, +$('#r-items').value || 5)),
+    whisper: $('#r-model').value, pd_only: $('#r-pd').checked,
+  };
+  $('#rstart').disabled = true; $('#rmsg').textContent = 'Starten…';
+  const res = await api({ kind: 'run', request });
+  if (res.error) { $('#rmsg').textContent = res.error; $('#rstart').disabled = false; return; }
+  $('#rmsg').textContent = 'Duurt meestal 15–30 minuten.';
+  closeRun();
+  $('#runstatus').textContent = 'Batch gestart. Deze pagina mag open blijven; de nieuwe batch verschijnt vanzelf.';
+  const before = [...batchNames];
+  const since = Date.now();
+  setTimeout(() => watchRun(before, since), 15000);
+});
+
+firstLoad.then(() => api()).then(d => {
+  needsPassword = !!d.needsPassword; $('#r-passwrap').hidden = !needsPassword;
+  if (!d.error && showRun(d.run) === 'busy') watchRun([...batchNames]);
+});
 </script>
 </body>
 </html>

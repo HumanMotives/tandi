@@ -6,6 +6,7 @@ Zoekt op Internet Archive, transcribeert met Whisper, scoort zinnen
 schrijft een audit-site naar --out.
 """
 import argparse
+import difflib
 import json
 import os
 import re
@@ -23,6 +24,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parent
 STATE = ROOT / "processed.txt"
+SEEN = ROOT / "seen.txt"  # al geknipte zinnen, tegen dubbelingen
 
 AUDIO_FORMATS = ["64Kbps MP3", "VBR MP3", "128Kbps MP3", "MP3", "Ogg Vorbis", "Flac", "WAVE"]
 VIDEO_FORMATS = ["512Kb MPEG4", "h.264", "h.264 IA", "MPEG4", "Ogg Video", "MPEG2", "Cinepack"]
@@ -140,8 +142,8 @@ def transcribe(model, wav, language):
     return out, float(info.duration)
 
 
-def compile_keywords(cfg):
-    pats = []
+def compile_keywords(cfg, extra=None):
+    pats = [(4, t, re.compile(r"\b" + re.escape(t.lower()))) for t in (extra or [])]
     for weight, terms in (cfg.get("keywords") or {}).items():
         for t in terms:
             pats.append((int(weight), str(t), re.compile(r"\b" + re.escape(str(t).lower()))))
@@ -196,7 +198,45 @@ def claude_scores(lines, model, key):
     return result
 
 
-def select_clips(segs, cfg, pats, api_key, per_file):
+def norm(text):
+    return re.sub(r"[^a-z0-9 ]+", "", text.lower()).strip()
+
+
+class Seen:
+    """Zinnen die al eerder geknipt zijn (ook in vorige batches)."""
+    def __init__(self, path):
+        self.path = path
+        self.items = path.read_text().splitlines() if path.exists() else []
+        self.exact = set(self.items)
+
+    def has(self, text):
+        n = norm(text)
+        if not n or n in self.exact:
+            return bool(n)
+        for o in self.items:
+            m = difflib.SequenceMatcher(None, n, o)
+            if m.real_quick_ratio() > 0.85 and m.quick_ratio() > 0.85 and m.ratio() > 0.85:
+                return True
+        return False
+
+    def add(self, text):
+        n = norm(text)
+        if n and n not in self.exact:
+            self.exact.add(n)
+            self.items.append(n)
+            with self.path.open("a") as fh:
+                fh.write(n + "\n")
+
+
+def split_list(v):
+    if isinstance(v, list):
+        items = v
+    else:
+        items = re.split(r"[,\n]", str(v or ""))
+    return [str(x).strip().strip('"').strip() for x in items if str(x).strip()]
+
+
+def select_clips(segs, cfg, pats, api_key, per_file, seen=None):
     lo, hi = cfg["min_clip"], cfg["max_clip"]
     cands = []
     for i, s in enumerate(segs):
@@ -205,6 +245,8 @@ def select_clips(segs, cfg, pats, api_key, per_file):
             continue
         gap_before = s["start"] - segs[i - 1]["end"] if i > 0 else 9.0
         gap_after = segs[i + 1]["start"] - s["end"] if i + 1 < len(segs) else 9.0
+        if seen is not None and seen.has(s["text"]):
+            continue
         kw, hits = keyword_score(s["text"], pats)
         cands.append({**s, "kw": kw, "hits": hits,
                       "isolated": gap_before > 0.4 and gap_after > 0.4})
@@ -228,11 +270,14 @@ def select_clips(segs, cfg, pats, api_key, per_file):
         c["tags"] = c.get("tags") or c["hits"][:3]
         picked.append(c)
     picked.sort(key=lambda c: -c["score"])
-    final = []
+    final, texts = [], set()
     for c in picked:
+        if norm(c["text"]) in texts:
+            continue
         if any(c["start"] < f["end"] and f["start"] < c["end"] for f in final):
             continue
         final.append(c)
+        texts.add(norm(c["text"]))
         if len(final) >= per_file:
             break
     return final
@@ -252,6 +297,15 @@ def cut(src, start, end, total, pad_start, pad_end, dest):
     return a, b
 
 
+def build_query(cfg, terms):
+    """Zoekt op heel Internet Archive (inclusief Prelinger) naar audio en video."""
+    q = lambda t: f'"{t}"' if " " in t else t
+    parts = ["mediatype:(" + " OR ".join(cfg.get("search", {}).get("mediatype", ["audio", "movies"])) + ")"]
+    if terms:
+        parts.append("(" + " OR ".join(q(t) for t in terms) + ")")
+    return " AND ".join(parts)
+
+
 def pad_start(cfg):
     return float(cfg.get("pad_start", cfg.get("pad", 0.35)))
 
@@ -268,8 +322,9 @@ def slug(s, n=40):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--preset", default="otr-scifi")
-    ap.add_argument("--query", default="", help="extra zoektermen, of volledige query bij preset custom")
+    ap.add_argument("--terms", default="", help="zoekwoorden, komma-gescheiden; leeg = lijst uit config")
+    ap.add_argument("--keywords", default="", help="extra trefwoorden voor het knippen, komma-gescheiden")
+    ap.add_argument("--request", help="JSON-bestand of issue-tekst met bovenstaande velden")
     ap.add_argument("--max-items", type=int, default=5)
     ap.add_argument("--max-files", type=int, default=3, help="bestanden per item")
     ap.add_argument("--per-file", type=int, default=8, help="max clips per bestand")
@@ -280,13 +335,26 @@ def main():
     ap.add_argument("--batches-index", required=True, help="pad naar batches.json")
     args = ap.parse_args()
 
+    if args.request:
+        raw = Path(args.request).read_text()
+        m = re.search(r"```json\s*(\{.*?\})\s*```", raw, re.S)
+        req = json.loads(m.group(1) if m else raw)
+        args.terms = req.get("terms", args.terms)
+        args.keywords = req.get("keywords", args.keywords)
+        args.max_items = max(1, min(20, int(req.get("max_items", args.max_items))))
+        args.max_files = max(1, min(10, int(req.get("max_files", args.max_files))))
+        if req.get("whisper") in ("base.en", "small.en", "medium.en"):
+            args.whisper = req["whisper"]
+        args.pd_only = bool(req.get("pd_only", True))
+
     cfg = yaml.safe_load((ROOT / "config.yaml").read_text())
-    base = (cfg["presets"].get(args.preset) or {}).get("query", "")
-    extra = args.query.strip()
-    query = f"({base}) AND ({extra})" if base and extra else (base or extra)
-    if not query:
-        raise SystemExit("Geen query: kies een preset of vul --query in.")
-    pats = compile_keywords(cfg)
+    user_terms = split_list(args.terms)[:40]
+    terms = user_terms or split_list(cfg.get("search", {}).get("terms", []))
+    extra_kw = split_list(args.keywords)[:40]
+    args.label = ", ".join(user_terms[:3]) + ("…" if len(user_terms) > 3 else "") if user_terms else "standaardlijst"
+    query = build_query(cfg, terms)
+    pats = compile_keywords(cfg, extra_kw)
+    seen = Seen(SEEN)
     api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
 
     out = Path(args.out)
@@ -335,7 +403,7 @@ def main():
                 fetch_to_wav(url, wav)
                 log("   transcriberen")
                 segs, total = transcribe(model, wav, cfg.get("language"))
-                picked = select_clips(segs, cfg, pats, api_key, args.per_file)
+                picked = select_clips(segs, cfg, pats, api_key, args.per_file, seen)
                 log(f"   {len(segs)} zinnen, {len(picked)} clips")
                 tkey = f"{slug(ident)}-{slug(Path(name).stem, 20)}"
                 if picked:
@@ -346,6 +414,7 @@ def main():
                         "segments": [[round(x["start"], 2), round(x["end"], 2), x["text"]] for x in segs],
                     }, ensure_ascii=False))
                 for c in picked:
+                    seen.add(c["text"])
                     cid = f"{slug(ident)}-{slug(Path(name).stem, 20)}-{int(c['start']):05d}"
                     a, b = cut(wav, c["start"], c["end"], total, pad_start(cfg), pad_end(cfg),
                                clips_dir / f"{cid}.wav")
@@ -380,7 +449,7 @@ def main():
     idx = Path(args.batches_index)
     batches = json.loads(idx.read_text()) if idx.exists() else []
     batches = [b for b in batches if b.get("name") != args.batch]
-    batches.insert(0, {"name": args.batch, "preset": args.preset, "count": len(clips),
+    batches.insert(0, {"name": args.batch, "preset": args.label, "count": len(clips),
                        "created": datetime.now(timezone.utc).isoformat(timespec="seconds")})
     idx.write_text(json.dumps(batches, ensure_ascii=False, indent=1))
     log(f"Klaar: {len(clips)} clips uit {items_done} items -> {out}")
@@ -389,7 +458,7 @@ def main():
 def write_index(out, args, query, api_key, clips):
     data = {
         "batch": {
-            "name": args.batch, "preset": args.preset, "query": query,
+            "name": args.batch, "preset": args.label, "query": query,
             "whisper": args.whisper, "claude": bool(api_key),
             "created": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         },

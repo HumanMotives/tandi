@@ -28,10 +28,12 @@ def fail(msg):
 def main():
     body_path, root = Path(sys.argv[1]), Path(sys.argv[2])
     cfg = yaml.safe_load((Path(__file__).resolve().parent / "config.yaml").read_text())
-    m = re.search(r"```json\s*(\{.*?\})\s*```", body_path.read_text(), re.S)
-    if not m:
-        fail("Geen verzoek gevonden in deze issue.")
-    req = json.loads(m.group(1))
+    raw = body_path.read_text()
+    m = re.search(r"```json\s*(\{.*?\})\s*```", raw, re.S)
+    try:
+        req = json.loads(m.group(1) if m else raw)
+    except json.JSONDecodeError:
+        fail("Geen geldig verzoek gevonden.")
 
     batch = str(req.get("batch", ""))
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,80}", batch):
