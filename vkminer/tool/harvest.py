@@ -562,6 +562,8 @@ def main():
             args.per_source = max(1, min(5, int(req["per_source"])))
 
     cfg = yaml.safe_load((ROOT / "config.yaml").read_text())
+    global cfg_global
+    cfg_global = cfg
     api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     cfg["_profile"] = load_profile(args.brief)
     user_terms = split_list(args.terms)[:40]
@@ -595,7 +597,10 @@ def main():
 
     out = Path(args.out)
     clips_dir = out / "clips"
-    clips_dir.mkdir(parents=True, exist_ok=True)
+    save_wavs = bool(cfg.get("save_wavs", False))  # standaard knipt de pagina zelf; geen WAVs in de repo
+    out.mkdir(parents=True, exist_ok=True)
+    if save_wavs:
+        clips_dir.mkdir(exist_ok=True)
 
     STATE.parent.mkdir(exist_ok=True)
     done = {l.strip() for l in STATE.read_text().splitlines() if l.strip()} if STATE.exists() else set()
@@ -714,10 +719,14 @@ def main():
                     if kind == "avoid":
                         c["tags"] = ["luisterboek"] + list(c["tags"])[:2]
                     cid = f"{slug(ident)}-{slug(Path(name).stem, 20)}-{int(c['start']):05d}"
-                    a, b = cut(wav, c["start"], c["end"], total, pad_start(cfg), pad_end(cfg),
-                               clips_dir / f"{cid}.wav")
+                    if save_wavs:
+                        a, b = cut(wav, c["start"], c["end"], total, pad_start(cfg), pad_end(cfg),
+                                   clips_dir / f"{cid}.wav")
+                    else:
+                        a = max(0.0, c["start"] - pad_start(cfg))
+                        b = min(total, c["end"] + pad_end(cfg))
                     clips.append({
-                        "id": cid, "file": f"clips/{cid}.wav", "text": c["text"],
+                        "id": cid, "text": c["text"], **({"file": f"clips/{cid}.wav"} if save_wavs else {}),
                         "score": c["score"], "ai": c.get("ai"), "tags": c["tags"],
                         "start": round(a, 2), "end": round(b, 2),
                         "t0": round(c["start"], 2), "t1": round(c["end"], 2),
@@ -760,11 +769,15 @@ def main():
     log(f"Klaar: {len(clips)} clips uit {items_done} items -> {out}")
 
 
+cfg_global = {}
+
+
 def write_index(out, args, query, api_key, clips):
     data = {
         "batch": {
             "name": args.batch, "preset": args.label, "query": query,
             "whisper": args.whisper, "claude": bool(api_key),
+            "pad": [pad_start(cfg_global), pad_end(cfg_global)],
             "created": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         },
         "clips": sorted(clips, key=lambda c: -c["score"]),

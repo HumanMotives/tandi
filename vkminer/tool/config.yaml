@@ -62,6 +62,7 @@ min_clip: 1.2         # seconden
 max_clip: 14          # seconden
 pad_start: 0.35       # marge voor elke knip (seconden)
 pad_end: 1.5          # marge na elke knip, zodat het laatste woord niet wordt afgekapt
+save_wavs: false      # false = geen WAVs in de repo; de pagina knipt zelf wat je downloadt
 max_minutes: 120      # langere bestanden overslaan
 early_stop: true      # stoppen met uitschrijven zodra er een goede zin is (sneller)
 chunk_minutes: 10     # per blok uitschrijven
