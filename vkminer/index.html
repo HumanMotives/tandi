@@ -119,6 +119,8 @@ main .in { padding-top: 4px; padding-bottom: 60px; }
   background: var(--wav); color: var(--wav-ink); text-decoration: none; font-size: .85rem; font-weight: 600;
 }
 .wav:hover { filter: brightness(1.05); }
+button.wav { border: 0; cursor: pointer; font: inherit; font-weight: 600; font-size: .85rem; }
+button.wav:disabled { opacity: .7; cursor: default; }
 .wav svg { width: 16px; height: 16px; }
 .empty { color: var(--muted); padding: 40px 0; }
 .keys { color: var(--muted); font-size: .8rem; margin-top: 28px; }
@@ -303,7 +305,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
       <span id="selinfo">Niets geselecteerd</span>
       <button class="btn" id="pext">Clip verlengen</button>
       <button class="btn" id="pclear">Wissen</button>
-      <button class="btn dark" id="preq" disabled>Knip selectie</button>
+      <button class="btn dark" id="preq" disabled>Download selectie</button>
     </div>
   </div>
 </div>
@@ -365,7 +367,7 @@ function render() {
         ${c.tags?.length ? `<span class="tags">${c.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</span>` : ''}
       </div>
       <div class="decide">
-        <a class="wav" href="${esc(base + c.file)}" download title="Download WAV">${DL}<span>WAV</span></a>
+        <button class="wav" title="Download WAV">${DL}<span>${wavBusy[c.id] || 'WAV'}</span></button>
         <button class="opt cut">View Source &amp; Timestamps</button>
         ${SHOW_DECIDE ? `<button class="opt k" aria-pressed="${st === 'keep'}">Bewaren</button>
         <button class="opt d" aria-pressed="${st === 'drop'}">Weg</button>` : ''}
@@ -374,12 +376,25 @@ function render() {
   }).join('');
 }
 
+// Nieuwe batches hebben geen WAV-bestanden: afspelen en knippen gebeurt vanuit de bron op Internet Archive.
+const srcOf = c => c.file ? base + c.file : (c.source_dl || (c.source_url || '').split('#')[0]);
+const absUrl = u => new URL(u, location.href).href;
+let bounds = null;
 function toggle(c) {
   if (playingId === c.id && !audio.paused) { audio.pause(); render(); return; }
-  if (playingId !== c.id) { audio.src = base + c.file; playingId = c.id; }
-  audio.currentTime = 0; audio.loop = loop;
-  audio.play().catch(() => {}); render();
+  playingId = c.id;
+  bounds = c.file ? null : [c.start, c.end];
+  audio.loop = loop && !bounds;
+  const go = () => { audio.currentTime = bounds ? bounds[0] : 0; audio.play().catch(() => {}); render(); };
+  const url = srcOf(c);
+  if (audio.src !== absUrl(url)) {
+    audio.src = url; audio.addEventListener('loadedmetadata', go, { once: true }); audio.load(); render();
+  } else go();
 }
+audio.addEventListener('timeupdate', () => {
+  if (!bounds || audio.currentTime < bounds[1]) return;
+  if (loop) audio.currentTime = bounds[0]; else audio.pause();
+});
 audio.addEventListener('ended', render);
 audio.addEventListener('pause', () => setTimeout(render, 0));
 
@@ -402,6 +417,7 @@ $('#list').addEventListener('click', e => {
   else if (e.target.closest('.k')) decide(c, 'keep');
   else if (e.target.closest('.d')) decide(c, 'drop');
   else if (e.target.closest('.cut')) openPanel(c);
+  else if (e.target.closest('.wav')) downloadClip(c);
   else if (!e.target.closest('a')) render();
 });
 document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
@@ -422,7 +438,7 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); cur = Math.max(cur - 1, 0); render(); scrollCur(); if (playingId) toggle(list[cur]); }
   else if (e.key === 'b') decide(c, 'keep');
   else if (e.key === 'w') decide(c, 'drop');
-  else if (e.key === 'r') { loop = !loop; audio.loop = loop; }
+  else if (e.key === 'r') { loop = !loop; audio.loop = loop && !bounds; }
 });
 
 // ---- Bronpaneel: verder luisteren, clip verlengen of extra stukken kiezen ----
@@ -458,7 +474,7 @@ async function openPanel(c) {
     $('#phint').textContent = 'Geen tekst beschikbaar voor deze batch. Je kunt wel de hele bron beluisteren; nieuwe batches hebben ook de tekst.';
     updateSel(); playFrom(c.start); return;
   }
-  $('#phint').textContent = 'Klik een zin om vanaf daar te luisteren. Vink zinnen aan om te knippen; aaneengesloten zinnen worden één clip. Clip verlengen pakt de huidige clip plus de volgende zin.';
+  $('#phint').textContent = 'Klik een zin om vanaf daar te luisteren. Vink zinnen aan en kies Download selectie; aaneengesloten zinnen worden één WAV. Clip verlengen pakt de huidige clip plus de volgende zin.';
   renderLines(); showPartial();
   $('#lines .inclip')?.scrollIntoView({ block: 'center' });
   playFrom(Math.max(0, t0 - 0.3));
@@ -534,7 +550,7 @@ function updateSel() {
   const rs = selRanges();
   const secs = rs.reduce((n, r) => n + r.end - r.start, 0);
   $('#selinfo').textContent = rs.length ? `${rs.length} clip(s), ${secs.toFixed(1)} s` : 'Niets geselecteerd';
-  $('#preq').disabled = !rs.length || !pClip?.transcript;
+  $('#preq').disabled = !rs.length;
   $('#pext').disabled = !pSegs.length;
 }
 
@@ -567,13 +583,140 @@ $('#panel').addEventListener('click', e => { if (e.target.id === 'panel') closeP
 $('#pclear').addEventListener('click', () => { [...pSel].forEach(i => setSel(i, false)); updateSel(); });
 $('#preq').addEventListener('click', async () => {
   const rs = selRanges(); if (!rs.length) return;
-  $('#preq').disabled = true; $('#selinfo').textContent = 'Versturen…';
-  const res = await api({ kind: 'cuts', request: { batch: data.batch.name, transcript: pClip.transcript, ranges: rs } });
-  if (res.error) { $('#selinfo').textContent = res.error; $('#preq').disabled = false; return; }
-  $('#selinfo').textContent = 'Wordt geknipt. Over een paar minuten staan de clips bovenaan, met label extra.';
-  busy('Extra clips worden geknipt… (een paar minuten)');
-  watchCuts(data.batch.name, data.clips.length);
+  const [padA, padB] = data.batch.pad || [0.35, 1.5];
+  const title = pClip.title, url = pUrl;
+  unlockRecorder(); srcAudio.pause(); audio.pause();
+  $('#preq').disabled = true;
+  const files = [];
+  try {
+    for (let i = 0; i < rs.length; i++) {
+      const a = Math.max(0, rs[i].start - padA), b = rs[i].end + padB;
+      const blob = await capture(url, a, b, p => {
+        $('#selinfo').textContent = `Knippen ${i + 1}/${rs.length}: ${Math.round(p * 100)}%`;
+      });
+      files.push([wavName(title, rs[i].start), blob]);
+    }
+    if (files.length === 1) saveBlob(files[0][1], files[0][0]);
+    else {
+      const zip = new JSZip(); files.forEach(([n, b]) => zip.file(n, b));
+      saveBlob(await zip.generateAsync({ type: 'blob' }), `${slugify(title)}-selectie.zip`);
+    }
+    updateSel();
+  } catch (err) { $('#selinfo').textContent = err.message; }
+  $('#preq').disabled = !selRanges().length;
 });
+
+// ---- Knippen in de browser: speelt het stuk stil af en neemt het op (werkt ook voor films) ----
+let actx = null;
+function audioCtx() {
+  if (!actx) { try { actx = new AudioContext({ sampleRate: 44100 }); } catch { actx = new AudioContext(); } }
+  return actx;
+}
+const once = (el, ev) => new Promise((res, rej) => {
+  el.addEventListener(ev, res, { once: true });
+  el.addEventListener('error', () => rej(new Error('Bron niet bereikbaar.')), { once: true });
+});
+
+// Eén vaste opname-speler. Wordt binnen een klik 'ontgrendeld', anders weigeren telefoons het afspelen.
+let rec = null;
+function recorder() {
+  if (rec) return rec;
+  const ac = audioCtx();
+  const el = new Audio(); el.crossOrigin = 'anonymous'; el.preload = 'auto';
+  const src = ac.createMediaElementSource(el);
+  const proc = ac.createScriptProcessor(4096, 2, 1);
+  const mute = ac.createGain(); mute.gain.value = 0;
+  src.connect(proc); proc.connect(mute); mute.connect(ac.destination);
+  return (rec = { el, proc, ac });
+}
+function unlockRecorder() {
+  audioCtx().resume();
+  const { el } = recorder();
+  if (el.dataset.unlocked) return;
+  el.dataset.unlocked = '1';
+  el.src = URL.createObjectURL(wavBlob(new Float32Array(441), 44100));
+  el.play().then(() => el.pause()).catch(() => {});
+}
+
+async function capture(url, a, b, onProgress) {
+  const { el, proc, ac } = recorder(); await ac.resume();
+  el.pause(); el.src = url;
+  await once(el, 'loadedmetadata');
+  b = Math.min(b, el.duration || b);
+  el.currentTime = a; await once(el, 'seeked');
+  const parts = []; let n = 0, peak = 0;
+  const want = Math.max(1, Math.round((b - a) * ac.sampleRate));
+  return new Promise((resolve, reject) => {
+    let done = false;
+    const stop = err => {
+      if (done) return; done = true;
+      clearTimeout(timer); proc.onaudioprocess = null; el.pause();
+      if (err) return reject(err);
+      if (peak < 1e-4) return reject(new Error('Geen geluid ontvangen. Internet Archive staat opnemen voor deze bron niet toe.'));
+      const pcm = new Float32Array(Math.min(n, want));
+      let o = 0;
+      for (const p of parts) { if (o >= pcm.length) break; pcm.set(p.subarray(0, pcm.length - o), o); o += p.length; }
+      resolve(wavBlob(pcm, ac.sampleRate));
+    };
+    const timer = setTimeout(() => stop(new Error('Bron laadt te traag. Probeer het opnieuw.')), (b - a + 45) * 1000);
+    proc.onaudioprocess = e => {
+      if (el.paused || el.seeking || done) return;
+      const ib = e.inputBuffer, len = ib.length, out = new Float32Array(len);
+      for (let ch = 0; ch < ib.numberOfChannels; ch++) {
+        const d = ib.getChannelData(ch);
+        for (let i = 0; i < len; i++) out[i] += d[i] / ib.numberOfChannels;
+      }
+      for (let i = 0; i < len; i++) if (Math.abs(out[i]) > peak) peak = Math.abs(out[i]);
+      parts.push(out); n += len;
+      onProgress?.(Math.min(1, n / want));
+      if (n >= want || el.ended) stop();
+    };
+    el.play().catch(err => stop(new Error('Afspelen lukt niet: ' + err.message)));
+  });
+}
+
+function wavBlob(pcm, rate) {
+  const fade = Math.min(Math.round(rate * 0.015), pcm.length >> 1);
+  for (let i = 0; i < fade; i++) { pcm[i] *= i / fade; pcm[pcm.length - 1 - i] *= i / fade; }
+  const buf = new ArrayBuffer(44 + pcm.length * 2), v = new DataView(buf);
+  const str = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+  str(0, 'RIFF'); v.setUint32(4, 36 + pcm.length * 2, true); str(8, 'WAVE'); str(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  str(36, 'data'); v.setUint32(40, pcm.length * 2, true);
+  for (let i = 0; i < pcm.length; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, pcm[i])) * 0x7fff, true);
+  return new Blob([buf], { type: 'audio/wav' });
+}
+
+const slugify = t => String(t || 'clip').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'clip';
+const wavName = (title, t) => `${slugify(title)}-${Math.floor(t / 60)}m${String(Math.floor(t % 60)).padStart(2, '0')}.wav`;
+
+async function clipWav(c, onProgress) {
+  if (c.file) return fetch(base + c.file).then(r => { if (!r.ok) throw new Error('Clip niet gevonden.'); return r.blob(); });
+  return capture(srcOf(c), c.start, c.end, onProgress);
+}
+
+// één opname tegelijk, zodat het opnemen niet met elkaar in de knoop raakt
+let queue = Promise.resolve();
+const wavBusy = {};
+function downloadClip(c) {
+  if (wavBusy[c.id]) return;
+  if (!c.file) unlockRecorder();  // binnen de klik, anders blokkeert de browser het geluid
+  audio.pause();
+  wavBusy[c.id] = 'Wachten…'; render();
+  queue = queue.then(async () => {
+    try {
+      const blob = await clipWav(c, p => { wavBusy[c.id] = `${Math.round(p * 100)}%`; updateWav(c.id); });
+      saveBlob(blob, wavName(c.title, c.t0 ?? c.start));
+      delete wavBusy[c.id];
+    } catch (err) { wavBusy[c.id] = 'Mislukt'; note(err.message); setTimeout(() => { delete wavBusy[c.id]; updateWav(c.id); }, 4000); }
+    updateWav(c.id);
+  });
+}
+function updateWav(id) {
+  const el = document.querySelector(`.clip[data-id="${CSS.escape(id)}"] .wav span`);
+  if (el) el.textContent = wavBusy[id] || 'WAV';
+}
 
 function keptList() { return data.clips.filter(c => decisions[c.id] === 'keep'); }
 function saveBlob(blob, name) {
@@ -587,10 +730,12 @@ $('#zip').addEventListener('click', async () => {
   const btn = $('#zip'); const kept = keptList(); const label = btn.textContent;
   if (!window.JSZip) { btn.textContent = 'Zip niet beschikbaar'; return; }
   btn.disabled = true;
+  unlockRecorder(); audio.pause();
   const zip = new JSZip();
   for (let i = 0; i < kept.length; i++) {
-    btn.textContent = `Inpakken ${i + 1}/${kept.length}`;
-    const r = await fetch(base + kept[i].file); zip.file(kept[i].file.split('/').pop(), await r.blob());
+    btn.textContent = `Knippen ${i + 1}/${kept.length}`;
+    try { zip.file(wavName(kept[i].title, kept[i].t0 ?? kept[i].start), await clipWav(kept[i])); }
+    catch (err) { note(`${kept[i].title}: ${err.message}`); }
   }
   zip.file('bronnen.json', JSON.stringify(kept, null, 1));
   saveBlob(await zip.generateAsync({ type: 'blob' }), `${data.batch.name || 'batch'}-bewaard.zip`);
