@@ -28,9 +28,15 @@ function gh(path, init = {}) {
   });
 }
 
+async function ghError(r) {
+  let msg = '';
+  try { msg = (await r.json()).message || ''; } catch {}
+  return `${r.status}${msg ? ': ' + msg : ''}`;
+}
+
 async function latest(kind) {
   const r = await gh(`/actions/workflows/${WORKFLOWS[kind]}/runs?per_page=3`);
-  if (!r.ok) throw new Error(`GitHub gaf ${r.status}`);
+  if (!r.ok) throw new Error(`${WORKFLOWS[kind]} gaf ${await ghError(r)}`);
   const run = ((await r.json()).workflow_runs || [])[0];
   return run ? {
     id: run.id, status: run.status, conclusion: run.conclusion, url: run.html_url,
@@ -46,7 +52,7 @@ export default async (req) => {
 
   if (req.method === 'GET') {
     try {
-      const [run, cuts] = await Promise.all([latest('run'), latest('cuts')]);
+      const [run, cuts] = await Promise.all([latest('run'), latest('cuts').catch(() => null)]);
       return json({ needsPassword, run, cuts });
     } catch (e) {
       return json({ needsPassword, error: e.message }, 502);
@@ -68,15 +74,15 @@ export default async (req) => {
       const r = await latest('run');
       if (r && r.status !== 'completed') return json({ error: 'Er loopt al een batch. Wacht tot die klaar is.' }, 409);
     } catch (e) {
-      return json({ error: `GitHub niet bereikbaar (${e.message}). Controleer token en reponaam.` }, 502);
+      return json({ error: `GitHub: ${e.message}` }, 502);
     }
   }
 
   const repo = await gh('');
-  const ref = repo.ok ? (await repo.json()).default_branch : 'main';
+  const ref = repo.ok ? (await repo.json()).default_branch : (env('GITHUB_BRANCH') || 'main');
   const r = await gh(`/actions/workflows/${WORKFLOWS[kind]}/dispatches`, {
     method: 'POST', body: JSON.stringify({ ref, inputs: { request } }),
   });
-  if (!r.ok) return json({ error: `GitHub weigerde de start (${r.status}). Controleer token en reponaam.` }, 502);
+  if (!r.ok) return json({ error: `GitHub weigerde de start (${WORKFLOWS[kind]} op ${ref}: ${await ghError(r)})` }, 502);
   return json({ ok: true });
 };
