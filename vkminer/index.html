@@ -222,7 +222,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
         <h2 id="rtitle">Generate New Batch</h2>
         <button class="btn" id="rclose">Sluiten</button>
       </div>
-      <p class="hint">Zoekt op heel Internet Archive, inclusief Prelinger. Lege velden gebruiken de standaardlijsten.</p>
+      <p class="hint">Zoekt op heel Internet Archive, inclusief Prelinger. Films, oude radio en interviews gaan voor; luisterboeken komen pas als laatste aan bod. Lege velden gebruiken de standaardlijsten.</p>
     </div>
     <div class="form">
       <label>Zoekwoorden: wat moet hij vinden? Eén per regel of met komma's.
@@ -232,7 +232,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
         <textarea id="r-kw" placeholder="they came&#10;the experiment&#10;don't go in there"></textarea>
       </label>
       <div class="row2">
-        <label>Aantal items <input id="r-items" type="number" min="1" max="20" value="5"></label>
+        <label>Aantal clips (één per bron) <input id="r-items" type="number" min="1" max="40" value="15"></label>
         <label>Kwaliteit transcriptie
           <select id="r-model">
             <option value="base.en">Snel</option>
@@ -244,7 +244,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
       <label id="r-passwrap" hidden>Wachtwoord <input id="r-pass" type="password" autocomplete="current-password"></label>
     </div>
     <div class="sheet-foot">
-      <span class="hint" id="rmsg">Duurt meestal 15–30 minuten.</span>
+      <span class="hint" id="rmsg">Duurt meestal 15–30 minuten bij 15 clips.</span>
       <button class="btn hot" id="rstart">Start batch</button>
     </div>
   </div>
@@ -640,13 +640,13 @@ $('#runpanel').addEventListener('click', e => { if (e.target.id === 'runpanel') 
 $('#rstart').addEventListener('click', async () => {
   const request = {
     terms: list($('#r-terms').value), keywords: list($('#r-kw').value),
-    max_items: Math.max(1, Math.min(20, +$('#r-items').value || 5)),
+    max_items: Math.max(1, Math.min(40, +$('#r-items').value || 15)),
     whisper: $('#r-model').value, pd_only: $('#r-pd').checked,
   };
   $('#rstart').disabled = true; $('#rmsg').textContent = 'Starten…';
   const res = await api({ kind: 'run', request });
   if (res.error) { $('#rmsg').textContent = res.error; $('#rstart').disabled = false; return; }
-  $('#rmsg').textContent = 'Duurt meestal 15–30 minuten.';
+  $('#rmsg').textContent = 'Duurt meestal 15–30 minuten bij 15 clips.';
   closeRun();
   busy('Batch wordt gestart… Deze pagina mag open blijven; de nieuwe batch verschijnt vanzelf.');
   $('#newrun').disabled = true; $('#newrun').textContent = 'Batch bezig…';

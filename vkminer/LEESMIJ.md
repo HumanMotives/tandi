@@ -4,11 +4,12 @@ Zoekt eerie spraaksamples op heel Internet Archive (inclusief Prelinger) en knip
 Pagina: humanmotives.org/vkminer/
 
 ## Gebruik (geen GitHub-account nodig)
-- Nieuwe batch: knop Nieuwe batch → zoekwoorden en trefwoorden → Start batch.
-  Duurt 15–30 minuten; de pagina laat de nieuwe batch vanzelf zien.
-- Langer of meer uit een bron: knop Langer of Meer uit bron → zinnen aanvinken → Knip selectie.
+- Nieuwe batch: knop Generate New Batch → zoekwoorden en trefwoorden → Start batch.
+  Eén clip per bron. Duurt 15–30 minuten bij 15 clips; de pagina laat de nieuwe batch vanzelf zien.
+- Langer of meer uit een bron: knop Meer knippen → Clip verlengen of zinnen aanvinken → Knip selectie.
 - Zoekwoorden leeg = lijst onder search in tool/config.yaml.
   Trefwoorden komen bovenop keywords in tool/config.yaml.
+- Voorrang voor films, oude radio en interviews; luisterboeken achteraan: lijst onder sources in tool/config.yaml.
 
 ## Eenmalig instellen (Chris)
 1. GitHub-token: github.com → Settings → Developer settings → Fine-grained tokens → Generate new token.
