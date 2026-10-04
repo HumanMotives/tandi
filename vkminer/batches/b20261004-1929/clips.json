@@ -1,0 +1,448 @@
+{
+ "batch": {
+  "name": "b20261004-1929",
+  "preset": "aliens, science fiction, death…",
+  "query": "mediatype:(audio OR movies) AND (aliens OR \"science fiction\" OR death OR undead OR afterlife OR rebirth OR \"pseudo science\") AND ((collection:(feature_films OR prelinger OR scifi_horror OR film_noir OR classic_tv OR classic_cartoons OR movie_trailers) OR subject:(film OR movie OR \"feature film\" OR trailer OR newsreel OR \"b-movie\") OR title:(film OR movie OR \"feature film\" OR trailer OR newsreel OR \"b-movie\")) OR (collection:(oldtimeradio OR otrr OR radioprograms OR old_time_radio) OR subject:(radio OR \"old time radio\" OR otr OR \"radio drama\" OR \"radio play\" OR broadcast) OR title:(radio OR \"old time radio\" OR otr OR \"radio drama\" OR \"radio play\" OR broadcast)) OR (subject:(interview OR interviews OR testimony OR eyewitness OR conversation OR \"talk show\") OR title:(interview OR interviews OR testimony OR eyewitness OR conversation OR \"talk show\")))",
+  "whisper": "base.en",
+  "claude": false,
+  "pad": [
+   0.35,
+   1.5
+  ],
+  "created": "2026-10-04T19:43:10+00:00"
+ },
+ "clips": [
+  {
+   "id": "zontar-the-thing-from-venus-zontar-the-thing-fro-01821",
+   "text": "that a creature calls on tower has come from beings",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "creature",
+    "beings"
+   ],
+   "start": 1821.56,
+   "end": 1826.11,
+   "t0": 1821.91,
+   "t1": 1824.61,
+   "transcript": "transcripts/zontar-the-thing-from-venus-zontar-the-thing-fro.json",
+   "source_dl": "https://archive.org/download/zontar_the_thing_from_venus/Zontar_the_Thing_From_Venus.mp3",
+   "item": "zontar_the_thing_from_venus",
+   "title": "Zontar the Thing From Venus",
+   "source_file": "Zontar_the_Thing_From_Venus.mp3",
+   "year": "1966",
+   "item_url": "https://archive.org/details/zontar_the_thing_from_venus",
+   "source_url": "https://archive.org/download/zontar_the_thing_from_venus/Zontar_the_Thing_From_Venus.mp3#t=1821.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 10
+  },
+  {
+   "id": "evilbrainfromouterspace-evilbrainfromoutersp-00367",
+   "text": "It belongs to a creature from outer space.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "creature",
+    "outer space"
+   ],
+   "start": 366.65,
+   "end": 372.23,
+   "t0": 367.0,
+   "t1": 370.73,
+   "transcript": "transcripts/evilbrainfromouterspace-evilbrainfromoutersp.json",
+   "source_dl": "https://archive.org/download/EvilBrainFromOuterSpace/EvilBrainFromOuterSpace.mp3",
+   "item": "EvilBrainFromOuterSpace",
+   "title": "Evil Brain From Outer Space",
+   "source_file": "EvilBrainFromOuterSpace.mp3",
+   "year": "1964",
+   "item_url": "https://archive.org/details/EvilBrainFromOuterSpace",
+   "source_url": "https://archive.org/download/EvilBrainFromOuterSpace/EvilBrainFromOuterSpace.mp3#t=366.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 14
+  },
+  {
+   "id": "otrr-dark-fantasy-singles-dark-fantasy-41-11-2-00176",
+   "text": "Who knows what strange creatures lurk beneath the sea's surface.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "creature",
+    "strange"
+   ],
+   "start": 175.87,
+   "end": 180.94,
+   "t0": 176.22,
+   "t1": 179.44,
+   "transcript": "transcripts/otrr-dark-fantasy-singles-dark-fantasy-41-11-2.json",
+   "source_dl": "https://archive.org/download/OTRR_Dark_Fantasy_Singles/Dark%20Fantasy%2041-11-28%20%2803%29%20The%20Thing%20from%20the%20Sea.mp3",
+   "item": "OTRR_Dark_Fantasy_Singles",
+   "title": "Dark Fantasy - Single Episodes",
+   "source_file": "Dark Fantasy 41-11-28 (03) The Thing from the Sea.mp3",
+   "year": "2020-01-07",
+   "item_url": "https://archive.org/details/OTRR_Dark_Fantasy_Singles",
+   "source_url": "https://archive.org/download/OTRR_Dark_Fantasy_Singles/Dark%20Fantasy%2041-11-28%20%2803%29%20The%20Thing%20from%20the%20Sea.mp3#t=175.9",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/2.5/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 8
+  },
+  {
+   "id": "night-of-the-living-dead-1080p-nightofthelivingdead-03542",
+   "text": "The radiation is not the cause of the mutation.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "radiation",
+    "mutat"
+   ],
+   "start": 3541.9,
+   "end": 3545.63,
+   "t0": 3542.25,
+   "t1": 3544.13,
+   "transcript": "transcripts/night-of-the-living-dead-1080p-nightofthelivingdead.json",
+   "source_dl": "https://archive.org/download/Night.Of.The.Living.Dead_1080p/NightOfTheLivingDead_DVD5.mp3",
+   "item": "Night.Of.The.Living.Dead_1080p",
+   "title": "Night of the Living Dead",
+   "source_file": "NightOfTheLivingDead_DVD5.mp3",
+   "year": "1968",
+   "item_url": "https://archive.org/details/Night.Of.The.Living.Dead_1080p",
+   "source_url": "https://archive.org/download/Night.Of.The.Living.Dead_1080p/NightOfTheLivingDead_DVD5.mp3#t=3541.9",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": "Public Domain"
+   },
+   "kind": "prefer",
+   "theme": 7
+  },
+  {
+   "id": "science-fiction-radio-atom-age-adventure-00-mercury-theater-w-00050",
+   "text": "We know now that as human beings visit themselves about their various concerns.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "beings",
+    "human"
+   ],
+   "start": 49.85,
+   "end": 56.36,
+   "t0": 50.2,
+   "t1": 54.86,
+   "transcript": "transcripts/science-fiction-radio-atom-age-adventure-00-mercury-theater-w.json",
+   "source_dl": "https://archive.org/download/Science_Fiction_Radio_Atom_Age_Adventures/00%20Mercury%20Theater%3B%20War%20Of%20The%20Worlds%201938-10-30.mp3",
+   "item": "Science_Fiction_Radio_Atom_Age_Adventures",
+   "title": "Science Fiction Radio; Atom Age Adventures",
+   "source_file": "00 Mercury Theater; War Of The Worlds 1938-10-30.mp3",
+   "year": "2020",
+   "item_url": "https://archive.org/details/Science_Fiction_Radio_Atom_Age_Adventures",
+   "source_url": "https://archive.org/download/Science_Fiction_Radio_Atom_Age_Adventures/00%20Mercury%20Theater%3B%20War%20Of%20The%20Worlds%201938-10-30.mp3#t=49.9",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 12
+  },
+  {
+   "id": "go-down-death-go-down-death-02479",
+   "text": "on Death Road leaving the lightning flash behind, straight on down.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "the light"
+   ],
+   "start": 2479.21,
+   "end": 2487.72,
+   "t0": 2479.56,
+   "t1": 2486.22,
+   "transcript": "transcripts/go-down-death-go-down-death.json",
+   "source_dl": "https://archive.org/download/go_down_death/go_down_death.mp3",
+   "item": "go_down_death",
+   "title": "Go Down, Death!",
+   "source_file": "go_down_death.mp3",
+   "year": "1944",
+   "item_url": "https://archive.org/details/go_down_death",
+   "source_url": "https://archive.org/download/go_down_death/go_down_death.mp3#t=2479.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 12
+  },
+  {
+   "id": "teenagers-from-outerspace-teenagers-from-outer-00333",
+   "text": "wait captain I have found evidence of intelligent beings on this planet",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "beings",
+    "planet"
+   ],
+   "start": 333.57,
+   "end": 339.58,
+   "t0": 333.92,
+   "t1": 338.08,
+   "transcript": "transcripts/teenagers-from-outerspace-teenagers-from-outer.json",
+   "source_dl": "https://archive.org/download/teenagers_from_outerspace/Teenagers_from_Outer_Space.mp3",
+   "item": "teenagers_from_outerspace",
+   "title": "Teenagers from Outer Space",
+   "source_file": "Teenagers_from_Outer_Space.mp3",
+   "year": "1959",
+   "item_url": "https://archive.org/details/teenagers_from_outerspace",
+   "source_url": "https://archive.org/download/teenagers_from_outerspace/Teenagers_from_Outer_Space.mp3#t=333.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 9
+  },
+  {
+   "id": "the-dark-hour-the-dark-hour-00663",
+   "text": "I saw the light from the library shining on the lawn, so I came downstairs.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "i saw",
+    "the light"
+   ],
+   "start": 663.63,
+   "end": 668.66,
+   "t0": 663.98,
+   "t1": 667.16,
+   "transcript": "transcripts/the-dark-hour-the-dark-hour.json",
+   "source_dl": "https://archive.org/download/The.Dark.Hour/The_Dark_Hour.mp3",
+   "item": "The.Dark.Hour",
+   "title": "The Dark Hour",
+   "source_file": "The_Dark_Hour.mp3",
+   "year": "1936",
+   "item_url": "https://archive.org/details/The.Dark.Hour",
+   "source_url": "https://archive.org/download/The.Dark.Hour/The_Dark_Hour.mp3#t=663.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 8
+  },
+  {
+   "id": "cosmos-war-of-the-planets-cosmos-war-of-the-pl-03966",
+   "text": "One day the planet was attacked by alien forces.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "alien",
+    "planet"
+   ],
+   "start": 3965.79,
+   "end": 3972.14,
+   "t0": 3966.14,
+   "t1": 3970.64,
+   "transcript": "transcripts/cosmos-war-of-the-planets-cosmos-war-of-the-pl.json",
+   "source_dl": "https://archive.org/download/Cosmos_War_of_the_Planets/Cosmos_War_of_the_Planets.mp3",
+   "item": "Cosmos_War_of_the_Planets",
+   "title": "Cosmos: War of the Planets",
+   "source_file": "Cosmos_War_of_the_Planets.mp3",
+   "year": "1977",
+   "item_url": "https://archive.org/details/Cosmos_War_of_the_Planets",
+   "source_url": "https://archive.org/download/Cosmos_War_of_the_Planets/Cosmos_War_of_the_Planets.mp3#t=3965.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "death-rides-a-horse-pan-and-scan-deathridesahorse-2of-00402",
+   "text": "They took everything I had.",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "they took"
+   ],
+   "start": 402.63,
+   "end": 406.1,
+   "t0": 402.98,
+   "t1": 404.6,
+   "transcript": "transcripts/death-rides-a-horse-pan-and-scan-deathridesahorse-2of.json",
+   "source_dl": "https://archive.org/download/Death_Rides_A_Horse_pan_and_scan/deathridesahorse-2of4.mp3",
+   "item": "Death_Rides_A_Horse_pan_and_scan",
+   "title": "Death Rides A Horse",
+   "source_file": "deathridesahorse-2of4.mp3",
+   "year": "1967",
+   "item_url": "https://archive.org/details/Death_Rides_A_Horse_pan_and_scan",
+   "source_url": "https://archive.org/download/Death_Rides_A_Horse_pan_and_scan/deathridesahorse-2of4.mp3#t=402.6",
+   "license": {
+    "status": "public-domain",
+    "url": "",
+    "rights": "in public domain"
+   },
+   "kind": "prefer",
+   "theme": 18
+  },
+  {
+   "id": "destroy-all-planets-destroy-all-planets-03210",
+   "text": "We need you both to keep gamma under control of the brain machine fails.",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "machine",
+    "brain"
+   ],
+   "start": 3210.49,
+   "end": 3215.92,
+   "t0": 3210.84,
+   "t1": 3214.42,
+   "transcript": "transcripts/destroy-all-planets-destroy-all-planets.json",
+   "source_dl": "https://archive.org/download/Destroy_All_Planets/Destroy_All_Planets.mp3",
+   "item": "Destroy_All_Planets",
+   "title": "Destroy All Planets",
+   "source_file": "Destroy_All_Planets.mp3",
+   "year": "1968",
+   "item_url": "https://archive.org/details/Destroy_All_Planets",
+   "source_url": "https://archive.org/download/Destroy_All_Planets/Destroy_All_Planets.mp3#t=3210.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 10
+  },
+  {
+   "id": "otrr-suspense-singles-forecast-400722-the--00161",
+   "text": "Yet the case of that strange, illusive killer quite often forced all other matters from her mind.",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "strange",
+    "mind"
+   ],
+   "start": 160.92,
+   "end": 167.01,
+   "t0": 161.27,
+   "t1": 165.51,
+   "transcript": "transcripts/otrr-suspense-singles-forecast-400722-the-.json",
+   "source_dl": "https://archive.org/download/OTRR_Suspense_Singles/Forecast%20400722%20The%20Lodger%20%28audition%29%20%28128-44%29%2028390%2029m37s.mp3",
+   "item": "OTRR_Suspense_Singles",
+   "title": "Suspense - Single Episodes",
+   "source_file": "Forecast 400722 The Lodger (audition) (128-44) 28390 29m37s.mp3",
+   "year": "2020",
+   "item_url": "https://archive.org/details/OTRR_Suspense_Singles",
+   "source_url": "https://archive.org/download/OTRR_Suspense_Singles/Forecast%20400722%20The%20Lodger%20%28audition%29%20%28128-44%29%2028390%2029m37s.mp3#t=160.9",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "theghoul-theghoul-1933-02937",
+   "text": "The things, Steve, I swear.",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 2937.11,
+   "end": 2941.76,
+   "t0": 2937.46,
+   "t1": 2940.26,
+   "transcript": "transcripts/theghoul-theghoul-1933.json",
+   "source_dl": "https://archive.org/download/TheGhoul/TheGhoul_1933.mp3",
+   "item": "TheGhoul",
+   "title": "The Ghoul",
+   "source_file": "TheGhoul_1933.mp3",
+   "year": "1933",
+   "item_url": "https://archive.org/details/TheGhoul",
+   "source_url": "https://archive.org/download/TheGhoul/TheGhoul_1933.mp3#t=2937.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "onlythevalaint-onlythevalaint-512kb-01423",
+   "text": "They took the bill alive.",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "they took"
+   ],
+   "start": 1423.09,
+   "end": 1426.32,
+   "t0": 1423.44,
+   "t1": 1424.82,
+   "transcript": "transcripts/onlythevalaint-onlythevalaint-512kb.json",
+   "source_dl": "https://archive.org/download/OnlytheValaint/OnlytheValaint_512kb.mp4",
+   "item": "OnlytheValaint",
+   "title": "Only the Valiant",
+   "source_file": "OnlytheValaint_512kb.mp4",
+   "year": "1951",
+   "item_url": "https://archive.org/details/OnlytheValaint",
+   "source_url": "https://archive.org/download/OnlytheValaint/OnlytheValaint_512kb.mp4#t=1423.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "otrr-black-museum-singles-02orsonwellesbiograp-00307",
+   "text": "did voiceovers and recordings, and occasional commercials until his death in 1985. Despite",
+   "score": 5.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "voice"
+   ],
+   "start": 307.11,
+   "end": 314.54,
+   "t0": 307.46,
+   "t1": 313.04,
+   "transcript": "transcripts/otrr-black-museum-singles-02orsonwellesbiograp.json",
+   "source_dl": "https://archive.org/download/OTRR_Black_Museum_Singles/02OrsonWellesBiography.mp3",
+   "item": "OTRR_Black_Museum_Singles",
+   "title": "The Black Museum - Single Episodes",
+   "source_file": "02OrsonWellesBiography.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/OTRR_Black_Museum_Singles",
+   "source_url": "https://archive.org/download/OTRR_Black_Museum_Singles/02OrsonWellesBiography.mp3#t=307.1",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/2.5/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  }
+ ]
+}

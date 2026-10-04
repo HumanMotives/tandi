@@ -97,3 +97,42 @@ Grave_of_the_Vampire_movie/Grave-of-the-Vampire.mp3
 title:grave of the vampire
 Killers_from_space/Killers_from_space.mp3
 title:killers from space
+Death_Rides_A_Horse_pan_and_scan/deathridesahorse-1of4.mp3
+Death_Rides_A_Horse_pan_and_scan/deathridesahorse-2of4.mp3
+title:death rides a horse
+EvilBrainFromOuterSpace/EvilBrainFromOuterSpace.mp3
+title:evil brain from outer space
+Science_Fiction_Radio_Atom_Age_Adventures/00 Mercury Theater; War Of The Worlds 1938-10-30.mp3
+title:science fiction radio atom age adventures
+go_down_death/go_down_death.mp3
+title:go down death
+Destroy_All_Planets/Destroy_All_Planets.mp3
+title:destroy all planets
+zontar_the_thing_from_venus/Zontar_the_Thing_From_Venus.mp3
+title:zontar the thing from venus
+teenagers_from_outerspace/Teenagers_from_Outer_Space.mp3
+title:teenagers from outer space
+OTRR_Dark_Fantasy_Singles/Dark Fantasy 41-11-14 (01) The Man Who Came Back.mp3
+OTRR_Dark_Fantasy_Singles/Dark Fantasy 41-11-28 (03) The Thing from the Sea.mp3
+title:dark fantasy  single episodes
+FantasticPlanetTrailer/FantasticPlanetTrailer.mp4
+title:fantastic planet trailer
+The.Dark.Hour/The_Dark_Hour.mp3
+title:the dark hour
+ElephantsDream/ED-CM-5.1-DVD-C_64kb.mp3
+ElephantsDream/ED-CM-5.1-DVD-LFE_64kb.mp3
+ElephantsDream/ED-CM-5.1-DVD-LS_64kb.mp3
+title:elephants dream
+Night.Of.The.Living.Dead_1080p/NightOfTheLivingDead_DVD5.mp3
+title:night of the living dead
+OTRR_Suspense_Singles/Forecast 400722 The Lodger (audition) (128-44) 28390 29m37s.mp3
+title:suspense  single episodes
+OTRR_Black_Museum_Singles/01TheBlackMuseumIntro.mp3
+OTRR_Black_Museum_Singles/02OrsonWellesBiography.mp3
+title:the black museum  single episodes
+Cosmos_War_of_the_Planets/Cosmos_War_of_the_Planets.mp3
+title:cosmos war of the planets
+TheGhoul/TheGhoul_1933.mp3
+title:the ghoul
+OnlytheValaint/OnlytheValaint_512kb.mp4
+title:only the valiant
