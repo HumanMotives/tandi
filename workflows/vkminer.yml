@@ -1,35 +1,35 @@
 name: VK miner
 
+# Start via de knop op de pagina, of hier via Run workflow.
 on:
+  issues:
+    types: [opened]
   workflow_dispatch:
     inputs:
-      preset:
-        description: Zoekpreset (zie vkminer/tool/config.yaml)
-        type: choice
-        options: [otr-scifi, ufo-interviews, bmovies, prelinger, custom]
-        default: otr-scifi
-      query:
-        description: Extra zoektermen (bij custom de volledige zoekopdracht)
+      terms:
+        description: Zoekwoorden, komma-gescheiden (leeg = standaardlijst uit config.yaml)
+        required: false
+        default: ''
+      keywords:
+        description: Extra trefwoorden om op te knippen, komma-gescheiden
         required: false
         default: ''
       max_items:
         description: Aantal items
         default: '5'
-      max_files:
-        description: Bestanden per item
-        default: '3'
       whisper_model:
         description: Whisper-model (groter = beter en trager)
         type: choice
         options: [base.en, small.en, medium.en]
         default: base.en
-      pd_only:
-        description: Alleen items met duidelijke publiek-domein- of CC-licentie
-        type: boolean
-        default: true
+      request:
+        description: Verzoek van de pagina (JSON). Leeg laten als je hier start.
+        required: false
+        default: ''
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: vkminer
@@ -37,6 +37,10 @@ concurrency:
 
 jobs:
   harvest:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (startsWith(github.event.issue.title, 'vkminer-run:') &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association))
     runs-on: ubuntu-latest
     timeout-minutes: 340
     steps:
@@ -55,36 +59,54 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface
-          key: whisper-${{ inputs.whisper_model }}
+          key: whisper-models
 
       - run: pip install -r vkminer/tool/requirements.txt
+
+      - name: Verzoek klaarzetten
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          REQUEST: ${{ inputs.request }}
+          TERMS: ${{ inputs.terms }}
+          KEYWORDS: ${{ inputs.keywords }}
+          MAX_ITEMS: ${{ inputs.max_items }}
+          WHISPER: ${{ inputs.whisper_model }}
+        run: |
+          if [ "${{ github.event_name }}" = "issues" ]; then
+            printf '%s' "$ISSUE_BODY" > /tmp/request.txt
+          elif [ -n "$REQUEST" ]; then
+            printf '%s' "$REQUEST" > /tmp/request.txt
+          else
+            python -c 'import json,os; print(json.dumps({"terms": os.environ["TERMS"], "keywords": os.environ["KEYWORDS"], "max_items": os.environ["MAX_ITEMS"] or 5, "whisper": os.environ["WHISPER"], "pd_only": True}))' > /tmp/request.txt
+          fi
+          echo "BATCH=b$(date -u +%Y%m%d-%H%M)" >> "$GITHUB_ENV"
 
       - name: Oogsten
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          PRESET: ${{ inputs.preset }}
-          QUERY: ${{ inputs.query }}
-          MAX_ITEMS: ${{ inputs.max_items }}
-          MAX_FILES: ${{ inputs.max_files }}
-          WHISPER: ${{ inputs.whisper_model }}
-          PD_ONLY: ${{ inputs.pd_only }}
         run: |
-          BATCH="b$(date -u +%Y%m%d-%H%M)-${PRESET}"
-          echo "BATCH=$BATCH" >> "$GITHUB_ENV"
-          EXTRA=""
-          if [ "$PD_ONLY" = "true" ]; then EXTRA="--pd-only"; fi
-          python vkminer/tool/harvest.py --preset "$PRESET" --query "$QUERY" \
-            --max-items "$MAX_ITEMS" --max-files "$MAX_FILES" --whisper "$WHISPER" \
-            --batch "$BATCH" --out "vkminer/batches/$BATCH" \
-            --batches-index vkminer/batches.json $EXTRA
+          python vkminer/tool/harvest.py --request /tmp/request.txt --batch "$BATCH" \
+            --out "vkminer/batches/$BATCH" --batches-index vkminer/batches.json
 
-      - name: Opslaan in de repo (Cloudflare publiceert automatisch)
+      - name: Opslaan in de repo (Netlify publiceert automatisch)
         if: always()
         run: |
           git config user.name "vkminer-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for f in vkminer/batches vkminer/batches.json vkminer/tool/processed.txt; do [ -e "$f" ] && git add "$f"; done
+          for f in vkminer/batches vkminer/batches.json vkminer/tool/processed.txt vkminer/tool/seen.txt; do [ -e "$f" ] && git add "$f"; done
           if git diff --cached --quiet; then echo "Niets nieuws"; exit 0; fi
           git commit -m "vkminer: $BATCH"
           git pull --rebase
           git push
+
+      - name: Verzoek afsluiten
+        if: always() && github.event_name == 'issues'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            MSG="Batch $BATCH is klaar. Over een paar minuten staat hij op humanmotives.org/vkminer/"
+          else
+            MSG="Run mislukt. Bekijk de log bij Actions."
+          fi
+          gh issue close "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --comment "$MSG"
