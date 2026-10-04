@@ -48,3 +48,52 @@ timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3
 city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3
 city_worlds_end_1203_librivox/cityatworldsend_02_hamilton_64kb.mp3
 city_worlds_end_1203_librivox/cityatworldsend_03_hamilton_64kb.mp3
+Sniffles1955/Sniffles1955.mp3
+title:sniffles and sneezes
+HaveITol1958/HaveITol1958.mp3
+title:have i told you lately that i love you
+charlie_chaplin_film_fest/charlie_chaplin_film_fest.mp3
+title:charlie chaplin festival
+CaseofSp1940/CaseofSp1940.mp3
+title:case of spring fever a
+OTRR_Theater_Five_Singles/Theater_Five_64-08-03_ep001_Hit_and_Run_64kb.mp3
+title:theater five  single episodes
+VoyagetothePlanetofPrehistoricWomen/VoyagetothePlanetofPrehistoricWomen_64kb.mp3
+title:voyage to the planet of prehistoric women
+reefer_madness1938/reefer_madness1938.mp3
+title:reefer madness
+DuckandC1951/DuckandC1951.mp3
+title:duck and cover
+Sita_Sings_the_Blues/SITA_SINGS_MOVIE_ONLY.mp3
+title:sita sings the blues
+TheRamrodder1969ExploitationFilmTrailer/ramrodderad.mp4
+title:the ramrodder 1969 exploitation film trailer
+nazi_concentration_camps/nazi_concentration_camps.mp3
+title:nazi concentration camps
+abraham_lincoln/abraham_lincoln.mp3
+title:abraham lincoln
+Experime1940/Experime1940.mp3
+title:experiments in the revival of organisms
+suddenly/suddenly.mp3
+title:suddenly
+TheStranger_0/The_Stranger.mp3
+title:the stranger
+OTRR_Box_13_Singles/Box 13 1948-xx-xx (001) The First Letter.mp3
+title:box 13  single episodes
+tarzans_revenge/tarzans_revenge.mp3
+title:tarzans revenge
+gullivers_travels1939/gullivers_travels1939.mp3
+title:gullivers travels
+20000LeaguesUndertheSea/20000_Leagues_Under_the_Sea_512kb.mp4
+title:20000 leagues under the sea
+XMinus1_A/xminusone_550422_AndTheMoonBeStillAndBright.mp3
+title:x minus 1
+PrivateL1947/PrivateL1947.mp3
+PrivateL1947/PrivateL1947_256kb.mp4
+title:private life of a cat
+lost_world/lost_world.mp3
+title:the lost world
+Grave_of_the_Vampire_movie/Grave-of-the-Vampire.mp3
+title:grave of the vampire
+Killers_from_space/Killers_from_space.mp3
+title:killers from space

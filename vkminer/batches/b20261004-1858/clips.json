@@ -1,0 +1,449 @@
+{
+ "batch": {
+  "name": "b20261004-1858",
+  "preset": "scifi, b-movie, science fiction",
+  "query": "mediatype:(audio OR movies) AND (scifi OR b-movie OR \"science fiction\") AND ((collection:(feature_films OR prelinger OR scifi_horror OR film_noir OR classic_tv OR classic_cartoons OR movie_trailers) OR subject:(film OR movie OR \"feature film\" OR trailer OR newsreel OR \"b-movie\") OR title:(film OR movie OR \"feature film\" OR trailer OR newsreel OR \"b-movie\")) OR (collection:(oldtimeradio OR otrr OR radioprograms OR old_time_radio) OR subject:(radio OR \"old time radio\" OR otr OR \"radio drama\" OR \"radio play\" OR broadcast) OR title:(radio OR \"old time radio\" OR otr OR \"radio drama\" OR \"radio play\" OR broadcast)) OR (subject:(interview OR interviews OR testimony OR eyewitness OR conversation OR \"talk show\") OR title:(interview OR interviews OR testimony OR eyewitness OR conversation OR \"talk show\")))",
+  "whisper": "base.en",
+  "claude": false,
+  "created": "2026-10-04T19:17:40+00:00"
+ },
+ "clips": [
+  {
+   "id": "grave-of-the-vampire-movie-grave-of-the-vampire-02456",
+   "file": "clips/grave-of-the-vampire-movie-grave-of-the-vampire-02456.wav",
+   "text": "The antibiotics that keep us one step ahead of death, and we are left with pathetic frightened little creatures.",
+   "score": 12.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "creature",
+    "death"
+   ],
+   "start": 2456.35,
+   "end": 2464.24,
+   "t0": 2456.7,
+   "t1": 2462.74,
+   "transcript": "transcripts/grave-of-the-vampire-movie-grave-of-the-vampire.json",
+   "source_dl": "https://archive.org/download/Grave_of_the_Vampire_movie/Grave-of-the-Vampire.mp3",
+   "item": "Grave_of_the_Vampire_movie",
+   "title": "Grave of the Vampire",
+   "source_file": "Grave-of-the-Vampire.mp3",
+   "year": "1974",
+   "item_url": "https://archive.org/details/Grave_of_the_Vampire_movie",
+   "source_url": "https://archive.org/download/Grave_of_the_Vampire_movie/Grave-of-the-Vampire.mp3#t=2456.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "nazi-concentration-camps-nazi-concentration-c-00975",
+   "file": "clips/nazi-concentration-camps-nazi-concentration-c-00975.wav",
+   "text": "The bulky volumes contained thousands of death certificates.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 975.39,
+   "end": 979.8,
+   "t0": 975.74,
+   "t1": 978.3,
+   "transcript": "transcripts/nazi-concentration-camps-nazi-concentration-c.json",
+   "source_dl": "https://archive.org/download/nazi_concentration_camps/nazi_concentration_camps.mp3",
+   "item": "nazi_concentration_camps",
+   "title": "Nazi Concentration Camps",
+   "source_file": "nazi_concentration_camps.mp3",
+   "year": "1945",
+   "item_url": "https://archive.org/details/nazi_concentration_camps",
+   "source_url": "https://archive.org/download/nazi_concentration_camps/nazi_concentration_camps.mp3#t=975.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "experime1940-experime1940-00785",
+   "file": "clips/experime1940-experime1940-00785.wav",
+   "text": "Without operative interference, death would be final.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 785.13,
+   "end": 790.38,
+   "t0": 785.48,
+   "t1": 788.88,
+   "transcript": "transcripts/experime1940-experime1940.json",
+   "source_dl": "https://archive.org/download/Experime1940/Experime1940.mp3",
+   "item": "Experime1940",
+   "title": "Experiments in the Revival of Organisms",
+   "source_file": "Experime1940.mp3",
+   "year": "1940",
+   "item_url": "https://archive.org/details/Experime1940",
+   "source_url": "https://archive.org/download/Experime1940/Experime1940.mp3#t=785.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "suddenly-suddenly-02820",
+   "file": "clips/suddenly-suddenly-02820.wav",
+   "text": "Couple of big, bold, bad men getting scared to death",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 2819.9,
+   "end": 2824.15,
+   "t0": 2820.25,
+   "t1": 2822.65,
+   "transcript": "transcripts/suddenly-suddenly.json",
+   "source_dl": "https://archive.org/download/suddenly/suddenly.mp3",
+   "item": "suddenly",
+   "title": "Suddenly",
+   "source_file": "suddenly.mp3",
+   "year": "1954",
+   "item_url": "https://archive.org/details/suddenly",
+   "source_url": "https://archive.org/download/suddenly/suddenly.mp3#t=2819.9",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "thestranger-0-the-stranger-04277",
+   "file": "clips/thestranger-0-the-stranger-04277.wav",
+   "text": "Drives an automobile, anything that could result in accidental death.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 4277.43,
+   "end": 4282.96,
+   "t0": 4277.78,
+   "t1": 4281.46,
+   "transcript": "transcripts/thestranger-0-the-stranger.json",
+   "source_dl": "https://archive.org/download/TheStranger_0/The_Stranger.mp3",
+   "item": "TheStranger_0",
+   "title": "The Stranger",
+   "source_file": "The_Stranger.mp3",
+   "year": "1946",
+   "item_url": "https://archive.org/details/TheStranger_0",
+   "source_url": "https://archive.org/download/TheStranger_0/The_Stranger.mp3#t=4277.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "otrr-box-13-singles-box-13-1948-xx-xx-00-00054",
+   "file": "clips/otrr-box-13-singles-box-13-1948-xx-xx-00-00054.wav",
+   "text": "I gotta be a writer so I can be out on nice, cold, wet nights.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "night",
+    "night",
+    "cold"
+   ],
+   "start": 54.51,
+   "end": 60.94,
+   "t0": 54.86,
+   "t1": 59.44,
+   "transcript": "transcripts/otrr-box-13-singles-box-13-1948-xx-xx-00.json",
+   "source_dl": "https://archive.org/download/OTRR_Box_13_Singles/Box%2013%201948-xx-xx%20%28001%29%20The%20First%20Letter.mp3",
+   "item": "OTRR_Box_13_Singles",
+   "title": "Box 13 - Single Episodes",
+   "source_file": "Box 13 1948-xx-xx (001) The First Letter.mp3",
+   "year": "2020",
+   "item_url": "https://archive.org/details/OTRR_Box_13_Singles",
+   "source_url": "https://archive.org/download/OTRR_Box_13_Singles/Box%2013%201948-xx-xx%20%28001%29%20The%20First%20Letter.mp3#t=54.5",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/2.5/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "otrr-theater-five-singles-theater-five-64-08-0-00281",
+   "file": "clips/otrr-theater-five-singles-theater-five-64-08-0-00281.wav",
+   "text": "I feel a big night coming out.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "night",
+    "night"
+   ],
+   "start": 281.5,
+   "end": 284.91,
+   "t0": 281.85,
+   "t1": 283.41,
+   "transcript": "transcripts/otrr-theater-five-singles-theater-five-64-08-0.json",
+   "source_dl": "https://archive.org/download/OTRR_Theater_Five_Singles/Theater_Five_64-08-03_ep001_Hit_and_Run_64kb.mp3",
+   "item": "OTRR_Theater_Five_Singles",
+   "title": "Theater Five - Single Episodes",
+   "source_file": "Theater_Five_64-08-03_ep001_Hit_and_Run_64kb.mp3",
+   "year": "2007-01-15",
+   "item_url": "https://archive.org/details/OTRR_Theater_Five_Singles",
+   "source_url": "https://archive.org/download/OTRR_Theater_Five_Singles/Theater_Five_64-08-03_ep001_Hit_and_Run_64kb.mp3#t=281.5",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/2.5/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "reefer-madness1938-reefer-madness1938-00497",
+   "file": "clips/reefer-madness1938-reefer-madness1938-00497.wav",
+   "text": "Last night the time I took over the Marines, I'm amazing.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "night",
+    "night"
+   ],
+   "start": 497.43,
+   "end": 501.88,
+   "t0": 497.78,
+   "t1": 500.38,
+   "transcript": "transcripts/reefer-madness1938-reefer-madness1938.json",
+   "source_dl": "https://archive.org/download/reefer_madness1938/reefer_madness1938.mp3",
+   "item": "reefer_madness1938",
+   "title": "Reefer Madness",
+   "source_file": "reefer_madness1938.mp3",
+   "year": "1938",
+   "item_url": "https://archive.org/details/reefer_madness1938",
+   "source_url": "https://archive.org/download/reefer_madness1938/reefer_madness1938.mp3#t=497.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "sita-sings-the-blues-sita-sings-movie-onl-00716",
+   "file": "clips/sita-sings-the-blues-sita-sings-movie-onl-00716.wav",
+   "text": "The weary days, the lonely nights are easy to forget.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "night",
+    "night"
+   ],
+   "start": 716.21,
+   "end": 723.66,
+   "t0": 716.56,
+   "t1": 722.16,
+   "transcript": "transcripts/sita-sings-the-blues-sita-sings-movie-onl.json",
+   "source_dl": "https://archive.org/download/Sita_Sings_the_Blues/SITA_SINGS_MOVIE_ONLY.mp3",
+   "item": "Sita_Sings_the_Blues",
+   "title": "Sita Sings the Blues",
+   "source_file": "SITA_SINGS_MOVIE_ONLY.mp3",
+   "year": "2008",
+   "item_url": "https://archive.org/details/Sita_Sings_the_Blues",
+   "source_url": "https://archive.org/download/Sita_Sings_the_Blues/SITA_SINGS_MOVIE_ONLY.mp3#t=716.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/zero/1.0/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "abraham-lincoln-abraham-lincoln-01391",
+   "file": "clips/abraham-lincoln-abraham-lincoln-01391.wav",
+   "text": "No, Billy, don't bother me. I'm going to be married and I'm scared to death.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 1391.02,
+   "end": 1395.89,
+   "t0": 1391.37,
+   "t1": 1394.39,
+   "transcript": "transcripts/abraham-lincoln-abraham-lincoln.json",
+   "source_dl": "https://archive.org/download/abraham_lincoln/abraham_lincoln.mp3",
+   "item": "abraham_lincoln",
+   "title": "Abraham Lincoln",
+   "source_file": "abraham_lincoln.mp3",
+   "year": "1930",
+   "item_url": "https://archive.org/details/abraham_lincoln",
+   "source_url": "https://archive.org/download/abraham_lincoln/abraham_lincoln.mp3#t=1391.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "tarzans-revenge-tarzans-revenge-02091",
+   "file": "clips/tarzans-revenge-tarzans-revenge-02091.wav",
+   "text": "The excitement seems to be over for the night.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "night",
+    "night"
+   ],
+   "start": 2090.97,
+   "end": 2094.48,
+   "t0": 2091.32,
+   "t1": 2092.98,
+   "transcript": "transcripts/tarzans-revenge-tarzans-revenge.json",
+   "source_dl": "https://archive.org/download/tarzans_revenge/tarzans_revenge.mp3",
+   "item": "tarzans_revenge",
+   "title": "Tarzan's Revenge",
+   "source_file": "tarzans_revenge.mp3",
+   "year": "1938",
+   "item_url": "https://archive.org/details/tarzans_revenge",
+   "source_url": "https://archive.org/download/tarzans_revenge/tarzans_revenge.mp3#t=2091.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "killers-from-space-killers-from-space-00523",
+   "file": "clips/killers-from-space-killers-from-space-00523.wav",
+   "text": "The pilot burned to death, and you show off the picture of powerful.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 522.66,
+   "end": 527.75,
+   "t0": 523.01,
+   "t1": 526.25,
+   "transcript": "transcripts/killers-from-space-killers-from-space.json",
+   "source_dl": "https://archive.org/download/Killers_from_space/Killers_from_space.mp3",
+   "item": "Killers_from_space",
+   "title": "Killers From Space",
+   "source_file": "Killers_from_space.mp3",
+   "year": "1954",
+   "item_url": "https://archive.org/details/Killers_from_space",
+   "source_url": "https://archive.org/download/Killers_from_space/Killers_from_space.mp3#t=522.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "sniffles1955-sniffles1955-00478",
+   "file": "clips/sniffles1955-sniffles1955-00478.wav",
+   "text": "While you grow, you need about ten hours of sleep each night.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "night",
+    "night"
+   ],
+   "start": 478.58,
+   "end": 484.71,
+   "t0": 478.93,
+   "t1": 483.21,
+   "transcript": "transcripts/sniffles1955-sniffles1955.json",
+   "source_dl": "https://archive.org/download/Sniffles1955/Sniffles1955.mp3",
+   "item": "Sniffles1955",
+   "title": "Sniffles and Sneezes",
+   "source_file": "Sniffles1955.mp3",
+   "year": "1955",
+   "item_url": "https://archive.org/details/Sniffles1955",
+   "source_url": "https://archive.org/download/Sniffles1955/Sniffles1955.mp3#t=478.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "duckandc1951-duckandc1951-00403",
+   "file": "clips/duckandc1951-duckandc1951-00403.wav",
+   "text": "Tony knows the bomb can explode any time of the year, day or night.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "night",
+    "night"
+   ],
+   "start": 403.27,
+   "end": 408.84,
+   "t0": 403.62,
+   "t1": 407.34,
+   "transcript": "transcripts/duckandc1951-duckandc1951.json",
+   "source_dl": "https://archive.org/download/DuckandC1951/DuckandC1951.mp3",
+   "item": "DuckandC1951",
+   "title": "Duck and Cover",
+   "source_file": "DuckandC1951.mp3",
+   "year": "1951",
+   "item_url": "https://archive.org/details/DuckandC1951",
+   "source_url": "https://archive.org/download/DuckandC1951/DuckandC1951.mp3#t=403.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  },
+  {
+   "id": "xminus1-a-xminusone-550422-and-00600",
+   "file": "clips/xminus1-a-xminusone-550422-and-00600.wav",
+   "text": "Martian poet. So we'll go no more aroving, so late into the night. Though the heart",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "night",
+    "night"
+   ],
+   "start": 599.85,
+   "end": 609.08,
+   "t0": 600.2,
+   "t1": 607.58,
+   "transcript": "transcripts/xminus1-a-xminusone-550422-and.json",
+   "source_dl": "https://archive.org/download/XMinus1_A/xminusone_550422_AndTheMoonBeStillAndBright.mp3",
+   "item": "XMinus1_A",
+   "title": "X Minus 1",
+   "source_file": "xminusone_550422_AndTheMoonBeStillAndBright.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/XMinus1_A",
+   "source_url": "https://archive.org/download/XMinus1_A/xminusone_550422_AndTheMoonBeStillAndBright.mp3#t=599.9",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-sa/2.5/",
+    "rights": ""
+   },
+   "kind": "prefer"
+  }
+ ]
+}
