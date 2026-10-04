@@ -157,6 +157,19 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
 }
 .form textarea { min-height: 84px; resize: vertical; }
 .form .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form .lbl { color: var(--ink); font-weight: 500; font-size: .9rem; }
+.form .sub { margin-top: -3px; }
+.types { border: 0; margin: 0; padding: 0; min-width: 0; }
+.types legend { padding: 0; margin-bottom: 7px; color: var(--ink); font-weight: 500; font-size: .9rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.form label.chip { display: inline-flex; gap: 0; cursor: pointer; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip span {
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; color: var(--ink); font-size: .9rem; user-select: none;
+}
+.chip input:checked + span { background: var(--ink); border-color: var(--ink); color: #fff; }
+.chip input:focus-visible + span { outline: 2px solid var(--mark); outline-offset: 2px; }
+#rstart { padding: 7px 22px; letter-spacing: .04em; }
 #rmsg { margin: 0 auto 0 0; }
 
 @media (max-width: 560px) {
@@ -174,7 +187,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
   .play { width: 32px; height: 32px; }
   .quote { font-size: 1.12rem; }
   .keys { display: none; }
-  .form .row2 { grid-template-columns: 1fr; }
+  .form textarea, .form input[type=number], .form select { font-size: 16px; }
 }
 </style>
 </head>
@@ -184,7 +197,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
     <h1>VK Sample Miner</h1>
     <label class="field-label" for="batch">Finished Batches</label>
     <select id="batch" disabled><option>Laden…</option></select>
-    <button class="go" id="newrun">Generate New Batch</button>
+    <button class="go" id="newrun">Harvest New Samples</button>
     <div id="runstatus" aria-live="polite"></div>
   </div>
 </header>
@@ -219,33 +232,44 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rtitle">
     <div class="sheet-head">
       <div class="row">
-        <h2 id="rtitle">Generate New Batch</h2>
+        <h2 id="rtitle">Harvest New Samples</h2>
         <button class="btn" id="rclose">Sluiten</button>
       </div>
-      <p class="hint">Zoekt op heel Internet Archive, inclusief Prelinger. Films, oude radio en interviews gaan voor; luisterboeken komen pas als laatste aan bod. Lege velden gebruiken de standaardlijsten.</p>
+      <p class="hint">Zoekt op heel Internet Archive. Eerst vindt hij bronnen, daarna knipt hij daaruit de zinnen die het best passen. Lege velden gebruiken de standaardlijsten.</p>
     </div>
     <div class="form">
-      <label>Zoekwoorden: wat moet hij vinden? Eén per regel of met komma's.
-        <textarea id="r-terms" placeholder="zombie&#10;mad scientist&#10;voodoo"></textarea>
+      <fieldset class="types">
+        <legend>Soort bron</legend>
+        <div class="chips" id="r-types">
+          <label class="chip"><input type="checkbox" value="film" checked><span>Films</span></label>
+          <label class="chip"><input type="checkbox" value="radio" checked><span>Radio</span></label>
+          <label class="chip"><input type="checkbox" value="interview" checked><span>Interviews</span></label>
+          <label class="chip"><input type="checkbox" value="all"><span>Alles</span></label>
+        </div>
+      </fieldset>
+      <label><span class="lbl">Bronnen zoeken over</span>
+        <span class="sub">Onderwerp van de film, uitzending of opname. Eén per regel of met komma's.</span>
+        <textarea id="r-terms" placeholder="zombie&#10;mad scientist&#10;flying saucer"></textarea>
       </label>
-      <label>Trefwoorden: welke zinnen moet hij knippen? Komen bovenop de standaardlijst.
+      <label><span class="lbl">Knippen als iemand zegt</span>
+        <span class="sub">Woorden of zinnen in wat er gesproken wordt. Komen bovenop de standaardlijst.</span>
         <textarea id="r-kw" placeholder="they came&#10;the experiment&#10;don't go in there"></textarea>
       </label>
       <div class="row2">
-        <label>Aantal clips (één per bron) <input id="r-items" type="number" min="1" max="40" value="15"></label>
-        <label>Kwaliteit transcriptie
-          <select id="r-model">
-            <option value="base.en">Snel</option>
-            <option value="small.en">Beter (3x trager)</option>
-          </select>
-        </label>
+        <label><span class="lbl">Aantal bronnen</span><input id="r-items" type="number" min="1" max="40" value="15" inputmode="numeric"></label>
+        <label><span class="lbl">Clips per bron</span><input id="r-per" type="number" min="1" max="5" value="1" inputmode="numeric"></label>
       </div>
+      <label><span class="lbl">Kwaliteit transcriptie</span>
+        <select id="r-model">
+          <option value="base.en">Snel</option>
+          <option value="small.en">Beter (3x trager)</option>
+        </select>
+      </label>
       <label class="check"><input id="r-pd" type="checkbox" checked> Alleen materiaal met duidelijke vrije licentie</label>
-      <label id="r-passwrap" hidden>Wachtwoord <input id="r-pass" type="password" autocomplete="current-password"></label>
     </div>
     <div class="sheet-foot">
-      <span class="hint" id="rmsg">Duurt meestal 15–30 minuten bij 15 clips.</span>
-      <button class="btn hot" id="rstart">Start batch</button>
+      <span class="hint" id="rmsg">Duurt meestal 15–30 minuten bij 15 bronnen.</span>
+      <button class="btn hot" id="rstart">START</button>
     </div>
   </div>
 </div>
@@ -548,7 +572,7 @@ async function refreshBatches(pick) {
   batchNames = list.map(b => b.name);
   if (!list.length) {
     $('#batch').innerHTML = '<option>Nog geen batches</option>'; $('#batch').disabled = true;
-    empty('Nog geen batches. Klik op Generate New Batch.');
+    empty('Nog geen batches. Klik op Harvest New Samples.');
     return list;
   }
   $('#batch').disabled = false;
@@ -562,22 +586,22 @@ const firstLoad = refreshBatches();
 
 // ---- Starten via de Netlify-functie ----
 const API = 'api/run';
-const NEWRUN = 'Generate New Batch';
-let needsPassword = false, watchTimer = null;
+const NEWRUN = 'Harvest New Samples';
+let needsPassword = false, watchTimer = null, pw = '';
 const list = v => v.split(/[\n,]/).map(x => x.trim()).filter(Boolean);
 const mins = iso => Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
-try { $('#r-pass').value = localStorage.getItem('vkminer:pw') || ''; } catch {}
+try { pw = localStorage.getItem('vkminer:pw') || ''; } catch {}
 
 async function api(body) {
   if (body) {
-    let pw = $('#r-pass').value;
-    if (needsPassword && !pw) { pw = prompt('Wachtwoord') || ''; $('#r-pass').value = pw; }
+    if (needsPassword && !pw) pw = prompt('Wachtwoord') || '';
     body.password = pw;
   }
   try {
     const r = await fetch(API, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : { cache: 'no-store' });
     const d = await r.json().catch(() => ({ error: `Startknop niet bereikbaar (${r.status}).` }));
     if (body && r.ok) { try { localStorage.setItem('vkminer:pw', body.password || ''); } catch {} }
+    if (body && r.status === 401) { pw = ''; try { localStorage.removeItem('vkminer:pw'); } catch {} }
     return r.ok ? d : { ...d, error: d.error || `Fout ${r.status}` };
   } catch { return { error: 'Startknop niet bereikbaar.' }; }
 }
@@ -633,21 +657,36 @@ function watchCuts(batch, count, tries = 0) {
 
 function closeRun() { $('#runpanel').classList.remove('open'); $('#runpanel').setAttribute('aria-hidden', 'true'); }
 $('#newrun').addEventListener('click', () => {
-  $('#runpanel').classList.add('open'); $('#runpanel').setAttribute('aria-hidden', 'false'); $('#r-terms').focus();
+  $('#runpanel').classList.add('open'); $('#runpanel').setAttribute('aria-hidden', 'false');
+  if (matchMedia('(pointer: fine)').matches) $('#r-terms').focus();
 });
 $('#rclose').addEventListener('click', closeRun);
+// Soort bron: Alles sluit de rest uit en andersom
+$('#r-types').addEventListener('change', e => {
+  const boxes = [...document.querySelectorAll('#r-types input')];
+  const all = boxes.find(b => b.value === 'all');
+  if (e.target === all && all.checked) boxes.forEach(b => { if (b !== all) b.checked = false; });
+  else if (e.target !== all && e.target.checked) all.checked = false;
+  if (!boxes.some(b => b.checked)) all.checked = true;
+});
+function chosenTypes() {
+  const v = [...document.querySelectorAll('#r-types input:checked')].map(b => b.value);
+  return v.includes('all') ? [] : v;
+}
 $('#runpanel').addEventListener('click', e => { if (e.target.id === 'runpanel') closeRun(); });
 
 $('#rstart').addEventListener('click', async () => {
   const request = {
     terms: list($('#r-terms').value), keywords: list($('#r-kw').value),
     max_items: Math.max(1, Math.min(40, +$('#r-items').value || 15)),
+    per_source: Math.max(1, Math.min(5, +$('#r-per').value || 1)),
+    types: chosenTypes(),
     whisper: $('#r-model').value, pd_only: $('#r-pd').checked,
   };
   $('#rstart').disabled = true; $('#rmsg').textContent = 'Starten…';
   const res = await api({ kind: 'run', request });
   if (res.error) { $('#rmsg').textContent = res.error; $('#rstart').disabled = false; return; }
-  $('#rmsg').textContent = 'Duurt meestal 15–30 minuten bij 15 clips.';
+  $('#rmsg').textContent = 'Duurt meestal 15–30 minuten bij 15 bronnen.';
   closeRun();
   busy('Batch wordt gestart… Deze pagina mag open blijven; de nieuwe batch verschijnt vanzelf.');
   $('#newrun').disabled = true; $('#newrun').textContent = 'Batch bezig…';
@@ -657,7 +696,7 @@ $('#rstart').addEventListener('click', async () => {
 });
 
 firstLoad.then(() => api()).then(d => {
-  needsPassword = !!d.needsPassword; $('#r-passwrap').hidden = !needsPassword;
+  needsPassword = !!d.needsPassword;
   if (d.error) return;
   if (showRun(d.run) === 'busy') { watchRun([...batchNames]); return; }
   if (d.cuts && d.cuts.status !== 'completed') {
