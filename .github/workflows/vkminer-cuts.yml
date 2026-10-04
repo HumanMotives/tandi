@@ -1,9 +1,14 @@
 name: VK miner extra knippen
 
-# Start vanzelf als je via de pagina een verzoek-issue indient.
+# Start via de knop op de pagina (of een verzoek-issue).
 on:
   issues:
     types: [opened]
+  workflow_dispatch:
+    inputs:
+      request:
+        description: Verzoek van de pagina (JSON)
+        required: true
 
 permissions:
   contents: write
@@ -16,8 +21,9 @@ concurrency:
 jobs:
   cut:
     if: >-
-      startsWith(github.event.issue.title, 'vkminer:') &&
-      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)
+      github.event_name == 'workflow_dispatch' ||
+      (startsWith(github.event.issue.title, 'vkminer:') &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -35,8 +41,9 @@ jobs:
       - name: Knippen
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
+          REQUEST: ${{ inputs.request }}
         run: |
-          printf '%s' "$ISSUE_BODY" > /tmp/body.txt
+          if [ -n "$REQUEST" ]; then printf '%s' "$REQUEST" > /tmp/body.txt; else printf '%s' "$ISSUE_BODY" > /tmp/body.txt; fi
           python vkminer/tool/cuts.py /tmp/body.txt vkminer | tee /tmp/result.txt
 
       - name: Opslaan in de repo (Netlify publiceert automatisch)
@@ -50,7 +57,7 @@ jobs:
           git push
 
       - name: Issue afsluiten
-        if: always()
+        if: always() && github.event_name == 'issues'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
