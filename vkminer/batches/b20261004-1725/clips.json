@@ -1,0 +1,1761 @@
+{
+ "batch": {
+  "name": "b20261004-1725",
+  "preset": "scifi, science fiction",
+  "query": "mediatype:(audio OR movies) AND (scifi OR \"science fiction\")",
+  "whisper": "base.en",
+  "claude": false,
+  "created": "2026-10-04T17:39:02+00:00"
+ },
+ "clips": [
+  {
+   "id": "invisible-man-librivox-invisible-man-03-04--00645",
+   "file": "clips/invisible-man-librivox-invisible-man-03-04--00645.wav",
+   "text": "Mr. Cuss interviewed the stranger.",
+   "score": 7,
+   "ai": null,
+   "tags": [
+    "interview",
+    "strange"
+   ],
+   "start": 645.58,
+   "end": 649.25,
+   "t0": 645.93,
+   "t1": 647.75,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-03-04-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_03-04_wells-2_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_03-04_wells-2_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_03-04_wells-2_64kb.mp3#t=645.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-01-h-01403",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-01-h-01403.wav",
+   "text": "He raised a shaking hand toward the deathly alien landscape outside the town.",
+   "score": 6,
+   "ai": null,
+   "tags": [
+    "alien",
+    "death"
+   ],
+   "start": 1403.55,
+   "end": 1410.54,
+   "t0": 1403.9,
+   "t1": 1409.04,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-01-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_01_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3#t=1403.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-03-h-00049",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-03-h-00049.wav",
+   "text": "an alien sky, and the red light of it lay strangely on the familiar walls of brick. But",
+   "score": 6,
+   "ai": null,
+   "tags": [
+    "alien",
+    "strange",
+    "sky"
+   ],
+   "start": 49.42,
+   "end": 57.77,
+   "t0": 49.77,
+   "t1": 56.27,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-03-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_03_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_03_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_03_hamilton_64kb.mp3#t=49.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-03-wells-00084",
+   "file": "clips/timemachine-sjm-librivox-timemachine-03-wells-00084.wav",
+   "text": "I felt a nightmare sensation of falling, and looking around I saw the laboratory exactly",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "i saw",
+    "nightmare",
+    "night"
+   ],
+   "start": 83.72,
+   "end": 91.43,
+   "t0": 84.07,
+   "t1": 89.93,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-03-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_03_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3#t=83.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-03-wells-00835",
+   "file": "clips/timemachine-sjm-librivox-timemachine-03-wells-00835.wav",
+   "text": "to the little lawn upon which I stood with my machine. He was a slight creature, perhaps",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "creature",
+    "machine"
+   ],
+   "start": 834.72,
+   "end": 843.29,
+   "t0": 835.07,
+   "t1": 841.79,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-03-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_03_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3#t=834.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-02-h-00349",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-02-h-00349.wav",
+   "text": "words in his mind, remembering how the sun had looked and the stars and the sad alien",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "alien",
+    "stars",
+    "mind"
+   ],
+   "start": 348.94,
+   "end": 356.15,
+   "t0": 349.29,
+   "t1": 354.65,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-02-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_02_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_02_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_02_hamilton_64kb.mp3#t=348.9",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-03-h-00585",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-03-h-00585.wav",
+   "text": "are no radiation effects in the city, nothing at all to be afraid of.",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "radiation",
+    "afraid"
+   ],
+   "start": 585.47,
+   "end": 591.16,
+   "t0": 585.82,
+   "t1": 589.66,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-03-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_03_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_03_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_03_hamilton_64kb.mp3#t=585.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-03-h-00788",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-03-h-00788.wav",
+   "text": "A cold darkness clamped down upon the horizons.",
+   "score": 5,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "cold",
+    "dark"
+   ],
+   "start": 788.61,
+   "end": 793.4,
+   "t0": 788.96,
+   "t1": 791.9,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-03-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_03_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_03_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_03_hamilton_64kb.mp3#t=788.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "adventures-pinocchio-librivox-adventurespinocchio--00135",
+   "file": "clips/adventures-pinocchio-librivox-adventurespinocchio--00135.wav",
+   "text": "Prabhu, Polandina!\" cried the same tiny voice which came from no one knew where.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "no one",
+    "voice"
+   ],
+   "start": 134.76,
+   "end": 142.01,
+   "t0": 135.11,
+   "t1": 140.51,
+   "transcript": "transcripts/adventures-pinocchio-librivox-adventurespinocchio-.json",
+   "source_dl": "https://archive.org/download/adventures_pinocchio_librivox/adventurespinocchio_02_collodi_64kb.mp3",
+   "item": "adventures_pinocchio_librivox",
+   "title": "The Adventures of Pinocchio",
+   "source_file": "adventurespinocchio_02_collodi_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/adventures_pinocchio_librivox",
+   "source_url": "https://archive.org/download/adventures_pinocchio_librivox/adventurespinocchio_02_collodi_64kb.mp3#t=134.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-01-rand-64kb-00523",
+   "file": "clips/anthem-librivox-anthem-01-rand-64kb-00523.wav",
+   "text": "all justice, for they are the voice of all men, and if sometimes in the secret darkness",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark",
+    "voice"
+   ],
+   "start": 523.24,
+   "end": 531.03,
+   "t0": 523.59,
+   "t1": 529.53,
+   "transcript": "transcripts/anthem-librivox-anthem-01-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_01_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3#t=523.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-01-rand-64kb-01466",
+   "file": "clips/anthem-librivox-anthem-01-rand-64kb-01466.wav",
+   "text": "Then our eyes became used to the darkness, and we could not believe what we saw.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 1466.11,
+   "end": 1472.2,
+   "t0": 1466.46,
+   "t1": 1470.7,
+   "transcript": "transcripts/anthem-librivox-anthem-01-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_01_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3#t=1466.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-03-rand-64kb-00207",
+   "file": "clips/anthem-librivox-anthem-03-rand-64kb-00207.wav",
+   "text": "But we gathered all the things we found and we brought them to our workplace.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 206.9,
+   "end": 211.95,
+   "t0": 207.25,
+   "t1": 210.45,
+   "transcript": "transcripts/anthem-librivox-anthem-03-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_03_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_03_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_03_rand_64kb.mp3#t=206.9",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-03-04--01150",
+   "file": "clips/invisible-man-librivox-invisible-man-03-04--01150.wav",
+   "text": "had available. He told him of the interview he had just had.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "interview"
+   ],
+   "start": 1150.45,
+   "end": 1155.46,
+   "t0": 1150.8,
+   "t1": 1153.96,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-03-04-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_03-04_wells-2_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_03-04_wells-2_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_03-04_wells-2_64kb.mp3#t=1150.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-05-07--00095",
+   "file": "clips/invisible-man-librivox-invisible-man-05-07--00095.wav",
+   "text": "The hour was about four, and the ultimate darkness of the night was passed. There was a faint",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "night",
+    "dark"
+   ],
+   "start": 94.69,
+   "end": 101.6,
+   "t0": 95.04,
+   "t1": 100.1,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-05-07-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_05-07_wells_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3#t=94.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-05-07--00743",
+   "file": "clips/invisible-man-librivox-invisible-man-05-07--00743.wav",
+   "text": "Also that brief interview terminated.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "interview"
+   ],
+   "start": 742.7,
+   "end": 746.27,
+   "t0": 743.05,
+   "t1": 744.77,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-05-07-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_05-07_wells_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3#t=742.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-05-07--00790",
+   "file": "clips/invisible-man-librivox-invisible-man-05-07--00790.wav",
+   "text": "take his advice. No one ventured upstairs. How the stranger occupied himself is unknown.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "strange",
+    "no one"
+   ],
+   "start": 790.3,
+   "end": 798.05,
+   "t0": 790.65,
+   "t1": 796.55,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-05-07-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_05-07_wells_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3#t=790.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-05-07--01424",
+   "file": "clips/invisible-man-librivox-invisible-man-05-07--01424.wav",
+   "text": "It was the strangest thing in the world to hear that voice coming as if out of empty space.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "strange",
+    "voice"
+   ],
+   "start": 1424.52,
+   "end": 1430.57,
+   "t0": 1424.87,
+   "t1": 1429.07,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-05-07-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_05-07_wells_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3#t=1424.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-01-wells-00965",
+   "file": "clips/timemachine-sjm-librivox-timemachine-01-wells-00965.wav",
+   "text": "out, and the little machine suddenly swung round, became indistinct, was seen as a ghost",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "ghost",
+    "machine"
+   ],
+   "start": 964.74,
+   "end": 973.05,
+   "t0": 965.09,
+   "t1": 971.55,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-01-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_01_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3#t=964.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-01-wells-01247",
+   "file": "clips/timemachine-sjm-librivox-timemachine-01-wells-01247.wav",
+   "text": "that ghost you showed us last Christmas? Upon that machine, said the time-traveler,",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "ghost",
+    "machine"
+   ],
+   "start": 1246.7,
+   "end": 1254.85,
+   "t0": 1247.05,
+   "t1": 1253.35,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-01-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_01_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3#t=1246.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-02-wells-00696",
+   "file": "clips/timemachine-sjm-librivox-timemachine-02-wells-00696.wav",
+   "text": "\"'But the things of mere paradox,' said the editor.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 696.0,
+   "end": 701.07,
+   "t0": 696.35,
+   "t1": 699.57,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-02-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_02_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_02_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_02_wells_64kb.mp3#t=696.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-03-wells-00371",
+   "file": "clips/timemachine-sjm-librivox-timemachine-03-wells-00371.wav",
+   "text": "up in my mind, a certain curiosity, and therewith a certain dread, until, at last, they took complete",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "they took",
+    "mind"
+   ],
+   "start": 371.06,
+   "end": 381.39,
+   "t0": 371.41,
+   "t1": 379.89,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-03-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_03_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3#t=371.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-01-h-00248",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-01-h-00248.wav",
+   "text": "The air felt suddenly cold and strange.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "strange",
+    "cold"
+   ],
+   "start": 247.97,
+   "end": 251.92,
+   "t0": 248.32,
+   "t1": 250.42,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-01-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_01_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3#t=248.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-01-h-00471",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-01-h-00471.wav",
+   "text": "He laughed a little. I am a ghost, going to talk with other ghosts about our sudden deaths.",
+   "score": 4,
+   "ai": null,
+   "tags": [
+    "ghost",
+    "death"
+   ],
+   "start": 470.71,
+   "end": 479.88,
+   "t0": 471.06,
+   "t1": 478.38,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-01-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_01_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3#t=470.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-01-rand-64kb-00296",
+   "file": "clips/anthem-librivox-anthem-01-rand-64kb-00296.wav",
+   "text": "They whisper many strange things, of the towers which rose to the sky, in those unmentionable",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "strange",
+    "sky"
+   ],
+   "start": 295.82,
+   "end": 303.91,
+   "t0": 296.17,
+   "t1": 302.41,
+   "transcript": "transcripts/anthem-librivox-anthem-01-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_01_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3#t=295.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-01-rand-64kb-00648",
+   "file": "clips/anthem-librivox-anthem-01-rand-64kb-00648.wav",
+   "text": "We loved the science of things, and in the darkness, in the secret hour, when we awoke",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 648.02,
+   "end": 655.43,
+   "t0": 648.37,
+   "t1": 653.93,
+   "transcript": "transcripts/anthem-librivox-anthem-01-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_01_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3#t=648.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-01-rand-64kb-01261",
+   "file": "clips/anthem-librivox-anthem-01-rand-64kb-01261.wav",
+   "text": "not proper to smile without reason, and also they were not liked because they took pieces",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "they took"
+   ],
+   "start": 1260.65,
+   "end": 1267.9,
+   "t0": 1261.0,
+   "t1": 1266.4,
+   "transcript": "transcripts/anthem-librivox-anthem-01-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_01_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3#t=1260.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-01-rand-64kb-01406",
+   "file": "clips/anthem-librivox-anthem-01-rand-64kb-01406.wav",
+   "text": "iron rings as steps leading down a shaft into a darkness without bottom.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 1406.25,
+   "end": 1412.8,
+   "t0": 1406.6,
+   "t1": 1411.3,
+   "transcript": "transcripts/anthem-librivox-anthem-01-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_01_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3#t=1406.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-01-rand-64kb-01548",
+   "file": "clips/anthem-librivox-anthem-01-rand-64kb-01548.wav",
+   "text": "damned to touch the things of the immensional times, but our hand which",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 1548.25,
+   "end": 1554.1,
+   "t0": 1548.6,
+   "t1": 1552.6,
+   "transcript": "transcripts/anthem-librivox-anthem-01-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_01_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3#t=1548.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-01-rand-64kb-01702",
+   "file": "clips/anthem-librivox-anthem-01-rand-64kb-01702.wav",
+   "text": "we, Equality 72521, steal out and run through the darkness to our place.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 1702.08,
+   "end": 1710.43,
+   "t0": 1702.43,
+   "t1": 1708.93,
+   "transcript": "transcripts/anthem-librivox-anthem-01-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_01_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_01_rand_64kb.mp3#t=1702.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-02-rand-64kb-00600",
+   "file": "clips/anthem-librivox-anthem-02-rand-64kb-00600.wav",
+   "text": "golden one walked away from us. They took the bag of seeds and they threw the seeds",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "they took"
+   ],
+   "start": 600.58,
+   "end": 607.31,
+   "t0": 600.93,
+   "t1": 605.81,
+   "transcript": "transcripts/anthem-librivox-anthem-02-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_02_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_02_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_02_rand_64kb.mp3#t=600.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-02-rand-64kb-00904",
+   "file": "clips/anthem-librivox-anthem-02-rand-64kb-00904.wav",
+   "text": "under the ruins and all the things which perished.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 904.6,
+   "end": 909.63,
+   "t0": 904.95,
+   "t1": 908.13,
+   "transcript": "transcripts/anthem-librivox-anthem-02-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_02_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_02_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_02_rand_64kb.mp3#t=904.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-03-rand-64kb-00037",
+   "file": "clips/anthem-librivox-anthem-03-rand-64kb-00037.wav",
+   "text": "The Council of Scholars has said that we all know the things which exist, and therefore",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 37.16,
+   "end": 43.63,
+   "t0": 37.51,
+   "t1": 42.13,
+   "transcript": "transcripts/anthem-librivox-anthem-03-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_03_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_03_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_03_rand_64kb.mp3#t=37.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "anthem-librivox-anthem-03-rand-64kb-00042",
+   "file": "clips/anthem-librivox-anthem-03-rand-64kb-00042.wav",
+   "text": "all the things which are not known by all do not exist, but we think that the Council",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 41.78,
+   "end": 48.79,
+   "t0": 42.13,
+   "t1": 47.29,
+   "transcript": "transcripts/anthem-librivox-anthem-03-rand-64kb.json",
+   "source_dl": "https://archive.org/download/anthem_librivox/anthem_03_rand_64kb.mp3",
+   "item": "anthem_librivox",
+   "title": "Anthem",
+   "source_file": "anthem_03_rand_64kb.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/anthem_librivox",
+   "source_url": "https://archive.org/download/anthem_librivox/anthem_03_rand_64kb.mp3#t=41.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-01-02--00695",
+   "file": "clips/invisible-man-librivox-invisible-man-01-02--00695.wav",
+   "text": "it would seem he sat in the growing darkness, smoking in the firelight, perhaps dozing. Once",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 694.71,
+   "end": 703.54,
+   "t0": 695.06,
+   "t1": 702.04,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-01-02-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_01-02_wells_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_01-02_wells_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_01-02_wells_64kb.mp3#t=694.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-01-02--00779",
+   "file": "clips/invisible-man-librivox-invisible-man-01-02--00779.wav",
+   "text": "railway signals, but left his downcast face in darkness, and the scanty vestiges of the",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 779.14,
+   "end": 786.35,
+   "t0": 779.49,
+   "t1": 784.85,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-01-02-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_01-02_wells_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_01-02_wells_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_01-02_wells_64kb.mp3#t=779.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-01-02--01302",
+   "file": "clips/invisible-man-librivox-invisible-man-01-02--01302.wav",
+   "text": "When retiring for the night he instructed Mrs. Hall to look very closely at the strangest",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "strange",
+    "night"
+   ],
+   "start": 1302.44,
+   "end": 1308.83,
+   "t0": 1302.79,
+   "t1": 1307.33,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-01-02-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_01-02_wells_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_01-02_wells_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_01-02_wells_64kb.mp3#t=1302.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-01-02--01320",
+   "file": "clips/invisible-man-librivox-invisible-man-01-02--01320.wav",
+   "text": "strange sort of stranger, and she was by no means assured about him in her own mind.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "strange",
+    "mind"
+   ],
+   "start": 1320.58,
+   "end": 1327.39,
+   "t0": 1320.93,
+   "t1": 1325.89,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-01-02-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_01-02_wells_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_01-02_wells_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_01-02_wells_64kb.mp3#t=1320.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-03-04--00285",
+   "file": "clips/invisible-man-librivox-invisible-man-03-04--00285.wav",
+   "text": "\"'Come along,' cried an angry voice in the doorway, and there stood the muffled stranger",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "strange",
+    "voice"
+   ],
+   "start": 284.69,
+   "end": 290.28,
+   "t0": 285.04,
+   "t1": 288.78,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-03-04-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_03-04_wells-2_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_03-04_wells-2_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_03-04_wells-2_64kb.mp3#t=284.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-03-04--00780",
+   "file": "clips/invisible-man-librivox-invisible-man-03-04--00780.wav",
+   "text": "the penthouse of his hat, came with a disagreeable suddenness out of the darkness upon one or",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 779.75,
+   "end": 786.46,
+   "t0": 780.1,
+   "t1": 784.96,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-03-04-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_03-04_wells-2_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_03-04_wells-2_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_03-04_wells-2_64kb.mp3#t=779.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-05-07--00505",
+   "file": "clips/invisible-man-librivox-invisible-man-05-07--00505.wav",
+   "text": "the stranger's coat and trousers carelessly aside, and laughing dryly in a voice singularly",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "strange",
+    "voice"
+   ],
+   "start": 505.27,
+   "end": 512.0,
+   "t0": 505.62,
+   "t1": 510.5,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-05-07-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_05-07_wells_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3#t=505.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-05-07--00871",
+   "file": "clips/invisible-man-librivox-invisible-man-05-07--00871.wav",
+   "text": "And inside, in the artificial darkness of the parlor, into which only one thin jet of",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 871.06,
+   "end": 878.21,
+   "t0": 871.41,
+   "t1": 876.71,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-05-07-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_05-07_wells_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3#t=871.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "invisible-man-librivox-invisible-man-05-07--01588",
+   "file": "clips/invisible-man-librivox-invisible-man-05-07--01588.wav",
+   "text": "\"'Once he gets the things off.'",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 1587.99,
+   "end": 1591.68,
+   "t0": 1588.34,
+   "t1": 1590.18,
+   "transcript": "transcripts/invisible-man-librivox-invisible-man-05-07-.json",
+   "source_dl": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3",
+   "item": "invisible_man_librivox",
+   "title": "The Invisible Man",
+   "source_file": "invisible_man_05-07_wells_64kb.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/invisible_man_librivox",
+   "source_url": "https://archive.org/download/invisible_man_librivox/invisible_man_05-07_wells_64kb.mp3#t=1588.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-01-wells-00307",
+   "file": "clips/timemachine-sjm-librivox-timemachine-01-wells-00307.wav",
+   "text": "could master the perspective of the thing. See?",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 307.34,
+   "end": 311.71,
+   "t0": 307.69,
+   "t1": 310.21,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-01-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_01_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3#t=307.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-01-wells-00688",
+   "file": "clips/timemachine-sjm-librivox-timemachine-01-wells-00688.wav",
+   "text": "\"'The experiment,' cried Philby, who was getting brain-weary.\"",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "experiment",
+    "brain"
+   ],
+   "start": 688.3,
+   "end": 695.35,
+   "t0": 688.65,
+   "t1": 693.85,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-01-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_01_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3#t=688.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-01-wells-00734",
+   "file": "clips/timemachine-sjm-librivox-timemachine-01-wells-00734.wav",
+   "text": "anecdote collapsed. The thing the time-traver held in his hand was a glittering metallic",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 734.02,
+   "end": 741.39,
+   "t0": 734.37,
+   "t1": 739.89,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-01-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_01_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3#t=734.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-01-wells-00873",
+   "file": "clips/timemachine-sjm-librivox-timemachine-01-wells-00873.wav",
+   "text": "into the thing. It's beautifully made, he said.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 873.5,
+   "end": 879.17,
+   "t0": 873.85,
+   "t1": 877.67,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-01-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_01_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3#t=873.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-01-wells-00909",
+   "file": "clips/timemachine-sjm-librivox-timemachine-01-wells-00909.wav",
+   "text": "and disappear. Have a good look at the thing. Look at the table, too, and satisfy yourselves,",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 909.6,
+   "end": 917.79,
+   "t0": 909.95,
+   "t1": 916.29,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-01-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_01_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3#t=909.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-01-wells-01224",
+   "file": "clips/timemachine-sjm-librivox-timemachine-01-wells-01224.wav",
+   "text": "sawn out of rock crystal. The thing was generally complete, but the twisted crystalline bars lay",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 1224.58,
+   "end": 1233.07,
+   "t0": 1224.93,
+   "t1": 1231.57,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-01-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_01_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_01_wells_64kb.mp3#t=1224.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-03-wells-00041",
+   "file": "clips/timemachine-sjm-librivox-timemachine-03-wells-00041.wav",
+   "text": "inch too short, and this I had to get remade, so that the thing was not complete until this",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 41.5,
+   "end": 49.75,
+   "t0": 41.85,
+   "t1": 48.25,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-03-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_03_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3#t=41.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-03-wells-00159",
+   "file": "clips/timemachine-sjm-librivox-timemachine-03-wells-00159.wav",
+   "text": "strange, dumb confusedness descended on my mind.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "strange",
+    "mind"
+   ],
+   "start": 159.16,
+   "end": 164.31,
+   "t0": 159.51,
+   "t1": 162.81,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-03-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_03_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3#t=159.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-03-wells-00223",
+   "file": "clips/timemachine-sjm-librivox-timemachine-03-wells-00223.wav",
+   "text": "of darkness and light was excessively painful to the eye. Then, in the intermittent darknesses,",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 223.28,
+   "end": 231.61,
+   "t0": 223.63,
+   "t1": 230.11,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-03-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_03_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3#t=223.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-03-wells-00379",
+   "file": "clips/timemachine-sjm-librivox-timemachine-03-wells-00379.wav",
+   "text": "complete possession of me. What strange developments of humanity, what wonderful advances upon our",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "strange",
+    "human"
+   ],
+   "start": 379.54,
+   "end": 388.73,
+   "t0": 379.89,
+   "t1": 387.23,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-03-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_03_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3#t=379.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "timemachine-sjm-librivox-timemachine-03-wells-00520",
+   "file": "clips/timemachine-sjm-librivox-timemachine-03-wells-00520.wav",
+   "text": "the thing went reeling over, and I was flung headlong through the air. There was a sound",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 520.36,
+   "end": 527.49,
+   "t0": 520.71,
+   "t1": 525.99,
+   "transcript": "transcripts/timemachine-sjm-librivox-timemachine-03-wells.json",
+   "source_dl": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3",
+   "item": "timemachine_sjm_librivox",
+   "title": "The Time Machine (version 3)",
+   "source_file": "timemachine_03_wells_64kb.mp3",
+   "year": "2011",
+   "item_url": "https://archive.org/details/timemachine_sjm_librivox",
+   "source_url": "https://archive.org/download/timemachine_sjm_librivox/timemachine_03_wells_64kb.mp3#t=520.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-01-h-00381",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-01-h-00381.wav",
+   "text": "And then his voice trailed away to silence, as he followed Keniston's staring gaze and",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "silence",
+    "voice"
+   ],
+   "start": 381.31,
+   "end": 390.1,
+   "t0": 381.66,
+   "t1": 388.6,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-01-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_01_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3#t=381.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-01-h-00635",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-01-h-00635.wav",
+   "text": "The sun was a different sun, and the air was strange and cold.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "strange",
+    "cold"
+   ],
+   "start": 635.25,
+   "end": 642.9,
+   "t0": 635.6,
+   "t1": 641.4,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-01-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_01_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3#t=635.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-01-h-00744",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-01-h-00744.wav",
+   "text": "see them as faint, glimmering points all across the strangely dusky sky, even near the",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "strange",
+    "sky"
+   ],
+   "start": 743.77,
+   "end": 751.78,
+   "t0": 744.12,
+   "t1": 750.28,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-01-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_01_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3#t=743.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-01-h-00885",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-01-h-00885.wav",
+   "text": "has been silenced. Keniston, cold from what he had seen in Hubble's face, waited for",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "silence",
+    "cold"
+   ],
+   "start": 884.69,
+   "end": 894.03,
+   "t0": 885.04,
+   "t1": 892.53,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-01-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_01_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3#t=884.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-01-h-01168",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-01-h-01168.wav",
+   "text": "gone. And it was a completely different and utterly alien landscape that now stretched",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "alien"
+   ],
+   "start": 1167.71,
+   "end": 1175.52,
+   "t0": 1168.06,
+   "t1": 1174.02,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-01-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_01_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_01_hamilton_64kb.mp3#t=1167.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-02-h-00180",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-02-h-00180.wav",
+   "text": "the roar and click of the exchange and the ghostly confusion of voices, he heard the pounding",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "ghost",
+    "voice"
+   ],
+   "start": 180.4,
+   "end": 187.87,
+   "t0": 180.75,
+   "t1": 186.37,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-02-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_02_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_02_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_02_hamilton_64kb.mp3#t=180.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-02-h-00800",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-02-h-00800.wav",
+   "text": "Quietly, implacably, he pointed to the alien landscape around the town.",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "alien"
+   ],
+   "start": 799.8,
+   "end": 805.63,
+   "t0": 800.15,
+   "t1": 804.13,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-02-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_02_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_02_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_02_hamilton_64kb.mp3#t=799.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-02-h-00817",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-02-h-00817.wav",
+   "text": "might be shattered. His scientific points they could not understand. But those they took",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "they took"
+   ],
+   "start": 817.28,
+   "end": 825.75,
+   "t0": 817.63,
+   "t1": 824.25,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-02-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_02_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_02_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_02_hamilton_64kb.mp3#t=817.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-03-h-00043",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-03-h-00043.wav",
+   "text": "Quite literally he began to feel as though he were walking in a nightmare. Above him was",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "nightmare",
+    "night"
+   ],
+   "start": 43.2,
+   "end": 51.27,
+   "t0": 43.55,
+   "t1": 49.77,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-03-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_03_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_03_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_03_hamilton_64kb.mp3#t=43.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  },
+  {
+   "id": "city-worlds-end-1203-librivox-cityatworldsend-03-h-00687",
+   "file": "clips/city-worlds-end-1203-librivox-cityatworldsend-03-h-00687.wav",
+   "text": "this nightmare happened. The loneliness would all be over, and the rootless drifting from",
+   "score": 3,
+   "ai": null,
+   "tags": [
+    "nightmare",
+    "night"
+   ],
+   "start": 687.33,
+   "end": 695.1,
+   "t0": 687.68,
+   "t1": 693.6,
+   "transcript": "transcripts/city-worlds-end-1203-librivox-cityatworldsend-03-h.json",
+   "source_dl": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_03_hamilton_64kb.mp3",
+   "item": "city_worlds_end_1203_librivox",
+   "title": "The City at World's End",
+   "source_file": "cityatworldsend_03_hamilton_64kb.mp3",
+   "year": "2012",
+   "item_url": "https://archive.org/details/city_worlds_end_1203_librivox",
+   "source_url": "https://archive.org/download/city_worlds_end_1203_librivox/cityatworldsend_03_hamilton_64kb.mp3#t=687.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   }
+  }
+ ]
+}
