@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+import wave
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import quote
@@ -171,6 +172,76 @@ def transcribe(model, wav, language):
     return out, float(info.duration)
 
 
+def wav_duration(wav):
+    with wave.open(str(wav)) as w:
+        return w.getnframes() / float(w.getframerate())
+
+
+def transcribe_range(model, wav, a, b, language):
+    """Transcribeer alleen [a, b] seconden van wav; tijden blijven absoluut."""
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        part = tmp.name
+    try:
+        subprocess.run(
+            ["ffmpeg", "-nostdin", "-loglevel", "error", "-y", "-ss", f"{a:.3f}", "-t", f"{b - a:.3f}",
+             "-i", str(wav), "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", part],
+            check=True,
+        )
+        segs, _ = transcribe(model, part, language)
+    finally:
+        os.unlink(part)
+    return [{**x, "start": x["start"] + a, "end": x["end"] + a} for x in segs]
+
+
+def chunked(model, wav, total, cfg, start=0.0, stop=None):
+    """Loopt in blokken door de bron. stop(new_segs) -> True breekt af. Geeft (segs, tot_waar)."""
+    size = max(60.0, float(cfg.get("chunk_minutes", 10)) * 60)
+    segs, pos = [], start
+    while pos < total - 1:
+        end = min(total, pos + size)
+        new = transcribe_range(model, wav, pos, min(total, end + 5), cfg.get("language"))
+        # zinnen die na de blokgrens beginnen komen in het volgende blok terug
+        new = [x for x in new if end >= total or x["start"] < end]
+        segs += new
+        pos = max(end, new[-1]["end"]) if new else end
+        log(f"   {fmt_time(pos)} van {fmt_time(total)} uitgeschreven, {len(segs)} zinnen")
+        if stop and stop(new):
+            break
+    return segs, min(pos, total)
+
+
+def fmt_time(s):
+    s = int(s)
+    return f"{s // 3600}:{s // 60 % 60:02d}:{s % 60:02d}" if s >= 3600 else f"{s // 60}:{s % 60:02d}"
+
+
+def good_enough(c, cfg):
+    if c.get("ai") is not None:
+        return c["ai"] >= float(cfg.get("early_stop_ai", 7))
+    return c["score"] >= float(cfg.get("early_stop_score", 5))
+
+
+def best_clips(cands, n):
+    out, texts = [], set()
+    for c in sorted(cands, key=lambda c: -c["score"]):
+        if norm(c["text"]) in texts or any(c["start"] < f["end"] and f["start"] < c["end"] for f in out):
+            continue
+        out.append(c)
+        texts.add(norm(c["text"]))
+        if len(out) >= n:
+            break
+    return out
+
+
+def write_transcript(path, meta, segs, total, until, whisper):
+    path.parent.mkdir(exist_ok=True)
+    path.write_text(json.dumps({
+        **meta, "duration": round(total, 2), "whisper": whisper,
+        "analysed_until": round(until, 2), "partial": until < total - 1,
+        "segments": [[round(x["start"], 2), round(x["end"], 2), x["text"]] for x in segs],
+    }, ensure_ascii=False))
+
+
 def compile_keywords(cfg, extra=None):
     pats = [(4, t, re.compile(r"\b" + re.escape(t.lower()))) for t in (extra or [])]
     for weight, terms in (cfg.get("keywords") or {}).items():
@@ -189,43 +260,129 @@ def keyword_score(text, pats):
     return score, hits
 
 
-CLAUDE_PROMPT = """You pick spoken-word samples for an experimental electronic music project.
-Wanted: eerie, weird, wonderful lines from old horror/sci-fi films, radio plays and strange interviews
-(alien abduction, UFOs, the unexplained). A good sample works on its own, without plot context:
-evocative, mysterious, quotable, unsettling or strangely beautiful. Score low for mundane talk,
-plot exposition, character names, announcements and commercials. Score low for audiobook
-narration and flat readings of books or poems: we want the colour and atmosphere of film, radio and interviews.
+PROFILE = ROOT / "profile.md"  # bandprofiel: wie we zijn en wat we zoeken
+
+
+def load_profile(brief=""):
+    text = PROFILE.read_text().strip() if PROFILE.exists() else ""
+    if brief:
+        text += f"\n\nFor this batch specifically, the band is looking for:\n{brief}"
+    return text
+
+
+def claude_json(prompt, cfg, key, max_tokens=4000):
+    r = requests.post(
+        "https://api.anthropic.com/v1/messages",
+        headers={"x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
+        json={"model": cfg["claude_model"], "max_tokens": max_tokens,
+              "messages": [{"role": "user", "content": prompt}]},
+        timeout=120,
+    )
+    r.raise_for_status()
+    text = "".join(c.get("text", "") for c in r.json().get("content", []))
+    return json.loads(re.sub(r"```(?:json)?", "", text).strip())
+
+
+LINES_PROMPT = """You pick spoken-word samples for an experimental electronic music project.
+
+About the band and what they look for:
+{profile}
+
+A good sample works on its own, without plot context: evocative, mysterious, quotable, unsettling
+or strangely beautiful, and it fits the profile above. Score low for mundane talk, plot exposition,
+character names, announcements and commercials, and for audiobook narration or flat readings of books:
+we want the colour and atmosphere of film, radio and interviews.
+The source is: {source}
 
 Rate each numbered line 0-10. Reply with ONLY a JSON array, no prose:
-[{"i": <number>, "score": <0-10>, "tags": ["1-3 short lowercase tags"]}]
+[{{"i": <number>, "score": <0-10>, "tags": ["1-3 short lowercase tags"]}}]
 
 Lines:
 """
 
 
-def claude_scores(lines, model, key):
+def claude_scores(lines, cfg, key, source=""):
     """lines: list of str. Returns {index: (score, tags)}."""
     result = {}
+    head = LINES_PROMPT.format(profile=cfg.get("_profile") or "(no profile)", source=source or "unknown")
     for b in range(0, len(lines), 60):
-        chunk = lines[b:b + 60]
-        body = "\n".join(f"{b + i}: {t}" for i, t in enumerate(chunk))
+        body = "\n".join(f"{b + i}: {t}" for i, t in enumerate(lines[b:b + 60]))
         try:
-            r = requests.post(
-                "https://api.anthropic.com/v1/messages",
-                headers={"x-api-key": key, "anthropic-version": "2023-06-01",
-                         "content-type": "application/json"},
-                json={"model": model, "max_tokens": 4000,
-                      "messages": [{"role": "user", "content": CLAUDE_PROMPT + body}]},
-                timeout=120,
-            )
-            r.raise_for_status()
-            text = "".join(c.get("text", "") for c in r.json().get("content", []))
-            text = re.sub(r"```(?:json)?", "", text).strip()
-            for row in json.loads(text):
+            for row in claude_json(head + body, cfg, key):
                 result[int(row["i"])] = (float(row.get("score", 0)), list(row.get("tags", []))[:3])
         except Exception as e:  # scoring is best effort
             log(f"   Claude-scoring overgeslagen voor blok {b}: {e}")
     return result
+
+
+SOURCES_PROMPT = """You help an experimental electronic music project find recordings on the Internet Archive
+to harvest spoken-word samples from.
+
+About the band and what they look for:
+{profile}
+
+For each numbered source below (title, subjects, description), rate 0-10 how likely it contains spoken
+lines that fit. Prefer old films, radio plays and broadcasts, and interviews with real atmosphere.
+Rate low: audiobooks and book readings, music-only recordings, lectures without atmosphere, modern podcasts.
+Reply with ONLY a JSON array, no prose: [{{"i": <number>, "score": <0-10>}}]
+
+Sources:
+"""
+
+
+def source_text(h, desc_len=300):
+    title = " ".join(str(t) for t in as_list(h.get("title")))
+    subj = ", ".join(str(t) for t in as_list(h.get("subject")))[:150]
+    desc = re.sub(r"<[^>]+>|\s+", " ", " ".join(str(t) for t in as_list(h.get("description"))))[:desc_len]
+    return title, subj, desc
+
+
+def claude_rank_sources(pool, cfg, key):
+    """Returns {identifier: score 0-10}; best effort."""
+    out = {}
+    head = SOURCES_PROMPT.format(profile=cfg.get("_profile") or "(no profile)")
+    for b in range(0, len(pool), 40):
+        chunk = pool[b:b + 40]
+        body = "\n".join(f"{b + i}: {t} | subjects: {s} | {d}"
+                         for i, (t, s, d) in enumerate(source_text(h) for h in chunk))
+        try:
+            for row in claude_json(head + body, cfg, key, 2000):
+                i = int(row["i"])
+                if b <= i < b + len(chunk):
+                    out[pool[i]["identifier"]] = float(row.get("score", 0))
+        except Exception as e:
+            log(f"Claude-bronscore overgeslagen voor blok {b}: {e}")
+    return out
+
+
+TERMS_PROMPT = """You help an experimental electronic music project search the Internet Archive for
+recordings to harvest spoken-word samples from.
+
+About the band and what they look for:
+{profile}
+
+Suggest {n} short search terms (1-3 words, English) that will find fitting old films, radio shows,
+broadcasts and interviews on the Internet Archive. Mix obvious and less obvious angles. Avoid these,
+they were used recently: {recent}
+Reply with ONLY a JSON array of strings."""
+
+
+def claude_terms(cfg, key, n=15, recent=()):
+    try:
+        terms = claude_json(TERMS_PROMPT.format(profile=cfg.get("_profile") or "(no profile)", n=n,
+                                                recent=", ".join(recent) or "none"), cfg, key, 500)
+        return [str(t).strip() for t in terms if str(t).strip()][:n]
+    except Exception as e:
+        log(f"Claude-zoektermen overgeslagen: {e}")
+        return []
+
+
+def theme_score(h, pats):
+    """Trefwoorden in titel tellen dubbel, onderwerp en omschrijving enkel (max 6)."""
+    title, subj, desc = source_text(h, 2000)
+    t, _ = keyword_score(title, pats)
+    r, _ = keyword_score(f"{subj} {desc}", pats)
+    return 2 * t + min(6, r)
 
 
 def norm(text):
@@ -283,7 +440,7 @@ def select_clips(segs, cfg, pats, api_key, per_file, seen=None):
 
     use_claude = bool(api_key) and cands
     if use_claude:
-        scores = claude_scores([c["text"] for c in cands], cfg["claude_model"], api_key)
+        scores = claude_scores([c["text"] for c in cands], cfg, api_key, cfg.get("_source", ""))
         for i, c in enumerate(cands):
             c["ai"], c["tags"] = scores.get(i, (None, []))
     picked = []
@@ -381,6 +538,7 @@ def main():
     ap.add_argument("--whisper", default="base.en")
     ap.add_argument("--pd-only", action="store_true")
     ap.add_argument("--types", default="", help="film, radio, interview; leeg = alles")
+    ap.add_argument("--brief", default="", help="vrije omschrijving van wat je zoekt (met Claude)")
     ap.add_argument("--per-source", type=int, default=None, help="clips per bron; leeg = config")
     ap.add_argument("--batch", default=datetime.now(timezone.utc).strftime("b%Y%m%d-%H%M"))
     ap.add_argument("--out", required=True, help="map voor deze batch")
@@ -399,13 +557,25 @@ def main():
             args.whisper = req["whisper"]
         args.pd_only = bool(req.get("pd_only", True))
         args.types = split_list(req.get("types", []))
+        args.brief = str(req.get("brief") or "").strip()[:600]
         if req.get("per_source") not in (None, ""):
             args.per_source = max(1, min(5, int(req["per_source"])))
 
     cfg = yaml.safe_load((ROOT / "config.yaml").read_text())
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    cfg["_profile"] = load_profile(args.brief)
     user_terms = split_list(args.terms)[:40]
-    terms = user_terms or split_list(cfg.get("search", {}).get("terms", []))
     extra_kw = split_list(args.keywords)[:40]
+    auto_terms = []
+    if not user_terms and api_key and cfg.get("auto_terms", True):
+        recent = [t for b in (json.loads(Path(args.batches_index).read_text())
+                              if Path(args.batches_index).exists() else [])[:5]
+                  for t in b.get("terms", [])]
+        auto_terms = claude_terms(cfg, api_key, int(cfg.get("auto_terms_count", 15)), recent)
+        if auto_terms:
+            log(f"Zoektermen van Claude: {', '.join(auto_terms)}")
+    terms = user_terms or auto_terms or split_list(cfg.get("search", {}).get("terms", []))
+    args.used_terms = terms
     if isinstance(args.types, str):
         args.types = split_list(args.types)
     type_cfg = cfg.get("types") or {}
@@ -413,12 +583,15 @@ def main():
     type_label = ", ".join(type_cfg[t].get("label", t) for t in types)
     if user_terms:
         args.label = ", ".join(user_terms[:3]) + ("…" if len(user_terms) > 3 else "")
+    elif args.brief and api_key:
+        args.label = args.brief[:40] + ("…" if len(args.brief) > 40 else "")
+    elif auto_terms:
+        args.label = "Bandprofiel"
     else:
         args.label = type_label or "standaardlijst"
     query = build_query(cfg, terms, types)
     pats = compile_keywords(cfg, extra_kw)
     seen = Seen(SEEN)
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
 
     out = Path(args.out)
     clips_dir = out / "clips"
@@ -442,7 +615,7 @@ def main():
 
     log(f"Query: {query}")
     per_source = args.per_source or max(1, int((cfg.get("sources") or {}).get("per_source", 1)))
-    results = ia.search_items(query, fields=["identifier", "title", "collection", "subject"],
+    results = ia.search_items(query, fields=["identifier", "title", "collection", "subject", "description"],
                               sorts=["downloads desc"])
     def fresh(hits, limit=3000):
         """Nieuwe bronnen; slaat eerder bekeken items en titels over."""
@@ -458,7 +631,22 @@ def main():
     if skip_polled:
         log(f"{len(polled_items)} bronnen al eerder bekeken, die worden overgeslagen")
     order = {"prefer": 0, "neutral": 1, "avoid": 2}
-    pool.sort(key=lambda h: order[source_kind(h, cfg)])  # stabiel: binnen een groep blijft populair eerst
+    # Thema: trefwoorden en zoekwoorden in titel, onderwerp en omschrijving
+    theme_pats = compile_keywords(cfg, extra_kw + list(terms))
+    theme = {h["identifier"]: theme_score(h, theme_pats) for h in pool}
+    ai_src = {}
+    if api_key and pool:
+        log("Bronnen laten beoordelen door Claude op titel en omschrijving")
+        # eerst grof op thema, zodat Claude de meest kansrijke bronnen ziet
+        pool.sort(key=lambda h: (order[source_kind(h, cfg)], -theme[h["identifier"]]))
+        ai_src = claude_rank_sources(pool[:int(cfg.get("claude_source_pool", 120))], cfg, api_key)
+        low = float(cfg.get("claude_source_min", 3))
+        dropped = [h for h in pool if ai_src.get(h["identifier"], 10) < low]
+        if dropped:
+            log(f"{len(dropped)} bronnen afgewezen op titel/omschrijving")
+            pool = [h for h in pool if ai_src.get(h["identifier"], 10) >= low]
+    rank = lambda h: theme[h["identifier"]] + 2 * ai_src.get(h["identifier"], 0)
+    pool.sort(key=lambda h: (order[source_kind(h, cfg)], -rank(h)))  # stabiel: gelijk blijft populair eerst
     counts = {k: sum(1 for h in pool if source_kind(h, cfg) == k) for k in order}
     log(f"{len(pool)} bronnen gevonden: {counts['prefer']} film/radio/interview, "
         f"{counts['neutral']} overig, {counts['avoid']} luisterboek (achteraan)")
@@ -488,6 +676,7 @@ def main():
             log(f"- {ident}: zelfde titel als eerdere bron, overgeslagen")
             continue
         kind = source_kind(md, cfg)
+        cfg["_source"] = " | ".join(source_text({**md, "title": title}, 300)[::2])
         adjust = kind_adjust(kind, cfg)
         tried += 1
         log(f"[{items_done + 1}/{args.max_items}] {title} ({lic['status']}, {kind})")
@@ -500,18 +689,25 @@ def main():
             try:
                 log(f"   {name}: downloaden")
                 fetch_to_wav(url, wav)
-                log("   transcriberen")
-                segs, total = transcribe(model, wav, cfg.get("language"))
-                picked = select_clips(segs, cfg, pats, api_key, per_source - found, seen)
-                log(f"   {len(segs)} zinnen, {len(picked)} clips")
+                total = wav_duration(wav)
+                need = per_source - found
+                cands = []
+                early = bool(cfg.get("early_stop", True))
+
+                def enough(new):
+                    cands.extend(select_clips(new, cfg, pats, api_key, need * 3, seen))
+                    return early and sum(1 for c in cands if good_enough(c, cfg)) >= need
+
+                log(f"   transcriberen ({fmt_time(total)})")
+                segs, until = chunked(model, wav, total, cfg, stop=enough)
+                picked = best_clips(cands, need)
+                log(f"   {len(segs)} zinnen, {len(picked)} clips"
+                    + (f", gestopt na {fmt_time(until)}" if until < total - 1 else ""))
                 tkey = f"{slug(ident)}-{slug(Path(name).stem, 20)}"
                 if picked:
-                    (out / "transcripts").mkdir(exist_ok=True)
-                    (out / "transcripts" / f"{tkey}.json").write_text(json.dumps({
-                        "item": ident, "file": name, "title": title, "url": url,
-                        "duration": round(total, 2),
-                        "segments": [[round(x["start"], 2), round(x["end"], 2), x["text"]] for x in segs],
-                    }, ensure_ascii=False))
+                    write_transcript(out / "transcripts" / f"{tkey}.json",
+                                     {"item": ident, "file": name, "title": title, "url": url},
+                                     segs, total, until, args.whisper)
                 for c in picked:
                     seen.add(c["text"])
                     c["score"] = round(c["score"] + adjust, 1)
@@ -530,7 +726,7 @@ def main():
                         "year": " ".join(as_list(md.get("year") or md.get("date")))[:10],
                         "item_url": f"https://archive.org/details/{ident}",
                         "source_url": f"{url}#t={a:.1f}",
-                        "license": lic, "kind": kind,
+                        "license": lic, "kind": kind, "theme": rank(hit),
                     })
                 found += len(picked)
             except Exception as e:
@@ -558,6 +754,7 @@ def main():
     batches = json.loads(idx.read_text()) if idx.exists() else []
     batches = [b for b in batches if b.get("name") != args.batch]
     batches.insert(0, {"name": args.batch, "preset": args.label, "count": len(clips),
+                       "terms": args.used_terms[:20], "brief": args.brief,
                        "created": datetime.now(timezone.utc).isoformat(timespec="seconds")})
     idx.write_text(json.dumps(batches, ensure_ascii=False, indent=1))
     log(f"Klaar: {len(clips)} clips uit {items_done} items -> {out}")

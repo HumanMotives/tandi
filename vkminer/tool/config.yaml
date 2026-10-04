@@ -63,8 +63,17 @@ max_clip: 14          # seconden
 pad_start: 0.35       # marge voor elke knip (seconden)
 pad_end: 1.5          # marge na elke knip, zodat het laatste woord niet wordt afgekapt
 max_minutes: 120      # langere bestanden overslaan
+early_stop: true      # stoppen met uitschrijven zodra er een goede zin is (sneller)
+chunk_minutes: 10     # per blok uitschrijven
+early_stop_score: 5   # 'goed genoeg' zonder Claude (trefwoordscore)
+early_stop_ai: 7      # 'goed genoeg' met Claude (0-10)
 claude_model: claude-haiku-4-5-20251001
 claude_min_score: 6   # 0-10, alleen als ANTHROPIC_API_KEY is ingesteld
+# Met Claude (ANTHROPIC_API_KEY): bandprofiel staat in tool/profile.md
+auto_terms: true          # geen zoekwoorden ingevuld? Claude bedenkt ze vanuit het profiel
+auto_terms_count: 15
+claude_source_pool: 120   # zoveel bronnen laat hij vooraf beoordelen op titel/omschrijving
+claude_source_min: 3      # bronnen onder deze score (0-10) worden niet gedownload
 keyword_min_score: 3  # drempel als Claude niet meedoet
 
 # TREFWOORDEN: welke zinnen worden geknipt? Hoger getal = zwaarder.
