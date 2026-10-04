@@ -1,0 +1,448 @@
+{
+ "batch": {
+  "name": "b20261004-2110",
+  "preset": "Alternate reality, fringe science, folklore…",
+  "query": "mediatype:(audio OR movies) AND (\"Alternate reality\" OR \"fringe science\" OR folklore OR \"other dimensions\") AND ((collection:(feature_films OR prelinger OR scifi_horror OR film_noir OR classic_tv OR classic_cartoons OR movie_trailers) OR subject:(film OR movie OR \"feature film\" OR trailer OR newsreel OR \"b-movie\") OR title:(film OR movie OR \"feature film\" OR trailer OR newsreel OR \"b-movie\")) OR (collection:(oldtimeradio OR otrr OR radioprograms OR old_time_radio) OR subject:(radio OR \"old time radio\" OR otr OR \"radio drama\" OR \"radio play\" OR broadcast) OR title:(radio OR \"old time radio\" OR otr OR \"radio drama\" OR \"radio play\" OR broadcast)) OR (subject:(interview OR interviews OR testimony OR eyewitness OR conversation OR \"talk show\") OR title:(interview OR interviews OR testimony OR eyewitness OR conversation OR \"talk show\")))",
+  "whisper": "base.en",
+  "claude": false,
+  "pad": [
+   0.35,
+   1.5
+  ],
+  "created": "2026-10-04T23:15:04+00:00"
+ },
+ "clips": [
+  {
+   "id": "cafeenigmastringintroduction1-13-cafeenigmaradiosh-03504",
+   "text": "No one stay away from the things that trigger your asthma.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "the thing",
+    "no one"
+   ],
+   "start": 3503.74,
+   "end": 3508.09,
+   "t0": 3504.09,
+   "t1": 3506.59,
+   "transcript": "transcripts/cafeenigmastringintroduction1-13-cafeenigmaradiosh.json",
+   "source_dl": "https://archive.org/download/CafeEnigmaStringIntroduction1/13_cafeEnigmaRadioShow-ameliaEarhart_markMikeDianeBlaze.ogg",
+   "item": "CafeEnigmaStringIntroduction1",
+   "title": "Cafe Enigma Radio Shows",
+   "source_file": "13_cafeEnigmaRadioShow-ameliaEarhart_markMikeDianeBlaze.ogg",
+   "year": "",
+   "item_url": "https://archive.org/details/CafeEnigmaStringIntroduction1",
+   "source_url": "https://archive.org/download/CafeEnigmaStringIntroduction1/13_cafeEnigmaRadioShow-ameliaEarhart_markMikeDianeBlaze.ogg#t=3503.7",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nd/3.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "sirius-from-dr-steven-greer-original-ful-sirius-from-dr-steve-05293",
+   "text": "When we physicists look for alien civilizations, we don't look for little green men.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "alien",
+    "don't look"
+   ],
+   "start": 5292.99,
+   "end": 5301.8,
+   "t0": 5293.34,
+   "t1": 5300.3,
+   "transcript": "transcripts/sirius-from-dr-steven-greer-original-ful-sirius-from-dr-steve.json",
+   "source_dl": "https://archive.org/download/sirius-from-dr.-steven-greer-original-full-length-documentary/SIRIUS_%2Bfrom%2BDr.%2BSteven%2BGreer%2B-%2BOriginal%2BFull-Length%2BDocumentary%2BFilm%2B%28FREE%21%29.mp4",
+   "item": "sirius-from-dr.-steven-greer-original-full-length-documentary",
+   "title": "SIRIUS: from Dr. Steven Greer - Original Full-Length Documentary Film",
+   "source_file": "SIRIUS_+from+Dr.+Steven+Greer+-+Original+Full-Length+Documentary+Film+(FREE!).mp4",
+   "year": "2021-09-20",
+   "item_url": "https://archive.org/details/sirius-from-dr.-steven-greer-original-full-length-documentary",
+   "source_url": "https://archive.org/download/sirius-from-dr.-steven-greer-original-full-length-documentary/SIRIUS_%2Bfrom%2BDr.%2BSteven%2BGreer%2B-%2BOriginal%2BFull-Length%2BDocumentary%2BFilm%2B%28FREE%21%29.mp4#t=5293.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 5
+  },
+  {
+   "id": "spiritsgodsghostsep7-spiritsgodsghostsep7-00995",
+   "text": "It was also believed that all creatures, including humans, were children of the Kami.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "creature",
+    "human"
+   ],
+   "start": 995.33,
+   "end": 1001.82,
+   "t0": 995.68,
+   "t1": 1000.32,
+   "transcript": "transcripts/spiritsgodsghostsep7-spiritsgodsghostsep7.json",
+   "source_dl": "https://archive.org/download/spiritsgodsghostsep7/spiritsgodsghostsep7.mp3",
+   "item": "spiritsgodsghostsep7",
+   "title": "Spirits, Gods and Ghosts of East Asia, Episode Seven",
+   "source_file": "spiritsgodsghostsep7.mp3",
+   "year": "2017-02-07",
+   "item_url": "https://archive.org/details/spiritsgodsghostsep7",
+   "source_url": "https://archive.org/download/spiritsgodsghostsep7/spiritsgodsghostsep7.mp3#t=995.3",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nd/3.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 10
+  },
+  {
+   "id": "dreagusproductionsradioprograms-censorshipsucks-roun-04023",
+   "text": "That's that's that's the thing Josh silence is violence, right?",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "the thing",
+    "silence"
+   ],
+   "start": 4022.91,
+   "end": 4028.3,
+   "t0": 4023.26,
+   "t1": 4026.8,
+   "transcript": "transcripts/dreagusproductionsradioprograms-censorshipsucks-roun.json",
+   "source_dl": "https://archive.org/download/DreagusProductionsRadioPrograms/%20CENSORSHIPSUCKS%20ROUND%20TABLE%20RADIO%20SHOW-16%20SEPT%2020.mp3",
+   "item": "DreagusProductionsRadioPrograms",
+   "title": "DREAGUS PRODUCTIONS RADIO PROGRAMS",
+   "source_file": " CENSORSHIPSUCKS ROUND TABLE RADIO SHOW-16 SEPT 20.mp3",
+   "year": "2008",
+   "item_url": "https://archive.org/details/DreagusProductionsRadioPrograms",
+   "source_url": "https://archive.org/download/DreagusProductionsRadioPrograms/%20CENSORSHIPSUCKS%20ROUND%20TABLE%20RADIO%20SHOW-16%20SEPT%2020.mp3#t=4022.9",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nd/4.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "croatto-la-huella-de-un-emigrante-croatto-la-huella-de-04365",
+   "text": "I saw the thing.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "the thing",
+    "i saw"
+   ],
+   "start": 4365.63,
+   "end": 4369.1,
+   "t0": 4365.98,
+   "t1": 4367.6,
+   "transcript": "transcripts/croatto-la-huella-de-un-emigrante-croatto-la-huella-de.json",
+   "source_dl": "https://archive.org/download/croatto-la-huella-de-un-emigrante/Croatto%20-%20La%20huella%20de%20un%20Emigrante.mp4",
+   "item": "croatto-la-huella-de-un-emigrante",
+   "title": "Croatto La Huella De Un Emigrante",
+   "source_file": "Croatto - La huella de un Emigrante.mp4",
+   "year": "2016-11-10",
+   "item_url": "https://archive.org/details/croatto-la-huella-de-un-emigrante",
+   "source_url": "https://archive.org/download/croatto-la-huella-de-un-emigrante/Croatto%20-%20La%20huella%20de%20un%20Emigrante.mp4#t=4365.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/zero/1.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 5
+  },
+  {
+   "id": "worldsgreatestdetectivethecuriouscaseoft-wgd102a-thecuriousca-00667",
+   "text": "Never mind. I saw you eyeing that revolver. That's actually my favorite piece in the entire museum.",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "i saw",
+    "mind"
+   ],
+   "start": 667.49,
+   "end": 676.94,
+   "t0": 667.84,
+   "t1": 675.44,
+   "transcript": "transcripts/worldsgreatestdetectivethecuriouscaseoft-wgd102a-thecuriousca.json",
+   "source_dl": "https://archive.org/download/WorldsGreatestDetectivetheCuriousCaseOfTheGentlemanGhost/WGD102a-TheCuriousCaseoftheGentlemanGhostEpisodeOne.mp3",
+   "item": "WorldsGreatestDetectivetheCuriousCaseOfTheGentlemanGhost",
+   "title": "World's Greatest Detective: \"The Curious Case of the Gentleman Ghost\"",
+   "source_file": "WGD102a-TheCuriousCaseoftheGentlemanGhostEpisodeOne.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/WorldsGreatestDetectivetheCuriousCaseOfTheGentlemanGhost",
+   "source_url": "https://archive.org/download/WorldsGreatestDetectivetheCuriousCaseOfTheGentlemanGhost/WGD102a-TheCuriousCaseoftheGentlemanGhostEpisodeOne.mp3#t=667.5",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/4.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 10
+  },
+  {
+   "id": "dicklawrencereview-perpetualmotionmachin-dicklawrencereview-p-01524",
+   "text": "to kill him, and thus silence his aggravating claims forever becomes one of the strongest",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "silence",
+    "forever"
+   ],
+   "start": 1524.2,
+   "end": 1530.69,
+   "t0": 1524.55,
+   "t1": 1529.19,
+   "transcript": "transcripts/dicklawrencereview-perpetualmotionmachin-dicklawrencereview-p.json",
+   "source_dl": "https://archive.org/download/DickLawrenceReview-PerpetualMotionMachine/DickLawrenceReview-PerpetualMotionMachine.mp3",
+   "item": "DickLawrenceReview-PerpetualMotionMachine",
+   "title": "Dick Lawrence Review  - Perpetual Motion Machine",
+   "source_file": "DickLawrenceReview-PerpetualMotionMachine.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/DickLawrenceReview-PerpetualMotionMachine",
+   "source_url": "https://archive.org/download/DickLawrenceReview-PerpetualMotionMachine/DickLawrenceReview-PerpetualMotionMachine.mp3#t=1524.2",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 8
+  },
+  {
+   "id": "01-track-1-20211027-01-track-1-00093",
+   "text": "special. This time out it's the creatures of the night from such wondrous",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "creature",
+    "night"
+   ],
+   "start": 93.11,
+   "end": 100.72,
+   "t0": 93.46,
+   "t1": 99.22,
+   "transcript": "transcripts/01-track-1-20211027-01-track-1.json",
+   "source_dl": "https://archive.org/download/01-track-1_20211027/01%20Track%201.mp3",
+   "item": "01-track-1_20211027",
+   "title": "God Rock Radio #237-Vampires of Asia -Part 2",
+   "source_file": "01 Track 1.mp3",
+   "year": "2021",
+   "item_url": "https://archive.org/details/01-track-1_20211027",
+   "source_url": "https://archive.org/download/01-track-1_20211027/01%20Track%201.mp3#t=93.1",
+   "license": {
+    "status": "cc",
+    "url": "https://creativecommons.org/licenses/by-nd/4.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "onsug-radio-308-overnightscape-central-8-308-03-central-fac-00916",
+   "text": "There is Matt Howarth. Children of the night and dreams, nightmares, bedside",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "nightmare",
+    "night",
+    "dream"
+   ],
+   "start": 915.79,
+   "end": 923.6,
+   "t0": 916.14,
+   "t1": 922.1,
+   "transcript": "transcripts/onsug-radio-308-overnightscape-central-8-308-03-central-fac.json",
+   "source_dl": "https://archive.org/download/Onsug_Radio_308-Overnightscape_Central_8/308-03-Central_Fac.mp3",
+   "item": "Onsug_Radio_308-Overnightscape_Central_8",
+   "title": "Onsug Radio 308 - Overnightscape Central 8",
+   "source_file": "308-03-Central_Fac.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/Onsug_Radio_308-Overnightscape_Central_8",
+   "source_url": "https://archive.org/download/Onsug_Radio_308-Overnightscape_Central_8/308-03-Central_Fac.mp3#t=915.8",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 5
+  },
+  {
+   "id": "christopher-lee-ghosts-a-journey-into-th-christopher-lee-ghos-00410",
+   "text": "something which is material but a ghost may be male, female, animal, human, big,",
+   "score": 5.0,
+   "ai": null,
+   "tags": [
+    "ghost",
+    "human"
+   ],
+   "start": 410.03,
+   "end": 417.98,
+   "t0": 410.38,
+   "t1": 416.48,
+   "transcript": "transcripts/christopher-lee-ghosts-a-journey-into-th-christopher-lee-ghos.json",
+   "source_dl": "https://archive.org/download/christopher-lee-ghosts-a-journey-into-the-paranormal-1991-full-paranormal-vhs-documentary-hd/Christopher%20Lee_%20%27Ghosts%21_%20A%20Journey%20Into%20The%20Paranormal%27%20%281991%29%20Full%20Paranormal%20VHS%20Documentary%20HD.ia.mp4",
+   "item": "christopher-lee-ghosts-a-journey-into-the-paranormal-1991-full-paranormal-vhs-documentary-hd",
+   "title": "Christopher Lee ' Ghosts! A Journey Into The Paranormal' ( 1991) Full Paranormal VHS Documentary HD",
+   "source_file": "Christopher Lee_ 'Ghosts!_ A Journey Into The Paranormal' (1991) Full Paranormal VHS Documentary HD.ia.mp4",
+   "year": "1991",
+   "item_url": "https://archive.org/details/christopher-lee-ghosts-a-journey-into-the-paranormal-1991-full-paranormal-vhs-documentary-hd",
+   "source_url": "https://archive.org/download/christopher-lee-ghosts-a-journey-into-the-paranormal-1991-full-paranormal-vhs-documentary-hd/Christopher%20Lee_%20%27Ghosts%21_%20A%20Journey%20Into%20The%20Paranormal%27%20%281991%29%20Full%20Paranormal%20VHS%20Documentary%20HD.ia.mp4#t=410.0",
+   "license": {
+    "status": "public-domain",
+    "url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 10
+  },
+  {
+   "id": "telstar-a-mix-tape-telstar-a-mix-tape-03320",
+   "text": "What dealing was something totally alien?",
+   "score": 5.0,
+   "ai": null,
+   "tags": [
+    "alien"
+   ],
+   "start": 3319.86,
+   "end": 3323.21,
+   "t0": 3320.21,
+   "t1": 3321.71,
+   "transcript": "transcripts/telstar-a-mix-tape-telstar-a-mix-tape.json",
+   "source_dl": "https://archive.org/download/telstar-a-mix-tape/Telstar%20A%20Mix%20Tape.mp3",
+   "item": "telstar-a-mix-tape",
+   "title": "Telstar A Mix Tape",
+   "source_file": "Telstar A Mix Tape.mp3",
+   "year": "2020",
+   "item_url": "https://archive.org/details/telstar-a-mix-tape",
+   "source_url": "https://archive.org/download/telstar-a-mix-tape/Telstar%20A%20Mix%20Tape.mp3#t=3319.9",
+   "license": {
+    "status": "cc",
+    "url": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "a-venom-mob-festival-chang-cheh-and-john-0-venom-mob-trailers-00061",
+   "text": "speed and ruthless power, as ferocious and deadly as the venomous creatures from which",
+   "score": 5.0,
+   "ai": null,
+   "tags": [
+    "creature"
+   ],
+   "start": 61.6,
+   "end": 68.33,
+   "t0": 61.95,
+   "t1": 66.83,
+   "transcript": "transcripts/a-venom-mob-festival-chang-cheh-and-john-0-venom-mob-trailers.json",
+   "source_dl": "https://archive.org/download/a-venom-mob-festival-chang-cheh-and-john-woo/0.%20Venom%20Mob%20Trailers.ia.mp4",
+   "item": "a-venom-mob-festival-chang-cheh-and-john-woo",
+   "title": "A Venom Mob Festival! [with Five Deadly Venoms (DVDrip & VHSrip Remastered & not Remastered), Return Of The Five Deadly Venoms aka Crippled Avengers, Nine Demons aka Nine Venoms, & Last Hurrah For Chivalry.]",
+   "source_file": "0. Venom Mob Trailers.ia.mp4",
+   "year": "2026",
+   "item_url": "https://archive.org/details/a-venom-mob-festival-chang-cheh-and-john-woo",
+   "source_url": "https://archive.org/download/a-venom-mob-festival-chang-cheh-and-john-woo/0.%20Venom%20Mob%20Trailers.ia.mp4#t=61.6",
+   "license": {
+    "status": "cc",
+    "url": "https://creativecommons.org/licenses/by/4.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "globoscopio-radio-shows-globoscopio08182006--02382",
+   "text": "And we'll do all of the things in the description in description.",
+   "score": 5.0,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 2382.11,
+   "end": 2389.04,
+   "t0": 2382.46,
+   "t1": 2387.54,
+   "transcript": "transcripts/globoscopio-radio-shows-globoscopio08182006-.json",
+   "source_dl": "https://archive.org/download/Globoscopio_Radio_Shows/Globoscopio08182006_64kb.mp3",
+   "item": "Globoscopio_Radio_Shows",
+   "title": "Globoscopio Radio Show",
+   "source_file": "Globoscopio08182006_64kb.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/Globoscopio_Radio_Shows",
+   "source_url": "https://archive.org/download/Globoscopio_Radio_Shows/Globoscopio08182006_64kb.mp3#t=2382.1",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "01track1-201906-02-track-2-00732",
+   "text": "financed propaganda machine, they produce only socialist, mindist, realist films.",
+   "score": 5.0,
+   "ai": null,
+   "tags": [
+    "machine",
+    "mind"
+   ],
+   "start": 732.35,
+   "end": 740.1,
+   "t0": 732.7,
+   "t1": 738.6,
+   "transcript": "transcripts/01track1-201906-02-track-2.json",
+   "source_dl": "https://archive.org/download/01Track1_201906/02%20Track%202.mp3",
+   "item": "01Track1_201906",
+   "title": "God Rock Radio #202 - Hong Kong Horror Films  Part 1 (1954-1974) ",
+   "source_file": "02 Track 2.mp3",
+   "year": "2019-06-15",
+   "item_url": "https://archive.org/details/01Track1_201906",
+   "source_url": "https://archive.org/download/01Track1_201906/02%20Track%202.mp3#t=732.4",
+   "license": {
+    "status": "cc",
+    "url": "https://creativecommons.org/licenses/by-nd/4.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "origin2011stateoforigingame3previewwiths-not-the-footy-show-2-01028",
+   "text": "but one of the things that highlights for me is yet again,",
+   "score": 5.0,
+   "ai": null,
+   "tags": [
+    "the thing"
+   ],
+   "start": 1028.59,
+   "end": 1033.28,
+   "t0": 1028.94,
+   "t1": 1031.78,
+   "transcript": "transcripts/origin2011stateoforigingame3previewwiths-not-the-footy-show-2.json",
+   "source_dl": "https://archive.org/download/Origin2011StateOfOriginGame3PreviewWithSteveMascord-NotTheFooty/NOT_The_Footy_Show_2011_Episode_71_05072011.mp3",
+   "item": "Origin2011StateOfOriginGame3PreviewWithSteveMascord-NotTheFooty",
+   "title": "Origin 2011: State of Origin Game 3 Preview with Steve Mascord - NOT The Footy Show Episode 71 05/07/2011",
+   "source_file": "NOT_The_Footy_Show_2011_Episode_71_05072011.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/Origin2011StateOfOriginGame3PreviewWithSteveMascord-NotTheFooty",
+   "source_url": "https://archive.org/download/Origin2011StateOfOriginGame3PreviewWithSteveMascord-NotTheFooty/NOT_The_Footy_Show_2011_Episode_71_05072011.mp3#t=1028.6",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/au/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 5
+  }
+ ]
+}
