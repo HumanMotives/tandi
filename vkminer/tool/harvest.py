@@ -327,12 +327,33 @@ def cut(src, start, end, total, pad_start, pad_end, dest):
     return a, b
 
 
-def build_query(cfg, terms):
+def type_filter(cfg, types):
+    """Beperkt de zoekopdracht tot gekozen soorten bronnen (films, radio, interviews)."""
+    q = lambda t: f'"{t}"' if re.search(r"[^A-Za-z0-9_]", str(t)) else str(t)
+    groups = []
+    for t in types:
+        spec = (cfg.get("types") or {}).get(t) or {}
+        ors = []
+        if spec.get("collections"):
+            ors.append("collection:(" + " OR ".join(q(c) for c in spec["collections"]) + ")")
+        if spec.get("words"):
+            words = " OR ".join(q(w) for w in spec["words"])
+            ors.append(f"subject:({words})")
+            ors.append(f"title:({words})")
+        if ors:
+            groups.append("(" + " OR ".join(ors) + ")")
+    return "(" + " OR ".join(groups) + ")" if groups else ""
+
+
+def build_query(cfg, terms, types=()):
     """Zoekt op heel Internet Archive (inclusief Prelinger) naar audio en video."""
     q = lambda t: f'"{t}"' if " " in t else t
     parts = ["mediatype:(" + " OR ".join(cfg.get("search", {}).get("mediatype", ["audio", "movies"])) + ")"]
     if terms:
         parts.append("(" + " OR ".join(q(t) for t in terms) + ")")
+    tf = type_filter(cfg, types)
+    if tf:
+        parts.append(tf)
     return " AND ".join(parts)
 
 
@@ -359,6 +380,8 @@ def main():
     ap.add_argument("--max-files", type=int, default=3, help="bestanden per item")
     ap.add_argument("--whisper", default="base.en")
     ap.add_argument("--pd-only", action="store_true")
+    ap.add_argument("--types", default="", help="film, radio, interview; leeg = alles")
+    ap.add_argument("--per-source", type=int, default=None, help="clips per bron; leeg = config")
     ap.add_argument("--batch", default=datetime.now(timezone.utc).strftime("b%Y%m%d-%H%M"))
     ap.add_argument("--out", required=True, help="map voor deze batch")
     ap.add_argument("--batches-index", required=True, help="pad naar batches.json")
@@ -375,13 +398,24 @@ def main():
         if req.get("whisper") in ("base.en", "small.en", "medium.en"):
             args.whisper = req["whisper"]
         args.pd_only = bool(req.get("pd_only", True))
+        args.types = split_list(req.get("types", []))
+        if req.get("per_source") not in (None, ""):
+            args.per_source = max(1, min(5, int(req["per_source"])))
 
     cfg = yaml.safe_load((ROOT / "config.yaml").read_text())
     user_terms = split_list(args.terms)[:40]
     terms = user_terms or split_list(cfg.get("search", {}).get("terms", []))
     extra_kw = split_list(args.keywords)[:40]
-    args.label = ", ".join(user_terms[:3]) + ("…" if len(user_terms) > 3 else "") if user_terms else "standaardlijst"
-    query = build_query(cfg, terms)
+    if isinstance(args.types, str):
+        args.types = split_list(args.types)
+    type_cfg = cfg.get("types") or {}
+    types = [t for t in (x.lower() for x in args.types) if t in type_cfg]
+    type_label = ", ".join(type_cfg[t].get("label", t) for t in types)
+    if user_terms:
+        args.label = ", ".join(user_terms[:3]) + ("…" if len(user_terms) > 3 else "")
+    else:
+        args.label = type_label or "standaardlijst"
+    query = build_query(cfg, terms, types)
     pats = compile_keywords(cfg, extra_kw)
     seen = Seen(SEEN)
     api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
@@ -407,7 +441,7 @@ def main():
     model = WhisperModel(args.whisper, device="cpu", compute_type="int8")
 
     log(f"Query: {query}")
-    per_source = max(1, int((cfg.get("sources") or {}).get("per_source", 1)))
+    per_source = args.per_source or max(1, int((cfg.get("sources") or {}).get("per_source", 1)))
     results = ia.search_items(query, fields=["identifier", "title", "collection", "subject"],
                               sorts=["downloads desc"])
     def fresh(hits, limit=3000):

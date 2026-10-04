@@ -23,6 +23,22 @@ search:
     - hypnosis
     - robot
 
+# SOORTEN: de keuze 'Soort bron' op de pagina. Niets of Alles gekozen = geen beperking.
+# Een bron telt mee als hij in een van de collecties zit, of een woord in titel/onderwerp heeft.
+types:
+  film:
+    label: Films
+    collections: [feature_films, prelinger, scifi_horror, film_noir, classic_tv, classic_cartoons, movie_trailers]
+    words: [film, movie, "feature film", trailer, newsreel, "b-movie"]
+  radio:
+    label: Radio
+    collections: [oldtimeradio, otrr, radioprograms, old_time_radio]
+    words: [radio, "old time radio", otr, "radio drama", "radio play", broadcast]
+  interview:
+    label: Interviews
+    collections: []
+    words: [interview, interviews, testimony, eyewitness, conversation, "talk show"]
+
 # BRONNEN: welk soort materiaal heeft voorrang?
 # Matcht op IA-collectie of op een woord in titel/onderwerp (hoofdletterongevoelig).
 # 'avoid' wint van 'prefer': een luisterboek met 'radio' in de titel blijft een luisterboek.
