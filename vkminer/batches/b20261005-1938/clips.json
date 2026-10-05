@@ -1,0 +1,300 @@
+{
+ "batch": {
+  "name": "b20261005-1938",
+  "preset": "Time, afterlife, bloodlines…",
+  "query": "mediatype:(audio OR movies) AND (Time OR afterlife OR bloodlines OR nihilism OR horror) AND ((collection:(feature_films OR prelinger OR scifi_horror OR film_noir OR classic_tv OR classic_cartoons OR movie_trailers) OR subject:(film OR movie OR \"feature film\" OR trailer OR newsreel OR \"b-movie\") OR title:(film OR movie OR \"feature film\" OR trailer OR newsreel OR \"b-movie\")))",
+  "whisper": "base.en",
+  "claude": false,
+  "pad": [
+   0.35,
+   1.5
+  ],
+  "created": "2026-10-05T19:48:51+00:00"
+ },
+ "clips": [
+  {
+   "id": "horror-express-horror-express-01086",
+   "text": "Sorry, dear fellow, I'm afraid you're in the wrong pew.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "Afraid",
+    "afraid"
+   ],
+   "start": 1085.97,
+   "end": 1090.08,
+   "t0": 1086.32,
+   "t1": 1088.58,
+   "transcript": "transcripts/horror-express-horror-express.json",
+   "source_dl": "https://archive.org/download/Horror_Express/Horror_Express.mp3",
+   "item": "Horror_Express",
+   "title": "Horror Express",
+   "source_file": "Horror_Express.mp3",
+   "year": "1973",
+   "item_url": "https://archive.org/details/Horror_Express",
+   "source_url": "https://archive.org/download/Horror_Express/Horror_Express.mp3#t=1086.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 14
+  },
+  {
+   "id": "assignment-outer-space-assignment-outer-spa-00105",
+   "text": "apparent death at a preset time under the impulses of an electric brain the",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "Time",
+    "death",
+    "brain"
+   ],
+   "start": 105.11,
+   "end": 115.94,
+   "t0": 105.46,
+   "t1": 114.44,
+   "transcript": "transcripts/assignment-outer-space-assignment-outer-spa.json",
+   "source_dl": "https://archive.org/download/Assignment_Outer_Space/Assignment_Outer_Space.mp3",
+   "item": "Assignment_Outer_Space",
+   "title": "Assignment Outer Space",
+   "source_file": "Assignment_Outer_Space.mp3",
+   "year": "1960",
+   "item_url": "https://archive.org/details/Assignment_Outer_Space",
+   "source_url": "https://archive.org/download/Assignment_Outer_Space/Assignment_Outer_Space.mp3#t=105.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 10
+  },
+  {
+   "id": "colorcrazinessthethreestooges-threestoogescolorcra-00749",
+   "text": "I saw him do it in the movies one time.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "Time",
+    "i saw"
+   ],
+   "start": 748.78,
+   "end": 752.09,
+   "t0": 749.13,
+   "t1": 750.59,
+   "transcript": "transcripts/colorcrazinessthethreestooges-threestoogescolorcra.json",
+   "source_dl": "https://archive.org/download/ColorCrazinessTheThreeStooges/threestoogescolorcraziness.mp3",
+   "item": "ColorCrazinessTheThreeStooges",
+   "title": "The Three Stooges - \"Color Craziness\" \"Color Craziness\" - The Three Stooges",
+   "source_file": "threestoogescolorcraziness.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/ColorCrazinessTheThreeStooges",
+   "source_url": "https://archive.org/download/ColorCrazinessTheThreeStooges/threestoogescolorcraziness.mp3#t=748.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "timesave1936-timesave1936-00013",
+   "text": "It's starch, a quick self-cooking starch. Ready in no time at all.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "Time"
+   ],
+   "start": 13.22,
+   "end": 18.53,
+   "t0": 13.57,
+   "t1": 17.03,
+   "transcript": "transcripts/timesave1936-timesave1936.json",
+   "source_dl": "https://archive.org/download/TimeSave1936/TimeSave1936.mp3",
+   "item": "TimeSave1936",
+   "title": "Time Savers for House Makers",
+   "source_file": "TimeSave1936.mp3",
+   "year": "ca. 1936",
+   "item_url": "https://archive.org/details/TimeSave1936",
+   "source_url": "https://archive.org/download/TimeSave1936/TimeSave1936.mp3#t=13.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 16
+  },
+  {
+   "id": "horror-hotel-horror-hotel-00497",
+   "text": "Thank you, my very well time we shall look for there.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "Time"
+   ],
+   "start": 496.9,
+   "end": 500.61,
+   "t0": 497.25,
+   "t1": 499.11,
+   "transcript": "transcripts/horror-hotel-horror-hotel.json",
+   "source_dl": "https://archive.org/download/Horror_Hotel/Horror_Hotel.mp3",
+   "item": "Horror_Hotel",
+   "title": "City of the Dead/Horror Hotel",
+   "source_file": "Horror_Hotel.mp3",
+   "year": "1960",
+   "item_url": "https://archive.org/details/Horror_Hotel",
+   "source_url": "https://archive.org/download/Horror_Hotel/Horror_Hotel.mp3#t=496.9",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 16
+  },
+  {
+   "id": "planet-outlaws-ipod-planet-outlaws-00061",
+   "text": "come from time to time, flaming disks and weird aerial phenomena.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "Time"
+   ],
+   "start": 61.14,
+   "end": 67.31,
+   "t0": 61.49,
+   "t1": 65.81,
+   "transcript": "transcripts/planet-outlaws-ipod-planet-outlaws.json",
+   "source_dl": "https://archive.org/download/planet_outlaws_ipod/planet_outlaws.mp3",
+   "item": "planet_outlaws_ipod",
+   "title": "Planet Outlaws",
+   "source_file": "planet_outlaws.mp3",
+   "year": "1953",
+   "item_url": "https://archive.org/details/planet_outlaws_ipod",
+   "source_url": "https://archive.org/download/planet_outlaws_ipod/planet_outlaws.mp3#t=61.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 10
+  },
+  {
+   "id": "carnivalofsouls-carnivalofsouls-00568",
+   "text": "stop by and see it the next time you're in.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "Time"
+   ],
+   "start": 568.08,
+   "end": 572.07,
+   "t0": 568.43,
+   "t1": 570.57,
+   "transcript": "transcripts/carnivalofsouls-carnivalofsouls.json",
+   "source_dl": "https://archive.org/download/CarnivalofSouls/CarnivalOfSouls.mp3",
+   "item": "CarnivalofSouls",
+   "title": "Carnival of Souls",
+   "source_file": "CarnivalOfSouls.mp3",
+   "year": "1962",
+   "item_url": "https://archive.org/details/CarnivalofSouls",
+   "source_url": "https://archive.org/download/CarnivalofSouls/CarnivalOfSouls.mp3#t=568.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 8
+  },
+  {
+   "id": "sex-madness-sex-madness-00404",
+   "text": "I think it's time I gave the old mouth a chance and had a drink.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "Time"
+   ],
+   "start": 404.0,
+   "end": 408.53,
+   "t0": 404.35,
+   "t1": 407.03,
+   "transcript": "transcripts/sex-madness-sex-madness.json",
+   "source_dl": "https://archive.org/download/sex_madness/sex_madness.mp3",
+   "item": "sex_madness",
+   "title": "Sex Madness",
+   "source_file": "sex_madness.mp3",
+   "year": "1938",
+   "item_url": "https://archive.org/details/sex_madness",
+   "source_url": "https://archive.org/download/sex_madness/sex_madness.mp3#t=404.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "scarletstreet-scarlet-street-00155",
+   "text": "Speaking of time, I have here a 14 carat 17 jewel timepiece.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "Time"
+   ],
+   "start": 155.38,
+   "end": 162.87,
+   "t0": 155.73,
+   "t1": 161.37,
+   "transcript": "transcripts/scarletstreet-scarlet-street.json",
+   "source_dl": "https://archive.org/download/ScarletStreet/Scarlet_Street.mp3",
+   "item": "ScarletStreet",
+   "title": "Scarlet Street",
+   "source_file": "Scarlet_Street.mp3",
+   "year": "1945",
+   "item_url": "https://archive.org/details/ScarletStreet",
+   "source_url": "https://archive.org/download/ScarletStreet/Scarlet_Street.mp3#t=155.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "quevivamexico-que-viva-mexico-512k-01205",
+   "text": "He's got the opportunity to take our only time.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "Time"
+   ],
+   "start": 1204.72,
+   "end": 1208.49,
+   "t0": 1205.07,
+   "t1": 1206.99,
+   "transcript": "transcripts/quevivamexico-que-viva-mexico-512k.json",
+   "source_dl": "https://archive.org/download/QuevivaMexico/Que.viva.Mexico_512kb.mp4",
+   "item": "QuevivaMexico",
+   "title": "Que Viva Mexico",
+   "source_file": "Que.viva.Mexico_512kb.mp4",
+   "year": "1931",
+   "item_url": "https://archive.org/details/QuevivaMexico",
+   "source_url": "https://archive.org/download/QuevivaMexico/Que.viva.Mexico_512kb.mp4#t=1204.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  }
+ ]
+}
