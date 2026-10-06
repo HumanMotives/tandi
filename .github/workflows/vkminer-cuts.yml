@@ -1,4 +1,4 @@
-name: VK miner extra knippen
+name: VK miner extra knippen en bron uitschrijven
 
 # Start via de knop op de pagina (of een verzoek-issue).
 on:
@@ -25,7 +25,7 @@ jobs:
       (startsWith(github.event.issue.title, 'vkminer:') &&
        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association))
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
 
@@ -33,18 +33,38 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: ffmpeg installeren
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-
-      - run: pip install -q requests pyyaml internetarchive
-
-      - name: Knippen
+      - name: Verzoek klaarzetten
+        id: kind
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
           REQUEST: ${{ inputs.request }}
         run: |
           if [ -n "$REQUEST" ]; then printf '%s' "$REQUEST" > /tmp/body.txt; else printf '%s' "$ISSUE_BODY" > /tmp/body.txt; fi
-          python vkminer/tool/cuts.py /tmp/body.txt vkminer | tee /tmp/result.txt
+          if grep -Eq '"action"[[:space:]]*:[[:space:]]*"analyse"' /tmp/body.txt; then echo "analyse=true" >> "$GITHUB_OUTPUT"; fi
+
+      - name: ffmpeg installeren
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+
+      - run: pip install -q requests pyyaml internetarchive
+
+      - name: Whisper-modellen cachen
+        if: steps.kind.outputs.analyse == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: whisper-models
+
+      - name: Whisper installeren
+        if: steps.kind.outputs.analyse == 'true'
+        run: pip install -q -r vkminer/tool/requirements.txt
+
+      - name: Knippen
+        if: steps.kind.outputs.analyse != 'true'
+        run: python vkminer/tool/cuts.py /tmp/body.txt vkminer | tee /tmp/result.txt
+
+      - name: Bron volledig uitschrijven
+        if: steps.kind.outputs.analyse == 'true'
+        run: python vkminer/tool/analyse.py /tmp/body.txt vkminer | tee /tmp/result.txt
 
       - name: Opslaan in de repo (Netlify publiceert automatisch)
         run: |
@@ -52,7 +72,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add vkminer/batches vkminer/batches.json
           if git diff --cached --quiet; then echo "Niets nieuws"; exit 0; fi
-          git commit -m "vkminer: extra knippen (#${{ github.event.issue.number }})"
+          git commit -m "vkminer: extra knippen of bron uitschrijven"
           git pull --rebase
           git push
 
