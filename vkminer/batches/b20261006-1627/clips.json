@@ -1,0 +1,475 @@
+{
+ "batch": {
+  "name": "b20261006-1627",
+  "preset": "Duistere hoeken (heel Internet Archive) + end time, other dimensions",
+  "query": "(mediatype:(audio OR movies) AND (anunnaki OR illuminati OR \"fringe science\" OR nihilism OR \"secret society\" OR occult OR esoteric OR gnostic OR \"mind control\" OR mkultra OR \"ancient astronauts\" OR \"hollow earth\" OR \"numbers station\" OR \"electronic voice phenomena\" OR evp OR \"men in black\" OR \"philadelphia experiment\" OR montauk OR \"remote viewing\" OR \"astral projection\" OR \"new world order\" OR \"sacred geometry\" OR \"ley lines\" OR tesla OR \"black knight satellite\" OR reptilian OR \"time slip\" OR \"the void\")) AND (\"end time\" OR \"other dimensions\" OR void OR aliens OR abductions OR \"the occult\" OR \"lost civilizations\" OR psyche OR freud OR nietsche)",
+  "whisper": "base.en",
+  "claude": false,
+  "pad": [
+   0.35,
+   1.5
+  ],
+  "settings": {
+   "preset": "duister-alles",
+   "types": [],
+   "brief": "",
+   "terms": [
+    "end time",
+    "other dimensions",
+    "void",
+    "aliens",
+    "abductions",
+    "the occult",
+    "lost civilizations",
+    "psyche",
+    "freud",
+    "nietsche"
+   ],
+   "auto_terms": [],
+   "keywords": [],
+   "max_items": 15,
+   "per_source": 1,
+   "whisper": "base.en",
+   "pd_only": true
+  },
+  "created": "2026-10-06T17:05:44+00:00"
+ },
+ "clips": [
+  {
+   "id": "texemarrspowerofprophecyradioshow2007arc-11texemarrs1107-occu-00040",
+   "text": "And here I discuss the mind control that the Illuminati are exercising in regards to what",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "illuminati",
+    "mind control",
+    "mind"
+   ],
+   "start": 40.55,
+   "end": 53.06,
+   "t0": 40.9,
+   "t1": 51.56,
+   "transcript": "transcripts/texemarrspowerofprophecyradioshow2007arc-11texemarrs1107-occu.json",
+   "source_dl": "https://archive.org/download/TexeMarrsPowerOfProphecyRadioShow2007ArchiveAll52Weeks/11TexeMarrs1107-OccultCabbalisticRitualsOfTheIlluminati.mp3",
+   "item": "TexeMarrsPowerOfProphecyRadioShow2007ArchiveAll52Weeks",
+   "title": "Texe Marrs Power Of Prophecy Radio Show 2007 Archive All 52 Weeks",
+   "source_file": "11TexeMarrs1107-OccultCabbalisticRitualsOfTheIlluminati.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TexeMarrsPowerOfProphecyRadioShow2007ArchiveAll52Weeks",
+   "source_url": "https://archive.org/download/TexeMarrsPowerOfProphecyRadioShow2007ArchiveAll52Weeks/11TexeMarrs1107-OccultCabbalisticRitualsOfTheIlluminati.mp3#t=40.5",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by/3.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "atomicrulersoftheworld-atomicrulersofthewor-00136",
+   "text": "of certain human beings of the planet Earth. The emerald men are aware that should nuclear",
+   "score": 10.0,
+   "ai": null,
+   "tags": [
+    "beings",
+    "planet",
+    "human"
+   ],
+   "start": 135.79,
+   "end": 141.96,
+   "t0": 136.14,
+   "t1": 140.46,
+   "transcript": "transcripts/atomicrulersoftheworld-atomicrulersofthewor.json",
+   "source_dl": "https://archive.org/download/AtomicRulersOfTheWorld/AtomicRulersOfTheWorld_512kb.mp4",
+   "item": "AtomicRulersOfTheWorld",
+   "title": "Atomic Rulers Of The World",
+   "source_file": "AtomicRulersOfTheWorld_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/AtomicRulersOfTheWorld",
+   "source_url": "https://archive.org/download/AtomicRulersOfTheWorld/AtomicRulersOfTheWorld_512kb.mp4#t=135.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 0
+  },
+  {
+   "id": "anunnaki-dontwatchthisfilm-annunaki-dontwatchth-00086",
+   "text": "way. The aliens were members of the Anunnaki Empire and were on a quest to find this metal",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "alien",
+    "anunnaki",
+    "anunnaki"
+   ],
+   "start": 85.79,
+   "end": 95.46,
+   "t0": 86.14,
+   "t1": 93.96,
+   "transcript": "transcripts/anunnaki-dontwatchthisfilm-annunaki-dontwatchth.json",
+   "source_dl": "https://archive.org/download/Anunnaki-DontWatchThisFilm/Annunaki-DontWatchThisFilm.mp4",
+   "item": "Anunnaki-DontWatchThisFilm",
+   "title": "Anunnaki - Don't Watch this Film!",
+   "source_file": "Annunaki-DontWatchThisFilm.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/Anunnaki-DontWatchThisFilm",
+   "source_url": "https://archive.org/download/Anunnaki-DontWatchThisFilm/Annunaki-DontWatchThisFilm.mp4#t=85.8",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 18
+  },
+  {
+   "id": "thevampirebat-thevampirebat-00901",
+   "text": "Seems strange that a human being should want to play with bats.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "strange",
+    "human"
+   ],
+   "start": 900.91,
+   "end": 905.56,
+   "t0": 901.26,
+   "t1": 904.06,
+   "transcript": "transcripts/thevampirebat-thevampirebat.json",
+   "source_dl": "https://archive.org/download/TheVampireBat/TheVampireBat.mp3",
+   "item": "TheVampireBat",
+   "title": "The Vampire Bat",
+   "source_file": "TheVampireBat.mp3",
+   "year": "1933",
+   "item_url": "https://archive.org/details/TheVampireBat",
+   "source_url": "https://archive.org/download/TheVampireBat/TheVampireBat.mp3#t=900.9",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "thesecretlifeofadolfhitler-secretlifeofadolphhi-00330",
+   "text": "Behind the pattern of demonstrations, parades and planetary speeches and rituals",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "ritual",
+    "planet"
+   ],
+   "start": 330.26,
+   "end": 335.77,
+   "t0": 330.61,
+   "t1": 334.27,
+   "transcript": "transcripts/thesecretlifeofadolfhitler-secretlifeofadolphhi.json",
+   "source_dl": "https://archive.org/download/TheSecretLifeOfAdolfHitler/SecretLifeOfAdolphHitler.mp3",
+   "item": "TheSecretLifeOfAdolfHitler",
+   "title": "The Secret Life of Adolf Hitler",
+   "source_file": "SecretLifeOfAdolphHitler.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheSecretLifeOfAdolfHitler",
+   "source_url": "https://archive.org/download/TheSecretLifeOfAdolfHitler/SecretLifeOfAdolphHitler.mp3#t=330.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 0
+  },
+  {
+   "id": "johntoddformerilluminatioccultmembergive-tape3b-00409",
+   "text": "that scared the Illuminati in the occult world to death.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "occult",
+    "illuminati",
+    "death"
+   ],
+   "start": 408.84,
+   "end": 413.57,
+   "t0": 409.19,
+   "t1": 412.07,
+   "transcript": "transcripts/johntoddformerilluminatioccultmembergive-tape3b.json",
+   "source_dl": "https://archive.org/download/JohnToddFormerIlluminatiOccultMemberGivesTestimonyOfInvolvementIn/tape3b.mp3",
+   "item": "JohnToddFormerIlluminatiOccultMemberGivesTestimonyOfInvolvementIn",
+   "title": "John Todd Former Illuminati  Occult Member Gives Testimony Of  Involvement In Witchcraft",
+   "source_file": "tape3b.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/JohnToddFormerIlluminatiOccultMemberGivesTestimonyOfInvolvementIn",
+   "source_url": "https://archive.org/download/JohnToddFormerIlluminatiOccultMemberGivesTestimonyOfInvolvementIn/tape3b.mp3#t=408.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "neutral",
+   "theme": 30
+  },
+  {
+   "id": "horrorcollection-hermitscave-thevampi-01200",
+   "text": "What I've been thinking were horrible nightmares. I now see what actual occurrence is.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "nightmare",
+    "night"
+   ],
+   "start": 1200.22,
+   "end": 1207.57,
+   "t0": 1200.57,
+   "t1": 1206.07,
+   "transcript": "transcripts/horrorcollection-hermitscave-thevampi.json",
+   "source_dl": "https://archive.org/download/HorrorCollection/HermitsCave-theVampiresDesire_64kb.mp3",
+   "item": "HorrorCollection",
+   "title": "Horror Collection",
+   "source_file": "HermitsCave-theVampiresDesire_64kb.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/HorrorCollection",
+   "source_url": "https://archive.org/download/HorrorCollection/HermitsCave-theVampiresDesire_64kb.mp3#t=1200.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 0
+  },
+  {
+   "id": "heylisten-025-jeansgenies-20996-hey-listen-feb-01094",
+   "text": "The album is called Wildly Idol, Humble Before the Void.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "the void",
+    "the void"
+   ],
+   "start": 1094.47,
+   "end": 1099.7,
+   "t0": 1094.82,
+   "t1": 1098.2,
+   "transcript": "transcripts/heylisten-025-jeansgenies-20996-hey-listen-feb.json",
+   "source_dl": "https://archive.org/download/HeyListen-025-JeansGenies/20996_Hey%20Listen%20-%20Feb%2025.mp3",
+   "item": "HeyListen-025-JeansGenies",
+   "title": "Hey, Listen! - 025 - Jeans Genies - Feb 25",
+   "source_file": "20996_Hey Listen - Feb 25.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/HeyListen-025-JeansGenies",
+   "source_url": "https://archive.org/download/HeyListen-025-JeansGenies/20996_Hey%20Listen%20-%20Feb%2025.mp3#t=1094.5",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 3
+  },
+  {
+   "id": "whats-up-prof-walter-veith-martin-smith--whats-up-prof-225-sh-02099",
+   "text": "When they come out of paganism, were you in darkness?",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 2099.6,
+   "end": 2105.89,
+   "t0": 2099.95,
+   "t1": 2104.39,
+   "transcript": "transcripts/whats-up-prof-walter-veith-martin-smith--whats-up-prof-225-sh.json",
+   "source_dl": "https://archive.org/download/whats-up-prof-walter-veith-martin-smith-amazing-discoveries-africa/Whats_Up_Prof_225_Shall_We_Leave_Our_Church_Walter_Veith_Martin_Smith.mp4",
+   "item": "whats-up-prof-walter-veith-martin-smith-amazing-discoveries-africa",
+   "title": "What's Up Prof? (Walter Veith and Martin Smith) Series Episodes - Clash of Minds (formerly Amazing Discoveries Africa)",
+   "source_file": "Whats_Up_Prof_225_Shall_We_Leave_Our_Church_Walter_Veith_Martin_Smith.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/whats-up-prof-walter-veith-martin-smith-amazing-discoveries-africa",
+   "source_url": "https://archive.org/download/whats-up-prof-walter-veith-martin-smith-amazing-discoveries-africa/Whats_Up_Prof_225_Shall_We_Leave_Our_Church_Walter_Veith_Martin_Smith.mp4#t=2099.6",
+   "license": {
+    "status": "cc",
+    "url": "https://creativecommons.org/licenses/by-nd/4.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 8
+  },
+  {
+   "id": "killuminatithemovie-03-killuminatithemov-00390",
+   "text": "If you would know that no weapons of mass destruction would be found, would you have advocated invasion?",
+   "score": 5.0,
+   "ai": null,
+   "tags": [
+    "invasion"
+   ],
+   "start": 390.15,
+   "end": 398.4,
+   "t0": 390.5,
+   "t1": 396.9,
+   "transcript": "transcripts/killuminatithemovie-03-killuminatithemov.json",
+   "source_dl": "https://archive.org/download/KilluminatiTheMovie/03-KilluminatithemoviewarBasedOnLiesEvilLyingPoliticiansNwo.mp4",
+   "item": "KilluminatiTheMovie",
+   "title": "KilluminatiTheMovie",
+   "source_file": "03-KilluminatithemoviewarBasedOnLiesEvilLyingPoliticiansNwo.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/KilluminatiTheMovie",
+   "source_url": "https://archive.org/download/KilluminatiTheMovie/03-KilluminatithemoviewarBasedOnLiesEvilLyingPoliticiansNwo.mp4#t=390.1",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc/3.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "theocculthistoryofthethirdreich-part1the-theocculthistoryofth-00159",
+   "text": "A whole world of strange rituals and beliefs seems to have risen from nowhere to mesmerise millions of Germans.",
+   "score": 5.0,
+   "ai": null,
+   "tags": [
+    "ritual",
+    "strange"
+   ],
+   "start": 159.55,
+   "end": 168.06,
+   "t0": 159.9,
+   "t1": 166.56,
+   "transcript": "transcripts/theocculthistoryofthethirdreich-part1the-theocculthistoryofth.json",
+   "source_dl": "https://archive.org/download/TheOccultHistoryOfTheThirdReich-Part1TheEnigmaOfTheSwastika/TheOccultHistoryOfTheThirdReich-Part1-TheEnigmaOfTheSwastika_512kb.mp4",
+   "item": "TheOccultHistoryOfTheThirdReich-Part1TheEnigmaOfTheSwastika",
+   "title": "The Occult History of the Third Reich - Part 1: The Enigma of the Swastika",
+   "source_file": "TheOccultHistoryOfTheThirdReich-Part1-TheEnigmaOfTheSwastika_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/TheOccultHistoryOfTheThirdReich-Part1TheEnigmaOfTheSwastika",
+   "source_url": "https://archive.org/download/TheOccultHistoryOfTheThirdReich-Part1TheEnigmaOfTheSwastika/TheOccultHistoryOfTheThirdReich-Part1-TheEnigmaOfTheSwastika_512kb.mp4#t=159.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "neutral",
+   "theme": 26
+  },
+  {
+   "id": "insearchof16mm-in-search-of-inca-tr-00296",
+   "text": "graves. The things a person considered important in death say much about how he lived his life,",
+   "score": 5.0,
+   "ai": null,
+   "tags": [
+    "the thing",
+    "death"
+   ],
+   "start": 296.61,
+   "end": 306.14,
+   "t0": 296.96,
+   "t1": 304.64,
+   "transcript": "transcripts/insearchof16mm-in-search-of-inca-tr.json",
+   "source_dl": "https://archive.org/download/InSearchOf16mm/In%20Search%20of...Inca%20Treasure%20%28480p_30fps_H264-128kbit_AAC%29.mp4",
+   "item": "InSearchOf16mm",
+   "title": "In Search of with Leonard Nimoy",
+   "source_file": "In Search of...Inca Treasure (480p_30fps_H264-128kbit_AAC).mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/InSearchOf16mm",
+   "source_url": "https://archive.org/download/InSearchOf16mm/In%20Search%20of...Inca%20Treasure%20%28480p_30fps_H264-128kbit_AAC%29.mp4#t=296.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "neutral",
+   "theme": 6
+  },
+  {
+   "id": "occult-explosion-ufos-stantontfriedma-00014",
+   "text": "So-called flying saucers, in other words, are real.",
+   "score": 4.0,
+   "ai": null,
+   "tags": [
+    "saucer"
+   ],
+   "start": 13.83,
+   "end": 18.22,
+   "t0": 14.18,
+   "t1": 16.72,
+   "transcript": "transcripts/occult-explosion-ufos-stantontfriedma.json",
+   "source_dl": "https://archive.org/download/occult_explosion/UFOs_stantontfriedman_64kb.mp3",
+   "item": "occult_explosion",
+   "title": "The Occult Explosion",
+   "source_file": "UFOs_stantontfriedman_64kb.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/occult_explosion",
+   "source_url": "https://archive.org/download/occult_explosion/UFOs_stantontfriedman_64kb.mp3#t=13.8",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   },
+   "kind": "neutral",
+   "theme": 26
+  },
+  {
+   "id": "walter-veith-total-onslaught-series-walter-veith-total-o-03535",
+   "text": "These are the wandering bishops. They control occultism in the world.",
+   "score": 4.0,
+   "ai": null,
+   "tags": [
+    "occult",
+    "they control"
+   ],
+   "start": 3535.45,
+   "end": 3542.06,
+   "t0": 3535.8,
+   "t1": 3540.56,
+   "transcript": "transcripts/walter-veith-total-onslaught-series-walter-veith-total-o.json",
+   "source_dl": "https://archive.org/download/walter-veith-total-onslaught-series/Walter_Veith-Total_Onslaught_20.mp4",
+   "item": "walter-veith-total-onslaught-series",
+   "title": "Total Onslaught - A Study of Revelation - Walter Veith (Series)",
+   "source_file": "Walter_Veith-Total_Onslaught_20.mp4",
+   "year": "2004",
+   "item_url": "https://archive.org/details/walter-veith-total-onslaught-series",
+   "source_url": "https://archive.org/download/walter-veith-total-onslaught-series/Walter_Veith-Total_Onslaught_20.mp4#t=3535.4",
+   "license": {
+    "status": "cc",
+    "url": "https://creativecommons.org/licenses/by-nd/4.0/",
+    "rights": ""
+   },
+   "kind": "neutral",
+   "theme": 6
+  },
+  {
+   "id": "scm-410032-c4iforjune3kevinannettstewand-c4i-14-06-03-kevin-a-03223",
+   "text": "But anyway, men who receive radiation therapy",
+   "score": 4.0,
+   "ai": null,
+   "tags": [
+    "radiation"
+   ],
+   "start": 3223.64,
+   "end": 3228.11,
+   "t0": 3223.99,
+   "t1": 3226.61,
+   "transcript": "transcripts/scm-410032-c4iforjune3kevinannettstewand-c4i-14-06-03-kevin-a.json",
+   "source_dl": "https://archive.org/download/scm-410032-c4iforjune3kevinannettstewand/c4i_14_06_03_kevin_annett_webb.mp3",
+   "item": "scm-410032-c4iforjune3kevinannettstewand",
+   "title": "C4I for June 3, Kevin Annett, Stew and Patricia",
+   "source_file": "c4i_14_06_03_kevin_annett_webb.mp3",
+   "year": "2014-06-02",
+   "item_url": "https://archive.org/details/scm-410032-c4iforjune3kevinannettstewand",
+   "source_url": "https://archive.org/download/scm-410032-c4iforjune3kevinannettstewand/c4i_14_06_03_kevin_annett_webb.mp3#t=3223.6",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-sa/4.0/",
+    "rights": ""
+   },
+   "kind": "neutral",
+   "theme": 6
+  }
+ ]
+}
