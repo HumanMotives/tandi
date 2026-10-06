@@ -10,6 +10,7 @@ import difflib
 import itertools
 import json
 import os
+import random
 import re
 import shutil
 import subprocess
@@ -76,7 +77,7 @@ def license_of(md):
 
 
 def source_kind(meta, cfg):
-    """'avoid' (luisterboek/e-book), 'prefer' (film, radio, interview) of 'neutral'."""
+    """'avoid' (luisterboek, podcast), 'drama' (geacteerd), 'prefer' (film, radio, interview) of 'neutral'."""
     src = cfg.get("sources") or {}
     colls = {str(c).lower() for c in as_list(meta.get("collection"))}
     text = " ".join(str(x) for x in as_list(meta.get("title")) + as_list(meta.get("subject"))).lower()
@@ -89,6 +90,8 @@ def source_kind(meta, cfg):
 
     if match("avoid"):
         return "avoid"
+    if match("drama"):
+        return "drama"
     if match("prefer"):
         return "prefer"
     return "neutral"
@@ -98,8 +101,8 @@ def kind_adjust(kind, cfg):
     src = cfg.get("sources") or {}
     if kind == "avoid":
         return -float((src.get("avoid") or {}).get("penalty", 6))
-    if kind == "prefer":
-        return float((src.get("prefer") or {}).get("bonus", 2))
+    if kind in ("drama", "prefer"):
+        return float((src.get(kind) or {}).get("bonus", 4 if kind == "drama" else 2))
     return 0.0
 
 
@@ -289,7 +292,8 @@ About the band and what they look for:
 {profile}
 
 A good sample works on its own, without plot context: evocative, mysterious, quotable, unsettling
-or strangely beautiful, and it fits the profile above. Score low for mundane talk, plot exposition,
+or strangely beautiful, and it fits the profile above. Prefer lines that read as acted and dramatic
+(radio plays, film dialogue, theatre: declamation, dread, revelation) over everyday conversational speech. Score low for mundane talk, plot exposition,
 character names, announcements and commercials, and for audiobook narration or flat readings of books:
 we want the colour and atmosphere of film, radio and interviews.
 The source is: {source}
@@ -322,8 +326,10 @@ About the band and what they look for:
 {profile}
 
 For each numbered source below (title, subjects, description), rate 0-10 how likely it contains spoken
-lines that fit. Prefer old films, radio plays and broadcasts, and interviews with real atmosphere.
-Rate low: audiobooks and book readings, music-only recordings, lectures without atmosphere, modern podcasts.
+lines that fit. Rate highest: acted, dramatized material with theatrical voices: old radio plays,
+horror and science-fiction films, theatre. Then: interviews and documentaries with real atmosphere.
+Rate low: everyday conversational voices (podcasts, talk radio, call-in shows, news, plain lectures),
+audiobooks and book readings, music-only recordings.
 Reply with ONLY a JSON array, no prose: [{{"i": <number>, "score": <0-10>}}]
 
 Sources:
@@ -361,8 +367,8 @@ recordings to harvest spoken-word samples from.
 About the band and what they look for:
 {profile}
 
-Suggest {n} short search terms (1-3 words, English) that will find fitting old films, radio shows,
-broadcasts and interviews on the Internet Archive. Mix obvious and less obvious angles. Avoid these,
+Suggest {n} short search terms (1-3 words, English) that will find fitting old films, radio plays,
+broadcasts and interviews on the Internet Archive, including the darker and stranger themes in the profile. Mix obvious and less obvious angles. Avoid these,
 they were used recently: {recent}
 Reply with ONLY a JSON array of strings."""
 
@@ -502,6 +508,23 @@ def type_filter(cfg, types):
     return "(" + " OR ".join(groups) + ")" if groups else ""
 
 
+def preset_query(p):
+    """Zoekset als losse query, of als lijstjes: collections, mediatype, title, terms."""
+    if p.get("query"):
+        return p["query"]
+    q = lambda t: f'"{t}"' if re.search(r"[^A-Za-z0-9_]", str(t)) else str(t)
+    parts = []
+    if p.get("collections"):
+        parts.append("collection:(" + " OR ".join(map(str, p["collections"])) + ")")
+    if p.get("mediatype"):
+        parts.append("mediatype:(" + " OR ".join(map(str, p["mediatype"])) + ")")
+    if p.get("title"):
+        parts.append("title:(" + " OR ".join(q(t) for t in p["title"]) + ")")
+    if p.get("terms"):
+        parts.append("(" + " OR ".join(q(t) for t in p["terms"]) + ")")
+    return " AND ".join(parts)
+
+
 def build_query(cfg, terms, types=()):
     """Zoekt op heel Internet Archive (inclusief Prelinger) naar audio en video."""
     q = lambda t: f'"{t}"' if " " in t else t
@@ -539,6 +562,7 @@ def main():
     ap.add_argument("--pd-only", action="store_true")
     ap.add_argument("--types", default="", help="film, radio, interview; leeg = alles")
     ap.add_argument("--brief", default="", help="vrije omschrijving van wat je zoekt (met Claude)")
+    ap.add_argument("--preset", default="", help="zoekset uit config.yaml (presets)")
     ap.add_argument("--per-source", type=int, default=None, help="clips per bron; leeg = config")
     ap.add_argument("--batch", default=datetime.now(timezone.utc).strftime("b%Y%m%d-%H%M"))
     ap.add_argument("--out", required=True, help="map voor deze batch")
@@ -558,6 +582,7 @@ def main():
         args.pd_only = bool(req.get("pd_only", True))
         args.types = split_list(req.get("types", []))
         args.brief = str(req.get("brief") or "").strip()[:600]
+        args.preset = str(req.get("preset") or "").strip()
         if req.get("per_source") not in (None, ""):
             args.per_source = max(1, min(5, int(req["per_source"])))
 
@@ -568,8 +593,12 @@ def main():
     cfg["_profile"] = load_profile(args.brief)
     user_terms = split_list(args.terms)[:40]
     extra_kw = split_list(args.keywords)[:40]
+    preset = (cfg.get("presets") or {}).get(args.preset) if args.preset else None
+    if args.preset and not preset:
+        log(f"Zoekset {args.preset} bestaat niet, vrij zoeken")
+        args.preset = ""
     auto_terms = []
-    if not user_terms and api_key and cfg.get("auto_terms", True):
+    if not preset and not user_terms and api_key and cfg.get("auto_terms", True):
         recent = [t for b in (json.loads(Path(args.batches_index).read_text())
                               if Path(args.batches_index).exists() else [])[:5]
                   for t in b.get("terms", [])]
@@ -583,7 +612,9 @@ def main():
     type_cfg = cfg.get("types") or {}
     types = [t for t in (x.lower() for x in args.types) if t in type_cfg]
     type_label = ", ".join(type_cfg[t].get("label", t) for t in types)
-    if user_terms:
+    if preset:
+        args.label = preset.get("label", args.preset) + (f" + {', '.join(user_terms[:2])}" if user_terms else "")
+    elif user_terms:
         args.label = ", ".join(user_terms[:3]) + ("…" if len(user_terms) > 3 else "")
     elif args.brief and api_key:
         args.label = args.brief[:40] + ("…" if len(args.brief) > 40 else "")
@@ -591,8 +622,19 @@ def main():
         args.label = "Bandprofiel"
     else:
         args.label = type_label or "standaardlijst"
-    query = build_query(cfg, terms, types)
+    if preset:
+        # zoekset bepaalt waar hij zoekt; eigen zoekwoorden verfijnen binnen die zoekset
+        query = "(" + preset_query(preset) + ")"
+        if user_terms:
+            q = lambda t: f'"{t}"' if re.search(r"[^A-Za-z0-9_]", t) else t
+            query += " AND (" + " OR ".join(q(t) for t in user_terms) + ")"
+        terms = user_terms + [str(t) for t in preset.get("title", []) + preset.get("terms", [])]
+        types = []
+    else:
+        query = build_query(cfg, terms, types)
     pats = compile_keywords(cfg, extra_kw)
+    # knipwoorden van de zoekset tellen mee met gewicht 2 (eigen woorden van de pagina: 4)
+    pats += [(2, str(t), re.compile(r"\b" + re.escape(str(t).lower()))) for t in (preset or {}).get("keywords", [])]
     seen = Seen(SEEN)
 
     out = Path(args.out)
@@ -606,7 +648,7 @@ def main():
     done = {l.strip() for l in STATE.read_text().splitlines() if l.strip()} if STATE.exists() else set()
     # Bronnen die in een eerdere batch al eens bekeken zijn, met of zonder resultaat.
     skip_polled = bool((cfg.get("sources") or {}).get("skip_polled", True))
-    polled_items = {l.split("/", 1)[0] for l in done if "/" in l and not l.startswith("title:")}
+    polled_items = {l[5:] for l in done if l.startswith("skip:")}
     polled_titles = {l[6:] for l in done if l.startswith("title:")}
 
     def remember(line):
@@ -620,6 +662,13 @@ def main():
 
     log(f"Query: {query}")
     per_source = args.per_source or max(1, int((cfg.get("sources") or {}).get("per_source", 1)))
+    # Instellingen van deze batch, zodat de pagina ze kan tonen en herhalen
+    args.settings = {
+        "preset": args.preset, "types": types, "brief": args.brief,
+        "terms": user_terms, "auto_terms": auto_terms, "keywords": extra_kw,
+        "max_items": args.max_items, "per_source": per_source,
+        "whisper": args.whisper, "pd_only": bool(args.pd_only),
+    }
     results = ia.search_items(query, fields=["identifier", "title", "collection", "subject", "description"],
                               sorts=["downloads desc"])
     def fresh(hits, limit=3000):
@@ -634,8 +683,8 @@ def main():
 
     pool = list(itertools.islice(fresh(results), max(200, args.max_items * 15)))
     if skip_polled:
-        log(f"{len(polled_items)} bronnen al eerder bekeken, die worden overgeslagen")
-    order = {"prefer": 0, "neutral": 1, "avoid": 2}
+        log(f"{len(polled_items)} bronnen staan op de overslaanlijst (leeg of al gebruikt)")
+    order = {"drama": 0, "prefer": 1, "neutral": 2, "avoid": 3}
     # Thema: trefwoorden en zoekwoorden in titel, onderwerp en omschrijving
     theme_pats = compile_keywords(cfg, extra_kw + list(terms))
     theme = {h["identifier"]: theme_score(h, theme_pats) for h in pool}
@@ -653,8 +702,8 @@ def main():
     rank = lambda h: theme[h["identifier"]] + 2 * ai_src.get(h["identifier"], 0)
     pool.sort(key=lambda h: (order[source_kind(h, cfg)], -rank(h)))  # stabiel: gelijk blijft populair eerst
     counts = {k: sum(1 for h in pool if source_kind(h, cfg) == k) for k in order}
-    log(f"{len(pool)} bronnen gevonden: {counts['prefer']} film/radio/interview, "
-        f"{counts['neutral']} overig, {counts['avoid']} luisterboek (achteraan)")
+    log(f"{len(pool)} bronnen gevonden: {counts['drama']} hoorspel/drama, {counts['prefer']} film/radio/interview, "
+        f"{counts['neutral']} overig, {counts['avoid']} luisterboek/podcast (achteraan)")
     clips, items_done, tried, titles, work = [], 0, 0, set(), Path(tempfile.mkdtemp())
 
     for hit in pool:
@@ -671,8 +720,12 @@ def main():
         if args.pd_only and lic["status"] == "check":
             log(f"- {ident}: licentie onduidelijk, overgeslagen")
             continue
-        files = [f for f in pick_files(item, args.max_files, cfg["max_minutes"])
+        # eerst al gebruikte afleveringen eruit; bij een serie een willekeurige greep uit de rest
+        files = [f for f in pick_files(item, 100000, cfg["max_minutes"])
                  if f"{ident}/{f['name']}" not in done]
+        random.shuffle(files)
+        series = len(files) > 1
+        files = files[:args.max_files]
         if not files:
             continue
         title = " ".join(as_list(md.get("title"))) or ident
@@ -748,8 +801,13 @@ def main():
             if found >= per_source:
                 break  # genoeg uit deze bron; overige bestanden niet downloaden
         titles.add(tkey_title)
-        if tkey_title and f"title:{tkey_title}" not in done:
-            remember(f"title:{tkey_title}")
+        # Een serie die iets opleverde blijft beschikbaar (alleen de gebruikte aflevering valt af).
+        # Een bron zonder resultaat, of een losse film/opname, slaan we voortaan helemaal over.
+        if not found or not series:
+            if f"skip:{ident}" not in done:
+                remember(f"skip:{ident}")
+            if tkey_title and f"title:{tkey_title}" not in done:
+                remember(f"title:{tkey_title}")
         if found:
             items_done += 1
 
@@ -778,6 +836,7 @@ def write_index(out, args, query, api_key, clips):
             "name": args.batch, "preset": args.label, "query": query,
             "whisper": args.whisper, "claude": bool(api_key),
             "pad": [pad_start(cfg_global), pad_end(cfg_global)],
+            "settings": getattr(args, "settings", {}),
             "created": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         },
         "clips": sorted(clips, key=lambda c: -c["score"]),

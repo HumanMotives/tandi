@@ -23,6 +23,57 @@ search:
     - hypnosis
     - robot
 
+# ZOEKSETS: snelkeuze op de pagina. Een zoekset bepaalt waar hij zoekt; eigen zoekwoorden
+# verfijnen binnen de zoekset, en 'Soort bron' doet dan niet mee.
+# Velden: query (letterlijke IA-zoekopdracht) of collections / mediatype / title / terms.
+# keywords: extra knipwoorden die alleen bij deze zoekset gelden (gewicht 2).
+# Nieuwe zoekset? Zet de naam (bijv. hoorspel-klassiek) ook in de keuzelijst r-preset in vkminer/index.html.
+presets:
+  hoorspel-klassiek:
+    label: Hoorspelen (eerste batch)
+    query: 'collection:oldtimeradio AND title:("x minus one" OR "dimension x" OR "lights out" OR "inner sanctum" OR "quiet please" OR "mysterious traveler" OR "beyond tomorrow" OR "escape")'
+
+  hoorspel-meer:
+    label: Hoorspelen, meer series
+    collections: [oldtimeradio]
+    title: [suspense, whistler, "hall of fantasy", "hermit's cave", "witch's tale", "arch oboler",
+            nightfall, "beyond midnight", "haunting hour", "dark fantasy", "2000 plus",
+            "exploring tomorrow", "mercury theatre", "weird circle", "the shadow", "lights out",
+            "inner sanctum", "quiet please"]
+
+  duister-drama:
+    label: Duistere thema's in hoorspel en film
+    collections: [oldtimeradio, scifi_horror, feature_films, film_noir, prelinger]
+    terms: [occult, cult, ritual, devil, satan, witchcraft, "black magic", demon, possession, voodoo,
+            "secret society", "mind control", hypnosis, brainwash, apocalypse, doom, "end of the world",
+            "lost civilization", "fourth dimension", "time travel", "mad scientist", experiment]
+    keywords: [ritual, "the old ones", "ancient ones", "master", obey, sacrifice, "the void",
+               "no god", "end of", "they control", "the order", "the brotherhood"]
+
+  duister-alles:
+    label: Duistere hoeken (heel Internet Archive)
+    mediatype: [audio, movies]
+    terms: [anunnaki, illuminati, "fringe science", nihilism, "secret society", occult, esoteric, gnostic,
+            "mind control", mkultra, "ancient astronauts", "hollow earth", "numbers station",
+            "electronic voice phenomena", evp, "men in black", "philadelphia experiment", montauk,
+            "remote viewing", "astral projection", "new world order", "sacred geometry", "ley lines",
+            "tesla", "black knight satellite", "reptilian", "time slip", "the void"]
+    keywords: [anunnaki, illuminati, "the elite", "they control", "the order", "the void",
+               "no meaning", "ancient", "frequency", vibration, "the signal", "the program",
+               "mind control", "secret", "hidden", "beneath", "the watchers"]
+
+  ufo-interviews:
+    label: UFO-interviews
+    query: '(ufo OR "flying saucer" OR abduction OR abductee OR "close encounter" OR contactee) AND mediatype:(audio OR movies)'
+
+  b-films:
+    label: B-films horror en sci-fi
+    query: 'collection:(SciFi_Horror OR feature_films) AND (subject:horror OR subject:"science fiction" OR subject:sci-fi)'
+
+  prelinger:
+    label: Prelinger (oude voorlichtingsfilms)
+    query: 'collection:prelinger AND (atomic OR space OR future OR hypnosis OR mental OR robot OR radiation)'
+
 # SOORTEN: de keuze 'Soort bron' op de pagina. Niets of Alles gekozen = geen beperking.
 # Een bron telt mee als hij in een van de collecties zit, of een woord in titel/onderwerp heeft.
 types:
@@ -37,7 +88,7 @@ types:
   interview:
     label: Interviews
     collections: []
-    words: [interview, interviews, testimony, eyewitness, conversation, "talk show"]
+    words: [interview, interviews, testimony, eyewitness]
 
 # BRONNEN: welk soort materiaal heeft voorrang?
 # Matcht op IA-collectie of op een woord in titel/onderwerp (hoofdletterongevoelig).
@@ -45,17 +96,23 @@ types:
 sources:
   per_source: 1          # clips per bron (IA-item); meer uit dezelfde bron via Meer knippen
   skip_polled: true      # bronnen uit eerdere batches overslaan (lijst: tool/processed.txt)
+  drama:                 # geacteerd: hoorspelen, toneel, speelfilms. Gaat voor alles, grootste bonus
+    bonus: 4
+    collections: [oldtimeradio, otrr, old_time_radio, scifi_horror, feature_films, film_noir]
+    words: ["radio drama", "radio play", "radio theater", "radio theatre", hoorspel, theatre, theater,
+            drama, "mystery theater", suspense, "horror film", "feature film", "b-movie", serial]
   prefer:                # films, oude radio, interviews: eerst verwerkt, kleine bonus
     bonus: 2
     collections: [feature_films, prelinger, scifi_horror, film_noir, classic_tv, classic_cartoons,
                   oldtimeradio, otrr, radioprograms, old_time_radio]
     words: [film, movie, trailer, newsreel, documentary, interview, radio, broadcast,
             "old time radio", otr, "radio drama", "radio play", serial, episode]
-  avoid:                 # luisterboeken en e-books: droog voorgelezen, pas als laatste
+  avoid:                 # luisterboeken, podcasts en praatradio: alledaagse stemmen, pas als laatste
     penalty: 6
     collections: [librivoxaudio, audio_bookspoetry, audiobooks, audio_books, booksbylanguage]
     words: [librivox, audiobook, "audio book", "e-book", ebook, unabridged, chapter, "read by",
-            "reading of", "solo reading", "dramatic reading", poem, poetry]
+            "reading of", "solo reading", "dramatic reading", poem, poetry,
+            podcast, "talk radio", "call-in", webinar, vlog, livestream, sermon, "audio blog"]
 
 language: en          # taal voor Whisper; leeg = automatisch detecteren
 min_clip: 1.2         # seconden
@@ -81,5 +138,7 @@ keyword_min_score: 3  # drempel als Claude niet meedoet
 # Matcht op woordbegin, hoofdletterongevoelig.
 keywords:
   3: [abduct, "taken aboard", "not human", "not of this earth", "another world", "they took", saucer, alien, creature, beings, "missing time", hypnos, "something out there", "it's alive", invasion, radiation, mutat, "the thing", "from beyond", "outer space", "the signal"]
-  2: [darkness, scream, afraid, "don't look", strange, "can't explain", silence, "deep space", planet, "no one", forever, "i saw", nightmare, ghost, death, "the dead", experiment, "the light", machine]
+  2: [occult, ritual, "secret society", illuminati, anunnaki, "the void", oblivion, abyss, "mind control",
+      "the elders", "ancient ones", "fourth dimension", "beyond time", "no meaning", "nothing matters",
+      darkness, scream, afraid, "don't look", strange, "can't explain", silence, "deep space", planet, "no one", forever, "i saw", nightmare, ghost, death, "the dead", experiment, "the light", machine]
   1: [night, cold, dark, sky, stars, human, soul, mind, brain, dream, voice]
