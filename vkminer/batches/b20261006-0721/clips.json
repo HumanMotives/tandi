@@ -1,0 +1,488 @@
+{
+ "batch": {
+  "name": "b20261006-0721",
+  "preset": "Duistere thema's in hoorspel en film",
+  "query": "(collection:(oldtimeradio OR scifi_horror OR feature_films OR film_noir OR prelinger) AND (occult OR cult OR ritual OR devil OR satan OR witchcraft OR \"black magic\" OR demon OR possession OR voodoo OR \"secret society\" OR \"mind control\" OR hypnosis OR brainwash OR apocalypse OR doom OR \"end of the world\" OR \"lost civilization\" OR \"fourth dimension\" OR \"time travel\" OR \"mad scientist\" OR experiment))",
+  "whisper": "base.en",
+  "claude": false,
+  "pad": [
+   0.35,
+   1.5
+  ],
+  "settings": {
+   "preset": "duister-drama",
+   "types": [],
+   "brief": "",
+   "terms": [],
+   "auto_terms": [],
+   "keywords": [
+    "the ancient ones",
+    "the old gods",
+    "the brotherhood",
+    "the order",
+    "secret society",
+    "the initiation",
+    "the ritual",
+    "sacrifice",
+    "forbidden",
+    "the forbidden knowledge",
+    "mind control",
+    "they control",
+    "obey",
+    "the frequency",
+    "the void",
+    "nothing matters",
+    "there is no god",
+    "meaningless",
+    "oblivion",
+    "the end of all things",
+    "the abyss",
+    "the watchers",
+    "eternal",
+    "the prophecy"
+   ],
+   "max_items": 15,
+   "per_source": 1,
+   "whisper": "base.en",
+   "pd_only": true
+  },
+  "created": "2026-10-06T07:53:03+00:00"
+ },
+ "clips": [
+  {
+   "id": "zontarthethingfromvenusrestored-zontarrestored-02952",
+   "text": "devices that enable them to control other creatures. Somehow the creatures they controlled",
+   "score": 13.0,
+   "ai": null,
+   "tags": [
+    "they control",
+    "creature",
+    "they control"
+   ],
+   "start": 2952.04,
+   "end": 2959.53,
+   "t0": 2952.39,
+   "t1": 2958.03,
+   "transcript": "transcripts/zontarthethingfromvenusrestored-zontarrestored.json",
+   "source_dl": "https://archive.org/download/ZontarTheThingFromVenusrestored/Zontarrestored.mp3",
+   "item": "ZontarTheThingFromVenusrestored",
+   "title": "Zontar the Thing from Venus (Restored)",
+   "source_file": "Zontarrestored.mp3",
+   "year": "1966",
+   "item_url": "https://archive.org/details/ZontarTheThingFromVenusrestored",
+   "source_url": "https://archive.org/download/ZontarTheThingFromVenusrestored/Zontarrestored.mp3#t=2952.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/zero/1.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 12
+  },
+  {
+   "id": "eternally-yours-ipod-eternally-yours-03956",
+   "text": "The interesting point of this experiment is, but no commands will be obeyed unless the subject is completely winning.",
+   "score": 13.0,
+   "ai": null,
+   "tags": [
+    "obey",
+    "experiment",
+    "obey"
+   ],
+   "start": 3956.18,
+   "end": 3963.33,
+   "t0": 3956.53,
+   "t1": 3961.83,
+   "transcript": "transcripts/eternally-yours-ipod-eternally-yours.json",
+   "source_dl": "https://archive.org/download/eternally_yours_ipod/eternally_yours.mp3",
+   "item": "eternally_yours_ipod",
+   "title": "Eternally Yours",
+   "source_file": "eternally_yours.mp3",
+   "year": "1939",
+   "item_url": "https://archive.org/details/eternally_yours_ipod",
+   "source_url": "https://archive.org/download/eternally_yours_ipod/eternally_yours.mp3#t=3956.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 9
+  },
+  {
+   "id": "beatthedevil1953-beatthedevil1954-512-00434",
+   "text": "which require the sacrifice of thousands on the altar of silence.",
+   "score": 12.0,
+   "ai": null,
+   "tags": [
+    "sacrifice",
+    "silence",
+    "sacrifice"
+   ],
+   "start": 434.56,
+   "end": 439.47,
+   "t0": 434.91,
+   "t1": 437.97,
+   "transcript": "transcripts/beatthedevil1953-beatthedevil1954-512.json",
+   "source_dl": "https://archive.org/download/BeatTheDevil1953/BeatTheDevil1954_512kb.mp4",
+   "item": "BeatTheDevil1953",
+   "title": "Beat the Devil (1953)",
+   "source_file": "BeatTheDevil1954_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/BeatTheDevil1953",
+   "source_url": "https://archive.org/download/BeatTheDevil1953/BeatTheDevil1954_512kb.mp4#t=434.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 9
+  },
+  {
+   "id": "endoftheworld-endoftheworld-512kb-01077",
+   "text": "Talk to them about outer space and all those wonderful flying saucers we see out of there.",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "saucer",
+    "outer space"
+   ],
+   "start": 1077.25,
+   "end": 1084.18,
+   "t0": 1077.6,
+   "t1": 1082.68,
+   "transcript": "transcripts/endoftheworld-endoftheworld-512kb.json",
+   "source_dl": "https://archive.org/download/EndoftheWorld/EndoftheWorld_512kb.mp4",
+   "item": "EndoftheWorld",
+   "title": "End of the World",
+   "source_file": "EndoftheWorld_512kb.mp4",
+   "year": "1977",
+   "item_url": "https://archive.org/details/EndoftheWorld",
+   "source_url": "https://archive.org/download/EndoftheWorld/EndoftheWorld_512kb.mp4#t=1077.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 11
+  },
+  {
+   "id": "thedevilsdaughter-thedevilsdaughter-51-01487",
+   "text": "I'm going to put that sweet society sister of mine in the obie of sacrifice scene",
+   "score": 10.0,
+   "ai": null,
+   "tags": [
+    "sacrifice",
+    "sacrifice"
+   ],
+   "start": 1487.59,
+   "end": 1494.0,
+   "t0": 1487.94,
+   "t1": 1492.5,
+   "transcript": "transcripts/thedevilsdaughter-thedevilsdaughter-51.json",
+   "source_dl": "https://archive.org/download/TheDevilsDaughter/TheDevilsDaughter_512kb.mp4",
+   "item": "TheDevilsDaughter",
+   "title": "The Devils Daughter",
+   "source_file": "TheDevilsDaughter_512kb.mp4",
+   "year": "1939",
+   "item_url": "https://archive.org/details/TheDevilsDaughter",
+   "source_url": "https://archive.org/download/TheDevilsDaughter/TheDevilsDaughter_512kb.mp4#t=1487.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 10
+  },
+  {
+   "id": "devilofthedesertagainstsonofhercules-devilofthedesertagai-00884",
+   "text": "You will now obey me.",
+   "score": 10.0,
+   "ai": null,
+   "tags": [
+    "obey",
+    "obey"
+   ],
+   "start": 884.48,
+   "end": 887.77,
+   "t0": 884.83,
+   "t1": 886.27,
+   "transcript": "transcripts/devilofthedesertagainstsonofhercules-devilofthedesertagai.json",
+   "source_dl": "https://archive.org/download/DeviloftheDesertAgainstSonofHercules/DeviloftheDesertAgainstSonofHercules.mp3",
+   "item": "DeviloftheDesertAgainstSonofHercules",
+   "title": "The Devil of the Desert Against the Son of Hercules",
+   "source_file": "DeviloftheDesertAgainstSonofHercules.mp3",
+   "year": "1964",
+   "item_url": "https://archive.org/details/DeviloftheDesertAgainstSonofHercules",
+   "source_url": "https://archive.org/download/DeviloftheDesertAgainstSonofHercules/DeviloftheDesertAgainstSonofHercules.mp3#t=884.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 8
+  },
+  {
+   "id": "teenagersfromouterspace1959-teenagersfromoutersp-00336",
+   "text": "evidence of intelligent beings on this planet of what concerned our foreign",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "beings",
+    "planet"
+   ],
+   "start": 335.88,
+   "end": 341.63,
+   "t0": 336.23,
+   "t1": 340.13,
+   "transcript": "transcripts/teenagersfromouterspace1959-teenagersfromoutersp.json",
+   "source_dl": "https://archive.org/download/TeenagersFromOuterSpace1959/TeenagersFromOuterSpace1959DavidLove.mp4",
+   "item": "TeenagersFromOuterSpace1959",
+   "title": "Teenagers From Outer Space (1959)",
+   "source_file": "TeenagersFromOuterSpace1959DavidLove.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/TeenagersFromOuterSpace1959",
+   "source_url": "https://archive.org/download/TeenagersFromOuterSpace1959/TeenagersFromOuterSpace1959DavidLove.mp4#t=335.9",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 12
+  },
+  {
+   "id": "devil-bat-movie-devil-bat-512x384-01129",
+   "text": "They're not human hairs.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "not human",
+    "human"
+   ],
+   "start": 1129.38,
+   "end": 1132.61,
+   "t0": 1129.73,
+   "t1": 1131.11,
+   "transcript": "transcripts/devil-bat-movie-devil-bat-512x384.json",
+   "source_dl": "https://archive.org/download/Devil_Bat_movie/Devil_Bat_512x384.mp4",
+   "item": "Devil_Bat_movie",
+   "title": "The Devil Bat",
+   "source_file": "Devil_Bat_512x384.mp4",
+   "year": "1940",
+   "item_url": "https://archive.org/details/Devil_Bat_movie",
+   "source_url": "https://archive.org/download/Devil_Bat_movie/Devil_Bat_512x384.mp4#t=1129.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 10
+  },
+  {
+   "id": "santaclausversusthedevil-santaclaus-1-01396",
+   "text": "I often would dream of prey creatures.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "creature",
+    "dream"
+   ],
+   "start": 1396.51,
+   "end": 1400.24,
+   "t0": 1396.86,
+   "t1": 1398.74,
+   "transcript": "transcripts/santaclausversusthedevil-santaclaus-1.json",
+   "source_dl": "https://archive.org/download/SantaClausversusTheDevil/SantaClaus_1.mp3",
+   "item": "SantaClausversusTheDevil",
+   "title": "Santa Claus (versus the devil)",
+   "source_file": "SantaClaus_1.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/SantaClausversusTheDevil",
+   "source_url": "https://archive.org/download/SantaClausversusTheDevil/SantaClaus_1.mp3#t=1396.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 8
+  },
+  {
+   "id": "otrr-dimension-x-singles-dimension-x-1951-08--01655",
+   "text": "When I saw you was about to shoot you, I jumped through the switch that sets the machine into reverse.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "i saw",
+    "machine"
+   ],
+   "start": 1654.79,
+   "end": 1660.24,
+   "t0": 1655.14,
+   "t1": 1658.74,
+   "transcript": "transcripts/otrr-dimension-x-singles-dimension-x-1951-08-.json",
+   "source_dl": "https://archive.org/download/OTRR_Dimension_X_Singles/Dimension_X_1951-08-23__45_UntitledStory.mp3",
+   "item": "OTRR_Dimension_X_Singles",
+   "title": "Dimension X - Single Episodes",
+   "source_file": "Dimension_X_1951-08-23__45_UntitledStory.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/OTRR_Dimension_X_Singles",
+   "source_url": "https://archive.org/download/OTRR_Dimension_X_Singles/Dimension_X_1951-08-23__45_UntitledStory.mp3#t=1654.8",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "doomsdaymachine1972-doomsdaymachine1972--02342",
+   "text": "due to hard radiation.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "radiation"
+   ],
+   "start": 2342.46,
+   "end": 2346.15,
+   "t0": 2342.81,
+   "t1": 2344.65,
+   "transcript": "transcripts/doomsdaymachine1972-doomsdaymachine1972-.json",
+   "source_dl": "https://archive.org/download/DoomsdayMachine1972/DoomsdayMachine1972_512kb.mp4",
+   "item": "DoomsdayMachine1972",
+   "title": "Doomsday Machine (1972)",
+   "source_file": "DoomsdayMachine1972_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/DoomsdayMachine1972",
+   "source_url": "https://archive.org/download/DoomsdayMachine1972/DoomsdayMachine1972_512kb.mp4#t=2342.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 17
+  },
+  {
+   "id": "curseoftheswampcreature1966-742-curseoftheswampcreat-01837",
+   "text": "The sound of my voice is your master.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "voice",
+    "master"
+   ],
+   "start": 1837.63,
+   "end": 1841.18,
+   "t0": 1837.98,
+   "t1": 1839.68,
+   "transcript": "transcripts/curseoftheswampcreature1966-742-curseoftheswampcreat.json",
+   "source_dl": "https://archive.org/download/CurseOfTheSwampCreature1966_742/CurseOfTheSwampCreature1966_512kb.mp4",
+   "item": "CurseOfTheSwampCreature1966_742",
+   "title": "Curse of the Swamp Creature (1966)",
+   "source_file": "CurseOfTheSwampCreature1966_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/CurseOfTheSwampCreature1966_742",
+   "source_url": "https://archive.org/download/CurseOfTheSwampCreature1966_742/CurseOfTheSwampCreature1966_512kb.mp4#t=1837.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 12
+  },
+  {
+   "id": "creaturefromthehauntedsea-creaturefromthehaunt-01263",
+   "text": "Good morning, you gorgeous, beautiful creature.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "creature"
+   ],
+   "start": 1263.25,
+   "end": 1268.84,
+   "t0": 1263.6,
+   "t1": 1267.34,
+   "transcript": "transcripts/creaturefromthehauntedsea-creaturefromthehaunt.json",
+   "source_dl": "https://archive.org/download/CreatureFromTheHauntedSea/CreatureFromTheHauntedSea.mp3",
+   "item": "CreatureFromTheHauntedSea",
+   "title": "Creature from the Haunted Sea",
+   "source_file": "CreatureFromTheHauntedSea.mp3",
+   "year": "1961",
+   "item_url": "https://archive.org/details/CreatureFromTheHauntedSea",
+   "source_url": "https://archive.org/download/CreatureFromTheHauntedSea/CreatureFromTheHauntedSea.mp3#t=1263.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 10
+  },
+  {
+   "id": "brand-of-the-devil-brand-of-the-devil-01956",
+   "text": "Those two strangers have made a play in here last night with the Dawson girl.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "strange",
+    "night"
+   ],
+   "start": 1956.11,
+   "end": 1961.5,
+   "t0": 1956.46,
+   "t1": 1960.0,
+   "transcript": "transcripts/brand-of-the-devil-brand-of-the-devil.json",
+   "source_dl": "https://archive.org/download/brand_of_the_devil/brand_of_the_devil.mp3",
+   "item": "brand_of_the_devil",
+   "title": "Brand of the Devil",
+   "source_file": "brand_of_the_devil.mp3",
+   "year": "1944",
+   "item_url": "https://archive.org/details/brand_of_the_devil",
+   "source_url": "https://archive.org/download/brand_of_the_devil/brand_of_the_devil.mp3#t=1956.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 8
+  },
+  {
+   "id": "the-brain-that-wouldnt-die-ipod-the-brain-that-would-03305",
+   "text": "And that mutated arm, a leg, a torso.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "mutat"
+   ],
+   "start": 3305.48,
+   "end": 3308.97,
+   "t0": 3305.83,
+   "t1": 3307.47,
+   "transcript": "transcripts/the-brain-that-wouldnt-die-ipod-the-brain-that-would.json",
+   "source_dl": "https://archive.org/download/the_brain_that_wouldnt_die_ipod/the_brain_that_wouldnt_die.mp3",
+   "item": "the_brain_that_wouldnt_die_ipod",
+   "title": "The Brain that Wouldn't Die",
+   "source_file": "the_brain_that_wouldnt_die.mp3",
+   "year": "1962",
+   "item_url": "https://archive.org/details/the_brain_that_wouldnt_die_ipod",
+   "source_url": "https://archive.org/download/the_brain_that_wouldnt_die_ipod/the_brain_that_wouldnt_die.mp3#t=3305.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 8
+  }
+ ]
+}

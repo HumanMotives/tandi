@@ -207,3 +207,58 @@ CC_1915_12_18_ABurlesqueOnCarmen/CC_1915_12_18_ABurlesqueOnCarmen_512kb.mp4
 title:charlie chaplins a burlesque on carmen
 QuevivaMexico/Que.viva.Mexico_512kb.mp4
 title:que viva mexico
+DoomsdayMachine1972/DoomsdayMachine1972_512kb.mp4
+skip:DoomsdayMachine1972
+title:doomsday machine 1972
+Doomed_to_Die_1940/Doomed_to_Die.mp3
+skip:Doomed_to_Die_1940
+title:doomed to die
+CurseOfTheSwampCreature1966_742/CurseOfTheSwampCreature1966_512kb.mp4
+skip:CurseOfTheSwampCreature1966_742
+title:curse of the swamp creature 1966
+TeenagersFromOuterSpace1959/TeenagersFromOuterSpace1959DavidLove.mp4
+skip:TeenagersFromOuterSpace1959
+title:teenagers from outer space 1959
+ZontarTheThingFromVenusrestored/Zontarrestored.mp3
+skip:ZontarTheThingFromVenusrestored
+title:zontar the thing from venus restored
+EndoftheWorld/EndoftheWorld_512kb.mp4
+skip:EndoftheWorld
+title:end of the world
+CreatureFromTheHauntedSea/CreatureFromTheHauntedSea.mp3
+skip:CreatureFromTheHauntedSea
+title:creature from the haunted sea
+TheDevilsDaughter/TheDevilsDaughter_512kb.mp4
+skip:TheDevilsDaughter
+title:the devils daughter
+Devil_Bat_movie/Devil_Bat_512x384.mp4
+BeatTheDevil1953/BeatTheDevil1954_512kb.mp4
+skip:BeatTheDevil1953
+title:beat the devil 1953
+eternally_yours_ipod/eternally_yours.mp3
+skip:eternally_yours_ipod
+title:eternally yours
+brand_of_the_devil/brand_of_the_devil.mp3
+skip:brand_of_the_devil
+title:brand of the devil
+DeviloftheDesertAgainstSonofHercules/DeviloftheDesertAgainstSonofHercules.mp3
+skip:DeviloftheDesertAgainstSonofHercules
+title:the devil of the desert against the son of hercules
+TeenageDevilDolls/TeenageDevilDolls_512kb.mp4
+skip:TeenageDevilDolls
+title:teenage devil dolls
+The_Four_Horsemen_of_the_Apocalypse/fh2_512kb.mp4
+The_Four_Horsemen_of_the_Apocalypse/fh1_512kb.mp4
+The_Four_Horsemen_of_the_Apocalypse/fh5_512kb.mp4
+skip:The_Four_Horsemen_of_the_Apocalypse
+title:the four horsemen of the apocalypse
+SantaClausversusTheDevil/SantaClaus_1.mp3
+skip:SantaClausversusTheDevil
+title:santa claus versus the devil
+the_brain_that_wouldnt_die_ipod/the_brain_that_wouldnt_die.mp3
+skip:the_brain_that_wouldnt_die_ipod
+title:the brain that wouldnt die
+devil_diamond_ipod/devil_diamond_512kb.mp4
+skip:devil_diamond_ipod
+title:devil diamond
+OTRR_Dimension_X_Singles/Dimension_X_1951-08-23__45_UntitledStory.mp3
