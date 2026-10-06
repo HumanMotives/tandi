@@ -46,6 +46,26 @@ h1 { margin: 0 0 18px; font: 600 1.75rem/1.1 var(--sans); letter-spacing: -.01em
 }
 .go:hover:not(:disabled) { filter: brightness(1.07); }
 .go:disabled { opacity: .55; cursor: default; }
+.bset { margin-top: 10px; width: min(100%, 460px); font-size: .85rem; }
+.bset[hidden] { display: none; }
+.bset summary { cursor: pointer; color: var(--head-muted); width: fit-content; }
+.bset summary:hover { color: var(--head-ink); }
+.bset[open] summary { color: var(--head-ink); margin-bottom: 8px; }
+.bset dl {
+  display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0;
+  padding: 10px 12px; background: var(--head-field); border: 1px solid var(--head-line); border-radius: 8px;
+}
+.bset dt { color: var(--head-muted); }
+.bset dd { margin: 0; overflow-wrap: anywhere; }
+.bset dd.auto::after { content: " (bedacht door Claude)"; color: var(--head-muted); }
+.bset .none { grid-column: 1 / -1; color: var(--head-muted); }
+.ghost {
+  margin-top: 8px; background: none; color: var(--head-ink); border: 1px solid var(--head-line);
+  border-radius: 8px; padding: 6px 12px; cursor: pointer;
+}
+.ghost:hover { border-color: var(--head-muted); }
+#rprefill { margin: 0; padding: 8px 10px; background: var(--mark-soft); border-radius: 8px; color: var(--ink); }
+#rprefill[hidden] { display: none; }
 #runstatus { margin-top: 12px; font-size: .85rem; color: var(--head-ink); overflow-wrap: anywhere; }
 #runstatus:empty { display: none; }
 #runstatus a { color: inherit; white-space: nowrap; }
@@ -168,6 +188,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
 .form .lbl { color: var(--ink); font-weight: 500; font-size: .9rem; }
 .form .sub { margin-top: -3px; }
 .types { border: 0; margin: 0; padding: 0; min-width: 0; }
+.types[hidden] { display: none; }
 .types legend { padding: 0; margin-bottom: 7px; color: var(--ink); font-weight: 500; font-size: .9rem; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .form label.chip { display: inline-flex; gap: 0; cursor: pointer; }
@@ -182,6 +203,8 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
 
 @media (max-width: 560px) {
   h1 { font-size: 1.5rem; }
+  .bset dl { grid-template-columns: 1fr; gap: 0; }
+  .bset dd { margin-bottom: 6px; }
   .go { width: 100%; }
   .tools { position: static; }
   html { scroll-padding-top: env(safe-area-inset-top, 0px); }
@@ -205,6 +228,11 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
     <h1>VK Sample Miner</h1>
     <label class="field-label" for="batch">Finished Batches</label>
     <select id="batch" disabled><option>Laden…</option></select>
+    <details class="bset" id="bset" hidden>
+      <summary>Instellingen van deze batch</summary>
+      <dl id="bset-list"></dl>
+      <button class="ghost" id="brepeat">Opnieuw met deze instellingen</button>
+    </details>
     <button class="go" id="newrun">Harvest New Samples</button>
     <div id="runstatus" aria-live="polite"></div>
   </div>
@@ -243,10 +271,24 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
         <h2 id="rtitle">Harvest New Samples</h2>
         <button class="btn" id="rclose">Sluiten</button>
       </div>
-      <p class="hint">Zoekt op heel Internet Archive. Eerst vindt hij bronnen, daarna knipt hij daaruit de zinnen die het best passen. Alles is optioneel: laat je de velden leeg, dan kiest hij op basis van het bandprofiel.</p>
+      <p class="hint">Zoekt op heel Internet Archive. Eerst vindt hij bronnen, daarna knipt hij daaruit de zinnen die het best passen. Kies een zoekset; de velden eronder zijn optioneel.</p>
     </div>
     <div class="form">
-      <fieldset class="types">
+      <p class="hint" id="rprefill" hidden></p>
+      <label><span class="lbl">Zoekset</span>
+        <span class="sub">Kant-en-klare zoekopdracht. Vrij zoeken gebruikt je eigen woorden of het bandprofiel.</span>
+        <select id="r-preset">
+          <option value="hoorspel-klassiek" selected>Hoorspelen (eerste batch)</option>
+          <option value="hoorspel-meer">Hoorspelen, meer series</option>
+          <option value="duister-drama">Duistere thema's in hoorspel en film</option>
+          <option value="duister-alles">Duistere hoeken (heel Internet Archive)</option>
+          <option value="ufo-interviews">UFO-interviews</option>
+          <option value="b-films">B-films horror en sci-fi</option>
+          <option value="prelinger">Prelinger (oude voorlichtingsfilms)</option>
+          <option value="">Vrij zoeken</option>
+        </select>
+      </label>
+      <fieldset class="types" id="r-typeset" hidden>
         <legend>Soort bron</legend>
         <div class="chips" id="r-types">
           <label class="chip"><input type="checkbox" value="film" checked><span>Films</span></label>
@@ -260,7 +302,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
         <textarea id="r-brief" maxlength="600" placeholder="Beschrijf de sfeer, het soort stem of het onderwerp"></textarea>
       </label>
       <label><span class="lbl">Bronnen zoeken over</span>
-        <span class="sub">Onderwerp van de film, uitzending of opname. Eén per regel of met komma's.</span>
+        <span class="sub" id="r-terms-sub">Optioneel: verfijnt binnen de zoekset. Eén per regel of met komma's.</span>
         <textarea id="r-terms" placeholder="zombie&#10;mad scientist&#10;flying saucer"></textarea>
       </label>
       <label><span class="lbl">Knippen als iemand zegt</span>
@@ -765,7 +807,7 @@ const batchLabel = (b, i, n) => [`Batch ${n - i}`, batchGenre(b), batchDate(b)].
 function loadBatch(name) {
   base = `batches/${name}/`; cur = 0; audio.pause(); playingId = null;
   history.replaceState(null, '', '#' + name);
-  fetch(base + 'clips.json').then(r => r.json()).then(d => { data = d; load(); render(); })
+  fetch(base + 'clips.json').then(r => r.json()).then(d => { data = d; load(); render(); showSettings(); })
     .catch(() => { data = { batch: {}, clips: [] }; empty(`Deze batch kon niet geladen worden (${esc(name)}).`); });
 }
 $('#batch').addEventListener('change', e => loadBatch(e.target.value));
@@ -869,9 +911,64 @@ function watchJob() {
 }
 
 function closeRun() { $('#runpanel').classList.remove('open'); $('#runpanel').setAttribute('aria-hidden', 'true'); }
-$('#newrun').addEventListener('click', () => {
+function openRun() {
   $('#runpanel').classList.add('open'); $('#runpanel').setAttribute('aria-hidden', 'false');
   if (matchMedia('(pointer: fine)').matches) $('#r-brief').focus();
+}
+$('#newrun').addEventListener('click', () => { $('#rprefill').hidden = true; openRun(); });
+
+// ---- Instellingen van de gekozen batch tonen en herhalen ----
+const TYPE_LABEL = { film: 'Films', radio: 'Radio', interview: 'Interviews' };
+function showSettings() {
+  const b = data.batch || {}, st = b.settings;
+  $('#bset').hidden = false;
+  const row = (k, v, cls = '') => `<dt>${k}</dt><dd${cls ? ` class="${cls}"` : ''}>${esc(v)}</dd>`;
+  if (!st) {
+    $('#bset-list').innerHTML = `<span class="none">Voor deze batch zijn geen instellingen bewaard; dat kan pas vanaf nieuwe batches.</span>` +
+      (b.preset ? row('Omschrijving', b.preset) : '');
+    $('#brepeat').hidden = true;
+    return;
+  }
+  const list = a => (a || []).join(', ');
+  const presetName = st.preset ? ($(`#r-preset option[value="${CSS.escape(st.preset)}"]`)?.textContent || st.preset) : '';
+  $('#bset-list').innerHTML = [
+    presetName ? row('Zoekset', presetName) : '',
+    presetName ? '' : row('Soort bron', st.types?.length ? st.types.map(t => TYPE_LABEL[t] || t).join(', ') : 'Alles'),
+    row('Waar zoek je naar?', st.brief || '–'),
+    st.terms?.length ? row('Bronnen zoeken over', list(st.terms))
+      : st.auto_terms?.length ? row('Bronnen zoeken over', list(st.auto_terms), 'auto')
+      : row('Bronnen zoeken over', presetName ? '–' : 'standaardlijst'),
+    row('Knippen als iemand zegt', st.keywords?.length ? list(st.keywords) : 'standaardlijst'),
+    row('Bronnen', `${st.max_items}, ${st.per_source} clip${st.per_source > 1 ? 's' : ''} per bron`),
+    row('Transcriptie', st.whisper === 'small.en' ? 'Beter' : 'Snel'),
+    row('Licentie', st.pd_only ? 'Alleen vrije licentie' : 'Alles'),
+    row('Claude', b.claude ? 'aan' : 'uit'),
+  ].join('');
+  $('#brepeat').hidden = false;
+}
+
+$('#brepeat').addEventListener('click', () => {
+  const st = data.batch?.settings; if (!st) return;
+  const types = st.types || [];
+  $('#r-preset').value = st.preset || '';
+  if ($('#r-preset').value !== (st.preset || '')) $('#r-preset').value = '';
+  syncPreset();
+  document.querySelectorAll('#r-types input').forEach(x => {
+    x.checked = x.value === 'all' ? !types.length : types.includes(x.value);
+  });
+  const usedAuto = !st.terms?.length && st.auto_terms?.length;
+  $('#r-brief').value = st.brief || '';
+  $('#r-terms').value = (st.terms?.length ? st.terms : st.auto_terms || []).join('\n');
+  $('#r-kw').value = (st.keywords || []).join('\n');
+  $('#r-items').value = st.max_items || 15;
+  $('#r-per').value = st.per_source || 1;
+  $('#r-model').value = st.whisper === 'small.en' ? 'small.en' : 'base.en';
+  $('#r-pd').checked = st.pd_only !== false;
+  const name = $('#batch').selectedOptions[0]?.textContent || 'deze batch';
+  $('#rprefill').textContent = `Ingevuld vanuit ${name}. Pas aan waar je wilt en klik START. Bronnen die al eens gebruikt zijn worden overgeslagen, dus je krijgt nieuwe resultaten.`
+    + (usedAuto ? ' De zoektermen kwamen van Claude; maak dat veld leeg om nieuwe te laten bedenken.' : '');
+  $('#rprefill').hidden = false;
+  openRun();
 });
 $('#rclose').addEventListener('click', closeRun);
 // Soort bron: Alles sluit de rest uit en andersom
@@ -882,7 +979,17 @@ $('#r-types').addEventListener('change', e => {
   else if (e.target !== all && e.target.checked) all.checked = false;
   if (!boxes.some(b => b.checked)) all.checked = true;
 });
+// Zoekset gekozen: die bepaalt waar hij zoekt, dus 'Soort bron' doet niet mee
+function syncPreset() {
+  const free = !$('#r-preset').value;
+  $('#r-typeset').hidden = !free;
+  $('#r-terms-sub').textContent = free
+    ? "Onderwerp van de film, uitzending of opname. Leeg = bandprofiel of standaardlijst. Eén per regel of met komma's."
+    : "Optioneel: verfijnt binnen de zoekset. Eén per regel of met komma's.";
+}
+$('#r-preset').addEventListener('change', syncPreset);
 function chosenTypes() {
+  if ($('#r-preset').value) return [];
   const v = [...document.querySelectorAll('#r-types input:checked')].map(b => b.value);
   return v.includes('all') ? [] : v;
 }
@@ -895,6 +1002,7 @@ $('#rstart').addEventListener('click', async () => {
     per_source: Math.max(1, Math.min(5, +$('#r-per').value || 1)),
     types: chosenTypes(),
     brief: $('#r-brief').value.trim(),
+    preset: $('#r-preset').value,
     whisper: $('#r-model').value, pd_only: $('#r-pd').checked,
   };
   $('#rstart').disabled = true; $('#rmsg').textContent = 'Starten…';
