@@ -73,6 +73,18 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
     </div>
   </div>
 
+  <!-- SLIDE: sponsor worden -->
+  <div class="slide" id="worden" style="background:#CE2130">
+    <div style="position:absolute;right:-240px;top:-260px;width:900px;height:900px;border-radius:50%;border:90px solid rgba(255,255,255,.08)"></div>
+    <img src="img/s/voetbal.png" onerror="this.style.display='none'" alt="" style="position:absolute;right:220px;bottom:150px;width:300px">
+    <div style="position:absolute;left:140px;top:0;width:1200px;height:956px;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;-webkit-justify-content:center;justify-content:center">
+      <div class="C" style="font-size:64px;color:#E6D74F;line-height:1">Steun de club</div>
+      <div class="A" style="font-size:170px;line-height:1.02;color:#fff;margin-top:14px">SPONSOR<br>WORDEN?</div>
+      <div style="width:140px;height:8px;background:#E6D74F;margin:40px 0 34px"></div>
+      <div style="font-size:56px;font-weight:700;color:#fff;line-height:1.2">Vraag iemand van ons bestuur voor info.</div>
+    </div>
+  </div>
+
   <!-- SLIDE: video -->
   <div class="slide" id="video" style="background:#000">
     <video id="vid" muted playsinline preload="auto" style="position:absolute;left:0;top:0;width:1920px;height:956px;object-fit:cover"></video>
@@ -114,6 +126,7 @@ var SPONSOR_SECONDEN = 7;   // hoe lang elke groep van 8 sponsors staat (40 spon
 var TEAM_SECONDEN = 10;     // hoe lang een teamfoto staat
 var TEAMS_PER_KEER = 3;     // aantal teamfoto's na elkaar
 var WELKOM_SECONDEN = 10;   // welkomstscherm
+var WORDEN_SECONDEN = 10;   // "Sponsor worden?" — komt één keer per ronde
 var WELKOM_FOTOS = ["welkom.jpg", "welkom1.jpg", "welkom2.jpg", "welkom3.jpg", "welkom4.jpg"];  // in img/, elke keer de volgende
 var VIDEO = "";                 // bijv. "video/drone.mp4" — leeg = geen video
 var VIDEO_MAX_SECONDEN = 90;    // langer duurt hij nooit; lukt afspelen niet, dan wordt hij overgeslagen
@@ -274,7 +287,7 @@ var LIVE = "https://humanmotives.org/rkvv/";
   }
 
   // afspelen
-  var SLIDES = ['welkom', 'sponsors', 'team', 'video'];
+  var SLIDES = ['welkom', 'sponsors', 'team', 'video', 'worden'];
   function toon(id) {
     for (var i = 0; i < SLIDES.length; i++) $(SLIDES[i]).className = 'slide' + (SLIDES[i] === id ? ' on' : '');
   }
@@ -294,6 +307,7 @@ var LIVE = "https://humanmotives.org/rkvv/";
     wfTimer = setInterval(volgendeFoto, Math.max(4, WELKOM_SECONDEN / 2) * 1000);
     setTimeout(function () { clearInterval(wfTimer); klaar(); }, WELKOM_SECONDEN * 1000);
   }
+  function worden(klaar) { toon('worden'); setTimeout(klaar, WORDEN_SECONDEN * 1000); }
   function sponsors(klaar) {
     toonGroep(0, false); toon('sponsors');
     var g = 0;
@@ -334,11 +348,11 @@ var LIVE = "https://humanmotives.org/rkvv/";
     v.onplaying = function () { clearTimeout(check); toon('video'); };
     wacht = setTimeout(stop, VIDEO_MAX_SECONDEN * 1000);
   }
-  // volgorde: welkom → sponsors → jeugd → sponsors → senioren → (video) → opnieuw
-  var VOLGORDE = [welkom, sponsors, teamsVan(JEUGD), sponsors, teamsVan(SENIOREN), video];
+  // volgorde: welkom → sponsors → jeugd → sponsors → sponsor worden → senioren → (video) → opnieuw
+  var VOLGORDE = [welkom, sponsors, teamsVan(JEUGD), sponsors, worden, teamsVan(SENIOREN), video];
   // Testen via de link: ?alleen=welkom | sponsors | jeugd | senioren
   var alleen = window.ALLEEN || (location.search.match(/[?&]alleen=([a-z]+)/) || [])[1];
-  var LOS = { welkom: welkom, sponsors: sponsors, jeugd: teamsVan(JEUGD), senioren: teamsVan(SENIOREN) };
+  var LOS = { welkom: welkom, worden: worden, sponsors: sponsors, jeugd: teamsVan(JEUGD), senioren: teamsVan(SENIOREN) };
   if (alleen && LOS[alleen]) VOLGORDE = [LOS[alleen]];
   var stap = 0;
   (function volgende() { VOLGORDE[stap++ % VOLGORDE.length](volgende); })();
