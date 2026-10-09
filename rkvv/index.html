@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RKVV Casteren · Kantinescherm</title>
+<title>RKVV Casteren · Kantinescherm · versie 9 okt</title>
 <link href="https://fonts.googleapis.com/css?family=Anton|Barlow+Condensed:600,700,800|Caveat+Brush" rel="stylesheet">
 <style>
 *{-webkit-box-sizing:border-box;box-sizing:border-box}
@@ -31,7 +31,7 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
 /* sponsors */
 .tile{position:absolute}
 .flip{position:absolute;left:0;top:0;width:100%;height:100%;will-change:transform;-webkit-backface-visibility:hidden;-webkit-transition:-webkit-transform .32s ease-in;transition:transform .32s ease-in}
-.card{position:absolute;left:0;top:0;width:100%;height:100%;background:#fff;border-radius:22px;padding:26px 30px;border:2px solid #ebe5d6}
+.card{position:absolute;left:0;top:0;width:100%;height:100%;background:#fff;border-radius:22px;padding:30px 44px;border:2px solid #ebe5d6}
 .card img{width:100%;height:100%;object-fit:contain;display:block}
 .naam{position:absolute;left:16px;right:16px;top:0;bottom:0;display:none;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;text-align:center;font-size:46px;line-height:1.15;color:#25231f}
 .leeg{position:absolute;left:0;top:0;width:100%;height:100%;background:#CE2130;border-radius:22px;color:#fff;text-align:center;display:none;-webkit-flex-direction:column;flex-direction:column;-webkit-justify-content:center;justify-content:center}
@@ -96,7 +96,7 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
       <span class="A" style="font-size:104px;line-height:1">ONZE SPONSOREN</span>
       <span class="C" style="font-size:62px;color:#CE2130;margin-left:30px">bedankt!</span>
     </div>
-    <div id="grid" style="position:absolute;left:70px;top:290px;width:1780px;height:540px"></div>
+    <div id="grid" style="position:absolute;left:70px;top:270px;width:1780px;height:620px"></div>
   </div>
 
   <!-- SLIDE 2: teamfoto -->
@@ -120,12 +120,12 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
    INSTELLINGEN — alleen hier iets aanpassen
    ===================================================== */
 
-var TICKER = "Welkom bij RKVV Casteren    •   Let op dat je nog even niet over het ingezaaide gras loopt    •   De officiële opening is op 10 oktober    •   Wil jij bij de club van 50? Vraag aan de bar    •   ";
+var TICKER = "Welkom op Sportpark De Smeel    •   RKVV Casteren heet u van harte welkom bij de opening van de nieuwe accommodatie    •   Wij danken al onze vrijwilligers en sponsoren voor hun geweldige inzet    •   ";
 
-var SPONSOR_SECONDEN = 7;   // hoe lang elke groep van 8 sponsors staat (40 sponsors = 5 groepen)
+var SPONSOR_SECONDEN = 6;   // hoe lang elke groep van 6 sponsors staat (42 sponsors = 7 volle groepen)
 var TEAM_SECONDEN = 10;     // hoe lang een teamfoto staat
 var TEAMS_PER_KEER = 3;     // aantal teamfoto's na elkaar
-var WELKOM_SECONDEN = 10;   // welkomstscherm
+var WELKOM_SECONDEN = 16;   // welkomstscherm (langer dan de rest)
 var WORDEN_SECONDEN = 10;   // "Sponsor worden?" — komt één keer per ronde
 var WELKOM_FOTOS = ["welkom.jpg", "welkom1.jpg", "welkom2.jpg", "welkom3.jpg", "welkom4.jpg"];  // in img/, elke keer de volgende
 var VIDEO = "";                 // bijv. "video/drone.mp4" — leeg = geen video
@@ -139,6 +139,7 @@ var SPONSORS = [
   ["Connectro", "sponsor-connectro.png"],
   ["Corstiaans Schilderwerken", "sponsor-corstiaans.jpg"],
   ["Den Bels", "sponsor-denbels.jpg"],
+  ["Dijkmans", "sponsor-dijkmans.png"],
   ["Esco Vloeren", "sponsor-esco.png"],
   ["ExKuus", "sponsor-excuus.png"],
   ["Feltek", "sponsor-feltek.png"],
@@ -169,6 +170,7 @@ var SPONSORS = [
   ["Van Dingenen Transport", "sponsor-vdt.png"],
   ["Van Gils Electro", "sponsor-vangils.png"],
   ["Van Lieshout", "sponsor-vanlieshout.png"],
+  ["Van Rijthoven", "sponsor-vanrijthoven.png"],
   ["Verhoeven", "sponsor-verhoeven.jpg"],
   ["Wintermans Eersel", "sponsor-wintermans.png"],
   ["Yimo Sierbestrating", "sponsor-yimo.png"],
@@ -229,7 +231,7 @@ var LIVE = "https://humanmotives.org/rkvv/";
   anim($('ticker'), 'tick ' + Math.max(10, Math.round($('ticker').offsetWidth / 2 / 90)) + 's linear infinite');
 
   // sponsorgrid: 5 x 4 kaartjes
-  var COLS = 4, ROWS = 2, N = COLS * ROWS, W = 425, H = 250, GX = 26, GY = 40;
+  var COLS = 3, ROWS = 2, N = COLS * ROWS, W = 570, H = 290, GX = 35, GY = 40;
   var groepen = Math.max(1, Math.ceil(SPONSORS.length / N));
   var html = '';
   for (var n = 0; n < N; n++) {
