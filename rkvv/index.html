@@ -126,7 +126,7 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
 
 var TICKER = "Welkom op Sportpark De Smeel    •   RKVV Casteren heet u van harte welkom bij de opening van de nieuwe accommodatie    •   Wij danken al onze vrijwilligers en sponsoren voor hun geweldige inzet    •   ";
 
-var SPONSOR_SECONDEN = 6;   // hoe lang elke groep van 6 sponsors staat (42 sponsors = 7 volle groepen)
+var SPONSOR_SECONDEN = 6;   // hoe lang elke groep van 6 sponsors staat
 var TEAM_SECONDEN = 10;     // hoe lang een teamfoto staat
 var TEAMS_PER_KEER = 3;     // aantal teamfoto's na elkaar
 var WELKOM_SECONDEN = 16;   // welkomstscherm (langer dan de rest)
@@ -176,6 +176,7 @@ var SPONSORS = [
   ["Van Lieshout", "sponsor-vanlieshout.png"],
   ["Van Rijthoven", "sponsor-vanrijthoven.png"],
   ["Verhoeven", "sponsor-verhoeven.jpg"],
+  ["Wigman", "sponsor-wigman.jpg"],
   ["Wintermans Eersel", "sponsor-wintermans.png"],
   ["Yimo Sierbestrating", "sponsor-yimo.png"],
   ["Zorgboerderij de Wederloop", "sponsor-wederloop.png"]
@@ -236,7 +237,9 @@ var LIVE = "https://humanmotives.org/rkvv/";
 
   // sponsorgrid: 5 x 4 kaartjes
   var COLS = 3, ROWS = 2, N = COLS * ROWS, W = 570, H = 290, GX = 35, GY = 40;
-  var groepen = Math.max(1, Math.ceil(SPONSORS.length / N));
+  // alle sponsors + precies één "Jouw logo?"-tegel aan het eind
+  var TOTAAL = SPONSORS.length + 1;
+  var groepen = Math.ceil(TOTAAL / N);
   var html = '';
   for (var n = 0; n < N; n++) {
     html += '<div class="tile" style="left:' + (n % COLS) * (W + GX) + 'px;top:' + Math.floor(n / COLS) * (H + GY) + 'px;width:' + W + 'px;height:' + H + 'px">' +
@@ -265,7 +268,21 @@ var LIVE = "https://humanmotives.org/rkvv/";
     naam.innerHTML = esc(sp[0]); naam.style.display = 'none';
     img.style.display = ''; img.alt = sp[0]; img.setAttribute('data-f', sp[1]); img.src = 'img/sponsors/' + sp[1];
   }
+  function plaats(g) {
+    // tegels van deze groep netjes centreren (laatste groep kan minder dan N tegels hebben)
+    var m = Math.min(N, TOTAAL - g * N);
+    for (var i = 0; i < tiles.length; i++) {
+      var box = tiles[i].parentNode;
+      if (i >= m) { box.style.display = 'none'; continue; }
+      var rij = Math.floor(i / COLS), inRij = Math.min(COLS, m - rij * COLS), kol = i % COLS;
+      var rijen = Math.ceil(m / COLS);
+      var x0 = (1780 - (inRij * W + (inRij - 1) * GX)) / 2, y0 = (rijen < ROWS ? (H + GY) / 2 : 0);
+      box.style.display = ''; box.style.left = (x0 + kol * (W + GX)) + 'px'; box.style.top = (y0 + rij * (H + GY)) + 'px';
+    }
+  }
   function toonGroep(g, draai) {
+    if (TOTAAL - g * N < N) draai = false;  // laatste (kleinere) groep: direct wisselen
+    plaats(g);
     for (var i = 0; i < tiles.length; i++) (function (el, i) {
       var sp = SPONSORS[g * N + i] || null;
       if (!draai) { vul(el, sp); return; }
