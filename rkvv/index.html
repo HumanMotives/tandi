@@ -187,7 +187,7 @@ var JEUGD = {
   map: "img/teamfotos/casnet26/", club: "Casteren/Netersel", watermerk: "img/casnetlogo.png",
   teams: [
     ["JO7", "1.jpg"], ["JO8", "2.jpg"], ["JO9", "3.jpg"], ["JO10-1", "4.jpg"], ["JO10-2", "5.jpg"],
-    ["JO11", "6.jpg"], ["JO12", "KamppioenCasNet2026.jpeg", "kampioen"], ["JO14", "8.jpg"], ["JO15", "9.jpg"], ["JO19", "10.jpg"]
+    ["JO11", "6.jpg"], ["JO12", "7.jpg"], ["JO14", "8.jpg"], ["JO15", "9.jpg"], ["JO19", "10.jpg"]
   ]
 };
 var SENIOREN = {
@@ -359,10 +359,15 @@ var LIVE = "https://humanmotives.org/rkvv/";
   // volgorde: welkom → sponsors → jeugd → sponsors → sponsor worden → senioren → (video) → opnieuw
   // kampioen: komt elke ronde, los van de gewone teamfoto's (zet KAMPIOEN_AAN = false om uit te zetten)
   var KAMPIOEN_AAN = true;
-  var KAMPIOEN = { map: JEUGD.map, club: JEUGD.club, watermerk: JEUGD.watermerk, teams: KAMPIOEN_AAN ? [["JO12", "KamppioenCasNet2026.jpeg", "kampioen"]] : [] };
+  var KAMPIOEN = { map: JEUGD.map, club: JEUGD.club, watermerk: JEUGD.watermerk, teams: KAMPIOEN_AAN ? [["JO12", "KamppioenCasNet2026.jpeg", "kampioen"], ["JO15", "jo15-kampioen.jpeg", "kampioen"]] : [] };
   function kampioen(klaar) {
     if (!KAMPIOEN.teams.length) return klaar();
-    toonTeam(KAMPIOEN); toon('team'); setTimeout(klaar, TEAM_SECONDEN * 1000);
+    var n = 0;
+    (function volgende() {
+      if (n++ >= KAMPIOEN.teams.length) return klaar();
+      toonTeam(KAMPIOEN); toon('team');
+      setTimeout(volgende, TEAM_SECONDEN * 1000);
+    })();
   }
   var VOLGORDE = [welkom, kampioen, sponsors, teamsVan(JEUGD), sponsors, worden, kampioen, teamsVan(SENIOREN), video];
   // Testen via de link: ?alleen=welkom | sponsors | jeugd | senioren
