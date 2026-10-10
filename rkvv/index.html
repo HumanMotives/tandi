@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RKVV Casteren · Kantinescherm · versie 9 okt</title>
+<title>RKVV Casteren · Kantinescherm · versie 10 okt</title>
 <link href="https://fonts.googleapis.com/css?family=Anton|Barlow+Condensed:600,700,800|Caveat+Brush" rel="stylesheet">
 <style>
 *{-webkit-box-sizing:border-box;box-sizing:border-box}
@@ -106,7 +106,11 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
       <img id="teamphoto" src="" alt="">
     </div>
     <div style="position:absolute;left:1390px;top:84px;width:490px;height:790px;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;-webkit-justify-content:center;justify-content:center">
-      <div style="font-size:26px;font-weight:800;letter-spacing:.22em;color:#CE2130">TEAMFOTO · <span id="seizoen"></span></div>
+      <div id="kampioen" style="display:none;margin-bottom:28px">
+        <div class="A" style="display:inline-block;background:#E6D74F;color:#111;font-size:96px;line-height:1;padding:14px 30px 18px;border-radius:14px;-webkit-transform:rotate(-4deg);transform:rotate(-4deg)">KAMPIOEN!</div>
+        <div class="C" style="font-size:50px;color:#CE2130;line-height:1.1;margin-top:18px">Vandaag gewonnen!</div>
+      </div>
+      <div id="teamlabel" style="font-size:26px;font-weight:800;letter-spacing:.22em;color:#CE2130">TEAMFOTO · <span id="seizoen"></span></div>
       <div id="teamnaam" class="A" style="font-size:104px;line-height:1.02;margin-top:10px"></div>
       <div id="club" class="C" style="font-size:52px;color:#CE2130;line-height:1.1"></div>
       <img id="teamlogo" alt="" style="width:240px;height:auto;margin-top:36px;display:block">
@@ -183,7 +187,7 @@ var JEUGD = {
   map: "img/teamfotos/casnet26/", club: "Casteren/Netersel", watermerk: "img/casnetlogo.png",
   teams: [
     ["JO7", "1.jpg"], ["JO8", "2.jpg"], ["JO9", "3.jpg"], ["JO10-1", "4.jpg"], ["JO10-2", "5.jpg"],
-    ["JO11", "6.jpg"], ["JO12", "7.jpg"], ["JO14", "8.jpg"], ["JO15", "9.jpg"], ["JO19", "10.jpg"]
+    ["JO11", "6.jpg"], ["JO12", "KamppioenCasNet2026.jpeg", "kampioen"], ["JO14", "8.jpg"], ["JO15", "9.jpg"], ["JO19", "10.jpg"]
   ]
 };
 var SENIOREN = {
@@ -286,6 +290,8 @@ var LIVE = "https://humanmotives.org/rkvv/";
     tl.onerror = function () { if (tl.src.indexOf(LIVE) !== 0) tl.src = LIVE + groep.watermerk; };
     tl.src = groep.watermerk;
     $('seizoen').innerHTML = esc(groep.seizoen || SEIZOEN);
+    $('kampioen').style.display = tm[2] === 'kampioen' ? 'block' : 'none';
+    $('teamlabel').style.display = tm[2] === 'kampioen' ? 'none' : 'block';
   }
 
   // afspelen
@@ -351,10 +357,17 @@ var LIVE = "https://humanmotives.org/rkvv/";
     wacht = setTimeout(stop, VIDEO_MAX_SECONDEN * 1000);
   }
   // volgorde: welkom → sponsors → jeugd → sponsors → sponsor worden → senioren → (video) → opnieuw
-  var VOLGORDE = [welkom, sponsors, teamsVan(JEUGD), sponsors, worden, teamsVan(SENIOREN), video];
+  // kampioen: komt elke ronde, los van de gewone teamfoto's (zet KAMPIOEN_AAN = false om uit te zetten)
+  var KAMPIOEN_AAN = true;
+  var KAMPIOEN = { map: JEUGD.map, club: JEUGD.club, watermerk: JEUGD.watermerk, teams: KAMPIOEN_AAN ? [["JO12", "KamppioenCasNet2026.jpeg", "kampioen"]] : [] };
+  function kampioen(klaar) {
+    if (!KAMPIOEN.teams.length) return klaar();
+    toonTeam(KAMPIOEN); toon('team'); setTimeout(klaar, TEAM_SECONDEN * 1000);
+  }
+  var VOLGORDE = [welkom, kampioen, sponsors, teamsVan(JEUGD), sponsors, worden, kampioen, teamsVan(SENIOREN), video];
   // Testen via de link: ?alleen=welkom | sponsors | jeugd | senioren
   var alleen = window.ALLEEN || (location.search.match(/[?&]alleen=([a-z]+)/) || [])[1];
-  var LOS = { welkom: welkom, worden: worden, sponsors: sponsors, jeugd: teamsVan(JEUGD), senioren: teamsVan(SENIOREN) };
+  var LOS = { welkom: welkom, worden: worden, sponsors: sponsors, kampioen: kampioen, jeugd: teamsVan(JEUGD), senioren: teamsVan(SENIOREN) };
   if (alleen && LOS[alleen]) VOLGORDE = [LOS[alleen]];
   var stap = 0;
   (function volgende() { VOLGORDE[stap++ % VOLGORDE.length](volgende); })();
