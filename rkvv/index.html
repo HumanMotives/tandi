@@ -313,7 +313,7 @@ var WELKOM_SECONDEN = 16;   // welkomstscherm (langer dan de rest)
 var CATERING_SECONDEN = 12; // drankjes, drankenkaart, eten, Oktoberfest
 var BAL_SECONDEN = 5;       // stuiterbal-intermezzo
 var BAL_ACHTERGROND = "img/voetbalachtergrond.jpg";  // ontbreekt hij? dan geel met grasstrook
-var BAL_TEKSTEN = ["GOOOAL!", "HUP CASTEREN!", "WAT EEN BAL!"];
+var BAL_TEKSTEN = ["GOOOAL!", "HUP CASTEREN!", "TIKKIE TERUG!", "WAT EEN BAL!", "IN DE KRUISING!"];
 var WORDEN_SECONDEN = 10;   // "Sponsor worden?" — komt één keer per ronde
 var WELKOM_FOTOS = ["welkom.jpg", "welkom1.jpg", "welkom2.jpg", "welkom3.jpg", "welkom4.jpg"];  // in img/, elke keer de volgende
 var VIDEO = "";                 // bijv. "video/drone.mp4" — leeg = geen video
@@ -428,7 +428,7 @@ var LIVE = "https://humanmotives.org/rkvv/";
   for (var n = 0; n < N; n++) {
     html += '<div class="tile" style="left:' + (n % COLS) * (W + GX) + 'px;top:' + Math.floor(n / COLS) * (H + GY) + 'px;width:' + W + 'px;height:' + H + 'px">' +
       '<div class="flip"><div class="card"><img alt=""><div class="naam A"></div></div>' +
-      '<div class="leeg"><div class="A" style="font-size:52px;line-height:1.1">JOUW LOGO?</div><div style="font-size:28px;font-weight:600;margin-top:6px">info@rkvvcasteren.nl</div></div></div></div>';
+      '<div class="leeg"><div class="A" style="font-size:52px;line-height:1.1">JOUW LOGO?</div><div style="font-size:28px;font-weight:700;letter-spacing:.06em;margin-top:8px">VRAAG DE SPONSORCOMMISSIE</div></div></div></div>';
   }
   $('grid').innerHTML = html;
   // alle sponsorlogo's vooraf laden, zodat het omdraaien niet hapert
@@ -609,7 +609,7 @@ var LIVE = "https://humanmotives.org/rkvv/";
       setTimeout(volgende, TEAM_SECONDEN * 1000);
     })();
   }
-  var VOLGORDE = [welkom, oktober, kampioen, sponsors, drankjes, bal, teamsVan(JEUGD), bier, eten, sponsors, worden, fris, oktober, kampioen, bal, teamsVan(SENIOREN), video];
+  var VOLGORDE = [welkom, kampioen, sponsors, drankjes, oktober, bal, teamsVan(JEUGD), bier, oktober, eten, sponsors, worden, fris, kampioen, bal, teamsVan(SENIOREN), video];
   // Testen via de link: ?alleen=welkom | sponsors | jeugd | senioren
   var alleen = window.ALLEEN || (location.search.match(/[?&]alleen=([a-z]+)/) || [])[1];
   var LOS = { bal: bal, drankjes: drankjes, bier: bier, fris: fris, eten: eten, oktober: oktober, welkom: welkom, worden: worden, sponsors: sponsors, kampioen: kampioen, jeugd: teamsVan(JEUGD), senioren: teamsVan(SENIOREN) };
