@@ -53,6 +53,14 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
 @-webkit-keyframes drift{from{-webkit-transform:translate3d(0,0,0)}to{-webkit-transform:translate3d(-60px,0,0)}}
 @keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-60px,0,0)}}
 .drift{-webkit-animation:drift 16s ease-in-out 2s infinite alternate;animation:drift 16s ease-in-out 2s infinite alternate;will-change:transform}
+@-webkit-keyframes balX{from{-webkit-transform:translate3d(-320px,0,0)}to{-webkit-transform:translate3d(2150px,0,0)}}
+@keyframes balX{from{transform:translate3d(-320px,0,0)}to{transform:translate3d(2150px,0,0)}}
+@-webkit-keyframes balY{0%{-webkit-transform:translate3d(0,-620px,0);-webkit-animation-timing-function:ease-in}17%{-webkit-transform:translate3d(0,0,0);-webkit-animation-timing-function:ease-out}32%{-webkit-transform:translate3d(0,-430px,0);-webkit-animation-timing-function:ease-in}46%{-webkit-transform:translate3d(0,0,0);-webkit-animation-timing-function:ease-out}57%{-webkit-transform:translate3d(0,-260px,0);-webkit-animation-timing-function:ease-in}67%{-webkit-transform:translate3d(0,0,0);-webkit-animation-timing-function:ease-out}74%{-webkit-transform:translate3d(0,-130px,0);-webkit-animation-timing-function:ease-in}81%{-webkit-transform:translate3d(0,0,0);-webkit-animation-timing-function:ease-out}86%{-webkit-transform:translate3d(0,-50px,0);-webkit-animation-timing-function:ease-in}90%,100%{-webkit-transform:translate3d(0,0,0)}}
+@keyframes balY{0%{transform:translate3d(0,-620px,0);animation-timing-function:ease-in}17%{transform:translate3d(0,0,0);animation-timing-function:ease-out}32%{transform:translate3d(0,-430px,0);animation-timing-function:ease-in}46%{transform:translate3d(0,0,0);animation-timing-function:ease-out}57%{transform:translate3d(0,-260px,0);animation-timing-function:ease-in}67%{transform:translate3d(0,0,0);animation-timing-function:ease-out}74%{transform:translate3d(0,-130px,0);animation-timing-function:ease-in}81%{transform:translate3d(0,0,0);animation-timing-function:ease-out}86%{transform:translate3d(0,-50px,0);animation-timing-function:ease-in}90%,100%{transform:translate3d(0,0,0)}}
+@-webkit-keyframes balR{from{-webkit-transform:rotate(0)}to{-webkit-transform:rotate(1080deg)}}
+@keyframes balR{from{transform:rotate(0)}to{transform:rotate(1080deg)}}
+@-webkit-keyframes balPop{0%{opacity:0;-webkit-transform:scale(.3) rotate(-8deg)}60%{opacity:1;-webkit-transform:scale(1.08) rotate(-4deg)}100%{opacity:1;-webkit-transform:scale(1) rotate(-4deg)}}
+@keyframes balPop{0%{opacity:0;transform:scale(.3) rotate(-8deg)}60%{opacity:1;transform:scale(1.08) rotate(-4deg)}100%{opacity:1;transform:scale(1) rotate(-4deg)}}
 @-webkit-keyframes tick{from{-webkit-transform:translate3d(0,0,0)}to{-webkit-transform:translate3d(-50%,0,0)}}
 @keyframes tick{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 </style>
@@ -247,6 +255,19 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
       </div>
     </div>
 
+  <!-- SLIDE: stuiterbal (kort intermezzo) -->
+  <div class="slide" id="bal" style="background:#E6D74F">
+    <img id="balbg" alt="" style="position:absolute;left:0;top:0;width:1920px;height:956px;object-fit:cover;display:none">
+    <div style="position:absolute;left:0;right:0;bottom:0;height:150px;background:#2f7a35"></div>
+    <div style="position:absolute;left:0;right:0;bottom:150px;height:8px;background:#fff"></div>
+    <div id="baltekst" class="A" style="position:absolute;left:0;right:0;top:250px;text-align:center;font-size:240px;line-height:1;color:#CE2130;opacity:0"></div>
+    <div id="balX" style="position:absolute;left:0;bottom:158px;width:260px;height:260px;will-change:transform">
+      <div id="balY" style="width:260px;height:260px;will-change:transform">
+        <img id="balR" src="img/s/voetbal.png" alt="" style="width:260px;height:260px;display:block;will-change:transform">
+      </div>
+    </div>
+  </div>
+
   <!-- SLIDE: video -->
   <div class="slide" id="video" style="background:#000">
     <video id="vid" muted playsinline preload="auto" style="position:absolute;left:0;top:0;width:1920px;height:956px;object-fit:cover"></video>
@@ -292,6 +313,9 @@ var TEAM_SECONDEN = 10;     // hoe lang een teamfoto staat
 var TEAMS_PER_KEER = 3;     // aantal teamfoto's na elkaar
 var WELKOM_SECONDEN = 16;   // welkomstscherm (langer dan de rest)
 var CATERING_SECONDEN = 12; // drankjes, drankenkaart, eten, Oktoberfest
+var BAL_SECONDEN = 5;       // stuiterbal-intermezzo
+var BAL_ACHTERGROND = "img/voetbalachtergrond.jpg";  // ontbreekt hij? dan geel met grasstrook
+var BAL_TEKSTEN = ["GOOOAL!", "HUP CASTEREN!", "WAT EEN BAL!"];
 var WORDEN_SECONDEN = 10;   // "Sponsor worden?" — komt één keer per ronde
 var WELKOM_FOTOS = ["welkom.jpg", "welkom1.jpg", "welkom2.jpg", "welkom3.jpg", "welkom4.jpg"];  // in img/, elke keer de volgende
 var VIDEO = "";                 // bijv. "video/drone.mp4" — leeg = geen video
@@ -474,7 +498,7 @@ var LIVE = "https://humanmotives.org/rkvv/";
   }
 
   // afspelen
-  var SLIDES = ['welkom', 'sponsors', 'team', 'video', 'worden', 'drankjes', 'bier', 'fris', 'eten', 'oktober'];
+  var SLIDES = ['welkom', 'sponsors', 'team', 'video', 'worden', 'bal', 'drankjes', 'bier', 'fris', 'eten', 'oktober'];
 
   // donderdag = ledenavond: lagere prijzen, label tonen, krat weg, keuken dicht, thema-avond alleen dan
   function isDonderdag() { return new Date().getDay() === 4; }
@@ -510,6 +534,28 @@ var LIVE = "https://humanmotives.org/rkvv/";
     volgendeFoto();
     wfTimer = setInterval(volgendeFoto, Math.max(4, WELKOM_SECONDEN / 2) * 1000);
     setTimeout(function () { clearInterval(wfTimer); klaar(); }, WELKOM_SECONDEN * 1000);
+  }
+  var balNr = 0;
+  function bal(klaar) {
+    var t = $('baltekst');
+    t.innerHTML = esc(BAL_TEKSTEN[balNr++ % BAL_TEKSTEN.length]);
+    var bg = $('balbg');
+    if (BAL_ACHTERGROND && !bg.getAttribute('data-ok')) {
+      bg.onload = function () { bg.setAttribute('data-ok', '1'); bg.style.display = 'block'; };
+      bg.onerror = function () { if (bg.src.indexOf(LIVE) !== 0) bg.src = LIVE + BAL_ACHTERGROND; };
+      bg.src = BAL_ACHTERGROND;
+    }
+    var els = [[$('balX'), ''], [$('balY'), ''], [$('balR'), ''], [t, '']];
+    for (var i = 0; i < els.length; i++) anim(els[i][0], 'none');
+    void t.offsetWidth;
+    toon('bal');
+    setTimeout(function () {
+      anim($('balX'), 'balX 2.8s linear forwards');
+      anim($('balY'), 'balY 2.8s linear forwards');
+      anim($('balR'), 'balR 2.8s linear forwards');
+      anim(t, 'balPop .5s ease-out 1.3s both');
+    }, 300);
+    setTimeout(klaar, BAL_SECONDEN * 1000);
   }
   function worden(klaar) { toon('worden'); setTimeout(klaar, WORDEN_SECONDEN * 1000); }
   function sponsors(klaar) {
@@ -565,10 +611,10 @@ var LIVE = "https://humanmotives.org/rkvv/";
       setTimeout(volgende, TEAM_SECONDEN * 1000);
     })();
   }
-  var VOLGORDE = [welkom, oktober, kampioen, sponsors, drankjes, teamsVan(JEUGD), bier, eten, sponsors, worden, fris, oktober, kampioen, teamsVan(SENIOREN), video];
+  var VOLGORDE = [welkom, oktober, kampioen, sponsors, drankjes, bal, teamsVan(JEUGD), bier, eten, sponsors, worden, fris, oktober, kampioen, bal, teamsVan(SENIOREN), video];
   // Testen via de link: ?alleen=welkom | sponsors | jeugd | senioren
   var alleen = window.ALLEEN || (location.search.match(/[?&]alleen=([a-z]+)/) || [])[1];
-  var LOS = { drankjes: drankjes, bier: bier, fris: fris, eten: eten, oktober: oktober, welkom: welkom, worden: worden, sponsors: sponsors, kampioen: kampioen, jeugd: teamsVan(JEUGD), senioren: teamsVan(SENIOREN) };
+  var LOS = { bal: bal, drankjes: drankjes, bier: bier, fris: fris, eten: eten, oktober: oktober, welkom: welkom, worden: worden, sponsors: sponsors, kampioen: kampioen, jeugd: teamsVan(JEUGD), senioren: teamsVan(SENIOREN) };
   if (alleen && LOS[alleen]) VOLGORDE = [LOS[alleen]];
   var stap = 0;
   (function volgende() { VOLGORDE[stap++ % VOLGORDE.length](volgende); })();
