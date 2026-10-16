@@ -1,0 +1,485 @@
+{
+ "batch": {
+  "name": "b20261016-1631",
+  "preset": "B-films horror en sci-fi + death, emptiness",
+  "query": "(collection:(SciFi_Horror OR feature_films) AND (subject:horror OR subject:\"science fiction\" OR subject:sci-fi)) AND (death OR emptiness OR void OR unnatural OR grave OR burial OR resurrection OR afterlife)",
+  "whisper": "base.en",
+  "claude": false,
+  "pad": [
+   0.35,
+   1.5
+  ],
+  "settings": {
+   "preset": "b-films",
+   "types": [],
+   "brief": "",
+   "terms": [
+    "death",
+    "emptiness",
+    "void",
+    "unnatural",
+    "grave",
+    "burial",
+    "resurrection",
+    "afterlife"
+   ],
+   "auto_terms": [],
+   "keywords": [
+    "death",
+    "emptiness",
+    "void",
+    "unnatural",
+    "grave",
+    "burial",
+    "resurrection",
+    "afterlife"
+   ],
+   "max_items": 15,
+   "per_source": 1,
+   "whisper": "base.en",
+   "pd_only": true
+  },
+  "created": "2026-10-16T16:51:09+00:00"
+ },
+ "clips": [
+  {
+   "id": "horrorsoftheredplanet-horrorsoftheredplane-01628",
+   "text": "Isn't there any place on this planet that isn't a death trap?",
+   "score": 13.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "planet",
+    "death"
+   ],
+   "start": 1628.33,
+   "end": 1633.42,
+   "t0": 1628.68,
+   "t1": 1631.92,
+   "transcript": "transcripts/horrorsoftheredplanet-horrorsoftheredplane.json",
+   "source_dl": "https://archive.org/download/HorrorsOfTheRedPlanet/HorrorsOfTheRedPlanet.mp3",
+   "item": "HorrorsOfTheRedPlanet",
+   "title": "Horrors of the Red Planet",
+   "source_file": "HorrorsOfTheRedPlanet.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/HorrorsOfTheRedPlanet",
+   "source_url": "https://archive.org/download/HorrorsOfTheRedPlanet/HorrorsOfTheRedPlanet.mp3#t=1628.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 9
+  },
+  {
+   "id": "driveinshownightmarecastlecemetaryliving-vts-04-2-00271",
+   "text": "Spirit, Seveal, whose powers come from beyond the grave.",
+   "score": 12.0,
+   "ai": null,
+   "tags": [
+    "grave",
+    "from beyond"
+   ],
+   "start": 271.31,
+   "end": 277.78,
+   "t0": 271.66,
+   "t1": 276.28,
+   "transcript": "transcripts/driveinshownightmarecastlecemetaryliving-vts-04-2.json",
+   "source_dl": "https://archive.org/download/DRIVEINSHOWNIGHTMARECASTLECEMETARYLIVINGDEAD_20170430/VIDEO_TS/VTS_04_2.mp3",
+   "item": "DRIVEINSHOWNIGHTMARECASTLECEMETARYLIVINGDEAD_20170430",
+   "title": "BOOTLEGGER'S DRIVE-IN SATURDAY NIGHT: NIGHTMARE CASTLE and CEMETARY OF THE LIVING DEAD",
+   "source_file": "VIDEO_TS/VTS_04_2.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/DRIVEINSHOWNIGHTMARECASTLECEMETARYLIVINGDEAD_20170430",
+   "source_url": "https://archive.org/download/DRIVEINSHOWNIGHTMARECASTLECEMETARYLIVINGDEAD_20170430/VIDEO_TS/VTS_04_2.mp3#t=271.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 12
+  },
+  {
+   "id": "phantom-planet-the-phantom-planet-00000",
+   "text": "Death, die, and dream.",
+   "score": 12.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death",
+    "dream"
+   ],
+   "start": 0.0,
+   "end": 4.0,
+   "t0": 0.18,
+   "t1": 2.5,
+   "transcript": "transcripts/phantom-planet-the-phantom-planet.json",
+   "source_dl": "https://archive.org/download/Phantom_Planet/The_Phantom_Planet.mp3",
+   "item": "Phantom_Planet",
+   "title": "The Phantom Planet",
+   "source_file": "The_Phantom_Planet.mp3",
+   "year": "1961",
+   "item_url": "https://archive.org/details/Phantom_Planet",
+   "source_url": "https://archive.org/download/Phantom_Planet/The_Phantom_Planet.mp3#t=0.0",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "scared-to-death-ipod-scared-to-death-04016",
+   "text": "She was literally scared to death.",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 4016.58,
+   "end": 4021.03,
+   "t0": 4016.93,
+   "t1": 4019.53,
+   "transcript": "transcripts/scared-to-death-ipod-scared-to-death.json",
+   "source_dl": "https://archive.org/download/scared_to_death_ipod/Scared_to_Death.mp3",
+   "item": "scared_to_death_ipod",
+   "title": "Scared to Death",
+   "source_file": "Scared_to_Death.mp3",
+   "year": "1947",
+   "item_url": "https://archive.org/details/scared_to_death_ipod",
+   "source_url": "https://archive.org/download/scared_to_death_ipod/Scared_to_Death.mp3#t=4016.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 26
+  },
+  {
+   "id": "sistersofdeath-sistersofdeath-512kb-02317",
+   "text": "The finding was accidental death.",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 2316.7,
+   "end": 2320.15,
+   "t0": 2317.05,
+   "t1": 2318.65,
+   "transcript": "transcripts/sistersofdeath-sistersofdeath-512kb.json",
+   "source_dl": "https://archive.org/download/SistersofDeath/SistersofDeath_512kb.mp4",
+   "item": "SistersofDeath",
+   "title": "Sisters of Death",
+   "source_file": "SistersofDeath_512kb.mp4",
+   "year": "1977",
+   "item_url": "https://archive.org/details/SistersofDeath",
+   "source_url": "https://archive.org/download/SistersofDeath/SistersofDeath_512kb.mp4#t=2316.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 26
+  },
+  {
+   "id": "the-pearl-of-death-1944-the-pearl-of-death-1-03869",
+   "text": "Grabbed of a large pair of sheirs and stabbed Dr. Watson to death.",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 3869.56,
+   "end": 3874.61,
+   "t0": 3869.91,
+   "t1": 3873.11,
+   "transcript": "transcripts/the-pearl-of-death-1944-the-pearl-of-death-1.json",
+   "source_dl": "https://archive.org/download/the.-pearl.-of.-death.-1944/The%20Pearl%20Of%20Death%20%281944%29/mp4/The.Pearl.Of.Death.1944.mp4",
+   "item": "the.-pearl.-of.-death.-1944",
+   "title": "The Pearl of Death (1944)",
+   "source_file": "The Pearl Of Death (1944)/mp4/The.Pearl.Of.Death.1944.mp4",
+   "year": "1944",
+   "item_url": "https://archive.org/details/the.-pearl.-of.-death.-1944",
+   "source_url": "https://archive.org/download/the.-pearl.-of.-death.-1944/The%20Pearl%20Of%20Death%20%281944%29/mp4/The.Pearl.Of.Death.1944.mp4#t=3869.6",
+   "license": {
+    "status": "public-domain",
+    "url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 26
+  },
+  {
+   "id": "the-masque-of-the-red-death-1964-the-masque-of-the-re-01136",
+   "text": "Bamin, pestilence, war, disease, and death.",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 1136.31,
+   "end": 1141.78,
+   "t0": 1136.66,
+   "t1": 1140.28,
+   "transcript": "transcripts/the-masque-of-the-red-death-1964-the-masque-of-the-re.json",
+   "source_dl": "https://archive.org/download/the.-masque.of.the.-red.-death.-1964/The%20Masque%20Of%20The%20Red%20Death%20%281964%29/The.Masque.of.the.Red.Death.1964.ia.mp4",
+   "item": "the.-masque.of.the.-red.-death.-1964",
+   "title": "The Masque of the Red Death (1964)",
+   "source_file": "The Masque Of The Red Death (1964)/The.Masque.of.the.Red.Death.1964.ia.mp4",
+   "year": "1964",
+   "item_url": "https://archive.org/details/the.-masque.of.the.-red.-death.-1964",
+   "source_url": "https://archive.org/download/the.-masque.of.the.-red.-death.-1964/The%20Masque%20Of%20The%20Red%20Death%20%281964%29/The.Masque.of.the.Red.Death.1964.ia.mp4#t=1136.3",
+   "license": {
+    "status": "cc",
+    "url": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 26
+  },
+  {
+   "id": "werewolfwashingtongravevampire-video-ts-00253",
+   "text": "Then you can tell me if the operation was a success, what it's like to pass from life to death.",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 253.34,
+   "end": 259.85,
+   "t0": 253.69,
+   "t1": 258.35,
+   "transcript": "transcripts/werewolfwashingtongravevampire-video-ts.json",
+   "source_dl": "https://archive.org/download/WEREWOLFWASHINGTONGRAVEVAMPIRE/VIDEO_TS/VIDEO_TS.mp3",
+   "item": "WEREWOLFWASHINGTONGRAVEVAMPIRE",
+   "title": "BOOTLEGGER'S DRIVE-IN SATURDAY NIGHT: WEREWOLF OF WASHINGTON & GRAVE OF THE VAMPIRE",
+   "source_file": "VIDEO_TS/VIDEO_TS.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/WEREWOLFWASHINGTONGRAVEVAMPIRE",
+   "source_url": "https://archive.org/download/WEREWOLFWASHINGTONGRAVEVAMPIRE/VIDEO_TS/VIDEO_TS.mp3#t=253.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 24
+  },
+  {
+   "id": "night-has-a-thousand-eyes-1948-night-has-a-thousand-01154",
+   "text": "Catch a death of cold, either of those.",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death",
+    "cold"
+   ],
+   "start": 1153.76,
+   "end": 1157.35,
+   "t0": 1154.11,
+   "t1": 1155.85,
+   "transcript": "transcripts/night-has-a-thousand-eyes-1948-night-has-a-thousand.json",
+   "source_dl": "https://archive.org/download/night.-has.-a.-thousand.-eyes.-1948/Night%20Has%20A%20Thousand%20Eyes%20%281948%29/mp4/Night.Has.A.Thousand.Eyes.1948.mp4",
+   "item": "night.-has.-a.-thousand.-eyes.-1948",
+   "title": "Night Has a Thousand Eyes (1948)",
+   "source_file": "Night Has A Thousand Eyes (1948)/mp4/Night.Has.A.Thousand.Eyes.1948.mp4",
+   "year": "1948",
+   "item_url": "https://archive.org/details/night.-has.-a.-thousand.-eyes.-1948",
+   "source_url": "https://archive.org/download/night.-has.-a.-thousand.-eyes.-1948/Night%20Has%20A%20Thousand%20Eyes%20%281948%29/mp4/Night.Has.A.Thousand.Eyes.1948.mp4#t=1153.8",
+   "license": {
+    "status": "cc",
+    "url": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 8
+  },
+  {
+   "id": "werewolf-in-a-girls-dormitory-werewolf-in-a-girls--00923",
+   "text": "but she could have had a meeting with a man a little before her death.",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 923.34,
+   "end": 927.85,
+   "t0": 923.69,
+   "t1": 926.35,
+   "transcript": "transcripts/werewolf-in-a-girls-dormitory-werewolf-in-a-girls-.json",
+   "source_dl": "https://archive.org/download/Werewolf_In_A_Girls_Dormitory/Werewolf_In_A_Girls_Dormitory.mp3",
+   "item": "Werewolf_In_A_Girls_Dormitory",
+   "title": "Werewolf in a Girls' Dormitory",
+   "source_file": "Werewolf_In_A_Girls_Dormitory.mp3",
+   "year": "1962",
+   "item_url": "https://archive.org/details/Werewolf_In_A_Girls_Dormitory",
+   "source_url": "https://archive.org/download/Werewolf_In_A_Girls_Dormitory/Werewolf_In_A_Girls_Dormitory.mp3#t=923.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "tales-from-the-darkside-1990-202511-tales-from-the-darks-01978",
+   "text": "and to the gods of death, terror, and revenge.",
+   "score": 10.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 1977.91,
+   "end": 1984.3,
+   "t0": 1978.26,
+   "t1": 1982.8,
+   "transcript": "transcripts/tales-from-the-darkside-1990-202511-tales-from-the-darks.json",
+   "source_dl": "https://archive.org/download/tales-from-the-darkside-1990_202511/Tales%20From%20The%20Darkside%20%281990%29/Tales%20From%20The%20Darkside%20-%201990.mp4",
+   "item": "tales-from-the-darkside-1990_202511",
+   "title": "Tales from the Darkside",
+   "source_file": "Tales From The Darkside (1990)/Tales From The Darkside - 1990.mp4",
+   "year": "1990",
+   "item_url": "https://archive.org/details/tales-from-the-darkside-1990_202511",
+   "source_url": "https://archive.org/download/tales-from-the-darkside-1990_202511/Tales%20From%20The%20Darkside%20%281990%29/Tales%20From%20The%20Darkside%20-%201990.mp4#t=1977.9",
+   "license": {
+    "status": "cc",
+    "url": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 8
+  },
+  {
+   "id": "scaredtodeathwithspanishsubtitles-scared-to-death-512k-02669",
+   "text": "Has no one arranged to silence you yet, Mr. Lee? What a pity.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "silence",
+    "no one"
+   ],
+   "start": 2668.9,
+   "end": 2674.53,
+   "t0": 2669.25,
+   "t1": 2673.03,
+   "transcript": "transcripts/scaredtodeathwithspanishsubtitles-scared-to-death-512k.json",
+   "source_dl": "https://archive.org/download/ScaredToDeathwithSpanishSubtitles/Scared_to_Death_512kb_sub.mp3",
+   "item": "ScaredToDeathwithSpanishSubtitles",
+   "title": "Scared To Death (with spanish subtitles)",
+   "source_file": "Scared_to_Death_512kb_sub.mp3",
+   "year": "1963",
+   "item_url": "https://archive.org/details/ScaredToDeathwithSpanishSubtitles",
+   "source_url": "https://archive.org/download/ScaredToDeathwithSpanishSubtitles/Scared_to_Death_512kb_sub.mp3#t=2668.9",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 20
+  },
+  {
+   "id": "letsscarejessicatodeath1971-letsscarejessicatode-00027",
+   "text": "Dreams are nightmares.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "nightmare",
+    "night",
+    "dream"
+   ],
+   "start": 27.17,
+   "end": 30.32,
+   "t0": 27.52,
+   "t1": 28.82,
+   "transcript": "transcripts/letsscarejessicatodeath1971-letsscarejessicatode.json",
+   "source_dl": "https://archive.org/download/LetsScareJessicaToDeath1971/LetsScareJessicaToDeath1971.mp4",
+   "item": "LetsScareJessicaToDeath1971",
+   "title": "Let's Scare Jessica to Death (1971)",
+   "source_file": "LetsScareJessicaToDeath1971.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/LetsScareJessicaToDeath1971",
+   "source_url": "https://archive.org/download/LetsScareJessicaToDeath1971/LetsScareJessicaToDeath1971.mp4#t=27.2",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 20
+  },
+  {
+   "id": "graveofthevampire1972full1-201709-grave-of-the-vampire-00220",
+   "text": "I don't think I'll ever be frightened of graveyard.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "grave"
+   ],
+   "start": 220.43,
+   "end": 223.72,
+   "t0": 220.78,
+   "t1": 222.22,
+   "transcript": "transcripts/graveofthevampire1972full1-201709-grave-of-the-vampire.json",
+   "source_dl": "https://archive.org/download/GraveOfTheVampire1972Full1_201709/Grave%20of%20the%20Vampire%201972%20full%20%21%21%21%21%201.mp4",
+   "item": "GraveOfTheVampire1972Full1_201709",
+   "title": "Grave Of The Vampire high quality HD version",
+   "source_file": "Grave of the Vampire 1972 full !!!! 1.mp4",
+   "year": "1972-08-23",
+   "item_url": "https://archive.org/details/GraveOfTheVampire1972Full1_201709",
+   "source_url": "https://archive.org/download/GraveOfTheVampire1972Full1_201709/Grave%20of%20the%20Vampire%201972%20full%20%21%21%21%21%201.mp4#t=220.4",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 16
+  },
+  {
+   "id": "attack-from-space-attack-from-space-00046",
+   "text": "stars in our universe, somewhere in deep space there are probably planets with",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "deep space",
+    "planet",
+    "stars"
+   ],
+   "start": 45.68,
+   "end": 51.31,
+   "t0": 46.03,
+   "t1": 49.81,
+   "transcript": "transcripts/attack-from-space-attack-from-space.json",
+   "source_dl": "https://archive.org/download/Attack_From_Space/Attack_From_Space.mp3",
+   "item": "Attack_From_Space",
+   "title": "Attack From Space",
+   "source_file": "Attack_From_Space.mp3",
+   "year": "1959",
+   "item_url": "https://archive.org/details/Attack_From_Space",
+   "source_url": "https://archive.org/download/Attack_From_Space/Attack_From_Space.mp3#t=45.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  }
+ ]
+}

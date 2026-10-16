@@ -1,5 +1,22 @@
 [
  {
+  "name": "b20261016-1631",
+  "preset": "B-films horror en sci-fi + death, emptiness",
+  "count": 15,
+  "terms": [
+   "death",
+   "emptiness",
+   "void",
+   "unnatural",
+   "grave",
+   "burial",
+   "resurrection",
+   "afterlife"
+  ],
+  "brief": "",
+  "created": "2026-10-16T16:51:09+00:00"
+ },
+ {
   "name": "b20261006-1627",
   "preset": "Duistere hoeken (heel Internet Archive) + end time, other dimensions",
   "count": 15,
