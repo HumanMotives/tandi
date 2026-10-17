@@ -1,0 +1,492 @@
+{
+ "batch": {
+  "name": "b20261017-1231",
+  "preset": "Duistere thema's in hoorspel en film + death, darkness",
+  "query": "(collection:(oldtimeradio OR scifi_horror OR feature_films OR film_noir OR prelinger) AND (occult OR cult OR ritual OR devil OR satan OR witchcraft OR \"black magic\" OR demon OR possession OR voodoo OR \"secret society\" OR \"mind control\" OR hypnosis OR brainwash OR apocalypse OR doom OR \"end of the world\" OR \"lost civilization\" OR \"fourth dimension\" OR \"time travel\" OR \"mad scientist\" OR experiment)) AND (death OR darkness OR stars OR ethereal OR stasis OR mind OR telepathy OR void OR unnatural OR grave OR burial OR resurrection OR afterlife)",
+  "whisper": "base.en",
+  "claude": false,
+  "pad": [
+   0.35,
+   1.5
+  ],
+  "settings": {
+   "preset": "duister-drama",
+   "types": [],
+   "brief": "",
+   "terms": [
+    "death",
+    "darkness",
+    "stars",
+    "ethereal",
+    "stasis",
+    "mind",
+    "telepathy",
+    "void",
+    "unnatural",
+    "grave",
+    "burial",
+    "resurrection",
+    "afterlife"
+   ],
+   "auto_terms": [],
+   "keywords": [
+    "death",
+    "darkness",
+    "stars",
+    "ethereal",
+    "stasis",
+    "mind",
+    "telepathy",
+    "void",
+    "unnatural",
+    "grave",
+    "burial",
+    "resurrection",
+    "afterlife"
+   ],
+   "max_items": 15,
+   "per_source": 1,
+   "whisper": "base.en",
+   "pd_only": true
+  },
+  "created": "2026-10-17T12:53:51+00:00"
+ },
+ "clips": [
+  {
+   "id": "thedevilshand1962-thedevilshand1962-51-01379",
+   "text": "I've been given the power to control my death.",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 1379.3,
+   "end": 1384.11,
+   "t0": 1379.65,
+   "t1": 1382.61,
+   "transcript": "transcripts/thedevilshand1962-thedevilshand1962-51.json",
+   "source_dl": "https://archive.org/download/TheDevilsHand1962/TheDevilsHand1962_512kb.mp4",
+   "item": "TheDevilsHand1962",
+   "title": "The Devil's Hand (1962)",
+   "source_file": "TheDevilsHand1962_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/TheDevilsHand1962",
+   "source_url": "https://archive.org/download/TheDevilsHand1962/TheDevilsHand1962_512kb.mp4#t=1379.3",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 14
+  },
+  {
+   "id": "theatomicbrain-theatomicbrain-00002",
+   "text": "Can death be out with it?",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 1.75,
+   "end": 5.2,
+   "t0": 2.1,
+   "t1": 3.7,
+   "transcript": "transcripts/theatomicbrain-theatomicbrain.json",
+   "source_dl": "https://archive.org/download/TheAtomicBrain/TheAtomicBrain.mp3",
+   "item": "TheAtomicBrain",
+   "title": "The Atomic Brain",
+   "source_file": "TheAtomicBrain.mp3",
+   "year": "1964",
+   "item_url": "https://archive.org/details/TheAtomicBrain",
+   "source_url": "https://archive.org/download/TheAtomicBrain/TheAtomicBrain.mp3#t=1.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 8
+  },
+  {
+   "id": "thebraineaters-thebraineaters-01119",
+   "text": "None of you should feel any sense of guilt about the mayor's death because of the shooting.",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 1119.53,
+   "end": 1125.44,
+   "t0": 1119.88,
+   "t1": 1123.94,
+   "transcript": "transcripts/thebraineaters-thebraineaters.json",
+   "source_dl": "https://archive.org/download/TheBrainEaters/TheBrainEaters.mp3",
+   "item": "TheBrainEaters",
+   "title": "The Brain Eaters",
+   "source_file": "TheBrainEaters.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/TheBrainEaters",
+   "source_url": "https://archive.org/download/TheBrainEaters/TheBrainEaters.mp3#t=1119.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 8
+  },
+  {
+   "id": "otrr-dimension-x-singles-dimension-x-1950-09--00214",
+   "text": "You mind if I ask what you were doing after dark coming out of a cemetery with a wooden c'monet?",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "mind",
+    "dark",
+    "mind"
+   ],
+   "start": 214.58,
+   "end": 220.89,
+   "t0": 214.93,
+   "t1": 219.39,
+   "transcript": "transcripts/otrr-dimension-x-singles-dimension-x-1950-09-.json",
+   "source_dl": "https://archive.org/download/OTRR_Dimension_X_Singles/Dimension_X_1950-09-22__25_DrGrimshawsSanitorium.mp3",
+   "item": "OTRR_Dimension_X_Singles",
+   "title": "Dimension X - Single Episodes",
+   "source_file": "Dimension_X_1950-09-22__25_DrGrimshawsSanitorium.mp3",
+   "year": "2006",
+   "item_url": "https://archive.org/details/OTRR_Dimension_X_Singles",
+   "source_url": "https://archive.org/download/OTRR_Dimension_X_Singles/Dimension_X_1950-09-22__25_DrGrimshawsSanitorium.mp3#t=214.6",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "otrr-claybourne-singles-claybourne-9x-xx-xx--00226",
+   "text": "This will signal death of a great matriarchal figure.",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 226.64,
+   "end": 231.09,
+   "t0": 226.99,
+   "t1": 229.59,
+   "transcript": "transcripts/otrr-claybourne-singles-claybourne-9x-xx-xx-.json",
+   "source_dl": "https://archive.org/download/OTRR_Claybourne_Singles/Claybourne__9x-xx-xx__35__Tangaroa.mp3",
+   "item": "OTRR_Claybourne_Singles",
+   "title": "Claybourne - Single Episodes",
+   "source_file": "Claybourne__9x-xx-xx__35__Tangaroa.mp3",
+   "year": "2007",
+   "item_url": "https://archive.org/details/OTRR_Claybourne_Singles",
+   "source_url": "https://archive.org/download/OTRR_Claybourne_Singles/Claybourne__9x-xx-xx__35__Tangaroa.mp3#t=226.6",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/2.5/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "the-devils-messenger-the-devils-messenger-00220",
+   "text": "I thought you'd change your mind.",
+   "score": 10.0,
+   "ai": null,
+   "tags": [
+    "mind",
+    "mind"
+   ],
+   "start": 220.05,
+   "end": 223.26,
+   "t0": 220.4,
+   "t1": 221.76,
+   "transcript": "transcripts/the-devils-messenger-the-devils-messenger.json",
+   "source_dl": "https://archive.org/download/The_Devils_Messenger/The_Devils_Messenger_512kb.mp4",
+   "item": "The_Devils_Messenger",
+   "title": "The Devil´s Messenger",
+   "source_file": "The_Devils_Messenger_512kb.mp4",
+   "year": "1961",
+   "item_url": "https://archive.org/details/The_Devils_Messenger",
+   "source_url": "https://archive.org/download/The_Devils_Messenger/The_Devils_Messenger_512kb.mp4#t=220.1",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 14
+  },
+  {
+   "id": "thedevilspartner1958-thedevilspartner1958-01041",
+   "text": "Two people seem to die a natural death.",
+   "score": 10.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 1041.58,
+   "end": 1044.93,
+   "t0": 1041.93,
+   "t1": 1043.43,
+   "transcript": "transcripts/thedevilspartner1958-thedevilspartner1958.json",
+   "source_dl": "https://archive.org/download/TheDevilsPartner1958/TheDevilsPartner1958_512kb.mp4",
+   "item": "TheDevilsPartner1958",
+   "title": "The Devil's Partner (1958)",
+   "source_file": "TheDevilsPartner1958_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/TheDevilsPartner1958",
+   "source_url": "https://archive.org/download/TheDevilsPartner1958/TheDevilsPartner1958_512kb.mp4#t=1041.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 14
+  },
+  {
+   "id": "the-pied-piper-of-hamelin-pied-512kb-01144",
+   "text": "What, or death of the house issue forth with a proclamation?",
+   "score": 10.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 1144.53,
+   "end": 1149.06,
+   "t0": 1144.88,
+   "t1": 1147.56,
+   "transcript": "transcripts/the-pied-piper-of-hamelin-pied-512kb.json",
+   "source_dl": "https://archive.org/download/The_Pied_Piper_of_Hamelin/pied_512kb.mp4",
+   "item": "The_Pied_Piper_of_Hamelin",
+   "title": "The Pied Piper of Hamelin",
+   "source_file": "pied_512kb.mp4",
+   "year": "1957",
+   "item_url": "https://archive.org/details/The_Pied_Piper_of_Hamelin",
+   "source_url": "https://archive.org/download/The_Pied_Piper_of_Hamelin/pied_512kb.mp4#t=1144.5",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "theyesterdaymachine1963-theyesterdaymachine1-00695",
+   "text": "I'd rather hear from you if you don't mind.",
+   "score": 10.0,
+   "ai": null,
+   "tags": [
+    "mind",
+    "mind"
+   ],
+   "start": 694.8,
+   "end": 698.37,
+   "t0": 695.15,
+   "t1": 696.87,
+   "transcript": "transcripts/theyesterdaymachine1963-theyesterdaymachine1.json",
+   "source_dl": "https://archive.org/download/TheYesterdayMachine1963/TheYesterdayMachine1963_512kb.mp4",
+   "item": "TheYesterdayMachine1963",
+   "title": "The Yesterday Machine (1963)",
+   "source_file": "TheYesterdayMachine1963_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/TheYesterdayMachine1963",
+   "source_url": "https://archive.org/download/TheYesterdayMachine1963/TheYesterdayMachine1963_512kb.mp4#t=694.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "jamaica-inn-jamaica-inn-01226",
+   "text": "Anything in mind that way yourself?",
+   "score": 10.0,
+   "ai": null,
+   "tags": [
+    "mind",
+    "mind"
+   ],
+   "start": 1226.17,
+   "end": 1229.5,
+   "t0": 1226.52,
+   "t1": 1228.0,
+   "transcript": "transcripts/jamaica-inn-jamaica-inn.json",
+   "source_dl": "https://archive.org/download/Jamaica_Inn/JAMAICA_INN.mp3",
+   "item": "Jamaica_Inn",
+   "title": "Jamaica Inn",
+   "source_file": "JAMAICA_INN.mp3",
+   "year": "1939",
+   "item_url": "https://archive.org/details/Jamaica_Inn",
+   "source_url": "https://archive.org/download/Jamaica_Inn/JAMAICA_INN.mp3#t=1226.2",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "mindwebs-230-mindwebs-790107-thet-00410",
+   "text": "Oh, yes, babies are fallen stars.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "stars",
+    "stars"
+   ],
+   "start": 410.27,
+   "end": 413.9,
+   "t0": 410.62,
+   "t1": 412.4,
+   "transcript": "transcripts/mindwebs-230-mindwebs-790107-thet.json",
+   "source_dl": "https://archive.org/download/Mindwebs_230/Mindwebs-790107_TheTop.mp3",
+   "item": "Mindwebs_230",
+   "title": "Mindwebs",
+   "source_file": "Mindwebs-790107_TheTop.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/Mindwebs_230",
+   "source_url": "https://archive.org/download/Mindwebs_230/Mindwebs-790107_TheTop.mp3#t=410.3",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/uk/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 24
+  },
+  {
+   "id": "otrr-x-minus-one-singles-xminusone57-01-16084-00145",
+   "text": "Mike, would your mind tell me how we're going to pay for this sleuther steak?",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "mind",
+    "mind"
+   ],
+   "start": 145.57,
+   "end": 150.58,
+   "t0": 145.92,
+   "t1": 149.08,
+   "transcript": "transcripts/otrr-x-minus-one-singles-xminusone57-01-16084.json",
+   "source_dl": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne57-01-16084TheGirlsFromEarth.mp3",
+   "item": "OTRR_X_Minus_One_Singles",
+   "title": "X Minus One - Single Episodes",
+   "source_file": "XMinusOne57-01-16084TheGirlsFromEarth.mp3",
+   "year": "2011-05-14",
+   "item_url": "https://archive.org/details/OTRR_X_Minus_One_Singles",
+   "source_url": "https://archive.org/download/OTRR_X_Minus_One_Singles/XMinusOne57-01-16084TheGirlsFromEarth.mp3#t=145.6",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc-nd/3.0/us/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "saint-louis-bank-robbery-saint-louis-bank-rob-00360",
+   "text": "I don't mind if you overlap a little,",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "mind",
+    "mind"
+   ],
+   "start": 359.81,
+   "end": 363.08,
+   "t0": 360.16,
+   "t1": 361.58,
+   "transcript": "transcripts/saint-louis-bank-robbery-saint-louis-bank-rob.json",
+   "source_dl": "https://archive.org/download/Saint_Louis_Bank_Robbery/Saint_Louis_Bank_Robbery.mp3",
+   "item": "Saint_Louis_Bank_Robbery",
+   "title": "The Saint Louis Bank Robbery",
+   "source_file": "Saint_Louis_Bank_Robbery.mp3",
+   "year": "1959",
+   "item_url": "https://archive.org/details/Saint_Louis_Bank_Robbery",
+   "source_url": "https://archive.org/download/Saint_Louis_Bank_Robbery/Saint_Louis_Bank_Robbery.mp3#t=359.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "prisonersofthelostuniverse1983-prisonersofthelostun-01144",
+   "text": "I am quite able to do this by myself, so if you don't mind,",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "mind",
+    "mind"
+   ],
+   "start": 1143.73,
+   "end": 1149.58,
+   "t0": 1144.08,
+   "t1": 1148.08,
+   "transcript": "transcripts/prisonersofthelostuniverse1983-prisonersofthelostun.json",
+   "source_dl": "https://archive.org/download/PrisonersOfTheLostUniverse1983/PrisonersOfTheLostUniverse1983_512kb.mp4",
+   "item": "PrisonersOfTheLostUniverse1983",
+   "title": "Prisoners Of The Lost Universe (1983)",
+   "source_file": "PrisonersOfTheLostUniverse1983_512kb.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/PrisonersOfTheLostUniverse1983",
+   "source_url": "https://archive.org/download/PrisonersOfTheLostUniverse1983/PrisonersOfTheLostUniverse1983_512kb.mp4#t=1143.7",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "king-of-the-zombies-king-of-the-zombies-00329",
+   "text": "I'm going to stay right here until I change my mind.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "mind",
+    "mind"
+   ],
+   "start": 328.87,
+   "end": 333.24,
+   "t0": 329.22,
+   "t1": 331.74,
+   "transcript": "transcripts/king-of-the-zombies-king-of-the-zombies.json",
+   "source_dl": "https://archive.org/download/King_of_the_Zombies/King_of_the_Zombies.mp3",
+   "item": "King_of_the_Zombies",
+   "title": "King of the Zombies",
+   "source_file": "King_of_the_Zombies.mp3",
+   "year": "1941",
+   "item_url": "https://archive.org/details/King_of_the_Zombies",
+   "source_url": "https://archive.org/download/King_of_the_Zombies/King_of_the_Zombies.mp3#t=328.9",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  }
+ ]
+}

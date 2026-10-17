@@ -374,3 +374,43 @@ title:attack from space
 Werewolf_In_A_Girls_Dormitory/Werewolf_In_A_Girls_Dormitory.mp3
 skip:Werewolf_In_A_Girls_Dormitory
 title:werewolf in a girls dormitory
+Mindwebs_230/Mindwebs-790107_TheTop.mp3
+TheDevilsHand1962/TheDevilsHand1962_512kb.mp4
+skip:TheDevilsHand1962
+title:the devils hand 1962
+The_Devils_Messenger/The_Devils_Messenger_512kb.mp4
+skip:The_Devils_Messenger
+title:the devils messenger
+TheDevilsPartner1958/TheDevilsPartner1958_512kb.mp4
+skip:TheDevilsPartner1958
+title:the devils partner 1958
+TheAtomicBrain/TheAtomicBrain.mp3
+skip:TheAtomicBrain
+title:the atomic brain
+TheBrainEaters/TheBrainEaters.mp3
+skip:TheBrainEaters
+title:the brain eaters
+OTRR_X_Minus_One_Singles/XMinusOne57-01-16084TheGirlsFromEarth.mp3
+OTRR_Dimension_X_Singles/Dimension_X_1950-09-22__25_DrGrimshawsSanitorium.mp3
+The_Pied_Piper_of_Hamelin/pied_512kb.mp4
+skip:The_Pied_Piper_of_Hamelin
+title:the pied piper of hamelin
+Saint_Louis_Bank_Robbery/Saint_Louis_Bank_Robbery.mp3
+skip:Saint_Louis_Bank_Robbery
+title:the saint louis bank robbery
+PrisonersOfTheLostUniverse1983/PrisonersOfTheLostUniverse1983_512kb.mp4
+skip:PrisonersOfTheLostUniverse1983
+title:prisoners of the lost universe 1983
+TheYesterdayMachine1963/TheYesterdayMachine1963_512kb.mp4
+skip:TheYesterdayMachine1963
+title:the yesterday machine 1963
+King_of_the_Zombies/King_of_the_Zombies.mp3
+skip:King_of_the_Zombies
+title:king of the zombies
+DrillerKillerUncut1979/DrillerKillerUncut1979_512kb.mp4
+skip:DrillerKillerUncut1979
+title:driller killeruncut
+Jamaica_Inn/JAMAICA_INN.mp3
+skip:Jamaica_Inn
+title:jamaica inn
+OTRR_Claybourne_Singles/Claybourne__9x-xx-xx__35__Tangaroa.mp3
