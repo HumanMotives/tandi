@@ -282,6 +282,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
           <option value="hoorspel-meer">Hoorspelen, meer series</option>
           <option value="duister-drama">Duistere thema's in hoorspel en film</option>
           <option value="duister-alles">Duistere hoeken (heel Internet Archive)</option>
+          <option value="liturgie-latijn">Gesproken liturgie in het Latijn</option>
           <option value="ufo-interviews">UFO-interviews</option>
           <option value="b-films">B-films horror en sci-fi</option>
           <option value="prelinger">Prelinger (oude voorlichtingsfilms)</option>
@@ -654,9 +655,14 @@ function audioCtx() {
   if (!actx) { try { actx = new AudioContext({ sampleRate: 44100 }); } catch { actx = new AudioContext(); } }
   return actx;
 }
+// Opnemen gaat via humanmotives.org zelf (Netlify edge function), anders blokkeert de browser het (CORS)
+const mediaUrl = u => 'api/media?u=' + encodeURIComponent(absUrl(u));
+const MEDIA_ERR = { 1: 'afgebroken', 2: 'netwerkfout', 3: 'kan het bestand niet lezen', 4: 'bron niet bereikbaar of formaat niet ondersteund' };
 const once = (el, ev) => new Promise((res, rej) => {
-  el.addEventListener(ev, res, { once: true });
-  el.addEventListener('error', () => rej(new Error('Bron niet bereikbaar.')), { once: true });
+  const ok = () => { el.removeEventListener('error', bad); res(); };
+  const bad = () => { el.removeEventListener(ev, ok); rej(new Error('Bron: ' + (MEDIA_ERR[el.error?.code] || 'niet bereikbaar') + '.')); };
+  el.addEventListener(ev, ok, { once: true });
+  el.addEventListener('error', bad, { once: true });
 });
 
 // Eén vaste opname-speler. Wordt binnen een klik 'ontgrendeld', anders weigeren telefoons het afspelen.
@@ -682,10 +688,13 @@ function unlockRecorder() {
 
 async function capture(url, a, b, onProgress) {
   const { el, proc, ac } = recorder(); await ac.resume();
-  el.pause(); el.src = url;
-  await once(el, 'loadedmetadata');
+  el.pause();
+  const loaded = once(el, 'loadedmetadata');
+  el.src = mediaUrl(url);
+  await loaded;
   b = Math.min(b, el.duration || b);
-  el.currentTime = a; await once(el, 'seeked');
+  const seeked = once(el, 'seeked');
+  el.currentTime = a; await seeked;
   const parts = []; let n = 0, peak = 0;
   const want = Math.max(1, Math.round((b - a) * ac.sampleRate));
   return new Promise((resolve, reject) => {
@@ -940,7 +949,7 @@ function showSettings() {
       : row('Bronnen zoeken over', presetName ? '–' : 'standaardlijst'),
     row('Knippen als iemand zegt', st.keywords?.length ? list(st.keywords) : 'standaardlijst'),
     row('Bronnen', `${st.max_items}, ${st.per_source} clip${st.per_source > 1 ? 's' : ''} per bron`),
-    row('Transcriptie', st.whisper === 'small.en' ? 'Beter' : 'Snel'),
+    row('Transcriptie', { 'small.en': 'Beter', 'base.en': 'Snel' }[st.whisper] || `Meertalig (${st.whisper})`),
     row('Licentie', st.pd_only ? 'Alleen vrije licentie' : 'Alles'),
     row('Claude', b.claude ? 'aan' : 'uit'),
   ].join('');
