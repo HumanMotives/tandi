@@ -236,10 +236,10 @@ def best_clips(cands, n):
     return out
 
 
-def write_transcript(path, meta, segs, total, until, whisper):
+def write_transcript(path, meta, segs, total, until, whisper, language=None):
     path.parent.mkdir(exist_ok=True)
     path.write_text(json.dumps({
-        **meta, "duration": round(total, 2), "whisper": whisper,
+        **meta, "duration": round(total, 2), "whisper": whisper, "language": language,
         "analysed_until": round(until, 2), "partial": until < total - 1,
         "segments": [[round(x["start"], 2), round(x["end"], 2), x["text"]] for x in segs],
     }, ensure_ascii=False))
@@ -522,7 +522,10 @@ def preset_query(p):
         parts.append("title:(" + " OR ".join(q(t) for t in p["title"]) + ")")
     if p.get("terms"):
         parts.append("(" + " OR ".join(q(t) for t in p["terms"]) + ")")
-    return " AND ".join(parts)
+    query = " AND ".join(parts)
+    if p.get("exclude"):
+        query += " AND NOT (" + " OR ".join(q(t) for t in p["exclude"]) + ")"
+    return query
 
 
 def build_query(cfg, terms, types=()):
@@ -597,6 +600,12 @@ def main():
     if args.preset and not preset:
         log(f"Zoekset {args.preset} bestaat niet, vrij zoeken")
         args.preset = ""
+    if preset and preset.get("language"):
+        # andere taal: meertalig Whisper-model nodig (de .en-modellen kennen alleen Engels)
+        cfg["language"] = preset["language"]
+        if args.whisper.endswith(".en"):
+            args.whisper = preset.get("whisper") or args.whisper[:-3]
+        log(f"Zoekset in taal '{cfg['language']}', Whisper-model {args.whisper}")
     auto_terms = []
     if not preset and not user_terms and api_key and cfg.get("auto_terms", True):
         recent = [t for b in (json.loads(Path(args.batches_index).read_text())
@@ -633,8 +642,10 @@ def main():
     else:
         query = build_query(cfg, terms, types)
     pats = compile_keywords(cfg, extra_kw)
-    # knipwoorden van de zoekset tellen mee met gewicht 2 (eigen woorden van de pagina: 4)
-    pats += [(2, str(t), re.compile(r"\b" + re.escape(str(t).lower()))) for t in (preset or {}).get("keywords", [])]
+    # knipwoorden van de zoekset tellen mee met gewicht 2, of keyword_weight (eigen woorden van de pagina: 4)
+    kw_weight = int((preset or {}).get("keyword_weight", 2))
+    pats += [(kw_weight, str(t), re.compile(r"\b" + re.escape(str(t).lower())))
+             for t in (preset or {}).get("keywords", [])]
     seen = Seen(SEEN)
 
     out = Path(args.out)
@@ -765,7 +776,7 @@ def main():
                 if picked:
                     write_transcript(out / "transcripts" / f"{tkey}.json",
                                      {"item": ident, "file": name, "title": title, "url": url},
-                                     segs, total, until, args.whisper)
+                                     segs, total, until, args.whisper, cfg.get("language"))
                 for c in picked:
                     seen.add(c["text"])
                     c["score"] = round(c["score"] + adjust, 1)

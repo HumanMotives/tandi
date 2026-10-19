@@ -62,6 +62,25 @@ presets:
                "no meaning", "ancient", "frequency", vibration, "the signal", "the program",
                "mind control", "secret", "hidden", "beneath", "the watchers"]
 
+  liturgie-latijn:
+    label: Gesproken liturgie in het Latijn
+    # Gesproken, niet gezongen: stille mis (missa lecta), gebeden, litanieën, exorcisme-rite, lezingen.
+    # Latijn: meertalig Whisper-model (small), dus trager dan Engels.
+    language: la
+    whisper: small
+    mediatype: [audio, movies]
+    terms: ["low mass", "missa lecta", "spoken latin", "latin prayers", "latin prayer", "recited latin",
+            "rosary in latin", "latin rosary", "litany of the saints", "litaniae", "rituale romanum",
+            "roman ritual", "rite of exorcism", "exorcism prayer", "latin reading", "vulgate",
+            "breviary", "divine office", "recto tono", "ecclesiastical latin", "pater noster"]
+    exclude: [chant, chants, choir, choral, sung, singing, schola, hymn, hymns, cantus, album, concert, organ]
+    keyword_weight: 3
+    keywords: ["in nomine patris", "dominus vobiscum", "et cum spiritu tuo", "kyrie eleison", "christe eleison",
+               "agnus dei", "requiem aeternam", "lux perpetua", "libera nos", "ora pro nobis", "miserere nobis",
+               "exorcizamus", "exorcizo te", "omnis immundus spiritus", "satanica potestas", "vade retro",
+               "per omnia saecula", "in saecula saeculorum", "de profundis", "dies irae", "memento mori",
+               "mysterium fidei", "pater noster", "ave maria", "sanctus", "in tenebris", "mortis", "inferni"]
+
   ufo-interviews:
     label: UFO-interviews
     query: '(ufo OR "flying saucer" OR abduction OR abductee OR "close encounter" OR contactee) AND mediatype:(audio OR movies)'

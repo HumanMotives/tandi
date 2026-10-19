@@ -52,6 +52,8 @@ def main():
     segs = [{"start": a, "end": b, "text": t} for a, b, t in tdata["segments"]]
     start = float(tdata.get("analysed_until") or (segs[-1]["end"] if segs else 0.0))
     whisper = tdata.get("whisper") or "base.en"
+    if tdata.get("language"):
+        cfg["language"] = tdata["language"]
 
     from faster_whisper import WhisperModel
     model = WhisperModel(whisper, device="cpu", compute_type="int8")
@@ -67,7 +69,7 @@ def main():
     last = segs[-1]["end"] if segs else -1
     segs += [x for x in rest if x["start"] >= last - 0.05]
     meta = {k: tdata[k] for k in ("item", "file", "title", "url") if k in tdata}
-    write_transcript(tfile, meta, segs, total, total, whisper)
+    write_transcript(tfile, meta, segs, total, total, whisper, cfg.get("language"))
     print(f"{tdata.get('title', 'Bron')} volledig uitgeschreven: {len(segs)} zinnen.")
 
 
