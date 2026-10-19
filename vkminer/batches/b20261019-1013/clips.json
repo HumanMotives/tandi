@@ -1,0 +1,86 @@
+{
+ "batch": {
+  "name": "b20261019-1013",
+  "preset": "Gesproken liturgie in het Latijn",
+  "query": "(mediatype:(audio OR movies) AND (\"low mass\" OR \"missa lecta\" OR \"spoken latin\" OR \"latin prayers\" OR \"latin prayer\" OR \"recited latin\" OR \"rosary in latin\" OR \"latin rosary\" OR \"litany of the saints\" OR litaniae OR \"rituale romanum\" OR \"roman ritual\" OR \"rite of exorcism\" OR \"exorcism prayer\" OR \"latin reading\" OR vulgate OR breviary OR \"divine office\" OR \"recto tono\" OR \"ecclesiastical latin\" OR \"pater noster\") AND NOT (chant OR chants OR choir OR choral OR sung OR singing OR schola OR hymn OR hymns OR cantus OR album OR concert OR organ))",
+  "whisper": "small",
+  "claude": false,
+  "pad": [
+   0.35,
+   1.5
+  ],
+  "settings": {
+   "preset": "liturgie-latijn",
+   "types": [],
+   "brief": "",
+   "terms": [],
+   "auto_terms": [],
+   "keywords": [],
+   "max_items": 15,
+   "per_source": 1,
+   "whisper": "small",
+   "pd_only": false
+  },
+  "created": "2026-10-19T12:12:48+00:00"
+ },
+ "clips": [
+  {
+   "id": "01-genesis-20240806-48-ephesians-00379",
+   "text": "that at that time ye were without Christ, being aliens from the commonwealth of Israel and strangers",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "alien",
+    "strange"
+   ],
+   "start": 378.65,
+   "end": 386.3,
+   "t0": 379.0,
+   "t1": 384.8,
+   "transcript": "transcripts/01-genesis-20240806-48-ephesians.json",
+   "source_dl": "https://archive.org/download/01-genesis_20240806/48%20-%20Ephesians.mp4",
+   "item": "01-genesis_20240806",
+   "title": "King James Version - English Dramatized Audio Bible - By: The Bible Smith Project - 65 Books",
+   "source_file": "48 - Ephesians.mp4",
+   "year": "2024",
+   "item_url": "https://archive.org/details/01-genesis_20240806",
+   "source_url": "https://archive.org/download/01-genesis_20240806/48%20-%20Ephesians.mp4#t=378.6",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "01-genesis-20240808-33-nahum-ia-00073",
+   "text": "But with an overrunning flood, He will make an utter end of the place thereof, And darkness shall pursue his enemies.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "darkness",
+    "dark"
+   ],
+   "start": 73.33,
+   "end": 82.1,
+   "t0": 73.68,
+   "t1": 80.6,
+   "transcript": "transcripts/01-genesis-20240808-33-nahum-ia.json",
+   "source_dl": "https://archive.org/download/01-genesis_20240808/33%20-%20Nahum.ia.mp4",
+   "item": "01-genesis_20240808",
+   "title": "King James Version - English Dramatized Audio Bible - By: Faith Comes By Hearing - 65 Books",
+   "source_file": "33 - Nahum.ia.mp4",
+   "year": "2024",
+   "item_url": "https://archive.org/details/01-genesis_20240808",
+   "source_url": "https://archive.org/download/01-genesis_20240808/33%20-%20Nahum.ia.mp4#t=73.3",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  }
+ ]
+}

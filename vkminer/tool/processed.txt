@@ -414,3 +414,8 @@ Jamaica_Inn/JAMAICA_INN.mp3
 skip:Jamaica_Inn
 title:jamaica inn
 OTRR_Claybourne_Singles/Claybourne__9x-xx-xx__35__Tangaroa.mp3
+pater_noster_and_the_mission_of_light/Pater Noster and the Mission of Light.2024.1080p.WEB-DL.DD+5.1.H264-BobDobbs.mp4
+skip:pater_noster_and_the_mission_of_light
+title:pater noster and the mission of light 2024
+01-genesis_20240808/33 - Nahum.ia.mp4
+01-genesis_20240806/48 - Ephesians.mp4
