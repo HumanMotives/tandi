@@ -119,6 +119,7 @@ main .in { padding-top: 4px; padding-bottom: 60px; }
 .play svg { width: 12px; height: 12px; fill: var(--ink); }
 .clip.playing .play { border-color: var(--mark); box-shadow: 0 0 0 3px rgba(108,85,194,.2); }
 .quote { font: italic 650 1.22rem/1.3 var(--serif); margin: 3px 0 4px; max-width: 36em; overflow-wrap: anywhere; }
+.quote.notext { font: 500 1rem/1.4 var(--sans); color: var(--muted); }
 .meta { grid-column: 2; color: var(--muted); font-size: .78rem; display: flex; flex-wrap: wrap; gap: 2px 12px; }
 .meta a { color: var(--muted); }
 .meta a:hover { color: var(--ink); }
@@ -283,6 +284,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
           <option value="duister-drama">Duistere thema's in hoorspel en film</option>
           <option value="duister-alles">Duistere hoeken (heel Internet Archive)</option>
           <option value="liturgie-latijn">Gesproken liturgie in het Latijn</option>
+          <option value="tv-xfiles-millennium">The X-Files en Millennium (tv)</option>
           <option value="ufo-interviews">UFO-interviews</option>
           <option value="b-films">B-films horror en sci-fi</option>
           <option value="prelinger">Prelinger (oude voorlichtingsfilms)</option>
@@ -323,7 +325,7 @@ kbd { font: inherit; border: 1px solid var(--line); border-radius: 4px; padding:
       <label class="check"><input id="r-pd" type="checkbox" checked> Alleen materiaal met duidelijke vrije licentie</label>
     </div>
     <div class="sheet-foot">
-      <span class="hint" id="rmsg">Duurt meestal 15–30 minuten bij 15 bronnen.</span>
+      <span class="hint" id="rmsg">Stopt na hooguit een uur en bewaart dan wat hij heeft.</span>
       <button class="btn hot" id="rstart">START</button>
     </div>
   </div>
@@ -400,7 +402,7 @@ function render() {
       : `<span title="${esc(c.license?.url || '')}">${c.license?.status === 'cc' ? 'Creative Commons' : 'Publiek domein'}</span>`;
     return `<article class="clip${i === cur ? ' current' : ''}${playingId === c.id ? ' playing' : ''}" data-id="${c.id}" data-i="${i}" data-state="${st}">
       <button class="play" aria-label="Afspelen">${playingId === c.id && !audio.paused ? PAUSE : PLAY}</button>
-      <p class="quote">“${esc(c.text)}”</p>
+      ${c.notext ? `<p class="quote notext">Gesproken fragment, ${fmt(c.t0 ?? c.start)}–${fmt(c.t1 ?? c.end)}</p>` : `<p class="quote">“${esc(c.text)}”</p>`}
       <div class="meta">
         <a href="${esc(c.item_url)}" target="_blank" rel="noopener">${esc(c.title)}${c.year ? ' (' + esc(String(c.year).slice(0, 4)) + ')' : ''}</a>
         <a href="${esc(c.source_url)}" target="_blank" rel="noopener">bron op ${fmt(c.start)}</a>
@@ -514,7 +516,9 @@ async function openPanel(c) {
   const t0 = c.t0 ?? c.start, t1 = c.t1 ?? c.end;
   pIn = pSegs.map((s, i) => (s[0] < t1 && s[1] > t0) ? i : -1).filter(i => i >= 0);
   if (!pSegs.length) {
-    $('#phint').textContent = 'Geen tekst beschikbaar voor deze batch. Je kunt wel de hele bron beluisteren; nieuwe batches hebben ook de tekst.';
+    $('#phint').textContent = c.notext
+      ? 'Fragment zonder tekst (gevonden met spraakdetectie). Je kunt hier de hele bron beluisteren.'
+      : 'Geen tekst beschikbaar voor deze batch. Je kunt wel de hele bron beluisteren; nieuwe batches hebben ook de tekst.';
     updateSel(); playFrom(c.start); return;
   }
   $('#phint').textContent = 'Klik een zin om vanaf daar te luisteren. Vink zinnen aan en kies Download selectie; aaneengesloten zinnen worden één WAV. Clip verlengen pakt de huidige clip plus de volgende zin.';
@@ -949,7 +953,7 @@ function showSettings() {
       : row('Bronnen zoeken over', presetName ? '–' : 'standaardlijst'),
     row('Knippen als iemand zegt', st.keywords?.length ? list(st.keywords) : 'standaardlijst'),
     row('Bronnen', `${st.max_items}, ${st.per_source} clip${st.per_source > 1 ? 's' : ''} per bron`),
-    row('Transcriptie', { 'small.en': 'Beter', 'base.en': 'Snel' }[st.whisper] || `Meertalig (${st.whisper})`),
+    row('Transcriptie', { 'small.en': 'Beter', 'base.en': 'Snel', spraakdetectie: 'Geen (alleen spraakdetectie)' }[st.whisper] || `Meertalig (${st.whisper})`),
     row('Licentie', st.pd_only ? 'Alleen vrije licentie' : 'Alles'),
     row('Claude', b.claude ? 'aan' : 'uit'),
   ].join('');
@@ -1017,7 +1021,7 @@ $('#rstart').addEventListener('click', async () => {
   $('#rstart').disabled = true; $('#rmsg').textContent = 'Starten…';
   const res = await api({ kind: 'run', request });
   if (res.error) { $('#rmsg').textContent = res.error; $('#rstart').disabled = false; return; }
-  $('#rmsg').textContent = 'Duurt meestal 15–30 minuten bij 15 bronnen.';
+  $('#rmsg').textContent = 'Stopt na hooguit een uur en bewaart dan wat hij heeft.';
   closeRun();
   busy('Batch wordt gestart… Deze pagina mag open blijven; de nieuwe batch verschijnt vanzelf.');
   $('#newrun').disabled = true; $('#newrun').textContent = 'Batch bezig…';
