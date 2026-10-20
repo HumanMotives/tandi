@@ -1,0 +1,470 @@
+{
+ "batch": {
+  "name": "b20261020-1443",
+  "preset": "The X-Files en Millennium (tv)",
+  "query": "((mediatype:(movies OR audio) AND (title:(\"x-files\" OR \"x files\" OR xfiles) OR (title:millennium AND (\"frank black\" OR \"lance henriksen\" OR \"chris carter\" OR \"millennium group\")))) AND NOT (podcast OR rewatch OR review OR recap OR reaction OR commentary OR soundtrack OR ost OR theme OR remix OR \"mark snow\" OR game OR gameplay OR trailer OR fanfic OR audiobook OR interview))",
+  "whisper": "base.en",
+  "claude": false,
+  "pad": [
+   0.35,
+   1.5
+  ],
+  "settings": {
+   "preset": "tv-xfiles-millennium",
+   "types": [],
+   "brief": "",
+   "terms": [],
+   "auto_terms": [],
+   "keywords": [
+    "darkness",
+    "believe",
+    "death",
+    "demon",
+    "endless",
+    "dark",
+    "veil",
+    "abyss"
+   ],
+   "max_items": 15,
+   "per_source": 1,
+   "whisper": "base.en",
+   "pd_only": false
+  },
+  "created": "2026-10-20T14:51:20+00:00"
+ },
+ "clips": [
+  {
+   "id": "youtube-rceymgupmec-rceymgupmec-00251",
+   "text": "has believed that his sister was abducted by aliens",
+   "score": 15.0,
+   "ai": null,
+   "tags": [
+    "believe",
+    "abduct",
+    "alien"
+   ],
+   "start": 250.68,
+   "end": 255.01,
+   "t0": 251.03,
+   "t1": 253.51,
+   "transcript": "transcripts/youtube-rceymgupmec-rceymgupmec.json",
+   "source_dl": "https://archive.org/download/youtube-RcEYmGuPMEc/RcEYmGuPMEc.mp4",
+   "item": "youtube-RcEYmGuPMEc",
+   "title": "The X-Files Movie Special (KCPQ June 15, 1998) with commercials",
+   "source_file": "RcEYmGuPMEc.mp4",
+   "year": "2024",
+   "item_url": "https://archive.org/details/youtube-RcEYmGuPMEc",
+   "source_url": "https://archive.org/download/youtube-RcEYmGuPMEc/RcEYmGuPMEc.mp4#t=250.7",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "vhs-005-110017-110924-110017-the-x-files-n-00010",
+   "text": "I think those kids have been abducted for you by what?",
+   "score": 10.0,
+   "ai": null,
+   "tags": [
+    "abduct",
+    "abducted"
+   ],
+   "start": 10.27,
+   "end": 14.94,
+   "t0": 10.62,
+   "t1": 13.44,
+   "transcript": "transcripts/vhs-005-110017-110924-110017-the-x-files-n.json",
+   "source_dl": "https://archive.org/download/VHS-005_110017-110924/110017_The-X-Files-New-Episodes-Promo-FOX-KTSU-13_1993-10-31.ia.mp4",
+   "item": "VHS-005_110017-110924",
+   "title": "The X-Files New Episodes Promo FOX/KTSU 13 1993-10-31",
+   "source_file": "110017_The-X-Files-New-Episodes-Promo-FOX-KTSU-13_1993-10-31.ia.mp4",
+   "year": "1993-10-31",
+   "item_url": "https://archive.org/details/VHS-005_110017-110924",
+   "source_url": "https://archive.org/download/VHS-005_110017-110924/110017_The-X-Files-New-Episodes-Promo-FOX-KTSU-13_1993-10-31.ia.mp4#t=10.3",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 6
+  },
+  {
+   "id": "20221106-172239-20221106-172239-ia-00088",
+   "text": "And you think it's related to your abduction from the same place?",
+   "score": 10.0,
+   "ai": null,
+   "tags": [
+    "abduct",
+    "abduction"
+   ],
+   "start": 87.76,
+   "end": 91.99,
+   "t0": 88.11,
+   "t1": 90.49,
+   "transcript": "transcripts/20221106-172239-20221106-172239-ia.json",
+   "source_dl": "https://archive.org/download/20221106-172239/20221106_172239.ia.mp4",
+   "item": "20221106-172239",
+   "title": "The X-Files FOX Split Screen Credits",
+   "source_file": "20221106_172239.ia.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/20221106-172239",
+   "source_url": "https://archive.org/download/20221106-172239/20221106_172239.ia.mp4#t=87.8",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "drama",
+   "theme": 0
+  },
+  {
+   "id": "exploringthex-filesepisode002-foundersmu-episode002-foundersm-00625",
+   "text": "The gore factor, yes, it wasn't a very gory death. It was just a very...",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 625.18,
+   "end": 632.13,
+   "t0": 625.53,
+   "t1": 630.63,
+   "transcript": "transcripts/exploringthex-filesepisode002-foundersmu-episode002-foundersm.json",
+   "source_dl": "https://archive.org/download/ExploringTheX-filesEpisode002-FoundersMutation/Episode002-FoundersMutation.mp3",
+   "item": "ExploringTheX-filesEpisode002-FoundersMutation",
+   "title": "Exploring the X-Files Episode 002 - Founders Mutation",
+   "source_file": "Episode002-FoundersMutation.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/ExploringTheX-filesEpisode002-FoundersMutation",
+   "source_url": "https://archive.org/download/ExploringTheX-filesEpisode002-FoundersMutation/Episode002-FoundersMutation.mp3#t=625.2",
+   "license": {
+    "status": "cc",
+    "url": "http://creativecommons.org/licenses/by-nc/4.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 12
+  },
+  {
+   "id": "462026-433248678-00516",
+   "text": "running around the earth that was going to turn us all into alien human hybrids for an invasion by",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "alien",
+    "invasion",
+    "human"
+   ],
+   "start": 516.0,
+   "end": 522.93,
+   "t0": 516.35,
+   "t1": 521.43,
+   "transcript": "transcripts/462026-433248678.json",
+   "source_dl": "https://archive.org/download/462026/433248678.mp4",
+   "item": "462026",
+   "title": "THE ROAD TO CONCORD CLASS #613: The X-Files, Alien 'Hybrids,' Bees and a Spielberg Movie",
+   "source_file": "433248678.mp4",
+   "year": "2026-04-06",
+   "item_url": "https://archive.org/details/462026",
+   "source_url": "https://archive.org/download/462026/433248678.mp4#t=516.0",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 9
+  },
+  {
+   "id": "episode28-201601-episode-28-01039",
+   "text": "and last episodes are conspiracy episodes because I don't really care about the conspiracy",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "conspiracy",
+    "the conspiracy"
+   ],
+   "start": 1038.86,
+   "end": 1044.15,
+   "t0": 1039.21,
+   "t1": 1042.65,
+   "transcript": "transcripts/episode28-201601-episode-28.json",
+   "source_dl": "https://archive.org/download/Episode28_201601/Episode%2028.mp3",
+   "item": "Episode28_201601",
+   "title": "Episode 28: The X-Files and Fandoms",
+   "source_file": "Episode 28.mp3",
+   "year": "2016-01-06",
+   "item_url": "https://archive.org/details/Episode28_201601",
+   "source_url": "https://archive.org/download/Episode28_201601/Episode%2028.mp3#t=1038.9",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "1996-promo-for-the-x-files-2-1996-promo-for-the-x-00000",
+   "text": "Series of mysterious deaths and at the scene of each crime a little girl with",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "death",
+    "death"
+   ],
+   "start": 0.0,
+   "end": 6.01,
+   "t0": 0.05,
+   "t1": 4.51,
+   "transcript": "transcripts/1996-promo-for-the-x-files-2-1996-promo-for-the-x.json",
+   "source_dl": "https://archive.org/download/1996-promo-for-the-x-files-2/1996%20promo%20for%20the%20X-Files%20%282%29.ia.mp4",
+   "item": "1996-promo-for-the-x-files-2",
+   "title": "1996 promo for The X-Files (2)",
+   "source_file": "1996 promo for the X-Files (2).ia.mp4",
+   "year": "1996",
+   "item_url": "https://archive.org/details/1996-promo-for-the-x-files-2",
+   "source_url": "https://archive.org/download/1996-promo-for-the-x-files-2/1996%20promo%20for%20the%20X-Files%20%282%29.ia.mp4#t=0.0",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "the-x-files-1998-trailers-tv-spots-the-x-files-1998-tra-00383",
+   "text": "The global conspiracy reaches into the lives of every man, woman, and child on this planet.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "planet",
+    "conspiracy"
+   ],
+   "start": 383.39,
+   "end": 389.14,
+   "t0": 383.74,
+   "t1": 387.64,
+   "transcript": "transcripts/the-x-files-1998-trailers-tv-spots-the-x-files-1998-tra.json",
+   "source_dl": "https://archive.org/download/the-x-files-1998-trailers-tv-spots/The%20X-Files%20%281998%29%20Trailers%20%26%20TV%20Spots.ia.mp4",
+   "item": "the-x-files-1998-trailers-tv-spots",
+   "title": "The X-Files: Fight The Future (1998) Previews",
+   "source_file": "The X-Files (1998) Trailers & TV Spots.ia.mp4",
+   "year": "2023",
+   "item_url": "https://archive.org/details/the-x-files-1998-trailers-tv-spots",
+   "source_url": "https://archive.org/download/the-x-files-1998-trailers-tv-spots/The%20X-Files%20%281998%29%20Trailers%20%26%20TV%20Spots.ia.mp4#t=383.4",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 3
+  },
+  {
+   "id": "video-rm-202404-vts-01-4-00738",
+   "text": "I hope he's ever going to believe that that's Mulder.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "believe"
+   ],
+   "start": 738.26,
+   "end": 741.93,
+   "t0": 738.61,
+   "t1": 740.43,
+   "transcript": "transcripts/video-rm-202404-vts-01-4.json",
+   "source_dl": "https://archive.org/download/video-rm_202404/VTS_01_4.mp4",
+   "item": "video-rm_202404",
+   "title": "Recordings of Some of the Last Episodes of the Original \"X-Files\" (September 2003; April-May 2002)",
+   "source_file": "VTS_01_4.mp4",
+   "year": "2003",
+   "item_url": "https://archive.org/details/video-rm_202404",
+   "source_url": "https://archive.org/download/video-rm_202404/VTS_01_4.mp4#t=738.3",
+   "license": {
+    "status": "cc",
+    "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "xfileslonegunmendocumentary-the-x-files-the-lone-00036",
+   "text": "We're talking about a dark network, a government within a government controlling our every move.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "dark",
+    "dark"
+   ],
+   "start": 35.86,
+   "end": 43.27,
+   "t0": 36.21,
+   "t1": 41.77,
+   "transcript": "transcripts/xfileslonegunmendocumentary-the-x-files-the-lone.json",
+   "source_dl": "https://archive.org/download/XFilesLoneGunmenDocumentary/The%20X-Files%20-%20The%20Lone%20Gunmen%20-%20Documentary.mp4",
+   "item": "XFilesLoneGunmenDocumentary",
+   "title": "The X-Files The Lone Gunmen Documentary",
+   "source_file": "The X-Files - The Lone Gunmen - Documentary.mp4",
+   "year": "",
+   "item_url": "https://archive.org/details/XFilesLoneGunmenDocumentary",
+   "source_url": "https://archive.org/download/XFilesLoneGunmenDocumentary/The%20X-Files%20-%20The%20Lone%20Gunmen%20-%20Documentary.mp4#t=35.9",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "the-x-files-season-2-episode-11-excelsis-the-x-files-season-2-00655",
+   "text": "Are you saying that you don't believe Nurse Charter's allegations of rape?",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "believe"
+   ],
+   "start": 654.81,
+   "end": 659.52,
+   "t0": 655.16,
+   "t1": 658.02,
+   "transcript": "transcripts/the-x-files-season-2-episode-11-excelsis-the-x-files-season-2.json",
+   "source_dl": "https://archive.org/download/the-x-files-season-2-episode-11-excelsis-dei/The%20X-Files%20Season%202%20Episode%2011%20-%20Excelsis%20Dei.mp4",
+   "item": "the-x-files-season-2-episode-11-excelsis-dei",
+   "title": "The X Files Season 2 Episode 11 Excelsis Dei - 16 de diciembre de 1994",
+   "source_file": "The X-Files Season 2 Episode 11 - Excelsis Dei.mp4",
+   "year": "1994-12-16",
+   "item_url": "https://archive.org/details/the-x-files-season-2-episode-11-excelsis-dei",
+   "source_url": "https://archive.org/download/the-x-files-season-2-episode-11-excelsis-dei/The%20X-Files%20Season%202%20Episode%2011%20-%20Excelsis%20Dei.mp4#t=654.8",
+   "license": {
+    "status": "cc",
+    "url": "https://creativecommons.org/licenses/by/4.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "bbc-beyond-coincidence-4-of-5-the-coinci-bbc-beyond-coinciden-00400",
+   "text": "The experiment is coin tossing and we'll assume that heads or tails are equally likely.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "experiment",
+    "the experiment"
+   ],
+   "start": 400.1,
+   "end": 408.23,
+   "t0": 400.45,
+   "t1": 406.73,
+   "transcript": "transcripts/bbc-beyond-coincidence-4-of-5-the-coinci-bbc-beyond-coinciden.json",
+   "source_dl": "https://archive.org/download/bbc-beyond-coincidence-4-of-5-the-coincidence-x-files/BBC%20-%20Beyond%20Coincidence%20-%201%20of%205%20-%20Amazing%20Coincidences.mp3",
+   "item": "bbc-beyond-coincidence-4-of-5-the-coincidence-x-files",
+   "title": "BBC Beyond Coincidence - The Coincidence X Files 1h 10m documentary",
+   "source_file": "BBC - Beyond Coincidence - 1 of 5 - Amazing Coincidences.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/bbc-beyond-coincidence-4-of-5-the-coincidence-x-files",
+   "source_url": "https://archive.org/download/bbc-beyond-coincidence-4-of-5-the-coincidence-x-files/BBC%20-%20Beyond%20Coincidence%20-%201%20of%205%20-%20Amazing%20Coincidences.mp3#t=400.1",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "1995-promo-for-the-x-files-1995-promo-for-the-x-00000",
+   "text": "People have always believed in its existence.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "believe"
+   ],
+   "start": 0.0,
+   "end": 3.9,
+   "t0": 0.0,
+   "t1": 2.4,
+   "transcript": "transcripts/1995-promo-for-the-x-files-1995-promo-for-the-x.json",
+   "source_dl": "https://archive.org/download/1995-promo-for-the-x-files/1995%20promo%20for%20The%20X-Files.ia.mp4",
+   "item": "1995-promo-for-the-x-files",
+   "title": "1995 promo for The X-Files",
+   "source_file": "1995 promo for The X-Files.ia.mp4",
+   "year": "1995",
+   "item_url": "https://archive.org/details/1995-promo-for-the-x-files",
+   "source_url": "https://archive.org/download/1995-promo-for-the-x-files/1995%20promo%20for%20The%20X-Files.ia.mp4#t=0.0",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "fightrunnerfightrunnerepisode1-13-x-file-episode1-13-64kb-00263",
+   "text": "flips like a loan in the dark with",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "dark",
+    "dark"
+   ],
+   "start": 263.58,
+   "end": 267.33,
+   "t0": 263.93,
+   "t1": 265.83,
+   "transcript": "transcripts/fightrunnerfightrunnerepisode1-13-x-file-episode1-13-64kb.json",
+   "source_dl": "https://archive.org/download/FightrunnerFightrunnerEpisode1.13-X-Files2_Robocop3/Episode1.13_64kb.mp3",
+   "item": "FightrunnerFightrunnerEpisode1.13-X-Files2_Robocop3",
+   "title": "Fightrunner Episode 1.13 - X-Files 2, Robocop 3",
+   "source_file": "Episode1.13_64kb.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/FightrunnerFightrunnerEpisode1.13-X-Files2_Robocop3",
+   "source_url": "https://archive.org/download/FightrunnerFightrunnerEpisode1.13-X-Files2_Robocop3/Episode1.13_64kb.mp3#t=263.6",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/licenses/publicdomain/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "cokin-geekstorm-episode-189-the-x-files--geekstorm-episode-18-00052",
+   "text": "I believe, 189 episodes.",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "believe"
+   ],
+   "start": 51.85,
+   "end": 55.78,
+   "t0": 52.2,
+   "t1": 54.28,
+   "transcript": "transcripts/cokin-geekstorm-episode-189-the-x-files--geekstorm-episode-18.json",
+   "source_dl": "https://archive.org/download/cokin-GeekStorm_Episode_189_-_The_X-Files_Cuphead_and_more/GeekStorm_Episode_189_-_The_X-Files_Cuphead_and_more.mp3",
+   "item": "cokin-GeekStorm_Episode_189_-_The_X-Files_Cuphead_and_more",
+   "title": "GeekStorm Episode 189 -  The X-Files, Cuphead and more",
+   "source_file": "GeekStorm_Episode_189_-_The_X-Files_Cuphead_and_more.mp3",
+   "year": "2018",
+   "item_url": "https://archive.org/details/cokin-GeekStorm_Episode_189_-_The_X-Files_Cuphead_and_more",
+   "source_url": "https://archive.org/download/cokin-GeekStorm_Episode_189_-_The_X-Files_Cuphead_and_more/GeekStorm_Episode_189_-_The_X-Files_Cuphead_and_more.mp3#t=51.9",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  }
+ ]
+}
