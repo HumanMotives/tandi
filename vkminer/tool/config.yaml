@@ -3,6 +3,9 @@
 # Woorden met een spatie worden als vaste zin gezocht.
 search:
   mediatype: [audio, movies]
+  # Nooit: moderne filmrips (geen oude, rechtenvrije bronnen). Geldt voor elke zoekopdracht.
+  exclude: [1080p, 720p, 2160p, 480p, web-dl, webrip, bluray, blu-ray, brrip, bdrip, dvdrip, hdrip,
+            x264, x265, h264, h265, hevc, yify, yts]
   terms:
     - x minus one
     - dimension x
@@ -64,22 +67,30 @@ presets:
 
   liturgie-latijn:
     label: Gesproken liturgie in het Latijn
-    # Gesproken, niet gezongen: stille mis (missa lecta), gebeden, litanieën, exorcisme-rite, lezingen.
-    # Latijn: meertalig Whisper-model (small), dus trager dan Engels.
-    language: la
-    whisper: small
-    mediatype: [audio, movies]
-    terms: ["low mass", "missa lecta", "spoken latin", "latin prayers", "latin prayer", "recited latin",
-            "rosary in latin", "latin rosary", "litany of the saints", "litaniae", "rituale romanum",
-            "roman ritual", "rite of exorcism", "exorcism prayer", "latin reading", "vulgate",
-            "breviary", "divine office", "recto tono", "ecclesiastical latin", "pater noster"]
-    exclude: [chant, chants, choir, choral, sung, singing, schola, hymn, hymns, cantus, album, concert, organ]
+    # Gesproken, niet gezongen. Alleen bronnen die als Latijn gemarkeerd zijn,
+    # of "latin" expliciet in titel of omschrijving hebben.
+    # mode: voice = geen transcriptie, alleen spraakdetectie: snel, maar zonder tekst bij de clip.
+    mode: voice
+    query: 'mediatype:(audio OR movies) AND ((language:(latin OR lat OR la) AND (mass OR missa OR prayer OR prayers OR oratio OR litany OR litaniae OR rosary OR rosarium OR exorcism OR exorcismus OR rituale OR ritual OR liturgy OR liturgia OR breviary OR breviarium OR vespers OR compline OR matins OR psalm OR psalms OR lectio OR reading OR sermon OR recitation)) OR "low mass" OR "missa lecta" OR "spoken latin" OR "latin prayers" OR "latin prayer" OR "recited latin" OR "latin rosary" OR "rosary in latin" OR "rituale romanum" OR "latin exorcism" OR "exorcism in latin" OR "ecclesiastical latin" OR "latin reading" OR "recto tono")'
+    exclude: [chant, chants, choir, choral, sung, singing, schola, hymn, hymns, cantus, album, concert,
+              organ, song, songs, music, gregorian]
+
+  tv-xfiles-millennium:
+    label: The X-Files en Millennium (tv)
+    # Auteursrechtelijk beschermd (Fox). Uploads op IA zijn meestal niet officieel en kunnen verdwijnen.
+    # license: any = ook zonder vrije licentie; allow_rips = rip-uitsluiting staat uit voor deze zoekset.
+    license: any
+    allow_rips: true
+    query: 'mediatype:(movies OR audio) AND (title:("x-files" OR "x files" OR xfiles) OR (title:millennium AND ("frank black" OR "lance henriksen" OR "chris carter" OR "millennium group")))'
+    exclude: [podcast, rewatch, review, recap, reaction, commentary, soundtrack, ost, theme, remix,
+              "mark snow", game, gameplay, trailer, fanfic, audiobook, interview]
     keyword_weight: 3
-    keywords: ["in nomine patris", "dominus vobiscum", "et cum spiritu tuo", "kyrie eleison", "christe eleison",
-               "agnus dei", "requiem aeternam", "lux perpetua", "libera nos", "ora pro nobis", "miserere nobis",
-               "exorcizamus", "exorcizo te", "omnis immundus spiritus", "satanica potestas", "vade retro",
-               "per omnia saecula", "in saecula saeculorum", "de profundis", "dies irae", "memento mori",
-               "mysterium fidei", "pater noster", "ave maria", "sanctus", "in tenebris", "mortis", "inferni"]
+    keywords: ["the truth is out there", "trust no one", "i want to believe", "deny everything",
+               "they're here", "they are here", "the syndicate", colonization, colonists, abduction, abducted,
+               "black oil", "the government", "cover-up", conspiracy, "the conspiracy", "the project",
+               "the experiment", "the tests", "the chip", "missing time", "the light", "they took",
+               "millennium group", "this is who we are", "the end", "the coming", evil, "the darkness",
+               "the abyss", "the devil", "judgment", "the prophecy", "the plague", "the beast", "he's coming"]
 
   ufo-interviews:
     label: UFO-interviews
@@ -131,7 +142,9 @@ sources:
     collections: [librivoxaudio, audio_bookspoetry, audiobooks, audio_books, booksbylanguage]
     words: [librivox, audiobook, "audio book", "e-book", ebook, unabridged, chapter, "read by",
             "reading of", "solo reading", "dramatic reading", poem, poetry,
-            podcast, "talk radio", "call-in", webinar, vlog, livestream, sermon, "audio blog"]
+            podcast, "talk radio", "call-in", webinar, vlog, livestream, sermon, "audio blog",
+            "audio bible", "dramatized bible", "bible reading", "faith comes by hearing",
+            1080p, 720p, web-dl, webrip, bluray, x264, x265, h264, hevc]
 
 language: en          # taal voor Whisper; leeg = automatisch detecteren
 min_clip: 1.2         # seconden
@@ -140,6 +153,18 @@ pad_start: 0.35       # marge voor elke knip (seconden)
 pad_end: 1.5          # marge na elke knip, zodat het laatste woord niet wordt afgekapt
 save_wavs: false      # false = geen WAVs in de repo; de pagina knipt zelf wat je downloadt
 max_minutes: 120      # langere bestanden overslaan
+max_source_minutes: 20  # per bron hooguit zoveel minuten ophalen en uitschrijven (Analyse Entire Source doet de rest)
+max_batch_minutes: 60   # daarna stopt de batch en slaat hij op wat hij heeft
+
+# Spraakdetectie zonder transcriptie (zoeksets met mode: voice, bijv. Latijn)
+voice:
+  max_minutes: 30       # per bron zoveel minuten doorzoeken
+  min_seconds: 3        # kortste fragment
+  max_seconds: 14       # langer = begin ervan, tot ideal_seconds
+  ideal_seconds: 8
+  join_gap: 0.35        # pauzes korter dan dit horen bij hetzelfde fragment
+  min_silence_ms: 450
+  spread_seconds: 60    # fragmenten uit één bron liggen minstens zo ver uit elkaar
 early_stop: true      # stoppen met uitschrijven zodra er een goede zin is (sneller)
 chunk_minutes: 10     # per blok uitschrijven
 early_stop_score: 5   # 'goed genoeg' zonder Claude (trefwoordscore)

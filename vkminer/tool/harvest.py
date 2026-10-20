@@ -30,7 +30,7 @@ STATE = ROOT / "processed.txt"  # verwerkte bestanden (item/bestand) en bronnen 
 SEEN = ROOT / "seen.txt"  # al geknipte zinnen, tegen dubbelingen
 
 AUDIO_FORMATS = ["64Kbps MP3", "VBR MP3", "128Kbps MP3", "MP3", "Ogg Vorbis", "Flac", "WAVE"]
-VIDEO_FORMATS = ["512Kb MPEG4", "h.264", "h.264 IA", "MPEG4", "Ogg Video", "MPEG2", "Cinepack"]
+VIDEO_FORMATS = ["512Kb MPEG4", "h.264", "h.264 IA", "h.264 HD", "MPEG4", "WebM", "Ogg Video", "MPEG2", "Cinepack"]
 PD_HINTS = ["publicdomain", "public domain", "/mark/", "cc0"]
 
 
@@ -131,7 +131,24 @@ def download_url(identifier, name):
     return f"https://archive.org/download/{identifier}/{quote(name, safe='/')}"
 
 
-def fetch_to_wav(url, dest):
+def fetch_to_wav(url, dest, max_seconds=None):
+    """Bron naar wav (mono 44,1 kHz). Met max_seconds alleen het begin, rechtstreeks gestreamd."""
+    if max_seconds:
+        for attempt in range(3):
+            try:
+                subprocess.run(
+                    ["ffmpeg", "-nostdin", "-loglevel", "error", "-y",
+                     "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "10",
+                     "-i", url, "-t", f"{max_seconds:.0f}",
+                     "-vn", "-ac", "1", "-ar", "44100", "-c:a", "pcm_s16le", str(dest)],
+                    check=True, timeout=max_seconds + 600,
+                )
+                if Path(dest).exists() and Path(dest).stat().st_size > 44100:
+                    return
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+                log(f"   streamen mislukt ({e.__class__.__name__}), opnieuw...")
+                time.sleep(5 * (attempt + 1))
+        log("   streamen lukt niet, hele bestand downloaden")
     with tempfile.NamedTemporaryFile(delete=False, suffix=Path(url).suffix) as tmp:
         tmp_path = tmp.name
     try:
@@ -150,6 +167,7 @@ def fetch_to_wav(url, dest):
                 time.sleep(5 * (attempt + 1))
         subprocess.run(
             ["ffmpeg", "-nostdin", "-loglevel", "error", "-y", "-i", tmp_path,
+             *(["-t", f"{max_seconds:.0f}"] if max_seconds else []),
              "-vn", "-ac", "1", "-ar", "44100", "-c:a", "pcm_s16le", str(dest)],
             check=True,
         )
@@ -196,10 +214,11 @@ def transcribe_range(model, wav, a, b, language):
     return [{**x, "start": x["start"] + a, "end": x["end"] + a} for x in segs]
 
 
-def chunked(model, wav, total, cfg, start=0.0, stop=None):
-    """Loopt in blokken door de bron. stop(new_segs) -> True breekt af. Geeft (segs, tot_waar)."""
+def chunked(model, wav, total, cfg, start=0.0, stop=None, of=None):
+    """Loopt in blokken door de bron. stop(new_segs) -> True breekt af. Geeft (segs, tot_waar).
+    of: echte lengte van de bron, als wav alleen het begin bevat (voor de log)."""
     size = max(60.0, float(cfg.get("chunk_minutes", 10)) * 60)
-    segs, pos = [], start
+    segs, pos, of = [], start, of or total
     while pos < total - 1:
         end = min(total, pos + size)
         new = transcribe_range(model, wav, pos, min(total, end + 5), cfg.get("language"))
@@ -207,10 +226,61 @@ def chunked(model, wav, total, cfg, start=0.0, stop=None):
         new = [x for x in new if end >= total or x["start"] < end]
         segs += new
         pos = max(end, new[-1]["end"]) if new else end
-        log(f"   {fmt_time(pos)} van {fmt_time(total)} uitgeschreven, {len(segs)} zinnen")
+        log(f"   {fmt_time(pos)} van {fmt_time(of)} uitgeschreven, {len(segs)} zinnen")
         if stop and stop(new):
             break
     return segs, min(pos, total)
+
+
+def voice_fragments(wav, total, cfg, n):
+    """Zoekt gesproken stukken met spraakdetectie (geen tekst). Geeft [(start, eind, score)]."""
+    import numpy as np
+    from faster_whisper.vad import VadOptions, get_speech_timestamps
+    v = cfg.get("voice") or {}
+    lo, hi, best = float(v.get("min_seconds", 3)), float(v.get("max_seconds", 14)), float(v.get("ideal_seconds", 8))
+    gap_join, spread = float(v.get("join_gap", 0.35)), float(v.get("spread_seconds", 60))
+    opts = VadOptions(min_silence_duration_ms=int(v.get("min_silence_ms", 450)), speech_pad_ms=80)
+    regions, size, pos = [], 600.0, 0.0
+    while pos < total - 1:
+        end = min(total, pos + size)
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+            part = tmp.name
+        try:
+            subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-y", "-ss", f"{pos:.3f}",
+                            "-t", f"{end - pos:.3f}", "-i", str(wav), "-ac", "1", "-ar", "16000",
+                            "-c:a", "pcm_s16le", part], check=True)
+            with wave.open(part) as w:
+                audio = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32) / 32768.0
+            for t in get_speech_timestamps(audio, vad_options=opts):
+                regions.append([pos + t["start"] / 16000, pos + t["end"] / 16000])
+        finally:
+            os.unlink(part)
+        pos = end
+    merged = []
+    for a, b in regions:
+        if merged and a - merged[-1][1] < gap_join:
+            merged[-1][1] = b
+        else:
+            merged.append([a, b])
+    cands = []
+    for i, (a, b) in enumerate(merged):
+        d = b - a
+        if d < lo:
+            continue
+        if d > hi:  # lange zit: begin ervan, tot de ideale lengte
+            b, d = a + best, best
+        before = a - merged[i - 1][1] if i else a
+        after = merged[i + 1][0] - merged[i][1] if i + 1 < len(merged) else 1.0
+        score = 5 - abs(d - best) / 2 + min(1.5, before) + min(1.5, after)  # vrijstaand en goede lengte
+        cands.append((a, b, round(score, 1)))
+    log(f"   {len(merged)} spraakstukken, {len(cands)} geschikt")
+    picked = []
+    for c in sorted(cands, key=lambda c: -c[2]):
+        if all(abs(c[0] - p[0]) >= spread for p in picked):
+            picked.append(c)
+        if len(picked) >= n:
+            break
+    return sorted(picked)
 
 
 def fmt_time(s):
@@ -510,8 +580,12 @@ def type_filter(cfg, types):
 
 def preset_query(p):
     """Zoekset als losse query, of als lijstjes: collections, mediatype, title, terms."""
+    q = lambda t: f'"{t}"' if re.search(r"[^A-Za-z0-9_]", str(t)) else str(t)
     if p.get("query"):
-        return p["query"]
+        query = p["query"]
+        if p.get("exclude"):
+            query = f"({query}) AND NOT (" + " OR ".join(q(t) for t in p["exclude"]) + ")"
+        return query
     q = lambda t: f'"{t}"' if re.search(r"[^A-Za-z0-9_]", str(t)) else str(t)
     parts = []
     if p.get("collections"):
@@ -600,7 +674,7 @@ def main():
     if args.preset and not preset:
         log(f"Zoekset {args.preset} bestaat niet, vrij zoeken")
         args.preset = ""
-    if preset and preset.get("language"):
+    if preset and preset.get("language") and preset.get("mode") != "voice":
         # andere taal: meertalig Whisper-model nodig (de .en-modellen kennen alleen Engels)
         cfg["language"] = preset["language"]
         if args.whisper.endswith(".en"):
@@ -641,6 +715,21 @@ def main():
         types = []
     else:
         query = build_query(cfg, terms, types)
+    # moderne filmrips en dergelijke nooit
+    excl = (cfg.get("search") or {}).get("exclude") or []
+    if preset and preset.get("allow_rips"):
+        # tv-series staan vaak als rip op IA: uitsluiting en strafpunten voor rips uit
+        rips = {str(t).lower() for t in excl}
+        avoid = (cfg.get("sources") or {}).get("avoid") or {}
+        avoid["words"] = [w for w in avoid.get("words", []) if str(w).lower() not in rips]
+        excl = []
+    if preset and preset.get("license") == "any" and args.pd_only:
+        log("Zoekset zonder vrije licentie: ook bronnen met onduidelijke rechten (label 'Licentie controleren')")
+        args.pd_only = False
+    if excl:
+        qx = lambda t: f'"{t}"' if re.search(r"[^A-Za-z0-9_]", str(t)) else str(t)
+        query = f"({query}) AND NOT (" + " OR ".join(qx(t) for t in excl) + ")"
+    voice_mode = bool(preset and preset.get("mode") == "voice")
     pats = compile_keywords(cfg, extra_kw)
     # knipwoorden van de zoekset tellen mee met gewicht 2, of keyword_weight (eigen woorden van de pagina: 4)
     kw_weight = int((preset or {}).get("keyword_weight", 2))
@@ -667,9 +756,13 @@ def main():
         with STATE.open("a") as fh:
             fh.write(line + "\n")
 
-    from faster_whisper import WhisperModel
-    log(f"Whisper laden: {args.whisper}")
-    model = WhisperModel(args.whisper, device="cpu", compute_type="int8")
+    model = None
+    if voice_mode:
+        log("Spraakdetectie zonder transcriptie (zoekset in andere taal)")
+    else:
+        from faster_whisper import WhisperModel
+        log(f"Whisper laden: {args.whisper}")
+        model = WhisperModel(args.whisper, device="cpu", compute_type="int8")
 
     log(f"Query: {query}")
     per_source = args.per_source or max(1, int((cfg.get("sources") or {}).get("per_source", 1)))
@@ -678,7 +771,7 @@ def main():
         "preset": args.preset, "types": types, "brief": args.brief,
         "terms": user_terms, "auto_terms": auto_terms, "keywords": extra_kw,
         "max_items": args.max_items, "per_source": per_source,
-        "whisper": args.whisper, "pd_only": bool(args.pd_only),
+        "whisper": "spraakdetectie" if voice_mode else args.whisper, "pd_only": bool(args.pd_only),
     }
     results = ia.search_items(query, fields=["identifier", "title", "collection", "subject", "description"],
                               sorts=["downloads desc"])
@@ -716,9 +809,16 @@ def main():
     log(f"{len(pool)} bronnen gevonden: {counts['drama']} hoorspel/drama, {counts['prefer']} film/radio/interview, "
         f"{counts['neutral']} overig, {counts['avoid']} luisterboek/podcast (achteraan)")
     clips, items_done, tried, titles, work = [], 0, 0, set(), Path(tempfile.mkdtemp())
+    t_start = time.time()
+    batch_limit = float(cfg.get("max_batch_minutes", 60)) * 60
+    source_limit = float(cfg.get("max_source_minutes", 20)) * 60
+    out_of_time = lambda: time.time() - t_start > batch_limit
 
     for hit in pool:
         if items_done >= args.max_items or tried >= args.max_items * 4:
+            break
+        if out_of_time():
+            log(f"Tijdslimiet van {batch_limit / 60:.0f} minuten bereikt: opslaan wat er is")
             break
         ident = hit["identifier"]
         try:
@@ -748,7 +848,8 @@ def main():
         cfg["_source"] = " | ".join(source_text({**md, "title": title}, 300)[::2])
         adjust = kind_adjust(kind, cfg)
         tried += 1
-        log(f"[{items_done + 1}/{args.max_items}] {title} ({lic['status']}, {kind})")
+        log(f"[bron {tried}, {items_done}/{args.max_items} klaar, {(time.time() - t_start) / 60:.0f} min] "
+            f"{title} ({lic['status']}, {kind})")
         found = 0
 
         for f in files:
@@ -756,29 +857,38 @@ def main():
             url = download_url(ident, name)
             wav = work / "src.wav"
             try:
-                log(f"   {name}: downloaden")
-                fetch_to_wav(url, wav)
+                real = parse_len(f.get("length")) or 0
+                cap = float((cfg.get("voice") or {}).get("max_minutes", 30)) * 60 if voice_mode else source_limit
+                log(f"   {name}: ophalen" + (f" (eerste {cap / 60:.0f} van {fmt_time(real)})" if real > cap else ""))
+                fetch_to_wav(url, wav, cap if not real or real > cap else None)
                 total = wav_duration(wav)
+                real = max(real, total)
                 need = per_source - found
-                cands = []
-                early = bool(cfg.get("early_stop", True))
-
-                def enough(new):
-                    cands.extend(select_clips(new, cfg, pats, api_key, need * 3, seen))
-                    return early and sum(1 for c in cands if good_enough(c, cfg)) >= need
-
-                log(f"   transcriberen ({fmt_time(total)})")
-                segs, until = chunked(model, wav, total, cfg, stop=enough)
-                picked = best_clips(cands, need)
-                log(f"   {len(segs)} zinnen, {len(picked)} clips"
-                    + (f", gestopt na {fmt_time(until)}" if until < total - 1 else ""))
                 tkey = f"{slug(ident)}-{slug(Path(name).stem, 20)}"
-                if picked:
-                    write_transcript(out / "transcripts" / f"{tkey}.json",
-                                     {"item": ident, "file": name, "title": title, "url": url},
-                                     segs, total, until, args.whisper, cfg.get("language"))
+                if voice_mode:
+                    picked = [{"start": a, "end": b, "text": "", "score": sc, "tags": ["stemfragment"]}
+                              for a, b, sc in voice_fragments(wav, total, cfg, need)]
+                    log(f"   {len(picked)} fragmenten")
+                else:
+                    cands = []
+                    early = bool(cfg.get("early_stop", True))
+
+                    def enough(new):
+                        cands.extend(select_clips(new, cfg, pats, api_key, need * 3, seen))
+                        return (early and sum(1 for c in cands if good_enough(c, cfg)) >= need) or out_of_time()
+
+                    log(f"   transcriberen ({fmt_time(total)})")
+                    segs, until = chunked(model, wav, total, cfg, stop=enough, of=real)
+                    picked = best_clips(cands, need)
+                    log(f"   {len(segs)} zinnen, {len(picked)} clips"
+                        + (f", gestopt na {fmt_time(until)}" if until < real - 1 else ""))
+                    if picked:
+                        write_transcript(out / "transcripts" / f"{tkey}.json",
+                                         {"item": ident, "file": name, "title": title, "url": url},
+                                         segs, real, until, args.whisper, cfg.get("language"))
                 for c in picked:
-                    seen.add(c["text"])
+                    if c["text"]:
+                        seen.add(c["text"])
                     c["score"] = round(c["score"] + adjust, 1)
                     if kind == "avoid":
                         c["tags"] = ["luisterboek"] + list(c["tags"])[:2]
@@ -794,7 +904,8 @@ def main():
                         "score": c["score"], "ai": c.get("ai"), "tags": c["tags"],
                         "start": round(a, 2), "end": round(b, 2),
                         "t0": round(c["start"], 2), "t1": round(c["end"], 2),
-                        "transcript": f"transcripts/{tkey}.json", "source_dl": url,
+                        **({} if voice_mode else {"transcript": f"transcripts/{tkey}.json"}),
+                        **({"notext": True} if voice_mode else {}), "source_dl": url,
                         "item": ident, "title": title, "source_file": name,
                         "year": " ".join(as_list(md.get("year") or md.get("date")))[:10],
                         "item_url": f"https://archive.org/details/{ident}",
@@ -809,8 +920,8 @@ def main():
             remember(f"{ident}/{name}")
             # tussentijds wegschrijven, zodat een afgebroken run toch iets oplevert
             write_index(out, args, query, api_key, clips)
-            if found >= per_source:
-                break  # genoeg uit deze bron; overige bestanden niet downloaden
+            if found >= per_source or out_of_time():
+                break  # genoeg uit deze bron, of de tijd is op
         titles.add(tkey_title)
         # Een serie die iets opleverde blijft beschikbaar (alleen de gebruikte aflevering valt af).
         # Een bron zonder resultaat, of een losse film/opname, slaan we voortaan helemaal over.
