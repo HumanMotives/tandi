@@ -1,0 +1,522 @@
+/* ==========================================================================
+   Jong Nederland clubsite – kernstijl
+   Beheerd door het Landelijk Bureau. Clubs passen dit bestand niet aan.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Lilita One";
+  src: url("lilita-one.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: url("montserrat-var.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+
+  /* Huisstijlkleuren (brandbook) */
+  --bos: #244522;
+  --natuur: #a4cf59;
+  --nacht: #033b6e;
+  --water: #8fd4ec;
+  --zon: #fcc15b;
+  --zand: #faf2e8;
+
+  /* Afgeleide tinten */
+  --natuur-licht: #e6f1cf;
+  --water-licht: #e3f4fa;
+  --zon-licht: #fdecc9;
+  --papier: #fffdf8;
+  --zand-donker: #f3e7d6;
+  --lijn: #e8e0d0;
+  --tekst: #1f3a1d;
+  --tekst-zacht: #4a5e47;
+
+  --font-kop: "Lilita One", "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  --font-tekst: "Montserrat", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+
+  --radius-s: 10px;
+  --radius-m: 20px;
+  --radius-l: 32px;
+  --schaduw: 0 10px 30px -12px rgba(36, 69, 34, 0.25);
+  --max: 1200px;
+  --header-h: 88px;
+
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+*, *::before, *::after { box-sizing: inherit; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + 16px);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--papier);
+  color: var(--tekst);
+  font-family: var(--font-tekst);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  font-weight: 450;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 60;
+  background: var(--natuur);
+}
+
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--bos); text-underline-offset: 3px; text-decoration-thickness: 2px; text-decoration-color: var(--natuur); }
+a:hover { text-decoration-color: var(--bos); }
+p { margin: 0 0 1em; }
+
+:focus-visible {
+  outline: 3px solid var(--nacht);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute; left: 16px; top: -60px; z-index: 100;
+  background: var(--bos); color: #fff; padding: 10px 16px; border-radius: var(--radius-s);
+  font-weight: 700; text-decoration: none;
+}
+.skip-link:focus { top: 12px; }
+
+.wrap { width: min(100% - 40px, var(--max)); margin-inline: auto; }
+
+/* ---------- Typografie ---------- */
+h1, h2, h3, .kop {
+  font-family: var(--font-kop);
+  font-weight: 400;
+  color: var(--bos);
+  text-transform: uppercase;
+  line-height: 1.04;
+  letter-spacing: 0.005em;
+  margin: 0 0 0.5em;
+  text-wrap: balance;
+}
+h1 { font-size: clamp(2.4rem, 5.4vw, 4.4rem); }
+h2 { font-size: clamp(1.9rem, 3.6vw, 2.9rem); }
+h3 { font-size: 1.45rem; }
+h4 { font-size: 1.1rem; font-weight: 750; margin: 0 0 .25em; color: var(--bos); }
+
+.lead { font-size: clamp(1.1rem, 1.6vw, 1.3rem); line-height: 1.6; max-width: 38em; color: var(--tekst); }
+.eyebrow {
+  font-weight: 800; color: var(--nacht); font-size: .85rem;
+  letter-spacing: .12em; text-transform: uppercase; margin-bottom: .9rem;
+}
+.muted { color: var(--tekst-zacht); }
+
+/* ---------- Knoppen ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: .55em;
+  font-family: var(--font-tekst); font-weight: 800; font-size: 1.02rem;
+  padding: .85em 1.6em; border-radius: 999px; border: 2px solid transparent;
+  text-decoration: none; cursor: pointer; line-height: 1.2;
+  transition: transform .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn-bos { background: var(--bos); color: #fff; box-shadow: 0 8px 18px -10px rgba(36,69,34,.8); }
+.btn-bos:hover { background: #1b3519; }
+.btn-groen { background: var(--natuur); color: var(--bos); }
+.btn-groen:hover { background: #98c64b; }
+.btn-wit { background: #fff; color: var(--bos); border-color: var(--lijn); }
+.btn-wit:hover { border-color: var(--bos); }
+.btn svg { width: 1.1em; height: 1.1em; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 28px; }
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50;
+  background: var(--natuur);
+}
+.site-header .wrap {
+  display: flex; align-items: center; gap: 24px; min-height: var(--header-h);
+}
+.brand {
+  display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--bos);
+  margin-right: auto; flex-shrink: 0;
+}
+.brand img { width: 172px; height: auto; }
+.brand-tekst { display: flex; flex-direction: column; line-height: 1; }
+.brand-jn { font-weight: 800; font-size: .9rem; letter-spacing: .02em; }
+.brand-club { font-family: var(--font-kop); font-size: 1.85rem; margin-top: 2px; }
+
+.nav-list { display: flex; align-items: center; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.nav-list a {
+  display: block; padding: .55em .75em; border-radius: 12px;
+  font-weight: 750; font-size: .98rem; color: var(--bos); text-decoration: none;
+}
+.nav-list a:hover { background: rgba(255,255,255,.4); }
+.nav-list a[aria-current="page"] { background: rgba(255,255,255,.55); }
+.nav-cta { margin-left: 8px; }
+.nav-list .nav-cta a.btn { color: #fff; background: var(--bos); }
+.nav-list .nav-cta a.btn:hover { background: #1b3519; }
+.nav-cta .btn { padding: .7em 1.3em; }
+
+.nav-toggle {
+  display: none; background: var(--bos); color: #fff; border: 0; border-radius: 999px;
+  padding: .6em 1.1em; font: 800 .95rem var(--font-tekst); align-items: center; gap: .5em; cursor: pointer;
+}
+.nav-toggle svg { width: 20px; height: 20px; }
+
+@media (max-width: 560px) {
+  .brand img { width: 140px; }
+  .brand-club { font-size: 1.5rem; }
+}
+@media (max-width: 1180px) {
+  .nav-toggle { display: inline-flex; }
+  .site-nav {
+    position: absolute; left: 12px; right: 12px; top: calc(100% + 8px);
+    background: #fffdf6; border-radius: var(--radius-m); box-shadow: var(--schaduw);
+    padding: 12px; display: none;
+  }
+  .site-nav.open { display: block; }
+  .nav-list { flex-direction: column; align-items: stretch; }
+  .nav-list a { padding: .85em 1em; font-size: 1.05rem; }
+  .nav-cta { margin: 8px 0 0; }
+  .nav-cta .btn { width: 100%; justify-content: center; }
+}
+
+/* ---------- Decoratie: stippelpad en X ---------- */
+.pad { position: absolute; pointer-events: none; color: var(--zon); }
+.pad path { fill: none; stroke: currentColor; stroke-width: 3; stroke-dasharray: 9 9; stroke-linecap: round; }
+.pad .x { stroke-dasharray: none; stroke-width: 3.5; }
+
+/* ---------- Hero: luchtig, foto in organische vorm ---------- */
+.hero {
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(42rem 32rem at 0% 0%, rgba(252,193,91,.30), transparent 65%),
+    radial-gradient(38rem 32rem at 100% 0%, rgba(143,212,236,.38), transparent 65%),
+    var(--papier);
+  padding: clamp(40px, 6vw, 88px) 0 clamp(56px, 7vw, 104px);
+}
+.hero .wrap {
+  position: relative;
+  display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(28px, 5vw, 72px); align-items: center;
+}
+.hero-pad { width: 480px; height: 480px; left: 22%; top: 10px; opacity: .55; }
+.hero-naam { margin: 0 0 .3em; display: flex; flex-direction: column; line-height: .95; color: var(--bos); }
+.hero-jn { font-size: clamp(1.5rem, 2.8vw, 2.3rem); color: var(--nacht); }
+.hero-plaats { font-size: clamp(3.2rem, 7.4vw, 6.4rem); overflow-wrap: anywhere; }
+.hero-sub { color: var(--bos); font-weight: 800; font-size: clamp(1.15rem, 1.7vw, 1.4rem); margin: 0 0 .7em; }
+.hero .lead { margin-bottom: 0; }
+
+.blob-foto { justify-self: end; width: 100%; max-width: 580px; }
+.blob-foto .vorm {
+  aspect-ratio: 1 / 1.02; overflow: hidden; clip-path: url(#jn-blob); background: var(--natuur-licht);
+}
+.blob-foto .vorm img { width: 100%; height: 100%; object-fit: cover; }
+
+@media (max-width: 860px) {
+  .hero .wrap { grid-template-columns: 1fr; }
+  .blob-foto { justify-self: center; max-width: 440px; }
+  .hero-pad { left: 40%; top: 45%; }
+}
+
+/* ---------- Secties ---------- */
+.sectie { padding: clamp(56px, 8vw, 104px) 0; position: relative; }
+.sectie-zand { background: var(--zand); }
+.sectie-kop { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-bottom: 36px; }
+.sectie-kop h2 { margin: 0; }
+.sectie-kop p { margin: .6em 0 0; max-width: 40em; }
+.link-pijl { display: inline-flex; align-items: center; gap: .4em; font-weight: 800; text-decoration: none; color: var(--bos); }
+.link-pijl svg { width: 18px; height: 18px; transition: transform .15s; }
+.link-pijl:hover svg { transform: translateX(3px); }
+
+/* ---------- Groepen (leeftijdslijst) ---------- */
+.groepen-lijst {
+  list-style: none; margin: 0; padding: 0; background: #fff;
+  border: 1px solid var(--lijn); border-radius: var(--radius-m); box-shadow: var(--schaduw);
+  overflow: hidden;
+}
+.groepen-lijst li {
+  display: grid; grid-template-columns: 9.5rem 1fr auto; gap: 20px; align-items: center;
+  padding: 22px 28px; border-top: 1px solid var(--lijn);
+}
+.groepen-lijst li:first-child { border-top: 0; }
+.leeftijd {
+  background: var(--natuur-licht); color: var(--bos); border-radius: 999px;
+  font-weight: 800; font-size: .88rem; padding: .45em .9em; text-align: center; white-space: nowrap;
+}
+.groepen-lijst h3 { font-family: var(--font-tekst); text-transform: none; font-weight: 800; font-size: 1.2rem; margin: 0; }
+.groepen-lijst p { margin: .1em 0 0; color: var(--tekst-zacht); }
+.wanneer { display: inline-flex; align-items: center; gap: .45em; font-weight: 700; font-size: .95rem; color: var(--bos); white-space: nowrap; }
+.wanneer svg { width: 18px; height: 18px; color: var(--nacht); }
+@media (max-width: 720px) {
+  .groepen-lijst li { grid-template-columns: 1fr; gap: 8px; padding: 20px; }
+  .leeftijd { justify-self: start; }
+}
+
+/* ---------- Drie routes (lid, vrijwilliger, huren) ---------- */
+.routes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+.route {
+  background: #fff; border: 1px solid var(--lijn); border-radius: var(--radius-m);
+  overflow: hidden; display: flex; flex-direction: column; text-decoration: none; color: inherit;
+  transition: box-shadow .2s, transform .2s;
+}
+.route:hover { box-shadow: var(--schaduw); transform: translateY(-2px); }
+.route-beeld { aspect-ratio: 16 / 10; position: relative; overflow: hidden; display: grid; place-items: center; }
+.route-beeld img.foto { width: 100%; height: 100%; object-fit: cover; }
+.route-beeld img.illu { width: 56%; height: auto; }
+.route-beeld.zon { background: var(--zon-licht); }
+.route-beeld.water { background: var(--water-licht); }
+.route-beeld.groen { background: var(--natuur-licht); }
+.route-tekst { padding: 24px 26px 26px; display: flex; flex-direction: column; flex: 1; }
+.route-tekst h3 { font-family: var(--font-tekst); text-transform: none; font-weight: 800; font-size: 1.3rem; margin-bottom: .35em; }
+.route-tekst p { color: var(--tekst-zacht); }
+.route-tekst .link-pijl { margin-top: auto; }
+
+/* ---------- CTA-band ---------- */
+.band { position: relative; background: var(--zand); color: var(--tekst); padding: clamp(64px, 9vw, 110px) 0 clamp(56px, 7vw, 88px); overflow: hidden; }
+.band::before {
+  content: ""; position: absolute; left: -5%; right: -5%; top: -1px; height: 60px;
+  background: var(--band-boven, var(--papier));
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+}
+.band .wrap { position: relative; display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: center; }
+.band h2 { color: var(--bos); }
+.band p { color: var(--tekst); max-width: 36em; }
+.band .kleppie { width: clamp(160px, 22vw, 260px); }
+.band .pad { color: var(--zon); width: 300px; height: 200px; right: 8%; top: 40px; opacity: .8; }
+@media (max-width: 720px) { .band .wrap { grid-template-columns: 1fr; } .band .kleppie { width: 160px; } }
+
+/* ---------- Paginakop ---------- */
+.paginakop {
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(30rem 20rem at 100% 0%, rgba(143,212,236,.3), transparent 70%),
+    var(--papier);
+  padding: 28px 0 clamp(36px, 5vw, 64px);
+}
+.paginakop .pad { width: 340px; height: 240px; right: 4%; top: 10px; }
+.kruimel { font-size: .95rem; margin-bottom: 18px; color: var(--tekst-zacht); }
+.kruimel a { color: var(--tekst-zacht); text-decoration: none; }
+.kruimel a:hover { text-decoration: underline; }
+.kruimel span[aria-hidden] { margin: 0 .35em; }
+.paginakop h1 { margin-bottom: .3em; }
+
+/* ---------- Tweekoloms inhoud ---------- */
+.duo { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(28px, 5vw, 64px); align-items: start; }
+@media (max-width: 860px) { .duo { grid-template-columns: 1fr; } }
+.foto-rond { border-radius: var(--radius-l); overflow: hidden; aspect-ratio: 4 / 3; }
+.foto-rond img { width: 100%; height: 100%; object-fit: cover; }
+.prose { max-width: 40em; }
+.prose h2 { font-size: clamp(1.6rem, 2.6vw, 2.1rem); margin-top: 1.4em; }
+.prose h2:first-child { margin-top: 0; }
+.prose h3 { font-family: var(--font-tekst); text-transform: none; font-weight: 800; font-size: 1.15rem; margin: 1.4em 0 .4em; }
+.prose h3:first-child { margin-top: 0; }
+.prose ul { padding-left: 1.2em; margin: 0 0 1em; }
+.prose li { margin-bottom: .35em; }
+.prose li::marker { color: var(--natuur); }
+.prose strong { font-weight: 750; color: var(--bos); }
+.prose-breed { max-width: 52em; columns: 2 22em; column-gap: 56px; }
+.prose-breed h2, .prose-breed h3 { break-after: avoid; }
+.prose-breed p, .prose-breed ul { break-inside: avoid; }
+
+/* Groepen in detail */
+.groep-kaarten { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+.groep-kaart { background: #fff; border: 1px solid var(--lijn); border-radius: var(--radius-m); padding: 28px 30px; display: flex; flex-direction: column; }
+.groep-kop { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.groep-kop h2 { font-size: 1.8rem; margin: 0; }
+.groep-kort { font-weight: 700; color: var(--bos); }
+.groep-kaart .prose { font-size: 1rem; color: var(--tekst-zacht); }
+.groep-feiten { margin: auto 0 0; padding-top: 16px; border-top: 1px solid var(--lijn); display: grid; gap: 8px; }
+.groep-feiten div { display: flex; gap: 10px; align-items: center; }
+.groep-feiten dt { display: flex; color: var(--nacht); }
+.groep-feiten svg { width: 18px; height: 18px; }
+.groep-feiten dd { margin: 0; font-weight: 700; color: var(--bos); font-size: .95rem; }
+
+/* Activiteiten */
+.activiteiten { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.activiteit { background: #fff; border: 1px solid var(--lijn); border-radius: var(--radius-m); padding: 26px 28px; }
+.activiteit h2 { font-size: 1.5rem; margin: .35em 0 .4em; }
+.activiteit .prose { font-size: 1rem; color: var(--tekst-zacht); }
+.activiteit .prose p:last-child { margin-bottom: 0; }
+.activiteit-wanneer {
+  display: inline-flex; align-items: center; gap: .45em; background: var(--zon-licht); color: var(--bos);
+  border-radius: 999px; padding: .35em .85em; font-weight: 800; font-size: .85rem;
+}
+.activiteit-wanneer svg { width: 16px; height: 16px; }
+
+/* Bestuur en vertrouwenspersoon */
+.info-kaarten { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; align-items: start; }
+.info-kaart { background: #fff; border: 1px solid var(--lijn); border-radius: var(--radius-l); padding: clamp(24px, 3.5vw, 36px); }
+.info-kaart h2 { font-size: clamp(1.6rem, 2.4vw, 2rem); }
+.info-kaart .contactlijst { margin: 20px 0; }
+.bestuur { margin: 0 0 20px; display: grid; }
+.bestuur div { display: grid; grid-template-columns: minmax(9rem, 40%) 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid var(--lijn); }
+.bestuur div:first-child { border-top: 0; padding-top: 0; }
+.bestuur dt { color: var(--tekst-zacht); font-weight: 600; }
+.bestuur dd { margin: 0; font-weight: 750; color: var(--bos); }
+.kader-wit { background: #fff; border: 1px solid var(--lijn); }
+
+/* Stappen (echte volgorde) */
+.stappen { list-style: none; counter-reset: stap; padding: 0; margin: 0; display: grid; gap: 14px; }
+.stappen li {
+  counter-increment: stap; display: grid; grid-template-columns: 52px 1fr; gap: 16px; align-items: start;
+  background: #fff; border: 1px solid var(--lijn); border-radius: var(--radius-m); padding: 18px 22px;
+}
+.stappen li::before {
+  content: counter(stap); font-family: var(--font-kop); font-size: 1.5rem; color: var(--bos);
+  background: var(--zon); width: 52px; height: 52px; border-radius: 46% 54% 50% 50% / 55% 45% 55% 45%;
+  display: grid; place-items: center;
+}
+.stappen h3 { font-family: var(--font-tekst); text-transform: none; font-weight: 800; font-size: 1.1rem; margin: .2em 0 .15em; }
+.stappen p { margin: 0; color: var(--tekst-zacht); }
+
+/* Vinkjeslijst */
+.vinklijst { list-style: none; padding: 0; margin: 0 0 1.5em; display: grid; gap: 10px; }
+.vinklijst li { display: flex; gap: 12px; align-items: flex-start; font-weight: 600; }
+.vinklijst svg { flex: none; width: 26px; height: 26px; padding: 4px; border-radius: 50%; background: var(--natuur-licht); color: var(--bos); margin-top: 1px; }
+
+/* Rolkaarten vrijwilligers */
+.rollen { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.rol { background: #fff; border: 1px solid var(--lijn); border-radius: var(--radius-m); padding: 26px; display: flex; flex-direction: column; }
+.rol h3 { font-family: var(--font-tekst); text-transform: none; font-weight: 800; font-size: 1.2rem; margin-bottom: .4em; }
+.rol p { color: var(--tekst-zacht); }
+.rol .wanneer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--lijn); }
+
+/* Infokader */
+.kader { background: var(--zand); border-radius: var(--radius-m); padding: 24px 26px; }
+.kader h3 { font-family: var(--font-tekst); text-transform: none; font-weight: 800; font-size: 1.1rem; margin-bottom: .35em; }
+.kader p:last-child { margin: 0; }
+
+/* ---------- Formulieren ---------- */
+.formkaart { background: #fff; border: 1px solid var(--lijn); border-radius: var(--radius-l); padding: clamp(22px, 4vw, 40px); box-shadow: var(--schaduw); }
+.formkaart h2 { font-size: clamp(1.5rem, 2.4vw, 2rem); }
+.velden { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 20px; }
+.veld { display: flex; flex-direction: column; gap: 7px; }
+.veld.breed { grid-column: 1 / -1; }
+@media (max-width: 600px) { .velden { grid-template-columns: 1fr; } }
+.veld label, .veld legend { font-weight: 800; color: var(--bos); font-size: .98rem; }
+.veld label .verplicht { color: #b42318; margin-left: 2px; }
+.veld input, .veld select, .veld textarea {
+  font: 500 1rem var(--font-tekst); color: var(--tekst);
+  border: 1.5px solid #d8cfbe; border-radius: var(--radius-s); background: #fff;
+  padding: .85em 1em; width: 100%;
+}
+.veld textarea { min-height: 140px; resize: vertical; }
+.veld input:focus, .veld select:focus, .veld textarea:focus { outline: 3px solid var(--water); outline-offset: 0; border-color: var(--nacht); }
+.vink { display: flex; gap: 10px; align-items: flex-start; font-weight: 600; }
+.vink input { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--bos); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form-voet { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 24px; }
+.form-voet small { color: var(--tekst-zacht); }
+.form-melding { margin-top: 18px; padding: 14px 18px; border-radius: var(--radius-s); font-weight: 650; display: none; }
+.form-melding.ok { display: block; background: var(--natuur-licht); color: var(--bos); }
+.form-melding.fout { display: block; background: #fde8e6; color: #8a1c12; }
+
+/* ---------- Contactgegevens ---------- */
+.contactlijst { list-style: none; padding: 0; margin: 0 0 28px; display: grid; gap: 14px; }
+.contactlijst li { display: grid; grid-template-columns: 50px 1fr; gap: 14px; align-items: center; }
+.icoon-tegel { width: 50px; height: 50px; border-radius: 14px; background: var(--natuur-licht); display: grid; place-items: center; color: var(--bos); }
+.icoon-tegel svg { width: 22px; height: 22px; }
+.contactlijst a { font-weight: 800; text-decoration: none; }
+.contactlijst a:hover { text-decoration: underline; }
+
+/* ---------- Fotoboek ---------- */
+.album + .album { margin-top: 64px; }
+.album-kop { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.album-kop h2 { margin: 0; font-size: clamp(1.6rem, 2.6vw, 2.2rem); }
+.galerij { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.galerij button {
+  padding: 0; border: 0; background: var(--natuur-licht); border-radius: 16px; overflow: hidden; cursor: zoom-in;
+  aspect-ratio: 1 / 1;
+}
+.galerij img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+.galerij button:hover img { transform: scale(1.04); }
+.foto-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.foto-strip img { aspect-ratio: 1 / 1; object-fit: cover; border-radius: 16px; width: 100%; }
+@media (max-width: 720px) { .foto-strip { grid-template-columns: repeat(2, 1fr); } }
+
+.lightbox {
+  border: 0; padding: 0; background: transparent; max-width: min(96vw, 1200px); max-height: 92vh; overflow: visible;
+}
+.lightbox::backdrop { background: rgba(20, 36, 19, .88); }
+.lightbox figure { margin: 0; }
+.lightbox img { max-height: 80vh; width: auto; max-width: 100%; border-radius: 14px; margin: 0 auto; }
+.lightbox figcaption { color: #fff; text-align: center; margin-top: 12px; font-weight: 600; }
+.lb-knop {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  width: 52px; height: 52px; border-radius: 50%; border: 0; background: #fff; color: var(--bos);
+  display: grid; place-items: center; cursor: pointer;
+}
+.lb-knop svg { width: 24px; height: 24px; }
+.lb-vorige { left: 16px; } .lb-volgende { right: 16px; }
+.lb-sluit { top: calc(16px + env(safe-area-inset-top, 0px)); right: 16px; transform: none; }
+
+/* ---------- Sponsors ---------- */
+.sponsors { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; list-style: none; padding: 0; margin: 0; }
+.sponsors li a, .sponsors li span {
+  display: grid; place-items: center; text-align: center; min-height: 104px; padding: 18px;
+  background: #fff; border: 1px solid var(--lijn); border-radius: var(--radius-m);
+  font-weight: 800; color: var(--bos); text-decoration: none;
+}
+.sponsors img { max-height: 64px; width: auto; }
+.sponsors li a:hover { border-color: var(--natuur); }
+
+/* ---------- Footer ---------- */
+.site-footer { position: relative; overflow: hidden; background: var(--zand-donker); color: var(--tekst); padding: 96px 0 calc(28px + env(safe-area-inset-bottom, 0px)); margin-top: 0; }
+.site-footer::before {
+  content: ""; position: absolute; left: -5%; right: -5%; top: -1px; height: 56px;
+  background: var(--footer-boven, var(--papier));
+  border-radius: 0 0 55% 45% / 0 0 100% 100%;
+}
+.site-footer a { color: var(--bos); text-decoration-color: var(--natuur); }
+.footer-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 36px; }
+.footer-grid h2 { color: var(--bos); font-size: 1.25rem; margin-bottom: .8em; }
+.footer-grid ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.footer-club { font-family: var(--font-kop); font-size: 1.6rem; color: var(--bos); line-height: 1.1; margin-bottom: 12px; text-transform: uppercase; }
+.footer-clublogo { max-width: 120px; max-height: 80px; width: auto; margin-bottom: 16px; background: #fff; border-radius: 12px; padding: 8px; }
+.social { display: flex; gap: 10px; margin-top: 16px; }
+.social a { width: 44px; height: 44px; border-radius: 50%; background: #fff; display: grid; place-items: center; }
+.social a:hover { background: var(--natuur); color: var(--bos); }
+.social svg { width: 20px; height: 20px; }
+.footer-jn { display: flex; flex-direction: column; gap: 12px; }
+.footer-jn img { width: 170px; }
+.footer-onder {
+  margin-top: 56px; padding-top: 22px; border-top: 1px solid #e2d4bf;
+  display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: .92rem; color: var(--tekst-zacht);
+}
+.footer-onder a { color: var(--tekst-zacht); }
+@media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr; } }
+
+/* ---------- 404 ---------- */
+.leeg { text-align: center; padding: 80px 0 120px; }
+.leeg img { width: 260px; margin: 0 auto 24px; }
+
+/* ---------- Voorbeeldmodus ---------- */
+[data-pagina][hidden] { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
