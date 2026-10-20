@@ -1,0 +1,472 @@
+{
+ "batch": {
+  "name": "b20261020-1642",
+  "preset": "The X-Files en Millennium (tv)",
+  "query": "((mediatype:(movies OR audio) AND (title:(\"x-files\" OR \"x files\" OR xfiles) OR (title:millennium AND (\"frank black\" OR \"lance henriksen\" OR \"chris carter\" OR \"millennium group\")))) AND NOT (podcast OR rewatch OR review OR recap OR reaction OR commentary OR soundtrack OR ost OR theme OR remix OR \"mark snow\" OR game OR gameplay OR trailer OR fanfic OR audiobook OR interview))",
+  "whisper": "base.en",
+  "claude": false,
+  "pad": [
+   0.35,
+   1.5
+  ],
+  "settings": {
+   "preset": "tv-xfiles-millennium",
+   "types": [],
+   "brief": "",
+   "terms": [],
+   "auto_terms": [],
+   "keywords": [
+    "darkness",
+    "believe",
+    "death",
+    "demon",
+    "endless",
+    "dark",
+    "veil",
+    "abyss",
+    "evil",
+    "sinner"
+   ],
+   "max_items": 15,
+   "per_source": 1,
+   "whisper": "base.en",
+   "pd_only": false
+  },
+  "created": "2026-10-20T16:55:55+00:00"
+ },
+ "clips": [
+  {
+   "id": "youtube-lgqme9gxdrw-lgqme9gxdrw-00315",
+   "text": "exactly right in the X files which seems so lifelike apart from the giant conspiracy in alien cover-ups.",
+   "score": 11.0,
+   "ai": null,
+   "tags": [
+    "alien",
+    "cover-up",
+    "conspiracy"
+   ],
+   "start": 315.19,
+   "end": 324.36,
+   "t0": 315.54,
+   "t1": 322.86,
+   "transcript": "transcripts/youtube-lgqme9gxdrw-lgqme9gxdrw.json",
+   "source_dl": "https://archive.org/download/youtube-LGqmE9gXDRw/LGqmE9gXDRw.mp4",
+   "item": "youtube-LGqmE9gXDRw",
+   "title": "Mitch Pileggi: The X-Files",
+   "source_file": "LGqmE9gXDRw.mp4",
+   "year": "2016",
+   "item_url": "https://archive.org/details/youtube-LGqmE9gXDRw",
+   "source_url": "https://archive.org/download/youtube-LGqmE9gXDRw/LGqmE9gXDRw.mp4#t=315.2",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "bbc-beyond-coincidence-4-of-5-the-coinci-bbc-beyond-coinciden-00323",
+   "text": "which pass through us and through the planet without stopping for the lights.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "planet",
+    "the light",
+    "the light"
+   ],
+   "start": 322.89,
+   "end": 328.1,
+   "t0": 323.24,
+   "t1": 326.6,
+   "transcript": "transcripts/bbc-beyond-coincidence-4-of-5-the-coinci-bbc-beyond-coinciden.json",
+   "source_dl": "https://archive.org/download/bbc-beyond-coincidence-4-of-5-the-coincidence-x-files/BBC%20-%20Beyond%20Coincidence%20-%204%20of%205%20-%20The%20Coincidence%20X-Files.mp3",
+   "item": "bbc-beyond-coincidence-4-of-5-the-coincidence-x-files",
+   "title": "BBC Beyond Coincidence - The Coincidence X Files 1h 10m documentary",
+   "source_file": "BBC - Beyond Coincidence - 4 of 5 - The Coincidence X-Files.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/bbc-beyond-coincidence-4-of-5-the-coincidence-x-files",
+   "source_url": "https://archive.org/download/bbc-beyond-coincidence-4-of-5-the-coincidence-x-files/BBC%20-%20Beyond%20Coincidence%20-%204%20of%205%20-%20The%20Coincidence%20X-Files.mp3#t=322.9",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "3gpepisode46xfiles-3gp-episode-46-x-fil-00084",
+   "text": "I mean, I had the I want to believe poster.",
+   "score": 9.0,
+   "ai": null,
+   "tags": [
+    "believe",
+    "i want to believe"
+   ],
+   "start": 84.6,
+   "end": 89.31,
+   "t0": 84.95,
+   "t1": 87.81,
+   "transcript": "transcripts/3gpepisode46xfiles-3gp-episode-46-x-fil.json",
+   "source_dl": "https://archive.org/download/3GPEpisode46XFiles/3GP%20-%20Episode%2046%20-%20X-Files.mp3",
+   "item": "3GPEpisode46XFiles",
+   "title": "3 GP Episode 46 X Files",
+   "source_file": "3GP - Episode 46 - X-Files.mp3",
+   "year": "2014-01-26",
+   "item_url": "https://archive.org/details/3GPEpisode46XFiles",
+   "source_url": "https://archive.org/download/3GPEpisode46XFiles/3GP%20-%20Episode%2046%20-%20X-Files.mp3#t=84.6",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "youtube-xpnaaf3r5n0-xpnaaf3r5n0-00023",
+   "text": "There's so many conspiracy theories and the government actively trying to cover up a lot",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "the government",
+    "conspiracy"
+   ],
+   "start": 22.96,
+   "end": 31.43,
+   "t0": 23.31,
+   "t1": 29.93,
+   "transcript": "transcripts/youtube-xpnaaf3r5n0-xpnaaf3r5n0.json",
+   "source_dl": "https://archive.org/download/youtube-XpnAAF3r5N0/XpnAAF3r5N0.mp4",
+   "item": "youtube-XpnAAF3r5N0",
+   "title": "Canada is now an episode of the X Files",
+   "source_file": "XpnAAF3r5N0.mp4",
+   "year": "2018",
+   "item_url": "https://archive.org/details/youtube-XpnAAF3r5N0",
+   "source_url": "https://archive.org/download/youtube-XpnAAF3r5N0/XpnAAF3r5N0.mp4#t=23.0",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 6
+  },
+  {
+   "id": "video-rm-202404-vts-01-2-00161",
+   "text": "Uh, can you hold the ribs health in the light? Grab that, please. Just... now?",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "the light",
+    "the light"
+   ],
+   "start": 161.28,
+   "end": 166.49,
+   "t0": 161.63,
+   "t1": 164.99,
+   "transcript": "transcripts/video-rm-202404-vts-01-2.json",
+   "source_dl": "https://archive.org/download/video-rm_202404/VTS_01_2.mp4",
+   "item": "video-rm_202404",
+   "title": "Recordings of Some of the Last Episodes of the Original \"X-Files\" (September 2003; April-May 2002)",
+   "source_file": "VTS_01_2.mp4",
+   "year": "2003",
+   "item_url": "https://archive.org/details/video-rm_202404",
+   "source_url": "https://archive.org/download/video-rm_202404/VTS_01_2.mp4#t=161.3",
+   "license": {
+    "status": "cc",
+    "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "hq-xfiles-s-7-e-12-xcops-fullep-x-cops-dvd-00503",
+   "text": "I mean, it's pretty dark, and I didn't really see.",
+   "score": 8.0,
+   "ai": null,
+   "tags": [
+    "dark",
+    "dark"
+   ],
+   "start": 503.51,
+   "end": 508.7,
+   "t0": 503.86,
+   "t1": 507.2,
+   "transcript": "transcripts/hq-xfiles-s-7-e-12-xcops-fullep-x-cops-dvd.json",
+   "source_dl": "https://archive.org/download/hq.-xfiles-s-7-e-12.-xcops-fullep/X-COPS_DVD.mp4",
+   "item": "hq.-xfiles-s-7-e-12.-xcops-fullep",
+   "title": "X-files S7 E12 XCOPS",
+   "source_file": "X-COPS_DVD.mp4",
+   "year": "2000",
+   "item_url": "https://archive.org/details/hq.-xfiles-s-7-e-12.-xcops-fullep",
+   "source_url": "https://archive.org/download/hq.-xfiles-s-7-e-12.-xcops-fullep/X-COPS_DVD.mp4#t=503.5",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "youtube-lhhksgh39xi-lhhksgh39xi-00052",
+   "text": "I want us going to believe this.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "believe"
+   ],
+   "start": 51.93,
+   "end": 59.04,
+   "t0": 52.28,
+   "t1": 58.3,
+   "transcript": "transcripts/youtube-lhhksgh39xi-lhhksgh39xi.json",
+   "source_dl": "https://archive.org/download/youtube-lhHKsgH39XI/lhHKsgH39XI.mp4",
+   "item": "youtube-lhHKsgH39XI",
+   "title": "Gillian Anderson reopens the X-Files |  LEGO® Ideas | The LEGO Group",
+   "source_file": "lhHKsgH39XI.mp4",
+   "year": "2026",
+   "item_url": "https://archive.org/details/youtube-lhHKsgH39XI",
+   "source_url": "https://archive.org/download/youtube-lhHKsgH39XI/lhHKsgH39XI.mp4#t=51.9",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 4
+  },
+  {
+   "id": "cokin-geekstorm-episode-163-star-wars-se-geekstorm-episode-16-00137",
+   "text": "And then when it goes to Kylo's crushed mask, you hear Obi-Wan saying seduce by the dark",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "dark",
+    "dark"
+   ],
+   "start": 137.28,
+   "end": 143.97,
+   "t0": 137.63,
+   "t1": 142.47,
+   "transcript": "transcripts/cokin-geekstorm-episode-163-star-wars-se-geekstorm-episode-16.json",
+   "source_dl": "https://archive.org/download/cokin-GeekStorm_Episode_163_-_Star_Wars_Secret_Empire_X-Files_and_..._the_call./GeekStorm_Episode_163_-_Star_Wars_Secret_Empire_X-Files_and_..._the_call..mp3",
+   "item": "cokin-GeekStorm_Episode_163_-_Star_Wars_Secret_Empire_X-Files_and_..._the_call.",
+   "title": "GeekStorm Episode 163 - Star Wars, Secret Empire, X-Files and ... the call.",
+   "source_file": "GeekStorm_Episode_163_-_Star_Wars_Secret_Empire_X-Files_and_..._the_call..mp3",
+   "year": "2017",
+   "item_url": "https://archive.org/details/cokin-GeekStorm_Episode_163_-_Star_Wars_Secret_Empire_X-Files_and_..._the_call.",
+   "source_url": "https://archive.org/download/cokin-GeekStorm_Episode_163_-_Star_Wars_Secret_Empire_X-Files_and_..._the_call./GeekStorm_Episode_163_-_Star_Wars_Secret_Empire_X-Files_and_..._the_call..mp3#t=137.3",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "shameful-sequels-x-files-i-want-to-belie-shameful-sequels-x-f-00035",
+   "text": "I want to believe. Although I'm not sure why it's called that considering there is no",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "believe",
+    "i want to believe"
+   ],
+   "start": 34.79,
+   "end": 42.08,
+   "t0": 35.14,
+   "t1": 40.58,
+   "transcript": "transcripts/shameful-sequels-x-files-i-want-to-belie-shameful-sequels-x-f.json",
+   "source_dl": "https://archive.org/download/shameful-sequels-x-files-i-want-to-believe/Shameful%20Sequels%20-%20X-Files%20I%20Want%20To%20Believe-7012917.mp4",
+   "item": "shameful-sequels-x-files-i-want-to-believe",
+   "title": "Shameful Sequels - X-Files: I Want to Believe",
+   "source_file": "Shameful Sequels - X-Files I Want To Believe-7012917.mp4",
+   "year": "2014",
+   "item_url": "https://archive.org/details/shameful-sequels-x-files-i-want-to-believe",
+   "source_url": "https://archive.org/download/shameful-sequels-x-files-i-want-to-believe/Shameful%20Sequels%20-%20X-Files%20I%20Want%20To%20Believe-7012917.mp4#t=34.8",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "neutral",
+   "theme": 8
+  },
+  {
+   "id": "youtube-i2zbf1zgh1m-i2zbf1zgh1m-00410",
+   "text": "which resulted in a disallowance of abductions from the 45s.",
+   "score": 7.0,
+   "ai": null,
+   "tags": [
+    "abduct",
+    "abduction"
+   ],
+   "start": 410.25,
+   "end": 422.68,
+   "t0": 410.6,
+   "t1": 421.18,
+   "transcript": "transcripts/youtube-i2zbf1zgh1m-i2zbf1zgh1m.json",
+   "source_dl": "https://archive.org/download/youtube-i2ZBF1ZGh1M/i2ZBF1ZGh1M.mp4",
+   "item": "youtube-i2ZBF1ZGh1M",
+   "title": "7 of 12  Alien Disclosure and Area 51 - The REAL X-Files - The Dan Burisch Story",
+   "source_file": "i2ZBF1ZGh1M.mp4",
+   "year": "2025",
+   "item_url": "https://archive.org/details/youtube-i2ZBF1ZGh1M",
+   "source_url": "https://archive.org/download/youtube-i2ZBF1ZGh1M/i2ZBF1ZGh1M.mp4#t=410.2",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "neutral",
+   "theme": 7
+  },
+  {
+   "id": "25-aout-2022-radio-x-files-la-sordide-af-18-ao-t-2022-radio-x-00022",
+   "text": "that I can't believe I have something to answer.",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "believe"
+   ],
+   "start": 22.25,
+   "end": 27.28,
+   "t0": 22.6,
+   "t1": 25.78,
+   "transcript": "transcripts/25-aout-2022-radio-x-files-la-sordide-af-18-ao-t-2022-radio-x.json",
+   "source_dl": "https://archive.org/download/25-aout-2022-radio-x-files-la-sordide-affaire-d-allan-menzies-radio-x/18-ao%C3%BBt-2022-Radio%20X-Files%20Sandy%20Charles%E2%80%A6Le%20Warlock%20%E2%80%93%20Radio%20X.mp3",
+   "item": "25-aout-2022-radio-x-files-la-sordide-affaire-d-allan-menzies-radio-x",
+   "title": "25 Août 2022 Radio X Files La Sordide Affaire D’ Allan Menzies – Radio X",
+   "source_file": "18-août-2022-Radio X-Files Sandy Charles…Le Warlock – Radio X.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/25-aout-2022-radio-x-files-la-sordide-affaire-d-allan-menzies-radio-x",
+   "source_url": "https://archive.org/download/25-aout-2022-radio-x-files-la-sordide-affaire-d-allan-menzies-radio-x/18-ao%C3%BBt-2022-Radio%20X-Files%20Sandy%20Charles%E2%80%A6Le%20Warlock%20%E2%80%93%20Radio%20X.mp3#t=22.2",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "cokin-geekstorm-episode-115-x-files-geekstorm-episode-11-00059",
+   "text": "Today is gonna be, I believe probably we're gonna spend",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "believe"
+   ],
+   "start": 59.37,
+   "end": 63.02,
+   "t0": 59.72,
+   "t1": 61.52,
+   "transcript": "transcripts/cokin-geekstorm-episode-115-x-files-geekstorm-episode-11.json",
+   "source_dl": "https://archive.org/download/cokin-GeekStorm_Episode_115_-_X-Files/GeekStorm_Episode_115_-_X-Files.mp3",
+   "item": "cokin-GeekStorm_Episode_115_-_X-Files",
+   "title": "GeekStorm Episode 115 - X-Files",
+   "source_file": "GeekStorm_Episode_115_-_X-Files.mp3",
+   "year": "2016",
+   "item_url": "https://archive.org/details/cokin-GeekStorm_Episode_115_-_X-Files",
+   "source_url": "https://archive.org/download/cokin-GeekStorm_Episode_115_-_X-Files/GeekStorm_Episode_115_-_X-Files.mp3#t=59.4",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "the-x-files-darkness-falls-15-the-x-files-darkness-00065",
+   "text": "If that's the case, the light they give off comes from waste from their bodies.",
+   "score": 6.0,
+   "ai": null,
+   "tags": [
+    "the light",
+    "the light"
+   ],
+   "start": 64.98,
+   "end": 70.87,
+   "t0": 65.33,
+   "t1": 69.37,
+   "transcript": "transcripts/the-x-files-darkness-falls-15-the-x-files-darkness.json",
+   "source_dl": "https://archive.org/download/the-x-files-darkness-falls-15/The%20X%20Files%20-%20Darkness%20Falls%20-%2022.mp3",
+   "item": "the-x-files-darkness-falls-15",
+   "title": "The X Files Darkness Falls",
+   "source_file": "The X Files - Darkness Falls - 22.mp3",
+   "year": "",
+   "item_url": "https://archive.org/details/the-x-files-darkness-falls-15",
+   "source_url": "https://archive.org/download/the-x-files-darkness-falls-15/The%20X%20Files%20-%20Darkness%20Falls%20-%2022.mp3#t=65.0",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "neutral",
+   "theme": 28
+  },
+  {
+   "id": "speedingbulletsepisode145-speeding-bullets-epi-00157",
+   "text": "And then right at the end, I had my first glitch ever",
+   "score": 5.0,
+   "ai": null,
+   "tags": [
+    "the end"
+   ],
+   "start": 156.79,
+   "end": 161.74,
+   "t0": 157.14,
+   "t1": 160.24,
+   "transcript": "transcripts/speedingbulletsepisode145-speeding-bullets-epi.json",
+   "source_dl": "https://archive.org/download/SpeedingBulletsEpisode145/Speeding%20Bullets%20Episode%20145.mp3",
+   "item": "SpeedingBulletsEpisode145",
+   "title": "Speeding Bullets Episode 145: X-Files = Awesome",
+   "source_file": "Speeding Bullets Episode 145.mp3",
+   "year": "2016-02-06",
+   "item_url": "https://archive.org/details/SpeedingBulletsEpisode145",
+   "source_url": "https://archive.org/download/SpeedingBulletsEpisode145/Speeding%20Bullets%20Episode%20145.mp3#t=156.8",
+   "license": {
+    "status": "public-domain",
+    "url": "http://creativecommons.org/publicdomain/mark/1.0/",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  },
+  {
+   "id": "exeter-terrestrial-episode-7-mack-malone-exeter-terrestrial-e-00608",
+   "text": "or strange lights in the sky, you know, went up dramatically once they landed here, which",
+   "score": 5.0,
+   "ai": null,
+   "tags": [
+    "strange",
+    "sky"
+   ],
+   "start": 608.34,
+   "end": 614.47,
+   "t0": 608.69,
+   "t1": 612.97,
+   "transcript": "transcripts/exeter-terrestrial-episode-7-mack-malone-exeter-terrestrial-e.json",
+   "source_dl": "https://archive.org/download/Exeter-Terrestrial_-_Episode_7_Mack_Maloney_s_Military_X-Files/Exeter-Terrestrial_-_Episode_7_Mack_Maloney_s_Military_X-Files.mp3",
+   "item": "Exeter-Terrestrial_-_Episode_7_Mack_Maloney_s_Military_X-Files",
+   "title": "Exeter-Terrestrial - Episode 7 -- \"Mack Maloney's Military X-Files\"",
+   "source_file": "Exeter-Terrestrial_-_Episode_7_Mack_Maloney_s_Military_X-Files.mp3",
+   "year": "2020",
+   "item_url": "https://archive.org/details/Exeter-Terrestrial_-_Episode_7_Mack_Maloney_s_Military_X-Files",
+   "source_url": "https://archive.org/download/Exeter-Terrestrial_-_Episode_7_Mack_Maloney_s_Military_X-Files/Exeter-Terrestrial_-_Episode_7_Mack_Maloney_s_Military_X-Files.mp3#t=608.3",
+   "license": {
+    "status": "check",
+    "url": "",
+    "rights": ""
+   },
+   "kind": "prefer",
+   "theme": 0
+  }
+ ]
+}
