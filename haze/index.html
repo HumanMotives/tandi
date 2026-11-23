@@ -102,6 +102,35 @@
     padding: 16px;
     z-index: 5;
   }
+  #topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 18px 12px;
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  #topbar a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(70, 80, 75, 0.7);
+    text-decoration: none;
+    transition: color 0.4s ease;
+  }
+  #topbar a:hover { color: rgba(70, 80, 75, 1); }
+  #topbar svg { width: 14px; height: 14px; }
 </style>
 </head>
 <body>
@@ -113,6 +142,18 @@
 <div id="title">HAZE</div>
 <div id="enter">touch to begin</div>
 <div id="modeLabel">noon</div>
+
+<div id="topbar">
+  <a id="homeLink" href="https://humanmotives.org">← Human Motives</a>
+  <a id="kofiLink" href="https://ko-fi.com/chrisvanderlinden" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8z"/>
+      <path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/>
+      <path d="M8 2.5v2M12 2.5v2"/>
+    </svg>
+    Ko-fi
+  </a>
+</div>
 
 <script>
 (function () {
