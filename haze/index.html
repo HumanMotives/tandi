@@ -1067,27 +1067,79 @@
 
   // ---------- start on first touch ----------
   const enter = document.getElementById('enter');
+  // iOS mutes Web Audio when the silent switch is on, unless the page holds
+  // a "playback" audio session. a looping silent <audio> element started
+  // inside the tap does that; navigator.audioSession does it on newer iOS.
+  function makeSilentWavUrl() {
+    const sampleRate = 8000, n = 8000;
+    const buf = new ArrayBuffer(44 + n);
+    const v = new DataView(buf);
+    const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, sampleRate, true); v.setUint32(28, sampleRate, true);
+    v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+    for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+    return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+  }
+  function unlockMobileAudio() {
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+    try {
+      const a = document.createElement('audio');
+      a.src = makeSilentWavUrl();
+      a.loop = true;
+      a.setAttribute('playsinline', '');
+      const p = a.play();
+      if (p && p.catch) p.catch(() => {});
+    } catch (e) {}
+  }
+
+  // dismiss the overlay only once audio is really running; if it isn't
+  // after ~1.5s, ask for another tap instead of failing silently
+  function watchStart() {
+    let tries = 0;
+    const iv = setInterval(() => {
+      tries++;
+      if (ctx && ctx.state === 'running') {
+        enter.classList.add('gone');
+        clearInterval(iv);
+      } else if (tries === 5) {
+        enter.textContent = 'tap again';
+      } else if (tries > 40) {
+        enter.classList.add('gone'); // never leave a stuck overlay
+        clearInterval(iv);
+      }
+    }, 300);
+  }
+
   function begin() {
-    if (started) return;
+    if (started) {
+      if (ctx && ctx.state !== 'running') ctx.resume();
+      return;
+    }
     started = true;
     try {
+      unlockMobileAudio();
       initAudio();
     } catch (err) {
       enter.textContent = 'error: ' + err.message;
       return;
     }
-    setTimeout(() => enter.classList.add('gone'), 700);
+    watchStart();
   }
+  // touchend (not touchstart) counts as a user gesture on mobile browsers
+  enter.addEventListener('touchend', e => { e.preventDefault(); begin(); }, { passive: false });
   enter.addEventListener('click', begin);
-  enter.addEventListener('touchstart', e => { e.preventDefault(); begin(); }, { passive: false });
 
-  // stubborn mobile webviews sometimes ignore the first resume() —
-  // keep nudging it awake on any subsequent tap, silently
-  window.addEventListener('touchstart', () => {
-    if (ctx && ctx.state === 'suspended') ctx.resume();
-  }, { passive: true });
-  window.addEventListener('click', () => {
-    if (ctx && ctx.state === 'suspended') ctx.resume();
+  // any later tap also nudges a suspended context awake, and so does
+  // coming back to the tab
+  function nudgeAudio() {
+    if (ctx && ctx.state !== 'running') ctx.resume();
+  }
+  window.addEventListener('touchend', nudgeAudio, { passive: true });
+  window.addEventListener('click', nudgeAudio);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) nudgeAudio();
   });
 
   // ---------- mode cycling ----------
@@ -1108,9 +1160,10 @@
     rebuildScale();
     applyModeToAudio();
     updateModeLabel();
+    if (ctx && ctx.state !== 'running') ctx.resume();
   }
+  modeLabel.addEventListener('touchend', e => { e.preventDefault(); cycleMode(); }, { passive: false });
   modeLabel.addEventListener('click', cycleMode);
-  modeLabel.addEventListener('touchstart', e => { e.preventDefault(); cycleMode(); }, { passive: false });
 
 })();
 </script>
