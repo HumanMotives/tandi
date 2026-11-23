@@ -622,7 +622,7 @@
   // voices, cloud bed, and freeze system — added on top, changes nothing
   // else about the locked base.
   function scheduleWhisp() {
-    if (!inHush()) playWhisp();
+    if (!inHush() && !arpActive) playWhisp();
     const nextIn = ((7 + Math.random() * 18) * 1000) / MODES[currentModeIndex].whispRateMult;
     setTimeout(scheduleWhisp, nextIn);
   }
@@ -1160,7 +1160,7 @@
   function scheduleBell() {
     const base = 240 + Math.random() * 300; // seconds
     setTimeout(() => {
-      if (!inHush()) playBell();
+      if (!inHush() && !arpActive) playBell();
       scheduleBell();
     }, (base / chapter.bell) * 1000 * TS);
   }
@@ -1206,7 +1206,7 @@
   function scheduleMoment(first) {
     const delay = first ? (240 + Math.random() * 180) : (480 + Math.random() * 480);
     setTimeout(() => {
-      playMoment();
+      if (!arpActive) playMoment();
       scheduleMoment(false);
     }, delay * 1000 * TS);
   }
@@ -1254,54 +1254,112 @@
     osc2.stop(when + 4);
   }
 
-  // a looping phrase of plucks, 14-27 notes. the volume swells in and out
-  // over the whole run and flutters note to note; the pan drifts across.
-  function playArp() {
+  // ---------- arp episode: a few minutes in the foreground ----------
+  // a looping plucked phrase that holds the attention for 2-4 minutes, then
+  // thins out, slows down and fades, and the attention goes back to the
+  // drone and the wind. notes are scheduled in small batches ahead of time.
+  let arpActive = false;
+
+  function buildLadder() {
     const sorted = currentNotes.slice().sort((a, b) => a - b);
-    const ladder = sorted.map(f => f * 2).concat(sorted.map(f => f * 4)).map(f => {
+    return sorted.map(f => f * 2).concat(sorted.map(f => f * 4)).map(f => {
       while (f > 1400) f /= 2; // keep plucks out of the piercing range
       return f;
     }).sort((a, b) => a - b);
-    const max = ladder.length - 1;
-    const clamp = i => Math.max(0, Math.min(max, i));
-
-    // a short phrase that loops, with an occasional changed note
-    const L = 4 + Math.floor(Math.random() * 3);
-    const kind = ['up', 'updown', 'skip'][Math.floor(Math.random() * 3)];
-    let idx = Math.floor(Math.random() * 4);
-    const phrase = [];
-    for (let k = 0; k < L; k++) {
-      phrase.push(clamp(idx));
-      if (kind === 'up') idx += 1;
-      else if (kind === 'skip') idx += 2;
-      else idx += k < L / 2 ? 1 : -1;
-    }
-
-    const total = 14 + Math.floor(Math.random() * 14);
-    const step = 0.30 + Math.random() * 0.20;
-    const basePeak = 0.013 + Math.random() * 0.008;
-    const flutterW = 0.7 + Math.random() * 1.1;
-    const flutterPhase = Math.random() * 6.28;
-    const panPhase = Math.random() * 6.28;
-    let when = ctx.currentTime + 0.1;
-    for (let i = 0; i < total; i++) {
-      let ix = phrase[i % L];
-      if (i >= L && Math.random() < 0.18) ix = clamp(ix + (Math.random() < 0.5 ? -1 : 1));
-      const swell = Math.pow(Math.sin(Math.PI * (i + 0.5) / total), 0.6);
-      const flutter = 0.55 + 0.45 * Math.sin(i * flutterW + flutterPhase);
-      const peak = Math.max(0.0015, basePeak * swell * flutter);
-      const pan = Math.sin(i * 0.45 + panPhase) * 0.6 + (Math.random() - 0.5) * 0.2;
-      playPluck(ladder[ix], when, peak, pan);
-      when += step * (1 + 0.12 * Math.sin(i * 0.35)); // the pulse breathes slightly
-    }
   }
 
-  // the arp comes back every 2.5-6 minutes, first one after 1.5-2.5
+  function playArp(onDone, durationSec) {
+    if (arpActive) return;
+    arpActive = true;
+    const D = durationSec || (120 + Math.random() * 120) * TS;
+    const t0 = ctx.currentTime + 0.1;
+    const endT = t0 + D;
+    let when = t0;
+    let ladder = buildLadder();
+    let start = Math.floor(Math.random() * 4);
+    let phrase = [];
+    let L = 5;
+    let noteNo = 0;
+    let nextMutate = 0;
+    let step = 0.30 + Math.random() * 0.15;
+    let stepTarget = step;
+    const basePeak = 0.013 + Math.random() * 0.008;
+    const ph1 = Math.random() * 6.28;
+    const ph2 = Math.random() * 6.28;
+    const panPhase = Math.random() * 6.28;
+
+    // the phrase changes every 18-40 notes: new shape, shifted along the
+    // scale, rebuilt from whatever the harmony is by then
+    function newPhrase() {
+      ladder = buildLadder();
+      const max = ladder.length - 1;
+      L = 4 + Math.floor(Math.random() * 3);
+      const kind = ['up', 'updown', 'skip'][Math.floor(Math.random() * 3)];
+      start = Math.max(0, Math.min(max - 3, start + Math.floor(Math.random() * 5) - 2));
+      let idx = start;
+      phrase = [];
+      for (let k = 0; k < L; k++) {
+        phrase.push(Math.max(0, Math.min(max, idx)));
+        idx += kind === 'up' ? 1 : (kind === 'skip' ? 2 : (k < L / 2 ? 1 : -1));
+      }
+      nextMutate = noteNo + 18 + Math.floor(Math.random() * 22);
+    }
+    newPhrase();
+
+    function pump() {
+      const horizon = ctx.currentTime + 10;
+      while (when < horizon && when < endT) {
+        const prog = (when - t0) / D;
+        if (noteNo >= nextMutate) newPhrase();
+        if (noteNo % 16 === 0) stepTarget = 0.26 + Math.random() * 0.30;
+        step += (stepTarget - step) * 0.08;
+
+        // swells in over the first 15%, holds, then fades over the last 35%
+        const rise = Math.min(1, prog / 0.15);
+        const fall = Math.min(1, (1 - prog) / 0.35);
+        const env = Math.pow(Math.sin(Math.min(rise, fall) * Math.PI / 2), 1.2);
+        // two slow flutters of different length keep the volume moving
+        const flutter = 0.62 + 0.25 * Math.sin(when * 2 * Math.PI / 9 + ph1)
+                             + 0.13 * Math.sin(when * 2 * Math.PI / 37 + ph2);
+        // rests become more common toward the end, so it thins out
+        const restProb = 0.06 + 0.5 * Math.pow(Math.max(0, prog - 0.7) / 0.3, 1.5);
+
+        let ix = phrase[noteNo % L];
+        if (noteNo >= L && Math.random() < 0.15) {
+          ix = Math.max(0, Math.min(ladder.length - 1, ix + (Math.random() < 0.5 ? -1 : 1)));
+        }
+        if (Math.random() >= restProb) {
+          const peak = Math.max(0.0012, basePeak * env * flutter);
+          const pan = Math.sin(when * 0.35 + panPhase) * 0.6 + (Math.random() - 0.5) * 0.15;
+          playPluck(ladder[ix], when, peak, pan);
+        }
+        // the pulse breathes and slows down during the last fifth
+        const slow = 1 + 0.6 * Math.max(0, (prog - 0.8) / 0.2);
+        when += step * slow * (1 + 0.1 * Math.sin(noteNo * 0.3));
+        noteNo++;
+      }
+      if (when < endT) {
+        setTimeout(pump, 3000);
+      } else {
+        // once the last note has rung out, a breath of air carries the
+        // attention back to the background
+        setTimeout(() => {
+          arpActive = false;
+          playAir();
+          if (onDone) onDone();
+        }, Math.max(0, when - ctx.currentTime) * 1000 + 3000);
+      }
+    }
+    pump();
+  }
+
+  // an episode every 3-7 minutes after the last one ended; the first starts
+  // 100-180 seconds in
   function scheduleArp(first) {
-    const delay = first ? (90 + Math.random() * 60) : (150 + Math.random() * 210);
+    const delay = first ? (100 + Math.random() * 80) : (180 + Math.random() * 240);
     setTimeout(() => {
-      if (!inHush()) playArp();
-      scheduleArp(false);
+      if (inHush() || arpActive) { scheduleArp(false); return; }
+      playArp(() => scheduleArp(false));
     }, delay * 1000 * TS);
   }
 
@@ -1372,7 +1430,7 @@
     scheduleBell();
     // handy for testing from the browser console, e.g. haze.arp()
     window.haze = {
-      arp: playArp, bursts: playBursts, hush: startHush, cluster: playCluster,
+      arp: (sec) => playArp(null, sec), bursts: playBursts, hush: startHush, cluster: playCluster,
       bell: playBell, breath: () => playBreath(pickFreq()), chapter: nextChapter,
       drift: driftHarmony, state: () => ({ chapter: chapter.name, harmony, notes: currentNotes.map(f => Math.round(f)) }),
     };
