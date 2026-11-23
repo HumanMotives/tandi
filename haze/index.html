@@ -4,6 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>HAZE</title>
+<meta name="description" content="HAZE — generative ambient sound that never repeats. Best with headphones." />
+<meta name="theme-color" content="#eef0ea" />
+<meta property="og:title" content="HAZE" />
+<meta property="og:description" content="Generative ambient sound that never repeats. Best with headphones." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='%23c4d6d0'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Megrim&display=swap" />
 <style>
   html, body {
     margin: 0;
@@ -17,8 +25,11 @@
   #field {
     position: fixed;
     inset: 0;
-    background:
-      radial-gradient(ellipse at 50% 30%, #fbfaf4 0%, #eef0ea 45%, #e2e4dc 100%);
+  }
+  #fieldB {
+    position: fixed;
+    inset: 0;
+    mix-blend-mode: multiply;
   }
   #grain {
     position: fixed;
@@ -41,6 +52,22 @@
     filter: blur(1px);
     transform: translate(-50%, -50%);
   }
+  #title {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    font-family: 'Megrim', Optima, Georgia, serif;
+    font-weight: 400;
+    font-size: 15vw;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.55);
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.4), 0 2px 12px rgba(60, 65, 65, 0.12);
+    user-select: none;
+    transition: opacity 8s ease;
+  }
   #enter {
     position: fixed;
     inset: 0;
@@ -60,33 +87,84 @@
     opacity: 0;
     pointer-events: none;
   }
+  #modeLabel {
+    position: fixed;
+    bottom: 22px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(100, 105, 95, 0.4);
+    cursor: pointer;
+    padding: 16px;
+    z-index: 5;
+  }
 </style>
 </head>
 <body>
 
 <div id="field"></div>
+<div id="fieldB"></div>
 <canvas id="grain"></canvas>
 <svg id="shimmer"></svg>
+<div id="title">HAZE</div>
 <div id="enter">touch to begin</div>
+<div id="modeLabel">noon</div>
 
 <script>
 (function () {
 
+  // ---------- modes ----------
+  // Noon is exactly the locked base, unchanged. Morning and Night each carry
+  // their own scale, palette, and a few sound-shaping parameters.
+  const MODES = [
+    {
+      name: 'morning',
+      baseFreqs: [261.63, 293.66, 329.63, 392.00, 440.00], // C D E G A — bright, open, major pentatonic
+      hueBase: 42, hueRange: 22, satBase: 32,
+      titleColor: [255, 238, 205],
+      highpassHz: 190, filterBaseHz: 7200, wetBase: 0.9,
+      whispRateMult: 1.2, whispPeakMult: 1.1,
+    },
+    {
+      name: 'noon',
+      baseFreqs: [146.83, 174.61, 196.00, 220.00, 261.63], // D F G A C — the original locked scale
+      hueBase: 150, hueRange: 90, satBase: 34,
+      titleColor: [255, 255, 255],
+      highpassHz: 160, filterBaseHz: 6500, wetBase: 1.05,
+      whispRateMult: 1.0, whispPeakMult: 1.0,
+    },
+    {
+      name: 'night',
+      baseFreqs: [130.81, 138.59, 174.61, 196.00, 233.08], // C Db F G Bb — darker, phrygian-leaning
+      hueBase: 250, hueRange: 40, satBase: 26,
+      titleColor: [190, 200, 232],
+      highpassHz: 110, filterBaseHz: 3200, wetBase: 1.3,
+      whispRateMult: 0.6, whispPeakMult: 0.7,
+    },
+  ];
+  let currentModeIndex = 1; // start on Noon — the locked base
+
   // ---------- scale ----------
-  // D minor pentatonic-ish, spread across three octaves, no leading tone,
-  // nothing that resolves — just floats.
-  const baseFreqs = [146.83, 174.61, 196.00, 220.00, 261.63]; // D3 F3 G3 A3 C4
+  // rebuilt whenever the mode changes; spread across octaves the same way
+  // regardless of which mode's base frequencies are in use
   const scale = [];
-  // weighted toward the middle and upper octave — the 0.5x octave drops below
-  // ~100Hz, which most phone speakers can't reproduce at any volume
-  [1, 1, 2, 2].forEach(mult => baseFreqs.forEach(f => scale.push(f * mult)));
+  function rebuildScale() {
+    scale.length = 0;
+    const mode = MODES[currentModeIndex];
+    [1, 1, 2, 2].forEach(mult => mode.baseFreqs.forEach(f => scale.push(f * mult)));
+  }
+  rebuildScale();
 
   // ---------- audio ----------
-  let ctx, masterGain, masterFilter, convolver, dryGain, wetGain, compressor;
+  let ctx, masterGain, masterFilter, masterHighpass, convolverLong, convolverShort, dryGain, wetGain, freezeGain, compressor, noiseBuffer;
   let started = false;
   let brightnessBias = 0; // -1..1, nudged by touch, decays back to 0
   let activeVoices = 0;
-  const MAX_VOICES = 3;
+  const MAX_VOICES = 2;
 
   function buildImpulse(duration, decay) {
     const rate = ctx.sampleRate;
@@ -101,126 +179,729 @@
     return impulse;
   }
 
+  function buildNoiseBuffer(duration) {
+    const rate = ctx.sampleRate;
+    const length = rate * duration;
+    const buffer = ctx.createBuffer(2, length, rate);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = buffer.getChannelData(ch);
+      for (let i = 0; i < length; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+    }
+    return buffer;
+  }
+
   function initAudio() {
     ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
 
     const setup = () => {
       compressor = ctx.createDynamicsCompressor();
-      compressor.threshold.value = -28;
+      compressor.threshold.value = -32;
       compressor.knee.value = 30;
-      compressor.ratio.value = 3;
-      compressor.attack.value = 1.5;
-      compressor.release.value = 2;
+      compressor.ratio.value = 2.5;
+      compressor.attack.value = 2;
+      compressor.release.value = 3;
 
       masterGain = ctx.createGain();
-      masterGain.gain.value = 1.1;
+      masterGain.gain.value = 0.6;
+
+      masterHighpass = ctx.createBiquadFilter();
+      masterHighpass.type = 'highpass';
+      masterHighpass.frequency.value = MODES[currentModeIndex].highpassHz;
+      masterHighpass.Q.value = 0.2;
 
       masterFilter = ctx.createBiquadFilter();
       masterFilter.type = 'lowpass';
-      masterFilter.frequency.value = 5000;
+      masterFilter.frequency.value = MODES[currentModeIndex].filterBaseHz;
       masterFilter.Q.value = 0.2;
 
-      convolver = ctx.createConvolver();
-      convolver.buffer = buildImpulse(7, 3.2);
+      convolverLong = ctx.createConvolver();
+      convolverLong.buffer = buildImpulse(15, 2.1); // the original locked tail
+      convolverShort = ctx.createConvolver();
+      convolverShort.buffer = buildImpulse(6, 2.8);
+      noiseBuffer = buildNoiseBuffer(6);
 
       dryGain = ctx.createGain();
-      dryGain.gain.value = 1.0;
+      dryGain.gain.value = 0.8;
       wetGain = ctx.createGain();
-      wetGain.gain.value = 0.9;
+      wetGain.gain.value = MODES[currentModeIndex].wetBase;
+      freezeGain = ctx.createGain();
+      freezeGain.gain.value = 1;
 
+      // the reverb send breathes on its own slow cycle — swells, recedes
+      const swellLFO = ctx.createOscillator();
+      swellLFO.frequency.value = 0.006 + Math.random() * 0.004; // ~3–4 min cycle
+      const swellDepth = ctx.createGain();
+      swellDepth.gain.value = 0.35;
+      swellLFO.connect(swellDepth).connect(wetGain.gain);
+      swellLFO.start();
+
+      // second reverb-amount cycle on a different, slower period so the
+      // combined swell never repeats the same way
+      const swellLFO2 = ctx.createOscillator();
+      swellLFO2.frequency.value = 1 / (380 + Math.random() * 160);
+      const swellDepth2 = ctx.createGain();
+      swellDepth2.gain.value = 0.2;
+      swellLFO2.connect(swellDepth2).connect(wetGain.gain);
+      swellLFO2.start();
+
+      // the whole piece breathes in overall loudness — never sitting at one
+      // level for long. two non-aligned slow cycles summed so it doesn't
+      // feel mechanical.
+      const volSwellA = ctx.createOscillator(); volSwellA.frequency.value = 1 / 150;
+      const volSwellB = ctx.createOscillator(); volSwellB.frequency.value = 1 / 230;
+      const volDepthA = ctx.createGain(); volDepthA.gain.value = 0.13;
+      const volDepthB = ctx.createGain(); volDepthB.gain.value = 0.08;
+      volSwellA.connect(volDepthA).connect(masterGain.gain);
+      volSwellB.connect(volDepthB).connect(masterGain.gain);
+      volSwellA.start();
+      volSwellB.start();
+
+      // the whole piece also dulls and opens up again over minutes,
+      // independent of any single tone's own filter
+      const masterFilterLFO = ctx.createOscillator();
+      masterFilterLFO.frequency.value = 1 / 210;
+      const masterFilterDepth = ctx.createGain();
+      masterFilterDepth.gain.value = 1800;
+      masterFilterLFO.connect(masterFilterDepth).connect(masterFilter.frequency);
+      masterFilterLFO.start();
+
+      masterHighpass.connect(masterFilter);
       masterFilter.connect(dryGain).connect(masterGain);
-      masterFilter.connect(convolver).connect(wetGain).connect(masterGain);
+      // reverb size drifts between a shorter and the original long tail over
+      // ~5–7 minutes; biased toward the long one so the base character stays
+      const revShortGain = ctx.createGain(); revShortGain.gain.value = 0.35;
+      const revLongGain = ctx.createGain(); revLongGain.gain.value = 0.65;
+      const revSizeLFO = ctx.createOscillator();
+      revSizeLFO.frequency.value = 1 / (300 + Math.random() * 120);
+      const revSizeDepthShort = ctx.createGain(); revSizeDepthShort.gain.value = 0.3;
+      const revSizeDepthLong = ctx.createGain(); revSizeDepthLong.gain.value = -0.3;
+      revSizeLFO.connect(revSizeDepthShort).connect(revShortGain.gain);
+      revSizeLFO.connect(revSizeDepthLong).connect(revLongGain.gain);
+      revSizeLFO.start();
+      masterFilter.connect(convolverLong).connect(revLongGain).connect(freezeGain);
+      masterFilter.connect(convolverShort).connect(revShortGain).connect(freezeGain);
+      freezeGain.connect(wetGain).connect(masterGain);
       masterGain.connect(compressor).connect(ctx.destination);
 
+      startCloudLayer();
       scheduleVoice();
+      scheduleFreeze();
+      scheduleWhisp();
+      setupResonator();
+      scheduleSub();
+      scheduleAir();
     };
 
-    if (ctx.state === 'suspended') {
-      ctx.resume().then(setup).catch(err => {
-        enter.textContent = 'resume failed: ' + err.message;
-        enter.classList.remove('gone');
-      });
-    } else {
-      setup();
-    }
+    setup();
+  }
+
+  // ---------- resonator: a quiet modal bank ----------
+  // four narrow, slightly inharmonic bandpass filters fed from the whole
+  // mix. its send level swells in and out on a slow cycle, and the bank
+  // retunes to a new scale note every minute or so.
+  let resFilters = [];
+  function setupResonator() {
+    const resSend = ctx.createGain();
+    resSend.gain.value = 0;
+    const resLevelLFO = ctx.createOscillator();
+    resLevelLFO.frequency.value = 1 / (180 + Math.random() * 90);
+    const resLevelDepth = ctx.createGain(); resLevelDepth.gain.value = 0.3;
+    const resLevelFloor = ctx.createConstantSource(); resLevelFloor.offset.value = 0.3;
+    resLevelLFO.connect(resLevelDepth).connect(resSend.gain);
+    resLevelFloor.connect(resSend.gain);
+
+    const resOut = ctx.createGain();
+    resOut.gain.value = 2.2;
+    const resLP = ctx.createBiquadFilter();
+    resLP.type = 'lowpass';
+    resLP.frequency.value = 4200;
+
+    const ratios = [1, 2.01, 2.99, 4.03];
+    const pans = [-0.7, -0.25, 0.25, 0.7];
+    resFilters = ratios.map((r, i) => {
+      const f = ctx.createBiquadFilter();
+      f.type = 'bandpass';
+      f.Q.value = 90;
+      const p = ctx.createStereoPanner();
+      p.pan.value = pans[i];
+      resSend.connect(f);
+      f.connect(p).connect(resOut);
+      return { f, r };
+    });
+
+    masterFilter.connect(resSend);
+    resOut.connect(resLP).connect(masterGain);
+    resLevelLFO.start();
+    resLevelFloor.start();
+    retuneResonator(true);
+  }
+
+  function retuneResonator(immediate) {
+    let base = pickFreq();
+    while (base * 4.03 > 3800) base /= 2;
+    const t = ctx.currentTime;
+    resFilters.forEach(({ f, r }) => {
+      if (immediate === true) f.frequency.setValueAtTime(base * r, t);
+      else f.frequency.setTargetAtTime(base * r, t, 6);
+    });
+    setTimeout(retuneResonator, (50 + Math.random() * 70) * 1000);
+  }
+
+  // ---------- sub bass: extremely long, extremely soft ----------
+  // an octave under a scale note, bypassing the master highpass and the
+  // reverb so it stays clean. one every 1.5–3.5 minutes, 2 at most.
+  let activeSubs = 0;
+  function scheduleSub() {
+    playSub();
+    setTimeout(scheduleSub, (90 + Math.random() * 120) * 1000);
+  }
+
+  function playSub() {
+    if (activeSubs >= 2) return;
+    activeSubs++;
+    const t = ctx.currentTime;
+    const mode = MODES[currentModeIndex];
+    const freq = mode.baseFreqs[Math.floor(Math.random() * mode.baseFreqs.length)] / 2;
+
+    const oscA = ctx.createOscillator();
+    oscA.type = 'sine';
+    oscA.frequency.value = freq;
+    const oscB = ctx.createOscillator();
+    oscB.type = 'sine';
+    oscB.frequency.value = freq;
+    oscB.detune.value = 4 + Math.random() * 3; // slow beating against oscA
+
+    const trembleLFO = ctx.createOscillator();
+    trembleLFO.frequency.value = 0.03 + Math.random() * 0.04;
+    const trembleDepth = ctx.createGain();
+    trembleDepth.gain.value = 2;
+    trembleLFO.connect(trembleDepth);
+    trembleDepth.connect(oscA.detune);
+    trembleDepth.connect(oscB.detune);
+
+    const tremGain = ctx.createGain();
+    tremGain.gain.value = 1;
+    const tremLFO = ctx.createOscillator();
+    tremLFO.frequency.value = 1 / (18 + Math.random() * 20);
+    const tremDepth = ctx.createGain();
+    tremDepth.gain.value = 0.25;
+    tremLFO.connect(tremDepth).connect(tremGain.gain);
+
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 220;
+    lp.Q.value = 0.3;
+
+    const env = ctx.createGain();
+    env.gain.value = 0;
+
+    oscA.connect(tremGain);
+    oscB.connect(tremGain);
+    tremGain.connect(lp).connect(env).connect(masterGain);
+
+    const attack = 45 + Math.random() * 30;
+    const hold = 60 + Math.random() * 50;
+    const release = 55 + Math.random() * 35;
+    const peak = 0.03 + Math.random() * 0.02;
+
+    env.gain.setValueAtTime(0, t);
+    env.gain.linearRampToValueAtTime(peak, t + attack);
+    env.gain.setValueAtTime(peak, t + attack + hold);
+    env.gain.linearRampToValueAtTime(0, t + attack + hold + release);
+
+    const nodes = [oscA, oscB, trembleLFO, tremLFO];
+    nodes.forEach(n => n.start(t));
+    const stopTime = t + attack + hold + release + 1;
+    nodes.forEach(n => n.stop(stopTime));
+    oscA.onended = () => { activeSubs--; };
+  }
+
+  // ---------- air: an occasional fresh high layer over the texture ----------
+  function scheduleAir() {
+    setTimeout(() => {
+      playAir();
+      scheduleAir();
+    }, (40 + Math.random() * 70) * 1000);
+  }
+
+  function playAir() {
+    const t = ctx.currentTime;
+    const src = ctx.createBufferSource();
+    src.buffer = noiseBuffer;
+    src.loop = true;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.Q.value = 0.8;
+    const f1 = 6000 + Math.random() * 2500;
+    const f2 = 6000 + Math.random() * 3000;
+
+    const gain = ctx.createGain();
+    gain.gain.value = 0;
+
+    const panner = ctx.createStereoPanner();
+    const p0 = (Math.random() * 2 - 1) * 0.8;
+    const p1 = (Math.random() * 2 - 1) * 0.8;
+
+    src.connect(filter).connect(gain).connect(panner).connect(masterHighpass);
+
+    const rise = 8 + Math.random() * 10;
+    const hold = 6 + Math.random() * 18;
+    const fall = 12 + Math.random() * 14;
+    const total = rise + hold + fall;
+    const peak = 0.008 + Math.random() * 0.008;
+
+    filter.frequency.setValueAtTime(f1, t);
+    filter.frequency.linearRampToValueAtTime(f2, t + total);
+    panner.pan.setValueAtTime(p0, t);
+    panner.pan.linearRampToValueAtTime(p1, t + total);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(peak, t + rise);
+    gain.gain.setValueAtTime(peak, t + rise + hold);
+    gain.gain.linearRampToValueAtTime(0, t + total);
+
+    src.start(t);
+    src.stop(t + total + 0.5);
+  }
+
+  // high, fast-vibrato flutters that dart in and out quickly — trailing
+  // wisps of cloud, not sustained tones. entirely independent of the main
+  // voices, cloud bed, and freeze system — added on top, changes nothing
+  // else about the locked base.
+  function scheduleWhisp() {
+    playWhisp();
+    const nextIn = ((7 + Math.random() * 18) * 1000) / MODES[currentModeIndex].whispRateMult;
+    setTimeout(scheduleWhisp, nextIn);
+  }
+
+  function playWhisp() {
+    const roll = Math.random();
+    if (roll < 0.5) playWhispFlutter();
+    else if (roll < 0.78) playWhispWail();
+    else playWhispNoise();
+  }
+
+  // the original fast-vibrato flutter — now an octave lower and a touch
+  // quieter, still sitting above the mid layers (ratio ~3) of the main voices
+  function playWhispFlutter() {
+    const t = ctx.currentTime;
+    const rootFreq = pickFreq();
+    const ratios = [3, 4, 5, 6, 8];
+    const freq = rootFreq * ratios[Math.floor(Math.random() * ratios.length)];
+
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+
+    const vibratoLFO = ctx.createOscillator();
+    vibratoLFO.frequency.value = 5.5 + Math.random() * 5;
+    const vibratoDepth = ctx.createGain();
+    vibratoDepth.gain.value = 18 + Math.random() * 28;
+    vibratoLFO.connect(vibratoDepth).connect(osc.detune);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = freq;
+    filter.Q.value = 2.2;
+
+    const gain = ctx.createGain();
+    gain.gain.value = 0;
+
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = (Math.random() * 2 - 1) * 0.9;
+
+    osc.connect(filter).connect(gain).connect(panner).connect(masterHighpass);
+    osc.start(t);
+    vibratoLFO.start(t);
+
+    const attack = 1.2 + Math.random() * 2.2;
+    const hold = 0.4 + Math.random() * 1.6;
+    const release = 1.8 + Math.random() * 2.6;
+    const peak = (0.007 + Math.random() * 0.007) * MODES[currentModeIndex].whispPeakMult;
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(peak, t + attack);
+    gain.gain.setValueAtTime(peak, t + attack + hold);
+    gain.gain.linearRampToValueAtTime(0, t + attack + hold + release);
+
+    const stopTime = t + attack + hold + release + 0.5;
+    osc.stop(stopTime);
+    vibratoLFO.stop(stopTime);
+  }
+
+  // a slow pitch-bend — like a far-off dolphin or whale call, gliding
+  // gently between two nearby pitches over several seconds
+  function playWhispWail() {
+    const t = ctx.currentTime;
+    const rootFreq = pickFreq();
+    const ratios = [3, 4, 5, 6];
+    const startFreq = rootFreq * ratios[Math.floor(Math.random() * ratios.length)];
+    const bendCents = (Math.random() < 0.5 ? 1 : -1) * (250 + Math.random() * 350);
+    const endFreq = startFreq * Math.pow(2, bendCents / 1200);
+
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = startFreq;
+
+    const wobbleLFO = ctx.createOscillator();
+    wobbleLFO.frequency.value = 2 + Math.random() * 2; // slower, broader than the flutter's vibrato
+    const wobbleDepth = ctx.createGain();
+    wobbleDepth.gain.value = 15 + Math.random() * 25;
+    wobbleLFO.connect(wobbleDepth).connect(osc.detune);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = startFreq;
+    filter.Q.value = 1.6;
+
+    const gain = ctx.createGain();
+    gain.gain.value = 0;
+
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = (Math.random() * 2 - 1) * 0.9;
+
+    osc.connect(filter).connect(gain).connect(panner).connect(masterHighpass);
+    osc.start(t);
+    wobbleLFO.start(t);
+
+    const bendTime = 4 + Math.random() * 6;
+    const attack = 1.8 + Math.random() * 2;
+    const hold = 0.3 + Math.random() * 1;
+    const release = 2.5 + Math.random() * 3;
+    const peak = (0.006 + Math.random() * 0.006) * MODES[currentModeIndex].whispPeakMult; // distant, sparse
+
+    osc.frequency.setValueAtTime(startFreq, t);
+    osc.frequency.linearRampToValueAtTime(endFreq, t + bendTime);
+    filter.frequency.setValueAtTime(startFreq, t);
+    filter.frequency.linearRampToValueAtTime(endFreq, t + bendTime);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(peak, t + attack);
+    gain.gain.setValueAtTime(peak, t + attack + hold);
+    gain.gain.linearRampToValueAtTime(0, t + attack + hold + release);
+
+    const stopTime = Math.max(t + bendTime, t + attack + hold + release) + 0.5;
+    osc.stop(stopTime);
+    wobbleLFO.stop(stopTime);
+  }
+
+  // a whisp made of filtered noise rather than a tone — an airy, breathy
+  // texture instead of a pitched flutter
+  function playWhispNoise() {
+    const t = ctx.currentTime;
+    const rootFreq = pickFreq();
+    const ratios = [3, 4, 5, 6, 8];
+    const freq = rootFreq * ratios[Math.floor(Math.random() * ratios.length)];
+
+    const noiseSrc = ctx.createBufferSource();
+    noiseSrc.buffer = noiseBuffer;
+    noiseSrc.loop = true;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = freq;
+    filter.Q.value = 3.5;
+
+    const flutterLFO = ctx.createOscillator();
+    flutterLFO.frequency.value = 3 + Math.random() * 4;
+    const flutterDepth = ctx.createGain();
+    flutterDepth.gain.value = freq * 0.25;
+    flutterLFO.connect(flutterDepth).connect(filter.frequency);
+
+    const gain = ctx.createGain();
+    gain.gain.value = 0;
+
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = (Math.random() * 2 - 1) * 0.9;
+
+    noiseSrc.connect(filter).connect(gain).connect(panner).connect(masterHighpass);
+    noiseSrc.start(t);
+    flutterLFO.start(t);
+
+    const attack = 1.5 + Math.random() * 2.5;
+    const hold = 0.5 + Math.random() * 1.8;
+    const release = 2 + Math.random() * 2.6;
+    const peak = (0.006 + Math.random() * 0.006) * MODES[currentModeIndex].whispPeakMult;
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(peak, t + attack);
+    gain.gain.setValueAtTime(peak, t + attack + hold);
+    gain.gain.linearRampToValueAtTime(0, t + attack + hold + release);
+
+    const stopTime = t + attack + hold + release + 0.5;
+    noiseSrc.stop(stopTime);
+    flutterLFO.stop(stopTime);
+  }
+
+  // an occasional long "freeze" — the reverb tail blooms and holds well
+  // above its usual level, then fades back, on its own irregular clock.
+  // rarer and larger than the constant swellLFO breathing.
+  function scheduleFreeze() {
+    const t = ctx.currentTime;
+    const peak = 1.6 + Math.random() * 1.0;
+    const rise = 18 + Math.random() * 22;
+    const hold = 22 + Math.random() * 35;
+    const fall = 28 + Math.random() * 35;
+    freezeGain.gain.cancelScheduledValues(t);
+    freezeGain.gain.setValueAtTime(1, t);
+    freezeGain.gain.linearRampToValueAtTime(peak, t + rise);
+    freezeGain.gain.setValueAtTime(peak, t + rise + hold);
+    freezeGain.gain.linearRampToValueAtTime(1, t + rise + hold + fall);
+    const totalMs = (rise + hold + fall) * 1000;
+    const gapMs = (40 + Math.random() * 110) * 1000;
+    setTimeout(scheduleFreeze, totalMs + gapMs);
   }
 
   function pickFreq() {
     return scale[Math.floor(Math.random() * scale.length)];
   }
 
-  function playVoice() {
-    if (activeVoices >= MAX_VOICES) return;
+  function startCloudLayer() {
+    const cloud = ctx.createBufferSource();
+    cloud.buffer = noiseBuffer;
+    cloud.loop = true;
+
+    const cloudFilter = ctx.createBiquadFilter();
+    cloudFilter.type = 'lowpass';
+    cloudFilter.frequency.value = 700;
+    cloudFilter.Q.value = 0.3;
+    const cloudFilterLFO = ctx.createOscillator();
+    cloudFilterLFO.frequency.value = 1 / 95;
+    const cloudFilterLFOGain = ctx.createGain();
+    cloudFilterLFOGain.gain.value = 350;
+    cloudFilterLFO.connect(cloudFilterLFOGain).connect(cloudFilter.frequency);
+
+    const cloudGain = ctx.createGain();
+    cloudGain.gain.value = 0;
+
+    // three slow, non-aligned swell cycles summed together — the combination
+    // never quite lines up the same way twice, like clouds or distant surf
+    const swellA = ctx.createOscillator(); swellA.frequency.value = 1 / 71;
+    const swellB = ctx.createOscillator(); swellB.frequency.value = 1 / 113;
+    const swellC = ctx.createOscillator(); swellC.frequency.value = 1 / 47;
+    const depthA = ctx.createGain(); depthA.gain.value = 0.045;
+    const depthB = ctx.createGain(); depthB.gain.value = 0.035;
+    const depthC = ctx.createGain(); depthC.gain.value = 0.025;
+    const floor = ctx.createConstantSource(); floor.offset.value = 0.06;
+    swellA.connect(depthA).connect(cloudGain.gain);
+    swellB.connect(depthB).connect(cloudGain.gain);
+    swellC.connect(depthC).connect(cloudGain.gain);
+    floor.connect(cloudGain.gain);
+
+    const cloudPanner = ctx.createStereoPanner();
+    const cloudPanLFO = ctx.createOscillator();
+    cloudPanLFO.frequency.value = 1 / 160;
+    const cloudPanGain = ctx.createGain();
+    cloudPanGain.gain.value = 0.5;
+    cloudPanLFO.connect(cloudPanGain).connect(cloudPanner.pan);
+
+    cloud.connect(cloudFilter).connect(cloudGain).connect(cloudPanner).connect(masterHighpass);
+
+    [cloud, cloudFilterLFO, swellA, swellB, swellC, floor, cloudPanLFO].forEach(n => n.start());
+  }
+
+  function playVoice(opts) {
+    opts = opts || {};
+    const cap = opts.companion ? 3 : MAX_VOICES; // chord tones may bring it to 3
+    if (activeVoices >= cap) return null;
     activeVoices++;
 
     const t = ctx.currentTime;
-    const freq = pickFreq();
+    const freq = opts.freq || pickFreq();
 
-    const osc = ctx.createOscillator();
-    osc.type = Math.random() < 0.7 ? 'sine' : 'triangle';
-    osc.frequency.value = freq;
-
-    // the tremble — a barely-there pitch wobble, slower than breath
-    const trembleLFO = ctx.createOscillator();
-    trembleLFO.frequency.value = 0.04 + Math.random() * 0.08;
-    const trembleGain = ctx.createGain();
-    trembleGain.gain.value = 2 + Math.random() * 3; // cents
-    trembleLFO.connect(trembleGain).connect(osc.detune);
-
+    // shared per-voice bus: filter -> envelope -> panner -> out
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.Q.value = 0.3;
-    const baseCut = 700 + Math.random() * 900;
+    filter.Q.value = 0.22;
+    // lower notes get proportionally darker filtering — the lower the
+    // pitch, the more it needs cutting back to avoid feeling full-bodied
+    const baseCut = (650 + freq * 2.0) * (0.85 + Math.random() * 0.3);
     filter.frequency.value = baseCut;
 
     const filterLFO = ctx.createOscillator();
-    filterLFO.frequency.value = 0.015 + Math.random() * 0.02;
+    filterLFO.frequency.value = 1 / (110 + Math.random() * 90); // 110–200s cycles
     const filterLFOGain = ctx.createGain();
-    filterLFOGain.gain.value = 120;
+    filterLFOGain.gain.value = 550 + Math.random() * 250;
     filterLFO.connect(filterLFOGain).connect(filter.frequency);
 
     const gain = ctx.createGain();
     gain.gain.value = 0;
 
     const panner = ctx.createStereoPanner();
-    const panCenter = (Math.random() * 2 - 1) * 0.7;
+    const panCenter = (Math.random() * 2 - 1) * 0.85;
     panner.pan.value = panCenter;
     const panLFO = ctx.createOscillator();
     panLFO.frequency.value = 0.008 + Math.random() * 0.015;
     const panLFOGain = ctx.createGain();
-    panLFOGain.gain.value = 0.25;
+    panLFOGain.gain.value = 0.22;
     panLFO.connect(panLFOGain).connect(panner.pan);
 
-    osc.connect(filter).connect(gain).connect(panner).connect(masterFilter);
+    filter.connect(gain).connect(panner).connect(masterHighpass);
 
-    trembleLFO.start(t);
-    filterLFO.start(t);
-    panLFO.start(t);
-    osc.start(t);
+    // the tremble — a barely-there slow pitch wobble, shared across all layers
+    // so they breathe together rather than independently
+    const trembleLFO = ctx.createOscillator();
+    trembleLFO.frequency.value = 0.04 + Math.random() * 0.08;
+    const trembleGain = ctx.createGain();
+    trembleGain.gain.value = 1.5 + Math.random() * 2; // cents
 
-    const attack = 5 + Math.random() * 8;
-    const hold = 18 + Math.random() * 24;
-    const release = 12 + Math.random() * 16;
-    const peak = (0.11 + Math.random() * 0.09) * (1 + brightnessBias * 0.4);
+    const allNodes = [filterLFO, panLFO, trembleLFO];
+
+    // layers pitched apart at subtle volumes — each with its own fast tremolo
+    // rate, close but never identical, so their sums beat and drift against
+    // each other on their own. this interference is the whole point.
+    const layerDefs = [
+      { ratio: 1,   level: 1.0,  detune: 0,                          tremRate: 3.6 + Math.random() * 1.2 },
+      { ratio: 1,   level: 0.20, detune:  3 + Math.random() * 5,      tremRate: 5.1 + Math.random() * 1.8 },
+      { ratio: 1,   level: 0.16, detune: -(4 + Math.random() * 6),    tremRate: 6.4 + Math.random() * 2.0 },
+      { ratio: 2,   level: 0.11, detune: 0,                           tremRate: 7.6 + Math.random() * 2.4 },
+      { ratio: 1.5, level: 0.08, detune: 0,                           tremRate: 2.7 + Math.random() * 1.1 },
+      { ratio: 3,   level: 0.035, detune: 0,                          tremRate: 9.0 + Math.random() * 2.6 },
+      { ratio: 4,   level: 0.025, detune: 0,                          tremRate: 13 + Math.random() * 9 },
+      { ratio: 6,   level: 0.015, detune: 0,                          tremRate: 17 + Math.random() * 10 },
+    ];
+
+    layerDefs.forEach(def => {
+      const layerGain = ctx.createGain();
+      layerGain.gain.value = def.level;
+
+      const tremoloGain = ctx.createGain();
+      tremoloGain.gain.value = 1;
+      const tremoloLFO = ctx.createOscillator();
+      tremoloLFO.frequency.value = def.tremRate;
+      const tremoloDepth = ctx.createGain();
+      tremoloDepth.gain.value = 0.03 + Math.random() * 0.025;
+      tremoloLFO.connect(tremoloDepth).connect(tremoloGain.gain);
+
+      // the tremolo speed itself drifts slowly faster and slower over the
+      // note's life — never a fixed metronomic rate
+      const tremRateWobble = ctx.createOscillator();
+      tremRateWobble.frequency.value = 1 / (45 + Math.random() * 50);
+      const tremRateWobbleDepth = ctx.createGain();
+      tremRateWobbleDepth.gain.value = 0.5 + Math.random() * 0.6;
+      tremRateWobble.connect(tremRateWobbleDepth).connect(tremoloLFO.frequency);
+      allNodes.push(tremRateWobble);
+
+      const oscSine = ctx.createOscillator();
+      oscSine.type = 'sine';
+      oscSine.frequency.value = freq * def.ratio;
+      oscSine.detune.value = def.detune;
+      trembleGain.connect(oscSine.detune);
+
+      oscSine.connect(tremoloGain).connect(layerGain).connect(filter);
+      allNodes.push(oscSine, tremoloLFO);
+    });
+
+    allNodes.forEach(n => n.start(t));
+
+    const attack = 20 + Math.random() * 18;   // long, unhurried arrivals
+    const hold = 26 + Math.random() * 30;
+    const release = 22 + Math.random() * 20;
+    const peak = (0.045 + Math.random() * 0.035) * (1 + brightnessBias * 0.3) * (opts.level || 1);
+    const noisePeak = peak * (0.12 + Math.random() * 0.1);
 
     gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(Math.max(peak, 0.005), t + attack);
-    gain.gain.setValueAtTime(Math.max(peak, 0.005), t + attack + hold);
+    gain.gain.linearRampToValueAtTime(Math.max(peak, 0.004), t + attack);
+    gain.gain.setValueAtTime(Math.max(peak, 0.004), t + attack + hold);
     gain.gain.linearRampToValueAtTime(0, t + attack + hold + release);
+
+    // the note drifts slowly across the stereo field over its whole life,
+    // with the LFO wobble riding on top of that movement
+    const panEnd = Math.max(-0.9, Math.min(0.9, panCenter + (Math.random() * 2 - 1) * 1.1));
+    panner.pan.setValueAtTime(panCenter, t);
+    panner.pan.linearRampToValueAtTime(panEnd, t + attack + hold + release);
+
+    // a whisper of filtered noise riding underneath the root pitch, with a
+    // fast ripple in both amplitude and filter position — like light on
+    // moving water
+    const noiseSrc = ctx.createBufferSource();
+    noiseSrc.buffer = noiseBuffer;
+    noiseSrc.loop = true;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.value = freq * 2;
+    noiseFilter.Q.value = 1.2;
+
+    const noiseFlutterLFO = ctx.createOscillator();
+    noiseFlutterLFO.frequency.value = 9 + Math.random() * 7;
+    const noiseFlutterDepth = ctx.createGain();
+    noiseFlutterDepth.gain.value = freq * 0.35;
+    noiseFlutterLFO.connect(noiseFlutterDepth).connect(noiseFilter.frequency);
+    noiseFlutterLFO.start(t);
+    allNodes.push(noiseFlutterLFO);
+
+    const noiseRippleGain = ctx.createGain();
+    noiseRippleGain.gain.value = 1;
+    const noiseRippleLFO = ctx.createOscillator();
+    noiseRippleLFO.frequency.value = 10 + Math.random() * 8;
+    const noiseRippleDepth = ctx.createGain();
+    noiseRippleDepth.gain.value = 0.35;
+    noiseRippleLFO.connect(noiseRippleDepth).connect(noiseRippleGain.gain);
+    noiseRippleLFO.start(t);
+    allNodes.push(noiseRippleLFO);
+
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.value = 0;
+    noiseSrc.connect(noiseFilter).connect(noiseRippleGain).connect(noiseGain).connect(panner);
+    noiseSrc.start(t);
+
+    noiseGain.gain.setValueAtTime(0, t);
+    noiseGain.gain.linearRampToValueAtTime(noisePeak, t + attack * 1.3);
+    noiseGain.gain.setValueAtTime(noisePeak, t + attack + hold);
+    noiseGain.gain.linearRampToValueAtTime(0, t + attack + hold + release);
 
     // brightness bias very gently nudges the filter open/closed
     filter.frequency.setTargetAtTime(baseCut + brightnessBias * 500, t, 6);
 
     const stopTime = t + attack + hold + release + 1;
-    [osc, trembleLFO, filterLFO, panLFO].forEach(n => n.stop(stopTime));
+    allNodes.forEach(n => n.stop(stopTime));
+    noiseSrc.stop(stopTime);
 
     spawnVisualVoice(attack, hold, release, panCenter);
 
-    osc.onended = () => { activeVoices--; };
+    allNodes[0].onended = () => { activeVoices--; };
+    return freq;
+  }
+
+  // two pitches sit well together if they're at least a minor third apart
+  // and not near a tritone — keeps chords soft rather than tense
+  function intervalOk(a, b) {
+    const r = Math.max(a, b) / Math.min(a, b);
+    const folded = r > 2 ? r / 2 : r;
+    return folded > 1.18 && !(folded > 1.38 && folded < 1.46);
+  }
+
+  function pickCompanion(rootFreq, avoid) {
+    const cands = scale.filter(f => {
+      const r = f / rootFreq;
+      if (r < 1.18 || r > 2.1) return false;
+      if (!intervalOk(f, rootFreq)) return false;
+      return !(avoid && !intervalOk(f, avoid));
+    });
+    return cands.length ? cands[Math.floor(Math.random() * cands.length)] : null;
   }
 
   function scheduleVoice() {
-    playVoice();
+    const rootFreq = playVoice();
+    // about one note in three is joined by a quieter second tone that
+    // arrives a few seconds later; rarely a third
+    if (rootFreq && Math.random() < 0.3) {
+      const c1 = pickCompanion(rootFreq);
+      if (c1) {
+        setTimeout(() => playVoice({ freq: c1, level: 0.55, companion: true }),
+          (4 + Math.random() * 10) * 1000);
+        if (Math.random() < 0.35) {
+          const c2 = pickCompanion(rootFreq, c1);
+          if (c2 && c2 !== c1) {
+            setTimeout(() => playVoice({ freq: c2, level: 0.45, companion: true }),
+              (14 + Math.random() * 14) * 1000);
+          }
+        }
+      }
+    }
     const nextIn = (14 + Math.random() * 30) * 1000; // 14–44s between onsets
     setTimeout(scheduleVoice, nextIn);
   }
@@ -285,13 +966,49 @@
 
   // ---------- ambient background drift, always running, no audio needed ----------
   const field = document.getElementById('field');
+  const fieldB = document.getElementById('fieldB');
+  const titleEl = document.getElementById('title');
   let driftT = 0;
+  let driftT2 = Math.random() * 10;
+  let hueT = Math.random() * 10;
+  let hueT2 = Math.random() * 10 + 5;
+
+  // current palette eases toward the active mode's targets rather than
+  // cutting instantly — a mode change feels like dawn/dusk, not a switch
+  let curHue = MODES[currentModeIndex].hueBase;
+  let curHueRange = MODES[currentModeIndex].hueRange;
+  let curSat = MODES[currentModeIndex].satBase;
+  let curTitleColor = MODES[currentModeIndex].titleColor.slice();
+
   function driftField() {
+    const mode = MODES[currentModeIndex];
+    curHue += (mode.hueBase - curHue) * 0.004;
+    curHueRange += (mode.hueRange - curHueRange) * 0.004;
+    curSat += (mode.satBase - curSat) * 0.004;
+    curTitleColor[0] += (mode.titleColor[0] - curTitleColor[0]) * 0.004;
+    curTitleColor[1] += (mode.titleColor[1] - curTitleColor[1]) * 0.004;
+    curTitleColor[2] += (mode.titleColor[2] - curTitleColor[2]) * 0.004;
+
     driftT += 0.0025;
+    driftT2 += 0.0017;
+    hueT += 0.00035;
+    hueT2 += 0.00022;
+
     const x = 50 + Math.sin(driftT) * 6;
     const y = 30 + Math.cos(driftT * 0.7) * 8;
+    const hue = curHue + Math.sin(hueT) * curHueRange;
     field.style.background =
-      `radial-gradient(ellipse at ${x}% ${y}%, #fbfaf4 0%, #eef0ea 45%, #e2e4dc 100%)`;
+      `radial-gradient(ellipse at ${x}% ${y}%, hsl(${hue}, ${curSat}%, 95%) 0%, hsl(${hue + 15}, ${curSat - 4}%, 88%) 50%, hsl(${hue + 30}, ${curSat - 8}%, 82%) 100%)`;
+
+    const x2 = 50 + Math.cos(driftT2 * 0.8) * 10;
+    const y2 = 70 + Math.sin(driftT2) * 12;
+    const hue2 = curHue + 40 + Math.sin(hueT2) * (curHueRange * 0.8);
+    fieldB.style.background =
+      `radial-gradient(ellipse at ${x2}% ${y2}%, hsl(${hue2}, ${curSat - 4}%, 96%) 0%, hsl(${hue2 - 20}, ${curSat - 10}%, 90%) 60%, transparent 100%)`;
+
+    const breath = 0.4 + Math.sin(driftT * 0.6) * 0.15;
+    const [r, g, b] = curTitleColor;
+    titleEl.style.color = `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${breath.toFixed(3)})`;
     requestAnimationFrame(driftField);
   }
   driftField();
@@ -312,21 +1029,13 @@
   function begin() {
     if (started) return;
     started = true;
-    enter.textContent = 'waking...';
     try {
       initAudio();
-      setTimeout(() => {
-        if (!ctx) return;
-        if (ctx.state !== 'running') {
-          enter.textContent = 'audio context stuck: ' + ctx.state + ' — try opening this file directly in Safari, not the in-app preview';
-          enter.classList.remove('gone');
-        } else {
-          enter.classList.add('gone');
-        }
-      }, 1200);
     } catch (err) {
       enter.textContent = 'error: ' + err.message;
+      return;
     }
+    setTimeout(() => enter.classList.add('gone'), 700);
   }
   enter.addEventListener('click', begin);
   enter.addEventListener('touchstart', e => { e.preventDefault(); begin(); }, { passive: false });
@@ -339,6 +1048,28 @@
   window.addEventListener('click', () => {
     if (ctx && ctx.state === 'suspended') ctx.resume();
   });
+
+  // ---------- mode cycling ----------
+  const modeLabel = document.getElementById('modeLabel');
+  function updateModeLabel() {
+    modeLabel.textContent = MODES[currentModeIndex].name;
+  }
+  function applyModeToAudio() {
+    if (!ctx) return; // not playing yet — new notes will simply draw from the new scale once it starts
+    const mode = MODES[currentModeIndex];
+    const t = ctx.currentTime;
+    masterHighpass.frequency.setTargetAtTime(mode.highpassHz, t, 6);
+    masterFilter.frequency.setTargetAtTime(mode.filterBaseHz, t, 6);
+    wetGain.gain.setTargetAtTime(mode.wetBase, t, 6);
+  }
+  function cycleMode() {
+    currentModeIndex = (currentModeIndex + 1) % MODES.length;
+    rebuildScale();
+    applyModeToAudio();
+    updateModeLabel();
+  }
+  modeLabel.addEventListener('click', cycleMode);
+  modeLabel.addEventListener('touchstart', e => { e.preventDefault(); cycleMode(); }, { passive: false });
 
 })();
 </script>
