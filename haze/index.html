@@ -165,6 +165,7 @@
   const MODES = [
     {
       name: 'morning',
+      voiceMax: 440, // highest pitch a main voice may use (sines get piercing on small speakers)
       root: 261.63, // C4
       scales: [[0, 2, 4, 7, 9], [0, 2, 4, 6, 9], [0, 2, 5, 7, 9]], // major pent, lydian-ish, sus
       offsets: [-5, -3, 0, 2, 5, 7],
@@ -175,6 +176,7 @@
     },
     {
       name: 'noon',
+      voiceMax: 440, // highest pitch a main voice may use (sines get piercing on small speakers)
       root: 146.83, // D3
       scales: [[0, 3, 5, 7, 10], [0, 2, 5, 7, 9], [0, 3, 5, 8, 10], [0, 2, 3, 7, 10]],
       offsets: [0, 2, 3, 5, 7],
@@ -185,6 +187,7 @@
     },
     {
       name: 'night',
+      voiceMax: 350, // highest pitch a main voice may use (sines get piercing on small speakers)
       root: 130.81, // C3
       scales: [[0, 1, 5, 7, 10], [0, 3, 5, 7, 10], [0, 1, 3, 7, 8], [0, 2, 3, 7, 8]],
       offsets: [-2, 0, 2, 3, 5, 7],
@@ -407,6 +410,7 @@
       scheduleVoice();
       scheduleFreeze();
       scheduleWhisp();
+      setupEcho();
       setupResonator();
       scheduleSub();
       scheduleAir();
@@ -414,6 +418,35 @@
     };
 
     setup();
+  }
+
+  // ---------- echo: a dark ping-pong delay that adds width and depth ----------
+  // plucks, bells and whisps send into it. the repeats alternate hard left
+  // and right, each one darker and quieter than the last.
+  let echoIn = null;
+  function setupEcho() {
+    echoIn = ctx.createGain();
+    const dL = ctx.createDelay(3); dL.delayTime.value = 0.41;
+    const dR = ctx.createDelay(3); dR.delayTime.value = 0.63;
+    const lpA = ctx.createBiquadFilter(); lpA.type = 'lowpass'; lpA.frequency.value = 2400;
+    const lpB = ctx.createBiquadFilter(); lpB.type = 'lowpass'; lpB.frequency.value = 2400;
+    const fbA = ctx.createGain(); fbA.gain.value = 0.42;
+    const fbB = ctx.createGain(); fbB.gain.value = 0.42;
+    const pL = ctx.createStereoPanner(); pL.pan.value = -0.85;
+    const pR = ctx.createStereoPanner(); pR.pan.value = 0.85;
+    const out = ctx.createGain(); out.gain.value = 0.75;
+    echoIn.connect(dL);
+    dL.connect(lpA).connect(fbA).connect(dR);
+    dR.connect(lpB).connect(fbB).connect(dL);
+    dL.connect(pL).connect(out);
+    dR.connect(pR).connect(out);
+    out.connect(masterHighpass);
+  }
+  function echoSend(node, amount) {
+    if (!echoIn) return;
+    const g = ctx.createGain();
+    g.gain.value = amount;
+    node.connect(g).connect(echoIn);
   }
 
   // ---------- resonator: a quiet modal bank ----------
@@ -631,6 +664,7 @@
     panner.pan.value = (Math.random() * 2 - 1) * 0.9;
 
     osc.connect(filter).connect(gain).connect(panner).connect(masterHighpass);
+    echoSend(panner, 0.3);
     osc.start(t);
     vibratoLFO.start(t);
 
@@ -681,6 +715,7 @@
     panner.pan.value = (Math.random() * 2 - 1) * 0.9;
 
     osc.connect(filter).connect(gain).connect(panner).connect(masterHighpass);
+    echoSend(panner, 0.3);
     osc.start(t);
     wobbleLFO.start(t);
 
@@ -735,6 +770,7 @@
     panner.pan.value = (Math.random() * 2 - 1) * 0.9;
 
     noiseSrc.connect(filter).connect(gain).connect(panner).connect(masterHighpass);
+    echoSend(panner, 0.3);
     noiseSrc.start(t);
     flutterLFO.start(t);
 
@@ -774,6 +810,16 @@
 
   function pickFreq() {
     return scale[Math.floor(Math.random() * scale.length)];
+  }
+
+  // pitch for a main voice: never above the mode's ceiling, and now and
+  // then an octave lower (as long as it stays clear of the master highpass)
+  function pickVoiceFreq() {
+    const mode = MODES[currentModeIndex];
+    let f = pickFreq();
+    while (f > mode.voiceMax) f /= 2;
+    if (Math.random() < 0.2 && f / 2 >= mode.highpassHz * 0.95) f /= 2;
+    return f;
   }
 
   function startCloudLayer() {
@@ -827,7 +873,7 @@
     activeVoices++;
 
     const t = ctx.currentTime;
-    const freq = opts.freq || pickFreq();
+    const freq = opts.freq || pickVoiceFreq();
 
     // shared per-voice bus: filter -> envelope -> panner -> out
     const filter = ctx.createBiquadFilter();
@@ -848,12 +894,12 @@
     gain.gain.value = 0;
 
     const panner = ctx.createStereoPanner();
-    const panCenter = (Math.random() * 2 - 1) * 0.85;
+    const panCenter = (Math.random() * 2 - 1) * 0.6;
     panner.pan.value = panCenter;
     const panLFO = ctx.createOscillator();
     panLFO.frequency.value = 0.008 + Math.random() * 0.015;
     const panLFOGain = ctx.createGain();
-    panLFOGain.gain.value = 0.22;
+    panLFOGain.gain.value = 0.3;
     panLFO.connect(panLFOGain).connect(panner.pan);
 
     filter.connect(gain).connect(panner).connect(masterHighpass);
@@ -870,15 +916,18 @@
     // layers pitched apart at subtle volumes — each with its own fast tremolo
     // rate, close but never identical, so their sums beat and drift against
     // each other on their own. this interference is the whole point.
+    // each layer has its own place in the stereo image: the detuned unisons
+    // sit left and right of each other (real stereo beating on headphones),
+    // the upper partials fan out around them
     const layerDefs = [
-      { ratio: 1,   level: 1.0,  detune: 0,                          tremRate: 3.6 + Math.random() * 1.2 },
-      { ratio: 1,   level: 0.20, detune:  3 + Math.random() * 5,      tremRate: 5.1 + Math.random() * 1.8 },
-      { ratio: 1,   level: 0.16, detune: -(4 + Math.random() * 6),    tremRate: 6.4 + Math.random() * 2.0 },
-      { ratio: 2,   level: 0.11, detune: 0,                           tremRate: 7.6 + Math.random() * 2.4 },
-      { ratio: 1.5, level: 0.08, detune: 0,                           tremRate: 2.7 + Math.random() * 1.1 },
-      { ratio: 3,   level: 0.035, detune: 0,                          tremRate: 9.0 + Math.random() * 2.6 },
-      { ratio: 4,   level: 0.025, detune: 0,                          tremRate: 13 + Math.random() * 9 },
-      { ratio: 6,   level: 0.015, detune: 0,                          tremRate: 17 + Math.random() * 10 },
+      { ratio: 1,   level: 1.0,   detune: 0,                       tremRate: 3.6 + Math.random() * 1.2, pan:  0.00 },
+      { ratio: 1,   level: 0.20,  detune:  3 + Math.random() * 5,   tremRate: 5.1 + Math.random() * 1.8, pan: -0.55 },
+      { ratio: 1,   level: 0.16,  detune: -(4 + Math.random() * 6), tremRate: 6.4 + Math.random() * 2.0, pan:  0.55 },
+      { ratio: 2,   level: 0.11,  detune: 0,                       tremRate: 7.6 + Math.random() * 2.4, pan:  0.30 },
+      { ratio: 1.5, level: 0.08,  detune: 0,                       tremRate: 2.7 + Math.random() * 1.1, pan: -0.30 },
+      { ratio: 3,   level: 0.035, detune: 0,                       tremRate: 9.0 + Math.random() * 2.6, pan:  0.45 },
+      { ratio: 4,   level: 0.025, detune: 0,                       tremRate: 13 + Math.random() * 9,    pan: -0.45 },
+      { ratio: 6,   level: 0.015, detune: 0,                       tremRate: 17 + Math.random() * 10,   pan:  0.60 },
     ];
 
     layerDefs.forEach(def => {
@@ -908,8 +957,17 @@
       oscSine.detune.value = def.detune;
       trembleGain.connect(oscSine.detune);
 
-      oscSine.connect(tremoloGain).connect(layerGain).connect(filter);
-      allNodes.push(oscSine, tremoloLFO);
+      // every layer drifts slowly around its own spot in the image
+      const layerPan = ctx.createStereoPanner();
+      layerPan.pan.value = def.pan;
+      const layerPanLFO = ctx.createOscillator();
+      layerPanLFO.frequency.value = 1 / (40 + Math.random() * 80);
+      const layerPanDepth = ctx.createGain();
+      layerPanDepth.gain.value = 0.12 + Math.random() * 0.15;
+      layerPanLFO.connect(layerPanDepth).connect(layerPan.pan);
+
+      oscSine.connect(tremoloGain).connect(layerGain).connect(layerPan).connect(filter);
+      allNodes.push(oscSine, tremoloLFO, layerPanLFO);
     });
 
     allNodes.forEach(n => n.start(t));
@@ -917,7 +975,8 @@
     const attack = 20 + Math.random() * 18;   // long, unhurried arrivals
     const hold = 26 + Math.random() * 30;
     const release = 22 + Math.random() * 20;
-    const peak = (0.045 + Math.random() * 0.035) * (1 + brightnessBias * 0.3) * (opts.level || 1);
+    const loudnessComp = freq > 300 ? Math.pow(300 / freq, 0.5) : 1;
+    const peak = (0.045 + Math.random() * 0.035) * (1 + brightnessBias * 0.3) * (opts.level || 1) * loudnessComp;
     const noisePeak = peak * (0.12 + Math.random() * 0.1);
 
     gain.gain.setValueAtTime(0, t);
@@ -927,7 +986,7 @@
 
     // the note drifts slowly across the stereo field over its whole life,
     // with the LFO wobble riding on top of that movement
-    const panEnd = Math.max(-0.9, Math.min(0.9, panCenter + (Math.random() * 2 - 1) * 1.1));
+    const panEnd = Math.max(-0.75, Math.min(0.75, panCenter + (Math.random() * 2 - 1) * 1.0));
     panner.pan.setValueAtTime(panCenter, t);
     panner.pan.linearRampToValueAtTime(panEnd, t + attack + hold + release);
 
@@ -1006,6 +1065,7 @@
       return scale.filter(f => {
         const r = f / rootFreq;
         if (r < 1.10 || r > 2.1) return false;
+        if (f > MODES[currentModeIndex].voiceMax * 1.25) return false;
         if (!ok(f, rootFreq)) return false;
         return !(avoid && !ok(f, avoid));
       });
@@ -1134,13 +1194,14 @@
     panner.pan.value = (Math.random() * 2 - 1) * 0.8;
 
     carrier.connect(amp).connect(lp).connect(panner).connect(masterHighpass);
+    echoSend(panner, 0.45);
     carrier.start(t);
     mod.start(t);
     carrier.stop(t + 16);
     mod.stop(t + 16);
   }
 
-  // ---------- rare moments: every 8–16 minutes something different ----------
+  // ---------- rare moments: every 8–16 minutes bursts, a hush or a cluster ----------
   let lastMoment = -1;
   function scheduleMoment(first) {
     const delay = first ? (240 + Math.random() * 180) : (480 + Math.random() * 480);
@@ -1153,16 +1214,15 @@
     let k;
     do {
       const r = Math.random();
-      k = r < 0.30 ? 0 : (r < 0.60 ? 1 : (r < 0.78 ? 2 : 3));
+      k = r < 0.40 ? 0 : (r < 0.65 ? 1 : 2);
     } while (k === lastMoment);
     lastMoment = k;
-    if (k === 0) playArp();
-    else if (k === 1) playBursts();
-    else if (k === 2) startHush();
+    if (k === 0) playBursts();
+    else if (k === 1) startHush();
     else playCluster();
   }
 
-  // a very quiet plucked arpeggio through the scale, fading as it goes
+  // a soft pluck: sine plus a quiet octave, fast decay
   function playPluck(freq, when, peak, pan) {
     const osc = ctx.createOscillator();
     osc.type = 'sine';
@@ -1187,35 +1247,62 @@
     osc.connect(amp);
     osc2.connect(g2).connect(amp);
     amp.connect(lp).connect(panner).connect(masterHighpass);
+    echoSend(panner, 0.55);
     osc.start(when);
     osc2.start(when);
     osc.stop(when + 4);
     osc2.stop(when + 4);
   }
 
+  // a looping phrase of plucks, 14-27 notes. the volume swells in and out
+  // over the whole run and flutters note to note; the pan drifts across.
   function playArp() {
     const sorted = currentNotes.slice().sort((a, b) => a - b);
-    const ladder = sorted.map(f => f * 2).concat(sorted.map(f => f * 4)); // 10 steps
-    const pattern = ['up', 'updown', 'walk'][Math.floor(Math.random() * 3)];
-    const count = 6 + Math.floor(Math.random() * 5);
-    const step = 0.30 + Math.random() * 0.22;
-    let peak = 0.012 + Math.random() * 0.008;
+    const ladder = sorted.map(f => f * 2).concat(sorted.map(f => f * 4)).map(f => {
+      while (f > 1400) f /= 2; // keep plucks out of the piercing range
+      return f;
+    }).sort((a, b) => a - b);
+    const max = ladder.length - 1;
+    const clamp = i => Math.max(0, Math.min(max, i));
+
+    // a short phrase that loops, with an occasional changed note
+    const L = 4 + Math.floor(Math.random() * 3);
+    const kind = ['up', 'updown', 'skip'][Math.floor(Math.random() * 3)];
     let idx = Math.floor(Math.random() * 4);
-    let dir = 1;
-    const now = ctx.currentTime + 0.1;
-    for (let i = 0; i < count; i++) {
-      const when = now + i * step + (Math.random() - 0.5) * 0.03;
-      playPluck(ladder[idx], when, peak, (i % 2 ? 0.3 : -0.3) + (Math.random() - 0.5) * 0.3);
-      peak *= 0.9;
-      if (pattern === 'up') idx = Math.min(ladder.length - 1, idx + 1);
-      else if (pattern === 'updown') {
-        if (idx >= ladder.length - 1) dir = -1;
-        if (idx <= 0) dir = 1;
-        idx += dir;
-      } else {
-        idx = Math.max(0, Math.min(ladder.length - 1, idx + (Math.random() < 0.5 ? -1 : 1) * (1 + Math.floor(Math.random() * 2))));
-      }
+    const phrase = [];
+    for (let k = 0; k < L; k++) {
+      phrase.push(clamp(idx));
+      if (kind === 'up') idx += 1;
+      else if (kind === 'skip') idx += 2;
+      else idx += k < L / 2 ? 1 : -1;
     }
+
+    const total = 14 + Math.floor(Math.random() * 14);
+    const step = 0.30 + Math.random() * 0.20;
+    const basePeak = 0.013 + Math.random() * 0.008;
+    const flutterW = 0.7 + Math.random() * 1.1;
+    const flutterPhase = Math.random() * 6.28;
+    const panPhase = Math.random() * 6.28;
+    let when = ctx.currentTime + 0.1;
+    for (let i = 0; i < total; i++) {
+      let ix = phrase[i % L];
+      if (i >= L && Math.random() < 0.18) ix = clamp(ix + (Math.random() < 0.5 ? -1 : 1));
+      const swell = Math.pow(Math.sin(Math.PI * (i + 0.5) / total), 0.6);
+      const flutter = 0.55 + 0.45 * Math.sin(i * flutterW + flutterPhase);
+      const peak = Math.max(0.0015, basePeak * swell * flutter);
+      const pan = Math.sin(i * 0.45 + panPhase) * 0.6 + (Math.random() - 0.5) * 0.2;
+      playPluck(ladder[ix], when, peak, pan);
+      when += step * (1 + 0.12 * Math.sin(i * 0.35)); // the pulse breathes slightly
+    }
+  }
+
+  // the arp comes back every 2.5-6 minutes, first one after 1.5-2.5
+  function scheduleArp(first) {
+    const delay = first ? (90 + Math.random() * 60) : (150 + Math.random() * 210);
+    setTimeout(() => {
+      if (!inHush()) playArp();
+      scheduleArp(false);
+    }, delay * 1000 * TS);
   }
 
   // "pssshhh ... pshhh": short filtered-noise releases in a loose rhythm
@@ -1253,7 +1340,7 @@
 
   // three or four tones swelling in together, a soft cluster
   function playCluster() {
-    const root = pickFreq();
+    const root = pickVoiceFreq();
     const freqs = [root];
     const c1 = pickCompanion(root, null, 1);
     if (c1) freqs.push(c1);
@@ -1281,6 +1368,7 @@
     journeyStarted = true;
     scheduleChapter();
     scheduleMoment(true);
+    scheduleArp(true);
     scheduleBell();
     // handy for testing from the browser console, e.g. haze.arp()
     window.haze = {
