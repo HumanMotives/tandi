@@ -29,7 +29,11 @@
   #fieldB {
     position: fixed;
     inset: 0;
-    mix-blend-mode: multiply;
+  }
+  #fx {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
   }
   #grain {
     position: fixed;
@@ -101,7 +105,11 @@
     cursor: pointer;
     padding: 16px;
     z-index: 5;
+    user-select: none;
+    -webkit-user-select: none;
   }
+  #modeLabel span { transition: opacity 1.5s ease; }
+  #modeLabel .sep { margin: 0 1.1em; opacity: 0.4; }
   #topbar {
     position: fixed;
     top: 0;
@@ -138,10 +146,11 @@
 <div id="field"></div>
 <div id="fieldB"></div>
 <canvas id="grain"></canvas>
+<canvas id="fx"></canvas>
 <svg id="shimmer"></svg>
 <div id="title">HAZE</div>
 <div id="enter">touch to begin</div>
-<div id="modeLabel">noon</div>
+<div id="modeLabel"><span data-m="0">day</span><span class="sep">·</span><span data-m="1">night</span></div>
 
 <div id="topbar">
   <a id="homeLink" href="https://humanmotives.org">← Human Motives</a>
@@ -158,46 +167,57 @@
 <script>
 (function () {
 
-  // ---------- modes ----------
-  // Each mode has a home root, a few related scales, and the root shifts it
-  // may drift to. The first scale at offset 0 is exactly the old fixed scale
-  // (Noon = the original locked base). Palette and sound-shaping live here too.
+  // ---------- modes: day and night ----------
+  // Two clearly different worlds. DAY: major, lydian and open scales in a high
+  // register, bright and dry, quick and busy. NIGHT: solemn minor/phrygian
+  // scales one to two octaves lower, dark, muted, wet, slow. Everything that
+  // plays (voices, arp, bells, whisps) follows the scale and register.
   const MODES = [
     {
-      name: 'morning',
-      voiceMax: 440, // highest pitch a main voice may use (sines get piercing on small speakers)
+      name: 'day',
       root: 261.63, // C4
-      scales: [[0, 2, 4, 7, 9], [0, 2, 4, 6, 9], [0, 2, 5, 7, 9]], // major pent, lydian-ish, sus
+      scales: [[0, 2, 4, 7, 9], [0, 2, 4, 6, 9], [0, 2, 4, 7, 11], [0, 2, 5, 7, 9]], // major pent, lydian, maj7, sus
       offsets: [-5, -3, 0, 2, 5, 7],
-      hueBase: 42, hueRange: 22, satBase: 32,
-      titleColor: [255, 238, 205],
-      highpassHz: 190, filterBaseHz: 7200, wetBase: 0.9,
-      whispRateMult: 1.2, whispPeakMult: 1.1,
-    },
-    {
-      name: 'noon',
       voiceMax: 440, // highest pitch a main voice may use (sines get piercing on small speakers)
-      root: 146.83, // D3
-      scales: [[0, 3, 5, 7, 10], [0, 2, 5, 7, 9], [0, 3, 5, 8, 10], [0, 2, 3, 7, 10]],
-      offsets: [0, 2, 3, 5, 7],
-      hueBase: 150, hueRange: 90, satBase: 34,
-      titleColor: [255, 255, 255],
-      highpassHz: 160, filterBaseHz: 6500, wetBase: 1.05,
-      whispRateMult: 1.0, whispPeakMult: 1.0,
+      hueBase: 200, hueRange: 20, satBase: 58, light: [93, 84, 72],
+      glowHue: 46, glowRange: 10, glow: [97, 90],
+      titleColor: [255, 255, 255], labelColor: [90, 100, 105, 0.55],
+      highpassHz: 190, filterBaseHz: 8200, filterSwing: 2200, wetBase: 0.8, revLongBias: 0.4,
+      voiceFilterMult: 1.15,
+      whispRateMult: 1.5, whispPeakMult: 1.1,
+      densityMult: 1.35, tremMult: 1.3, envMult: 0.7,
+      arpStepMult: 0.78, arpGapMult: 0.8, bellMult: 1.6,
+      tensionOffset: 0.12, subMax: 110, subGain: 1.0, upperMult: 1.0, outputTrim: 1.0,
     },
     {
       name: 'night',
-      voiceMax: 350, // highest pitch a main voice may use (sines get piercing on small speakers)
-      root: 130.81, // C3
-      scales: [[0, 1, 5, 7, 10], [0, 3, 5, 7, 10], [0, 1, 3, 7, 8], [0, 2, 3, 7, 8]],
+      root: 65.41, // C2
+      scales: [[0, 3, 5, 7, 10], [0, 1, 5, 7, 10], [0, 2, 3, 7, 8], [0, 3, 5, 8, 10], [0, 2, 3, 7, 10]], // minor pent, phrygian, aeolian-b6, ...
       offsets: [-2, 0, 2, 3, 5, 7],
-      hueBase: 250, hueRange: 40, satBase: 26,
-      titleColor: [190, 200, 232],
-      highpassHz: 110, filterBaseHz: 3200, wetBase: 1.3,
+      voiceMax: 260,
+      hueBase: 228, hueRange: 14, satBase: 55, light: [20, 12, 6],
+      glowHue: 218, glowRange: 12, glow: [30, 18],
+      titleColor: [200, 212, 240], labelColor: [190, 200, 230, 0.6],
+      highpassHz: 45, filterBaseHz: 2400, filterSwing: 900, wetBase: 1.25, revLongBias: 0.8,
+      voiceFilterMult: 0.75,
       whispRateMult: 0.6, whispPeakMult: 0.7,
+      densityMult: 0.8, tremMult: 0.8, envMult: 1.25,
+      arpStepMult: 1.35, arpGapMult: 1.2, bellMult: 0.8,
+      tensionOffset: -0.15, subMax: 62, subGain: 1.0, upperMult: 1.7, outputTrim: 0.98, // ~1 dB under day on the A-weighted meter: deep notes feel heavier than A-weighting says
     },
   ];
-  let currentModeIndex = 1; // start on Noon — the locked base
+  // cancels the browsers' built-in make-up gain of the final leveler (+3.6 dB) and limiter (+1.7 dB)
+  const TRIM_COMP = Math.pow(10, -(3.6 + 1.7) / 20);
+
+  // start on whatever fits the time of day on the device; the toggle overrides
+  const hourNow = new Date().getHours();
+  let currentModeIndex = (hourNow >= 7 && hourNow < 19) ? 0 : 1;
+  let nightAmt = currentModeIndex === 1 ? 1 : 0; // eases toward 0 (day) or 1 (night)
+
+  // chord tension = the chapter's tension plus the mode's lean
+  function effTension() {
+    return Math.max(0, Math.min(1, chapter.tension + MODES[currentModeIndex].tensionOffset));
+  }
 
   // append ?fast to the URL to run the slow timers ~12x faster (for testing)
   const TS = /[?&]fast\b/.test(location.search) ? 0.08 : 1;
@@ -280,7 +300,8 @@
   }
 
   // ---------- audio ----------
-  let ctx, masterGain, masterFilter, masterHighpass, convolverLong, convolverShort, dryGain, wetGain, freezeGain, compressor, noiseBuffer;
+  let ctx, masterGain, masterFilter, masterHighpass, convolverLong, convolverShort, dryGain, wetGain, freezeGain, compressor, noiseBuffer,
+      revShortGain, revLongGain, revDepthShort, revDepthLong, masterFilterDepth, trimGain;
   let started = false;
   let brightnessBias = 0; // -1..1, nudged by touch, decays back to 0
   let activeVoices = 0;
@@ -297,6 +318,17 @@
       }
     }
     return impulse;
+  }
+
+  // a sine LFO that starts at a random point of its cycle. plain oscillators
+  // all start at phase 0, which lined every slow swell up at the beginning and
+  // made the first half minute about 10 dB louder than the rest.
+  function phasedOsc(freq) {
+    const o = ctx.createOscillator();
+    const ph = Math.random() * Math.PI * 2;
+    o.setPeriodicWave(ctx.createPeriodicWave(new Float32Array([0, Math.sin(ph)]), new Float32Array([0, Math.cos(ph)])));
+    o.frequency.value = freq;
+    return o;
   }
 
   function buildNoiseBuffer(duration) {
@@ -351,8 +383,7 @@
       freezeGain.gain.value = 1;
 
       // the reverb send breathes on its own slow cycle — swells, recedes
-      const swellLFO = ctx.createOscillator();
-      swellLFO.frequency.value = 0.006 + Math.random() * 0.004; // ~3–4 min cycle
+      const swellLFO = phasedOsc(0.006 + Math.random() * 0.004); // ~3–4 min cycle
       const swellDepth = ctx.createGain();
       swellDepth.gain.value = 0.35;
       swellLFO.connect(swellDepth).connect(wetGain.gain);
@@ -360,8 +391,7 @@
 
       // second reverb-amount cycle on a different, slower period so the
       // combined swell never repeats the same way
-      const swellLFO2 = ctx.createOscillator();
-      swellLFO2.frequency.value = 1 / (380 + Math.random() * 160);
+      const swellLFO2 = phasedOsc(1 / (380 + Math.random() * 160));
       const swellDepth2 = ctx.createGain();
       swellDepth2.gain.value = 0.2;
       swellLFO2.connect(swellDepth2).connect(wetGain.gain);
@@ -370,8 +400,8 @@
       // the whole piece breathes in overall loudness — never sitting at one
       // level for long. two non-aligned slow cycles summed so it doesn't
       // feel mechanical.
-      const volSwellA = ctx.createOscillator(); volSwellA.frequency.value = 1 / 150;
-      const volSwellB = ctx.createOscillator(); volSwellB.frequency.value = 1 / 230;
+      const volSwellA = phasedOsc(1 / 150);
+      const volSwellB = phasedOsc(1 / 230);
       const volDepthA = ctx.createGain(); volDepthA.gain.value = 0.13;
       const volDepthB = ctx.createGain(); volDepthB.gain.value = 0.08;
       volSwellA.connect(volDepthA).connect(masterGain.gain);
@@ -381,10 +411,9 @@
 
       // the whole piece also dulls and opens up again over minutes,
       // independent of any single tone's own filter
-      const masterFilterLFO = ctx.createOscillator();
-      masterFilterLFO.frequency.value = 1 / 210;
-      const masterFilterDepth = ctx.createGain();
-      masterFilterDepth.gain.value = 1800;
+      const masterFilterLFO = phasedOsc(1 / 210);
+      masterFilterDepth = ctx.createGain();
+      masterFilterDepth.gain.value = MODES[currentModeIndex].filterSwing;
       masterFilterLFO.connect(masterFilterDepth).connect(masterFilter.frequency);
       masterFilterLFO.start();
 
@@ -392,19 +421,45 @@
       masterFilter.connect(dryGain).connect(masterGain);
       // reverb size drifts between a shorter and the original long tail over
       // ~5–7 minutes; biased toward the long one so the base character stays
-      const revShortGain = ctx.createGain(); revShortGain.gain.value = 0.35;
-      const revLongGain = ctx.createGain(); revLongGain.gain.value = 0.65;
-      const revSizeLFO = ctx.createOscillator();
-      revSizeLFO.frequency.value = 1 / (300 + Math.random() * 120);
-      const revSizeDepthShort = ctx.createGain(); revSizeDepthShort.gain.value = 0.3;
-      const revSizeDepthLong = ctx.createGain(); revSizeDepthLong.gain.value = -0.3;
-      revSizeLFO.connect(revSizeDepthShort).connect(revShortGain.gain);
-      revSizeLFO.connect(revSizeDepthLong).connect(revLongGain.gain);
+      // each mode has its own balance between the short and the long tail
+      const bias0 = MODES[currentModeIndex].revLongBias;
+      const depth0 = Math.min(0.3, bias0, 1 - bias0);
+      revShortGain = ctx.createGain(); revShortGain.gain.value = 1 - bias0;
+      revLongGain = ctx.createGain(); revLongGain.gain.value = bias0;
+      const revSizeLFO = phasedOsc(1 / (300 + Math.random() * 120));
+      revDepthShort = ctx.createGain(); revDepthShort.gain.value = depth0;
+      revDepthLong = ctx.createGain(); revDepthLong.gain.value = -depth0;
+      revSizeLFO.connect(revDepthShort).connect(revShortGain.gain);
+      revSizeLFO.connect(revDepthLong).connect(revLongGain.gain);
       revSizeLFO.start();
       masterFilter.connect(convolverLong).connect(revLongGain).connect(freezeGain);
       masterFilter.connect(convolverShort).connect(revShortGain).connect(freezeGain);
       freezeGain.connect(wetGain).connect(masterGain);
-      masterGain.connect(compressor).connect(ctx.destination);
+      // final stage: a slow leveler tames the louder passages (clusters, arps,
+      // swells) and a limiter catches anything unexpected. browsers add
+      // make-up gain to every DynamicsCompressor (measured: +3.6 dB for the
+      // leveler, +1.7 dB for the limiter at these settings); the trim cancels
+      // that, so these two stages only shape the dynamics. the mode trim then
+      // sets the day/night loudness balance.
+      const leveler = ctx.createDynamicsCompressor();
+      leveler.threshold.value = -16;
+      leveler.knee.value = 12;
+      leveler.ratio.value = 2.5;
+      leveler.attack.value = 0.35;
+      leveler.release.value = 3;
+      trimGain = ctx.createGain();
+      trimGain.gain.value = MODES[currentModeIndex].outputTrim * TRIM_COMP;
+      const limiter = ctx.createDynamicsCompressor();
+      limiter.threshold.value = -3;
+      limiter.knee.value = 0;
+      limiter.ratio.value = 20;
+      limiter.attack.value = 0.004;
+      limiter.release.value = 0.3;
+      // a gentle fade-in at the very start
+      const fadeIn = ctx.createGain();
+      fadeIn.gain.setValueAtTime(0, ctx.currentTime);
+      fadeIn.gain.linearRampToValueAtTime(1, ctx.currentTime + 8);
+      masterGain.connect(compressor).connect(leveler).connect(trimGain).connect(limiter).connect(fadeIn).connect(ctx.destination);
 
       startCloudLayer();
       scheduleVoice();
@@ -514,7 +569,10 @@
     if (activeSubs >= 2) return;
     activeSubs++;
     const t = ctx.currentTime;
-    const freq = currentNotes[Math.floor(Math.random() * currentNotes.length)] / 2;
+    const modeS = MODES[currentModeIndex];
+    let freq = currentNotes[Math.floor(Math.random() * currentNotes.length)];
+    while (freq > modeS.subMax) freq /= 2;
+    while (freq < 36) freq *= 2;
 
     const oscA = ctx.createOscillator();
     oscA.type = 'sine';
@@ -555,7 +613,7 @@
     const attack = 45 + Math.random() * 30;
     const hold = 60 + Math.random() * 50;
     const release = 55 + Math.random() * 35;
-    const peak = 0.03 + Math.random() * 0.02;
+    const peak = (0.03 + Math.random() * 0.02) * modeS.subGain;
 
     env.gain.setValueAtTime(0, t);
     env.gain.linearRampToValueAtTime(peak, t + attack);
@@ -640,7 +698,8 @@
     const t = ctx.currentTime;
     const rootFreq = pickFreq();
     const ratios = [3, 4, 5, 6, 8];
-    const freq = rootFreq * ratios[Math.floor(Math.random() * ratios.length)];
+    let freq = rootFreq * ratios[Math.floor(Math.random() * ratios.length)];
+    while (freq > 5000) freq /= 2; // no piercing highs, even in day mode
 
     const osc = ctx.createOscillator();
     osc.type = 'sine';
@@ -689,7 +748,8 @@
     const t = ctx.currentTime;
     const rootFreq = pickFreq();
     const ratios = [3, 4, 5, 6];
-    const startFreq = rootFreq * ratios[Math.floor(Math.random() * ratios.length)];
+    let startFreq = rootFreq * ratios[Math.floor(Math.random() * ratios.length)];
+    while (startFreq > 4200) startFreq /= 2;
     const bendCents = (Math.random() < 0.5 ? 1 : -1) * (250 + Math.random() * 350);
     const endFreq = startFreq * Math.pow(2, bendCents / 1200);
 
@@ -746,7 +806,8 @@
     const t = ctx.currentTime;
     const rootFreq = pickFreq();
     const ratios = [3, 4, 5, 6, 8];
-    const freq = rootFreq * ratios[Math.floor(Math.random() * ratios.length)];
+    let freq = rootFreq * ratios[Math.floor(Math.random() * ratios.length)];
+    while (freq > 5000) freq /= 2; // no piercing highs, even in day mode
 
     const noiseSrc = ctx.createBufferSource();
     noiseSrc.buffer = noiseBuffer;
@@ -842,9 +903,9 @@
 
     // three slow, non-aligned swell cycles summed together — the combination
     // never quite lines up the same way twice, like clouds or distant surf
-    const swellA = ctx.createOscillator(); swellA.frequency.value = 1 / 71;
-    const swellB = ctx.createOscillator(); swellB.frequency.value = 1 / 113;
-    const swellC = ctx.createOscillator(); swellC.frequency.value = 1 / 47;
+    const swellA = phasedOsc(1 / 71);
+    const swellB = phasedOsc(1 / 113);
+    const swellC = phasedOsc(1 / 47);
     const depthA = ctx.createGain(); depthA.gain.value = 0.045;
     const depthB = ctx.createGain(); depthB.gain.value = 0.035;
     const depthC = ctx.createGain(); depthC.gain.value = 0.025;
@@ -881,7 +942,7 @@
     filter.Q.value = 0.22;
     // lower notes get proportionally darker filtering — the lower the
     // pitch, the more it needs cutting back to avoid feeling full-bodied
-    const baseCut = (650 + freq * 2.0) * (0.85 + Math.random() * 0.3);
+    const baseCut = (650 + freq * 2.0) * (0.85 + Math.random() * 0.3) * MODES[currentModeIndex].voiceFilterMult;
     filter.frequency.value = baseCut;
 
     const filterLFO = ctx.createOscillator();
@@ -930,9 +991,13 @@
       { ratio: 6,   level: 0.015, detune: 0,                       tremRate: 17 + Math.random() * 10,   pan:  0.60 },
     ];
 
+    const modeP = MODES[currentModeIndex];
+    layerDefs.forEach(d => { d.tremRate *= modeP.tremMult; });
     layerDefs.forEach(def => {
       const layerGain = ctx.createGain();
-      layerGain.gain.value = def.level;
+      // upper layers (fifth, octave, higher partials) count more at night: they carry the
+      // audible body of a very low note without adding peak energy at 60 Hz
+      layerGain.gain.value = def.level * (def.ratio >= 1.5 ? modeP.upperMult : 1);
 
       const tremoloGain = ctx.createGain();
       tremoloGain.gain.value = 1;
@@ -972,10 +1037,11 @@
 
     allNodes.forEach(n => n.start(t));
 
-    const attack = 20 + Math.random() * 18;   // long, unhurried arrivals
-    const hold = 26 + Math.random() * 30;
-    const release = 22 + Math.random() * 20;
-    const loudnessComp = freq > 300 ? Math.pow(300 / freq, 0.5) : 1;
+    const attack = (20 + Math.random() * 18) * modeP.envMult;   // long, unhurried arrivals
+    const hold = (26 + Math.random() * 30) * modeP.envMult;
+    const release = (22 + Math.random() * 20) * modeP.envMult;
+    // highs sound louder than lows at the same level: ease the highs down, lift the deep notes
+    const loudnessComp = freq > 300 ? Math.pow(300 / freq, 0.5) : (freq < 160 ? Math.min(1.5, Math.pow(160 / freq, 0.6)) : 1);
     const peak = (0.045 + Math.random() * 0.035) * (1 + brightnessBias * 0.3) * (opts.level || 1) * loudnessComp;
     const noisePeak = peak * (0.12 + Math.random() * 0.1);
 
@@ -1059,7 +1125,7 @@
   function tensionBand(t) { return t < 0.33 ? 0 : (t < 0.66 ? 1 : 2); }
 
   function pickCompanion(rootFreq, avoid, band) {
-    if (band === undefined) band = tensionBand(chapter.tension);
+    if (band === undefined) band = tensionBand(effTension());
     const pool = (b) => {
       const ok = intervalOkFor(b);
       return scale.filter(f => {
@@ -1090,7 +1156,7 @@
 
     // some notes are joined by a quieter second tone a few seconds later,
     // rarely a third — how often and how open/tense depends on the chapter
-    const t = chapter.tension;
+    const t = effTension();
     if (rootFreq && Math.random() < 0.15 + t * 0.45) {
       const c1 = pickCompanion(rootFreq);
       if (c1) {
@@ -1111,7 +1177,7 @@
         (2 + Math.random() * 6) * 1000);
     }
 
-    const nextIn = ((14 + Math.random() * 30) * 1000) / chapter.density;
+    const nextIn = ((14 + Math.random() * 30) * 1000) / (chapter.density * MODES[currentModeIndex].densityMult);
     setTimeout(scheduleVoice, nextIn);
   }
 
@@ -1135,7 +1201,7 @@
       f.frequency.value = freq * mult;
       f.Q.value = 28;
       const g = ctx.createGain();
-      g.gain.value = lvl * 2.4; // narrow band takes most of the noise level away
+      g.gain.value = lvl * 2.4 * Math.sqrt(Math.max(1, 150 / (freq * mult))); // narrow band takes most of the noise level away; deeper notes more so
       src.connect(f).connect(g).connect(env);
     });
     env.connect(panner).connect(masterHighpass);
@@ -1162,7 +1228,7 @@
     setTimeout(() => {
       if (!inHush() && !arpActive) playBell();
       scheduleBell();
-    }, (base / chapter.bell) * 1000 * TS);
+    }, (base / (chapter.bell * MODES[currentModeIndex].bellMult)) * 1000 * TS);
   }
 
   function playBell() {
@@ -1195,6 +1261,7 @@
 
     carrier.connect(amp).connect(lp).connect(panner).connect(masterHighpass);
     echoSend(panner, 0.45);
+    if (window._hazePulse) window._hazePulse();
     carrier.start(t);
     mod.start(t);
     carrier.stop(t + 16);
@@ -1248,6 +1315,7 @@
     osc2.connect(g2).connect(amp);
     amp.connect(lp).connect(panner).connect(masterHighpass);
     echoSend(panner, 0.55);
+    setTimeout(() => { if (window._hazePulse) window._hazePulse(); }, Math.max(0, (when - ctx.currentTime) * 1000));
     osc.start(when);
     osc2.start(when);
     osc.stop(when + 4);
@@ -1281,7 +1349,8 @@
     let L = 5;
     let noteNo = 0;
     let nextMutate = 0;
-    let step = 0.30 + Math.random() * 0.15;
+    const arpMult = MODES[currentModeIndex].arpStepMult;
+    let step = (0.30 + Math.random() * 0.15) * arpMult;
     let stepTarget = step;
     const basePeak = 0.013 + Math.random() * 0.008;
     const ph1 = Math.random() * 6.28;
@@ -1311,7 +1380,7 @@
       while (when < horizon && when < endT) {
         const prog = (when - t0) / D;
         if (noteNo >= nextMutate) newPhrase();
-        if (noteNo % 16 === 0) stepTarget = 0.26 + Math.random() * 0.30;
+        if (noteNo % 16 === 0) stepTarget = (0.26 + Math.random() * 0.30) * arpMult;
         step += (stepTarget - step) * 0.08;
 
         // swells in over the first 15%, holds, then fades over the last 35%
@@ -1356,7 +1425,7 @@
   // an episode every 3-7 minutes after the last one ended; the first starts
   // 100-180 seconds in
   function scheduleArp(first) {
-    const delay = first ? (100 + Math.random() * 80) : (180 + Math.random() * 240);
+    const delay = first ? (100 + Math.random() * 80) : (180 + Math.random() * 240) * MODES[currentModeIndex].arpGapMult;
     setTimeout(() => {
       if (inHush() || arpActive) { scheduleArp(false); return; }
       playArp(() => scheduleArp(false));
@@ -1418,7 +1487,15 @@
     const t = ctx.currentTime;
     masterHighpass.frequency.setTargetAtTime(mode.highpassHz, t, tc);
     masterFilter.frequency.setTargetAtTime(mode.filterBaseHz * (1 + chapter.bright * 0.4), t, tc);
+    masterFilterDepth.gain.setTargetAtTime(mode.filterSwing, t, tc);
     wetGain.gain.setTargetAtTime(mode.wetBase + chapter.wet, t, tc);
+    const bias = mode.revLongBias;
+    const depth = Math.min(0.3, bias, 1 - bias);
+    revShortGain.gain.setTargetAtTime(1 - bias, t, tc);
+    revLongGain.gain.setTargetAtTime(bias, t, tc);
+    revDepthShort.gain.setTargetAtTime(depth, t, tc);
+    revDepthLong.gain.setTargetAtTime(-depth, t, tc);
+    trimGain.gain.setTargetAtTime(mode.outputTrim * TRIM_COMP, t, tc);
   }
 
   // starts everything that unfolds over time, once audio is running
@@ -1503,45 +1580,163 @@
   let hueT = Math.random() * 10;
   let hueT2 = Math.random() * 10 + 5;
 
-  // current palette eases toward the active mode's targets rather than
-  // cutting instantly — a mode change feels like dawn/dusk, not a switch
-  let curHue = MODES[currentModeIndex].hueBase;
-  let curHueRange = MODES[currentModeIndex].hueRange;
-  let curSat = MODES[currentModeIndex].satBase;
-  let curTitleColor = MODES[currentModeIndex].titleColor.slice();
+  // the palette is a blend of the day and night looks; nightAmt eases toward
+  // the active mode, so a switch feels like dusk or dawn rather than a cut
+  const labelEl = document.getElementById('modeLabel');
+  let curShift = chapter.hueShift;
 
   function driftField() {
-    const mode = MODES[currentModeIndex];
-    curHue += (mode.hueBase + chapter.hueShift - curHue) * 0.0012;
-    curHueRange += (mode.hueRange - curHueRange) * 0.0012;
-    curSat += (mode.satBase - curSat) * 0.0012;
-    curTitleColor[0] += (mode.titleColor[0] - curTitleColor[0]) * 0.0012;
-    curTitleColor[1] += (mode.titleColor[1] - curTitleColor[1]) * 0.0012;
-    curTitleColor[2] += (mode.titleColor[2] - curTitleColor[2]) * 0.0012;
+    const D = MODES[0], N = MODES[1];
+    nightAmt += ((currentModeIndex === 1 ? 1 : 0) - nightAmt) * 0.002;
+    curShift += (chapter.hueShift - curShift) * 0.0012;
+    const mix = (a, b) => a + (b - a) * nightAmt;
 
     driftT += 0.0025;
     driftT2 += 0.0017;
     hueT += 0.00035;
     hueT2 += 0.00022;
 
+    const hue = mix(D.hueBase, N.hueBase) + curShift + Math.sin(hueT) * mix(D.hueRange, N.hueRange);
+    const sat = mix(D.satBase, N.satBase);
     const x = 50 + Math.sin(driftT) * 6;
     const y = 30 + Math.cos(driftT * 0.7) * 8;
-    const hue = curHue + Math.sin(hueT) * curHueRange;
     field.style.background =
-      `radial-gradient(ellipse at ${x}% ${y}%, hsl(${hue}, ${curSat}%, 95%) 0%, hsl(${hue + 15}, ${curSat - 4}%, 88%) 50%, hsl(${hue + 30}, ${curSat - 8}%, 82%) 100%)`;
+      `radial-gradient(ellipse at ${x}% ${y}%, hsl(${hue}, ${sat}%, ${mix(D.light[0], N.light[0])}%) 0%, hsl(${hue + 12}, ${sat - 4}%, ${mix(D.light[1], N.light[1])}%) 50%, hsl(${hue + 24}, ${sat - 8}%, ${mix(D.light[2], N.light[2])}%) 100%)`;
 
+    // a soft glow low in the picture: warm sun-haze by day, a faint blue
+    // horizon glow by night
     const x2 = 50 + Math.cos(driftT2 * 0.8) * 10;
-    const y2 = 70 + Math.sin(driftT2) * 12;
-    const hue2 = curHue + 40 + Math.sin(hueT2) * (curHueRange * 0.8);
+    const y2 = 78 + Math.sin(driftT2) * 8;
+    const hue2 = mix(D.glowHue, N.glowHue) + Math.sin(hueT2) * mix(D.glowRange, N.glowRange);
     fieldB.style.background =
-      `radial-gradient(ellipse at ${x2}% ${y2}%, hsl(${hue2}, ${curSat - 4}%, 96%) 0%, hsl(${hue2 - 20}, ${curSat - 10}%, 90%) 60%, transparent 100%)`;
+      `radial-gradient(ellipse at ${x2}% ${y2}%, hsla(${hue2}, ${sat}%, ${mix(D.glow[0], N.glow[0])}%, ${mix(0.55, 0.5).toFixed(2)}) 0%, hsla(${hue2 - 15}, ${sat - 6}%, ${mix(D.glow[1], N.glow[1])}%, ${mix(0.3, 0.3).toFixed(2)}) 60%, transparent 100%)`;
 
     const breath = 0.4 + Math.sin(driftT * 0.6) * 0.15;
-    const [r, g, b] = curTitleColor;
-    titleEl.style.color = `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${breath.toFixed(3)})`;
+    const tr = Math.round(mix(D.titleColor[0], N.titleColor[0]));
+    const tg = Math.round(mix(D.titleColor[1], N.titleColor[1]));
+    const tb = Math.round(mix(D.titleColor[2], N.titleColor[2]));
+    titleEl.style.color = `rgba(${tr}, ${tg}, ${tb}, ${(breath + nightAmt * 0.1).toFixed(3)})`;
+    labelEl.style.color = `rgba(${Math.round(mix(D.labelColor[0], N.labelColor[0]))}, ${Math.round(mix(D.labelColor[1], N.labelColor[1]))}, ${Math.round(mix(D.labelColor[2], N.labelColor[2]))}, ${mix(D.labelColor[3], N.labelColor[3]).toFixed(2)})`;
     requestAnimationFrame(driftField);
   }
   driftField();
+
+  // ---------- fx: stars at night, sun flare and glitter by day ----------
+  // both are always running and fade with nightAmt. plucks and bells make
+  // a star twinkle at night and brighten the flare by day.
+  function initFx() {
+    const canvas = document.getElementById('fx');
+    const c = canvas.getContext('2d');
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const stars = [];
+    for (let i = 0; i < 95; i++) {
+      stars.push({
+        x: Math.random(), y: Math.pow(Math.random(), 1.3) * 0.88,
+        r: 0.4 + Math.random() * 1.1, a: 0.25 + Math.random() * 0.55,
+        w: 0.4 + Math.random() * 1.4, ph: Math.random() * 6.28, boost: 0,
+      });
+    }
+    const glints = [];
+    for (let i = 0; i < 70; i++) {
+      glints.push({
+        x: Math.random(), y: 0.55 + Math.random() * 0.45,
+        r: 0.5 + Math.random() * 1.2, w: 1.5 + Math.random() * 4,
+        ph: Math.random() * 6.28, big: Math.random() < 0.12,
+      });
+    }
+    const ghosts = [
+      [0.45, 0.05, [255, 230, 180]], [0.8, 0.09, [190, 225, 255]], [1.15, 0.04, [255, 200, 220]],
+      [1.6, 0.07, [255, 240, 200]], [2.0, 0.05, [200, 235, 255]],
+    ];
+    let flareBoost = 0;
+    window._hazePulse = () => {
+      flareBoost = Math.min(1, flareBoost + 0.3);
+      stars[Math.floor(Math.random() * stars.length)].boost = 1;
+    };
+
+    function frame(now) {
+      const W = canvas.width, H = canvas.height;
+      const tt = now / 1000;
+      c.clearRect(0, 0, W, H);
+      const night = nightAmt, day = 1 - nightAmt;
+      flareBoost *= 0.985;
+
+      if (night > 0.01) {
+        for (const st of stars) {
+          st.boost *= 0.97;
+          const tw = 0.55 + 0.45 * Math.sin(tt * st.w + st.ph);
+          const a = Math.min(1, st.a * tw + st.boost * 0.6) * night;
+          c.fillStyle = `rgba(214, 226, 255, ${a.toFixed(3)})`;
+          c.beginPath();
+          c.arc(st.x * W, st.y * H, st.r * (1 + st.boost * 0.8), 0, 6.283);
+          c.fill();
+        }
+      }
+
+      if (day > 0.01) {
+        const sx = W * (0.78 + Math.sin(tt * 0.02) * 0.03);
+        const sy = H * (0.17 + Math.cos(tt * 0.017) * 0.015);
+        const R = Math.min(W, H);
+        const boost = 1 + flareBoost * 0.35;
+
+        let g = c.createRadialGradient(sx, sy, 0, sx, sy, R * 0.55);
+        g.addColorStop(0, `rgba(255, 250, 235, ${(0.75 * day * boost).toFixed(3)})`);
+        g.addColorStop(0.15, `rgba(255, 238, 200, ${(0.38 * day * boost).toFixed(3)})`);
+        g.addColorStop(1, 'rgba(255, 230, 190, 0)');
+        c.fillStyle = g;
+        c.fillRect(0, 0, W, H);
+
+        const sw = W * 1.1;
+        g = c.createLinearGradient(sx - sw / 2, 0, sx + sw / 2, 0);
+        g.addColorStop(0, 'rgba(255, 245, 225, 0)');
+        g.addColorStop(0.5, `rgba(255, 248, 235, ${(0.35 * day * boost).toFixed(3)})`);
+        g.addColorStop(1, 'rgba(255, 245, 225, 0)');
+        c.fillStyle = g;
+        c.fillRect(sx - sw / 2, sy - 1.2, sw, 2.4);
+
+        const cx = W / 2, cy = H / 2;
+        ghosts.forEach(([k, rr, col], i) => {
+          const gx = sx + (cx - sx) * k, gy = sy + (cy - sy) * k;
+          const gr = R * rr * (1 + 0.15 * Math.sin(tt * 0.3 + i));
+          const gg = c.createRadialGradient(gx, gy, gr * 0.6, gx, gy, gr);
+          gg.addColorStop(0, `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0)`);
+          gg.addColorStop(0.85, `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${(0.16 * day * boost).toFixed(3)})`);
+          gg.addColorStop(1, `rgba(${col[0]}, ${col[1]}, ${col[2]}, 0)`);
+          c.fillStyle = gg;
+          c.beginPath();
+          c.arc(gx, gy, gr, 0, 6.283);
+          c.fill();
+        });
+
+        for (const gl of glints) {
+          const sn = Math.sin(tt * gl.w + gl.ph);
+          if (sn < 0.8) continue;
+          const k = (sn - 0.8) / 0.2;
+          const a = k * 0.8 * day;
+          const gx = gl.x * W, gy = gl.y * H;
+          c.fillStyle = `rgba(255, 252, 240, ${a.toFixed(3)})`;
+          c.beginPath();
+          c.arc(gx, gy, gl.r, 0, 6.283);
+          c.fill();
+          if (gl.big) {
+            const len = 3 + 6 * k;
+            c.strokeStyle = `rgba(255, 252, 240, ${(a * 0.7).toFixed(3)})`;
+            c.lineWidth = 0.8;
+            c.beginPath();
+            c.moveTo(gx - len, gy); c.lineTo(gx + len, gy);
+            c.moveTo(gx, gy - len); c.lineTo(gx, gy + len);
+            c.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+  initFx();
 
   // ---------- touch/mouse: an invisible influence, not a control ----------
   function updateBias(clientX, clientY) {
@@ -1633,9 +1828,13 @@
 
   // ---------- mode cycling ----------
   const modeLabel = document.getElementById('modeLabel');
+  // a two-way toggle: the active word is clear, the other is dimmed
   function updateModeLabel() {
-    modeLabel.textContent = MODES[currentModeIndex].name;
+    modeLabel.querySelectorAll('span[data-m]').forEach(el => {
+      el.style.opacity = Number(el.dataset.m) === currentModeIndex ? '1' : '0.38';
+    });
   }
+  updateModeLabel();
   function cycleMode() {
     currentModeIndex = (currentModeIndex + 1) % MODES.length;
     harmony = { rootOffset: 0, scaleIdx: 0 };
