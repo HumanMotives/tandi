@@ -108,6 +108,27 @@
     user-select: none;
     -webkit-user-select: none;
   }
+  #natureRow {
+    position: fixed;
+    bottom: 66px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    z-index: 5;
+  }
+  #natureRow button {
+    background: none;
+    border: none;
+    padding: 10px 12px;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.35;
+    transition: opacity 1s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #natureRow svg { width: 22px; height: 22px; display: block; }
   #modeLabel span { transition: opacity 1.5s ease; }
   #modeLabel .sep { margin: 0 1.1em; opacity: 0.4; }
   #topbar {
@@ -150,6 +171,11 @@
 <svg id="shimmer"></svg>
 <div id="title">HAZE</div>
 <div id="enter">touch to begin</div>
+<div id="natureRow">
+  <button data-n="waves" title="waves" aria-label="waves"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9c2.5-3 5-3 7.5 0s5 3 7.5 0 3-2 5-1.5M2 15c2.5-3 5-3 7.5 0s5 3 7.5 0 3-2 5-1.5"/></svg></button>
+  <button data-n="rain" title="rain" aria-label="rain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14.5a4 4 0 0 1-.5-7.9A5.5 5.5 0 0 1 17 6.5a3.8 3.8 0 0 1 .5 8H7z"/><path d="M8 17.5l-1 2.5M12 17.5l-1 2.5M16 17.5l-1 2.5"/></svg></button>
+  <button data-n="birds" title="birds (day)" aria-label="birds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10c2-3 4-3 6 0 2-3 4-3 6 0"/><path d="M12 17c1.5-2 3-2 4.5 0 1.5-2 3-2 4.5 0"/></svg></button>
+</div>
 <div id="modeLabel"><span data-m="0">day</span><span class="sep">·</span><span data-m="1">night</span></div>
 
 <div id="topbar">
@@ -187,7 +213,7 @@
       whispRateMult: 1.5, whispPeakMult: 1.1,
       densityMult: 1.35, tremMult: 1.3, envMult: 0.7,
       arpStepMult: 0.78, arpGapMult: 0.8, bellMult: 1.6,
-      tensionOffset: 0.12, subMax: 110, subGain: 1.0, upperMult: 1.0, outputTrim: 1.0,
+      tensionOffset: 0.12, subMax: 110, subGain: 1.0, upperMult: 1.0, natureLP: 9500, outputTrim: 1.0,
     },
     {
       name: 'night',
@@ -203,7 +229,7 @@
       whispRateMult: 0.6, whispPeakMult: 0.7,
       densityMult: 0.8, tremMult: 0.8, envMult: 1.25,
       arpStepMult: 1.35, arpGapMult: 1.2, bellMult: 0.8,
-      tensionOffset: -0.15, subMax: 62, subGain: 1.0, upperMult: 1.7, outputTrim: 0.98, // ~1 dB under day on the A-weighted meter: deep notes feel heavier than A-weighting says
+      tensionOffset: -0.15, subMax: 62, subGain: 1.0, upperMult: 1.7, natureLP: 4800, outputTrim: 0.98, // ~1 dB under day on the A-weighted meter: deep notes feel heavier than A-weighting says
     },
   ];
   // cancels the browsers' built-in make-up gain of the final leveler (+3.6 dB) and limiter (+1.7 dB)
@@ -213,6 +239,15 @@
   const hourNow = new Date().getHours();
   let currentModeIndex = (hourNow >= 7 && hourNow < 19) ? 0 : 1;
   let nightAmt = currentModeIndex === 1 ? 1 : 0; // eases toward 0 (day) or 1 (night)
+  // time-based, so it keeps easing when the page is hidden or the screen is
+  // locked (the drawing loop pauses then, the sound does not)
+  let lastNightT = performance.now();
+  function stepNight() {
+    const now = performance.now();
+    const dt = Math.min(now - lastNightT, 60000);
+    lastNightT = now;
+    nightAmt += ((currentModeIndex === 1 ? 1 : 0) - nightAmt) * (1 - Math.exp(-dt / 8000));
+  }
 
   // chord tension = the chapter's tension plus the mode's lean
   function effTension() {
@@ -466,6 +501,7 @@
       scheduleFreeze();
       scheduleWhisp();
       setupEcho();
+      startNature();
       setupResonator();
       scheduleSub();
       scheduleAir();
@@ -502,6 +538,214 @@
     const g = ctx.createGain();
     g.gain.value = amount;
     node.connect(g).connect(echoIn);
+  }
+
+  // ---------- nature layers: synthesized, so nothing loops and nothing is downloaded ----------
+  // three optional layers, switched on and off by the icons above the day/night
+  // toggle: waves, rain, birds. birds only sound by day, whatever the switch
+  // says. they bypass the master filter and get a small reverb send.
+  const NATURE = { waves: { on: false }, rain: { on: false }, birds: { on: false } };
+  try {
+    const saved = JSON.parse(localStorage.getItem('haze-nature') || '{}');
+    for (const k in NATURE) if (saved[k]) NATURE[k].on = true;
+  } catch (e) {}
+
+  // levels of each layer; the one place to turn them up or down
+  const RAIN_LEVEL = 0.038, WAVE_PEAK = 0.07, BIRD_PEAK = 0.024;
+
+  const natureNodes = {};
+  let natureTone = null;
+
+  function natureFactor(name) {
+    stepNight();
+    const on = NATURE[name].on ? 1 : 0;
+    if (name === 'birds') return on * (1 - nightAmt);
+    return on;
+  }
+  function applyNature() {
+    stepNight();
+    if (!ctx || !natureNodes.rain) return;
+    const t = ctx.currentTime;
+    for (const k in NATURE) natureNodes[k].gain.setTargetAtTime(natureFactor(k), t, 2.5);
+  }
+
+  function startNature() {
+    const bus = ctx.createGain();
+    natureTone = ctx.createBiquadFilter();
+    natureTone.type = 'lowpass';
+    natureTone.frequency.value = MODES[currentModeIndex].natureLP;
+    const send = ctx.createGain();
+    send.gain.value = 0.3;
+    bus.connect(natureTone);
+    natureTone.connect(masterGain);
+    natureTone.connect(send).connect(convolverShort);
+    Object.keys(NATURE).forEach(k => {
+      const g = ctx.createGain();
+      g.gain.value = 0;
+      g.connect(bus);
+      natureNodes[k] = g;
+    });
+    startRain(natureNodes.rain);
+    scheduleWaves();
+    scheduleBirds();
+    applyNature();
+    setInterval(applyNature, 2000);
+  }
+
+  // rain: a 16-second buffer of soft hiss plus random droplets, played by two
+  // sources at different offsets and speeds so the repeat is not audible
+  function buildRainBuffer(seconds) {
+    const rate = ctx.sampleRate;
+    const n = Math.floor(rate * seconds);
+    const buf = ctx.createBuffer(2, n, rate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      let lp = 0;
+      for (let i = 0; i < n; i++) {
+        lp += ((Math.random() * 2 - 1) - lp) * 0.5;
+        d[i] = lp * 0.35;
+      }
+      const drops = Math.floor(seconds * 45);
+      for (let k = 0; k < drops; k++) {
+        const len = Math.floor(rate * (0.003 + Math.random() * 0.012));
+        const start = Math.floor(Math.random() * (n - len - 1));
+        const a = 0.12 + 0.88 * Math.pow(Math.random(), 2.5);
+        let prev = 0;
+        for (let i = 0; i < len; i++) {
+          const w = Math.random() * 2 - 1;
+          d[start + i] += (w - prev) * Math.exp(-i / (len * 0.25)) * a * 0.5;
+          prev = w;
+        }
+      }
+    }
+    return buf;
+  }
+  function startRain(layerGain) {
+    const buf = buildRainBuffer(16);
+    const intensity = ctx.createGain();
+    intensity.gain.value = RAIN_LEVEL;
+    const lfo = phasedOsc(1 / 55);
+    const lfoDepth = ctx.createGain();
+    lfoDepth.gain.value = RAIN_LEVEL * 0.22; // the rain comes and goes a little
+    lfo.connect(lfoDepth).connect(intensity.gain);
+    lfo.start();
+    [[0, 1.0, -0.3], [7.3, 0.97, 0.3]].forEach(([offset, rate, pan]) => {
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+      src.playbackRate.value = rate;
+      const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 600;
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 8000;
+      const p = ctx.createStereoPanner(); p.pan.value = pan;
+      src.connect(hp).connect(lp).connect(p).connect(intensity);
+      src.start(0, offset);
+    });
+    intensity.connect(layerGain);
+  }
+
+  // waves: one slow swell of filtered noise every 5-11 seconds, a little
+  // foam hiss at the crest, drifting across the stereo image
+  function scheduleWaves() {
+    setTimeout(() => {
+      if (natureFactor('waves') > 0.05) playWave();
+      scheduleWaves();
+    }, (5 + Math.random() * 6) * 1000);
+  }
+  function playWave() {
+    const t = ctx.currentTime;
+    const rise = 3 + Math.random() * 1.8;
+    const fall = 4.5 + Math.random() * 3;
+    const peak = WAVE_PEAK * (0.6 + 0.4 * Math.random());
+    const p0 = (Math.random() * 2 - 1) * 0.6;
+    const p1 = (Math.random() * 2 - 1) * 0.6;
+
+    const body = ctx.createBufferSource();
+    body.buffer = noiseBuffer;
+    body.loop = true;
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 100;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.6;
+    lp.frequency.setValueAtTime(260, t);
+    lp.frequency.linearRampToValueAtTime(1500 + Math.random() * 700, t + rise);
+    lp.frequency.setTargetAtTime(380, t + rise, fall / 3);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(peak, t + rise);
+    g.gain.setTargetAtTime(0, t + rise, fall / 3.2);
+    const pan = ctx.createStereoPanner();
+    pan.pan.setValueAtTime(p0, t);
+    pan.pan.linearRampToValueAtTime(p1, t + rise + fall);
+    body.connect(hp).connect(lp).connect(g).connect(pan).connect(natureNodes.waves);
+    body.start(t, Math.random() * 5);
+    body.stop(t + rise + fall * 1.8);
+
+    const foam = ctx.createBufferSource();
+    foam.buffer = noiseBuffer;
+    foam.loop = true;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3500; bp.Q.value = 0.8;
+    const fg = ctx.createGain();
+    fg.gain.setValueAtTime(0, t);
+    fg.gain.setValueAtTime(0, t + rise * 0.7);
+    fg.gain.linearRampToValueAtTime(peak * 0.25, t + rise);
+    fg.gain.setTargetAtTime(0, t + rise, 0.9);
+    foam.connect(bp).connect(fg).connect(pan);
+    foam.start(t, Math.random() * 5);
+    foam.stop(t + rise + 6);
+  }
+
+  // birds: short synthesized phrases, far away — tweets, trills, a two-note
+  // whistle — with a lowpass and an echo send for distance
+  function scheduleBirds() {
+    setTimeout(() => {
+      if (natureFactor('birds') > 0.05) playBirdPhrase();
+      scheduleBirds();
+    }, (3 + Math.random() * 13) * 1000);
+  }
+  function playBirdNote(t, f0, f1, dur, peak, pan, lpHz) {
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(f0, t);
+    osc.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(peak, t + Math.min(0.012, dur * 0.3));
+    g.gain.setTargetAtTime(0, t + dur * 0.6, dur * 0.25);
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = lpHz;
+    const p = ctx.createStereoPanner(); p.pan.value = pan;
+    osc.connect(g).connect(lp).connect(p).connect(natureNodes.birds);
+    echoSend(p, 0.35);
+    osc.start(t);
+    osc.stop(t + dur + 0.4);
+  }
+  function playBirdPhrase() {
+    const t0 = ctx.currentTime + 0.05;
+    const dist = 0.35 + Math.random() * 0.65;     // 1 = near, 0.35 = far away
+    const peak = BIRD_PEAK * dist;
+    const lpHz = 2500 + dist * 2800;
+    const pan = (Math.random() * 2 - 1) * 0.85;
+    const kind = Math.random();
+    if (kind < 0.55) {                             // tweets
+      const n = 2 + Math.floor(Math.random() * 4);
+      const base = 2400 + Math.random() * 1800;
+      const up = Math.random() < 0.6;
+      let t = t0;
+      for (let i = 0; i < n; i++) {
+        const dur = 0.07 + Math.random() * 0.07;
+        const f0 = base * (1 + (Math.random() - 0.5) * 0.15);
+        playBirdNote(t, f0, f0 * (up ? 1.25 + Math.random() * 0.2 : 0.78), dur, peak * (0.7 + 0.3 * Math.random()), pan, lpHz);
+        t += dur + 0.07 + Math.random() * 0.12;
+      }
+    } else if (kind < 0.8) {                       // trill
+      const n = 8 + Math.floor(Math.random() * 8);
+      const base = 3000 + Math.random() * 1500;
+      for (let i = 0; i < n; i++) {
+        const swell = 0.35 + 0.65 * Math.sin(Math.PI * (i + 0.5) / n);
+        playBirdNote(t0 + i * 0.055, base * (1 + 0.03 * Math.sin(i * 0.7)), base * 1.05, 0.035, peak * swell, pan, lpHz);
+      }
+    } else {                                       // two-note whistle
+      const f0 = 2200 + Math.random() * 900;
+      playBirdNote(t0, f0, f0 * 0.82, 0.28 + Math.random() * 0.12, peak, pan, lpHz);
+      playBirdNote(t0 + 0.5 + Math.random() * 0.15, f0 * 0.9, f0 * 0.72, 0.3 + Math.random() * 0.12, peak * 0.9, pan, lpHz);
+    }
   }
 
   // ---------- resonator: a quiet modal bank ----------
@@ -1496,6 +1740,7 @@
     revDepthShort.gain.setTargetAtTime(depth, t, tc);
     revDepthLong.gain.setTargetAtTime(-depth, t, tc);
     trimGain.gain.setTargetAtTime(mode.outputTrim * TRIM_COMP, t, tc);
+    if (natureTone) natureTone.frequency.setTargetAtTime(mode.natureLP, t, tc);
   }
 
   // starts everything that unfolds over time, once audio is running
@@ -1583,11 +1828,12 @@
   // the palette is a blend of the day and night looks; nightAmt eases toward
   // the active mode, so a switch feels like dusk or dawn rather than a cut
   const labelEl = document.getElementById('modeLabel');
+  const natureEl = document.getElementById('natureRow');
   let curShift = chapter.hueShift;
 
   function driftField() {
     const D = MODES[0], N = MODES[1];
-    nightAmt += ((currentModeIndex === 1 ? 1 : 0) - nightAmt) * 0.002;
+    stepNight();
     curShift += (chapter.hueShift - curShift) * 0.0012;
     const mix = (a, b) => a + (b - a) * nightAmt;
 
@@ -1617,6 +1863,7 @@
     const tb = Math.round(mix(D.titleColor[2], N.titleColor[2]));
     titleEl.style.color = `rgba(${tr}, ${tg}, ${tb}, ${(breath + nightAmt * 0.1).toFixed(3)})`;
     labelEl.style.color = `rgba(${Math.round(mix(D.labelColor[0], N.labelColor[0]))}, ${Math.round(mix(D.labelColor[1], N.labelColor[1]))}, ${Math.round(mix(D.labelColor[2], N.labelColor[2]))}, ${mix(D.labelColor[3], N.labelColor[3]).toFixed(2)})`;
+    natureEl.style.color = labelEl.style.color;
     requestAnimationFrame(driftField);
   }
   driftField();
@@ -1849,6 +2096,30 @@
   }
   modeLabel.addEventListener('touchend', e => { e.preventDefault(); cycleMode(); }, { passive: false });
   modeLabel.addEventListener('click', cycleMode);
+
+  // ---------- nature icons: each one is an on/off switch, remembered between visits ----------
+  const natureRow = document.getElementById('natureRow');
+  function updateNatureUi() {
+    natureRow.querySelectorAll('[data-n]').forEach(el => {
+      el.style.opacity = NATURE[el.dataset.n].on ? '1' : '0.35';
+    });
+  }
+  function toggleNature(name) {
+    NATURE[name].on = !NATURE[name].on;
+    try {
+      const out = {};
+      for (const k in NATURE) out[k] = NATURE[k].on;
+      localStorage.setItem('haze-nature', JSON.stringify(out));
+    } catch (e) {}
+    updateNatureUi();
+    applyNature();
+    if (ctx && ctx.state !== 'running') ctx.resume();
+  }
+  natureRow.querySelectorAll('[data-n]').forEach(el => {
+    el.addEventListener('touchend', e => { e.preventDefault(); toggleNature(el.dataset.n); }, { passive: false });
+    el.addEventListener('click', () => toggleNature(el.dataset.n));
+  });
+  updateNatureUi();
 
 })();
 </script>
