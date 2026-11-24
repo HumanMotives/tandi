@@ -129,6 +129,14 @@
     -webkit-tap-highlight-color: transparent;
   }
   #natureRow svg { width: 22px; height: 22px; display: block; }
+  #natureRow button.auto {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    padding: 10px 6px 10px 12px;
+    align-self: center;
+  }
   #modeLabel span { transition: opacity 1.5s ease; }
   #modeLabel .sep { margin: 0 1.1em; opacity: 0.4; }
   #topbar {
@@ -140,26 +148,53 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 28px;
+    flex-wrap: wrap;
+    gap: 4px 20px;
     padding: calc(12px + env(safe-area-inset-top, 0px)) 18px 12px;
     background: rgba(255, 255, 255, 0.55);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-    font-size: 10px;
-    letter-spacing: 0.22em;
+    font-size: 9px;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
+    color: rgba(70, 80, 75, 0.75);
   }
-  #topbar a {
+  #topbar a, #topbar button {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: rgba(70, 80, 75, 0.7);
+    color: inherit;
     text-decoration: none;
-    transition: color 0.4s ease;
+    opacity: 0.8;
+    transition: opacity 0.4s ease;
   }
-  #topbar a:hover { color: rgba(70, 80, 75, 1); }
+  #topbar a:hover, #topbar button:hover { opacity: 1; }
+  #topbar button {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #topbar b { font-weight: 600; }
   #topbar svg { width: 14px; height: 14px; }
+  #shareNote {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.75);
+    color: rgba(70, 80, 75, 0.9);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
 </style>
 </head>
 <body>
@@ -175,11 +210,13 @@
   <button data-n="waves" title="waves" aria-label="waves"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9c2.5-3 5-3 7.5 0s5 3 7.5 0 3-2 5-1.5M2 15c2.5-3 5-3 7.5 0s5 3 7.5 0 3-2 5-1.5"/></svg></button>
   <button data-n="rain" title="rain" aria-label="rain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14.5a4 4 0 0 1-.5-7.9A5.5 5.5 0 0 1 17 6.5a3.8 3.8 0 0 1 .5 8H7z"/><path d="M8 17.5l-1 2.5M12 17.5l-1 2.5M16 17.5l-1 2.5"/></svg></button>
   <button data-n="birds" title="birds (day)" aria-label="birds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10c2-3 4-3 6 0 2-3 4-3 6 0"/><path d="M12 17c1.5-2 3-2 4.5 0 1.5-2 3-2 4.5 0"/></svg></button>
+  <button data-n="heart" title="heartbeat (settles over time)" aria-label="heartbeat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
+  <button id="natureAuto" class="auto" title="auto: layers come and go on their own" aria-label="auto">auto</button>
 </div>
 <div id="modeLabel"><span data-m="0">day</span><span class="sep">·</span><span data-m="1">night</span></div>
 
 <div id="topbar">
-  <a id="homeLink" href="https://humanmotives.org">← Human Motives</a>
+  <a id="homeLink" href="https://humanmotives.org">created by <b>human/motives</b></a>
   <a id="kofiLink" href="https://ko-fi.com/chrisvanderlinden" target="_blank" rel="noopener">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8z"/>
@@ -188,6 +225,13 @@
     </svg>
     Ko-fi
   </a>
+  <button id="shareBtn" title="share" aria-label="share">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 15V4M8 8l4-4 4 4"/>
+      <path d="M6 11H5a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-1"/>
+    </svg>
+    <span id="shareNote"></span>
+  </button>
 </div>
 
 <script>
@@ -544,17 +588,20 @@
   // three optional layers, switched on and off by the icons above the day/night
   // toggle: waves, rain, birds. birds only sound by day, whatever the switch
   // says. they bypass the master filter and get a small reverb send.
-  const NATURE = { waves: { on: false }, rain: { on: false }, birds: { on: false } };
+  const NATURE = { waves: { on: false }, rain: { on: false }, birds: { on: false }, heart: { on: false } };
   try {
     const saved = JSON.parse(localStorage.getItem('haze-nature') || '{}');
     for (const k in NATURE) if (saved[k]) NATURE[k].on = true;
   } catch (e) {}
 
   // levels of each layer; the one place to turn them up or down
-  const RAIN_LEVEL = 0.038, WAVE_PEAK = 0.07, BIRD_PEAK = 0.024;
+  const RAIN_LEVEL = 0.05, WAVE_PEAK = 0.07, BIRD_PEAK = 0.024, HEART_PEAK = 0.09;
+  const CLOUD_DUCK = 0.6; // how far the base wind/surf bed gives way (0.6 = about -8 dB) while rain or waves play
 
   const natureNodes = {};
   let natureTone = null;
+  let cloudDuck = null;
+  let natureTC = 2.5; // fade time constant in seconds; AUTO uses slower fades
 
   function natureFactor(name) {
     stepNight();
@@ -566,7 +613,45 @@
     stepNight();
     if (!ctx || !natureNodes.rain) return;
     const t = ctx.currentTime;
-    for (const k in NATURE) natureNodes[k].gain.setTargetAtTime(natureFactor(k), t, 2.5);
+    for (const k in NATURE) natureNodes[k].gain.setTargetAtTime(natureFactor(k), t, natureTC);
+    // rain and waves are noise too: while one of them plays, the always-on
+    // wind/surf bed steps back so they don't just disappear into it
+    if (cloudDuck) {
+      const noisy = Math.max(natureFactor('rain'), natureFactor('waves'));
+      cloudDuck.gain.setTargetAtTime(1 - CLOUD_DUCK * noisy, t, natureTC);
+    }
+  }
+
+  // AUTO: every 2.5-6 minutes the layers change on their own. waves, rain
+  // or birds fade in and out (sometimes two together, sometimes none), with
+  // slow fades. birds are left out at night, when they would be silent.
+  const AUTO_KEYS = ['waves', 'rain', 'birds']; // the heartbeat is always a deliberate choice
+  let natureAuto = false;
+  try { natureAuto = localStorage.getItem('haze-nature-auto') === '1'; } catch (e) {}
+  function autoStep(forceSome) {
+    const pool = ['waves', 'rain'];
+    if (nightAmt < 0.5) pool.push('birds');
+    const r = Math.random();
+    let n = r < 0.2 ? 0 : (r < 0.7 ? 1 : 2);
+    if (forceSome && n === 0) n = 1;
+    n = Math.min(n, pool.length);
+    let pick = [];
+    for (let tries = 0; tries < 8; tries++) {
+      pick = pool.slice().sort(() => Math.random() - 0.5).slice(0, n);
+      const same = AUTO_KEYS.every(k => NATURE[k].on === pick.includes(k));
+      if (!same) break;
+    }
+    AUTO_KEYS.forEach(k => { NATURE[k].on = pick.includes(k); });
+    natureTC = 6;
+    setTimeout(() => { natureTC = 2.5; }, 45000);
+    updateNatureUi();
+    applyNature();
+  }
+  function scheduleAuto() {
+    setTimeout(() => {
+      if (natureAuto) autoStep(false);
+      scheduleAuto();
+    }, (150 + Math.random() * 210) * 1000 * TS);
   }
 
   function startNature() {
@@ -588,8 +673,80 @@
     startRain(natureNodes.rain);
     scheduleWaves();
     scheduleBirds();
+    scheduleAuto();
+    scheduleHeart();
+    if (natureAuto) autoStep(true);
     applyNature();
     setInterval(applyNature, 2000);
+  }
+
+  // heartbeat: a soft lub-dub, felt more than heard. it starts a little
+  // faster and settles toward a resting rate over several minutes (about 52
+  // bpm at night, 64 by day), with a slow breathing-rate sway in the timing.
+  // it is scheduled on the audio clock, a few seconds ahead.
+  let hrBpm = 66, hrLastT = 0, hrNextBeat = 0, hrWasOn = false;
+  function heartTarget() { return currentModeIndex === 1 ? 52 : 64; }
+  function scheduleHeart() {
+    setInterval(() => {
+      if (!ctx || !natureNodes.heart) return;
+      const now = ctx.currentTime;
+      if (natureFactor('heart') <= 0.05) { hrWasOn = false; return; }
+      if (!hrWasOn) {
+        hrWasOn = true;
+        hrBpm = heartTarget() + 14;
+        hrNextBeat = now + 0.4;
+        hrLastT = hrNextBeat;
+      }
+      while (hrNextBeat < now + 3) {
+        const dt = hrNextBeat - hrLastT;
+        hrLastT = hrNextBeat;
+        hrBpm += (heartTarget() - hrBpm) * (1 - Math.exp(-dt / 360));
+        playHeartbeat(hrNextBeat);
+        hrNextBeat += (60 / hrBpm) * (1 + 0.03 * Math.sin(hrNextBeat * 2 * Math.PI / 5.5));
+      }
+    }, 1000);
+  }
+  function thump(t, f0, f1, dur, peak) {
+    const out = ctx.createGain();
+    out.gain.setValueAtTime(0, t);
+    out.gain.linearRampToValueAtTime(peak, t + 0.008);
+    out.gain.setTargetAtTime(0, t + 0.012, dur * 0.55);
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 280;
+    // body: a sine that drops in pitch, plus its octave for small speakers
+    [[1, 1], [2, 0.3]].forEach(([mult, lvl]) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f0 * mult, t);
+      osc.frequency.exponentialRampToValueAtTime(f1 * mult, t + dur);
+      const g = ctx.createGain();
+      g.gain.value = lvl;
+      osc.connect(g).connect(out);
+      osc.start(t);
+      osc.stop(t + dur + 0.5);
+    });
+    // a very short soft knock on top
+    const click = ctx.createBufferSource();
+    click.buffer = noiseBuffer;
+    click.loop = true;
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 160;
+    bp.Q.value = 1;
+    const cg = ctx.createGain();
+    cg.gain.setValueAtTime(0, t);
+    cg.gain.linearRampToValueAtTime(0.35, t + 0.004);
+    cg.gain.setTargetAtTime(0, t + 0.006, 0.012);
+    click.connect(bp).connect(cg).connect(out);
+    click.start(t, Math.random() * 5);
+    click.stop(t + 0.12);
+    out.connect(lp).connect(natureNodes.heart);
+  }
+  function playHeartbeat(t) {
+    const p = HEART_PEAK * (0.9 + Math.random() * 0.2);
+    thump(t, 100, 52, 0.12, p);                                   // lub
+    thump(t + 0.30 + Math.random() * 0.02, 125, 68, 0.09, p * 0.6); // dub
   }
 
   // rain: a 16-second buffer of soft hiss plus random droplets, played by two
@@ -604,6 +761,17 @@
       for (let i = 0; i < n; i++) {
         lp += ((Math.random() * 2 - 1) - lp) * 0.5;
         d[i] = lp * 0.35;
+      }
+      // a few larger drops hitting something: short damped tones
+      const plinks = Math.floor(seconds * 6);
+      for (let k = 0; k < plinks; k++) {
+        const len = Math.floor(rate * (0.025 + Math.random() * 0.035));
+        const start = Math.floor(Math.random() * (n - len - 1));
+        const hz = 900 + Math.random() * 1900;
+        const a = 0.10 + 0.25 * Math.random();
+        for (let i = 0; i < len; i++) {
+          d[start + i] += Math.sin(2 * Math.PI * hz * i / rate) * Math.exp(-i / (len * 0.22)) * a;
+        }
       }
       const drops = Math.floor(seconds * 45);
       for (let k = 0; k < drops; k++) {
@@ -1166,7 +1334,10 @@
     cloudPanGain.gain.value = 0.5;
     cloudPanLFO.connect(cloudPanGain).connect(cloudPanner.pan);
 
-    cloud.connect(cloudFilter).connect(cloudGain).connect(cloudPanner).connect(masterHighpass);
+    // a duck stage so the nature layers can take over the noise role (see applyNature)
+    cloudDuck = ctx.createGain();
+    cloudDuck.gain.value = 1;
+    cloud.connect(cloudFilter).connect(cloudGain).connect(cloudDuck).connect(cloudPanner).connect(masterHighpass);
 
     [cloud, cloudFilterLFO, swellA, swellB, swellC, floor, cloudPanLFO].forEach(n => n.start());
   }
@@ -1829,6 +2000,7 @@
   // the active mode, so a switch feels like dusk or dawn rather than a cut
   const labelEl = document.getElementById('modeLabel');
   const natureEl = document.getElementById('natureRow');
+  const topbarEl = document.getElementById('topbar');
   let curShift = chapter.hueShift;
 
   function driftField() {
@@ -1864,6 +2036,9 @@
     titleEl.style.color = `rgba(${tr}, ${tg}, ${tb}, ${(breath + nightAmt * 0.1).toFixed(3)})`;
     labelEl.style.color = `rgba(${Math.round(mix(D.labelColor[0], N.labelColor[0]))}, ${Math.round(mix(D.labelColor[1], N.labelColor[1]))}, ${Math.round(mix(D.labelColor[2], N.labelColor[2]))}, ${mix(D.labelColor[3], N.labelColor[3]).toFixed(2)})`;
     natureEl.style.color = labelEl.style.color;
+    // the header turns from a light veil to a faint glass strip at night
+    topbarEl.style.background = `rgba(255, 255, 255, ${mix(0.55, 0.07).toFixed(2)})`;
+    topbarEl.style.color = `rgba(${Math.round(mix(70, 196))}, ${Math.round(mix(80, 208))}, ${Math.round(mix(75, 236))}, ${mix(0.75, 0.85).toFixed(2)})`;
     requestAnimationFrame(driftField);
   }
   driftField();
@@ -1899,6 +2074,21 @@
       [1.6, 0.07, [255, 240, 200]], [2.0, 0.05, [200, 235, 255]],
     ];
     let flareBoost = 0;
+
+    // rain: thin slanted streaks falling, and small ripples near the bottom.
+    // both fade in and out with the rain layer (and with AUTO).
+    let rainVis = 0;
+    let lastT = 0;
+    const drops = [];
+    for (let i = 0; i < 90; i++) {
+      drops.push({
+        x: Math.random(), y: Math.random(),
+        v: 650 + Math.random() * 380, len: 12 + Math.random() * 16,
+        a: 0.12 + Math.random() * 0.23,
+      });
+    }
+    const ripples = [];
+    let rippleClock = 0;
     window._hazePulse = () => {
       flareBoost = Math.min(1, flareBoost + 0.3);
       stars[Math.floor(Math.random() * stars.length)].boost = 1;
@@ -1907,6 +2097,8 @@
     function frame(now) {
       const W = canvas.width, H = canvas.height;
       const tt = now / 1000;
+      const dt = Math.min(0.05, Math.max(0, tt - lastT));
+      lastT = tt;
       c.clearRect(0, 0, W, H);
       const night = nightAmt, day = 1 - nightAmt;
       flareBoost *= 0.985;
@@ -1978,6 +2170,46 @@
             c.stroke();
           }
         }
+      }
+      // ---- rain
+      rainVis += (natureFactor('rain') - rainVis) * (1 - Math.exp(-dt / 2.5));
+      if (rainVis > 0.01) {
+        const cr = Math.round(110 + (190 - 110) * night);
+        const cg = Math.round(150 + (210 - 150) * night);
+        const cb = Math.round(185 + (245 - 185) * night);
+        const shown = Math.ceil(drops.length * rainVis);
+        c.lineWidth = 1;
+        c.lineCap = 'round';
+        for (let i = 0; i < shown; i++) {
+          const dr = drops[i];
+          dr.y += dr.v * dt / H;
+          if (dr.y * H > H + dr.len) { dr.y = -dr.len / H; dr.x = Math.random(); }
+          const x = dr.x * W + dr.y * H * 0.12;
+          const y = dr.y * H;
+          c.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, ${(dr.a * rainVis).toFixed(3)})`;
+          c.beginPath();
+          c.moveTo(x, y);
+          c.lineTo(x + dr.len * 0.12, y + dr.len);
+          c.stroke();
+        }
+        rippleClock += dt * 7 * rainVis;
+        while (rippleClock >= 1 && ripples.length < 40) {
+          rippleClock -= 1;
+          ripples.push({ x: Math.random() * W, y: H * (0.72 + Math.random() * 0.26), age: 0, max: 16 + Math.random() * 22 });
+        }
+        if (rippleClock >= 1) rippleClock = 0;
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const rp = ripples[i];
+          rp.age += dt;
+          const k = rp.age / 1.3;
+          if (k >= 1) { ripples.splice(i, 1); continue; }
+          c.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, ${(0.3 * (1 - k) * rainVis).toFixed(3)})`;
+          c.beginPath();
+          c.ellipse(rp.x, rp.y, rp.max * k, rp.max * k * 0.28, 0, 0, 6.283);
+          c.stroke();
+        }
+      } else if (ripples.length) {
+        ripples.length = 0;
       }
       requestAnimationFrame(frame);
     }
@@ -2097,6 +2329,45 @@
   modeLabel.addEventListener('touchend', e => { e.preventDefault(); cycleMode(); }, { passive: false });
   modeLabel.addEventListener('click', cycleMode);
 
+  // ---------- share: the system share sheet where there is one, otherwise copy the link ----------
+  const shareBtn = document.getElementById('shareBtn');
+  const shareNote = document.getElementById('shareNote');
+  function shareUrl() {
+    return (location.origin && location.origin !== 'null') ? location.origin + location.pathname : location.href;
+  }
+  function flashShare(msg) {
+    shareNote.textContent = msg;
+    shareNote.style.opacity = '1';
+    setTimeout(() => { shareNote.style.opacity = '0'; }, 2200);
+  }
+  async function shareHaze() {
+    const data = { title: 'HAZE', text: 'HAZE — generative ambient sound that never repeats. Best with headphones.', url: shareUrl() };
+    try {
+      if (navigator.share) { await navigator.share(data); return; }
+    } catch (e) {
+      if (e && e.name === 'AbortError') return; // the person closed the share sheet
+    }
+    try {
+      await navigator.clipboard.writeText(data.url);
+      flashShare('link copied');
+      return;
+    } catch (e) {}
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = data.url;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      flashShare('link copied');
+    } catch (e) {
+      flashShare(data.url);
+    }
+  }
+  shareBtn.addEventListener('click', shareHaze);
+
   // ---------- nature icons: each one is an on/off switch, remembered between visits ----------
   const natureRow = document.getElementById('natureRow');
   function updateNatureUi() {
@@ -2104,7 +2375,21 @@
       el.style.opacity = NATURE[el.dataset.n].on ? '1' : '0.35';
     });
   }
+  const autoBtn = document.getElementById('natureAuto');
+  function setAuto(on) {
+    natureAuto = on;
+    try { localStorage.setItem('haze-nature-auto', on ? '1' : '0'); } catch (e) {}
+    autoBtn.style.opacity = on ? '1' : '0.35';
+    if (on) autoStep(true);
+  }
+  autoBtn.style.opacity = natureAuto ? '1' : '0.35';
+  autoBtn.addEventListener('touchend', e => { e.preventDefault(); setAuto(!natureAuto); }, { passive: false });
+  autoBtn.addEventListener('click', () => setAuto(!natureAuto));
+
   function toggleNature(name) {
+    // tapping an icon takes over from AUTO, starting from what is playing now
+    if (natureAuto) setAuto(false);
+    natureTC = 2.5;
     NATURE[name].on = !NATURE[name].on;
     try {
       const out = {};
