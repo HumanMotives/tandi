@@ -61,6 +61,20 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
 @keyframes balR{from{transform:rotate(0)}to{transform:rotate(1080deg)}}
 @-webkit-keyframes balPop{0%{opacity:0;-webkit-transform:scale(.3) rotate(-8deg)}60%{opacity:1;-webkit-transform:scale(1.08) rotate(-4deg)}100%{opacity:1;-webkit-transform:scale(1) rotate(-4deg)}}
 @keyframes balPop{0%{opacity:0;transform:scale(.3) rotate(-8deg)}60%{opacity:1;transform:scale(1.08) rotate(-4deg)}100%{opacity:1;transform:scale(1) rotate(-4deg)}}
+@-webkit-keyframes zweef{from{-webkit-transform:translate3d(0,0,0)}to{-webkit-transform:translate3d(0,-18px,0)}}
+@keyframes zweef{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,-18px,0)}}
+@-webkit-keyframes sintPop{0%{opacity:0;-webkit-transform:scale(.2) rotate(-20deg)}65%{opacity:1;-webkit-transform:scale(1.12) rotate(4deg)}100%{opacity:1;-webkit-transform:scale(1) rotate(0)}}
+@keyframes sintPop{0%{opacity:0;transform:scale(.2) rotate(-20deg)}65%{opacity:1;transform:scale(1.12) rotate(4deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@-webkit-keyframes sintVal{from{-webkit-transform:translate3d(0,-320px,0) rotate(0)}to{-webkit-transform:translate3d(0,1300px,0) rotate(540deg)}}
+@keyframes sintVal{from{transform:translate3d(0,-320px,0) rotate(0)}to{transform:translate3d(0,1300px,0) rotate(540deg)}}
+@-webkit-keyframes glans{0%{-webkit-transform:translate3d(-200px,0,0) rotate(20deg)}30%,100%{-webkit-transform:translate3d(470px,0,0) rotate(20deg)}}
+@keyframes glans{0%{transform:translate3d(-200px,0,0) rotate(20deg)}30%,100%{transform:translate3d(470px,0,0) rotate(20deg)}}
+@-webkit-keyframes tekstGlans{0%{background-position:100% 0}25%,100%{background-position:0 0}}
+@keyframes tekstGlans{0%{background-position:100% 0}25%,100%{background-position:0 0}}
+@-webkit-keyframes rolIn{from{-webkit-transform:translate3d(1100px,0,0)}to{-webkit-transform:translate3d(0,0,0)}}
+@keyframes rolIn{from{transform:translate3d(1100px,0,0)}to{transform:translate3d(0,0,0)}}
+@-webkit-keyframes rolInR{from{-webkit-transform:rotate(420deg)}to{-webkit-transform:rotate(0)}}
+@keyframes rolInR{from{transform:rotate(420deg)}to{transform:rotate(0)}}
 @-webkit-keyframes tick{from{-webkit-transform:translate3d(0,0,0)}to{-webkit-transform:translate3d(-50%,0,0)}}
 @keyframes tick{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 </style>
@@ -98,10 +112,10 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
   <!-- SLIDE: sponsor worden -->
   <div class="slide" id="worden" style="background:#CE2130">
     <div style="position:absolute;right:-240px;top:-260px;width:900px;height:900px;border-radius:50%;border:90px solid rgba(255,255,255,.08)"></div>
-    <img src="img/s/voetbal.png" onerror="this.style.display='none'" alt="" style="position:absolute;right:220px;bottom:150px;width:300px">
+    <div id="wordenBal" style="position:absolute;right:220px;bottom:150px;width:300px;height:300px;will-change:transform"><img id="wordenBalR" src="img/s/voetbal.png" onerror="this.style.display='none'" alt="" style="display:block;width:300px;height:300px;will-change:transform"></div>
     <div style="position:absolute;left:140px;top:0;width:1200px;height:956px;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;-webkit-justify-content:center;justify-content:center">
       <div class="C" style="font-size:64px;color:#E6D74F;line-height:1">Steun de club</div>
-      <div class="A" style="font-size:170px;line-height:1.02;color:#fff;margin-top:14px">SPONSOR<br>WORDEN?</div>
+      <div class="A" style="font-size:170px;line-height:1.02;color:#fff;margin-top:14px;background:-webkit-linear-gradient(110deg,#fff 40%,#ffe98a 48%,#fff 50%,#fff 100%);background:linear-gradient(110deg,#fff 40%,#ffe98a 48%,#fff 50%,#fff 100%);background-size:300% 100%;background-position:100% 0;-webkit-background-clip:text;-webkit-text-fill-color:transparent;-webkit-animation:tekstGlans 5s ease-in-out 1.8s infinite;animation:tekstGlans 5s ease-in-out 1.8s infinite">SPONSOR<br>WORDEN?</div>
       <div style="width:140px;height:8px;background:#E6D74F;margin:40px 0 34px"></div>
       <div style="font-size:56px;font-weight:700;color:#fff;line-height:1.2">Vraag iemand van ons bestuur voor info.</div>
     </div>
@@ -158,7 +172,7 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
           <div class="fx sb" style="padding:14px 0;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Dommelsch fles</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,25" data-prijs-dovr="1,50">€ 2,25</span></div>
           <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Liefmans</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
           <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Palm</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,00">€ 2,50</span></div>
-          <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Stelz</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="3,00" data-prijs-dovr="2,50">€ 3,00</span></div>
+          <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Stelz</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="3,50" data-prijs-dovr="2,50">€ 3,50</span></div>
           <div class="fx sb" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Speciaalbier</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="3,50" data-prijs-dovr="3,00">€ 3,50</span></div>
           <div class="fx sb niet-donderdag" style="padding:14px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:52px;line-height:1.1;margin-right:20px">Dommelsch krat</span><span class="A" style="font-size:52px;line-height:1.1;color:#CE2130;white-space:nowrap" data-prijs="45,00" data-prijs-dovr="45,00">€ 45,00</span></div>
         </div>
@@ -222,7 +236,8 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
           <div style="font-size:26px;font-weight:800;letter-spacing:.2em;color:#CE2130;padding-bottom:10px;border-bottom:4px solid #111;margin-bottom:6px">UIT DE OVEN</div>
           <div class="fx sb" style="padding:10px 0;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Tosti / vlamtosti</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="2,50" data-prijs-dovr="2,50">€ 2,50</span></div>
           <div class="fx sb" style="padding:10px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Worstenbroodje</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="2,75" data-prijs-dovr="2,75">€ 2,75</span></div>
-          <div class="fx sb" style="padding:10px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Frikandelbroodje</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="3,25" data-prijs-dovr="3,25">€ 3,25</span></div>
+          <div class="fx sb" style="padding:10px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Frikandelbroodje</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="2,75" data-prijs-dovr="2,75">€ 2,75</span></div>
+          <div class="fx sb" style="padding:10px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Kaas-currybroodje</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="3,25" data-prijs-dovr="3,25">€ 3,25</span></div>
         </div>
         <div class="abs card nosh" style="left:1214px;top:0;width:567px;height:510px;padding:140px 32px 22px;box-shadow:0 14px 36px rgba(0,0,0,.07)">
           <div class="abs" style="left:113px;top:-130px;width:340px;height:260px"><div class="br sh" style="width:100%;height:100%;-webkit-animation-delay:2.2s;animation-delay:2.2s"><img class="contain" src="img/chips.png" alt="" onerror="this.style.display='none'"></div></div>
@@ -233,6 +248,37 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
           <div class="fx sb" style="padding:10px 0;border-top:2px dotted #d6cfbd;"><span class="A" style="font-size:34px;line-height:1.15;margin-right:16px">Sportlife</span><span class="A" style="font-size:34px;color:#CE2130;white-space:nowrap" data-prijs="1,50" data-prijs-dovr="1,50">€ 1,50</span></div>
         </div>
       </div>
+    </div>
+
+    <!-- TEMPLATE T6 Thema Avond: Ballen van de Sint — tot en met SINT_TOT — img/activiteiten/ballenvandesint-*.png -->
+    <div class="slide" id="sint" style="background:#0d0b06">
+      <img class="abs" src="img/activiteiten/ballenvandesint-achtergrond.jpg" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/ballenvandesint-achtergrond.jpg'" alt="" style="left:0;top:-62px;width:1920px;height:1080px">
+      <div class="abs" style="left:510px;top:24px;width:1100px;height:524px;z-index:2">
+        <div style="width:1100px;height:524px;overflow:hidden;-webkit-animation:zweef 3.2s ease-in-out infinite alternate;animation:zweef 3.2s ease-in-out infinite alternate;will-change:transform">
+          <img src="img/activiteiten/ballenvandesint-logo.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/ballenvandesint-logo.png'" alt="De Ballen van de Sint" style="display:block;width:1567px;height:881px;margin-left:-237px;margin-top:-135px">
+        </div>
+      </div>
+      <div class="abs" style="left:525px;top:270px;width:870px;height:870px;z-index:1">
+        <div style="-webkit-animation:zweef 3.8s ease-in-out 1.1s infinite alternate;animation:zweef 3.8s ease-in-out 1.1s infinite alternate;will-change:transform">
+          <img src="img/activiteiten/gehaktballen.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/gehaktballen.png'" alt="" style="display:block;width:870px;height:870px">
+        </div>
+      </div>
+      <div id="sintSticker" class="abs" style="left:1500px;top:420px;width:370px;height:370px;z-index:4;opacity:0">
+        <img src="img/activiteiten/benjijbraafgeweest.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/benjijbraafgeweest.png'" alt="Ben jij braaf geweest?" style="display:block;width:370px;height:370px">
+        <div class="abs" style="left:0;top:0;width:370px;height:370px;overflow:hidden;-webkit-mask-image:url(img/activiteiten/benjijbraafgeweest.png),url(https://humanmotives.org/rkvv/img/activiteiten/benjijbraafgeweest.png);-webkit-mask-size:100% 100%;mask-image:url(img/activiteiten/benjijbraafgeweest.png),url(https://humanmotives.org/rkvv/img/activiteiten/benjijbraafgeweest.png);mask-size:100% 100%">
+          <div class="abs" style="left:0;top:-60px;width:110px;height:490px;background:-webkit-linear-gradient(left,rgba(255,255,255,0),rgba(255,255,255,.75),rgba(255,255,255,0));background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.75),rgba(255,255,255,0));-webkit-animation:glans 4.5s ease-in-out 2.6s infinite;animation:glans 4.5s ease-in-out 2.6s infinite;will-change:transform;-webkit-transform:translate3d(-200px,0,0) rotate(20deg);transform:translate3d(-200px,0,0) rotate(20deg)"></div>
+        </div>
+      </div>
+      <img class="abs sintval" src="img/activiteiten/gehaktbal.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/gehaktbal.png'" alt="" style="left:300px;top:0;width:130px;height:auto;z-index:5;opacity:0">
+      <img class="abs sintval" src="img/activiteiten/gehaktbal.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/gehaktbal.png'" alt="" style="left:420px;top:0;width:170px;height:auto;z-index:5;opacity:0">
+      <img class="abs sintval" src="img/activiteiten/gehaktbal.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/gehaktbal.png'" alt="" style="left:560px;top:0;width:110px;height:auto;z-index:1;opacity:0">
+      <img class="abs sintval" src="img/activiteiten/gehaktbal.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/gehaktbal.png'" alt="" style="left:700px;top:0;width:150px;height:auto;z-index:5;opacity:0">
+      <img class="abs sintval" src="img/activiteiten/gehaktbal.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/gehaktbal.png'" alt="" style="left:880px;top:0;width:200px;height:auto;z-index:5;opacity:0">
+      <img class="abs sintval" src="img/activiteiten/gehaktbal.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/gehaktbal.png'" alt="" style="left:1040px;top:0;width:120px;height:auto;z-index:1;opacity:0">
+      <img class="abs sintval" src="img/activiteiten/gehaktbal.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/gehaktbal.png'" alt="" style="left:1180px;top:0;width:160px;height:auto;z-index:5;opacity:0">
+      <img class="abs sintval" src="img/activiteiten/gehaktbal.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/gehaktbal.png'" alt="" style="left:1330px;top:0;width:190px;height:auto;z-index:5;opacity:0">
+      <img class="abs sintval" src="img/activiteiten/gehaktbal.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/gehaktbal.png'" alt="" style="left:1480px;top:0;width:130px;height:auto;z-index:1;opacity:0">
+      <img class="abs sintval" src="img/activiteiten/gehaktbal.png" onerror="if(this.src.indexOf('humanmotives')<0)this.src='https://humanmotives.org/rkvv/img/activiteiten/gehaktbal.png'" alt="" style="left:1640px;top:0;width:170px;height:auto;z-index:5;opacity:0">
     </div>
 
     <!-- TEMPLATE T6 Thema Avond (nu: Oktoberfest) — alleen op donderdag — afbeelding: img/activiteiten/rkvv-oktoberfest.png -->
@@ -307,10 +353,12 @@ body{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#111}
 var TICKER = "Welkom op Sportpark De Smeel    •   RKVV Casteren heet u van harte welkom    •   Wij danken al onze vrijwilligers en sponsoren voor hun geweldige inzet    •   ";
 
 var SPONSOR_SECONDEN = 6;   // hoe lang elke groep van 6 sponsors staat
-var TEAM_SECONDEN = 10;     // hoe lang een teamfoto staat
+var TEAM_SECONDEN = 14;     // hoe lang een teamfoto staat
 var TEAMS_PER_KEER = 3;     // aantal teamfoto's na elkaar
 var WELKOM_SECONDEN = 16;   // welkomstscherm (langer dan de rest)
 var CATERING_SECONDEN = 12; // drankjes, drankenkaart, eten, Oktoberfest
+var SINT_TOT = "2026-12-03";  // Ballen van de Sint: tonen t/m deze datum, daarna vanzelf weg
+var SINT_SECONDEN = 14;
 var BAL_SECONDEN = 5;       // stuiterbal-intermezzo
 var BAL_ACHTERGROND = "img/voetbalachtergrond.jpg";  // ontbreekt hij? dan geel met grasstrook
 var BAL_TEKSTEN = ["GOOOAL!", "HUP CASTEREN!", "TIKKIE TERUG!", "WAT EEN BAL!", "IN DE KRUISING!"];
@@ -496,7 +544,7 @@ var LIVE = "https://humanmotives.org/rkvv/";
   }
 
   // afspelen
-  var SLIDES = ['welkom', 'sponsors', 'team', 'video', 'worden', 'bal', 'drankjes', 'bier', 'fris', 'eten', 'oktober'];
+  var SLIDES = ['welkom', 'sponsors', 'team', 'video', 'worden', 'bal', 'drankjes', 'bier', 'fris', 'eten', 'oktober', 'sint'];
 
   // donderdag = ledenavond: lagere prijzen, label tonen, krat weg, keuken dicht, thema-avond alleen dan
   function isDonderdag() { return new Date().getDay() === 4; }
@@ -508,12 +556,24 @@ var LIVE = "https://humanmotives.org/rkvv/";
   }
   function scherm(id, wanneer) {
     return function (klaar) {
-      if (wanneer === 'niet-do' && isDonderdag()) return klaar();
+      if (wanneer === 'niet-do' && isDonderdag() && !alleen) return klaar();
       if (wanneer === 'alleen-do' && !isDonderdag() && !alleen) return klaar();
       prijzen(); toon(id); setTimeout(klaar, CATERING_SECONDEN * 1000);
     };
   }
   var drankjes = scherm('drankjes'), bier = scherm('bier'), fris = scherm('fris'), eten = scherm('eten', 'niet-do'), oktober = scherm('oktober', 'alleen-do');
+  function sint(klaar) {
+    var d = new Date(), p = SINT_TOT.split('-');
+    if (!alleen && d > new Date(+p[0], +p[1] - 1, +p[2], 23, 59)) return klaar();
+    var st = $('sintSticker'), v = document.querySelectorAll('#sint .sintval'), i;
+    anim(st, 'none'); for (i = 0; i < v.length; i++) anim(v[i], 'none');
+    void st.offsetWidth;
+    toon('sint');
+    anim(st, 'sintPop .7s ease-out 1.4s both');
+    var start = [0.4, 2.9, 1.3, 5.2, 0.9, 3.8, 2.1, 6.0, 4.5, 1.7];
+    for (i = 0; i < v.length; i++) { v[i].style.opacity = 1; anim(v[i], 'sintVal ' + (2.2 + (i % 3) * 0.4) + 's ease-in ' + start[i] + 's 2 both'); }
+    setTimeout(klaar, SINT_SECONDEN * 1000);
+  }
   function toon(id) {
     for (var i = 0; i < SLIDES.length; i++) $(SLIDES[i]).className = 'slide' + (SLIDES[i] === id ? ' on' : '');
   }
@@ -555,7 +615,12 @@ var LIVE = "https://humanmotives.org/rkvv/";
     }, 300);
     setTimeout(klaar, BAL_SECONDEN * 1000);
   }
-  function worden(klaar) { toon('worden'); setTimeout(klaar, WORDEN_SECONDEN * 1000); }
+  function worden(klaar) {
+    var b = $('wordenBal'), r = $('wordenBalR');
+    anim(b, 'none'); anim(r, 'none'); void b.offsetWidth;
+    anim(b, 'rolIn 1.8s cubic-bezier(.2,.7,.3,1) .5s both'); anim(r, 'rolInR 1.8s cubic-bezier(.2,.7,.3,1) .5s both');
+    toon('worden'); setTimeout(klaar, WORDEN_SECONDEN * 1000);
+  }
   function sponsors(klaar) {
     toonGroep(0, false); toon('sponsors');
     var g = 0;
@@ -596,9 +661,9 @@ var LIVE = "https://humanmotives.org/rkvv/";
     v.onplaying = function () { clearTimeout(check); toon('video'); };
     wacht = setTimeout(stop, VIDEO_MAX_SECONDEN * 1000);
   }
-  // volgorde (donderdag: geen eten, wel Oktoberfest)
+  // volgorde (donderdag: geen eten). Oktoberfest staat uit; vervangen door Ballen van de Sint
   // kampioen: komt elke ronde, los van de gewone teamfoto's (zet KAMPIOEN_AAN = false om uit te zetten)
-  var KAMPIOEN_AAN = true;
+  var KAMPIOEN_AAN = false;  // kampioenseizoen voorbij; op true zetten om weer te tonen
   var KAMPIOEN = { map: JEUGD.map, club: JEUGD.club, watermerk: JEUGD.watermerk, teams: KAMPIOEN_AAN ? [["JO12", "KamppioenCasNet2026.jpeg", "kampioen"], ["JO15", "jo15-kampioen.jpeg", "kampioen"]] : [] };
   function kampioen(klaar) {
     if (!KAMPIOEN.teams.length) return klaar();
@@ -609,10 +674,10 @@ var LIVE = "https://humanmotives.org/rkvv/";
       setTimeout(volgende, TEAM_SECONDEN * 1000);
     })();
   }
-  var VOLGORDE = [welkom, kampioen, sponsors, drankjes, oktober, bal, teamsVan(JEUGD), bier, oktober, eten, sponsors, worden, fris, kampioen, bal, teamsVan(SENIOREN), video];
+  var VOLGORDE = [welkom, kampioen, sponsors, drankjes, sint, bal, teamsVan(JEUGD), bier, sint, eten, sponsors, worden, fris, kampioen, bal, teamsVan(SENIOREN), video];
   // Testen via de link: ?alleen=welkom | sponsors | jeugd | senioren
   var alleen = window.ALLEEN || (location.search.match(/[?&]alleen=([a-z]+)/) || [])[1];
-  var LOS = { bal: bal, drankjes: drankjes, bier: bier, fris: fris, eten: eten, oktober: oktober, welkom: welkom, worden: worden, sponsors: sponsors, kampioen: kampioen, jeugd: teamsVan(JEUGD), senioren: teamsVan(SENIOREN) };
+  var LOS = { sint: sint, bal: bal, drankjes: drankjes, bier: bier, fris: fris, eten: eten, oktober: oktober, welkom: welkom, worden: worden, sponsors: sponsors, kampioen: kampioen, jeugd: teamsVan(JEUGD), senioren: teamsVan(SENIOREN) };
   if (alleen && LOS[alleen]) VOLGORDE = [LOS[alleen]];
   var stap = 0;
   (function volgende() { VOLGORDE[stap++ % VOLGORDE.length](volgende); })();
